@@ -1,0 +1,56 @@
+Scene: Untiteld
+Entities:
+  - Entity: 5616074485206068555
+    TagComponent:
+      Tag: Top Cube
+    TransformComponent:
+      Transaltion: [0, 0.5, 0]
+      Rotation: [-1.57079637, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [1, 0, 1, 1]
+  - Entity: 15494363298661571563
+    TagComponent:
+      Tag: Left Cube
+    TransformComponent:
+      Transaltion: [-0.5, 0, -0]
+      Rotation: [0, 1.57079637, 0]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [0.882352948, 0, 1, 1]
+  - Entity: 12659655708439455027
+    TagComponent:
+      Tag: Front Cube
+    TransformComponent:
+      Transaltion: [0, 0, 0.5]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [0.607843161, 0, 0.607843161, 1]
+  - Entity: 9352850227073743137
+    TagComponent:
+      Tag: Camer
+    TransformComponent:
+      Transaltion: [-2, 1.39999998, 2.29999995]
+      Rotation: [-0.476474881, -0.626573205, -0.310668588]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectivVerticleFOV: 0.785398185
+        PerspectivNearClipe: 0.100000001
+        PerspectivFarClipe: 1000
+        OrthographicSize: 10
+        OrthographicNearClipe: -1
+        OrthographicFarClipe: 1
+      Primary: true
+      FixedAspectRotaion: false
+  - Entity: 1680571752163983919
+    TagComponent:
+      Tag: Plane
+    TransformComponent:
+      Transaltion: [0, -0.5, 0]
+      Rotation: [1.57079637, 0, 0]
+      Scale: [10, 10, 10]
+    SpriteRendererComponent:
+      Color: [0.386100411, 0.374174535, 0.386100411, 1]

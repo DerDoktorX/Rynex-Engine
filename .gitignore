@@ -1,0 +1,26 @@
+.vs/
+bin/
+bin-int/
+
+# Nor realvent
+IGUI/
+RederDocs/
+
+# Liberays
+Rynex/vendor/spdlog/
+Rynex/vendor/glm/
+/GLFW/
+Rynex/vendor/imgui/
+Rynex/vendor/ImGuizmo/
+
+# Files
+*.user
+*.bat
+*.rdc
+*.cap
+
+**.sln
+**.vcxproj
+**.vcxproj.filters
+**.vcxproj.user
+**.csproj
