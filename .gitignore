@@ -9,18 +9,32 @@ RederDocs/
 # Liberays
 Rynex/vendor/spdlog/
 Rynex/vendor/glm/
-/GLFW/
+Rynex/vendor/GLFW/
 Rynex/vendor/imgui/
 Rynex/vendor/ImGuizmo/
 
+
 # Files
-*.user
 *.bat
 *.rdc
 *.cap
 
+# from Hazel
+
+# Binaries
+Intermediates/
+
+# Hazel files
+*.log
+
+# Visual Studio files and folder
 **.sln
 **.vcxproj
 **.vcxproj.filters
 **.vcxproj.user
 **.csproj
+
+# Directories
+Hazel/vendor/VulkanSDK
+Hazelnut/assets/cache
+scripts/__pycache__

@@ -177,6 +177,8 @@ namespace Rynex {
 
 			auto& sc = entity.GetComponent<SpriteRendererComponent>();
 			out << YAML::Key << "Color" << YAML::Value << sc.Color;
+			if (sc.Texture)
+				out << YAML::Key << "TexturePath" << YAML::Value << sc.Texture->GetPath();
 
 			out << YAML::EndMap;
 		}
@@ -277,8 +279,11 @@ namespace Rynex {
 				{
 					auto& tc = deserializedEntity.AddComponent<SpriteRendererComponent>();
 					tc.Color = spriteRendererComponent["Color"].as<glm::vec4>();
-					if (spriteRendererComponent["Texture"])
-						tc.Texture = Texture2D::Create(spriteRendererComponent["Texture"].as<std::string>());
+					if (spriteRendererComponent["TexturePath"])
+					{
+						std::string texturePath = spriteRendererComponent["TexturePath"].as<std::string>();
+						tc.Texture = Texture2D::Create(texturePath);
+					}
 				}
 			}
 		}

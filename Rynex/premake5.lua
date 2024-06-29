@@ -43,6 +43,7 @@ project "Rynex"
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.mono}",
 	}
 
 	links
@@ -52,6 +53,8 @@ project "Rynex"
 		"ImGui",
 		"yaml-cpp",
 		"opengl32.lib",	
+
+		"%{Library.mono}"
 	}
 	
 	filter "files:vendor/ImGuizmo/**.cpp"
@@ -65,6 +68,13 @@ project "Rynex"
 			--"RY_PLATFORM_WINDOWS",
 			--"RY_BUILD_DLL",
 			--"GLFW_INCLUDE_NONE"
+		}
+		links
+		{
+			"%{Library.WinSock}",
+			"%{Library.WinMM}",
+			"%{Library.WinVersion}",
+			"%{Library.Bcrypt}",
 		}
 
 		--postbuildcommands

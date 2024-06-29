@@ -34,6 +34,9 @@
     <Filter Include="src\Rynex\Scene">
       <UniqueIdentifier>{AF156B70-1BA1-D834-24B2-5B2990BC3435}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Rynex\Scripting">
+      <UniqueIdentifier>{94166014-0078-3D22-89E5-83D4F54574E1}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Rynex\Utils">
       <UniqueIdentifier>{F2A99870-5E35-0635-6746-8929D3506235}</UniqueIdentifier>
     </Filter>
@@ -224,6 +227,9 @@
     </ClInclude>
     <ClInclude Include="src\Rynex\Scene\ScriptableEntity.h">
       <Filter>src\Rynex\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Scripting\ScriptingEngine.h">
+      <Filter>src\Rynex\Scripting</Filter>
     </ClInclude>
     <ClInclude Include="src\Rynex\Utils\PlatformUtils.h">
       <Filter>src\Rynex\Utils</Filter>
@@ -1597,6 +1603,9 @@
     </ClCompile>
     <ClCompile Include="src\Rynex\Scene\ScenenCamera.cpp">
       <Filter>src\Rynex\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rynex\Scripting\ScriptingEngine.cpp">
+      <Filter>src\Rynex\Scripting</Filter>
     </ClCompile>
     <ClCompile Include="src\rypch.cpp">
       <Filter>src</Filter>

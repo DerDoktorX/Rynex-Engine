@@ -1,0 +1,18 @@
+[submodule "Rynex/vendor/spdlog"]
+	path = Rynex/vendor/spdlog
+	url = https://github.com/gabime/spdlog
+[submodule "Rynex/vendor/GLFW"]
+	path = Rynex/vendor/GLFW
+	url = https://github.com/TheCherno/glfw
+[submodule "Rynex/vendor/imgui_master"]
+	path = Rynex/vendor/imgui_master
+	url = https://github.com/TheCherno/imgui
+[submodule "Rynex/vendor/glm"]
+	path = Rynex/vendor/glm
+	url = https://github.com/g-truc/glm
+[submodule "Rynex/vendor/yaml-cpp"]
+	path = Rynex/vendor/yaml-cpp
+	url = https://github.com/TheCherno/yaml-cpp
+[submodule "Rynex/vendor/ImGuizmo"]
+	path = Rynex/vendor/ImGuizmo
+	url = https://github.com/TheCherno/ImGuizmo

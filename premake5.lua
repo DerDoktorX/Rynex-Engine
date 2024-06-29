@@ -38,6 +38,18 @@ IncludeDir["stb_image"] = "%{wks.location}/Rynex/vendor/stb_image"
 IncludeDir["entt"] 		= "%{wks.location}/Rynex/vendor/entt/include"
 IncludeDir["yaml_cpp"] 	= "%{wks.location}/Rynex/vendor/yaml-cpp/include"
 IncludeDir["ImGuizmo"] 	= "%{wks.location}/Rynex/vendor/ImGuizmo"
+IncludeDir["mono"] 	= "%{wks.location}/Rynex/vendor/mono/include"
+
+LibraryDir = {}
+LibraryDir["mono"] = "%{wks.location}/Rynex/vendor/mono/libs/%{cfg.buildcfg}"
+
+Library = {}
+Library["mono"] = "%{LibraryDir.mono}/libmono-static-sgen.lib"
+-- Windows only
+Library["WinSock"] = "Ws2_32.lib"
+Library["WinMM"] = "Winmm.lib"
+Library["WinVersion"] = "Version.lib"
+Library["Bcrypt"] = "Bcrypt.lib"
 
 group "Dependencies"
 	include "vendor/bin/premake"
@@ -49,15 +61,16 @@ group "Dependencies"
 group ""
 
 --group "MainWorking"
---group "Core"
-	include "Rynex"
+include "Rynex"
+include "Rynex-Editor"
 --group ""
 
-
+group "Core"	
+	include "Rynex-ScriptingCore"
+group ""
 --group "Tools"
-	include "Rynex-Editor"
 --group ""
---group ""
+
 
 group "Misc"
 	include "Sandbox"

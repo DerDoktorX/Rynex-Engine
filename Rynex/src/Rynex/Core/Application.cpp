@@ -4,35 +4,38 @@
 #include "Rynex/Renderer/Renderer.h"
 #include "Input.h"
 #include <GLFW/glfw3.h>
+#include "Rynex/Scripting/ScriptingEngine.h"
 
-//struct AlicationMetrics
-//{
-//	uint32_t TotalAliction = 0;
-//	uint32_t TotalFrees = 0;
-//
-//	uint32_t CurrentUsage() { return TotalAliction - TotalFrees;  }
-//};
-//
-//static AlicationMetrics s_AlicationMetrics;
-//
-//void* operator new(size_t size)
-//{
-//	s_AlicationMetrics.TotalAliction += size;
-//	//printf("Alicating: %i size\n", (int)size);
-//	return malloc(size);
-//}
-//
-//void operator delete(void* memory, size_t size)
-//{
-//	s_AlicationMetrics.TotalFrees += size;
-//	//printf("Freing Alicating: %i size\n", (int)size);
-//	return free(memory);
-//}
-//
-//static void PrintMemoryUsage()
-//{
-//	printf("Memory Usage: %i bytes\n", s_AlicationMetrics.CurrentUsage());
-//}
+#if 0
+struct AlicationMetrics
+{
+	uint32_t TotalAliction = 0;
+	uint32_t TotalFrees = 0;
+
+	uint32_t CurrentUsage() { return TotalAliction - TotalFrees;  }
+};
+
+static AlicationMetrics s_AlicationMetrics;
+
+void* operator new(size_t size)
+{
+	s_AlicationMetrics.TotalAliction += size;
+	//printf("Alicating: %i size\n", (int)size);
+	return malloc(size);
+}
+
+void operator delete(void* memory, size_t size)
+{
+	s_AlicationMetrics.TotalFrees += size;
+	//printf("Freing Alicating: %i size\n", (int)size);
+	return free(memory);
+}
+
+static void PrintMemoryUsage()
+{
+	printf("Memory Usage: %i bytes\n", s_AlicationMetrics.CurrentUsage());
+}
+#endif // TODO: Remaber what was that! than decide and Dealet?
 
 #define RY_KONSOLE_FPS 0
 
@@ -54,15 +57,10 @@ namespace Rynex {
 		//m_Window->SetVSync(false);
 
 		Renderer::Init();
+		ScriptingEngine::Init();
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
-
-
-		
-
-
-		
 	}
 
 	Application::~Application()
