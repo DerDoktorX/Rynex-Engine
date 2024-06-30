@@ -75,7 +75,7 @@ namespace Rynex {
 		SetVSync(false);
 		RY_CORE_INFO("(SetVSync) is Executed -> false!");
 #endif
-		//Set GLFW callbackes
+		// Set GLFW callbackes
 
 		
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int widthe, int height) 

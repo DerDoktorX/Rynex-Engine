@@ -17,6 +17,10 @@ namespace Rynex {
 
 		Entity CreateEntity(const std::string& name = std::string(""));
 		Entity CreateEntityWitheUUID(UUID uuid, const std::string& name = std::string(""));
+
+		void OnRuntimStart();
+		void OnRuntimStop();
+
 		void DestroyEntity(Entity entity);
 		//entt::registry& Reg() { return m_Registery; }
 
@@ -24,6 +28,7 @@ namespace Rynex {
 		void OnUpdateRuntime(TimeStep ts);
 		void OnViewportResize(uint32_t withe, uint32_t heigth);
 
+		Entity GetEntitiyByUUID(UUID uuid);
 		Entity GetPrimaryCameraEntity();
 		uint32_t GetEntityCount() const { return (uint32_t)m_Registery.size(); }
 
@@ -33,6 +38,8 @@ namespace Rynex {
 	private:
 		entt::registry m_Registery;
 		uint32_t m_ViewPortWithe = 0, m_ViewPortHeigth = 0;
+
+		std::unordered_map<UUID, entt::entity> m_EntityMap;
 
 		friend class Entity;
 		friend class SceneSerializer;

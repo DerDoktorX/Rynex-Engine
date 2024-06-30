@@ -4,8 +4,8 @@ project "Rynex-ScriptingCore"
     language "C#"
 	dotnetframework "4.7.2"
 
-	targetdir ("%{wks.location}/Rynex-Editor/Resources/Scripts")
-	objdir ("%{wks.location}/Rynex-Editor/Resources/Scripts/Intermediates")
+	targetdir ("../Rynex-Editor/Resources/Scripts")
+	objdir ("../Rynex-Editor/Resources/Scripts/Intermediates")
 
 	files
 	{

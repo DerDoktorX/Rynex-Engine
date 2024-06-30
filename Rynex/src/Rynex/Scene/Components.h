@@ -1,8 +1,11 @@
 #pragma once
+
 #include "ScenenCamera.h"
 #include "Rynex/Core/UUID.h"
 #include "Rynex/Renderer/Texture.h"
-
+#include "Rynex/Renderer/Shader.h"
+#include "Rynex/Renderer/VertexArray.h"
+#include "Rynex/Renderer/Geomtrys.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -70,15 +73,6 @@ namespace Rynex {
 
 	};
 
-#if 0
-	struct GeomtryComponent
-	{
-		SceneGeomtry Geomtry;
-
-		GeomtryComponent() = default;
-		GeomtryComponent(const GeomtryComponent&) = default;
-	};
-#endif // TODO: Geomtry System
 
 	struct CameraComponent
 	{
@@ -92,6 +86,14 @@ namespace Rynex {
 
 	};
 	
+	struct ScriptComponent
+	{
+		std::string Name;
+		int selectedScript = 0;
+		ScriptComponent() = default;
+		ScriptComponent(const ScriptComponent&) = default;
+	};
+
 	class ScriptableEntity;
 	struct NativeSripteComponent
 	{
@@ -111,6 +113,50 @@ namespace Rynex {
 
 
 	};
+
+#if 1
+	struct GeomtryComponent
+	{
+		Ref<VertexArray> Geometry;
+		Ref<VertexBuffer> Buffer;
+		// Make By User or Defind Shape like Cube, Plane, Sphere ...
+
+		GeomtryComponent() = default;
+		GeomtryComponent(const GeomtryComponent&) = default;
+	};
+#endif // TODO: Geomtry System
 	
 
+	struct MaterialComponent
+	{
+		Ref<Shader> Shader;
+		Ref<Texture2D> Texture;
+		glm::vec3 Color{ 1.0f, 0.0f, 1.0f };
+		Shader::Algorithm Flags;
+
+		MaterialComponent() = default;
+		MaterialComponent(const MaterialComponent&) = default;
+	};
+
+#if 0 
+	struct MaterialTransperent : MaterialComponent
+	{
+		float Trasperent = 1.0f;
+
+		MaterialTransperent() = default;
+		MaterialTransperent(const MaterialTransperent&) = default;
+	};
+#endif
+	
+	template<typename... Component>
+	struct ComponentGroup
+	{
+	};
+
+	using AllComponents =
+		ComponentGroup<TransformComponent, SpriteRendererComponent,
+		/*CircleRendererComponent,*/ CameraComponent, ScriptComponent,
+		MaterialComponent, GeomtryComponent,
+		NativeSripteComponent /*, Rigidbody2DComponent,*/ /*BoxCollider2DComponent,*/
+		/*CircleCollider2DComponent,*/ /*TextComponent*/>;
 }

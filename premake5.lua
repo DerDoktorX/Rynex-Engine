@@ -30,15 +30,22 @@ defines
 }
 
 IncludeDir = {}
+-- Runtime
+IncludeDir["entt"] 		= "%{wks.location}/Rynex/vendor/entt/include"
+IncludeDir["mono"] 	= "%{wks.location}/Rynex/vendor/mono/include"
+-- Math
+IncludeDir["glm"] 		= "%{wks.location}/Rynex/vendor/glm"
+-- Grafic API
 IncludeDir["GLFW"] 		= "%{wks.location}/Rynex/vendor/GLFW/include"
 IncludeDir["Glad"] 		= "%{wks.location}/Rynex/vendor/Glad/include"
-IncludeDir["ImGui"] 	= "%{wks.location}/Rynex/vendor/imgui"
-IncludeDir["glm"] 		= "%{wks.location}/Rynex/vendor/glm"
+-- Files
 IncludeDir["stb_image"] = "%{wks.location}/Rynex/vendor/stb_image"
-IncludeDir["entt"] 		= "%{wks.location}/Rynex/vendor/entt/include"
 IncludeDir["yaml_cpp"] 	= "%{wks.location}/Rynex/vendor/yaml-cpp/include"
+IncludeDir["filewatch"] = "%{wks.location}/Rynex/vendor/filewatch"
+-- Runtime Visuelle configs
+IncludeDir["ImGui"] 	= "%{wks.location}/Rynex/vendor/imgui"
 IncludeDir["ImGuizmo"] 	= "%{wks.location}/Rynex/vendor/ImGuizmo"
-IncludeDir["mono"] 	= "%{wks.location}/Rynex/vendor/mono/include"
+
 
 LibraryDir = {}
 LibraryDir["mono"] = "%{wks.location}/Rynex/vendor/mono/libs/%{cfg.buildcfg}"
@@ -52,12 +59,14 @@ Library["WinVersion"] = "Version.lib"
 Library["Bcrypt"] = "Bcrypt.lib"
 
 group "Dependencies"
-	include "vendor/bin/premake"
+	--include "vendor/bin/premake" <- Why include in Hazel
 	include "Rynex/vendor/GLFW"
 	include "Rynex/vendor/Glad"
-	include "Rynex/vendor/imgui"
 	include "Rynex/vendor/yaml-cpp"
-	
+	include "Rynex/vendor/imgui"
+-- Not Yet Includede	|
+--						V
+	--include "Hazel/vendor/msdf-atlas-gen"
 group ""
 
 --group "MainWorking"

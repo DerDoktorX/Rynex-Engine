@@ -11,6 +11,14 @@ namespace Rynex {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
 		glEnable(GL_DEPTH_TEST);
+
+		glEnable(GL_CULL_FACE);
+		glEnable(GL_FRONT_AND_BACK);
+	}
+
+	void OpenGLRendererAPI::CreateComputePipline(glm::vec3& size)
+	{
+		
 	}
 
 	void OpenGLRendererAPI::SetViewPort(uint32_t x, uint32_t y, uint32_t withe, uint32_t heigth)
@@ -41,8 +49,9 @@ namespace Rynex {
 
 	}
 
-	void OpenGLRendererAPI::DrawStripsMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
+	void OpenGLRendererAPI::DrawStripsMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount )
 	{
+		
 		glDrawElements(GL_TRIANGLE_STRIP, vertexArray->GetIndexBuffers()->GetCount(), GL_UNSIGNED_INT, nullptr);
 	}
 
@@ -56,6 +65,12 @@ namespace Rynex {
 	{
 		uint32_t count = indexCount ? vertexArray->GetIndexBuffers()->GetCount() : indexCount;
 		glDrawElements(GL_LINE_LOOP, count, GL_UNSIGNED_INT, nullptr);
+	}
+
+	void OpenGLRendererAPI::ComputePipline()
+	{
+		uint16_t count = 4;
+		glDrawElements(GL_TRIANGLE_STRIP, count, GL_UNSIGNED_SHORT, nullptr);
 	}
 
 }

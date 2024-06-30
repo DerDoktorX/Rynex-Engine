@@ -16,11 +16,18 @@ project "Rynex-Editor"
 
 	includedirs
 	{
+		-- Rynex Source Files
+		"%{wks.location}/Rynex/src",	-- Rynex
+		"%{wks.location}/Rynex/vendor",	-- Dependecies
+		-- Runtime
 		"%{wks.location}/Rynex/vendor/spdlog/include",
-		"%{wks.location}/Rynex/src",
-		"%{wks.location}/Rynex/vendor",
-		"%{IncludeDir.entt}",
+		-- Math
 		"%{IncludeDir.glm}",
+		-- Filse
+		"%{IncludeDir.filewatch}",
+		-- Entity
+		"%{IncludeDir.entt}",
+		-- Runtime Visuelle configs
 		"%{IncludeDir.ImGuizmo}",
 	}
 
@@ -31,29 +38,19 @@ project "Rynex-Editor"
 
 	filter "system:windows"
 		systemversion "latest"
-
-		
-
-		--postbuildcommands
-		--{
-		--	("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
-		--}
 	
 	filter "configurations:Debug"
 		defines "RY_DEBUG"
-		--buildoptions "/MDd"
 		runtime "Debug"
 		symbols "on"
 
 	filter "configurations:Release"
 		defines "RY_REALSE"
-		--buildoptions "/MD"
 		runtime "Release"
 		optimize "on"
 
 	filter "configurations:Dist"
 		defines "RY_DIST"
-		--buildoptions "/MD"
 		runtime "Release"
 		optimize "on"
 

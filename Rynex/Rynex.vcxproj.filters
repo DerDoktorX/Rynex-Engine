@@ -177,13 +177,16 @@
     <ClInclude Include="src\Rynex\Renderer\Framebuffer.h">
       <Filter>src\Rynex\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Rynex\Renderer\Geomtrys.h">
+      <Filter>src\Rynex\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\Rynex\Renderer\GraphicsContext.h">
       <Filter>src\Rynex\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Rynex\Renderer\OrthograficCamera.h">
       <Filter>src\Rynex\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rynex\Renderer\RenderCommmand.h">
+    <ClInclude Include="src\Rynex\Renderer\RenderCommand.h">
       <Filter>src\Rynex\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Rynex\Renderer\Renderer.h">
@@ -227,6 +230,9 @@
     </ClInclude>
     <ClInclude Include="src\Rynex\Scene\ScriptableEntity.h">
       <Filter>src\Rynex\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Scripting\ScriptGlue.h">
+      <Filter>src\Rynex\Scripting</Filter>
     </ClInclude>
     <ClInclude Include="src\Rynex\Scripting\ScriptingEngine.h">
       <Filter>src\Rynex\Scripting</Filter>
@@ -1562,10 +1568,13 @@
     <ClCompile Include="src\Rynex\Renderer\Framebuffer.cpp">
       <Filter>src\Rynex\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Rynex\Renderer\Geomtrys.cpp">
+      <Filter>src\Rynex\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Rynex\Renderer\OrthograficCamera.cpp">
       <Filter>src\Rynex\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Rynex\Renderer\RenderCommmand.cpp">
+    <ClCompile Include="src\Rynex\Renderer\RenderCommand.cpp">
       <Filter>src\Rynex\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Rynex\Renderer\Renderer.cpp">
@@ -1603,6 +1612,9 @@
     </ClCompile>
     <ClCompile Include="src\Rynex\Scene\ScenenCamera.cpp">
       <Filter>src\Rynex\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rynex\Scripting\ScriptGlue.cpp">
+      <Filter>src\Rynex\Scripting</Filter>
     </ClCompile>
     <ClCompile Include="src\Rynex\Scripting\ScriptingEngine.cpp">
       <Filter>src\Rynex\Scripting</Filter>

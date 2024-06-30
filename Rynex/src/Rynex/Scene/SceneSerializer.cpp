@@ -34,6 +34,7 @@ namespace YAML {
 		}
 	};
 
+
 	template<>
 	struct convert<glm::vec3>
 	{
@@ -90,6 +91,8 @@ namespace YAML {
 
 namespace Rynex {
 
+
+
 	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec2& v)
 	{
 		out << YAML::Flow;
@@ -115,6 +118,7 @@ namespace Rynex {
 		: m_Scene(scene)
 	{
 	}
+
 
 	static void SerializerEntity(YAML::Emitter& out, Entity entity)
 	{
@@ -167,6 +171,15 @@ namespace Rynex {
 			out << YAML::Key << "Primary" << YAML::Value << cc.Primary;
 			out << YAML::Key << "FixedAspectRotaion" << YAML::Value << cc.FixedAspectRotaion;
 
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<ScriptComponent>())
+		{
+			out << YAML::Key << "ScriptComponent";
+			out << YAML::BeginMap;
+			auto& sc = entity.GetComponent<ScriptComponent>();
+			out << YAML::Key << "ClassName" << YAML::Value << sc.Name;
 			out << YAML::EndMap;
 		}
 
@@ -244,6 +257,7 @@ namespace Rynex {
 
 				Entity deserializedEntity = m_Scene->CreateEntityWitheUUID(uuid, name);
 
+
 				auto transformComponent = entity["TransformComponent"];
 				if (transformComponent)
 				{
@@ -253,6 +267,7 @@ namespace Rynex {
 					tc.Rotation = transformComponent["Rotation"].as<glm::vec3>();
 					tc.Scale = transformComponent["Scale"].as<glm::vec3>();
 				}
+
 
 				auto cameraComponent = entity["CameraComponent"];
 				if (cameraComponent)
@@ -273,6 +288,16 @@ namespace Rynex {
 					cc.Primary = cameraComponent["Primary"].as<bool>();
 					cc.FixedAspectRotaion = cameraComponent["FixedAspectRotaion"].as<bool>();
 				}
+
+
+				auto scriptComponent = entity["ScriptComponent"];
+				if (scriptComponent)
+				{
+					auto& tc = deserializedEntity.AddComponent<ScriptComponent>();
+					tc.Name = scriptComponent["ClassName"].as<std::string>();
+
+				}
+
 
 				auto spriteRendererComponent = entity["SpriteRendererComponent"];
 				if (spriteRendererComponent)

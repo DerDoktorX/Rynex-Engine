@@ -8,6 +8,8 @@ namespace Rynex {
 	public:
 
 		virtual void Init() override;
+		virtual void CreateComputePipline(glm::vec3& size) override;
+
 		virtual void SetViewPort(uint32_t x, uint32_t y, uint32_t withe, uint32_t heigth) override;
 		virtual void SetClearColor(const glm::vec4& color) override;
 		virtual void Clear() override;
@@ -21,7 +23,8 @@ namespace Rynex {
 		virtual void DrawIndexedLine(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)override;
 		virtual void DrawIndexedLineLoop(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
 
-		//virtual void DrawIndexedPoints(const Ref<VertexArray>& vertexArray) override;
+		virtual void ComputePipline() override;
+
 	};
 }
 

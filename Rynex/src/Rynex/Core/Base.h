@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#define RY_ENABLE_ASSERTS
+
 #ifdef RY_PLATFORM_WINDOWS
 	#if RY_DYNAMIC_LINK
 		#ifdef RY_BUILD_DLL
@@ -18,7 +20,7 @@
 	#error Rynex only seport Windows! for now
 #endif
 
-#define RY_ENABLE_ASSERTS
+
 
 #ifdef  RY_ENABLE_ASSERTS
 	#define RY_ASSERT(x, ...) { if(!(x)) { RY_ERROR("Assertion Faild: {0}", __VA_ARGS__); __debugbreak(); } }

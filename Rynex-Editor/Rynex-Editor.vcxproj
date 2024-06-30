@@ -79,7 +79,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>RY_PLATFORM_WINDOWS;RY_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Rynex\vendor\spdlog\include;..\Rynex\src;..\Rynex\vendor;..\Rynex\vendor\entt\include;..\Rynex\vendor\glm;..\Rynex\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Rynex\src;..\Rynex\vendor;..\Rynex\vendor\spdlog\include;..\Rynex\vendor\glm;..\Rynex\vendor\filewatch;..\Rynex\vendor\entt\include;..\Rynex\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
@@ -98,7 +98,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>RY_PLATFORM_WINDOWS;RY_REALSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Rynex\vendor\spdlog\include;..\Rynex\src;..\Rynex\vendor;..\Rynex\vendor\entt\include;..\Rynex\vendor\glm;..\Rynex\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Rynex\src;..\Rynex\vendor;..\Rynex\vendor\spdlog\include;..\Rynex\vendor\glm;..\Rynex\vendor\filewatch;..\Rynex\vendor\entt\include;..\Rynex\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -120,7 +120,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>RY_PLATFORM_WINDOWS;RY_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Rynex\vendor\spdlog\include;..\Rynex\src;..\Rynex\vendor;..\Rynex\vendor\entt\include;..\Rynex\vendor\glm;..\Rynex\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Rynex\src;..\Rynex\vendor;..\Rynex\vendor\spdlog\include;..\Rynex\vendor\glm;..\Rynex\vendor\filewatch;..\Rynex\vendor\entt\include;..\Rynex\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>

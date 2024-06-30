@@ -14,6 +14,8 @@ namespace Rynex {
 		};
 	public:
 		virtual void Init() = 0;
+		virtual void CreateComputePipline(glm::vec3& size) = 0;
+
 		virtual void SetViewPort(uint32_t x, uint32_t y, uint32_t withe, uint32_t heigth) = 0;
 
 		virtual void SetClearColor(const glm::vec4& color) = 0;
@@ -27,7 +29,8 @@ namespace Rynex {
 		virtual void DrawIndexedLine(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 		virtual void DrawIndexedLineLoop(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 
-		//virtual void DrawIndexedPoints(const Ref<VertexArray>& vertexArray) = 0;
+		virtual void ComputePipline() = 0;
+
 
 		inline static API GetAPI() { return s_API; }
 	private:

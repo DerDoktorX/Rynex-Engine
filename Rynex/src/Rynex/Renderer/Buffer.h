@@ -99,6 +99,7 @@ namespace Rynex {
 	{
 	public:
 		BufferLayout() {}
+		BufferLayout(const BufferLayout&) {}
 
 		BufferLayout(const std::initializer_list<BufferElement>& element)
 			: m_Elements(element)
@@ -164,7 +165,9 @@ namespace Rynex {
 		virtual uint32_t GetCount() const = 0;
 		virtual void Bind() const = 0;
 		virtual void UnBind() const = 0;
+		virtual void SetData(const uint32_t* indices, uint32_t count) = 0;
 
+		static Ref<IndexBuffer> Create(uint32_t count);
 		static Ref<IndexBuffer> Create(uint32_t* indices, uint32_t count);
 	};
 }

@@ -1,15 +1,14 @@
 #include "rypch.h"
 #include "Renderer2D.h"
 
-#include "VertexArray.h"
+#include "RenderCommand.h"
 #include "Shader.h"
-#include "RenderCommmand.h"
+#include "VertexArray.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Platform/OpenGL/OpenGLShader.h"
-
 #include "Rynex/Scene/SceneGeomtry.h"
 
 
@@ -146,12 +145,14 @@ namespace Rynex {
 			offset += 4;
 		}
 
-		Ref<IndexBuffer> squareIB = IndexBuffer::Create(quadIndecies, s_Data.MaxIndecies);
-		s_Data.QuadVertexArray->SetIndexBuffer(squareIB);
 		uint32_t squareIndices[] = {
 			0, 1, 2,
 			2, 3, 0
 		};
+		Ref<IndexBuffer> squareIB = IndexBuffer::Create(quadIndecies, s_Data.MaxIndecies);
+		s_Data.QuadVertexArray->SetIndexBuffer(squareIB);
+		
+		
 		delete[] quadIndecies;	
 #endif		
 		

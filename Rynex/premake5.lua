@@ -16,13 +16,20 @@ project "Rynex"
 	{
 		"src/**.h",
 		"src/**.cpp",
+		-- vendor add Source Files to Rynex
+
+
 		"vendor/stb_image/**.h",
 		"vendor/stb_image/**.cpp",
+
 		"vendor/glm/glm/**.hpp",
 		"vendor/glm/glm/**.inl",
 
 		"vendor/ImGuizmo/ImGuizmo.h",
 		"vendor/ImGuizmo/ImGuizmo.cpp",
+
+		--"vendor/filewatch/**.h",
+		--"vendor/filewatch/**.cpp",
 	}
 
 	defines
@@ -33,28 +40,36 @@ project "Rynex"
 
 	includedirs
 	{
+		-- Source Files Directory
 		"src",
-		"vendor/spdlog/include",
+		-- Runtime
+		"vendor/spdlog/include",	-- Logs
+		"%{IncludeDir.entt}",		-- Entity
+		"%{IncludeDir.mono}",		-- C#
+		-- Math
+		"%{IncludeDir.glm}",
+		-- Grafic API
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
-		"%{IncludeDir.ImGui}",
-		"%{IncludeDir.glm}",
+		-- Files
 		"%{IncludeDir.stb_image}",
-		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
+		"%{IncludeDir.filewatch}",
+		-- Runtime Visuelle configs
+		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.ImGuizmo}",
-		"%{IncludeDir.mono}",
 	}
 
 	links
 	{
+		-- Grafic API
 		"Glad",
 		"GLFW",
-		"ImGui",
-		"yaml-cpp",
 		"opengl32.lib",	
 
-		"%{Library.mono}"
+		"yaml-cpp",			-- Files
+		"ImGui", 			-- Runtime Visuelle configs
+		"%{Library.mono}"	-- Runtime C# Scripts Reloade
 	}
 	
 	filter "files:vendor/ImGuizmo/**.cpp"
@@ -62,12 +77,14 @@ project "Rynex"
 
 	filter "system:windows"
 		systemversion "latest"
-
 		defines
 		{
+		-- For Compile Rynex in .dll |
+		--							 V
 			--"RY_PLATFORM_WINDOWS",
 			--"RY_BUILD_DLL",
 			--"GLFW_INCLUDE_NONE"
+		--							 ^
 		}
 		links
 		{
@@ -76,27 +93,39 @@ project "Rynex"
 			"%{Library.WinVersion}",
 			"%{Library.Bcrypt}",
 		}
-
+	-- For Compile Rynex in .dll |
+	--							 V
 		--postbuildcommands
 		--{
 		--	("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
+		--	("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Rynex-Editor")
 		--}
+	--							 ^
 	
 	filter "configurations:Debug"
 		defines "RY_DEBUG"
+	-- For Compile Rynex in .dll |
+	--							 V
 		--buildoptions "/MDd"
+	--							 ^
 		runtime "Debug"
 		symbols "on"
 
 	filter "configurations:Release"
 		defines "RY_REALSE"
+	-- For Compile Rynex in .dll |
+	--							 V	
 		--buildoptions "/MD"
+	--							 ^
 		runtime "Release"
 		optimize "on"
 
 	filter "configurations:Dist"
 		defines "RY_DIST"
+	-- For Compile Rynex in .dll |
+	--							 V
 		--buildoptions "/MD"
+	--							 ^
 		runtime "Release"
 		optimize "on"
 

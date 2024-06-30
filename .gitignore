@@ -22,17 +22,20 @@ Rynex/vendor/ImGuizmo/
 # from Hazel
 
 # Binaries
+#Intermediates/
 Intermediates/
+Resources/Binaries/
 
 # Hazel files
 *.log
 
 # Visual Studio files and folder
-**.sln
+*.sln
 **.vcxproj
 **.vcxproj.filters
 **.vcxproj.user
-**.csproj
+*.csproj
+**.csproj.user
 
 # Directories
 Hazel/vendor/VulkanSDK

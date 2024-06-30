@@ -9,7 +9,8 @@ namespace Rynex {
 		int err;
 		err = fopen_s(&m_Stream, path.c_str(), "r");
 
-		if (m_Stream != NULL) {
+		if (m_Stream != NULL) 
+		{
 
 			while (fgets(buffer, 255, m_Stream) != NULL)
 			{

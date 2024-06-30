@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rynex/Renderer/RenderCommmand.h"
+#include "Rynex/Renderer/RenderCommand.h"
 #include "Rynex/Renderer/Shader.h"
 #include "Rynex/Renderer/OrthograficCamera.h"
 

@@ -1,13 +1,12 @@
+
 #include "SceneHierachyPannel.h"
-
-#include <imgui/imgui.h>
-#include <imgui/imgui_internal.h>
-
-#include <glm/gtc/type_ptr.hpp>
-
 #include "Rynex/Scene/Components.h"
-#include <cstring>
+#include "Rynex/Scripting/ScriptingEngine.h"
 
+
+#include <imgui/imgui_internal.h>
+#include <glm/gtc/type_ptr.hpp>
+#include <cstring>
 #include <filesystem>
 
 #define ImGuiDemoWindow 0
@@ -31,10 +30,26 @@ namespace Rynex {
 	{
 		auto& tag = entity.GetComponent<TagComponent>().Tag;
 
+		
 		ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
 		flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
-		bool opende = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.c_str());
 
+#if HRACHIE_STATE
+		if(entity.GetState() == Entity::State::Error)
+			ImGui::PushStyleColor(ImGuiCol_Header & ImGuiCol_TitleBg & ImGuiCol_TextDisabled & ImGuiCol_MenuBarBg, ImVec4(0.9f, 0.2f, 0.3f, 1.0f));
+#endif
+		bool opende = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.c_str());
+#if HRACHIE_STATE
+		if (entity.GetState() == Entity::State::Error)
+			ImGui::PopStyleColor();
+
+
+		if (m_CheckErrors) 
+		{
+			CheckEnttiyForError(entity);
+		}
+
+#endif
 		if (ImGui::IsItemClicked())
 		{
 			m_SelectionContext = entity;
@@ -52,12 +67,21 @@ namespace Rynex {
 
 		if (opende)
 		{
+#if HRACHIE_STATE
+			if (entity.GetState() == Entity::State::Error)
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.2f, 0.3f, 1.0f));
+#endif
 			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
 			opende = ImGui::TreeNodeEx((void*)9817239, flags, tag.c_str());
 			if (opende)
 				ImGui::TreePop();
 			ImGui::TreePop();
+#if HRACHIE_STATE
+			if (entity.GetState() == Entity::State::Error)
+				ImGui::PopStyleColor();
+#endif
 		}
+		
 
 		if (entiytDeleted)
 		{
@@ -201,13 +225,35 @@ namespace Rynex {
 		}
 
 		ImGui::SameLine();
-		ImGui::PushItemWidth(-0.5f);
+		ImGui::PushItemWidth(-1);
 
 		if (ImGui::Button("Add Component"))
 			ImGui::OpenPopup("AddComponent");
 
 		if (ImGui::BeginPopup("AddComponent"))
 		{
+			DisplayAddComponentEntry<ScriptComponent>("Script");
+			DisplayAddComponentEntry<CameraComponent>("Camera");
+			if(!m_SelectionContext.HasComponent<MaterialComponent>() && !m_SelectionContext.HasComponent<GeomtryComponent>())
+				DisplayAddComponentEntry<SpriteRendererComponent>("Sprite");
+
+			if (!m_SelectionContext.HasComponent<SpriteRendererComponent>())
+			{
+				DisplayAddComponentEntry<MaterialComponent>("Material");
+				DisplayAddComponentEntry<GeomtryComponent>("Geomtry");
+			}
+#if 0
+			if (ImGui::MenuItem("Script"))
+			{
+				auto& tag = entity.GetComponent<TagComponent>().Tag;
+				if (tag == "Empty Entity")
+				{
+					tag = "Script Entity";
+				}
+				m_SelectionContext.AddComponent<ScriptComponent>();
+				ImGui::CloseCurrentPopup();
+			}
+
 			if (ImGui::MenuItem("Camera"))
 			{
 				auto& tag = entity.GetComponent<TagComponent>().Tag;
@@ -231,8 +277,8 @@ namespace Rynex {
 				m_SelectionContext.AddComponent<SpriteRendererComponent>();
 				ImGui::CloseCurrentPopup();
 			}
-
-
+#endif
+			
 
 			ImGui::EndPopup();
 		}
@@ -345,6 +391,141 @@ namespace Rynex {
 
 		});
 
+		//Material
+		DrawComponent<MaterialComponent>("Sprite Renderer", entity, [](auto& component)
+			{
+
+				ImGui::ColorEdit3("Color", glm::value_ptr(component.Color), 0.1f);
+
+				// Texture
+				ImGui::Button("Texture", ImVec2(100.0f, 0.0f));
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+					{
+						const wchar_t* path = (const wchar_t*)payload->Data;
+						std::filesystem::path texPath = (g_AssetsPath) / path;
+						component.Texture = Texture2D::Create(texPath.string());
+					}
+					ImGui::EndDragDropTarget();
+				}
+
+				if (component.Texture != nullptr)
+				{
+					ImGui::SameLine();
+					if (ImGui::Button("Dealte", ImVec2(100.0f, 0.0f)))
+						component.Texture = nullptr;
+				}
+
+#if 0
+				ImGui::Checkbox("Render Single", &component.);
+#endif
+			});
+
+		//Geomtry
+		DrawComponent<GeomtryComponent>("Geometry", entity, [](GeomtryComponent& component)
+			{
+				//const char* primtiv = component.Geometry->GetPrimitvChar();
+				//ImGui::BeginCombo("Primtiv", primtiv);
+				if (ImGui::Button("Geomtry", ImVec2(100.0f, 0.0f)))
+				{
+
+				}
+				
+			});
+
+		// Script
+		DrawComponent<ScriptComponent>("Script", entity, [](auto& component)
+			{
+				bool sricptClassExist = ScriptingEngine::ClassExists(component.Name);
+
+				static char buffer[64];
+				strcpy(buffer, component.Name.c_str());
+
+				if (!sricptClassExist)
+				{
+					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.2f, 0.3f, 1.0f));
+					
+				}
+#if 1
+#if 0
+				if (ImGui::InputText("Script: Class", buffer, sizeof(buffer)) )
+				{
+					//ImGui::ItemAdd("")
+					
+					component.Name = buffer;
+					
+					
+				}
+#endif
+
+				if (ImGui::BeginCombo("Script: Class", buffer, ImGuiComboFlags_None))
+				{
+					uint32_t length = ScriptingEngine::GetClassLength();
+					for (uint32_t i = 0; i < length; i++)
+					{
+						std::string& temp = ScriptingEngine::GetListClassName(i);
+						if (ImGui::MenuItem(temp.c_str()))
+						{
+							if (temp.c_str() != "None")
+								component.Name = temp;
+							else
+								component.Name = std::string();
+							ImGui::CloseCurrentPopup();
+						}
+					}
+					ImGui::EndCombo();
+				}
+
+				
+				
+				
+				//ImGui::OpenPopup("ScriptClass");
+#if 0
+				if (ImGui::BeginPopup("ScriptClass"))
+				{
+					uint32_t length = ScriptingEngine::GetClassLength();
+					for (uint32_t i = 0; i < length; i++)
+					{
+						std::string& temp = ScriptingEngine::GetListClassName(i);
+						if (ImGui::MenuItem(temp.c_str()))
+						{
+							component.Name = temp;
+							ImGui::CloseCurrentPopup();
+						}
+					}
+					ImGui::EndPopup();
+				}
+#endif
+				
+#else
+				
+				
+
+	
+
+				if (ImGui::BeginCombo("Class", buffer))
+				{
+					uint32_t length = ScriptingEngine::GetClassLength();
+					for (uint32_t i = 0; i < length; i++)
+					{
+						//bool is_selected = (component.selectedScript == i);
+						if (ImGui::Selectable(ScriptingEngine::GetListClassName(i), false))
+							component.selectedScript = i;
+
+						//if (is_selected)
+							//ImGui::SetItemDefaultFocus();
+					}
+					ImGui::EndCombo();
+				}
+				
+#endif 
+				if (!sricptClassExist)
+				{
+					ImGui::PopStyleColor();
+				}
+
+			});
 	}
 
 
@@ -359,6 +540,13 @@ namespace Rynex {
 				DrawEntityNode(entity);
 			});
 
+#if CHECK_FOR_ERRORS
+		if (m_CheckErrors)
+		{
+			m_CheckErrors = false;
+			RY_INFO("Checked For Error on Enttiy!");
+		}
+#endif
 
 		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
 			m_SelectionContext = {};
@@ -393,4 +581,30 @@ namespace Rynex {
 			DrawComponents(m_SelectionContext);
 	}
 
+	void SceneHierachyPannel::CheckEnttiyForError(Entity& entity)
+	{
+		if (entity.HasComponent<ScriptComponent>())
+		{
+			auto component = entity.GetComponent<ScriptComponent>();
+			if (!ScriptingEngine::ClassExists(component.Name))
+				entity.SetState(Entity::State::Error);
+			else
+				entity.SetState(Entity::State::None);
+		}
+	}
+
+	template<typename T>
+	void SceneHierachyPannel::DisplayAddComponentEntry(const std::string& name)
+	{
+		if (!m_SelectionContext.HasComponent<T>())
+		{
+			if (ImGui::MenuItem(name.c_str()))
+			{
+				m_SelectionContext.AddComponent<T>();
+				ImGui::CloseCurrentPopup();
+			}
+		}
+	}
+
+	
 }

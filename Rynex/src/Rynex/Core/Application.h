@@ -21,7 +21,7 @@ namespace Rynex {
 		Application(const std::string& = "Rynex App");
 		virtual ~Application();
 
-		void Run();
+		
 
 		void OnEvent(Event& event);
 
@@ -34,10 +34,16 @@ namespace Rynex {
 
 		inline static Application& Get() { return *s_Instance; }
 		inline Window& GetWindow() { return *m_Window; }
+
+		void SubmiteToMainThreedQueue(const std::function<void()>& func);
 		
 	private:
+		void Run();
+
 		bool OnWindowCloseEvent(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
+
+		void ExecuteMainThreedQueue();
 	private:
 		Ref<Window> m_Window;
 		ImGuiLayer* m_ImGuiLayer;
@@ -46,6 +52,8 @@ namespace Rynex {
 		LayerStack m_LayerStack;
 		float m_LastFrameTime = 0.0f;
 
+		std::vector<std::function<void()>> m_MainThreedQueue;
+		std::mutex m_MainThreedQueueMutex;
 	private:
 		static Application* s_Instance;
 		friend int ::main(int argc, char** argv);

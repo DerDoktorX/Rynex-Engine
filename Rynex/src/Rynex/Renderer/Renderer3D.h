@@ -2,6 +2,7 @@
 
 #include "Rynex/Renderer/OrthograficCamera.h"
 #include "Rynex/Renderer/Camera.h"
+#include "Rynex/Scene/Entity.h"
 
 namespace Rynex {
 
@@ -12,15 +13,24 @@ namespace Rynex {
 		static void Shutdown();
 
 
+		static void BeginScene(const EditorCamera& camera);
 		static void BeginScene(const OrthograficCamera& camera);
 		static void BeginScene(const Camera& camera, const glm::mat4& transform);
-		static void BeginScene(const Camera& camera, const glm::mat4& transformCamera, const glm::mat4& sceneCamera);
+
 		static void EndScene();
+
+		static void BeforDrawEntity(const MaterialComponent& material, const glm::mat4& model);
+		static void AfterDrawEntity(const MaterialComponent& material);
+
+		static void DrawMesh(const Ref<VertexArray>& vertexArray);
+		static void DrawMeshStrips(const Ref<VertexArray>& vertexArray);
+		static void DrawLine(const Ref<VertexArray>& vertexArray);
+		static void DrawPoints(const Ref<VertexArray>& vertexArray);
+
+
 
 		static void BeginFrame();
 		static void EndeFrame();
-
-		static void DrawEntity();
 
 		struct StatisticsShader
 		{

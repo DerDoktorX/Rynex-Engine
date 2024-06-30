@@ -35,7 +35,7 @@ static void PrintMemoryUsage()
 {
 	printf("Memory Usage: %i bytes\n", s_AlicationMetrics.CurrentUsage());
 }
-#endif // TODO: Remaber what was that! than decide and Dealet?
+#endif // TODO: Remeber what was that! then decide and Dealet?
 
 #define RY_KONSOLE_FPS 0
 
@@ -65,6 +65,7 @@ namespace Rynex {
 
 	Application::~Application()
 	{
+		ScriptingEngine::Shutdown();
 	}
 
 	void Application::OnEvent(Event& e)
@@ -101,6 +102,16 @@ namespace Rynex {
 		m_Running = false;
 	}
 
+	
+
+	void Application::SubmiteToMainThreedQueue(const std::function<void()>& func)
+	{
+		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
+		m_MainThreedQueue.emplace_back(func);
+
+	}
+
+
 	void Application::Run()
 	{
 		//m_Camera.SetPostione({ 0.5f, 0.5f, 0.0f });
@@ -115,7 +126,10 @@ namespace Rynex {
 #if RY_KONSOLE_FPS
 			RY_CORE_INFO("FPS: {0}", 1/timestep);
 #endif
-			if (!m_Mineized) {
+
+			ExecuteMainThreedQueue();
+			if (!m_Mineized) 
+			{
 				for (Layer* layer : m_LayerStack)
 					layer->OnUpdate(timestep);
 				
@@ -128,7 +142,6 @@ namespace Rynex {
 			m_ImGuiLayer->End();
 
 
-			
 
 			m_Window->OnUpdate();
 			
@@ -155,5 +168,11 @@ namespace Rynex {
 		Renderer::OnWindowsResize(e.GetWidth(), e.GetHeight());
 
 		return false;
+	}
+	void Application::ExecuteMainThreedQueue()
+	{
+		for (auto& func : m_MainThreedQueue)
+			func();
+		m_MainThreedQueue.clear();
 	}
 }

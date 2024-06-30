@@ -9,9 +9,7 @@
 #include "ImGuizmo.h"
 
 #include "Rynex/Math/Math.h"
-
-
-#define RENDER_EVERYTHING 0
+#include "Rynex/Scripting/ScriptingEngine.h"
 
 namespace Rynex {
 
@@ -19,16 +17,13 @@ namespace Rynex {
 
     EditorLayer::EditorLayer()
         : Layer("Rynex-Editor")
-        , m_CameraController((1280.0f / 720.0f), true)
-        , m_ChekebordRotaion(0.25f)
+        , m_CameraController((1280.0f / 720.0f), true)  
     {
     }
 
+
     void EditorLayer::OnAttach()
     {
-        m_ChekbordTex = Texture2D::Create("Assets/textures/Checkerboard.png");
-
-
         FramebufferSpecification fbSpec;
         fbSpec.Attachments = { 
             FramebufferTextureFormat::RGBA8, 
@@ -39,77 +34,44 @@ namespace Rynex {
         fbSpec.Width = 1280;
         fbSpec.Height = 720;
         m_Framebuffer = Framebuffer::Create(fbSpec);
-       
-        m_AktiveScene = CreateRef<Scene>();
-       
-#if 0
-        m_AktiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
-        m_Scene_HPanel.SetContext(m_AktiveScene);
-
-
-        //Entity
-        //auto square = m_AktiveScene->CreateEntity("Square_Green");
-        //square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
-
-
-
-        auto square_red = m_AktiveScene->CreateEntity("Square_Red");
-        square_red.AddComponent<SpriteRendererComponent>(glm::vec4{ 1.0f, 0.0f, 0.0f, 1.0f });
-        square_red.GetComponent<TransformComponent>().Transaltion = { 5.0f, 0.0f, 0.0f };
-
-
-        m_CamerEntity = m_AktiveScene->CreateEntity("Camera Entity Main");
-        m_CamerEntity.AddComponent<CameraComponent>();
-      
-
-
-        
-        
-        class CameraControler : public ScriptableEntity
-        {
-        public:
-           void OnCreate()
-           {
-               auto& camera = GetComponent<CameraComponent>().Camera;
-               auto& tc = GetComponent<TransformComponent>().Transaltion;
-               //Ortho
-               camera.SetOrthoGrafic(10.0f, -1.f, 1.0f);
-               camera.SetOrthograficSize(10.0f);
-               //Perspectiv
-               //camera.SetPerspectiv(glm::radians(45.0f), 0.01f, 1000.0f);
-               //tc = glm::vec3(0.0f, 0.0f, 5.0f);
-               
-           }
-
-           void OnDestroy()
-           {
-               
-           }
-
-           void OnUpdate(TimeStep ts)
-           {
-
-           }
-
-           void OnDraw()
-           {
-           }
-        };
-
-        m_CamerEntity.AddComponent<NativeSripteComponent>().Bind<CameraControler>();
-        
-        
-
-        OnUpdate(0.0f);
 
         m_AktiveScene = CreateRef<Scene>();
-        m_AktiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
-        
-#endif
         m_Scene_HPanel.SetContext(m_AktiveScene);
-        
         m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 100.0f);
        
+#if 1
+        m_AktiveScene->CreateEntityWitheUUID(UUID(89234786376786), "3D_RendererTestEntity");
+        auto& entiy = m_AktiveScene->GetEntitiyByUUID(89234786376786);
+
+        if(!entiy.HasComponent<TagComponent>())
+            entiy.AddComponent<TagComponent>("3D_RendererTestEntity");
+
+        if (!entiy.HasComponent<TransformComponent>())
+            entiy.AddComponent<TransformComponent>();
+
+        if (!entiy.HasComponent<GeomtryComponent>()) 
+        {
+            entiy.AddComponent<GeomtryComponent>();
+            auto& geometry = entiy.GetComponent<GeomtryComponent>();
+
+            geometry.Geometry = VertexArray::Create();
+            geometry.Buffer = VertexBuffer::Create(256);
+
+            Geomtrys::GetCubeVertex(geometry.Geometry, geometry.Buffer);
+            Geomtrys::SetCubeIndex(geometry.Geometry);
+            
+            
+            
+        }
+
+        if (!entiy.HasComponent<MaterialComponent>())
+        {
+            entiy.AddComponent<MaterialComponent>();
+            auto& material = entiy.GetComponent<MaterialComponent>();
+            material.Shader = Shader::Create("Assets/shaders/3DTest.glsl");
+        }
+
+#endif
     }
 
     void EditorLayer::OnDetach()
@@ -118,22 +80,22 @@ namespace Rynex {
 
     void EditorLayer::OnUpdate(TimeStep ts)
     {
-        if (FramebufferSpecification spec = m_Framebuffer->GetFramebufferSpecification();
-            m_ViewPortSize.x > 0.0f && m_ViewPortSize.y > 0.0f &&
-            (spec.Width != m_ViewPortSize.x || spec.Height != m_ViewPortSize.y))
+        if (FramebufferSpecification spec = m_Framebuffer->GetFramebufferSpecification(); m_ViewPortSize.x > 0.0f && m_ViewPortSize.y > 0.0f && (spec.Width != m_ViewPortSize.x || spec.Height != m_ViewPortSize.y))
         {
             m_Framebuffer->Resize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
             m_CameraController.OnResize(m_ViewPortSize.x, m_ViewPortSize.y);
             m_EditorCamera.SetViewportSize(m_ViewPortSize.y, m_ViewPortSize.x);
             m_AktiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
         }
+        m_PasTime += ts;
 
-        if (m_ViewPortFocused)
+#if CHECK_FOR_ERRORS
+        if (m_PasTime > 10.0f)
         {
-            m_CameraController.OnUpdate(ts);
-            m_EditorCamera.OnUpdate(ts);
+            m_PasTime = 0.0f;
+            m_Scene_HPanel.SetCheckErrors();
         }
-        
+#endif
 
         Renderer2D::ResetStats();
         
@@ -143,76 +105,50 @@ namespace Rynex {
 
         m_Framebuffer->ClearAttachment(2, -1);
         
-
-        ////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////
-#if RENDER_EVERYTHING        
-        Renderer2D::BeginScene(m_CameraController.GetCamera());
-
-        Renderer2D::DrawQuad({ -1.0f, 0.0f }, { 0.8f, 0.8f }, { 0.8f, 0.2f, 0.3f, 1.0f });
-        Renderer2D::DrawRotatedQuad({ 0.5f, 0.5f }, { 0.5f, 0.75f }, m_ChekebordRotaion, { 0.2f, 0.3f, 0.8f, 1.0f });
-        Renderer2D::DrawQuad({ 0.0f, 0.0f,-0.1f }, { 10.0f, 10.0f }, m_ChekbordTex);
-
-        Renderer2D::EndScene();
-#endif // RENDER_EVERYTHING
-
-
-#if 1
-
-    m_AktiveScene->OnUpdateEditor(ts, m_EditorCamera);
-
-#else
-    m_AktiveScene->OnUpdateRuntime(ts);
-#endif // 0
-
-    auto [mx, my] = ImGui::GetMousePos();
-    mx -= m_ViewportBounds[0].x;
-    my -= m_ViewportBounds[0].y;
-    glm::vec2 viewPortSize = m_ViewportBounds[1] - m_ViewportBounds[0];
-    my = viewPortSize.y - my;
-    int mauseX = (int)mx;
-    int mauseY = (int)my;
-   
-    if ( mauseX >= 0  && mauseY >= 0  &&  mauseX < (int)viewPortSize.x  &&  mauseY < (int)viewPortSize.y )
-    {
-        int pixeldata = m_Framebuffer->ReadPixel(2, mauseX, mauseY);
-        
-        RY_CORE_ASSERT(pixeldata > -2, "Minus Entity!");
-
-#if 0    
-        RY_CORE_WARN("Pixxel data: {0}", pixeldata);
-        RY_CORE_WARN("Mause data: {0}, {1}", mauseX, mauseY);
-        RY_CORE_WARN("Mause Max data: {0}, {1}", (int)viewPortSize.x, (int)viewPortSize.y);
-#endif
-
-        m_HoveredEntity = pixeldata == -1 || pixeldata == -2 ? Entity() : Entity((entt::entity)pixeldata, m_AktiveScene.get());
-
-    }
-
-    m_Framebuffer->Unbind();
-
-#if RENDER_EVERYTHING
-        Renderer2D::BeginScene(m_CameraController.GetCamera());
-        for (float x = -4.5f; x < 5.0f; x += 0.5f)
+        switch (m_SceneState)
         {
-            for (float y = -4.5f; y < 5.0f; y += 0.5f)
+            case SceneState::Edit:
+            { 
+                if (m_ViewPortFocused)
+                {
+                    m_CameraController.OnUpdate(ts);
+                    m_EditorCamera.OnUpdate(ts);
+                }
+
+                m_EditorCamera.OnUpdate(ts);
+                m_AktiveScene->OnUpdateEditor(ts, m_EditorCamera);
+                break;
+            }
+            case SceneState::Simulate:
             {
-                glm::vec4 color = { (x + 5.0f) / 10.0f, 0.4f, (y + 5.0f) / 10.0f, 0.5f };
-                Renderer2D::DrawQuad({ x, y }, { 0.45f, 0.45f }, color);
+                m_EditorCamera.OnUpdate(ts);
+
+                break;
+            }
+            case SceneState::Play:
+            {
+                m_AktiveScene->OnUpdateRuntime(ts);
+                break;
             }
         }
-        Renderer2D::EndScene();
 
-
-        
-
-
-        RY_INFO("m_ChekebordRotaion: {0}",glm::radians(m_ChekebordRotaion));
-        Renderer::Submit(m_BlueShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
-        std::dynamic_pointer_cast<OpenGLShader>(m_BlueShader)->Bind();
-        std::dynamic_pointer_cast<OpenGLShader>(m_BlueShader)->UploadUnformFloat3("u_Color", m_SquareColor);
-#endif
-
+        ////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////
+        auto [mx, my] = ImGui::GetMousePos();
+        mx -= m_ViewportBounds[0].x;
+        my -= m_ViewportBounds[0].y;
+        glm::vec2 viewPortSize = m_ViewportBounds[1] - m_ViewportBounds[0];
+        my = viewPortSize.y - my;
+        int mauseX = (int)mx;
+        int mauseY = (int)my;
+   
+        if ( mauseX >= 0  && mauseY >= 0  &&  mauseX < (int)viewPortSize.x  &&  mauseY < (int)viewPortSize.y )
+        {
+            int pixeldata = m_Framebuffer->ReadPixel(2, mauseX, mauseY);
+            RY_CORE_ASSERT(pixeldata > -2, "Minus Entity!");
+            m_HoveredEntity = pixeldata == -1 || pixeldata == -2 ? Entity() : Entity((entt::entity)pixeldata, m_AktiveScene.get());
+        }
+        m_Framebuffer->Unbind();
     }
 
 
@@ -291,13 +227,10 @@ namespace Rynex {
 
             break;
 
-       
-
         default:
             break;
         }
 
-        //return false;
     }
 
     bool EditorLayer::OnMousePressed(MouseButtenPressedEvent& e)
@@ -344,7 +277,7 @@ namespace Rynex {
 
     void EditorLayer::SaveSceneAs()
     {
-        std::string filepath = FileDialoges::SaveFile("Rynex Scene (*.rynex)\0*.rynex\0");
+        std::string filepath = FileDialoges::SaveFile("Rynex Scene (*.rynexscene)\0*.rynexscene\0");
         if (!filepath.empty())
         {
             SceneSerializer serialzer(m_AktiveScene);
@@ -486,24 +419,8 @@ namespace Rynex {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0 ,0 });
         ImGui::Begin("Secundary Viewport");
 
-#if 0
-        ImVec2 viewportPannelSize = ImGui::GetContentRegionAvail();
-        if (m_ViewPortSize != *((glm::vec2*)&viewportPannelSize))
-        {
-            m_Framebuffer->Resize((uint32_t)viewportPannelSize.x, (uint32_t)viewportPannelSize.y);
-            m_ViewPortSize = { viewportPannelSize.x, viewportPannelSize.y };
-            m_EditorCamera.SetViewportSize(viewportPannelSize.x, viewportPannelSize.y);
-            m_CameraController.OnResize((float)viewportPannelSize.x, (float)viewportPannelSize.y);
-        
-            m_AktiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
-        }
-#endif
-
-
         uint32_t textureID = framebuffer->GetColorAttachmentRendererID(id);
         ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ width, height }, ImVec2(0, 1), ImVec2(1, 0));
-        
-       
 
         ImGui::End();
         ImGui::PopStyleVar();
@@ -530,36 +447,70 @@ namespace Rynex {
         ImGui::Text("Vertex : %d", stats.GetTotalVertexCount());
         ImGui::Text("Indexs : %d", stats.GetTotalIndexCount());
 
+
+        std::string sceneState;
+        switch (m_SceneState)
+        {
+        case SceneState::Edit:
+        {
+            sceneState = "Edit";
+            break;
+        }
+        case SceneState::Play:
+        {
+            sceneState = "Play";
+            break;
+        }
+        case SceneState::Simulate:
+        {
+            sceneState = "Simulate";
+            break;
+        }
+       
+        }
+        ImGui::Text("Curent Scene State: %s", sceneState.c_str());
+        bool hasPlayButton = m_SceneState == SceneState::Edit || m_SceneState == SceneState::Play;
+        bool hasSimulateButton = m_SceneState == SceneState::Edit || m_SceneState == SceneState::Simulate;
+        bool hasPauseButton = m_SceneState != SceneState::Edit;
+        if (hasPlayButton)
+        {
+            if (ImGui::Button("Play", ImVec2(50, 0)))
+            {
+                if (m_SceneState == SceneState::Edit || m_SceneState == SceneState::Simulate)
+                {
+                    m_SceneState = SceneState::Play;
+                    m_AktiveScene->OnRuntimStart();
+                }
+                else if(m_SceneState == SceneState::Play)
+                    m_SceneState = SceneState::Edit;
+
+            }
+        }
+        if (hasSimulateButton)
+        {
+            if (hasPlayButton)
+                ImGui::SameLine();
 #if 0
-        ImGui::DragFloat("Checkeboard Rotation: ", &m_ChekebordRotaion, 1.f);
-       
+            if (ImGui::Button("Simulation", ImVec2(50, 0)))
+            {
 
-        if (m_PrimeCamera) {
-            ImGui::DragFloat4("Transform",
-                glm::value_ptr(m_CamerEntity.GetComponent<TransformComponent>().Transaltion), 0.1f);
-        }
+                if (m_Runtime)
+                    m_AktiveScene->OnRuntimStop();
+                else
+                    m_AktiveScene->OnRuntimStart();
+                
+                m_Runtime != m_Runtime;
 
-        else {
-            //ImGui::DragFloat3("Camera Tranform",
-            //    glm::value_ptr(m_SecoundCameraEntity.GetComponent<TransformComponent>().Transform[3]), 0.1f);
-        }
-       
-       
-        
-
-        if (ImGui::Checkbox("Camera A", &m_PrimeCamera))
-        {
-            m_CamerEntity.GetComponent<CameraComponent>().Primary = m_PrimeCamera;
-           // m_SecoundCameraEntity.GetComponent<CameraComponent>().Primary = !m_PrimeCamera;
-        }
-        if (m_SqareEntity) 
-        {
-            auto& squareColor = m_SqareEntity.GetComponent<SpriteRendererComponent>().Color;
-            ImGui::ColorEdit4("Square Color: ", glm::value_ptr(squareColor));
-        }
-
-
+            }
 #endif
+        }
+        if (hasPauseButton)
+        {
+            if (ImGui::Button("Pause", ImVec2(50, 0)))
+            {
+                m_SceneState = SceneState::Edit;
+            }
+        }
 
         ImGui::End();
     }
@@ -668,6 +619,7 @@ namespace Rynex {
         if (ImGui::BeginMenuBar())
         {
             ImGuiFile();
+            ImGuiScript();
             ImGuiEdit();
             ImGuiView();
             ImGuiHelp();
@@ -691,10 +643,27 @@ namespace Rynex {
             if (ImGui::MenuItem("Save As...", "Crtl+Shift+S"))
                 SaveSceneAs();
 
-            if (ImGui::MenuItem("Exit", NULL, false)) Application::Get().Close();
-                ImGui::EndMenu();
+            if (ImGui::MenuItem("Exit", NULL, false)) 
+                Application::Get().Close();
+                
+            ImGui::EndMenu();
          }
+
+
     }
+
+    void EditorLayer::ImGuiScript()
+    {
+        if (ImGui::BeginMenu("Script"))
+        {
+            if (ImGui::MenuItem("Reload assembly", "Ctrl+R"))
+                ScriptingEngine::ReloadAssambly();
+
+            ImGui::EndMenu();
+        }
+    }
+
+
 
     void EditorLayer::ImGuiEdit()
     { 

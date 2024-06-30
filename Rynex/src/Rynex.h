@@ -27,7 +27,7 @@
 //----- Renderer ------------------------
 #include "Rynex/Renderer/Renderer.h"
 #include "Rynex/Renderer/Renderer2D.h"
-#include "Rynex/Renderer/RenderCommmand.h"
+#include "Rynex/Renderer/RenderCommand.h"
 
 #include "Rynex/Renderer/Buffer.h"
 #include "Rynex/Renderer/Shader.h"

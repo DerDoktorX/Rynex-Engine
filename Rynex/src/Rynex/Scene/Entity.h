@@ -10,6 +10,13 @@ namespace Rynex {
 	class Entity
 	{
 	public:
+		enum State
+		{
+			None = 0,
+			Wahrning,
+			Error
+		};
+	public:
 		Entity() = default;
 		Entity(entt::entity handle, Scene* scene);
 		Entity(const Entity& other) = default;
@@ -61,9 +68,14 @@ namespace Rynex {
 			return !(*this == other);
 		}
 
+		State GetState() const { return m_State; }
+		void SetState(State state) { m_State = state; }
+
+	
 	private:
 		entt::entity m_EntityHandle{ entt::null };
 		Scene* m_Scene = nullptr;
+		State m_State = State::None;
 	};
 
 }

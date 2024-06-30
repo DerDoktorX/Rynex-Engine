@@ -6,10 +6,13 @@
 #include <glm/gtc/type_ptr.hpp>
 
 namespace Rynex {
+
 	static GLenum ShaderTypeFromString(const std::string& type)
 	{
 		if (type == "vertex") return GL_VERTEX_SHADER;
 		if (type == "fragment" || type == "pixel") return GL_FRAGMENT_SHADER;
+		if (type == "Geomtry") return GL_GEOMETRY_SHADER;
+		if (type == "Geomtry") return GL_TESS_CONTROL_SHADER;
 
 		RY_CORE_ASSERT(false, "Unkowne Shader Type!");
 		return 0;
@@ -17,6 +20,9 @@ namespace Rynex {
 
 	OpenGLShader::OpenGLShader(const std::string& filePath)
 	{
+#if CONSOLE_LOG_FUNKTION_OPENGL
+		RY_CORE_INFO("OpenGLShader::OpenGLShader(const std::string& filePath)");
+#endif
 		std::string source = ReadFile(filePath);
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);
@@ -32,6 +38,9 @@ namespace Rynex {
 	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
 		: m_Name(name)
 	{
+#if CONSOLE_LOG_FUNKTION_OPENGL
+		RY_CORE_INFO("OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)");
+#endif
 		std::unordered_map<GLenum, std::string> sources;
 		sources[GL_VERTEX_SHADER] = vertexSrc;
 		sources[GL_FRAGMENT_SHADER] = fragmentSrc;
@@ -45,39 +54,90 @@ namespace Rynex {
 
 	void OpenGLShader::Bind() const
 	{
+#if CONSOLE_LOG_FUNKTION_OPENGL
+		RY_CORE_INFO("void OpenGLShader::Bind() const");
+#endif
 		glUseProgram(m_RendererID);
 	}
 
 	void OpenGLShader::UnBind() const
 	{
+#if CONSOLE_LOG_FUNKTION_OPENGL
+		RY_CORE_INFO("void OpenGLShader::UnBind() const");
+#endif
 		glUseProgram(0);
+	}
+
+	void OpenGLShader::AddShader(const std::string& shader, Shader::Type shaderType)
+	{
+		RY_CORE_ASSERT(false, "Not Rady!");
 	}
 
 
 	void OpenGLShader::SetInt(const std::string& name, int value)
 	{
+#if CONSOLE_LOG_FUNKTION_OPENGL
+		RY_CORE_INFO("void OpenGLShader::SetInt(const std::string& name, int value)");
+#endif
 		UploadUniformInt(name, value);
 	}
 
 	void OpenGLShader::SetIntArray(const std::string& name, int* value, uint32_t count)
 	{
+#if CONSOLE_LOG_FUNKTION_OPENGL
+		RY_CORE_INFO("void OpenGLShader::SetIntArray(const std::string& name, int* value, uint32_t count)");
+#endif
 		UploadUniformIntArray(name, value, count);
 	}
 
 	void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)
 	{
+#if CONSOLE_LOG_FUNKTION_OPENGL
+		RY_CORE_INFO("void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)");
+#endif
 		UploadUniformFloat3(name, value);
 	}
 
 	void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value)
 	{
+#if CONSOLE_LOG_FUNKTION_OPENGL
+		RY_CORE_INFO("void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value)");
+#endif
 		UploadUniformFloat4(name, value);
 	}
 
 	void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value)
 	{
+#if CONSOLE_LOG_FUNKTION_OPENGL
+		RY_CORE_INFO("void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value)");
+#endif
 		UploadUniformMat4(name, value);
 	}
+
+	void OpenGLShader::SetAlgorithm(Shader::Algorithm)
+	{
+		RY_CORE_ASSERT(false, "Not Rady!");
+		
+	}
+
+	Shader::Algorithm OpenGLShader::GetAlgorithm()
+	{
+		RY_CORE_ASSERT(false, "Not Rady!");
+		return Algorithm();
+	}
+
+	void OpenGLShader::SetLayouteData(BufferLayout& bufferLayout, Type shaderType, void* value, uint32_t layoute)
+	{
+		RY_CORE_ASSERT(false,"Not Rady!");
+	}
+
+	const BufferLayout& OpenGLShader::GetLayout(Type shaderType, uint32_t layoute)
+	{
+		RY_CORE_ASSERT(false, "Not Rady!");
+		return BufferLayout();
+	}
+
+	
 
 
 	void OpenGLShader::UploadUniformMat3(const std::string& name, const glm::mat3& matrix)
@@ -106,7 +166,7 @@ namespace Rynex {
 		}
 		else
 		{
-			RY_CORE_ERROR("COud not open file '{0}' filepath", filePath);
+			RY_CORE_ERROR("Coud not open file '{0}' filepath", filePath);
 		}
 		return result;
 	}

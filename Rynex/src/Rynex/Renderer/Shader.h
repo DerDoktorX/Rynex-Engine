@@ -1,22 +1,60 @@
 #pragma once
 
-#include <string>
+
+#include "Rynex/Renderer/Buffer.h"
+
 #include <glm/glm.hpp>
+#include <string>
+
+
 namespace Rynex{
 	
+	
+	
+
 	class Shader
 	{
+	public:
+	enum class Type
+	{
+		None = 0,
+		Fragment = BIT(0),
+		Vertex = BIT(1),
+		Compute = BIT(2),
+		Geometry = BIT(3),
+		TeselationControl = BIT(4),
+		TeselationEvelution = BIT(5)
+	};
+
+	enum class Algorithm
+	{
+		Nono = 0,
+		Z_Buffer = BIT(0), Depth_Buffer = BIT(0),
+		A_Buffer = BIT(1),
+		Blend = BIT(2),
+		DobbleSide = BIT(3),
+		ClockWise = BIT(4),
+	};
+
 	public:
 		~Shader() = default;
 
 		virtual void Bind() const = 0;
 		virtual void UnBind() const = 0;
 
+		virtual void AddShader(const std::string& shader, Shader::Type shaderType) = 0;
+
 		virtual void SetInt(const std::string& name, int value) = 0;
 		virtual void SetIntArray(const std::string& name, int* value, uint32_t count) = 0;
 		virtual void SetFloat3(const std::string& name, const glm::vec3& value) = 0;
 		virtual void SetFloat4(const std::string& name, const glm::vec4& value) = 0;
 		virtual void SetMat4(const std::string& name, const glm::mat4& value) = 0;
+
+		virtual void SetLayouteData(BufferLayout& bufferLayout, Type shaderType, void* value, uint32_t layoute = 0) = 0;
+		virtual const BufferLayout& GetLayout(Type shaderType, uint32_t layoute = 0) = 0;
+		
+		virtual void SetAlgorithm(Shader::Algorithm) = 0;
+		virtual Algorithm GetAlgorithm() = 0;
 
 		virtual const std::string& GetName() const = 0;
 

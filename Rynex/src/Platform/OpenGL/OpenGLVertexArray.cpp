@@ -38,6 +38,9 @@ namespace Rynex {
 	OpenGLVertexArray::OpenGLVertexArray()
 	{
 		glCreateVertexArrays(1, &m_RendererID);
+#if CONSOLE_LOG_FUNKTION_OPENGL
+		RY_CORE_INFO("OpenGLVertexArray::OpenGLVertexArray()");
+#endif
 	}
 
 	OpenGLVertexArray::~OpenGLVertexArray()
@@ -50,11 +53,27 @@ namespace Rynex {
 	void OpenGLVertexArray::Bind() const
 	{
 		glBindVertexArray(m_RendererID);
+
+		RY_CORE_INFO("void OpenGLVertexArray::Bind() const");
 	}
 
 	void OpenGLVertexArray::UnBind() const
 	{
 		glBindVertexArray(0);
+#if CONSOLE_LOG_FUNKTION_OPENGL
+	RY_CORE_INFO("void OpenGLVertexArray::UnBind() const");
+#endif
+	}
+
+	void OpenGLVertexArray::SetPrimitv(Primitv primitv)
+	{
+		RY_CORE_ASSERT(false, "Not Rady!");
+	}
+
+	VertexArray::Primitv OpenGLVertexArray::GetPrimitv()
+	{
+		RY_CORE_ASSERT(false, "Not Rady!");
+		return Primitv();
 	}
 
 	void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
@@ -114,6 +133,9 @@ namespace Rynex {
 			
 		}
 		m_VertexBuffers.push_back(vertexBuffer);
+#if CONSOLE_LOG_FUNKTION_OPENGL
+		RY_CORE_INFO("void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)");
+#endif
 	}
 
 	void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
@@ -122,5 +144,27 @@ namespace Rynex {
 		indexBuffer->Bind();
 
 		m_IndexBuffer = indexBuffer;
+#if CONSOLE_LOG_FUNKTION_OPENGL
+		RY_CORE_INFO("void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)");
+#endif
+	}
+
+	const char* OpenGLVertexArray::GetPrimitvChar() const
+	{
+		switch (m_Primitv)
+		{
+			case VertexArray::Primitv::Traingle:		return {"Traingle"};
+			case VertexArray::Primitv::TraingleStrips:	return {"TraingleStrips"};
+			case VertexArray::Primitv::TraingleFan:		return {"TraingleFan"};
+			case VertexArray::Primitv::Line:			return {"Line"};
+			case VertexArray::Primitv::LineLoop:		return {"LineLoop"};
+			case VertexArray::Primitv::LineStrips:		return {"LineStrips"};
+			case VertexArray::Primitv::Points:			return {"Points"};
+			default:
+				break;
+		}
+		RY_CORE_ASSERT(false, "Not known Type! OpenGLVertexArray::GetPrimitvChar()");
+
+		return nullptr;
 	}
 }
