@@ -7,27 +7,27 @@ namespace Rynex{
 
 	namespace Utils {
 
-		static GLenum HazelImageFormatToGLDataFormat(ImageFormat format)
+		static GLenum RynexImageFormatToGLDataFormat(ImageFormat format)
 		{
 			switch (format)
 			{
-			case ImageFormat::RGB8:  return GL_RGB;
-			case ImageFormat::RGBA8: return GL_RGBA;
+				case ImageFormat::RGB8:  return GL_RGB;
+				case ImageFormat::RGBA8: return GL_RGBA;
 			}
 
-			RY_CORE_ASSERT(false, "Error: Utils::HazelImageFormatToGLDataFormat!");
+			RY_CORE_ASSERT(false, "Error: Utils::RynexImageFormatToGLDataFormat!");
 			return 0;
 		}
 
-		static GLenum HazelImageFormatToGLInternalFormat(ImageFormat format)
+		static GLenum RynexImageFormatToGLInternalFormat(ImageFormat format)
 		{
 			switch (format)
 			{
-			case ImageFormat::RGB8:  return GL_RGB8;
-			case ImageFormat::RGBA8: return GL_RGBA8;
+				case ImageFormat::RGB8:  return GL_RGB8;
+				case ImageFormat::RGBA8: return GL_RGBA8;
 			}
 
-			RY_CORE_ASSERT(false, "Error: Utils::HazelImageFormatToGLInternalFormat!");
+			RY_CORE_ASSERT(false, "Error: Utils::RynexImageFormatToGLInternalFormat!");
 			return 0;
 		}
 
@@ -39,8 +39,8 @@ namespace Rynex{
 		m_Width(m_Specification.Width), 
 		m_Heigth(m_Specification.Height)
 	{
-		m_InternalFormate = Utils::HazelImageFormatToGLInternalFormat(m_Specification.Format);
-		m_DataFormate = Utils::HazelImageFormatToGLDataFormat(m_Specification.Format);
+		m_InternalFormate = Utils::RynexImageFormatToGLInternalFormat(m_Specification.Format);
+		m_DataFormate = Utils::RynexImageFormatToGLDataFormat(m_Specification.Format);
 
 		RY_CORE_ASSERT(m_InternalFormate & m_DataFormate, "format not seportet?");
 
@@ -58,8 +58,8 @@ namespace Rynex{
 		: m_Width(withe)
 		, m_Heigth(height)
 	{
-		m_InternalFormate = Utils::HazelImageFormatToGLInternalFormat(m_Specification.Format);
-		m_DataFormate = Utils::HazelImageFormatToGLDataFormat(m_Specification.Format);
+		m_InternalFormate = Utils::RynexImageFormatToGLInternalFormat(m_Specification.Format);
+		m_DataFormate = Utils::RynexImageFormatToGLDataFormat(m_Specification.Format);
 
 		RY_CORE_ASSERT(m_InternalFormate & m_DataFormate, "format not seportet?");
 
@@ -76,7 +76,7 @@ namespace Rynex{
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
 		: m_Path(path)
 	{
-		
+		RY_CORE_ERROR("OpenGLTexture2D::OpenGLTexture2D-> use string path!");
 		int width, height, channels;
 		stbi_set_flip_vertically_on_load(1);
 		stbi_uc* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
@@ -117,24 +117,92 @@ namespace Rynex{
 
 			glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Heigth, m_DataFormate, GL_UNSIGNED_BYTE, data);
 
-			stbi_image_free(data);
+			
 		}
 
-		
+		stbi_image_free(data);
 		//err = fclose(m_stream);
 		//int numclosed = _fcloseall();
 		//printf("\n\t%i closed files, err state: %i\n", numclosed, err);
 	}
+
+	OpenGLTexture2D::OpenGLTexture2D(void* data, int width, int height, int channels)
+	{
+		RY_CORE_INFO("OpenGLTexture2D::OpenGLTexture2D -> use data");
+		if (data)
+		{
+			m_Width = width;
+			m_Heigth = height;
+
+			m_IsLoaded = true;
+
+			GLenum internalFormate = 0, dataFormate = 0;
+			if (channels == 4) {
+				internalFormate = GL_RGBA8;
+				dataFormate = GL_RGBA;
+			}
+			else if (channels == 3) {
+				internalFormate = GL_RGB8;
+				dataFormate = GL_RGB;
+			}
+
+			m_InternalFormate = internalFormate;
+			m_DataFormate = dataFormate;
+
+			RY_CORE_ASSERT(m_InternalFormate & m_DataFormate, "format not seportet?");
+
+			glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
+			glTextureStorage2D(m_RendererID, 1, m_InternalFormate, m_Width, m_Heigth);
+
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+			glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Heigth, m_DataFormate, GL_UNSIGNED_BYTE, data);
+
+		}
+	}
+
+	OpenGLTexture2D::OpenGLTexture2D(const TextureSpecification& spec, void* data)
+		: m_Specification(spec)
+		, m_Width(m_Specification.Width)
+		, m_Heigth(m_Specification.Height)
+		, m_IsLoaded(true)
+	{
+		m_DataFormate = Utils::RynexImageFormatToGLDataFormat(m_Specification.Format);
+		m_InternalFormate = Utils::RynexImageFormatToGLInternalFormat(m_Specification.Format);
+
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
+		glTextureStorage2D(m_RendererID, 1, m_InternalFormate, m_Width, m_Heigth);
+
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		if (data)
+		{
+			glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Heigth, m_DataFormate, GL_UNSIGNED_BYTE, data);
+		}
+		
+	}
+
 	OpenGLTexture2D::~OpenGLTexture2D()
 	{
 		glDeleteTextures(1, &m_RendererID);
 	}
+
 	void OpenGLTexture2D::SetData(void* data, uint32_t size)
 	{
 		uint32_t bpp = m_DataFormate == GL_RGBA ? 4 : 3;
 		RY_CORE_ASSERT(size == m_Width * m_Heigth * bpp, "Data must be entyer Texture!")
 		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Heigth, m_DataFormate, GL_UNSIGNED_BYTE, data);
 	}
+
 	void OpenGLTexture2D::Bind(uint32_t slot) const
 	{
 		glBindTextureUnit(slot, m_RendererID);

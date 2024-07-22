@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Rynex/Renderer/Texture.h"
-
-#include <filesystem>
+#include <Rynex/Renderer/Texture.h>
+#include <Rynex/Project/Project.h>
+#include <FileWatch.h>
 
 namespace Rynex {
 
@@ -21,11 +21,15 @@ namespace Rynex {
 	{
 		None = 0,
 		Error,
+		OnDisc,
+		OnRam,
+		LostConection,
 		Update,
 		Change,
 		Ready,
 		Wahrning,
 	};
+
 
 	class ContentBrowserPannel
 	{
@@ -33,14 +37,24 @@ namespace Rynex {
 		ContentBrowserPannel();
 
 		void OnImGuiRender();
+		void OnAtache();
 
-
-
+		static void AssetFileWatcher();
 	private:
+		void BrowserPannel();
+		void AssetPannel();
+		void AssetRegestriyPannel();
+
+		void GetFileList(const std::filesystem::path& curentPath);
+		void SetAssetRegestriy(const std::filesystem::path& curentPath);
 
 		void FileFormate(const std::filesystem::directory_entry& directoryEntry, FileFormats formate = FileFormats::none) const;
+		void FileAsste(const std::filesystem::directory_entry& directoryEntry, AssetHandle handle) const;
 
+		static void InitAssetFileWatcher();
 	private:
+		Ref<Project> m_Project;
+
 		std::filesystem::path m_BaseDirectory;
 		std::filesystem::path m_CurrentDirectory;
 
@@ -52,6 +66,11 @@ namespace Rynex {
 		Ref<Texture2D>	m_FileIconShader;
 		Ref<Texture2D>	m_FileIconTexture;
 
+
+		bool m_CompletAssetDirectory = false;
+		
+		// AssetDirectory m_AssetDirectorys;
+		Ref<EditorAssetManager> m_AssetManger;
 	};				   
 }					   
 

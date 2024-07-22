@@ -53,8 +53,9 @@ namespace Rynex {
 	void OpenGLVertexArray::Bind() const
 	{
 		glBindVertexArray(m_RendererID);
-
+#if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("void OpenGLVertexArray::Bind() const");
+#endif
 	}
 
 	void OpenGLVertexArray::UnBind() const

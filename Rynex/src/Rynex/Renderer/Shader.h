@@ -2,17 +2,15 @@
 
 
 #include "Rynex/Renderer/Buffer.h"
+#include "Rynex/Asset/Base/Asset.h"
 
 #include <glm/glm.hpp>
 #include <string>
 
 
 namespace Rynex{
-	
-	
-	
 
-	class Shader
+	class Shader : public Asset
 	{
 	public:
 	enum class Type
@@ -38,6 +36,9 @@ namespace Rynex{
 
 	public:
 		~Shader() = default;
+		static Ref<Shader> Create(const std::string& filePath, const std::string& name);
+		static Ref<Shader> Create(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
+
 
 		virtual void Bind() const = 0;
 		virtual void UnBind() const = 0;
@@ -58,8 +59,12 @@ namespace Rynex{
 
 		virtual const std::string& GetName() const = 0;
 
-		static Ref<Shader> Create(const std::string& filePath);
-		static Ref<Shader> Create(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
+		// Asset
+		static AssetType GetStaticType() { return AssetType::Shader; }
+		AssetType GetType() const { return GetStaticType(); }
+		// virtual AssetHandle GetHandle() const { return m_Handle; };
+		
+
 	private:
 		uint32_t m_RenderID;
 	};
@@ -70,7 +75,7 @@ namespace Rynex{
 		void Add(const std::string& name, const Ref<Shader>& shader);
 		void Add(const Ref<Shader>& shader);
 
-		Ref<Shader> Load(const std::string& filepath);
+		Ref<Shader> Load(const std::filesystem::path& path);
 		Ref<Shader> Load(const std::string& vertexSrc, const std::string& fragmentSrc);
 
 		Ref<Shader> Get(const std::string& name);

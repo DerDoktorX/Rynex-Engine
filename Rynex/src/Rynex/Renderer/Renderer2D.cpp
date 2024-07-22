@@ -4,12 +4,14 @@
 #include "RenderCommand.h"
 #include "Shader.h"
 #include "VertexArray.h"
+#include "Platform/OpenGL/OpenGLShader.h"
+#include "Rynex/Scene/SceneGeomtry.h"
+#include "Rynex/Asset/Base/AssetManager.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Platform/OpenGL/OpenGLShader.h"
-#include "Rynex/Scene/SceneGeomtry.h"
+
 
 
 #define OLD_GEOMTRY_HANDLE 1
@@ -164,7 +166,8 @@ namespace Rynex {
 		for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
 			samplers[i] = i;
 
-		s_Data.TextureShader = Shader::Create("Assets/shaders/Texture.glsl");
+		Ref<EditorAssetManager> editorAssetManger = Project::GetActive()->GetEditorAssetManger();
+		s_Data.TextureShader = AssetManager::GetAsset<Shader>(editorAssetManger->GetAssetHandle("Assets/shaders/Texture.glsl"));
 		s_Data.TextureShader->Bind();
 		s_Data.TextureShader->SetIntArray("u_Textures", samplers, s_Data.MaxTextureSlots);
 		

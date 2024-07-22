@@ -10,7 +10,7 @@
 
 #include "FileWatch.h"
 
-#define AKICE_C_SCHARPH 1
+#define RY_AKICE_CS 1
 namespace Rynex {
 
 	
@@ -47,6 +47,8 @@ namespace Rynex {
 		
 		Scope<filewatch::FileWatch<std::string>> AppAssemblyFileWatcher;
 		bool AssemblyRelodingPennding = false;
+
+		bool AsseblyReloading = false;
 	};
 
 
@@ -159,7 +161,7 @@ namespace Rynex {
 		LoadAppAssambly("SandboxProject/Assets/Scripts/Binaries/Sanbox.dll");
 		LoadAssemblyClasses();
 
-		ScriptGlue::RegisterComponets();
+		ScriptGlue::RegisterAllComponets();
 
 		//ExecuteScriptClass();
 		s_Data->EntityClass = ScriptClass("Rynex", "Entity", true);
@@ -201,7 +203,7 @@ namespace Rynex {
 		s_Data->CoreAssembly = Utils::LoadMonoAssembly(filepath);
 		s_Data->CoreAssemblyImage = mono_assembly_get_image(s_Data->CoreAssembly);
 		
-		ScriptGlue::RegisterComponets();
+		ScriptGlue::RegisterAllComponets();
 	}
 
 	static void OnAppAssemblyFileSystemEvent(const std::string& path, const filewatch::Event change_type)
@@ -220,6 +222,7 @@ namespace Rynex {
 			{ 
 				s_Data->AppAssemblyFileWatcher.reset();
 				ScriptingEngine::ReloadAssambly(); 
+				
 			});
 		}
 		else if (!s_Data->AssemblyRelodingPennding && change_type == filewatch::Event::modified)
@@ -245,6 +248,7 @@ namespace Rynex {
 		//Utils::PrintAssemblyTypes(s_Data->AppAssambly);
 		
 		s_Data->AppAssemblyFileWatcher = CreateScope<filewatch::FileWatch<std::string>>(filepath.string(), OnAppAssemblyFileSystemEvent);
+		s_Data->AsseblyReloading = true;
 		s_Data->AssemblyRelodingPennding = false;
 	}
 
@@ -271,6 +275,14 @@ namespace Rynex {
 
 		s_Data->EntityClass = ScriptClass("Rynex", "Entity", true);
 	}
+
+	bool ScriptingEngine::ReloadeScriptAvaible()
+	{
+		bool state = s_Data->AsseblyReloading;
+		s_Data->AsseblyReloading = false;
+		return state;
+	}
+
 #if 1
 	std::string* ScriptingEngine::GetListExistClasses()
 	{
@@ -315,6 +327,22 @@ namespace Rynex {
 
 		Ref<ScriptInstance> instance = s_Data->EntityInstances[entityID];
 		instance->InvokeOnUpdate(ts);
+	}
+
+	void ScriptingEngine::OnDrawEntity(Entity entity)
+	{
+		const auto& sc = entity.GetComponent<ScriptComponent>();
+		if (ScriptingEngine::ClassExists(sc.Name))
+		{
+			UUID entityID = entity.GetUUID();
+			auto& clases = s_Data->EntityClasses;
+			Ref<ScriptInstance> instance = CreateRef<ScriptInstance>(s_Data->EntityClasses[sc.Name], entity);
+			s_Data->EntityInstances[entityID] = instance;
+
+			instance->InvokeOnDrawn();
+
+		}
+
 	}
 
 	Scene* ScriptingEngine::GetSceneContext()
@@ -405,11 +433,10 @@ namespace Rynex {
 		MonoClass* entityClass = mono_class_from_name(s_Data->CoreAssemblyImage, "Rynex", "Entity");
 		
 		
-		s_Data->ClassList = new std::string[numTypes+1];
+		s_Data->ClassList = new std::string[numTypes];
 		s_Data->ListIndex = 0;
 		
-		s_Data->ClassList[s_Data->ListIndex] = std::string("None");
-		s_Data->ListIndex++;
+		
 
 		for (int32_t i = 0; i < numTypes; i++)
 		{
@@ -442,12 +469,15 @@ namespace Rynex {
 			RY_CORE_TRACE("{}.{}", nameSpace, name);
 			
 		}
+		s_Data->ClassList[0] = std::string("None");
+		
 	}
 
 	MonoImage* ScriptingEngine::GetCoreAssemblyImage()
 	{
 		return s_Data->CoreAssemblyImage;
 	}
+
 
 	
 	///////////////////////////////////////////////////////////////////////
@@ -465,8 +495,6 @@ namespace Rynex {
 	{
 		return ScriptingEngine::InstantiateClass(m_MonoClass);
 	}
-
-	
 
 	MonoMethod* ScriptClass::GetMethode(const std::string& name, int prameCount)
 	{
@@ -493,6 +521,7 @@ namespace Rynex {
 		m_Constructor = s_Data->EntityClass.GetMethode(".ctor", 1);
 		m_OnCreateMethod = scriptClass->GetMethode("OnCreate");
 		m_OnUpdateMethod = scriptClass->GetMethode("OnUpdate", 1);
+		m_OnDrawMethod = scriptClass->GetMethode("OnDraw");
 
 		{
 			UUID entityID = entity.GetUUID();
@@ -511,5 +540,11 @@ namespace Rynex {
 	{
 		void* param = &ts;
 		m_ScriptClass->InvokeMethode(m_OnUpdateMethod, m_Instance, &param);
+	}
+
+	void ScriptInstance::InvokeOnDrawn()
+	{
+		if (m_OnDrawMethod)
+			m_ScriptClass->InvokeMethode(m_OnDrawMethod, m_Instance);
 	}
 }

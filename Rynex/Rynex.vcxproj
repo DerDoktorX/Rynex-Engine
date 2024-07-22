@@ -147,6 +147,20 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Rynex\Asset\Base\Buffer.h" />
+    <ClInclude Include="src\Rynex\Asset\Import\SceneImporter.h" />
+    <ClInclude Include="src\Rynex\Asset\Import\ShaderImporter.h" />
+    <ClInclude Include="src\Rynex\Asset\Base\AssetImporter.h" />
+    <ClInclude Include="src\Rynex\Core\Base.h" />
+    <ClInclude Include="src\Rynex\Core\CoreConfig.h" />
+    <ClInclude Include="src\Rynex\Serializers\ProjectSerialiazer.h" />
+    <ClInclude Include="src\Rynex\Asset\Base\AssetRegistry.h" />
+    <ClInclude Include="src\Rynex\Asset\Base\Asset.h" />
+    <ClInclude Include="src\Rynex\Asset\Base\AssetMetadata.h" />
+    <ClInclude Include="src\Rynex\Asset\RuntimeAssetManager.h" />
+    <ClInclude Include="src\Rynex\Asset\EditorAssetManager.h" />
+    <ClInclude Include="src\Rynex\Asset\Base\AssetManagerBase.h" />
+    <ClInclude Include="src\Rynex\Asset\Base\AssetManager.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLFramebuffer.h" />
@@ -158,9 +172,7 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\Rynex.h" />
     <ClInclude Include="src\Rynex\Core\Application.h" />
-    <ClInclude Include="src\Rynex\Core\Base.h" />
     <ClInclude Include="src\Rynex\Core\CamerController.h" />
-    <ClInclude Include="src\Rynex\Core\Core.h" />
     <ClInclude Include="src\Rynex\Core\EntryPoint.h" />
     <ClInclude Include="src\Rynex\Core\File.h" />
     <ClInclude Include="src\Rynex\Core\Input.h" />
@@ -179,6 +191,7 @@
     <ClInclude Include="src\Rynex\Events\MouseEvent.h" />
     <ClInclude Include="src\Rynex\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Rynex\Math\Math.h" />
+    <ClInclude Include="src\Rynex\Project\Project.h" />
     <ClInclude Include="src\Rynex\Renderer\Buffer.h" />
     <ClInclude Include="src\Rynex\Renderer\Camera.h" />
     <ClInclude Include="src\Rynex\Renderer\EditorCamera.h" />
@@ -198,13 +211,16 @@
     <ClInclude Include="src\Rynex\Scene\Entity.h" />
     <ClInclude Include="src\Rynex\Scene\Scene.h" />
     <ClInclude Include="src\Rynex\Scene\SceneGeomtry.h" />
-    <ClInclude Include="src\Rynex\Scene\SceneSerializer.h" />
+    <ClInclude Include="src\Rynex\Serializers\SceneSerializer.h" />
     <ClInclude Include="src\Rynex\Scene\ScenenCamera.h" />
     <ClInclude Include="src\Rynex\Scene\ScriptableEntity.h" />
     <ClInclude Include="src\Rynex\Scripting\ScriptGlue.h" />
     <ClInclude Include="src\Rynex\Scripting\ScriptingEngine.h" />
+    <ClInclude Include="src\Rynex\Serializers\YAML.h" />
     <ClInclude Include="src\Rynex\Utils\PlatformUtils.h" />
     <ClInclude Include="src\rypch.h" />
+    <ClInclude Include="src\Rynex\Asset\Import\TextureImporter.h" />
+    <ClInclude Include="src\Rynex\Core\Instrumentor.h" />
     <ClInclude Include="vendor\ImGuizmo\ImGuizmo.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_features.hpp" />
@@ -625,6 +641,16 @@
     <ClInclude Include="vendor\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Rynex\Asset\Import\SceneImporter.cpp" />
+    <ClCompile Include="src\Rynex\Asset\Import\ShaderImporter.cpp" />
+    <ClCompile Include="src\Rynex\Asset\Base\AssetImporter.cpp" />
+    <ClCompile Include="src\Rynex\Serializers\ProjectSerialiazer.cpp" />
+    <ClCompile Include="src\Rynex\Asset\Base\AssetRegistry.cpp" />
+    <ClCompile Include="src\Rynex\Asset\Base\Asset.cpp" />
+    <ClCompile Include="src\Rynex\Asset\RuntimeAssetManager.cpp" />
+    <ClCompile Include="src\Rynex\Asset\EditorAssetManager.cpp" />
+    <ClCompile Include="src\Rynex\Asset\Base\AssetManagerBase.cpp" />
+    <ClCompile Include="src\Rynex\Asset\Base\AssetManager.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLFramebuffer.cpp" />
@@ -645,6 +671,7 @@
     <ClCompile Include="src\Rynex\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\Rynex\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Rynex\Math\Math.cpp" />
+    <ClCompile Include="src\Rynex\Project\Project.cpp" />
     <ClCompile Include="src\Rynex\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Rynex\Renderer\EditorCamera.cpp" />
     <ClCompile Include="src\Rynex\Renderer\Framebuffer.cpp" />
@@ -661,13 +688,14 @@
     <ClCompile Include="src\Rynex\Scene\Entity.cpp" />
     <ClCompile Include="src\Rynex\Scene\Scene.cpp" />
     <ClCompile Include="src\Rynex\Scene\SceneGeomtry.cpp" />
-    <ClCompile Include="src\Rynex\Scene\SceneSerializer.cpp" />
+    <ClCompile Include="src\Rynex\Serializers\SceneSerializer.cpp" />
     <ClCompile Include="src\Rynex\Scene\ScenenCamera.cpp" />
     <ClCompile Include="src\Rynex\Scripting\ScriptGlue.cpp" />
     <ClCompile Include="src\Rynex\Scripting\ScriptingEngine.cpp" />
     <ClCompile Include="src\rypch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\Rynex\Asset\Import\TextureImporter.cpp" />
     <ClCompile Include="vendor\ImGuizmo\ImGuizmo.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>

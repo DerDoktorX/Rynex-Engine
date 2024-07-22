@@ -11,6 +11,8 @@ namespace Rynex {
 		OpenGLTexture2D(const TextureSpecification& specification);
 		OpenGLTexture2D(uint32_t withe, uint32_t height);
 		OpenGLTexture2D(const std::string& path);
+		OpenGLTexture2D(void* data, int withe, int heigth, int chanels);
+		OpenGLTexture2D(const TextureSpecification& spec, void* data);
 		virtual ~OpenGLTexture2D();
 
 		virtual const TextureSpecification& GetSpecification() const override { return m_Specification; }
@@ -31,6 +33,10 @@ namespace Rynex {
 		{
 			return m_RendererID == ((OpenGLTexture2D&)other).m_RendererID;
 		};
+
+		//static AssetType GetStaticType() { return AssetType::Texture2D; }
+		//virtual AssetType GetType() const { return GetStaticType(); }
+		//virtual AssetHandle GetHandle() const { return m_Handle; };
 	private:
 		TextureSpecification m_Specification;
 

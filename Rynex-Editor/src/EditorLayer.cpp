@@ -4,12 +4,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Rynex/Scene/SceneSerializer.h"
+#include "Rynex/Serializers/SceneSerializer.h"
 
 #include "ImGuizmo.h"
 
 #include "Rynex/Math/Math.h"
 #include "Rynex/Scripting/ScriptingEngine.h"
+#include "Rynex/Project/Project.h"
+#include "Rynex/Asset/Base/AssetManager.h"
 
 namespace Rynex {
 
@@ -17,15 +19,19 @@ namespace Rynex {
 
     EditorLayer::EditorLayer()
         : Layer("Rynex-Editor")
-        , m_CameraController((1280.0f / 720.0f), true)  
+        , m_CameraController((1280.0f / 720.0f), true)
+        
     {
+        RY_PROFILE_FUNCTION();
     }
 
 
     void EditorLayer::OnAttach()
     {
+        RY_PROFILE_FUNCTION();
         FramebufferSpecification fbSpec;
-        fbSpec.Attachments = { 
+        fbSpec.Attachments = 
+        { 
             FramebufferTextureFormat::RGBA8, 
             FramebufferTextureFormat::RGBA8, 
             FramebufferTextureFormat::RED_INTEGER, 
@@ -37,11 +43,39 @@ namespace Rynex {
 
         m_AktiveScene = CreateRef<Scene>();
         m_Scene_HPanel.SetContext(m_AktiveScene);
-        m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1f, 100.0f);
+        
+        //m_Content_BPannel = Project::GetActive();
        
-#if 1
-        m_AktiveScene->CreateEntityWitheUUID(UUID(89234786376786), "3D_RendererTestEntity");
-        auto& entiy = m_AktiveScene->GetEntitiyByUUID(89234786376786);
+        m_EditorScene = CreateRef<Scene>();
+        m_AktiveScene = m_EditorScene;
+
+        auto cLA = Application::Get().GetSpecification().CommandLineArgs;
+        if (cLA.Count > 1)
+        {
+            auto projFilePath = cLA[1];
+            OpenProject(projFilePath);
+        }
+        else
+        {
+            //if(!OpenProject())
+                //Application::Get().Close();
+            OpenProject("Sandbox.rproj");
+            RY_CORE_INFO("Open A Project");
+        }
+
+
+        m_Content_BPannel.OnAtache();
+        Renderer::Init();
+        m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1, 1000.0f);
+
+        m_Project = Project::GetActive();
+        m_AssetManger = m_Project->GetEditorAssetManger();
+
+
+        #if 1
+
+        m_AktiveScene->CreateEntityWitheUUID(UUID(8976786), "3D_RendererTestEntity");
+        auto& entiy = m_AktiveScene->GetEntitiyByUUID(8976786);
 
         if(!entiy.HasComponent<TagComponent>())
             entiy.AddComponent<TagComponent>("3D_RendererTestEntity");
@@ -68,28 +102,30 @@ namespace Rynex {
         {
             entiy.AddComponent<MaterialComponent>();
             auto& material = entiy.GetComponent<MaterialComponent>();
-            material.Shader = Shader::Create("Assets/shaders/3DTest.glsl");
+            material.Shader = AssetManager::GetAsset<Shader>(m_AssetManger->AddFileToRegistry("Assets/shaders/3DTest.glsl"));
         }
 
-#endif
+        #endif
     }
 
     void EditorLayer::OnDetach()
     {
+        RY_PROFILE_FUNCTION();
     }
 
     void EditorLayer::OnUpdate(TimeStep ts)
-    {
+    {   
+        RY_PROFILE_FUNCTION();
+        m_AktiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
         if (FramebufferSpecification spec = m_Framebuffer->GetFramebufferSpecification(); m_ViewPortSize.x > 0.0f && m_ViewPortSize.y > 0.0f && (spec.Width != m_ViewPortSize.x || spec.Height != m_ViewPortSize.y))
         {
             m_Framebuffer->Resize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
             m_CameraController.OnResize(m_ViewPortSize.x, m_ViewPortSize.y);
             m_EditorCamera.SetViewportSize(m_ViewPortSize.y, m_ViewPortSize.x);
-            m_AktiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
         }
         m_PasTime += ts;
 
-#if CHECK_FOR_ERRORS
+#if RY_CHECK_FOR_ERRORS
         if (m_PasTime > 10.0f)
         {
             m_PasTime = 0.0f;
@@ -115,14 +151,14 @@ namespace Rynex {
                     m_EditorCamera.OnUpdate(ts);
                 }
 
-                m_EditorCamera.OnUpdate(ts);
+               
                 m_AktiveScene->OnUpdateEditor(ts, m_EditorCamera);
                 break;
             }
             case SceneState::Simulate:
             {
                 m_EditorCamera.OnUpdate(ts);
-
+                m_AktiveScene->OnUpdateSimulation(ts, m_EditorCamera);
                 break;
             }
             case SceneState::Play:
@@ -154,6 +190,7 @@ namespace Rynex {
 
     void EditorLayer::OnEvent(Event& e)
     {
+        RY_PROFILE_FUNCTION();
         m_CameraController.OnEnvent(e);
         m_EditorCamera.OnEvent(e);
 
@@ -164,6 +201,7 @@ namespace Rynex {
 
     bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
     {
+        RY_PROFILE_FUNCTION();
         if (e.GetRepeatCount() > 0)
             return false;
 
@@ -235,6 +273,7 @@ namespace Rynex {
 
     bool EditorLayer::OnMousePressed(MouseButtenPressedEvent& e)
     {
+        RY_PROFILE_FUNCTION();
         if (m_ViewPortHoverd)
         {
             if (e.GetMouseButton() == Mouse::ButtonLeft)
@@ -248,9 +287,44 @@ namespace Rynex {
         return false;
     }
 
+    void EditorLayer::NewProject()
+    {
+        RY_PROFILE_FUNCTION();
+        Project::New();
+    }
+
+    bool EditorLayer::OpenProject()
+    {
+        RY_PROFILE_FUNCTION();
+        std::string filepath = FileDialoges::OpenFile("Rynex Project (*.rproj)\0*.rproj\0");
+        if (filepath.empty())
+            return false;
+
+        OpenProject(filepath);
+        return true;
+    }
+
+    void EditorLayer::OpenProject(const std::filesystem::path& path)
+    {
+        RY_PROFILE_FUNCTION();
+        if (Project::Load(path))
+        {
+            ScriptingEngine::Init();
+            std::filesystem::path startScene = Project::GetActive()->GetConfig().StartScene;
+            if (startScene.string() != "")
+                OpenScene(startScene);
+            m_Content_BPannel = ContentBrowserPannel();
+        }
+    }
+
+    void EditorLayer::SaveProject()
+    {
+    }
+
 
     void EditorLayer::NewScene()
     {
+        RY_PROFILE_FUNCTION();
         m_AktiveScene = CreateRef<Scene>();
         m_AktiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
         m_Scene_HPanel.SetContext(m_AktiveScene);
@@ -258,25 +332,64 @@ namespace Rynex {
 
     void EditorLayer::OpenScene()
     {
+        RY_PROFILE_FUNCTION();
         std::string filepath = FileDialoges::OpenFile("Rynex Scene (*.rynex)\0*.rynex\0");
         if (!filepath.empty())
         {
+
             OpenScene(filepath);
         }
     }
 
     void EditorLayer::OpenScene(const std::filesystem::path& path)
     {  
+        RY_PROFILE_FUNCTION();
         m_AktiveScene = CreateRef<Scene>();
-        m_AktiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
-        m_Scene_HPanel.SetContext(m_AktiveScene);
 
-        SceneSerializer serialzer(m_AktiveScene);
-        serialzer.Deserialize(path.string());
+        m_AktiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
+        SceneSerializer serialzer(m_AktiveScene);     
+        serialzer.Deserialize(path.string());  
+
+        
+        m_Scene_HPanel.SetContext(m_AktiveScene);
+    }
+
+    void EditorLayer::OpenScene(AssetHandle handle)
+    {
+        RY_PROFILE_FUNCTION();
+#if 1
+        RY_CORE_ASSERT(handle, "Error: EditorLayer::OpenScene(AssetHandle handle)");
+
+        if (m_SceneState != SceneState::Edit)
+        {
+            RY_CORE_ASSERT(m_SceneState == SceneState::Play || m_SceneState == SceneState::Simulate, "Error Futer Funktion: EditorLayer::OnSceneStop()");
+
+            if (m_SceneState == SceneState::Play)
+                m_AktiveScene->OnRuntimStop();
+            else if (m_SceneState == SceneState::Simulate)
+                m_AktiveScene->OnRuntimStop();
+
+            m_SceneState = SceneState::Edit;
+
+            m_AktiveScene = m_EditorScene;
+
+            m_Scene_HPanel.SetContext(m_AktiveScene);
+        }
+
+        Ref<Scene> readOnlyScene = AssetManager::GetAsset<Scene>(handle);
+        Ref<Scene> newScene = Scene::Copy(readOnlyScene);
+
+        m_EditorScene = newScene;
+        m_Scene_HPanel.SetContext(m_EditorScene);
+
+        m_AktiveScene = m_EditorScene;
+        m_EditorScenePath = Project::GetActive()->GetEditorAssetManger()->GetFilePath(handle);
+#endif
     }
 
     void EditorLayer::SaveSceneAs()
     {
+        RY_PROFILE_FUNCTION();
         std::string filepath = FileDialoges::SaveFile("Rynex Scene (*.rynexscene)\0*.rynexscene\0");
         if (!filepath.empty())
         {
@@ -292,9 +405,12 @@ namespace Rynex {
     
     void EditorLayer::OnImGuiRender()
     {
+        RY_PROFILE_FUNCTION();
         static bool dokingEnabled   = true;
-        static bool assetsEnabled   = false;
+        static bool assetsEnabled   = true;
         static bool sceneEnabled    = true;
+        static bool viewPortEnabled = true;
+        static bool settingsEnabled = true;
 
         if (dokingEnabled) {
 
@@ -355,8 +471,8 @@ namespace Rynex {
             ///// Windoe Layoute /////////////////////////////
             //////////////////////////////////////////////////
             if(sceneEnabled)    ImGuiScenePannel();
-            ImGuiSettings();
-            ImGuiViewPort();
+            if(settingsEnabled) ImGuiSettings();
+            if(viewPortEnabled) ImGuiViewPort();
             
             
 
@@ -365,8 +481,8 @@ namespace Rynex {
         else
         {   
             if(sceneEnabled)    ImGuiScenePannel();
-            ImGuiSettings();
-            ImGuiViewPort();
+            if(settingsEnabled) ImGuiSettings();
+            if(viewPortEnabled) ImGuiViewPort();
            
 
             ImGui::End();
@@ -379,7 +495,8 @@ namespace Rynex {
     //--- Layoute ----------------
 
     void EditorLayer::ImGuiViewPort()
-    { 
+    {
+        RY_PROFILE_FUNCTION();
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0 ,0 });
         ImGui::Begin("Viewport");
         // GetMousePos
@@ -389,7 +506,7 @@ namespace Rynex {
         m_ViewPortFocused = ImGui::IsWindowFocused();
         m_ViewPortHoverd = ImGui::IsWindowHovered();
         Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewPortFocused && !m_ViewPortHoverd);
-        
+        //m_EditorCamera.SetModeFreeCamerMove(m_ViewPortFocused && m_ViewPortHoverd);
         // ViewPort get Size + Resize Image + SetImage in ViewPort
         ImVec2 viewportPannelSize = ImGui::GetContentRegionAvail();
         ImGuiViewPortResize(viewportPannelSize);
@@ -416,6 +533,7 @@ namespace Rynex {
 
     void EditorLayer::ImGuiSecundaryViewPort(const Ref<Framebuffer>& framebuffer, uint32_t id, float width , float height)
     {
+        RY_PROFILE_FUNCTION();
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0 ,0 });
         ImGui::Begin("Secundary Viewport");
 
@@ -428,6 +546,7 @@ namespace Rynex {
 
     void EditorLayer::ImGuiSettings()
     {
+        RY_PROFILE_FUNCTION();
         ImGui::Begin("Settings");
         
         std::string name = "None";
@@ -517,12 +636,14 @@ namespace Rynex {
 
     void EditorLayer::ImGuiScenePannel()
     {
+        RY_PROFILE_FUNCTION();
         m_Scene_HPanel.OnImGuiRender();
         m_Content_BPannel.OnImGuiRender();
     }
 
     void EditorLayer::ImGuiContentBrowserViewPort()
     {
+        RY_PROFILE_FUNCTION();
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
@@ -530,12 +651,20 @@ namespace Rynex {
                 const wchar_t* path = (const wchar_t*)payload->Data;
                 OpenScene(std::filesystem::path(g_AssetsPath) / path);
             }
+
+
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_BROWSER_ITEM"))
+            {
+                AssetHandle handle = *(AssetHandle*)payload->Data;
+                OpenScene(handle);
+            }
             ImGui::EndDragDropTarget();
         }
     }
 
     void EditorLayer::ImGuiSetMausPosInViewPort( ImVec2 vpOffset)
     {
+        RY_PROFILE_FUNCTION();
         auto windowSize = ImGui::GetWindowSize();
         ImVec2 minBound = ImGui::GetWindowPos();
         minBound.x += vpOffset.x;
@@ -548,6 +677,7 @@ namespace Rynex {
 
     void EditorLayer::ImGizmoInViewPort()
     {
+        RY_PROFILE_FUNCTION();
         Entity selectedEntity = m_Scene_HPanel.GetSelectedEntity();
 
         if (selectedEntity && m_GizmoType != -1)
@@ -558,16 +688,40 @@ namespace Rynex {
             float windowHeight = (float)ImGui::GetWindowHeight();
             ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
 
-            //Camera
+            // Camera
 #if 0
-            auto camerEntt = m_AktiveScene->GetPrimaryCameraEntity();
-            const auto& camera = camerEntt.GetComponent<CameraComponent>().Camera;
-            const glm::mat4& camerProj = camera.GetProjektion();
-            glm::mat4 camerView = glm::inverse(camerEntt.GetComponent<TransformComponent>().GetTransform());
-#else
 
-            const glm::mat4& camerProj = m_EditorCamera.GetProjektion();
-            glm::mat4 camerView = m_EditorCamera.GetViewMatrix();
+#else
+            
+            
+            glm::mat4 camerProj, camerView;
+
+            switch (m_SceneState)
+            {
+            case SceneState::Edit:
+            {
+                camerProj = m_EditorCamera.GetProjektion();
+                camerView = m_EditorCamera.GetViewMatrix();
+                break;
+            }
+            case SceneState::Play:
+            {
+                auto camerEntt = m_AktiveScene->GetPrimaryCameraEntity();
+                const auto& camera = camerEntt.GetComponent<CameraComponent>().Camera;
+                const glm::mat4& camerProj = camera.GetProjektion();
+                camerView = glm::inverse(camerEntt.GetComponent<TransformComponent>().GetTransform());
+                break;
+            }
+            
+            default:
+            {
+                camerProj = m_EditorCamera.GetProjektion();
+                camerView = m_EditorCamera.GetViewMatrix();
+                break;
+            }
+                
+            }
+            
 #endif
 
             // Entity transform
@@ -599,6 +753,7 @@ namespace Rynex {
 
     void EditorLayer::ImGuiViewPortResize( ImVec2 vPSize)
     {
+        RY_PROFILE_FUNCTION();
         if (m_ViewPortSize != *((glm::vec2*)&vPSize))
         {
             m_Framebuffer->Resize((uint32_t)vPSize.x, (uint32_t)vPSize.y);
@@ -616,9 +771,11 @@ namespace Rynex {
 
     void EditorLayer::ImGuiTopTaskBar()
     {
+        RY_PROFILE_FUNCTION();
         if (ImGui::BeginMenuBar())
         {
             ImGuiFile();
+            ImGuiProject();
             ImGuiScript();
             ImGuiEdit();
             ImGuiView();
@@ -629,31 +786,49 @@ namespace Rynex {
 
     void EditorLayer::ImGuiFile()
     {
+        RY_PROFILE_FUNCTION();
         if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("Create Project", NULL, false))
+                NewProject();
+
+            if (ImGui::MenuItem("Open Project", "Crtl+O"))
+                OpenProject();
+
+            if (ImGui::MenuItem("Save Project...", "Crtl+S"))
+                SaveProject();
+            
+            ImGui::EndMenu();
+        }
+    }
+
+    void EditorLayer::ImGuiProject()
+    {
+        RY_PROFILE_FUNCTION();
+        if (ImGui::BeginMenu("Project"))
         {
             // Disabling fullscreen would allow the window to be moved to the front of other windows,
             // which we can't undo at the moment without finer window depth/z control.
 
-            if (ImGui::MenuItem("New", NULL, false))
+            if (ImGui::MenuItem("New Scene", NULL, false))
                 NewScene();
 
-            if (ImGui::MenuItem("Open...", "Crtl+O"))
+            if (ImGui::MenuItem("Open Scene...", "Crtl+O"))
                 OpenScene();
 
-            if (ImGui::MenuItem("Save As...", "Crtl+Shift+S"))
+            if (ImGui::MenuItem("SaveAs Scene...", "Crtl+S"))
                 SaveSceneAs();
 
-            if (ImGui::MenuItem("Exit", NULL, false)) 
-                Application::Get().Close();
+            //if (ImGui::MenuItem("Exit", NULL, false)) 
+                //Application::Get().Close();
                 
             ImGui::EndMenu();
          }
-
-
     }
 
     void EditorLayer::ImGuiScript()
     {
+        RY_PROFILE_FUNCTION();
         if (ImGui::BeginMenu("Script"))
         {
             if (ImGui::MenuItem("Reload assembly", "Ctrl+R"))
@@ -667,6 +842,7 @@ namespace Rynex {
 
     void EditorLayer::ImGuiEdit()
     { 
+        RY_PROFILE_FUNCTION();
         if (ImGui::BeginMenu("Edite"))
         {
         // Disabling fullscreen would allow the window to be moved to the front of other windows,
@@ -679,7 +855,7 @@ namespace Rynex {
 
     void EditorLayer::ImGuiView()
     {
-
+        RY_PROFILE_FUNCTION();
         if (ImGui::BeginMenu("View"))
         {
             // Disabling fullscreen would allow the window to be moved to the front of other windows,
@@ -693,6 +869,7 @@ namespace Rynex {
 
     void EditorLayer::ImGuiHelp()
     {
+        RY_PROFILE_FUNCTION();
         if (ImGui::BeginMenu("Help"))
         {
             // Disabling fullscreen would allow the window to be moved to the front of other windows,

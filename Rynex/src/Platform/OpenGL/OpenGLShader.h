@@ -3,6 +3,7 @@
 #include "Rynex/Renderer/Shader.h"
 
 #include <glm/glm.hpp>
+#include <Rynex/Asset/Base/Asset.h>
 
 typedef unsigned int GLenum;
 
@@ -11,10 +12,10 @@ namespace Rynex {
 	class OpenGLShader : public Shader
 	{
 	public:
-		OpenGLShader(const std::string& filePath);
+		//OpenGLShader(const std::string& filePath);
+		OpenGLShader(const std::string& source, const std::string& name);
 		OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
 		virtual ~OpenGLShader();
-
 
 		virtual void Bind() const override;
 		virtual void UnBind() const override;
@@ -46,8 +47,13 @@ namespace Rynex {
 		
 		void UploadUniformMat3(const std::string& name, const glm::mat3& matrix);
 		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
+
+		// Asset
+		// static AssetType GetStaticType() { return AssetType::Shader; }
+		// virtual AssetType GetType() const { return GetStaticType(); }
+		// virtual AssetHandle GetHandle() const { return m_Handle; };
 	private:
-		std::string ReadFile(const std::string& fiilePath);
+		//std::string ReadFile(const std::string& fiilePath);
 		std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);
 		void Compile(std::unordered_map<GLenum, std::string>& shaderSources);
 	private:

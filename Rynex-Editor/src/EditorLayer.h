@@ -8,7 +8,7 @@ struct ImVec2;
 
 namespace Rynex{
 #define CHECK_FOR_ERRORS 0
-// TODO: Make The System Worke
+// TODO: Make The System Worke CHECK_FOR_ERRORS
 
 	class EditorLayer : public Layer
 	{
@@ -33,9 +33,15 @@ namespace Rynex{
 
 
 		//-- Task -------------------
+		void NewProject();
+		bool OpenProject();
+		void OpenProject(const std::filesystem::path& path);
+		void SaveProject();
+
 		void NewScene();
 		void OpenScene();
 		void OpenScene(const std::filesystem::path& path);
+		void OpenScene(AssetHandle handle);
 		void SaveSceneAs();
 		void SaveScene();
 
@@ -57,6 +63,7 @@ namespace Rynex{
 		//--- Top Taskbar -------------
 		void ImGuiTopTaskBar();
 		void ImGuiFile();
+		void ImGuiProject();
 		void ImGuiScript();
 		void ImGuiEdit();
 		void ImGuiView();
@@ -68,6 +75,7 @@ namespace Rynex{
 		
 		// Scene
 		Ref<Scene>				m_AktiveScene;
+		Ref<Scene>				m_EditorScene;
 		Ref<Framebuffer>		m_Framebuffer;
 		// Camera
 		Entity					m_CamerEntity;
@@ -77,6 +85,7 @@ namespace Rynex{
 
 		// Statats
 		SceneState m_SceneState = SceneState::Edit;
+		
 
 		bool m_Runtime = false;
 		bool m_PrimeCamera = false;
@@ -93,6 +102,14 @@ namespace Rynex{
 		// Panels
 		SceneHierachyPannel m_Scene_HPanel;
 		ContentBrowserPannel m_Content_BPannel;
+		
+
+		// Paths
+		std::filesystem::path m_EditorScenePath;
+
+		// Project
+		Ref<Project> m_Project;
+		Ref<EditorAssetManager> m_AssetManger;
 	};
 }
 

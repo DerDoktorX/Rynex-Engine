@@ -13,7 +13,7 @@ namespace Rynex {
 		glEnable(GL_DEPTH_TEST);
 
 		glEnable(GL_CULL_FACE);
-		glEnable(GL_FRONT_AND_BACK);
+		//glEnable(GL_FRONT);
 	}
 
 	void OpenGLRendererAPI::CreateComputePipline(glm::vec3& size)

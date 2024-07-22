@@ -18,21 +18,15 @@ namespace Rynex {
 		return 0;
 	}
 
-	OpenGLShader::OpenGLShader(const std::string& filePath)
+	OpenGLShader::OpenGLShader(const std::string& source, const std::string& name)
 	{
 #if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("OpenGLShader::OpenGLShader(const std::string& filePath)");
 #endif
-		std::string source = ReadFile(filePath);
+		//std::string source = ReadFile(filePath);
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);
-
-		auto lastSlash = filePath.find_last_of("/\\");
-		lastSlash = lastSlash == std::string::npos ? 0 : lastSlash + 1;
-		auto lastDot = filePath.rfind(".");
-
-		auto count = lastDot == std::string::npos ? filePath.size() - lastSlash : lastDot -lastSlash;
-		m_Name = filePath.substr(lastSlash,count);
+		m_Name = name;
 	}
 
 	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
@@ -152,24 +146,7 @@ namespace Rynex {
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
-	std::string OpenGLShader::ReadFile(const std::string& filePath)
-	{
-		std::string result;
-		std::ifstream in(filePath, std::ios::in, std::ios::binary);
-		if (in)
-		{
-			in.seekg(0, std::ios::end);
-			result.resize(in.tellg());
-			in.seekg(0, std::ios::beg);
-			in.read(&result[0], result.size());
-			in.close();
-		}
-		else
-		{
-			RY_CORE_ERROR("Coud not open file '{0}' filepath", filePath);
-		}
-		return result;
-	}
+	
 
 	std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(const std::string& source)
 	{

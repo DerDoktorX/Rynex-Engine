@@ -8,21 +8,27 @@ namespace Rynex {
 	class RynexEditor : public Application
 	{
 	public:
-		RynexEditor()
-			: Application("Rynex Editor")
+		RynexEditor(const ApplicationSpecification& spec)
+			: Application(spec)
 		{
+			//PushLayer(new )
 			PushLayer(new EditorLayer());
 		}
 
 		~RynexEditor()
 		{
-
 		}
 	};
 	
-	Application* CreateApplication()
+	Application* CreateApplication(ApplicationCommandLineArgs args)
 	{
-		return new RynexEditor();
+		ApplicationSpecification spec;
+		spec.Name = "Rynex-Editor";
+		spec.CommandLineArgs = args;
+
+		Project::New()->SaveActive("SandboxTest.rproj");
+
+		return new RynexEditor(spec);
 	}
 }
 

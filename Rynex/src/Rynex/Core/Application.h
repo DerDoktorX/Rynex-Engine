@@ -15,10 +15,29 @@ int main(int argc, char** argv);
 
 namespace Rynex {
 
+	struct ApplicationCommandLineArgs
+	{
+		int Count = 0;
+		char** Args = nullptr;
+
+		const char* operator[](int index) const
+		{
+			RY_CORE_ASSERT(index < Count, "Error: ApplicationCommandLineArgs");
+			return Args[index];
+		}
+	};
+
+	struct ApplicationSpecification
+	{
+		std::string Name = "Hazel Application";
+		std::string WorkingDirectory;
+		ApplicationCommandLineArgs CommandLineArgs;
+	};
+
 	class RYNEX_API Application
 	{
 	public:
-		Application(const std::string& = "Rynex App");
+		Application(const ApplicationSpecification& specification);
 		virtual ~Application();
 
 		
@@ -35,15 +54,19 @@ namespace Rynex {
 		inline static Application& Get() { return *s_Instance; }
 		inline Window& GetWindow() { return *m_Window; }
 
+		ApplicationSpecification GetSpecification() { return m_Specification; }
+
+		// Treads!
 		void SubmiteToMainThreedQueue(const std::function<void()>& func);
-		
+		void SubmiteToMainThreedQueueAssetFileWatcher(const std::function<void(std::filesystem::path)>& func);
+		void ExecuteMainThreedQueue();
+		void ExecuteMainThreedQueueAssetFileWatcher();
 	private:
 		void Run();
 
 		bool OnWindowCloseEvent(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
 
-		void ExecuteMainThreedQueue();
 	private:
 		Ref<Window> m_Window;
 		ImGuiLayer* m_ImGuiLayer;
@@ -53,12 +76,16 @@ namespace Rynex {
 		float m_LastFrameTime = 0.0f;
 
 		std::vector<std::function<void()>> m_MainThreedQueue;
+		std::vector<std::function<void()>> m_MainThreedQueueAssetFileWatcher;
 		std::mutex m_MainThreedQueueMutex;
+		std::mutex m_MainThreedQueueMutexAssetFileWatcher;
+
+		ApplicationSpecification m_Specification;
 	private:
 		static Application* s_Instance;
 		friend int ::main(int argc, char** argv);
 	};
 
-	Application* CreateApplication();
+	Application* CreateApplication(ApplicationCommandLineArgs spec);
 }
 

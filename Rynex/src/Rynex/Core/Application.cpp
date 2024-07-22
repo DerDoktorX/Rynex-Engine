@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 #include "Rynex/Scripting/ScriptingEngine.h"
 
-#if 0
+#if RY_TODO_APPLICATION_REMABER
 struct AlicationMetrics
 {
 	uint32_t TotalAliction = 0;
@@ -37,27 +37,30 @@ static void PrintMemoryUsage()
 }
 #endif // TODO: Remeber what was that! then decide and Dealet?
 
-#define RY_KONSOLE_FPS 0
 
 
+
+
+#define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
 namespace Rynex {
 
-#define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
+
 	Application* Application::s_Instance = nullptr;
 
 
-	Application::Application(const std::string& name)
+	Application::Application(const ApplicationSpecification& specification)
+		: m_Specification(specification)
 	{
 		RY_CORE_ASSERT(!s_Instance, "Applicationse allrady exists!");
 		s_Instance = this;
 
-		m_Window = Window::Create(WindowProps(name));
+		if (!m_Specification.WorkingDirectory.empty())
+			std::filesystem::current_path(m_Specification.WorkingDirectory);
+
+		m_Window = Window::Create(WindowProps(m_Specification.Name));
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 		//m_Window->SetVSync(false);
-
-		Renderer::Init();
-		ScriptingEngine::Init();
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
@@ -102,15 +105,6 @@ namespace Rynex {
 		m_Running = false;
 	}
 
-	
-
-	void Application::SubmiteToMainThreedQueue(const std::function<void()>& func)
-	{
-		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
-		m_MainThreedQueue.emplace_back(func);
-
-	}
-
 
 	void Application::Run()
 	{
@@ -126,8 +120,9 @@ namespace Rynex {
 #if RY_KONSOLE_FPS
 			RY_CORE_INFO("FPS: {0}", 1/timestep);
 #endif
-
+			// Thread!
 			ExecuteMainThreedQueue();
+
 			if (!m_Mineized) 
 			{
 				for (Layer* layer : m_LayerStack)
@@ -169,10 +164,57 @@ namespace Rynex {
 
 		return false;
 	}
+
+	///////////////////////////////////////////////////
+	//// Thread ///////////////////////////////////////
+	///////////////////////////////////////////////////
+	
+	void Application::SubmiteToMainThreedQueue(const std::function<void()>& func)
+	{
+		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
+		m_MainThreedQueue.emplace_back(func);
+	}
+
+#if 0
+	void Application::SubmiteToMainThreedQueueAssetFileWatcher(const std::function<void(std::filesystem::path)>& func)
+	{
+		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutexAssetFileWatcher);
+		m_MainThreedQueueMutexAssetFileWatcher.emplace_back(func);
+	}
+#endif
+
 	void Application::ExecuteMainThreedQueue()
 	{
+#if RY_TODO_APPLICATION_MLULTI_THREAD
+		std::vector<std::function<void()>> copy;
+		{
+			std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
+			copy = m_MainThreedQueue;
+			m_MainThreedQueue.clear();
+		}
+
+
+		for (auto& func : copy)
+			func();
+#else
+		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
+
 		for (auto& func : m_MainThreedQueue)
 			func();
+
+		m_MainThreedQueue.clear();
+#endif		
+	}
+
+#if 0
+	void Application::ExecuteMainThreedQueueAssetFileWatcher()
+	{
+		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutexAssetFileWatcher);
+
+		for (auto& func : m_MainThreedQueue)
+			func();
+
 		m_MainThreedQueue.clear();
 	}
+#endif
 }

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <xhash>
-
 namespace Rynex {
 	class UUID
 	{

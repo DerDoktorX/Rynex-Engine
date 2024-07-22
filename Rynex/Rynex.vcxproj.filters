@@ -102,13 +102,7 @@
     <ClInclude Include="src\Rynex\Core\Application.h">
       <Filter>src\Rynex\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rynex\Core\Base.h">
-      <Filter>src\Rynex\Core</Filter>
-    </ClInclude>
     <ClInclude Include="src\Rynex\Core\CamerController.h">
-      <Filter>src\Rynex\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Rynex\Core\Core.h">
       <Filter>src\Rynex\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Rynex\Core\EntryPoint.h">
@@ -222,7 +216,7 @@
     <ClInclude Include="src\Rynex\Scene\SceneGeomtry.h">
       <Filter>src\Rynex\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rynex\Scene\SceneSerializer.h">
+    <ClInclude Include="src\Rynex\Serializers\SceneSerializer.h">
       <Filter>src\Rynex\Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\Rynex\Scene\ScenenCamera.h">
@@ -1497,6 +1491,24 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
+    <ClInclude Include="src\Rynex\Asset\Base\AssetManager.h" />
+    <ClInclude Include="src\Rynex\Asset\Base\AssetManagerBase.h" />
+    <ClInclude Include="src\Rynex\Asset\EditorAssetManager.h" />
+    <ClInclude Include="src\Rynex\Asset\RuntimeAssetManager.h" />
+    <ClInclude Include="src\Rynex\Asset\Base\Asset.h" />
+    <ClInclude Include="src\Rynex\Asset\Base\AssetMetadata.h" />
+    <ClInclude Include="src\Rynex\Project\Project.h" />
+    <ClInclude Include="src\Rynex\Asset\Base\AssetRegistry.h" />
+    <ClInclude Include="src\Rynex\Asset\Import\TextureImporter.h" />
+    <ClInclude Include="src\Rynex\Serializers\ProjectSerialiazer.h" />
+    <ClInclude Include="src\Rynex\Serializers\YAML.h" />
+    <ClInclude Include="src\Rynex\Asset\Base\AssetImporter.h" />
+    <ClInclude Include="src\Rynex\Asset\Import\SceneImporter.h" />
+    <ClInclude Include="src\Rynex\Asset\Import\ShaderImporter.h" />
+    <ClInclude Include="src\Rynex\Asset\Base\Buffer.h" />
+    <ClInclude Include="src\Rynex\Core\Base.h" />
+    <ClInclude Include="src\Rynex\Core\Instrumentor.h" />
+    <ClInclude Include="src\Rynex\Core\CoreConfig.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
@@ -1607,7 +1619,7 @@
     <ClCompile Include="src\Rynex\Scene\SceneGeomtry.cpp">
       <Filter>src\Rynex\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\Rynex\Scene\SceneSerializer.cpp">
+    <ClCompile Include="src\Rynex\Serializers\SceneSerializer.cpp">
       <Filter>src\Rynex\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\Rynex\Scene\ScenenCamera.cpp">
@@ -1628,5 +1640,17 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
+    <ClCompile Include="src\Rynex\Asset\Base\AssetManager.cpp" />
+    <ClCompile Include="src\Rynex\Asset\Base\AssetManagerBase.cpp" />
+    <ClCompile Include="src\Rynex\Asset\EditorAssetManager.cpp" />
+    <ClCompile Include="src\Rynex\Asset\RuntimeAssetManager.cpp" />
+    <ClCompile Include="src\Rynex\Asset\Base\Asset.cpp" />
+    <ClCompile Include="src\Rynex\Asset\Base\AssetRegistry.cpp" />
+    <ClCompile Include="src\Rynex\Asset\Import\TextureImporter.cpp" />
+    <ClCompile Include="src\Rynex\Project\Project.cpp" />
+    <ClCompile Include="src\Rynex\Serializers\ProjectSerialiazer.cpp" />
+    <ClCompile Include="src\Rynex\Asset\Base\AssetImporter.cpp" />
+    <ClCompile Include="src\Rynex\Asset\Import\SceneImporter.cpp" />
+    <ClCompile Include="src\Rynex\Asset\Import\ShaderImporter.cpp" />
   </ItemGroup>
 </Project>

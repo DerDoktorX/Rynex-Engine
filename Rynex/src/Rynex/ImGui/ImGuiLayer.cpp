@@ -16,8 +16,6 @@
 
 #include "ImGuizmo.h"
 
-#define IM_GUI_DEMO_WINDOW 0
-
 namespace Rynex {
    
 	ImGuiLayer::ImGuiLayer()
@@ -166,10 +164,10 @@ namespace Rynex {
 
     void ImGuiLayer::OnImGuiRender()
     {
-#if IM_GUI_DEMO_WINDOW
+#if RY_IMGUI_DEMO_WINDOW
         static bool show = true;
         ImGui::ShowDemoWindow(&show);
-#endif // IM_GUI_DEMO_WINDOW
+#endif // RY_IMGUI_DEMO_WINDOW
     }
 
 	

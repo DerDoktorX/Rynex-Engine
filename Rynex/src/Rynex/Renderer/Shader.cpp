@@ -6,15 +6,14 @@
 
 namespace Rynex {
 	
-	Ref<Shader> Shader::Create(const std::string& filepath)
+	Ref<Shader> Shader::Create(const std::string& source, const std::string& name)
 	{
 		switch (Renderer::GetAPI())
 		{
 			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Cuurently not supportet"); return nullptr;
-			case RendererAPI::API::OpenGL:	return std::make_shared<OpenGLShader>(filepath);
+			case RendererAPI::API::OpenGL:	return std::make_shared<OpenGLShader>(source, name);
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
-		return nullptr;
 		return nullptr;
 	}
 
@@ -46,22 +45,6 @@ namespace Rynex {
 		Add(name, shader);
 	}
 
-	
-
-	Ref<Shader> ShaderLibary::Load(const std::string& filepath)
-	{
-		auto& shader = Shader::Create(filepath);
-		Add(shader);
-		return shader;
-	}
-	
-
-	Ref<Shader> ShaderLibary::Load(const std::string& name, const std::string& filepath)
-	{
-		auto& shader = Shader::Create(filepath);
-		Add(name, shader);
-		return shader;
-	}
 
 	Ref<Shader> ShaderLibary::Get(const std::string& name)
 	{

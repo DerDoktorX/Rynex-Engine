@@ -67,8 +67,8 @@ namespace Rynex {
 
 		float m_ViewportWidth = 1280, m_ViewportHeight = 720;
 
-		bool m_FreeCamerMove = true;
-		bool m_OnlyOnPressed = false;
+		bool m_FreeCamerMove = false;
+		bool m_OnlyOnPressed = true;
 	};
 
 }

@@ -48,10 +48,10 @@ namespace Rynex {
 #endif
 	}
 
-	void OpenGLVertexBuffer::SetData(const void* data, uint32_t size)
+	void OpenGLVertexBuffer::SetData(const void* data, uint32_t byteSize)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, byteSize, data);
 
 #if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("void OpenGLVertexBuffer::SetData(const void* data, uint32_t size)");

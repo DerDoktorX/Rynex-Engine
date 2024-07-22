@@ -38,9 +38,14 @@ namespace Rynex {
 
 	void SceneCamera::RecalulateProjection()
 	{
-		switch (m_ProjektionType)
+		
+		if(m_ProjektionType == ProjectionType::Perspectiv)
 		{
-			case ProjectionType::Orthographic:
+			
+			m_Projektion = glm::perspective(m_PerspectivFOV, m_AspectRotatio, m_PerspectivNear, m_PerspectivFar);
+
+		}
+		else
 		{
 			float orthoLeft = -m_OrthoGraficSizen * m_AspectRotatio * 0.5f;
 			float orthoRigth = m_OrthoGraficSizen * m_AspectRotatio * 0.5f;
@@ -52,14 +57,7 @@ namespace Rynex {
 				orthoBottem, orthoTop,
 				m_OrthoGraficNear, m_OrthoGraficFar
 			);
-			break;
 		}
-			case ProjectionType::Perspectiv:
-			{
-				m_Projektion = glm::perspective(m_PerspectivFOV, m_AspectRotatio, m_PerspectivNear, m_PerspectivFar);
-				break;
-			}
-		};
 	}
 
 }

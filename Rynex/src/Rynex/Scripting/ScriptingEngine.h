@@ -1,7 +1,8 @@
 #pragma once
-#include <filesystem>
+
 #include "Rynex/Scene/Scene.h"
 #include "Rynex/Scene/Entity.h"
+
 extern "C" {
 	typedef struct _MonoClass MonoClass;
 	typedef struct _MonoObject MonoObject;
@@ -37,6 +38,7 @@ namespace Rynex {
 
 		void InvokeCreate();
 		void InvokeOnUpdate(float ts);
+		void InvokeOnDrawn();
 	private:
 		Ref<ScriptClass> m_ScriptClass;
 
@@ -44,6 +46,7 @@ namespace Rynex {
 		MonoMethod* m_Constructor = nullptr;
 		MonoMethod* m_OnCreateMethod = nullptr;
 		MonoMethod* m_OnUpdateMethod = nullptr;
+		MonoMethod* m_OnDrawMethod = nullptr;
 
 		friend class ScriptEngine;
 		
@@ -61,6 +64,7 @@ namespace Rynex {
 		static void OnRuntimeStop();
 
 		static void ReloadAssambly();
+		static bool ReloadeScriptAvaible();
 
 		static std::string* GetListExistClasses();
 		static std::string& GetListClassName(uint32_t count);
@@ -69,6 +73,7 @@ namespace Rynex {
 		static bool ClassExists(const std::string& fullClassName);
 		static void OnCreatEntity(Entity entity);
 		static void OnUpdateEntity(Entity entity, float ts);
+		static void OnDrawEntity(Entity entity);
 		static Scene* GetSceneContext();
 
 		static std::unordered_map<std::string, Ref<ScriptClass>> GetEntityClasses();

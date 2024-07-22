@@ -1,7 +1,6 @@
 #pragma once
 
 #include "rypch.h"
-#include "Rynex/Core/Base.h"
 #include "Rynex/Events/Event.h"
 
 namespace Rynex {

@@ -2,14 +2,11 @@
 #include "SceneHierachyPannel.h"
 #include "Rynex/Scene/Components.h"
 #include "Rynex/Scripting/ScriptingEngine.h"
-
+#include "Rynex/Asset/Base/AssetManager.h"
 
 #include <imgui/imgui_internal.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <cstring>
-#include <filesystem>
-
-#define ImGuiDemoWindow 0
 
 namespace Rynex {
 
@@ -17,6 +14,7 @@ namespace Rynex {
 
 	SceneHierachyPannel::SceneHierachyPannel(const Ref<Scene>& context)
 	{
+		RY_PROFILE_FUNCTION();
 		SetContext(context);
 	}
 
@@ -34,12 +32,12 @@ namespace Rynex {
 		ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
 		flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
 
-#if HRACHIE_STATE
+#if RY_HRACHIE_STATE
 		if(entity.GetState() == Entity::State::Error)
 			ImGui::PushStyleColor(ImGuiCol_Header & ImGuiCol_TitleBg & ImGuiCol_TextDisabled & ImGuiCol_MenuBarBg, ImVec4(0.9f, 0.2f, 0.3f, 1.0f));
 #endif
 		bool opende = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.c_str());
-#if HRACHIE_STATE
+#if RY_HRACHIE_STATE
 		if (entity.GetState() == Entity::State::Error)
 			ImGui::PopStyleColor();
 
@@ -67,7 +65,7 @@ namespace Rynex {
 
 		if (opende)
 		{
-#if HRACHIE_STATE
+#if RY_HRACHIE_STATE
 			if (entity.GetState() == Entity::State::Error)
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.2f, 0.3f, 1.0f));
 #endif
@@ -76,7 +74,7 @@ namespace Rynex {
 			if (opende)
 				ImGui::TreePop();
 			ImGui::TreePop();
-#if HRACHIE_STATE
+#if RY_HRACHIE_STATE
 			if (entity.GetState() == Entity::State::Error)
 				ImGui::PopStyleColor();
 #endif
@@ -284,7 +282,7 @@ namespace Rynex {
 		}
 
 		// Transform
-		DrawComponent<TransformComponent>("Transform", entity, [](auto& component)
+		DrawComponent<TransformComponent>("Transform", entity, [](TransformComponent& component)
 		{
 			DrawVec3Controler("Translation", component.Transaltion);
 			glm::vec3 rotation = glm::degrees(component.Rotation);
@@ -294,7 +292,7 @@ namespace Rynex {
 		});
 
 		// Camera
-		DrawComponent<CameraComponent>("Camera", entity, [](auto& component)
+		DrawComponent<CameraComponent>("Camera", entity, [](CameraComponent& component)
 		{
 			auto& camera = component.Camera;
 			const char* projectioneTypeStrings[] = { "Perspective", "Othographic" };
@@ -361,13 +359,14 @@ namespace Rynex {
 		});
 
 		// SpriteRenderer
-		DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](auto& component)
+		DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](SpriteRendererComponent& component)
 		{
 			ImGui::ColorEdit4("Color", glm::value_ptr(component.Color), 0.1f);
 			// Texture
 			ImGui::Button("Texture", ImVec2(100.0f, 0.0f));
 			if (ImGui::BeginDragDropTarget())
 			{
+#if RY_OLD_DRAG_AND_DROP
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
 				{
 					const wchar_t* path = (const wchar_t*)payload->Data;
@@ -375,6 +374,13 @@ namespace Rynex {
 					component.Texture = Texture2D::Create(texPath.string());
 				}
 				ImGui::EndDragDropTarget();
+#else
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_BROWSER_ITEM"))
+				{
+					component.Texture = AssetManager::GetAsset<Texture2D>(*(AssetHandle*)payload->Data);
+				}
+				ImGui::EndDragDropTarget();
+#endif
 			}
 			if (component.Texture != nullptr)
 			{
@@ -385,14 +391,14 @@ namespace Rynex {
 
 
 			ImGui::Checkbox("Render Single", &component.RenderSingle);
-#if 0
+#if RY_TODO_TAILING_FACTOR
 			ImGui::DragFloat("TalingFloat", &component.Tali..., 0.0f, 0.0f, 100.0f);
 #endif		// TODO: Tailing Factor
 
 		});
 
 		//Material
-		DrawComponent<MaterialComponent>("Sprite Renderer", entity, [](auto& component)
+		DrawComponent<MaterialComponent>("Material", entity, [](MaterialComponent& component)
 			{
 
 				ImGui::ColorEdit3("Color", glm::value_ptr(component.Color), 0.1f);
@@ -401,11 +407,9 @@ namespace Rynex {
 				ImGui::Button("Texture", ImVec2(100.0f, 0.0f));
 				if (ImGui::BeginDragDropTarget())
 				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_BROWSER_ITEM"))
 					{
-						const wchar_t* path = (const wchar_t*)payload->Data;
-						std::filesystem::path texPath = (g_AssetsPath) / path;
-						component.Texture = Texture2D::Create(texPath.string());
+						component.Texture = AssetManager::GetAsset<Texture2D>(*(AssetHandle*)payload->Data);
 					}
 					ImGui::EndDragDropTarget();
 				}
@@ -417,7 +421,31 @@ namespace Rynex {
 						component.Texture = nullptr;
 				}
 
-#if 0
+				ImGui::Button("Shader", ImVec2(100.0f, 0.0f));
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_BROWSER_ITEM"))
+					{
+						component.Shader = AssetManager::GetAsset<Shader>(*(AssetHandle*)payload->Data);
+					}
+					ImGui::EndDragDropTarget();
+				}
+
+				if (component.Shader != nullptr)
+				{
+					ImGui::SameLine();
+					if (ImGui::Button("Dealte", ImVec2(100.0f, 0.0f)))
+						component.Shader = nullptr;
+				}
+
+				
+
+				
+
+				
+
+				//if(ImGui::Checkbox("Z-Buffer:", (int)component.Flags))
+#if RY_TODO_MATERILA_FLAGS
 				ImGui::Checkbox("Render Single", &component.);
 #endif
 			});
@@ -448,7 +476,7 @@ namespace Rynex {
 					
 				}
 #if 1
-#if 0
+#if RY_OLD_TYPE_SCRIPT_NAME
 				if (ImGui::InputText("Script: Class", buffer, sizeof(buffer)) )
 				{
 					//ImGui::ItemAdd("")
@@ -481,7 +509,7 @@ namespace Rynex {
 				
 				
 				//ImGui::OpenPopup("ScriptClass");
-#if 0
+#if RY_OLD_TYPE_SCRIPT_NAME
 				if (ImGui::BeginPopup("ScriptClass"))
 				{
 					uint32_t length = ScriptingEngine::GetClassLength();
@@ -568,10 +596,10 @@ namespace Rynex {
 
 		DrawProperties();
 
-
-#if ImGuiDemoWindow
+#if RY_IMGUI_DEMO_WINDOW
 		ImGui::ShowDemoWindow();
-#endif
+#endif // RY_IMGUI_DEMO_WINDOW
+
 		ImGui::End();
 	}
 

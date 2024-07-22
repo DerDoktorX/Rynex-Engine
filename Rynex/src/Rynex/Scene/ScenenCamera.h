@@ -45,7 +45,7 @@ namespace Rynex{
 		ProjectionType m_ProjektionType = ProjectionType::Orthographic;
 
 		float m_OrthoGraficSizen = 10.0f;
-		float m_OrthoGraficNear = 0.0f, m_OrthoGraficFar = 1000.0f;
+		float m_OrthoGraficNear = -1.0f, m_OrthoGraficFar = 1.0f;
 
 		float m_PerspectivFOV = glm::radians(45.0f);
 		float m_PerspectivNear = 0.01f, m_PerspectivFar = 1000.0f;

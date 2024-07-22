@@ -43,8 +43,6 @@ namespace Rynex {
 		RY_CORE_ASSERT(false, "Uknokn ShaderDataType!")
 	};
 
-	
-
 	struct BufferElement
 	{
 		std::string Name;

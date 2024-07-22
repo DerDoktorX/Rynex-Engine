@@ -2,7 +2,8 @@
 
 #include <string>
 
-#include "Rynex/Core/Base.h"
+#include "Rynex/Asset/Base/Asset.h"
+#include <Rynex/Asset/Base/Buffer.h>
 
 namespace Rynex {
 
@@ -23,7 +24,7 @@ namespace Rynex {
 		bool GenerateMips = true;
 	};
 
-	class Texture
+	class Texture : public Asset
 	{
 	public:
 		virtual ~Texture() = default;
@@ -43,6 +44,10 @@ namespace Rynex {
 		virtual bool IsLoaded() const = 0;
 
 		virtual bool operator==(const Texture& other)const = 0;
+
+		static AssetType GetStaticType() { return AssetType::Texture; }
+		AssetType GetType() const { return GetStaticType(); }
+		//virtual AssetHandle GetHandle() const { return m_Handle; };
 	};
 
 	class Texture2D : public Texture
@@ -50,6 +55,12 @@ namespace Rynex {
 	public:
 		static Ref<Texture2D> Create(uint32_t withe, uint32_t height);
 		static Ref<Texture2D> Create(const std::string& path);
+		static Ref<Texture2D> Create(TextureSpecification spec , void* data);
 
+		static AssetType GetStaticType() { return AssetType::Texture2D; }
+		AssetType GetType() const { return GetStaticType(); }
+		//virtual AssetHandle GetHandle() const { return m_Handle; };
 	};
+
+	
 }
