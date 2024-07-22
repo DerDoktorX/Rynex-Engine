@@ -1,0 +1,5 @@
+Project:
+  Name: Facerun
+  StartScene: "scenes/Example.rynexscene"
+  AssetDirectory: "Assets"
+  ScriptModulePath: ""
