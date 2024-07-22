@@ -46,9 +46,60 @@ namespace Rynex
         }
 
         // operaters
+       
+
+        // Vector2
+        public static Vector4 operator +(Vector4 a, Vector2 b)
+        {
+            return new Vector4(a.X + b.X, a.Y + b.Y, a.Z, a.W);
+        }
+        public static Vector4 operator -(Vector4 a, Vector2 b)
+        {
+            return new Vector4(a.X - b.X, a.Y - b.Y, a.Z, a.W);
+        }
+        public static Vector4 operator *(Vector4 a, Vector2 b)
+        {
+            return new Vector4(a.X * b.X, a.Y * b.Y, a.Z, a.W);
+        }
+        public static Vector4 operator /(Vector4 a, Vector2 b)
+        {
+            return new Vector4(a.X / b.X, a.Y / b.Y, a.Z, a.W);
+        }
+
+        // Vector3
+        public static Vector4 operator +(Vector4 a, Vector3 b)
+        {
+            return new Vector4(a.X + b.X, a.Y + b.Y, a.Z + b.Z, a.W);
+        }
+        public static Vector4 operator -(Vector4 a, Vector3 b)
+        {
+            return new Vector4(a.X - b.X, a.Y - b.Y, a.Z - b.Z, a.W);
+        }
+        public static Vector4 operator *(Vector4 a, Vector3 b)
+        {
+            return new Vector4(a.X * b.X, a.Y * b.Y, a.Z * b.Z, a.W);
+        }
+        public static Vector4 operator /(Vector4 a, Vector3 b)
+        {
+            return new Vector4(a.X / b.X, a.Y / b.Y, a.Z / b.Z, a.W);
+        }
+
+        // Vector4
         public static Vector4 operator +(Vector4 a, Vector4 b)
         {
-            return new Vector4(a.X + b.X, a.Y + b.Y, a.Z + b.Z, a.W + b.W);
+            return new Vector4(a.X + b.X, a.Y + b.Y, a.Z + b.Z, a.Z + b.W);
+        }
+        public static Vector4 operator -(Vector4 a, Vector4 b)
+        {
+            return new Vector4(a.X - b.X, a.Y - b.Y, a.Z - b.Z, a.Z - b.W);
+        }
+        public static Vector4 operator *(Vector4 a, Vector4 b)
+        {
+            return new Vector4(a.X * b.X, a.Y * b.Y, a.Z * b.Z, a.Z * b.W);
+        }
+        public static Vector4 operator /(Vector4 a, Vector4 b)
+        {
+            return new Vector4(a.X / b.X, a.Y / b.Y, a.Z / b.Z, a.Z / b.Z);
         }
 
     }

@@ -1,11 +1,14 @@
 #pragma once
 
-#include <string>
-#include <chrono>
-#include <algorithm>
-#include <fstream>
 
+#include <algorithm>
+#include <chrono>
+#include <fstream>
+#include <iomanip>
+#include <string>
 #include <thread>
+#include <mutex>
+#include <sstream>
 
 
 namespace Rynex {
@@ -25,31 +28,64 @@ namespace Rynex {
 	class Instrumentor
 	{
 	public:
-		Instrumentor()
-			: m_CurrentSession(nullptr)
-			,m_ProfileCount(0)
-		{
-		}
+		Instrumentor(const Instrumentor&) = delete;
+		Instrumentor(Instrumentor&&) = delete;
 
-		void BegineSession(const std::string& name, const std::string& filePath = "result.json")
+
+		void BegineSession(const std::string& name, const std::string& filePath = "results.json")
 		{
+#if 0
 			m_OutputStream.open(filePath);
 			WriteHeader();
 			m_CurrentSession = new InstrumentationSession{ name };
+#endif
+			std::lock_guard lock(m_Mutex);
+			if (m_CurrentSession)
+			{
+				// If there is already a current session, then close it before beginning new one.
+				// Subsequent profiling output meant for the original session will end up in the
+				// newly opened session instead.  That's better than having badly formatted
+				// profiling output.
+				//if (Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
+				//{
+				//		RY_CORE_ERROR("Instrumentor::BeginSession('{0}') when session '{1}' already open.", name, m_CurrentSession->Name.c_str());
+				//}
+				InternalEndSession();
+			}
+			m_OutputStream.open(filePath);
+
+			if (m_OutputStream.is_open())
+			{
+				m_CurrentSession = new InstrumentationSession({ name });
+				WriteHeader();
+			}
+			else
+			{
+				//if (Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
+				//{
+				//	RY_CORE_ERROR("Instrumentor could not open results file '{0}'.", filePath.c_str());
+				//}
+			}
 		}
 
 		void EndSession()
 		{
+#if 0
 			WriteFooter();
 			m_OutputStream.close();
 			delete m_CurrentSession;
 			m_CurrentSession = nullptr;
 			m_ProfileCount = 0;
+#endif
+			std::lock_guard lock(m_Mutex);
+			InternalEndSession();
+
 		}
 
 		void WriteProfile(const ProfileResult& result)
 		{
 			std::stringstream json;
+
 			json << std::setprecision(3) << std::fixed;
 			json << ",{";
 			json << "\"cat\":\"function\",";
@@ -60,10 +96,33 @@ namespace Rynex {
 			json << "\"tid\":" << result.ThreadID << ",";
 			json << "\"ts\":" << result.Start;
 			json << "}";
-			m_OutputStream << json.str();
-			m_OutputStream.flush();
+
+			std::lock_guard lock(m_Mutex);
+			if (m_CurrentSession)
+			{
+				m_OutputStream << json.str();
+				m_OutputStream.flush();
+			}
 		}
 
+		
+		
+		static Instrumentor& Get()
+		{
+			static Instrumentor instance;
+			return instance;
+		}
+
+	private:
+		Instrumentor()
+			: m_CurrentSession(nullptr)
+		{
+		}
+
+		~Instrumentor()
+		{
+			EndSession();
+		}
 		void WriteHeader()
 		{
 			m_OutputStream << "{\"otherData\": {},\"traceEvents\":[{}";
@@ -75,17 +134,22 @@ namespace Rynex {
 			m_OutputStream << "]}";
 			m_OutputStream.flush();
 		}
-		
-		static Instrumentor& Get()
+
+		void InternalEndSession()
 		{
-			static Instrumentor instance;
-			return instance;
+			if (m_CurrentSession)
+			{
+				WriteFooter();
+				m_OutputStream.close();
+				delete m_CurrentSession;
+				m_CurrentSession = nullptr;
+			}
 		}
 
 	private:
+		std::mutex m_Mutex;
 		InstrumentationSession* m_CurrentSession;
 		std::ofstream m_OutputStream;
-		int m_ProfileCount;
 	};
 
 	class InstrumentationTimer

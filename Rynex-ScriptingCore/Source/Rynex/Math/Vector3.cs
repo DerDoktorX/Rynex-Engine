@@ -64,23 +64,7 @@ namespace Rynex
         }
         
 
-        // Vector3
-        public static Vector3 operator +(Vector3 a, Vector3 b)
-        {
-            return new Vector3(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
-        }
-        public static Vector3 operator -(Vector3 a, Vector3 b)
-        {
-            return new Vector3(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
-        }
-        public static Vector3 operator *(Vector3 a, Vector3 b)
-        {
-            return new Vector3(a.X * b.X, a.Y * b.Y, a.Z * b.Z);
-        }
-        public static Vector3 operator /(Vector3 a, Vector3 b)
-        {
-            return new Vector3(a.X / b.X, a.Y / b.Y, a.Z / b.Z);
-        }
+       
 
         // Vector2
         public static Vector3 operator +(Vector3 a, Vector2 b)
@@ -100,6 +84,40 @@ namespace Rynex
             return new Vector3(a.X / b.X, a.Y / b.Y, a.Z);
         }
 
+        // Vector3
+        public static Vector3 operator +(Vector3 a, Vector3 b)
+        {
+            return new Vector3(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+        }
+        public static Vector3 operator -(Vector3 a, Vector3 b)
+        {
+            return new Vector3(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        }
+        public static Vector3 operator *(Vector3 a, Vector3 b)
+        {
+            return new Vector3(a.X * b.X, a.Y * b.Y, a.Z * b.Z);
+        }
+        public static Vector3 operator /(Vector3 a, Vector3 b)
+        {
+            return new Vector3(a.X / b.X, a.Y / b.Y, a.Z / b.Z);
+        }
 
+        // Vector4
+        public static Vector3 operator +(Vector3 a, Vector4 b)
+        {
+            return new Vector3(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+        }
+        public static Vector3 operator -(Vector3 a, Vector4 b)
+        {
+            return new Vector3(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        }
+        public static Vector3 operator *(Vector3 a, Vector4 b)
+        {
+            return new Vector3(a.X * b.X, a.Y * b.Y, a.Z * b.Z);
+        }
+        public static Vector3 operator /(Vector3 a, Vector4 b)
+        {
+            return new Vector3(a.X / b.X, a.Y / b.Y, a.Z / b.Z);
+        }
     }
 }
