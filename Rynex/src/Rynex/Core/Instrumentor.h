@@ -49,28 +49,24 @@ namespace Rynex {
 
 		void WriteProfile(const ProfileResult& result)
 		{
-			if (m_ProfileCount++ > 0)
-				m_OutputStream << ",";
-
-			std::string name = result.Name;
-			std::replace(name.begin(), name.end(), '"', '\'');
-
-			m_OutputStream << "{";
-			m_OutputStream << "\"cat\":\"foo\",";
-			m_OutputStream << "\"dur\":" << (result.End - result.Start) << ",";
-			m_OutputStream << "\"name\":\"" << name << "\",";
-			m_OutputStream << "\"ph\":\"X\",";
-			m_OutputStream << "\"pid\":0,";
-			m_OutputStream << "\"tid\":" << result.ThreadID << ",";
-			m_OutputStream << "\"ts\":" << result.Start;
-			m_OutputStream << "}";
-
+			std::stringstream json;
+			json << std::setprecision(3) << std::fixed;
+			json << ",{";
+			json << "\"cat\":\"function\",";
+			json << "\"dur\":" << (result.End - result.Start) << ',';
+			json << "\"name\":\"" << result.Name << "\",";
+			json << "\"ph\":\"X\",";
+			json << "\"pid\":0,";
+			json << "\"tid\":" << result.ThreadID << ",";
+			json << "\"ts\":" << result.Start;
+			json << "}";
+			m_OutputStream << json.str();
 			m_OutputStream.flush();
 		}
 
 		void WriteHeader()
 		{
-			m_OutputStream << "{\"otherDatat\": {},\"trackEvents:\":[";
+			m_OutputStream << "{\"otherData\": {},\"traceEvents\":[{}";
 			m_OutputStream.flush();
 		}
 
