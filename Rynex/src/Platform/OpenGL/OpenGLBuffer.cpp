@@ -7,6 +7,7 @@ namespace Rynex {
 	
 	OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size)
 	{
+		RY_PROFILE_FUNCTION();
 		glCreateBuffers(1, &m_RendererID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
@@ -17,6 +18,7 @@ namespace Rynex {
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size)
 	{
+		RY_PROFILE_FUNCTION();
 		glCreateBuffers(1, &m_RendererID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
@@ -28,12 +30,13 @@ namespace Rynex {
 	
 	OpenGLVertexBuffer::~OpenGLVertexBuffer()
 	{
+		RY_PROFILE_FUNCTION();
 		glDeleteBuffers(1, &m_RendererID);
-
 	}
 
 	void OpenGLVertexBuffer::Bind() const
 	{
+		RY_PROFILE_FUNCTION();
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 #if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("void OpenGLVertexBuffer::Bind() const");
@@ -42,6 +45,7 @@ namespace Rynex {
 
 	void OpenGLVertexBuffer::UnBind() const
 	{
+		RY_PROFILE_FUNCTION();
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 #if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("void OpenGLVertexBuffer::UnBind() const");
@@ -50,6 +54,7 @@ namespace Rynex {
 
 	void OpenGLVertexBuffer::SetData(const void* data, uint32_t byteSize)
 	{
+		RY_PROFILE_FUNCTION();
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, byteSize, data);
 
@@ -63,6 +68,7 @@ namespace Rynex {
 	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t count)
 		: m_Count(count)
 	{
+		RY_PROFILE_FUNCTION();
 #if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t count)");
 #endif
@@ -71,6 +77,7 @@ namespace Rynex {
 	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* indices, uint32_t count)
 		: m_Count(count)
 	{
+		RY_PROFILE_FUNCTION();
 		glCreateBuffers(1, &m_RendererID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
@@ -81,12 +88,13 @@ namespace Rynex {
 
 	OpenGLIndexBuffer::~OpenGLIndexBuffer()
 	{
+		RY_PROFILE_FUNCTION();
 		glDeleteBuffers(1, &m_RendererID);
-
 	}
 
 	void OpenGLIndexBuffer::SetData(const uint32_t* indices, uint32_t count)
 	{
+		RY_PROFILE_FUNCTION();
 		m_Count = count;
 		glCreateBuffers(1, &m_RendererID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
@@ -99,6 +107,7 @@ namespace Rynex {
 
 	void OpenGLIndexBuffer::Bind() const
 	{
+		RY_PROFILE_FUNCTION();
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 #if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("OpenGLIndexBuffer::Bind()");
@@ -107,6 +116,7 @@ namespace Rynex {
 
 	void OpenGLIndexBuffer::UnBind() const
 	{
+		RY_PROFILE_FUNCTION();
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 #if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("OpenGLIndexBuffer::UnBind()");

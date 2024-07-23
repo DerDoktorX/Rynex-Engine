@@ -39,6 +39,7 @@ namespace Rynex{
 		m_Width(m_Specification.Width), 
 		m_Heigth(m_Specification.Height)
 	{
+		RY_PROFILE_FUNCTION();
 		m_InternalFormate = Utils::RynexImageFormatToGLInternalFormat(m_Specification.Format);
 		m_DataFormate = Utils::RynexImageFormatToGLDataFormat(m_Specification.Format);
 
@@ -58,6 +59,7 @@ namespace Rynex{
 		: m_Width(withe)
 		, m_Heigth(height)
 	{
+		RY_PROFILE_FUNCTION();
 		m_InternalFormate = Utils::RynexImageFormatToGLInternalFormat(m_Specification.Format);
 		m_DataFormate = Utils::RynexImageFormatToGLDataFormat(m_Specification.Format);
 
@@ -76,6 +78,7 @@ namespace Rynex{
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
 		: m_Path(path)
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_ERROR("OpenGLTexture2D::OpenGLTexture2D-> use string path!");
 		int width, height, channels;
 		stbi_set_flip_vertically_on_load(1);
@@ -128,6 +131,7 @@ namespace Rynex{
 
 	OpenGLTexture2D::OpenGLTexture2D(void* data, int width, int height, int channels)
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_INFO("OpenGLTexture2D::OpenGLTexture2D -> use data");
 		if (data)
 		{
@@ -171,6 +175,7 @@ namespace Rynex{
 		, m_Heigth(m_Specification.Height)
 		, m_IsLoaded(true)
 	{
+		RY_PROFILE_FUNCTION();
 		m_DataFormate = Utils::RynexImageFormatToGLDataFormat(m_Specification.Format);
 		m_InternalFormate = Utils::RynexImageFormatToGLInternalFormat(m_Specification.Format);
 
@@ -193,11 +198,13 @@ namespace Rynex{
 
 	OpenGLTexture2D::~OpenGLTexture2D()
 	{
+		RY_PROFILE_FUNCTION();
 		glDeleteTextures(1, &m_RendererID);
 	}
 
 	void OpenGLTexture2D::SetData(void* data, uint32_t size)
 	{
+		RY_PROFILE_FUNCTION();
 		uint32_t bpp = m_DataFormate == GL_RGBA ? 4 : 3;
 		RY_CORE_ASSERT(size == m_Width * m_Heigth * bpp, "Data must be entyer Texture!")
 		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Heigth, m_DataFormate, GL_UNSIGNED_BYTE, data);
@@ -205,6 +212,7 @@ namespace Rynex{
 
 	void OpenGLTexture2D::Bind(uint32_t slot) const
 	{
+		RY_PROFILE_FUNCTION();
 		glBindTextureUnit(slot, m_RendererID);
 	}
 }

@@ -12,6 +12,7 @@ namespace Rynex {
 
 	std::string FileDialoges::OpenFile(const char* filter)
 	{
+		RY_PROFILE_FUNCTION();
 		OPENFILENAMEA ofn;
 		CHAR szFile[260] = { 0 };
 		//CHAR currentDir[256] = { 0 };
@@ -35,6 +36,7 @@ namespace Rynex {
 
 	std::string FileDialoges::SaveFile(const char* filter)
 	{
+		RY_PROFILE_FUNCTION();
 		OPENFILENAMEA ofn;
 		CHAR szFile[260] = { 0 };
 		//CHAR currentDir[256] = { 0 };

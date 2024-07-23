@@ -6,12 +6,14 @@ namespace Rynex {
 	
 	SceneGeomtry::~SceneGeomtry()
 	{
+		RY_PROFILE_FUNCTION();
 		delete[] m_VertexData;
 		delete[] m_IndexData;
 	}
 
 	void SceneGeomtry::CreateShape(const BufferLayout& layout, GeomtryShape shape, GeomtryPrimitiv primitiv)
 	{
+		RY_PROFILE_FUNCTION();
 		m_Shape = shape;
 		m_Primitiv = primitiv;
 
@@ -21,6 +23,7 @@ namespace Rynex {
 
 	void SceneGeomtry::CalculateIndexs()
 	{
+		RY_PROFILE_FUNCTION();
 		uint32_t* size = new uint32_t[m_IndexSize];
 		switch (m_Shape)
 		{
@@ -54,6 +57,7 @@ namespace Rynex {
 
 	void SceneGeomtry::CalculateVertex()
 	{
+		RY_PROFILE_FUNCTION();
 		switch (m_Shape)
 		{
 			case GeomtryShape::Quad2D: CalculateQuad2D(); break;
@@ -67,7 +71,7 @@ namespace Rynex {
 
 	void SceneGeomtry::CalculateQuad2D()
 	{
-
+		RY_PROFILE_FUNCTION();
 		m_VertexData = new void*[m_VertexSize*4];
 		void* vertex = new void* [m_VertexSize];
 		m_IndexSize = 6;
@@ -86,6 +90,7 @@ namespace Rynex {
 
 	void SceneGeomtry::CalculateKube3D()
 	{
+		RY_PROFILE_FUNCTION();
 		m_VertexData = new void* [m_VertexSize];
 		uint32_t* size = new uint32_t[m_IndexSize];
 
@@ -94,6 +99,7 @@ namespace Rynex {
 
 	void SceneGeomtry::CalculateSphere3D()
 	{
+		RY_PROFILE_FUNCTION();
 		m_VertexData = new void* [m_VertexSize];
 		uint32_t* size = new uint32_t[m_IndexSize];
 
@@ -102,6 +108,7 @@ namespace Rynex {
 
 	void SceneGeomtry::CalculatePlane3D()
 	{
+		RY_PROFILE_FUNCTION();
 		m_VertexData = new void* [m_VertexSize];
 		uint32_t* size = new uint32_t[m_IndexSize];
 
@@ -110,6 +117,7 @@ namespace Rynex {
 
 	void SceneGeomtry::CalculatePyrmed3D()
 	{
+		RY_PROFILE_FUNCTION();
 		m_VertexData = new void* [m_VertexSize];
 		uint32_t* size = new uint32_t[m_IndexSize];
 	}

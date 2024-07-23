@@ -74,6 +74,7 @@ namespace Rynex {
 
 	Ref<Scene> Scene::Copy(Ref<Scene> other)
 	{
+		RY_PROFILE_FUNCTION();
 		Ref<Scene> newScene = CreateRef<Scene>();
 
 		newScene->m_ViewPortWithe = other->m_ViewPortWithe;
@@ -101,11 +102,13 @@ namespace Rynex {
 
 	Entity Scene::CreateEntity(const std::string& name)
 	{
+		RY_PROFILE_FUNCTION();
 		return CreateEntityWitheUUID(UUID(), name);
 	}
 
 	Entity Scene::CreateEntityWitheUUID(UUID uuid, const std::string& name)
 	{
+		RY_PROFILE_FUNCTION();
 		Entity entity = { m_Registery.create(), this };
 		
 		entity.AddComponent<IDComponent>(uuid);
@@ -120,6 +123,7 @@ namespace Rynex {
 
 	void Scene::OnRuntimStart()
 	{
+		RY_PROFILE_FUNCTION();
 		ScriptingEngine::OnRuntimeStart(this);
 		// Instandiat
 
@@ -133,14 +137,14 @@ namespace Rynex {
 
 	void Scene::OnRuntimStop()
 	{
+		RY_PROFILE_FUNCTION();
 		ScriptingEngine::OnRuntimeStop();
-		
-
 	}
 
 
 	void Scene::DestroyEntity(Entity entity)
 	{
+		RY_PROFILE_FUNCTION();
 		m_EntityMap.erase(entity.GetUUID());
 		m_Registery.destroy(entity);
 	}
@@ -148,6 +152,7 @@ namespace Rynex {
 
 	void Scene::OnUpdateEditor(TimeStep ts, EditorCamera& camera)
 	{
+		RY_PROFILE_FUNCTION();
 #if 1
 		////////////////////////////////////////////////////////////
 		/// Renderer 3D ////////////////////////////////////////////
@@ -209,6 +214,7 @@ namespace Rynex {
 
 	void Scene::OnUpdateRuntime(TimeStep ts)
 	{
+		RY_PROFILE_FUNCTION();
 #if ENTITY_SCRIPT
 		{
 #if NATIVE_SCRIPT
@@ -305,6 +311,7 @@ namespace Rynex {
 
 	void Scene::OnUpdateSimulation(TimeStep ts, EditorCamera& camera)
 	{
+		RY_PROFILE_FUNCTION();
 		if (!m_IsPaused || m_StepFrames-- > 0)
 		{
 			// Physics
@@ -337,6 +344,7 @@ namespace Rynex {
 
 	void Scene::RenderScene2D(EditorCamera& camera)
 	{
+		RY_PROFILE_FUNCTION();
 #if RENDERER_2D
 		Renderer2D::BeginScene(camera);
 #if QUADS_DRAW
@@ -379,6 +387,7 @@ namespace Rynex {
 
 	void Scene::RenderScene3D(EditorCamera& camera)
 	{
+		RY_PROFILE_FUNCTION();
 #if RENDERER_3D
 		{
 			////////////////////////////////////////////////////////////
@@ -405,6 +414,7 @@ namespace Rynex {
 
 	void Scene::OnViewportResize(uint32_t withe, uint32_t heigth)
 	{
+		RY_PROFILE_FUNCTION();
 		m_ViewPortWithe = withe;
 		m_ViewPortHeigth = heigth;
 
@@ -423,6 +433,7 @@ namespace Rynex {
 
 	Entity Scene::GetEntitiyByUUID(UUID uuid)
 	{
+		RY_PROFILE_FUNCTION();
 		if(m_EntityMap.find(uuid) != m_EntityMap.end()) 
 			return { m_EntityMap.at(uuid), this};
 
@@ -431,6 +442,7 @@ namespace Rynex {
 
 	void Scene::GetMainCameraMainTransform( Camera *mainCamera, glm::mat4* mainTransform)
 	{
+		RY_PROFILE_FUNCTION();
 		auto view = m_Registery.view<TransformComponent, CameraComponent>();
 		for (auto entity : view)
 		{
@@ -448,6 +460,7 @@ namespace Rynex {
 
 	Entity Scene::GetPrimaryCameraEntity()
 	{
+		RY_PROFILE_FUNCTION();
 		auto view = m_Registery.view<CameraComponent>();
 		for (auto entity : view)
 		{

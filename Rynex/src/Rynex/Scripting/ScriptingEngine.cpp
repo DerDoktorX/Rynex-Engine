@@ -149,6 +149,7 @@ namespace Rynex {
 	
 	void ScriptingEngine::Init()
 	{
+		RY_PROFILE_FUNCTION();
 		s_Data = new ScriptingEngineData();
 
 		InitMono();
@@ -188,12 +189,14 @@ namespace Rynex {
 
 	void ScriptingEngine::Shutdown()
 	{
+		RY_PROFILE_FUNCTION();
 		ShutdownMono();
 		delete s_Data;
 	}
 
 	void ScriptingEngine::LoadAssambly(const std::filesystem::path& filepath)
 	{
+		RY_PROFILE_FUNCTION();
 		// Create an App Domain
 		s_Data->AppDomain = mono_domain_create_appdomain("RynexScriptRuntime", nullptr);
 		mono_domain_set(s_Data->AppDomain, true);
@@ -208,6 +211,7 @@ namespace Rynex {
 
 	static void OnAppAssemblyFileSystemEvent(const std::string& path, const filewatch::Event change_type)
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_INFO("FileWatcher: {0}\n> {1}",(int)change_type , path.c_str());
 		if (s_Data->AssemblyRelodingPennding && change_type == filewatch::Event::modified)
 		{
@@ -236,6 +240,7 @@ namespace Rynex {
 
 	void ScriptingEngine::LoadAppAssambly(const std::filesystem::path& filepath)
 	{
+		RY_PROFILE_FUNCTION();
 		// Create an App Domain
 		s_Data->EntityClasses.clear();
 		s_Data->AppAssemblyFilepath = filepath;
@@ -254,16 +259,19 @@ namespace Rynex {
 
 	void ScriptingEngine::OnRuntimeStart(Scene* scene)
 	{
+		RY_PROFILE_FUNCTION();
 		s_Data->SceneContext = scene;
 	}
 
 	void ScriptingEngine::OnRuntimeStop()
 	{
+		RY_PROFILE_FUNCTION();
 		s_Data->SceneContext = nullptr;
 	}
 
 	void ScriptingEngine::ReloadAssambly()
 	{
+		RY_PROFILE_FUNCTION();
 		mono_domain_set(mono_get_root_domain(), false);
 		
 		//mono_domain_free(s_Data->AppDomain, true);
@@ -278,6 +286,7 @@ namespace Rynex {
 
 	bool ScriptingEngine::ReloadeScriptAvaible()
 	{
+		RY_PROFILE_FUNCTION();
 		bool state = s_Data->AsseblyReloading;
 		s_Data->AsseblyReloading = false;
 		return state;
@@ -302,11 +311,13 @@ namespace Rynex {
 
 	bool ScriptingEngine::ClassExists(const std::string& fullClassName)
 	{
+		RY_PROFILE_FUNCTION();
 		return s_Data->EntityClasses.find(fullClassName) != s_Data->EntityClasses.end();
 	}
 
 	void ScriptingEngine::OnCreatEntity(Entity entity)
 	{
+		RY_PROFILE_FUNCTION();
 		const auto& sc = entity.GetComponent<ScriptComponent>();
 		if (ScriptingEngine::ClassExists(sc.Name))
 		{
@@ -321,6 +332,7 @@ namespace Rynex {
 
 	void ScriptingEngine::OnUpdateEntity(Entity entity, float ts)
 	{
+		RY_PROFILE_FUNCTION();
 		UUID entityID = entity.GetUUID();
 		
 		RY_CORE_ASSERT(s_Data->EntityInstances.find(entityID) != s_Data->EntityInstances.end(), "Error: OnUpdateEntity()");
@@ -331,6 +343,7 @@ namespace Rynex {
 
 	void ScriptingEngine::OnDrawEntity(Entity entity)
 	{
+		RY_PROFILE_FUNCTION();
 		const auto& sc = entity.GetComponent<ScriptComponent>();
 		if (ScriptingEngine::ClassExists(sc.Name))
 		{
@@ -347,11 +360,13 @@ namespace Rynex {
 
 	Scene* ScriptingEngine::GetSceneContext()
 	{
+		RY_PROFILE_FUNCTION();
 		return s_Data->SceneContext;
 	}
 
 	std::unordered_map<std::string, Ref<ScriptClass>> ScriptingEngine::GetEntityClasses()
 	{
+		RY_PROFILE_FUNCTION();
 		return s_Data->EntityClasses;
 	}
 
@@ -363,6 +378,7 @@ namespace Rynex {
 
 	void ScriptingEngine::InitMono()
 	{
+		RY_PROFILE_FUNCTION();
 		mono_set_assemblies_path("mono/lib");
 
 		MonoDomain* rootDomain = mono_jit_init("RynexJITRuntime");
@@ -375,7 +391,7 @@ namespace Rynex {
 
 	void ScriptingEngine::ShutdownMono()
 	{
-		
+		RY_PROFILE_FUNCTION();
 		mono_domain_set(mono_get_root_domain(), false);
 
 
@@ -390,6 +406,7 @@ namespace Rynex {
 
 	void ScriptingEngine::ExecuteScriptClass()
 	{
+		RY_PROFILE_FUNCTION();
 		//s_Data->EntityClass = ScriptClass("Rynex", "Entity");
 		s_Data->EntityClass = ScriptClass("Rynex", "Entity");
 		MonoObject* instance = s_Data->EntityClass.Instantiate();
@@ -417,6 +434,7 @@ namespace Rynex {
 
 	MonoObject* ScriptingEngine::InstantiateClass(MonoClass* monoClass)
 	{
+		RY_PROFILE_FUNCTION();
 		MonoObject* instance = mono_object_new(s_Data->AppDomain, monoClass);
 		mono_runtime_object_init(instance);
 		return instance;
@@ -424,6 +442,7 @@ namespace Rynex {
 
 	void ScriptingEngine::LoadAssemblyClasses()
 	{
+		RY_PROFILE_FUNCTION();
 		s_Data->EntityClasses.clear();
 
 	
@@ -475,6 +494,7 @@ namespace Rynex {
 
 	MonoImage* ScriptingEngine::GetCoreAssemblyImage()
 	{
+		RY_PROFILE_FUNCTION();
 		return s_Data->CoreAssemblyImage;
 	}
 
@@ -488,21 +508,25 @@ namespace Rynex {
 		: m_ClassNamespace(classNamespace)
 		, m_ClassName(className)
 	{
+		RY_PROFILE_FUNCTION();
 		m_MonoClass = mono_class_from_name(isCore ? s_Data->CoreAssemblyImage : s_Data->AppAssemblyImage, m_ClassNamespace.c_str(), m_ClassName.c_str());
 	}
 	
 	MonoObject* ScriptClass::Instantiate()
 	{
+		RY_PROFILE_FUNCTION();
 		return ScriptingEngine::InstantiateClass(m_MonoClass);
 	}
 
 	MonoMethod* ScriptClass::GetMethode(const std::string& name, int prameCount)
 	{
+		RY_PROFILE_FUNCTION();
 		return mono_class_get_method_from_name(m_MonoClass, name.c_str(), prameCount);
 	}
 
 	MonoObject* ScriptClass::InvokeMethode(MonoMethod* methode, MonoObject* instance, void** params)
 	{
+		RY_PROFILE_FUNCTION();
 		MonoObject* exception = nullptr;
 		return mono_runtime_invoke(methode, instance, params, &exception);
 	}
@@ -516,6 +540,7 @@ namespace Rynex {
 	ScriptInstance::ScriptInstance(Ref<ScriptClass> scriptClass, Entity entity)
 		: m_ScriptClass(scriptClass)
 	{
+		RY_PROFILE_FUNCTION();
 		m_Instance = scriptClass->Instantiate();
 
 		m_Constructor = s_Data->EntityClass.GetMethode(".ctor", 1);
@@ -532,18 +557,21 @@ namespace Rynex {
 
 	void ScriptInstance::InvokeCreate()
 	{
+		RY_PROFILE_FUNCTION();
 		if (m_OnCreateMethod)
 			m_ScriptClass->InvokeMethode(m_OnCreateMethod, m_Instance);
 	}
 
 	void ScriptInstance::InvokeOnUpdate(float ts)
 	{
+		RY_PROFILE_FUNCTION();
 		void* param = &ts;
 		m_ScriptClass->InvokeMethode(m_OnUpdateMethod, m_Instance, &param);
 	}
 
 	void ScriptInstance::InvokeOnDrawn()
 	{
+		RY_PROFILE_FUNCTION();
 		if (m_OnDrawMethod)
 			m_ScriptClass->InvokeMethode(m_OnDrawMethod, m_Instance);
 	}

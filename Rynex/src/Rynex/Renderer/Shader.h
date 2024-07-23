@@ -36,7 +36,8 @@ namespace Rynex{
 
 	public:
 		~Shader() = default;
-		static Ref<Shader> Create(const std::string& filePath, const std::string& name);
+		static Ref<Shader> Create(const std::string& filePath);
+		static Ref<Shader> Create(const std::string& source, const std::string& name);
 		static Ref<Shader> Create(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
 
 

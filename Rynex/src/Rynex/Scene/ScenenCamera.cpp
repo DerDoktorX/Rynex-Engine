@@ -6,11 +6,13 @@ namespace Rynex {
 
 	SceneCamera::SceneCamera()
 	{
+		RY_PROFILE_FUNCTION();
 		RecalulateProjection();
 	}
 
 	void SceneCamera::SetOrthoGrafic(float sizen, float nearClip, float farClip)
 	{
+		RY_PROFILE_FUNCTION();
 		m_ProjektionType = ProjectionType::Orthographic;
 		m_OrthoGraficSizen	= sizen;
 		m_OrthoGraficNear	= nearClip;
@@ -21,6 +23,7 @@ namespace Rynex {
 
 	void SceneCamera::SetPerspectiv(float verticleFow, float nearClip, float farClip)
 	{
+		RY_PROFILE_FUNCTION();
 		m_ProjektionType = ProjectionType::Perspectiv;
 		m_PerspectivFOV = verticleFow;
 		m_PerspectivNear = nearClip;
@@ -31,6 +34,7 @@ namespace Rynex {
 
 	void SceneCamera::SetViewPortSize(uint32_t withe, uint32_t heigth)
 	{
+		RY_PROFILE_FUNCTION();
 		m_AspectRotatio = (float)withe / (float)heigth;
 
 		RecalulateProjection();
@@ -38,7 +42,7 @@ namespace Rynex {
 
 	void SceneCamera::RecalulateProjection()
 	{
-		
+		RY_PROFILE_FUNCTION();
 		if(m_ProjektionType == ProjectionType::Perspectiv)
 		{
 			

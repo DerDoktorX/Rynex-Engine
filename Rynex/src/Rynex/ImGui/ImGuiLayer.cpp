@@ -21,14 +21,17 @@ namespace Rynex {
 	ImGuiLayer::ImGuiLayer()
 		: Layer("ImGuiLayer")
 	{
+        RY_PROFILE_FUNCTION();
 	}
 
 	ImGuiLayer::~ImGuiLayer()
 	{
+        RY_PROFILE_FUNCTION();
 	} 
 
 	void ImGuiLayer::OnAttach()
 	{
+        RY_PROFILE_FUNCTION();
         IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
@@ -63,6 +66,7 @@ namespace Rynex {
 
 	void ImGuiLayer::OnDetach()
 	{
+        RY_PROFILE_FUNCTION();
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
@@ -70,6 +74,7 @@ namespace Rynex {
 
     void ImGuiLayer::OnEvent(Event& e)
     {
+        RY_PROFILE_FUNCTION();
         if (m_BlockEvents)
         {
             ImGuiIO& io = ImGui::GetIO();
@@ -100,6 +105,7 @@ namespace Rynex {
 
     void ImGuiLayer::Begin()
     {
+        RY_PROFILE_FUNCTION();
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -108,6 +114,7 @@ namespace Rynex {
 
     void ImGuiLayer::End()
     {
+        RY_PROFILE_FUNCTION();
         ImGuiIO& io = ImGui::GetIO();
         Application& app = Application::Get();
         io.DisplaySize = ImVec2(app.GetWindow().GetWidth(), app.GetWindow().GetHeight());
@@ -128,6 +135,7 @@ namespace Rynex {
 
     void ImGuiLayer::SetDarkThemeColore()
     {
+        RY_PROFILE_FUNCTION();
         auto& colors = ImGui::GetStyle().Colors;
 
         colors[ImGuiCol_WindowBg] = ImVec4{ 0.1f, 0.105f, 0.11f, 1.0f };

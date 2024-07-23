@@ -20,6 +20,7 @@ namespace Rynex {
 
 	OpenGLShader::OpenGLShader(const std::string& source, const std::string& name)
 	{
+		RY_PROFILE_FUNCTION();
 #if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("OpenGLShader::OpenGLShader(const std::string& filePath)");
 #endif
@@ -32,6 +33,7 @@ namespace Rynex {
 	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
 		: m_Name(name)
 	{
+		RY_PROFILE_FUNCTION();
 #if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)");
 #endif
@@ -43,11 +45,13 @@ namespace Rynex {
 
 	OpenGLShader::~OpenGLShader()
 	{
+		RY_PROFILE_FUNCTION();
 		glDeleteProgram(m_RendererID);
 	}
 
 	void OpenGLShader::Bind() const
 	{
+		RY_PROFILE_FUNCTION();
 #if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("void OpenGLShader::Bind() const");
 #endif
@@ -64,12 +68,14 @@ namespace Rynex {
 
 	void OpenGLShader::AddShader(const std::string& shader, Shader::Type shaderType)
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_ASSERT(false, "Not Rady!");
 	}
 
 
 	void OpenGLShader::SetInt(const std::string& name, int value)
 	{
+		RY_PROFILE_FUNCTION();
 #if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("void OpenGLShader::SetInt(const std::string& name, int value)");
 #endif
@@ -78,6 +84,7 @@ namespace Rynex {
 
 	void OpenGLShader::SetIntArray(const std::string& name, int* value, uint32_t count)
 	{
+		RY_PROFILE_FUNCTION();
 #if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("void OpenGLShader::SetIntArray(const std::string& name, int* value, uint32_t count)");
 #endif
@@ -86,6 +93,7 @@ namespace Rynex {
 
 	void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)
 	{
+		RY_PROFILE_FUNCTION();
 #if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)");
 #endif
@@ -94,6 +102,7 @@ namespace Rynex {
 
 	void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value)
 	{
+		RY_PROFILE_FUNCTION();
 #if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value)");
 #endif
@@ -102,6 +111,7 @@ namespace Rynex {
 
 	void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value)
 	{
+		RY_PROFILE_FUNCTION();
 #if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value)");
 #endif
@@ -110,23 +120,26 @@ namespace Rynex {
 
 	void OpenGLShader::SetAlgorithm(Shader::Algorithm)
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_ASSERT(false, "Not Rady!");
-		
 	}
 
 	Shader::Algorithm OpenGLShader::GetAlgorithm()
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_ASSERT(false, "Not Rady!");
 		return Algorithm();
 	}
 
 	void OpenGLShader::SetLayouteData(BufferLayout& bufferLayout, Type shaderType, void* value, uint32_t layoute)
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_ASSERT(false,"Not Rady!");
 	}
 
 	const BufferLayout& OpenGLShader::GetLayout(Type shaderType, uint32_t layoute)
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_ASSERT(false, "Not Rady!");
 		return BufferLayout();
 	}
@@ -136,12 +149,14 @@ namespace Rynex {
 
 	void OpenGLShader::UploadUniformMat3(const std::string& name, const glm::mat3& matrix)
 	{
+		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
 	void OpenGLShader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix)
 	{
+		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
@@ -150,6 +165,7 @@ namespace Rynex {
 
 	std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(const std::string& source)
 	{
+		RY_PROFILE_FUNCTION();
 		std::unordered_map<GLenum, std::string> shaderSource;
 
 		const char* typeToken = "#type";
@@ -173,6 +189,7 @@ namespace Rynex {
 
 	void OpenGLShader::Compile(std::unordered_map<GLenum, std::string>& shaderSources)
 	{
+		RY_PROFILE_FUNCTION();
 		GLint program = glCreateProgram();
 		RY_CORE_ASSERT(shaderSources.size() <= 2, "only 2 Shaders for now!");
 		std::array<GLenum, 2> glShaderIDs;
@@ -241,24 +258,28 @@ namespace Rynex {
 
 	void OpenGLShader::UploadUniformFloat(const std::string& name, float values)
 	{
+		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform1f(location, values);
 	}
 
 	void OpenGLShader::UploadUniformFloat2(const std::string& name, const glm::vec2& values)
 	{
+		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform2f(location, values.x, values.y);
 	}
 
 	void OpenGLShader::UploadUniformFloat3(const std::string& name, const glm::vec3& values)
 	{
+		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform3f(location, values.x, values.y, values.z);
 	}
 
 	void OpenGLShader::UploadUniformFloat4(const std::string& name, const glm::vec4& values)
 	{
+		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform4f(location, values.x, values.y, values.z, values.w);
 	}
@@ -266,12 +287,14 @@ namespace Rynex {
 
 	void OpenGLShader::UploadUniformInt(const std::string& name, const int values)
 	{
+		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform1i(location, values);
 	}
 
 	void OpenGLShader::UploadUniformIntArray(const std::string& name, int* values, uint32_t count)
 	{
+		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform1iv(location, count, values);
 	}

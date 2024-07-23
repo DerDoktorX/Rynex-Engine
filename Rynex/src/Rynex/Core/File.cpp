@@ -4,6 +4,7 @@ namespace Rynex {
 
 	void File::ReadFile(std::string path, std::string& temp)
 	{
+		RY_PROFILE_FUNCTION();
 		FILE* m_Stream;
 		char buffer[255];
 		int err;
@@ -29,11 +30,12 @@ namespace Rynex {
 
 	std::string File::ReadFile(std::string path)
 	{
+		RY_PROFILE_FUNCTION();
 		return std::string();
 	}
 
 	void File::CheckState()
 	{
-
+		RY_PROFILE_FUNCTION();
 	}
 }

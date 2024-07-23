@@ -2,7 +2,8 @@ include "./vendor/bin/premake/premake_customization/solution_items.lua"
 
 workspace "Rynex-Engine"
 	architecture "x86_64"
-	startproject "Rynex-Editor"
+	--startproject "Rynex-Editor"
+	startproject "Sandbox"
 
 	configurations 
 	{ 
@@ -72,6 +73,7 @@ group ""
 --group "MainWorking"
 include "Rynex"
 include "Rynex-Editor"
+include "Sandbox"
 --group ""
 
 group "Core"	
@@ -81,9 +83,9 @@ group ""
 --group ""
 
 
-group "Misc"
-	include "Sandbox"
-group ""
+--group "Misc"
+	
+--group ""
 
 
 

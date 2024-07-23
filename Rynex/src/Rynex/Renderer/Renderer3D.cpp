@@ -23,22 +23,25 @@ namespace Rynex {
 
     void Renderer3D::Init()
     {
-        
+        RY_PROFILE_FUNCTION();
         RY_CORE_INFO("Renderer3D::Init");
     }
 
     void Renderer3D::Shutdown()
     {
+        RY_PROFILE_FUNCTION();
         RY_CORE_INFO("Renderer3D::Shutdown");
     }
 
     void Renderer3D::BeginScene(const EditorCamera& camera)
     {
+        RY_PROFILE_FUNCTION();
         s_Data.ViewProj = camera.GetViewProjection();
     }
 
     void Renderer3D::BeginScene(const Camera& camera, const glm::mat4& transformCamera)
     {
+        RY_PROFILE_FUNCTION();
         s_Data.Camera = camera;
         s_Data.TransformCamera = transformCamera;
         s_Data.ViewProj = camera.GetProjektion() * glm::inverse(transformCamera);
@@ -46,10 +49,12 @@ namespace Rynex {
 
     void Renderer3D::EndScene()
     {
+        RY_PROFILE_FUNCTION();
     }
 
     void Renderer3D::BeforDrawEntity(const MaterialComponent& material, const glm::mat4& model)
     {
+        RY_PROFILE_FUNCTION();
         auto& shader = material.Shader;
         shader->Bind();
 
@@ -66,11 +71,13 @@ namespace Rynex {
 
     void Renderer3D::AfterDrawEntity(const MaterialComponent& material)
     { 
+        RY_PROFILE_FUNCTION();
         //material.Shader->UnBind();
     }
 
     void Renderer3D::DrawMesh(const Ref<VertexArray>& vertexArray)
     {
+        RY_PROFILE_FUNCTION();
         //vertexArray->Bind();
         RenderCommand::DrawIndexedMesh(vertexArray);
         //vertexArray->UnBind();
@@ -83,6 +90,7 @@ namespace Rynex {
 
     void Renderer3D::DrawLine(const Ref<VertexArray>& vertexArray)
     {
+        RY_PROFILE_FUNCTION();
         //vertexArray->Bind();
         RenderCommand::DrawIndexedLine(vertexArray);
         //vertexArray->UnBind(); 

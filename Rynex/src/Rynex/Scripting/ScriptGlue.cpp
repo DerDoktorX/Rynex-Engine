@@ -20,6 +20,7 @@ namespace Rynex {
 	// Exampels Defins
 	static void NativLog(MonoString* text)
 	{
+		RY_PROFILE_FUNCTION();
 		char* cStr = mono_string_to_utf8(text);
 		printf("C++ says ->%s\n", cStr);
 		mono_free(cStr);
@@ -27,7 +28,7 @@ namespace Rynex {
 
 	static void NativLog_Vec3(glm::vec3* parmeter, glm::vec3* outresult)
 	{
-
+		RY_PROFILE_FUNCTION();
 		RY_CORE_WARN("Value: {0}, {1}, {2}", parmeter->x, parmeter->y, parmeter->z);
 
 		*outresult = glm::normalize(*parmeter);
@@ -36,6 +37,7 @@ namespace Rynex {
 
 	static float NativLog_Vec3Dot(glm::vec3* parmeter)
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_WARN("Value: {0}, {1}, {2}", parmeter->x, parmeter->y, parmeter->z);
 		return glm::dot(*parmeter, *parmeter);
 
@@ -46,6 +48,7 @@ namespace Rynex {
 	// TransformComponent
 	static void TransformComponent_GetTranslation(UUID entityID, glm::vec3* outTranslation)
 	{
+		RY_PROFILE_FUNCTION();
 		Scene* scene = ScriptingEngine::GetSceneContext();
 		Entity entity = scene->GetEntitiyByUUID(entityID);
 		if (!entity.HasComponent<TransformComponent>()) return;
@@ -54,6 +57,7 @@ namespace Rynex {
 
 	static void TransformComponent_SetTranslation(UUID entityID, glm::vec3* inTranslation)
 	{
+		RY_PROFILE_FUNCTION();
 		Scene* scene = ScriptingEngine::GetSceneContext();
 		Entity entity = scene->GetEntitiyByUUID(entityID);
 		if (!entity.HasComponent<TransformComponent>()) return;
@@ -71,6 +75,7 @@ namespace Rynex {
 	// GeomtryComponent
 	static void GeometryComponent_SetVertex(UUID entityID, void* vertex, uint32_t byteSize)
 	{
+		RY_PROFILE_FUNCTION();
 		Scene* scene = ScriptingEngine::GetSceneContext();
 		Entity entity = scene->GetEntitiyByUUID(entityID);
 		if (!entity.HasComponent<GeomtryComponent>()) return;
@@ -93,7 +98,7 @@ namespace Rynex {
 
 	static void GeomtryComponent_SetIndex(UUID entityID, uint32_t* index, uint32_t count)
 	{
-
+		RY_PROFILE_FUNCTION();
 		Scene* scene = ScriptingEngine::GetSceneContext();
 		Entity entity = scene->GetEntitiyByUUID(entityID);
 		if (!entity.HasComponent<GeomtryComponent>()) return;
@@ -128,6 +133,7 @@ namespace Rynex {
 	// Input Defins
 	static bool Input_IsKeyDown(KeyCode keycode)
 	{
+		RY_PROFILE_FUNCTION();
 		return Input::IsKeyPressed(keycode);
 	}
 
@@ -167,6 +173,8 @@ namespace Rynex {
 
 	void ScriptGlue::RegisterFunktion()
 	{
+		RY_PROFILE_FUNCTION();
+
 		// Exampels
 		RY_ADD_INTERNAL_CALL(NativLog);
 		RY_ADD_INTERNAL_CALL(NativLog_Vec3);
@@ -191,6 +199,7 @@ namespace Rynex {
 
 	void ScriptGlue::RegisterAllComponets()
 	{
+		RY_PROFILE_FUNCTION();
 		s_EntityHasComponentFuncs.clear();
 		RegisterComponents(AllComponents{});
 	}

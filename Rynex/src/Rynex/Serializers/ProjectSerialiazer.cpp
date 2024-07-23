@@ -12,6 +12,7 @@ namespace Rynex {
 
 	bool ProjectSerialiazer::Serlize(const std::filesystem::path& filepath)
 	{
+		RY_PROFILE_FUNCTION();
 		const auto& config = m_Project->GetConfig();
 
 		YAML::Emitter out;
@@ -37,6 +38,7 @@ namespace Rynex {
 
 	bool Rynex::ProjectSerialiazer::Deserlize(const std::filesystem::path& filepath)
 	{
+		RY_PROFILE_FUNCTION();
 		auto& config = m_Project->GetConfig();
 
 		YAML::Node data;

@@ -19,6 +19,7 @@ namespace Rynex {
 	
 	void Geomtrys::GetCubeVertex(const Ref<VertexArray>& vertexArray, Ref<VertexBuffer> vertexBuffer, const glm::vec3& size, const BufferLayout& layoute)
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_WARN("Geomtrys::GetCubeVertex is not Final Radey!");
 		
 		vertexBuffer->SetLayout({ 
@@ -51,6 +52,7 @@ namespace Rynex {
 
 	void Geomtrys::SetCubeIndex(const Ref<VertexArray>& vertexArray)
 	{
+		RY_PROFILE_FUNCTION();
 #if RY_MESH
 		uint32_t indcies[] = {
 			0, 1, 2,	// 1

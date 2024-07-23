@@ -1,17 +1,23 @@
 #include "EditorLayer.h"
+
+#include <Rynex/Core/Application.h>
+#include <Rynex/Core/Input.h>
+#include <Rynex/Project/Project.h>
+#include <Rynex/Asset/Base/AssetManager.h>
+#include <Rynex/Utils/PlatformUtils.h>
+#include <Rynex/Math/Math.h>
+#include <Rynex/Serializers/SceneSerializer.h>
+#include <Rynex/Scripting/ScriptingEngine.h>
+
+#include <Rynex/Renderer/Renderer.h>
+#include <Rynex/Renderer/Renderer2D.h>
+
 #include <imgui/imgui.h>
-
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-#include "Rynex/Serializers/SceneSerializer.h"
 
 #include "ImGuizmo.h"
 
-#include "Rynex/Math/Math.h"
-#include "Rynex/Scripting/ScriptingEngine.h"
-#include "Rynex/Project/Project.h"
-#include "Rynex/Asset/Base/AssetManager.h"
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Rynex {
 

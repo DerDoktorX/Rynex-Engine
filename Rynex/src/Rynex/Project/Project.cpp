@@ -6,12 +6,14 @@ namespace Rynex {
 
     Ref<Project> Project::New()
     {
+        RY_PROFILE_FUNCTION();
         s_ActiveProject = CreateRef<Project>();
         return s_ActiveProject;
     }
 
     Ref<Project> Project::Load(const std::filesystem::path& path)
     {
+        RY_PROFILE_FUNCTION();
         Ref<Project> project = CreateRef<Project>();
 
         ProjectSerialiazer serialiazer(project);
@@ -32,6 +34,7 @@ namespace Rynex {
 
     bool Project::SaveActive(const std::filesystem::path& path)
     {
+        RY_PROFILE_FUNCTION();
         ProjectSerialiazer serializer(s_ActiveProject);
         if (serializer.Serlize(path))
         {

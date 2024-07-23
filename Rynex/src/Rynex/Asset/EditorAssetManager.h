@@ -1,10 +1,14 @@
 #pragma once
+
+
 #include "Base/AssetManagerBase.h"
 #include "Base/AssetMetadata.h"
 #include "Rynex/Asset/Base/Asset.h"
+
 #include <map>
 
 namespace Rynex {
+
     struct AssetFileDirectory
     {
 #if 0
@@ -51,6 +55,7 @@ namespace Rynex {
         void CreateDirektoryRegestriy(const std::filesystem::path& curentPath);
         void AddAssetToDirektory(const std::filesystem::path& path, const std::filesystem::path& curentPath);
         void AddDirektoryToDirektory(const std::filesystem::path& path, const std::filesystem::path& curentPath);
+        void CreateDirektoryUnknownTypeDirektory(const std::filesystem::path& path, const std::filesystem::path& curentPath);
 
         void SerialzeAssetRegestriy();
         bool DeserialzeAssetRegestriy();

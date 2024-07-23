@@ -19,25 +19,30 @@ namespace Rynex {
 
 	static void GLFWErrorCallBack(int error, const char* discription)
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_ERROR("GLFW Error ({0}): {1} ", error, discription);
 	}
 
 	Scope<Window> Window::Create(const WindowProps& props)
 	{
+		RY_PROFILE_FUNCTION();
 		return CreateScope<WindowsWindow>(props);
 	}
 
 	WindowsWindow::WindowsWindow(const WindowProps& props)
 	{
+		RY_PROFILE_FUNCTION();
 		Init(props);
 	}
 
 	WindowsWindow::~WindowsWindow()
 	{
+		RY_PROFILE_FUNCTION();
 	}
 
 	void WindowsWindow::Init(const WindowProps& props)
 	{
+		RY_PROFILE_FUNCTION();
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
@@ -175,17 +180,20 @@ namespace Rynex {
 
 	void WindowsWindow::Shutdown()
 	{
+		RY_PROFILE_FUNCTION();
 		glfwDestroyWindow(m_Window);
 	}
 
 	void WindowsWindow::OnUpdate()
 	{
+		RY_PROFILE_FUNCTION();
 		glfwPollEvents();
 		m_Context->SwapBuffers();
 	}
 
 	void WindowsWindow::SetVSync(bool enabled)
 	{
+		RY_PROFILE_FUNCTION();
 		if (enabled)
 			glfwSwapInterval(1);
 		else
@@ -196,6 +204,7 @@ namespace Rynex {
 
 	bool WindowsWindow::IsVSync() const
 	{
+		RY_PROFILE_FUNCTION();
 		return m_Data.VSync;
 	}
 

@@ -37,6 +37,7 @@ namespace Rynex {
 
 	OpenGLVertexArray::OpenGLVertexArray()
 	{
+		RY_PROFILE_FUNCTION();
 		glCreateVertexArrays(1, &m_RendererID);
 #if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("OpenGLVertexArray::OpenGLVertexArray()");
@@ -45,6 +46,7 @@ namespace Rynex {
 
 	OpenGLVertexArray::~OpenGLVertexArray()
 	{
+		RY_PROFILE_FUNCTION();
 		glDeleteVertexArrays(1, &m_RendererID);
 	}
 
@@ -52,6 +54,7 @@ namespace Rynex {
 
 	void OpenGLVertexArray::Bind() const
 	{
+		RY_PROFILE_FUNCTION();
 		glBindVertexArray(m_RendererID);
 #if CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("void OpenGLVertexArray::Bind() const");
@@ -60,6 +63,7 @@ namespace Rynex {
 
 	void OpenGLVertexArray::UnBind() const
 	{
+		RY_PROFILE_FUNCTION();
 		glBindVertexArray(0);
 #if CONSOLE_LOG_FUNKTION_OPENGL
 	RY_CORE_INFO("void OpenGLVertexArray::UnBind() const");
@@ -68,17 +72,20 @@ namespace Rynex {
 
 	void OpenGLVertexArray::SetPrimitv(Primitv primitv)
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_ASSERT(false, "Not Rady!");
 	}
 
 	VertexArray::Primitv OpenGLVertexArray::GetPrimitv()
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_ASSERT(false, "Not Rady!");
 		return Primitv();
 	}
 
 	void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer Has no Layoute!");
 		
 		glBindVertexArray(m_RendererID);
@@ -141,6 +148,7 @@ namespace Rynex {
 
 	void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
 	{
+		RY_PROFILE_FUNCTION();
 		glBindVertexArray(m_RendererID);
 		indexBuffer->Bind();
 
@@ -152,6 +160,7 @@ namespace Rynex {
 
 	const char* OpenGLVertexArray::GetPrimitvChar() const
 	{
+		RY_PROFILE_FUNCTION();
 		switch (m_Primitv)
 		{
 			case VertexArray::Primitv::Traingle:		return {"Traingle"};

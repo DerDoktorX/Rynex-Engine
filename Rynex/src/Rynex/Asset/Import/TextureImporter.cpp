@@ -9,12 +9,13 @@ namespace Rynex{
 
 	Ref<Texture2D> TextureImporter::ImportTexture2D(AssetHandle handle, const AssetMetadata& metadata)
 	{
-
+		RY_PROFILE_FUNCTION();
 		return LoadTexture2D(metadata.FilePath);
 	}
 
 	Ref<Texture2D> TextureImporter::LoadTexture2D(const std::filesystem::path& path)
 	{
+		RY_PROFILE_FUNCTION();
 		int width, height, channels;
 		stbi_set_flip_vertically_on_load(1);
 		std::string strPath = path.string();

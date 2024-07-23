@@ -1,8 +1,14 @@
 #pragma once
 
-#include "Rynex.h"
+#include <Rynex/Core/Layer.h>
+#include <Rynex/Events/KeyEvent.h>
+#include <Rynex/Core/CamerController.h>
+#include <Rynex/Renderer/Framebuffer.h>
+
 #include "Pannel/SceneHierachyPannel.h"
 #include "Pannel/ContentBrowserPannel.h"
+
+
 
 struct ImVec2;
 

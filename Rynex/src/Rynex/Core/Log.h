@@ -1,7 +1,7 @@
 #pragma once
 
-#include "rypch.h"
 #include "Base.h"
+
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/ostr.h"
 

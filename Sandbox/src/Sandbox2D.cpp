@@ -1,10 +1,10 @@
 #include "Sandbox2D.h"
-#include "imgui/imgui.h"
+
+#include <Rynex.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
-#include "Platform/OpenGL/OpenGLShader.h"
+#include <imgui/imgui.h>
 
 Sandbox2D::Sandbox2D()
 	: Layer("Sanbox2D")
@@ -15,14 +15,26 @@ Sandbox2D::Sandbox2D()
 
 void Sandbox2D::OnAttach()
 {
-	m_ChekbordTex = Rynex::Texture2D::Create("Assets/textures/Checkerboard.png");
+	m_ChekbordTex = Rynex::TextureImporter::LoadTexture2D("Assets/textures/Checkerboard.png");
 
 
     Rynex::FramebufferSpecification fbSpec;
+    fbSpec.Attachments =
+    {
+         Rynex::FramebufferTextureFormat::RGBA8,
+         Rynex::FramebufferTextureFormat::RGBA8,
+         Rynex::FramebufferTextureFormat::RED_INTEGER,
+         Rynex::FramebufferTextureFormat::Depth
+    };
     fbSpec.Width = 1280;
     fbSpec.Height = 720;
-    
-    //m_Framebuffer = Rynex::Framebuffer::Create(fbSpec);
+    m_Framebuffer = Rynex::Framebuffer::Create(fbSpec);
+
+    Rynex::Renderer::Init();
+
+
+    m_Project = Rynex::Project::GetActive();
+    m_AssetManger = m_Project->GetRuntimeAssetManger();
 }
 
 void Sandbox2D::OnDetach()

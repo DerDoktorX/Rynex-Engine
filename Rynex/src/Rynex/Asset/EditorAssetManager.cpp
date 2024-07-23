@@ -14,17 +14,20 @@ namespace Rynex {
 
 	EditorAssetManager::EditorAssetManager()
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_ERROR("EditorAssetManager Constructor");
 	}
 
 	bool EditorAssetManager::IsAssetHandleValid(AssetHandle handle) const
 	{
+		RY_PROFILE_FUNCTION();
 		// RY_CORE_ASSERT(false, "EditorAssetManager::IsAssetHandleValid");
 		return handle != 0 && m_AssetRegistry.find(handle) != m_AssetRegistry.end();
 	}
 
 	Ref<Asset> EditorAssetManager::GetAsset(AssetHandle handle)
 	{
+		RY_PROFILE_FUNCTION();
 		// RY_CORE_ASSERT(false, "EditorAssetManager::GetAsset");
 		if (!IsAssetHandleValid(handle))
 			return nullptr;
@@ -51,6 +54,7 @@ namespace Rynex {
 
 	bool EditorAssetManager::IsAssetLoaded(AssetHandle handle) const
 	{
+		RY_PROFILE_FUNCTION();
 		// RY_CORE_ASSERT(false, "EditorAssetManager::IsAssetLoaded");
 		return m_LoadedAssets.find(handle) != m_LoadedAssets.end();
 		// return false;
@@ -58,6 +62,7 @@ namespace Rynex {
 
 	void EditorAssetManager::ImportAsset(const std::filesystem::path& filepath)
 	{
+		RY_PROFILE_FUNCTION();
 		AssetHandle handle;
 		AssetMetadata metadata;
 
@@ -78,6 +83,7 @@ namespace Rynex {
 
 	const AssetMetadata& EditorAssetManager::GetMetadata(AssetHandle handle) const
 	{
+		RY_PROFILE_FUNCTION();
 		static AssetMetadata s_NullMetadata;
 		auto it = m_AssetRegistry.find(handle);
 		if (it == m_AssetRegistry.end())
@@ -88,6 +94,7 @@ namespace Rynex {
 
 	void EditorAssetManager::SetMetadataState(AssetHandle handle, AssetState state)
 	{
+		RY_PROFILE_FUNCTION();
 		if (m_AssetRegistry.find(handle) != m_AssetRegistry.end())
 			m_AssetRegistry[handle].State = state;
 			
@@ -95,18 +102,20 @@ namespace Rynex {
 
 	const std::filesystem::path& EditorAssetManager::GetFilePath(AssetHandle handle) const
 	{
+		RY_PROFILE_FUNCTION();
 		return GetMetadata(handle).FilePath;
 	}
 	
 
 	const AssetHandle& EditorAssetManager::GetAssetHandle(const std::filesystem::path& path)
 	{
+		RY_PROFILE_FUNCTION();
 		return m_PathRegistry[path] ? m_PathRegistry[path] :  AddFileToRegistry(path);
 	}
 
 	const AssetHandle& EditorAssetManager::AddFileToRegistry(const std::filesystem::path& filepath)
 	{
-		
+		RY_PROFILE_FUNCTION();
 		if(m_PathRegistry.find(filepath) != m_PathRegistry.end())
 		{
 			return m_PathRegistry[filepath];
@@ -116,6 +125,7 @@ namespace Rynex {
 		AssetMetadata& metadata = m_AssetRegistry[handle];
 		m_PathRegistry[filepath] = handle;
 		metadata.FilePath = filepath;
+		metadata.LoadingTime = std::filesystem::last_write_time(filepath);
 		metadata.Type = GetAssetTypeFromFilePath(filepath);
 		metadata.State = AssetState::NotLoaded;
 		return handle;
@@ -123,6 +133,7 @@ namespace Rynex {
 	
 	const void EditorAssetManager::ReLoadeAsset(AssetHandle handle) const
 	{
+		RY_PROFILE_FUNCTION();
 		AssetMetadata metadata = GetMetadata(handle);
 		metadata.State = AssetState::Loading;
 		Ref<Asset> asset = AssetImporter::ImportAsset(handle, metadata);
@@ -131,12 +142,14 @@ namespace Rynex {
 
 	YAML::Emitter& operator<<(YAML::Emitter& out, const std::string_view& v)
 	{
+		RY_PROFILE_FUNCTION();
 		out << std::string(v.data(), v.size());
 		return out;
 	}
 
 	void EditorAssetManager::CreateDirektoryRegestriy(const std::filesystem::path& curentPath)
 	{
+		RY_PROFILE_FUNCTION();
 		AssetFileDirectory& assetDirectory = m_AssetDirectorys[curentPath];
 		assetDirectory.FolderName = curentPath.filename().string();
 		assetDirectory.FolderPath = curentPath;
@@ -144,16 +157,20 @@ namespace Rynex {
 
 	void EditorAssetManager::AddAssetToDirektory(const std::filesystem::path& path, const std::filesystem::path& curentPath)
 	{
+		RY_PROFILE_FUNCTION();
 		m_AssetDirectorys[curentPath].Files.push_back(AddFileToRegistry(path));
 	}
 
 	void EditorAssetManager::AddDirektoryToDirektory(const std::filesystem::path& path, const std::filesystem::path& curentPath)
 	{
+		RY_PROFILE_FUNCTION();
 		m_AssetDirectorys[curentPath].Folders.push_back(path);
 	}
 
+
 	void EditorAssetManager::SerialzeAssetRegestriy()
 	{
+		RY_PROFILE_FUNCTION();
 		auto path = Project::GetActiveAssetRegistryPath();
 
 		YAML::Emitter out;
@@ -180,6 +197,7 @@ namespace Rynex {
 
 	bool EditorAssetManager::DeserialzeAssetRegestriy()
 	{
+		RY_PROFILE_FUNCTION();
 		auto path = Project::GetActiveAssetRegistryPath();
 
 		YAML::Node data;

@@ -8,6 +8,7 @@ namespace Rynex::Math {
 
 	bool DecomposeTransform(const glm::mat4& tranform, glm::vec3& translation, glm::vec3& rotation, glm::vec3& scale)
 	{
+		RY_PROFILE_FUNCTION();
 		// From glm::decompose in matrix_decompose.inl
 
 		using namespace glm;

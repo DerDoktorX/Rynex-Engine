@@ -19,7 +19,7 @@ namespace Rynex {
 	
 	Ref<Asset> AssetImporter::ImportAsset(AssetHandle handle, const AssetMetadata& metadata)
 	{
-			
+		RY_PROFILE_FUNCTION();
 		return s_AssetsImportFuncs.at(metadata.Type)(handle, metadata);
 	}
 }

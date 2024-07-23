@@ -41,6 +41,7 @@ namespace Rynex {
 
 	static void SerializerEntity(YAML::Emitter& out, Entity entity)
 	{
+		RY_PROFILE_FUNCTION();
 		Ref<EditorAssetManager> editorAssetManger = Project::GetActive()->GetEditorAssetManger();
 
 		RY_CORE_ASSERT(entity.HasComponent<IDComponent>(), "Error: Entity has not IDComponent");
@@ -126,6 +127,7 @@ namespace Rynex {
 
 	void SceneSerializer::Serialize(const std::string& filepath)
 	{
+		RY_PROFILE_FUNCTION();
 		YAML::Emitter out;
 		out << YAML::BeginMap;
 		out << YAML::Key << "Scene" << YAML::Value << "Untiteld";
@@ -148,13 +150,14 @@ namespace Rynex {
 
 	void SceneSerializer::SerializeRuntime(const std::string& filepath)
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_ASSERT(false, "SceneSerializer::SerializeRuntime not Implementet!");
 	}
 
 
 	bool SceneSerializer::Deserialize(const std::string& filepath)
 	{
-
+		RY_PROFILE_FUNCTION();
 		std::ifstream stream(filepath);
 		std::stringstream strStream;
 		strStream << stream.rdbuf();
@@ -248,6 +251,7 @@ namespace Rynex {
 
 	bool SceneSerializer::DeserializeRuntime(const std::string& filepath)
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_ASSERT(false, "SceneSerializer::DeserializeRuntime not Implementet!");
 		return false;
 	}

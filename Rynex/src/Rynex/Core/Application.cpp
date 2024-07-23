@@ -108,11 +108,12 @@ namespace Rynex {
 
 	void Application::Run()
 	{
+		RY_PROFILE_FUNCTION();
 		//m_Camera.SetPostione({ 0.5f, 0.5f, 0.0f });
 		//m_Camera.SetRotation(45.0f);
 		while (m_Running) 
 		{	
-			
+			RY_PROFILE_SCOPE("Main UpdateLoop");
 			float time = (float)glfwGetTime();
 			TimeStep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
@@ -122,6 +123,7 @@ namespace Rynex {
 #endif
 			// Thread!
 			ExecuteMainThreedQueue();
+			ExecuteMainThreedQueueAssetFileWatcher();
 
 			if (!m_Mineized) 
 			{
@@ -175,17 +177,19 @@ namespace Rynex {
 		m_MainThreedQueue.emplace_back(func);
 	}
 
-#if 0
-	void Application::SubmiteToMainThreedQueueAssetFileWatcher(const std::function<void(std::filesystem::path)>& func)
+#if 1
+	void Application::SubmiteToMainThreedQueueAssetFileWatcher(const std::function<void()>& func)
 	{
 		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutexAssetFileWatcher);
-		m_MainThreedQueueMutexAssetFileWatcher.emplace_back(func);
+		//AssetFileWatcherThreadData data(func, path);
+		m_MainThreedQueueAssetFileWatcher.emplace_back(func);
 	}
 #endif
 
 	void Application::ExecuteMainThreedQueue()
 	{
-#if RY_TODO_APPLICATION_MLULTI_THREAD
+		RY_PROFILE_FUNCTION();
+#if RY_TODO_APPLICATION_MULTI_THREAD
 		std::vector<std::function<void()>> copy;
 		{
 			std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
@@ -206,15 +210,16 @@ namespace Rynex {
 #endif		
 	}
 
-#if 0
+#if 1
 	void Application::ExecuteMainThreedQueueAssetFileWatcher()
 	{
+		RY_PROFILE_FUNCTION();
 		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutexAssetFileWatcher);
 
-		for (auto& func : m_MainThreedQueue)
+		for (auto& func : m_MainThreedQueueAssetFileWatcher)
 			func();
 
-		m_MainThreedQueue.clear();
+		m_MainThreedQueueAssetFileWatcher.clear();
 	}
 #endif
 }

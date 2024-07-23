@@ -11,11 +11,12 @@ namespace Rynex {
 		, m_Rotatione(rotatione)
 		
 	{
-
+		RY_PROFILE_FUNCTION();
 	}
 
 	void OrthograficCameraController::OnUpdate(TimeStep ts)
 	{
+		RY_PROFILE_FUNCTION();
 		//if (Input::IsMouseButtenPressd(0)) {
 		//	m_CamerPosition += glm::vec3(m_MouseOffset * 0.005f,0.0);
 		//	
@@ -48,6 +49,7 @@ namespace Rynex {
 
 	void OrthograficCameraController::OnEnvent(Event& e)
 	{
+		RY_PROFILE_FUNCTION();
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<MouseSrolledEvent>(RY_BIND_EVENT_FN(OrthograficCameraController::OnMouseSrolled));
 		
@@ -57,12 +59,14 @@ namespace Rynex {
 
 	void OrthograficCameraController::OnResize(float withe, float heigth)
 	{
+		RY_PROFILE_FUNCTION();
 		m_AspectRotation = withe / heigth;
 		m_Camera.SetProjection(-m_AspectRotation * m_ZoomLevel, m_AspectRotation * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
 	}
 
 	bool OrthograficCameraController::OnMouseSrolled(MouseSrolledEvent& e)
 	{
+		RY_PROFILE_FUNCTION();
 		m_ZoomLevel -= e.GetYOffset() * 0.25f;
 		m_ZoomLevel = std::max(m_ZoomLevel, 0.25f);
 		m_Camera.SetProjection(-m_AspectRotation * m_ZoomLevel, m_AspectRotation * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
@@ -76,6 +80,7 @@ namespace Rynex {
 	}
 	bool OrthograficCameraController::OnMouseMoved(MouseMoveEvent& e)
 	{
+		RY_PROFILE_FUNCTION();
 		m_MouseOffset = glm::vec2(m_MousePos) - glm::vec2(e.GetX() - 640, e.GetY() - 370);
 		m_MousePos = { e.GetX()-640, e.GetY()-370 };
 		return false;

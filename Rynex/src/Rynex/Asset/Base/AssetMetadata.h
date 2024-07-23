@@ -22,7 +22,7 @@ namespace Rynex {
 		std::filesystem::path FilePath;
 		AssetState State = AssetState::None;
 		std::string Name = std::string("");				//FilenameDefault
-		std::string LoadingTime = std::string("MM:HH::DD:MM:YYYY");
+		std::filesystem::file_time_type LoadingTime;
 
 		operator bool() const { return Type != AssetType::None; }
 

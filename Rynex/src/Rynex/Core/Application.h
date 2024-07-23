@@ -34,6 +34,17 @@ namespace Rynex {
 		ApplicationCommandLineArgs CommandLineArgs;
 	};
 
+	struct AssetFileWatcherThreadData
+	{
+		std::function<void(std::filesystem::path path)> Function;
+		std::filesystem::path Filepath;
+
+		AssetFileWatcherThreadData(std::function<void(std::filesystem::path path)> function, std::filesystem::path filepath)
+			: Function(function)
+			, Filepath(filepath)
+		{}
+	};
+
 	class RYNEX_API Application
 	{
 	public:
@@ -58,7 +69,7 @@ namespace Rynex {
 
 		// Treads!
 		void SubmiteToMainThreedQueue(const std::function<void()>& func);
-		void SubmiteToMainThreedQueueAssetFileWatcher(const std::function<void(std::filesystem::path)>& func);
+		void SubmiteToMainThreedQueueAssetFileWatcher(const std::function<void()>& func);
 		void ExecuteMainThreedQueue();
 		void ExecuteMainThreedQueueAssetFileWatcher();
 	private:

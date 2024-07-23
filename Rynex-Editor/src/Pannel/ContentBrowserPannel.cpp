@@ -1,6 +1,7 @@
 #include "rypch.h"
 #include "ContentBrowserPannel.h"
 
+#include <Rynex/Core/Application.h>
 #include "Rynex/Core/Application.h"
 #include "Rynex/Asset/Base/AssetManager.h"
 #include "Rynex/Asset/Import/TextureImporter.h"
@@ -53,13 +54,22 @@ namespace Rynex {
 		m_AssetManger		= m_Project->GetEditorAssetManger();
 		
 		m_AssetManger->SerialzeAssetRegestriy();
-		SetAssetRegestriy(m_BaseDirectory);
+
+		SetAssetRegestriy(m_BaseDirectory);		
+
+		m_AssetManger->CreateDirektoryRegestriy(m_BaseDirectory );
+		m_AssetManger->AddDirektoryToDirektory(m_BaseDirectory / "Unknown File Types", m_BaseDirectory);
+
+		m_AssetManger->CreateDirektoryRegestriy(m_BaseDirectory);
+		m_AssetManger->AddDirektoryToDirektory(m_BaseDirectory / "Loadead (NotAssetFiles)", m_BaseDirectory);
+
 		InitAssetFileWatcher();
 		
 	}
 
 	void ContentBrowserPannel::OnImGuiRender()
 	{
+		RY_PROFILE_FUNCTION();
 		//BrowserPannel();
 		AssetPannel();
 		AssetRegestriyPannel();
@@ -67,6 +77,7 @@ namespace Rynex {
 
 	void ContentBrowserPannel::GetFileList(const std::filesystem::path& curentPath)
 	{
+		RY_PROFILE_FUNCTION();
 		for (auto& p : std::filesystem::directory_iterator(curentPath))
 		{
 			const auto& path = p.path();
@@ -85,6 +96,7 @@ namespace Rynex {
 
 	void ContentBrowserPannel::BrowserPannel()
 	{
+		RY_PROFILE_FUNCTION();
 		ImGui::Begin("Content Browser");
 
 		if (m_CurrentDirectory != std::filesystem::path(m_BaseDirectory))
@@ -151,6 +163,7 @@ namespace Rynex {
 
 	static ImVec4 GetAssetStateColor(AssetState state)
 	{
+		RY_PROFILE_FUNCTION();
 		switch (state)
 		{
 		case AssetState::Error:			return ImVec4(0.85, 0.05, 0.1, 1.0);
@@ -168,6 +181,7 @@ namespace Rynex {
 
 	void ContentBrowserPannel::AssetPannel()
 	{
+		RY_PROFILE_FUNCTION();
 		ImGui::Begin("Asset Content");
 		
 		if (m_CurrentDirectory != std::filesystem::path(m_BaseDirectory))
@@ -231,9 +245,13 @@ namespace Rynex {
 		{
 			std::string fileNameString = folderPath.filename().string();
 			ImGui::PushID(fileNameString.c_str());
-			Ref<Texture2D> icon = m_DirectoryIcon;
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-			ImGui::ImageButton((ImTextureID)icon->GetRenderID(), { thumbernailSize , thumbernailSize }, { 0, 1 }, { 1, 0 }, -1, ImVec4(0.15f, 0.75f, 0.2f, 0.15f), ImVec4(1, 1, 1, 1));
+
+			if(folderPath != m_BaseDirectory / "Loadead (NotAssetFiles)" && folderPath != m_BaseDirectory / "Unknown File Types")
+				ImGui::ImageButton((ImTextureID)m_DirectoryIcon->GetRenderID(), { thumbernailSize , thumbernailSize }, { 0, 1 }, { 1, 0 }, -1, ImVec4(0.15f, 0.75f, 0.2f, 0.15f), ImVec4(1, 1, 1, 1));
+			else
+				ImGui::ImageButton((ImTextureID)m_DirectoryIcon->GetRenderID(), { thumbernailSize , thumbernailSize }, { 0, 1 }, { 1, 0 }, -1, ImVec4(0.875f, 0.875f, 0.35f, 0.5f), ImVec4(1, 1, 1, 1));
+
 			ImGui::PopStyleColor();
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 			{
@@ -248,8 +266,11 @@ namespace Rynex {
 		std::vector<AssetHandle> handles = assetFileDirectory.Files;
 		for (AssetHandle handle : handles)
 		{
+			
 			const AssetMetadata& metaData = m_AssetManger->GetMetadata(handle);
 			const std::filesystem::path& path = metaData.FilePath;
+
+
 			std::filesystem::path realtivPath = std::filesystem::relative(path, g_AssetsPath);
 			std::string fileNameString = path.filename().string();
 
@@ -257,7 +278,7 @@ namespace Rynex {
 
 			Ref<Texture2D> icon;
 			switch (GetAssetTypeFromFilePath(path.filename()))
-			{
+				{
 				case AssetType::Texture2D:
 				{
 					//AssetManager::GetAsset<Texture2D>(handle);
@@ -280,15 +301,15 @@ namespace Rynex {
 					icon = m_FileIconDefault;
 					break;
 				}
-			}
+				}
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 			ImGui::ImageButton(
-				(ImTextureID)icon->GetRenderID(), 
-				{ thumbernailSize , thumbernailSize }, 
-				{ 0, 1 }, 
+				(ImTextureID)icon->GetRenderID(),
+				{ thumbernailSize , thumbernailSize },
+				{ 0, 1 },
 				{ 1, 0 },
-				-1, 
-				ImVec4(0.15f, 0.85f, 0.2f, 0.1f), 
+				-1,
+				ImVec4(0.15f, 0.85f, 0.2f, 0.1f),
 				GetAssetStateColor(m_AssetManger->GetMetadata(handle).State));
 
 
@@ -298,18 +319,19 @@ namespace Rynex {
 				//const wchar_t* itemPath = realtivPath.c_str();
 				const AssetHandle* handle = &m_AssetManger->GetAssetHandle(path);
 				// TODO: Make Sperate DragDrop Type Names
-				ImGui::SetDragDropPayload("ASSET_BROWSER_ITEM", handle, sizeof(AssetHandle)); 
+				ImGui::SetDragDropPayload("ASSET_BROWSER_ITEM", handle, sizeof(AssetHandle));
 				ImGui::EndDragDropSource();
 			}
 
 			//RY_CORE_INFO("after drag drop ContentBrowserPannel");
 			ImGui::PopStyleColor();
-			
+
 
 			ImGui::TextWrapped(fileNameString.c_str());
 			ImGui::NextColumn();
 			ImGui::PopID();
-		}
+			}
+		
 
 		
 #endif
@@ -318,6 +340,7 @@ namespace Rynex {
 
 	void ContentBrowserPannel::AssetRegestriyPannel()
 	{
+		RY_PROFILE_FUNCTION();
 		ImGui::Begin("Asset Regestriy");
 		const auto& assetRegestriey  = m_Project->GetEditorAssetManger()->GetAssetRegistry();
 		
@@ -333,6 +356,7 @@ namespace Rynex {
 
 	static ImVec4 GetFileStateColor(FileStats state)
 	{
+		RY_PROFILE_FUNCTION();
 		switch (state)
 		{
 			case FileStats::Error:		return ImVec4(0.85, 0.05, 0.1, 1.0);
@@ -350,6 +374,7 @@ namespace Rynex {
 
 	static FileFormats GetFileFormate(const std::filesystem::path& filePath)
 	{
+		RY_PROFILE_FUNCTION();
 		std::filesystem::path extension = filePath.filename().extension();
 
 		if (extension == ".png") return FileFormats::png;
@@ -379,6 +404,7 @@ namespace Rynex {
 
 	void ContentBrowserPannel::SetAssetRegestriy(const std::filesystem::path& curentPath)
 	{
+		RY_PROFILE_FUNCTION();
 		m_AssetManger->CreateDirektoryRegestriy(curentPath);
 		for (auto& p : std::filesystem::directory_iterator(curentPath))
 		{
@@ -391,7 +417,14 @@ namespace Rynex {
 			else
 			{
 				// assetDirectory.Files.push_back(m_AssetManger->AddFileToRegistry(path));
-				m_AssetManger->AddAssetToDirektory(path, curentPath);
+				if(GetAssetTypeFromFilePath(path) != AssetType::None)
+				{
+					m_AssetManger->AddAssetToDirektory(path, curentPath);
+				}
+				else
+				{
+					m_AssetManger->AddAssetToDirektory(path, m_BaseDirectory / "Unknown File Types");
+				}
 			}
 		}
 		
@@ -399,6 +432,7 @@ namespace Rynex {
 
 	void ContentBrowserPannel::FileFormate(const std::filesystem::directory_entry& directoryEntry, FileFormats formate) const
 	{
+		RY_PROFILE_FUNCTION();
 		FileStats state = FileStats::None;
 		static float padding = 16.0f;
 		static float thumbernailSize = 80.0f;
@@ -520,40 +554,66 @@ namespace Rynex {
 
 	static std::string GetFileWatcherEventString(filewatch::Event change_type)
 	{
+		RY_PROFILE_FUNCTION();
 		return s_Data->FileWatcherEventMap[change_type];
 	}
 
 	// TODO: ADD File Watcher
-	static void OnFileSystemEvent(const std::filesystem::path& path, const filewatch::Event change_type)
+	static void OnFileSystemEvent(const std::filesystem::path& filepath, const filewatch::Event change_type)
 	{
-		switch (change_type)
+		RY_PROFILE_FUNCTION();
+		
+		Application::Get().SubmiteToMainThreedQueueAssetFileWatcher([filepath, change_type]()
 		{
-		case filewatch::Event::modified: 
-		{
-			Application::Get().SubmiteToMainThreedQueue([]()
+			RY_CORE_INFO("Thread Path! -> {0}", filepath.string().c_str());
+			switch (change_type)
 			{
+			case filewatch::Event::modified:
+			{
+				RY_CORE_INFO("Thread ReLoadeAsset!");
 				Ref<EditorAssetManager> assetManger = Project::GetActive()->GetEditorAssetManger();
-				AssetHandle handle = assetManger->GetAssetHandle("Assets");
+				AssetHandle handle = assetManger->GetAssetHandle(filepath);
 				if (assetManger->IsAssetLoaded(handle))
 				{
 					assetManger->ReLoadeAsset(handle);
-					RY_CORE_INFO("Thread ReLoadeAsset!");
+					RY_CORE_INFO("Thread ReLoadeAsset! {0}", filepath.string().c_str());
 				}
 				else
 				{
-					RY_CORE_WARN("Thread Not ReLoadeAsset!");
+					RY_CORE_WARN("Thread Not ReLoadeAsset! {0}", filepath.string().c_str());
 				}
-			});  
-			return; 
-		}
-		default:
-			break;
-		}
+			}
+			case filewatch::Event::added:
+			{
+				Ref<EditorAssetManager> assetManger = Project::GetActive()->GetEditorAssetManger();
+				AssetHandle handle = assetManger->GetAssetHandle(filepath);
+			}
+			case filewatch::Event::removed:
+			{
+				Ref<EditorAssetManager> assetManger = Project::GetActive()->GetEditorAssetManger();
+				AssetHandle handle = assetManger->GetAssetHandle(filepath);
+			}
+			case filewatch::Event::renamed_new:
+			{
+				Ref<EditorAssetManager> assetManger = Project::GetActive()->GetEditorAssetManger();
+				AssetHandle handle = assetManger->GetAssetHandle(filepath);
+			}
+			case filewatch::Event::renamed_old:
+			{
+				Ref<EditorAssetManager> assetManger = Project::GetActive()->GetEditorAssetManger();
+				AssetHandle handle = assetManger->GetAssetHandle(filepath);
+			}
+			default:
+				break;
+			}
+		});
+		
 		
 	};
 	
 	void ContentBrowserPannel::InitAssetFileWatcher()
 	{
+		RY_PROFILE_FUNCTION();
 		s_Data = new AssetMangerFileWatcherData();
 		//for(auto&[folderPath, assetFile] : m_AssetDirectorys)
 		{
@@ -565,6 +625,7 @@ namespace Rynex {
 
 	void ContentBrowserPannel::AssetFileWatcher()
 	{
+		RY_PROFILE_FUNCTION();
 		s_Data->AssetFileWatcher = CreateScope<filewatch::FileWatch<std::string>>("Assets", OnFileSystemEvent);
 		RY_CORE_INFO("New Thread Raedy!");
 	}

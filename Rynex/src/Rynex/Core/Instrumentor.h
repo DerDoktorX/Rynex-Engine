@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Rynex/Core/Log.h"
 
 #include <algorithm>
 #include <chrono>
@@ -46,10 +47,10 @@ namespace Rynex {
 				// Subsequent profiling output meant for the original session will end up in the
 				// newly opened session instead.  That's better than having badly formatted
 				// profiling output.
-				//if (Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
-				//{
-				//		RY_CORE_ERROR("Instrumentor::BeginSession('{0}') when session '{1}' already open.", name, m_CurrentSession->Name.c_str());
-				//}
+				if (Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
+				{
+						RY_CORE_ERROR("Instrumentor::BeginSession('{0}') when session '{1}' already open.", name, m_CurrentSession->Name.c_str());
+				}
 				InternalEndSession();
 			}
 			m_OutputStream.open(filePath);
@@ -61,10 +62,10 @@ namespace Rynex {
 			}
 			else
 			{
-				//if (Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
-				//{
-				//	RY_CORE_ERROR("Instrumentor could not open results file '{0}'.", filePath.c_str());
-				//}
+				if (Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
+				{
+					RY_CORE_ERROR("Instrumentor could not open results file '{0}'.", filePath.c_str());
+				}
 			}
 		}
 
@@ -104,9 +105,7 @@ namespace Rynex {
 				m_OutputStream.flush();
 			}
 		}
-
-		
-		
+	
 		static Instrumentor& Get()
 		{
 			static Instrumentor instance;
@@ -123,6 +122,7 @@ namespace Rynex {
 		{
 			EndSession();
 		}
+
 		void WriteHeader()
 		{
 			m_OutputStream << "{\"otherData\": {},\"traceEvents\":[{}";
@@ -188,13 +188,30 @@ namespace Rynex {
 		bool m_Stopped;
 		
 	};
+
+	class PlatformTimer
+	{
+	public:
+		static Scope<PlatformTimer> Create(const char* name);
+		virtual ~PlatformTimer() {};
+
+		virtual void Stop() = 0;
+	};
 }
 
 #if RY_PROFILE
-#define RY_PROFILE_BEGIN_SESSION(name, filepath)		::Rynex::Instrumentor::Get().BegineSession(name, filepath)
-#define RY_PROFILE_END_SESSION()						::Rynex::Instrumentor::Get().EndSession()
-#define RY_PROFILE_SCOPE(name)							::Rynex::InstrumentationTimer timer##__LINE__(name);
-#define RY_PROFILE_FUNCTION()							RY_PROFILE_SCOPE(__FUNCSIG__)
+
+	#define RY_PROFILE_BEGIN_SESSION(name, filepath)		::Rynex::Instrumentor::Get().BegineSession(name, filepath)
+	#define RY_PROFILE_END_SESSION()						::Rynex::Instrumentor::Get().EndSession()
+#if RY_PLATFORM_PROFILER
+	#define RY_PROFILE_SCOPE(name)							::Rynex::PlatformTimer timer##__LINE__(name);
+#else
+#define RY_PROFILE_SCOPE(name)								::Rynex::InstrumentationTimer timer##__LINE__(name);
+#endif
+#define RY_PROFILE_FUNCTION()								RY_PROFILE_SCOPE(__FUNCSIG__)
+
+
+
 #else
 #define RY_PROFILE_BEGIN_SESSION(name, filepath)
 #define RY_PROFILE_END_SESSION()

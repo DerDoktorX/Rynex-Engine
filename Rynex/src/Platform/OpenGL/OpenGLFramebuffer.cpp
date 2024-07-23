@@ -10,21 +10,25 @@ namespace Rynex {
 
 		static GLenum TextureTarget(bool multisampled)
 		{
+			RY_PROFILE_FUNCTION();
 			return multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
 		}
 
 		static void CreateTextures(bool multisampled, uint32_t* outID, uint32_t count)
 		{
+			RY_PROFILE_FUNCTION();
 			glCreateTextures(TextureTarget(multisampled), count, outID);
 		}
 
 		static void BindTexture(bool multisampled, uint32_t id)
 		{
+			RY_PROFILE_FUNCTION();
 			glBindTexture(TextureTarget(multisampled), id);
 		}
 
 		static void AttachColorTexture(uint32_t id, int samples, GLenum internalFormat, GLenum format, uint32_t width, uint32_t height, int index)
 		{
+			RY_PROFILE_FUNCTION();
 			bool multisampled = samples > 1;
 			if (multisampled)
 			{
@@ -46,6 +50,7 @@ namespace Rynex {
 
 		static void AttachDepthTexture(uint32_t id, int samples, GLenum format, GLenum attachmentType, uint32_t width, uint32_t height)
 		{
+			RY_PROFILE_FUNCTION();
 			bool multisampled = samples > 1;
 			if (multisampled)
 			{
@@ -67,6 +72,7 @@ namespace Rynex {
 
 		static bool IsDepthFormat(FramebufferTextureFormat format)
 		{
+			RY_PROFILE_FUNCTION();
 			switch (format)
 			{
 			case FramebufferTextureFormat::DEPTH24STENCIL8:  return true;
@@ -77,6 +83,7 @@ namespace Rynex {
 
 		static GLenum RynexFBTextureFormatToGL(FramebufferTextureFormat format)
 		{
+			RY_PROFILE_FUNCTION();
 			switch (format)
 			{
 			case FramebufferTextureFormat::RGBA8:       return GL_RGBA8;
@@ -92,6 +99,7 @@ namespace Rynex {
 	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
 		: m_Specification(spec)
 	{
+		RY_PROFILE_FUNCTION();
 		for (auto specs : m_Specification.Attachments.Attachments)
 		{
 			if (!Utils::IsDepthFormat(specs.TextureFormat))
@@ -105,6 +113,7 @@ namespace Rynex {
 
 	OpenGLFramebuffer::~OpenGLFramebuffer()
 	{
+		RY_PROFILE_FUNCTION();
 		glDeleteFramebuffers(1, &m_RendererID);
 		glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
 		glDeleteTextures(1, &m_DepthAttachment);
@@ -112,6 +121,7 @@ namespace Rynex {
 
 	void OpenGLFramebuffer::Invalidate()
 	{
+		RY_PROFILE_FUNCTION();
 		if (m_RendererID)
 		{
 			glDeleteFramebuffers(1, &m_RendererID);
@@ -181,12 +191,14 @@ namespace Rynex {
 
 	void OpenGLFramebuffer::Bind()
 	{
+		RY_PROFILE_FUNCTION();
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 		glViewport(0, 0, m_Specification.Width, m_Specification.Height);
 	}
 
 	void OpenGLFramebuffer::Unbind()
 	{
+		RY_PROFILE_FUNCTION();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, m_Specification.Width, m_Specification.Height);
 
@@ -195,6 +207,7 @@ namespace Rynex {
 
 	void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
 	{
+		RY_PROFILE_FUNCTION();
 		if (width == 0 || height == 0 || width > s_MaxFrambufferSize || height > s_MaxFrambufferSize)
 		{
 			RY_CORE_WARN("Faild Resize frambueffer to {0}, {1}", width, height);
@@ -208,6 +221,7 @@ namespace Rynex {
 
 	int OpenGLFramebuffer::ReadPixel(uint32_t attachmentsIndex, int x, int y)
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_ASSERT(attachmentsIndex < m_ColorAttachments.size(), "Error OpenGLFramebuffer::ReadPixxel!");
 		glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentsIndex);
 		int pixeldata;
@@ -218,6 +232,7 @@ namespace Rynex {
 
 	void OpenGLFramebuffer::ClearAttachment(uint32_t attachmentIndex, int value)
 	{
+		RY_PROFILE_FUNCTION();
 		RY_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size(), "Error: OpenGLFramebuffer::ClearAttachment!");
 
 		auto& spec = m_ColorAttachmentSpecifications[attachmentIndex];

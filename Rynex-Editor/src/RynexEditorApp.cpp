@@ -1,7 +1,8 @@
-#include <Rynex.h>
+#include <Rynex/Core/Application.h>
 #include <Rynex/Core/EntryPoint.h>
 
 #include "EditorLayer.h"
+
 
 namespace Rynex {
 

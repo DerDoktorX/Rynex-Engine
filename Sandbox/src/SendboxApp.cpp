@@ -1,16 +1,22 @@
-#include <Rynex.h>
-#include <Rynex/Core/EntryPoint.h>
+#define APP_EXAMPLE 0
+#if APP_EXAMPLE
+
 
 #include "Platform/OpenGL/OpenGLShader.h"
-
-#include "imgui/imgui.h"
-
+#include <imgui/imgui.h">
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#endif
+
 #include "Sandbox2D.h"
 
+#include <Rynex/Core/EntryPoint.h>
+
 #define DEBUGE_APLICATION_SPEED
+
+
+#if APP_EXAMPLE
 
 class ExampleLayer : public Rynex::Layer
 {
@@ -37,9 +43,9 @@ public:
 				vertexBuffer = Rynex::VertexBuffer::Create(vertices, sizeof(vertices));
 
 				Rynex::BufferLayout layout = {
-					{Rynex::ShaderDataType::Float2, "a_Postion"},
+					{ Rynex::ShaderDataType::Float2, "a_Postion" },
 					//{Rynex::ShaderDataType::Float3, "a_Color"},
-					{Rynex::ShaderDataType::Float2, "a_TexurCoord"}
+					{ Rynex::ShaderDataType::Float2, "a_TexurCoord" }
 				};
 				vertexBuffer->SetLayout(layout);
 				m_VertexArray->AddVertexBuffer(vertexBuffer);
@@ -201,11 +207,15 @@ private:
 	glm::vec4 m_SquareColor = { 0.2f,0.3f,0.8f, 1.0f };
 };
 
+#endif
+
 class Sandbox : public Rynex::Application
 {
 public:
-	Sandbox()
+	Sandbox(const Rynex::ApplicationSpecification& spec)
+		: Rynex::Application(spec)
 	{
+	
 		//PushLayer(new ExampleLayer());
 		PushLayer(new Sandbox2D());
 	}
@@ -216,7 +226,12 @@ public:
 	}
 };
 
-Rynex::Application* Rynex::CreateApplication()
-{
-	return new Sandbox();
+Rynex::Application* Rynex::CreateApplication(Rynex::ApplicationCommandLineArgs args)
+{	
+	Rynex::ApplicationSpecification spec;
+	spec.Name = "Rynex-Editor";
+	spec.CommandLineArgs = args;
+
+	Project::New();
+	return new Sandbox(spec);
 }
