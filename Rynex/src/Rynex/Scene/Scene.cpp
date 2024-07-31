@@ -1,13 +1,13 @@
 #include "rypch.h"
 #include "Scene.h"
 
+#include "Entity.h"
 #include "Components.h"
 #include "ScriptableEntity.h"
-
-#include "Rynex/Renderer/Renderer2D.h"
-#include "Rynex/Renderer/Renderer3D.h"
+#include "Rynex/Renderer/Rendering/Renderer2D.h"
+#include "Rynex/Renderer/Rendering/Renderer3D.h"
 #include "Rynex/Scripting/ScriptingEngine.h"
-#include "Entity.h"
+
 
 
 // TODO: Move toCoreConfig.h
@@ -24,6 +24,54 @@
 
 namespace Rynex {
 	
+	static void DrawObjectRender3D(const Ref<VertexArray>& vertexArray)
+	{
+		switch (vertexArray->GetPrimitv())
+		{
+			case VertexArray::Primitv::Traingle:
+			{
+				Renderer3D::DrawMesh(vertexArray);
+				return;
+			}
+			case VertexArray::Primitv::TraingleStrips:
+			{
+				Renderer3D::DrawMeshStrips(vertexArray);
+
+				return;
+			}
+			case VertexArray::Primitv::TraingleFan:
+		{
+			RY_CORE_ASSERT(false, "Primitv TraingleFan is not Implemantent jet!");
+			//Renderer3D::DrawMeshStrips(geomtry.Geometry);
+			return;
+		}
+			case VertexArray::Primitv::Line:
+			{
+				Renderer3D::DrawLine(vertexArray);
+				return;
+			}
+			case VertexArray::Primitv::LineLoop:
+			{
+				//RY_CORE_ASSERT(false, "Primitv LineLoop is not Implemantent jet!");
+				Renderer3D::DrawLineLoop(vertexArray);
+				return;
+			}
+			case VertexArray::Primitv::LineStrips:
+			{
+				RY_CORE_ASSERT(false, "Primitv LineStrips is not Implemantent jet!");
+				return;
+			}
+			case VertexArray::Primitv::Points:
+			{
+				Renderer3D::DrawPoints(vertexArray);
+				return;
+			}
+			default:
+				RY_CORE_ASSERT(false, "Primitv type is Unknown!");
+				break;
+		}
+	};
+
 	Scene::Scene()
 	{
 		
@@ -152,24 +200,15 @@ namespace Rynex {
 
 	void Scene::OnUpdateEditor(TimeStep ts, EditorCamera& camera)
 	{
+
 		RY_PROFILE_FUNCTION();
-#if 1
+#if 0
+#if RENDERER_3D
 		////////////////////////////////////////////////////////////
 		/// Renderer 3D ////////////////////////////////////////////
 		////////////////////////////////////////////////////////////
 		
-		if(ScriptingEngine::ReloadeScriptAvaible())
-		{
-			ScriptingEngine::OnRuntimeStart(this);
-			auto view = m_Registery.view<ScriptComponent>();
-
-			for (auto e : view)
-			{
-				Entity entity = { e, this };
-				ScriptingEngine::OnDrawEntity(entity);
-			}
-			ScriptingEngine::OnRuntimeStop();
-		}
+		
 
 
 		{
@@ -187,7 +226,7 @@ namespace Rynex {
 			Renderer3D::EndScene();
 		}
 #endif	
-#if 1
+#if RENDERER_2D
 		////////////////////////////////////////////////////////////
 		/// Renderer 2D ////////////////////////////////////////////
 		////////////////////////////////////////////////////////////
@@ -195,19 +234,34 @@ namespace Rynex {
 		{
 			Renderer2D::BeginScene(camera);
 
-			//auto group2D = m_Registery.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-			auto view2D = m_Registery.view<TransformComponent, SpriteRendererComponent>();
-			//for (auto entity2D : group2D)
-			for (auto entity2D : view2D)
+			 auto group2D = m_Registery.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+			// auto view2D = m_Registery.view<TransformComponent, SpriteRendererComponent>();
+			for (auto entity2D : group2D) //for (auto entity2D : view2D)
 			{
-				//auto& [tranform, sprite] = group2D.get<TransformComponent, SpriteRendererComponent>(entity2D);
-				auto& [tranform, sprite] = view2D.get<TransformComponent, SpriteRendererComponent>(entity2D);
+				auto& [tranform, sprite] = group2D.get<TransformComponent, SpriteRendererComponent>(entity2D);
+				//auto& [tranform, sprite] = view2D.get<TransformComponent, SpriteRendererComponent>(entity2D);
 				Renderer2D::DrawSprite(tranform.GetTransform(), sprite, (int)entity2D);
 			}
 
 			Renderer2D::EndScene();
 		}
 #endif	
+#else
+		if(ScriptingEngine::ReloadeScriptAvaible())
+		{
+			ScriptingEngine::OnRuntimeStart(this);
+			auto view = m_Registery.view<ScriptComponent>();
+
+			for (auto e : view)
+			{
+				Entity entity = { e, this };
+				ScriptingEngine::OnDrawEntity(entity);
+			}
+			ScriptingEngine::OnRuntimeStop();
+		}
+		RenderScene3D(camera);
+		RenderScene2D(camera);
+#endif
 
 
 	}
@@ -219,15 +273,15 @@ namespace Rynex {
 		{
 #if NATIVE_SCRIPT
 			m_Registery.view<NativeSripteComponent>().each([=](auto entity, auto& nsc)
+			{
+				if (!nsc.Instance)
 				{
-					if (!nsc.Instance)
-					{
-						nsc.Instance = nsc.InstantiateScript();
-						nsc.Instance->m_Entity = Entity{ entity , this };
-						nsc.Instance->OnCreate();
-					}
-					nsc.Instance->OnUpdate(ts);
-				});
+					nsc.Instance = nsc.InstantiateScript();
+					nsc.Instance->m_Entity = Entity{ entity , this };
+					nsc.Instance->OnCreate();
+				}
+				nsc.Instance->OnUpdate(ts);
+			});
 #endif
 #if SCRIPT_CS
 			auto view = m_Registery.view<ScriptComponent>();
@@ -282,6 +336,7 @@ namespace Rynex {
 				Renderer3D::EndScene();
 			}
 #endif	
+
 #if RENDERER_2D
 			{
 				////////////////////////////////////////////////////////////
@@ -291,7 +346,7 @@ namespace Rynex {
 				Renderer2D::BeginScene(*mainCamera, *mainTransform);
 				auto view2D = m_Registery.view<TransformComponent, SpriteRendererComponent>();
 				//auto group2D = m_Registery.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-				//for (auto entity2D : group2D)
+				//for (auto entity2D : group2D)	
 				for (auto entity2D : view2D)
 				{
 					//auto& [tranform, sprite] = group2D.get<TransformComponent, SpriteRendererComponent>(entity2D);
@@ -303,6 +358,7 @@ namespace Rynex {
 
 				Renderer2D::EndScene();
 		}
+
 #endif
 		}
 
@@ -340,6 +396,7 @@ namespace Rynex {
 
 		// Render
 		RenderScene2D(camera);
+		RenderScene3D(camera);
 	}
 
 	void Scene::RenderScene2D(EditorCamera& camera)
@@ -349,10 +406,10 @@ namespace Rynex {
 		Renderer2D::BeginScene(camera);
 #if QUADS_DRAW
 		{
-			auto group = m_Registery.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-			for (auto entity : group)
+			auto view2D = m_Registery.view<SpriteRendererComponent, TransformComponent>();
+			for (auto entity : view2D)
 			{
-				auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
+				auto& [sprite, transform] = view2D.get<SpriteRendererComponent, TransformComponent>(entity);
 
 				Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
 			}
@@ -395,16 +452,23 @@ namespace Rynex {
 			////////////////////////////////////////////////////////////
 
 			Renderer3D::BeginScene(camera);
-			auto group3D = m_Registery.group<TransformComponent>(entt::get<MaterialComponent, GeomtryComponent>);
+			auto view3D = m_Registery.view<TransformComponent, MaterialComponent, GeomtryComponent>();
 
-			for (auto entity3D : group3D)
+			for (auto entity3D : view3D)
 			{
-				auto& [tranform, material, geomtry] = group3D.get<TransformComponent, MaterialComponent, GeomtryComponent>(entity3D);
-				if (material.Shader == nullptr || geomtry.Geometry == nullptr)
+				auto& [tranform, material, geomtry] = view3D.get<TransformComponent, MaterialComponent, GeomtryComponent>(entity3D);
+				Ref<VertexArray> vertexArray = geomtry.Geometry;
+				if (material.Shader == nullptr || vertexArray == nullptr)
 					continue;
 				Renderer3D::BeforDrawEntity(material, tranform.GetTransform());
-				Renderer3D::DrawMeshStrips(geomtry.Geometry);
-				//Renderer3D::AfterDrawEntity(material);
+				DrawObjectRender3D(vertexArray);
+				Renderer3D::AfterDrawEntity(material);
+
+				
+
+				{
+					//Renderer3D::DrawLineLoop(vertexArray);
+				}
 			}
 			Renderer3D::EndScene();
 		}

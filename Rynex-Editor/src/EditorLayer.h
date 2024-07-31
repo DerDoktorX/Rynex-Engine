@@ -3,7 +3,7 @@
 #include <Rynex/Core/Layer.h>
 #include <Rynex/Events/KeyEvent.h>
 #include <Rynex/Core/CamerController.h>
-#include <Rynex/Renderer/Framebuffer.h>
+#include <Rynex/Renderer/API/Framebuffer.h>
 
 #include "Pannel/SceneHierachyPannel.h"
 #include "Pannel/ContentBrowserPannel.h"

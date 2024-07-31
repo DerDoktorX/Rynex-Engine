@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Rynex/Renderer/Buffer.h"
-#include "Rynex/Renderer/VertexArray.h"
+#include "Rynex/Renderer/API/Buffer.h"
+#include "Rynex/Renderer/API/VertexArray.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 

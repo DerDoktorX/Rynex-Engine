@@ -2,7 +2,6 @@
 
 // For Globle Definse in Rynex
 
-
 // For def from Rynex only
 #define RY_DEV 1
 #define RY_DISABLE_CODE_TODO 1	// Like Kommenting out
@@ -14,6 +13,7 @@
 	#define RY_PROFILE 1
 	#define RY_KONSOLE_FPS 0
 	#define RY_ASSETMANGER_FILE_WATCHER 1
+	#define RY_CONSOLE_LOG_FUNKTION_OPENGL 0
 
 
 	#if RY_DISABLE_CODE_TODO
@@ -21,6 +21,8 @@
 		#define RY_TODO_APPLICATION_MULTI_THREAD 0
 		#define RY_MESHSTRIPS 1
 		#define RY_MESH 0
+		#define RY_SCRIPT_PATH 1
+		#define RY_PATH_IN_LINE 1
 	#endif
 #endif
 

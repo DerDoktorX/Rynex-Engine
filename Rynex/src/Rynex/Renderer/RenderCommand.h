@@ -57,9 +57,20 @@ namespace Rynex {
 			s_RendererAPI->DrawIndexedLineLoop(vertexArray, indexCount);
 		};
 
+		inline static void DrawIndexedPoints(const Ref<VertexArray>& vertexArray)
+		{
+			s_RendererAPI->DrawIndexedPoints(vertexArray);
+		};
+
 		inline static void ComputePipline()
 		{
 			s_RendererAPI->ComputePipline();
+		};
+
+
+		inline static void DrawError()
+		{
+			s_RendererAPI->DrawError();
 		};
 
 	private:

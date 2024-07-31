@@ -27,7 +27,6 @@ namespace Rynex {
 		AssetHandle Handle;
 
 		virtual AssetType GetType() const = 0;
-		
 
 		//virtual void* GetLoadedData() const = 0;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rynex/Renderer/Camera.h"
+#include "Rynex/Renderer/Camera/Camera.h"
 
 namespace Rynex{
 

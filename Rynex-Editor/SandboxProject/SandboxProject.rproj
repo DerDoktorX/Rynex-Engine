@@ -1,0 +1,6 @@
+Project:
+  Name: "SandboxProject"
+  StartScene: "scenes/Example.rynexscene"
+  AssetDirectory: "Assets"
+  AssetRegistryPath: "SandboxProject/AssetRegistry.ryr"
+  ScriptModulePath: "Scripts/Binaries/Sanbox.dll"

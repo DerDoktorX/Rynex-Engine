@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rynex/Renderer/Buffer.h"
+#include "Rynex/Renderer/API/Buffer.h"
 
 namespace Rynex {
 

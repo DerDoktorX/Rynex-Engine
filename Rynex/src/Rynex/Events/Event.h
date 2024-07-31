@@ -1,5 +1,5 @@
 #pragma once
-#include "rypch.h"
+//#include "rypch.h"
 #include "Rynex/Core/Base.h"
 
 

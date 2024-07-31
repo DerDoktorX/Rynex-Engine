@@ -23,7 +23,11 @@ namespace Rynex {
 		virtual void DrawIndexedLine(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)override;
 		virtual void DrawIndexedLineLoop(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
 
+		virtual void DrawIndexedPoints(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
+
 		virtual void ComputePipline() override;
+
+		virtual void DrawError() override;
 
 	};
 }

@@ -9,29 +9,29 @@ namespace Rynex {
 	{
 		switch (type)
 		{
-		case ShaderDataType::Float:			return GL_FLOAT;
-		case ShaderDataType::Float2:		return GL_FLOAT;
-		case ShaderDataType::Float3:		return GL_FLOAT;
-		case ShaderDataType::Float4:		return GL_FLOAT;
-		case ShaderDataType::Float3x3:		return GL_FLOAT;
-		case ShaderDataType::Float4x4:		return GL_FLOAT;
-		//caseShaderDataType::FloatArray:	return 4;
-		case ShaderDataType::Int:			return GL_INT;
-		case ShaderDataType::Int2:			return GL_INT;
-		case ShaderDataType::Int3:			return GL_INT;
-		case ShaderDataType::Int4:			return GL_INT;
-		case ShaderDataType::Int3x3:		return GL_INT;
-		case ShaderDataType::Int4x4:		return GL_INT;
-		//case ShaderDataType::IntArray:	return 4;
-		//case ShaderDataType::Uint:		return 4;
-		//case ShaderDataType::Uint2:		return 4;
-		//case ShaderDataType::Uint3:		return 4;
-		//case ShaderDataType::Uint4:		return 4;
-		//case ShaderDataType::Uint3x3:		return 4;
-		//case ShaderDataType::Uint4x4:		return 4;
-		//case ShaderDataType::UintArray	return 4;
-		case ShaderDataType::Bool:			return GL_BOOL;
-		//case ShaderDataType::Struct:		return 4;
+			case ShaderDataType::Float:			return GL_FLOAT;
+			case ShaderDataType::Float2:		return GL_FLOAT;
+			case ShaderDataType::Float3:		return GL_FLOAT;
+			case ShaderDataType::Float4:		return GL_FLOAT;
+			case ShaderDataType::Float3x3:		return GL_FLOAT;
+			case ShaderDataType::Float4x4:		return GL_FLOAT;
+			//caseShaderDataType::FloatArray:	return 4;
+			case ShaderDataType::Int:			return GL_INT;
+			case ShaderDataType::Int2:			return GL_INT;
+			case ShaderDataType::Int3:			return GL_INT;
+			case ShaderDataType::Int4:			return GL_INT;
+			case ShaderDataType::Int3x3:		return GL_INT;
+			case ShaderDataType::Int4x4:		return GL_INT;
+			//case ShaderDataType::IntArray:	return 4;
+			//case ShaderDataType::Uint:		return 4;
+			//case ShaderDataType::Uint2:		return 4;
+			//case ShaderDataType::Uint3:		return 4;
+			//case ShaderDataType::Uint4:		return 4;
+			//case ShaderDataType::Uint3x3:		return 4;
+			//case ShaderDataType::Uint4x4:		return 4;
+			//case ShaderDataType::UintArray	return 4;
+			case ShaderDataType::Bool:			return GL_BOOL;
+			//case ShaderDataType::Struct:		return 4;
 		}
 	}
 
@@ -73,14 +73,15 @@ namespace Rynex {
 	void OpenGLVertexArray::SetPrimitv(Primitv primitv)
 	{
 		RY_PROFILE_FUNCTION();
-		RY_CORE_ASSERT(false, "Not Rady!");
+		m_Primitv = primitv;
+		//RY_CORE_ASSERT(false, "Not Rady!");
 	}
 
 	VertexArray::Primitv OpenGLVertexArray::GetPrimitv()
 	{
 		RY_PROFILE_FUNCTION();
-		RY_CORE_ASSERT(false, "Not Rady!");
-		return Primitv();
+		//RY_CORE_ASSERT(false, "Not Rady!");
+		return m_Primitv;
 	}
 
 	void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)

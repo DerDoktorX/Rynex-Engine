@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Rynex/Renderer/Texture.h"
+#include "Rynex/Renderer/API/Texture.h"
+
 #include <glad/glad.h>
 
 namespace Rynex {

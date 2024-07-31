@@ -2,8 +2,6 @@
 
 #include "Entity.h"
 
-
-
 namespace Rynex {
 	
 

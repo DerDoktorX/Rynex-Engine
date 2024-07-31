@@ -2,7 +2,7 @@
 
 
 #include <glm/glm.hpp>
-#include "VertexArray.h"
+#include "Rynex/Renderer/API/VertexArray.h"
 
 namespace Rynex {
 	class RendererAPI 
@@ -24,6 +24,8 @@ namespace Rynex {
 		virtual void DrawIndexedMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 		virtual void DrawBatcheingIndexedMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 
+		virtual void DrawIndexedPoints(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
+
 		virtual void DrawStripsMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 
 		virtual void DrawIndexedLine(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
@@ -31,6 +33,7 @@ namespace Rynex {
 
 		virtual void ComputePipline() = 0;
 
+		virtual void DrawError() = 0;
 
 		inline static API GetAPI() { return s_API; }
 	private:

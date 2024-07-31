@@ -1,8 +1,8 @@
-#include <Rynex/Core/Application.h>
-#include <Rynex/Core/EntryPoint.h>
-
+#include <rypch.h>
 #include "EditorLayer.h"
 
+#include <Rynex/Core/Application.h>
+#include <Rynex/Core/EntryPoint.h>
 
 namespace Rynex {
 
@@ -26,9 +26,9 @@ namespace Rynex {
 		ApplicationSpecification spec;
 		spec.Name = "Rynex-Editor";
 		spec.CommandLineArgs = args;
-
+#if RY_PATH_IN_LINE
 		Project::New()->SaveActive("SandboxTest.rproj");
-
+#endif
 		return new RynexEditor(spec);
 	}
 }

@@ -1,7 +1,7 @@
 #include "rypch.h"
 #include "OpenGLRendererAPI.h"
 
-#include "glad/glad.h"
+#include <glad/glad.h>
 
 namespace Rynex {
 
@@ -13,7 +13,7 @@ namespace Rynex {
 		
 		glEnable(GL_DEPTH_TEST);
 
-		glEnable(GL_CULL_FACE);
+		//glEnable(GL_CULL_FACE);
 		//glEnable(GL_FRONT);
 	}
 
@@ -57,23 +57,48 @@ namespace Rynex {
 	void OpenGLRendererAPI::DrawStripsMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount )
 	{
 		RY_PROFILE_FUNCTION();
-		glDrawElements(GL_TRIANGLE_STRIP, vertexArray->GetIndexBuffers()->GetCount(), GL_UNSIGNED_INT, nullptr);
+		vertexArray->Bind();
+		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffers()->GetCount();
+		glDrawElements(GL_TRIANGLE_STRIP, count, GL_UNSIGNED_INT, nullptr);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	void OpenGLRendererAPI::DrawIndexedLine(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
 	{
 		RY_PROFILE_FUNCTION();
-		glDrawElements(GL_LINES, vertexArray->GetIndexBuffers()->GetCount(), GL_UNSIGNED_INT, nullptr);
+		vertexArray->Bind();
+		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffers()->GetCount();
+		glDrawElements(GL_LINES, count, GL_UNSIGNED_INT, nullptr);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	void OpenGLRendererAPI::DrawIndexedLineLoop(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
 	{
 		RY_PROFILE_FUNCTION();
-		uint32_t count = indexCount ? vertexArray->GetIndexBuffers()->GetCount() : indexCount;
+		vertexArray->Bind();
+		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffers()->GetCount();
 		glDrawElements(GL_LINE_LOOP, count, GL_UNSIGNED_INT, nullptr);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	void OpenGLRendererAPI::DrawIndexedPoints(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
+	{
+		RY_PROFILE_FUNCTION();
+		vertexArray->Bind();
+		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffers()->GetCount();
+		glDrawElements(GL_POINT, count, GL_UNSIGNED_INT, nullptr);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	void OpenGLRendererAPI::ComputePipline()
+	{
+		RY_PROFILE_FUNCTION();
+		uint16_t count = 4;
+		glDrawElements(GL_TRIANGLE_STRIP, count, GL_UNSIGNED_SHORT, nullptr);
+
+	}
+
+	void OpenGLRendererAPI::DrawError()
 	{
 		RY_PROFILE_FUNCTION();
 		uint16_t count = 4;

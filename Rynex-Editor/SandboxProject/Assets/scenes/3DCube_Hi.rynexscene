@@ -9,6 +9,7 @@ Entities:
       Scale: [1, 1, 1]
     SpriteRendererComponent:
       Color: [1, 0, 1, 1]
+      AssetHandle: 7143420928101179139
       TexturePath: Assets\textures\ChernoLogo.png
   - Entity: 15494363298661571563
     TagComponent:
@@ -19,6 +20,7 @@ Entities:
       Scale: [1, 1, 1]
     SpriteRendererComponent:
       Color: [0.882352948, 0, 1, 1]
+      AssetHandle: 1387768503763699554
       TexturePath: Assets\textures\testBlending.png
   - Entity: 12659655708439455027
     TagComponent:
@@ -29,6 +31,7 @@ Entities:
       Scale: [1, 1, 1]
     SpriteRendererComponent:
       Color: [0.607843161, 0, 0.607843161, 1]
+      AssetHandle: 1387768503763699554
       TexturePath: Assets\textures\testBlending.png
   - Entity: 9352850227073743137
     TagComponent:
@@ -57,4 +60,5 @@ Entities:
       Scale: [10, 10, 10]
     SpriteRendererComponent:
       Color: [0.386100411, 0.374174535, 0.386100411, 1]
+      AssetHandle: 14568827660247589896
       TexturePath: Assets\textures\Checkerboard.png

@@ -3,7 +3,7 @@
 
 #include "Rynex/Serializers/SceneSerializer.h"
 #include "Rynex/Project/Project.h"
-
+#include "Rynex/Asset/Base/AssetManager.h"
 
 namespace Rynex {
 
@@ -21,5 +21,12 @@ namespace Rynex {
 		serializer.Deserialize(path.string());
 		return scene;
 	}
+
+	void SceneImporter::ReLoadingScene(AssetHandle handle, const std::filesystem::path& path)
+	{
+	}
+
+
+	
 
 }

@@ -1,0 +1,7 @@
+ErroMasage: vendor\mono\lib\Release\mono-static-sgen.lib
+
+Origanel Linke: vendor\mono\lib\Release\libmono-static-sgen.lib
+		vendor\mono\lib\Release\libmono-static-sgen.lib
+		vendor\mono\lib\Release\libmono-static-sgen.lib
+
+New Linke:	vendor\mono\lib\Release\libmono-static-sgen.lib

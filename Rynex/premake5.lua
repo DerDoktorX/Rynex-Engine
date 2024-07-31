@@ -17,17 +17,12 @@ project "Rynex"
 		"src/**.h",
 		"src/**.cpp",
 		-- vendor add Source Files to Rynex
-
-
 		"vendor/stb_image/**.h",
 		"vendor/stb_image/**.cpp",
-
 		"vendor/glm/glm/**.hpp",
 		"vendor/glm/glm/**.inl",
-
 		"vendor/ImGuizmo/ImGuizmo.h",
 		"vendor/ImGuizmo/ImGuizmo.cpp",
-
 		--"vendor/filewatch/**.h",
 		--"vendor/filewatch/**.cpp",
 	}
@@ -69,7 +64,7 @@ project "Rynex"
 
 		"yaml-cpp",			-- Files
 		"ImGui", 			-- Runtime Visuelle configs
-		"%{Library.mono}"	-- Runtime C# Scripts Reloade
+		--"%{Library.mono}"	-- Runtime C# Scripts Reloade
 	}
 	
 	filter "files:vendor/ImGuizmo/**.cpp"
@@ -110,6 +105,13 @@ project "Rynex"
 	--							 ^
 		runtime "Debug"
 		symbols "on"
+		links
+		{
+		--	"%{Library.ShaderC_Debug}",
+		--	"%{Library.SPIRV_Cross_Debug}",
+		--	"%{Library.SPIRV_Cross_GLSL_Debug}"
+			"%{Library.mono_Debug}"
+		}
 
 	filter "configurations:Release"
 		defines "RY_REALSE"
@@ -119,6 +121,13 @@ project "Rynex"
 	--							 ^
 		runtime "Release"
 		optimize "on"
+		links
+		{
+		--	"%{Library.ShaderC_Release}",
+		--	"%{Library.SPIRV_Cross_Release}",
+		--	"%{Library.SPIRV_Cross_GLSL_Release}"
+			"%{Library.mono_Release}"
+		}
 
 	filter "configurations:Dist"
 		defines "RY_DIST"
@@ -128,4 +137,11 @@ project "Rynex"
 	--							 ^
 		runtime "Release"
 		optimize "on"
+		links
+		{
+			--"%{Library.ShaderC_Release}",
+			--"%{Library.SPIRV_Cross_Release}",
+			--"%{Library.SPIRV_Cross_GLSL_Release}"
+			"%{Library.mono_Release}"
+		}
 

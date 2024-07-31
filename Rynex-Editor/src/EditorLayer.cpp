@@ -1,3 +1,4 @@
+#include <rypch.h>
 #include "EditorLayer.h"
 
 #include <Rynex/Core/Application.h>
@@ -9,8 +10,8 @@
 #include <Rynex/Serializers/SceneSerializer.h>
 #include <Rynex/Scripting/ScriptingEngine.h>
 
-#include <Rynex/Renderer/Renderer.h>
-#include <Rynex/Renderer/Renderer2D.h>
+#include <Rynex/Renderer/Rendering/Renderer.h>
+#include <Rynex/Renderer/Rendering/Renderer2D.h>
 
 #include <imgui/imgui.h>
 
@@ -18,6 +19,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
 
 namespace Rynex {
 
@@ -65,7 +67,9 @@ namespace Rynex {
         {
             //if(!OpenProject())
                 //Application::Get().Close();
+#if RY_PATH_IN_LINE
             OpenProject("Sandbox.rproj");
+#endif
             RY_CORE_INFO("Open A Project");
         }
 
@@ -78,7 +82,7 @@ namespace Rynex {
         m_AssetManger = m_Project->GetEditorAssetManger();
 
 
-        #if 1
+#if 1
 
         m_AktiveScene->CreateEntityWitheUUID(UUID(8976786), "3D_RendererTestEntity");
         auto& entiy = m_AktiveScene->GetEntitiyByUUID(8976786);
@@ -95,9 +99,9 @@ namespace Rynex {
             auto& geometry = entiy.GetComponent<GeomtryComponent>();
 
             geometry.Geometry = VertexArray::Create();
-            geometry.Buffer = VertexBuffer::Create(256);
-
-            Geomtrys::GetCubeVertex(geometry.Geometry, geometry.Buffer);
+            geometry.Buffer = VertexBuffer::Create( 160 * (4 * 3 + 4 * 2 + 4 * 3) ); // Cube: 20 * (4 * 3 + 4* 2 + 4 * 3 )
+            geometry.Geometry->SetPrimitv(VertexArray::Primitv::Traingle);
+            Geomtrys::SetCubeVertex(geometry.Geometry, geometry.Buffer);
             Geomtrys::SetCubeIndex(geometry.Geometry);
             
             
@@ -108,15 +112,27 @@ namespace Rynex {
         {
             entiy.AddComponent<MaterialComponent>();
             auto& material = entiy.GetComponent<MaterialComponent>();
+#if RY_PATH_IN_LINE
             material.Shader = AssetManager::GetAsset<Shader>(m_AssetManger->AddFileToRegistry("Assets/shaders/3DTest.glsl"));
+            //material.Shader = AssetManager::GetAsset<Shader>(m_AssetManger->AddFileToRegistry("Assets/shaders/3DTestTess.glsl"));
+#endif
         }
 
-        #endif
+        if (!entiy.HasComponent<ScriptComponent>())
+        {
+            entiy.AddComponent<ScriptComponent>();
+            auto& script = entiy.GetComponent<ScriptComponent>();
+            script.Name = "Sandbox.Player";
+        }
+        
+
+#endif
     }
 
     void EditorLayer::OnDetach()
     {
         RY_PROFILE_FUNCTION();
+        ScriptingEngine::Shutdown();
     }
 
     void EditorLayer::OnUpdate(TimeStep ts)
@@ -187,8 +203,13 @@ namespace Rynex {
         if ( mauseX >= 0  && mauseY >= 0  &&  mauseX < (int)viewPortSize.x  &&  mauseY < (int)viewPortSize.y )
         {
             int pixeldata = m_Framebuffer->ReadPixel(2, mauseX, mauseY);
-            RY_CORE_ASSERT(pixeldata > -2, "Minus Entity!");
-            m_HoveredEntity = pixeldata == -1 || pixeldata == -2 ? Entity() : Entity((entt::entity)pixeldata, m_AktiveScene.get());
+            if (pixeldata <= -1)
+            {
+                m_HoveredEntity = Entity();
+                RY_CORE_WARN("Minus Entity!");
+            }
+            else
+                m_HoveredEntity = pixeldata == -1 || pixeldata == -2 || pixeldata == 4 ? Entity() : Entity((entt::entity)pixeldata, m_AktiveScene.get());
         }
         m_Framebuffer->Unbind();
     }
@@ -416,7 +437,7 @@ namespace Rynex {
         static bool assetsEnabled   = true;
         static bool sceneEnabled    = true;
         static bool viewPortEnabled = true;
-        static bool settingsEnabled = true;
+        static bool settingsEnabled = false;
 
         if (dokingEnabled) {
 
@@ -695,9 +716,7 @@ namespace Rynex {
             ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
 
             // Camera
-#if 0
 
-#else
             
             
             glm::mat4 camerProj, camerView;
@@ -718,7 +737,6 @@ namespace Rynex {
                 camerView = glm::inverse(camerEntt.GetComponent<TransformComponent>().GetTransform());
                 break;
             }
-            
             default:
             {
                 camerProj = m_EditorCamera.GetProjektion();
@@ -728,7 +746,6 @@ namespace Rynex {
                 
             }
             
-#endif
 
             // Entity transform
             auto& tc = selectedEntity.GetComponent<TransformComponent>();

@@ -1,5 +1,6 @@
 #include "rypch.h"
 #include "OpenGLShader.h"
+
 #define GL_ARB_separate_shader_objects
 #include <fstream>
 #include <glad/glad.h>
@@ -12,7 +13,8 @@ namespace Rynex {
 		if (type == "vertex") return GL_VERTEX_SHADER;
 		if (type == "fragment" || type == "pixel") return GL_FRAGMENT_SHADER;
 		if (type == "Geomtry") return GL_GEOMETRY_SHADER;
-		if (type == "Geomtry") return GL_TESS_CONTROL_SHADER;
+		if (type == "tessControl") return GL_TESS_CONTROL_SHADER;
+		if (type == "tessEvalution") return GL_TESS_EVALUATION_SHADER;
 
 		RY_CORE_ASSERT(false, "Unkowne Shader Type!");
 		return 0;
@@ -21,7 +23,7 @@ namespace Rynex {
 	OpenGLShader::OpenGLShader(const std::string& source, const std::string& name)
 	{
 		RY_PROFILE_FUNCTION();
-#if CONSOLE_LOG_FUNKTION_OPENGL
+#if RY_CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("OpenGLShader::OpenGLShader(const std::string& filePath)");
 #endif
 		//std::string source = ReadFile(filePath);
@@ -34,7 +36,7 @@ namespace Rynex {
 		: m_Name(name)
 	{
 		RY_PROFILE_FUNCTION();
-#if CONSOLE_LOG_FUNKTION_OPENGL
+#if RY_CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)");
 #endif
 		std::unordered_map<GLenum, std::string> sources;
@@ -47,12 +49,22 @@ namespace Rynex {
 	{
 		RY_PROFILE_FUNCTION();
 		glDeleteProgram(m_RendererID);
+
+		
+	}
+
+	void OpenGLShader::ReganrateShader(const std::string& source)
+	{
+		glDeleteProgram(m_RendererID);
+		
+		auto shaderSources = PreProcess(source);
+		Compile(shaderSources);
 	}
 
 	void OpenGLShader::Bind() const
 	{
 		RY_PROFILE_FUNCTION();
-#if CONSOLE_LOG_FUNKTION_OPENGL
+#if RY_CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("void OpenGLShader::Bind() const");
 #endif
 		glUseProgram(m_RendererID);
@@ -76,7 +88,7 @@ namespace Rynex {
 	void OpenGLShader::SetInt(const std::string& name, int value)
 	{
 		RY_PROFILE_FUNCTION();
-#if CONSOLE_LOG_FUNKTION_OPENGL
+#if RY_CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("void OpenGLShader::SetInt(const std::string& name, int value)");
 #endif
 		UploadUniformInt(name, value);
@@ -85,7 +97,7 @@ namespace Rynex {
 	void OpenGLShader::SetIntArray(const std::string& name, int* value, uint32_t count)
 	{
 		RY_PROFILE_FUNCTION();
-#if CONSOLE_LOG_FUNKTION_OPENGL
+#if RY_CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("void OpenGLShader::SetIntArray(const std::string& name, int* value, uint32_t count)");
 #endif
 		UploadUniformIntArray(name, value, count);
@@ -94,7 +106,7 @@ namespace Rynex {
 	void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)
 	{
 		RY_PROFILE_FUNCTION();
-#if CONSOLE_LOG_FUNKTION_OPENGL
+#if RY_CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)");
 #endif
 		UploadUniformFloat3(name, value);
@@ -103,7 +115,7 @@ namespace Rynex {
 	void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value)
 	{
 		RY_PROFILE_FUNCTION();
-#if CONSOLE_LOG_FUNKTION_OPENGL
+#if RY_CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value)");
 #endif
 		UploadUniformFloat4(name, value);
@@ -112,7 +124,7 @@ namespace Rynex {
 	void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value)
 	{
 		RY_PROFILE_FUNCTION();
-#if CONSOLE_LOG_FUNKTION_OPENGL
+#if RY_CONSOLE_LOG_FUNKTION_OPENGL
 		RY_CORE_INFO("void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value)");
 #endif
 		UploadUniformMat4(name, value);
@@ -177,7 +189,7 @@ namespace Rynex {
 			RY_CORE_ASSERT(eol != std::string::npos, "Sytex error");
 			size_t begin = pos + typeTokenLeangth + 1;
 			std::string type = source.substr(begin, eol - begin);
-			RY_CORE_ASSERT(type == "vertex" || type == "fragment" || type == "pixel", "Invadlid shader type specification");
+			RY_CORE_ASSERT(type == "vertex" || type == "fragment" || type == "pixel" || type == "tessControl" || type == "tessEvalution", "Invadlid shader type specification");
 
 			size_t nextLinePos = source.find_first_of("\r\n",eol);
 			pos = source.find(typeToken, nextLinePos);
@@ -191,8 +203,8 @@ namespace Rynex {
 	{
 		RY_PROFILE_FUNCTION();
 		GLint program = glCreateProgram();
-		RY_CORE_ASSERT(shaderSources.size() <= 2, "only 2 Shaders for now!");
-		std::array<GLenum, 2> glShaderIDs;
+		RY_CORE_ASSERT(shaderSources.size() <= 4, "only 4 Shaders for now!");
+		std::array<GLenum, 4> glShaderIDs;
 		
 		int glShaderIndex = 0;
 		for (auto& kv : shaderSources)

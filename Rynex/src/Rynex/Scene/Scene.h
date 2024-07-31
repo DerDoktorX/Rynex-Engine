@@ -3,7 +3,7 @@
 #include "Rynex/Core/TimeStep.h"
 #include "Rynex/Core/UUID.h"
 #include "Rynex/Asset/Base/Asset.h"
-#include "Rynex/Renderer/EditorCamera.h"
+#include "Rynex/Renderer/Camera/EditorCamera.h"
 #include "Rynex/Asset/Base/Asset.h"
 
 #include "entt.hpp"

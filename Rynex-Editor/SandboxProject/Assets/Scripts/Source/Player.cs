@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Reflection;
 using Rynex;
 
 namespace Sandbox
 {
-    public class Player1 : Entity
+    public class Player : Entity
     {
         private TransformComponent m_transform;
         private GeometryComponent m_Geometry;
@@ -59,39 +60,214 @@ namespace Sandbox
                 Normal = new Vector3(vertex[5], vertex[6], vertex[7]);
             }
         }
-        void OnDraw()
+        void Cube3DStrips()
         {
-            Console.WriteLine("Player1.OnDraw");
-            Geometry[] geometry = new Geometry[8];
-            geometry[0] = new Geometry( new Vector3( -0.5f, -0.5f,  0.5f  ), new Vector2(0.0f, 0.0f), new Vector3( 0.75f, 0.25f, 0.25f) );
-            geometry[1] = new Geometry( new Vector3(  0.5f, -0.5f,  0.5f  ), new Vector2(0.0f, 0.0f), new Vector3( 1.0f, 0.0f, 0.0f) );
-            geometry[2] = new Geometry( new Vector3( -0.5f,  0.5f,  0.5f  ), new Vector2(0.0f, 0.0f), new Vector3( 0.0f, 1.0f, 0.0f) );
-            geometry[3] = new Geometry( new Vector3(  0.5f,  0.5f,  0.5f  ), new Vector2(0.0f, 0.0f), new Vector3( 0.25f, 0.25f, 0.75f) );
+            Geometry[] geometry = new Geometry[18];
+            // up
+            geometry[0] = new Geometry(new Vector3(-0.5f, 0.5f, -0.5f), new Vector2(0.0f, 0.0f), new Vector3(0.0f, 1.0f, 0.0f));
+            geometry[1] = new Geometry(new Vector3(0.5f, 0.5f, -0.5f), new Vector2(0.0f, 0.0f), new Vector3(0.0f, 1.0f, 0.0f));
+            geometry[2] = new Geometry(new Vector3(-0.5f, 0.5f, 0.5f), new Vector2(0.0f, 0.0f), new Vector3(0.0f, 1.0f, 0.0f));
+            geometry[3] = new Geometry(new Vector3(0.5f, 0.5f, 0.5f), new Vector2(0.0f, 0.0f), new Vector3(0.0f, 1.0f, 0.0f));
+            // front                         
+            geometry[4] = new Geometry(new Vector3(-0.5f, -0.5f, 0.5f), new Vector2(0.0f, 0.0f), new Vector3(0.0f, 0.0f, 1.0f));
+            geometry[5] = new Geometry(new Vector3(0.5f, -0.5f, 0.5f), new Vector2(0.0f, 0.0f), new Vector3(0.0f, 0.0f, 1.0f));
 
-            geometry[4] = new Geometry( new Vector3( -0.5f,  0.5f, -0.5f  ), new Vector2(0.0f, 1.0f), new Vector3( 0.0f, 0.0f, 1.0f) );
-            geometry[5] = new Geometry( new Vector3(  0.5f,  0.5f, -0.5f  ), new Vector2(0.0f, 1.0f), new Vector3( 1.0f, 1.0f, 0.0f) );
-            geometry[6] = new Geometry( new Vector3( -0.5f, -0.5f, -0.5f  ), new Vector2(0.0f, 1.0f), new Vector3( 0.0f, 1.0f, 1.0f) );
-            geometry[7] = new Geometry( new Vector3(  0.5f, -0.5f, -0.5f  ), new Vector2(0.0f, 1.0f), new Vector3( 1.0f, 0.0f, 1.0f) );
-            
-            
+            // down
+            geometry[6] = new Geometry(new Vector3(-0.5f, -0.5f, -0.5f), new Vector2(0.0f, 1.0f), new Vector3(0.0f, -1.0f, 0.0f));
+            geometry[7] = new Geometry(new Vector3(0.5f, -0.5f, -0.5f), new Vector2(0.0f, 1.0f), new Vector3(0.0f, -1.0f, 0.0f));
 
-            uint[] index = new uint[] { 
-                0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 1, 7, 3, 5, 4, 4, 2, 6, 0
+            geometry[8] = new Geometry(new Vector3(-0.5f, 0.5f, -0.5f), new Vector2(0.0f, 1.0f), new Vector3(0.0f, 0.0f, -1.0f));
+            geometry[9] = new Geometry(new Vector3(0.5f, 0.5f, -0.5f), new Vector2(0.0f, 1.0f), new Vector3(0.0f, 0.0f, -1.0f));
+
+            geometry[10] = new Geometry(new Vector3(0.5f, 0.5f, 0.5f), new Vector2(0.0f, 1.0f), new Vector3(1.0f, 0.0f, 0.0f));
+            geometry[11] = new Geometry(new Vector3(0.5f, -0.5f, 0.5f), new Vector2(0.0f, 1.0f), new Vector3(1.0f, 0.0f, 0.0f));
+            geometry[12] = new Geometry(new Vector3(0.5f, 0.5f, -0.5f), new Vector2(0.0f, 1.0f), new Vector3(1.0f, 0.0f, 0.0f));
+            geometry[13] = new Geometry(new Vector3(0.5f, -0.5f, -0.5f), new Vector2(0.0f, 1.0f), new Vector3(1.0f, 0.0f, 0.0f));
+
+            geometry[14] = new Geometry(new Vector3(-0.5f, 0.5f, -0.5f), new Vector2(0.0f, 1.0f), new Vector3(-1.0f, 0.0f, 0.0f));
+            geometry[15] = new Geometry(new Vector3(-0.5f, 0.5f, 0.5f), new Vector2(0.0f, 1.0f), new Vector3(-1.0f, 0.0f, 0.0f));
+            geometry[16] = new Geometry(new Vector3(-0.5f, -0.5f, -0.5f), new Vector2(0.0f, 1.0f), new Vector3(-1.0f, 0.0f, 0.0f));
+            geometry[17] = new Geometry(new Vector3(-0.5f, -0.5f, 0.5f), new Vector2(0.0f, 1.0f), new Vector3(-1.0f, 0.0f, 0.0f));
+
+            uint[] index = new uint[] {
+                0, 1, 2, 3, 4, 5, 6, 7, 8 , 9, 9, 10, 10, 11, 12, 13, 14, 14, 15, 16, 17
             };
 
 
-            
+
 
 
             m_Geometry = GetComponent<GeometryComponent>();
-            Console.WriteLine("C# ->  GetComponent Finsihed");
+            m_Geometry.SetPrimitv(GeometryComponent.Primitv.TraingleStrips);
             m_Geometry.SetVertex(geometry);
             m_Geometry.SetIndex(index);
+        }
 
+        void Sphere3D(float radius = 1f, float widthSegments = 32, float heightSegments = 16, float phiStart = 0, float phiLength = (float)Math.PI * 2, float thetaStart = 0, float thetaLength = (float)Math.PI)
+        {
+
+            widthSegments = Math.Max(3.0f, (float)Math.Floor(widthSegments));
+            heightSegments = Math.Max(2.0f, (float)Math.Floor(heightSegments));
+
+            uint index = 0;
+            uint[][] grid = new uint[(int)heightSegments+1][];
+            uint[] verticesRow = new uint[(int)widthSegments+1];
+
+
+            float thetaEnd = Math.Min(thetaStart + thetaLength, (float)Math.PI);
+
+            Geometry[] geometry = new Geometry[160];
+           
+            for (int iy = 0, i = 0; iy <= heightSegments; iy++)
+            {
+                float v = iy / heightSegments;
+
+                float uOffset = 0.0f;
+ 
+                if (iy == 0.0f && thetaStart == 0.0f)
+                {
+
+                    uOffset = 0.5f / widthSegments;
+
+                }
+                else if (iy == heightSegments && thetaEnd == Math.PI)
+                {
+
+                    uOffset = -0.5f / widthSegments;
+
+                }
+                //Console.WriteLine("widthSegments:");
+                //Console.WriteLine(widthSegments);
+                for (int ix = 0; ix <= widthSegments; ix++, i++)
+                {
+                    float u = ix / widthSegments;
+  
+                    geometry[i] = new Geometry(
+                        new Vector3(
+                            -radius * (float)Math.Cos(phiStart + u * phiLength) * (float)Math.Sin(thetaStart + v * thetaLength),
+                            radius * (float)Math.Cos(thetaStart + v * thetaLength),
+                            radius * (float)Math.Sin(phiStart + u * phiLength) * (float)Math.Sin(thetaStart + v * thetaLength)
+                        ),
+                        new Vector2(0.0f, 0.0f),
+                        new Vector3(0.0f, 0.0f, 0.0f)
+                        );
+                    geometry[i].Normal = new Vector3(geometry[i].Position.Normalize());
+                   
+                    verticesRow[ix] = index++;
+                  
+                }
+                grid[iy] = verticesRow;
+                
+
+            }
+
+            uint[] indices = new uint[672];
+            uint i_indices = 0;
+            for (int iy = 0; iy < heightSegments; iy++)
+            {
+                for (int ix = 0; ix < widthSegments; ix++)
+                {
+                    uint a = grid[iy][ix + 1];
+                    uint b = grid[iy][ix];
+                    uint c = grid[iy + 1][ix];
+                    uint d = grid[iy + 1][ix + 1];
+
+                    if (iy != 0 || thetaStart > 0) 
+                    {
+                        indices[i_indices] = a;
+                        indices[i_indices + 1] = b;
+                        indices[i_indices + 2] = d;
+                        i_indices += 3;
+                        Console.WriteLine(i_indices);
+                    }
+                    if (iy != heightSegments - 1 || thetaEnd < Math.PI) 
+                    {
+                        indices[i_indices] = b;
+                        indices[i_indices + 1] = c;
+                        indices[i_indices + 2] = d;
+                        i_indices += 3;
+                        Console.WriteLine(i_indices);
+                    }                             
+                                                  
+
+                }
+
+            }
+            
+            m_Geometry = GetComponent<GeometryComponent>();
+            
+            m_Geometry.SetVertex(geometry);
+            m_Geometry.SetIndex(indices);
+            m_Geometry.SetPrimitv(GeometryComponent.Primitv.TraingleStrips);
+        }
+
+        public int sides = 6;
+        void Cube3D()
+        {
+            Geometry[] vertices = new Geometry[sides * 4];
+            uint index = 0;
+
+            // up
+            vertices[index++] = new Geometry(new Vector3(  0.5f,  0.5f,  0.5f), Vector2.Zero, Vector3.Up);
+            vertices[index++] = new Geometry(new Vector3( -0.5f,  0.5f,  0.5f), Vector2.Zero, Vector3.Up);
+            vertices[index++] = new Geometry(new Vector3(  0.5f,  0.5f, -0.5f), Vector2.Zero, Vector3.Up);
+            vertices[index++] = new Geometry(new Vector3( -0.5f,  0.5f, -0.5f), Vector2.Zero, Vector3.Up);
+            
+            // front
+            vertices[index++] = new Geometry(new Vector3(  0.5f, -0.5f,  0.5f), Vector2.Zero, Vector3.Front);
+            vertices[index++] = new Geometry(new Vector3( -0.5f, -0.5f,  0.5f), Vector2.Zero, Vector3.Front);
+            vertices[index++] = new Geometry(new Vector3(  0.5f,  0.5f,  0.5f), Vector2.Zero, Vector3.Front);
+            vertices[index++] = new Geometry(new Vector3( -0.5f,  0.5f,  0.5f), Vector2.Zero, Vector3.Front);
+
+            // rigth
+            vertices[index++] = new Geometry(new Vector3(  0.5f, -0.5f,  0.5f), Vector2.Zero, Vector3.Rigth);
+            vertices[index++] = new Geometry(new Vector3(  0.5f,  0.5f,  0.5f), Vector2.Zero, Vector3.Rigth);
+            vertices[index++] = new Geometry(new Vector3(  0.5f, -0.5f, -0.5f), Vector2.Zero, Vector3.Rigth);
+            vertices[index++] = new Geometry(new Vector3(  0.5f,  0.5f, -0.5f), Vector2.Zero, Vector3.Rigth);
+
+            // left
+            vertices[index++] = new Geometry(new Vector3( -0.5f, -0.5f,  0.5f), Vector2.Zero, Vector3.Left);
+            vertices[index++] = new Geometry(new Vector3( -0.5f,  0.5f,  0.5f), Vector2.Zero, Vector3.Left);
+            vertices[index++] = new Geometry(new Vector3( -0.5f, -0.5f, -0.5f), Vector2.Zero, Vector3.Left);
+            vertices[index++] = new Geometry(new Vector3( -0.5f,  0.5f, -0.5f), Vector2.Zero, Vector3.Left);
+
+            // Down
+            vertices[index++] = new Geometry(new Vector3(  0.5f, -0.5f,  0.5f), Vector2.Zero, Vector3.Down);
+            vertices[index++] = new Geometry(new Vector3( -0.5f, -0.5f,  0.5f), Vector2.Zero, Vector3.Down);
+            vertices[index++] = new Geometry(new Vector3(  0.5f, -0.5f, -0.5f), Vector2.Zero, Vector3.Down);
+            vertices[index++] = new Geometry(new Vector3( -0.5f, -0.5f, -0.5f), Vector2.Zero, Vector3.Down);
+            
+            // back
+            vertices[index++] = new Geometry(new Vector3(  0.5f,  0.5f, -0.5f), Vector2.Zero, Vector3.Back);
+            vertices[index++] = new Geometry(new Vector3( -0.5f,  0.5f, -0.5f), Vector2.Zero, Vector3.Back);
+            vertices[index++] = new Geometry(new Vector3(  0.5f, -0.5f, -0.5f), Vector2.Zero, Vector3.Back);
+            vertices[index++] = new Geometry(new Vector3( -0.5f, -0.5f, -0.5f), Vector2.Zero, Vector3.Back);
+            Console.WriteLine(index);
+            uint[] indicies = new uint[] {
+                 0, 1, 2,       1, 2, 3,      // Up
+                 4, 5, 6,       5, 6, 7,      // Front
+                 8, 9, 10,      9, 10, 11,    // Rigth
+                 12, 13, 14,    13, 14, 15,   // Left
+                 16, 17, 18,    17, 18, 19,   // Down
+                 20, 21, 22,    21, 22, 23,   // Back
+            };
+           
+            m_Geometry = GetComponent<GeometryComponent>();
+            m_Geometry.SetPrimitv(GeometryComponent.Primitv.Line);
+            m_Geometry.SetVertex(vertices);
+            m_Geometry.SetIndex(indicies);
+            Console.WriteLine(indicies.Length);
+        }
+
+        void OnDraw()
+        {
+            Console.WriteLine("Player.OnDraw");
+            Cube3D();
+             // Sphere3D();
+            Console.WriteLine("C# ->  GetComponent Finsihed");
         }
 
 
     }
-
     
 }

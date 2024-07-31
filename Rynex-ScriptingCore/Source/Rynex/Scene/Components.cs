@@ -31,30 +31,42 @@ namespace Rynex
        
     }
 
-
+    
 
     public class GeometryComponent : Component
     {
-       
-        public void SetVertex<T>(T[] vertices) where T : unmanaged
+        
+
+        public void SetVertex<T>(T[] vertices, uint size = 0) where T : unmanaged
         {
             unsafe
             {
                 fixed (T* vertexPointer = vertices)
-                    InternalCalls.GeometryComponent_SetVertex(Entity.ID, (IntPtr)vertexPointer, (uint)sizeof(T) * (uint)vertices.Length); 
+                    InternalCalls.GeometryComponent_SetVertex(Entity.ID,  (IntPtr)vertexPointer, size != 0 ? size :(uint)sizeof(T) * (uint)vertices.Length); 
             }
         }
 
 #if true
-        public void SetIndex<T>(T[] index)
+        public void SetIndex<T>(T[] index, uint count = 0)
         {
             unsafe
             {
                 fixed (T* vertexPointer = index)
-                    InternalCalls.GeomtryComponent_SetIndex(Entity.ID, (IntPtr)vertexPointer, (uint)index.Length);
+                    InternalCalls.GeomtryComponent_SetIndex(Entity.ID, (IntPtr)vertexPointer, count != 0 ? count : (uint)index.Length);
             }
         }
 #endif
+        public enum Primitv
+        {
+            Nono = 0,
+            Traingle, TraingleStrips, TraingleFan,
+            Line, LineLoop, LineStrips,
+            Points,
+        }
+        public void SetPrimitv(Primitv primitv)
+        {
+            InternalCalls.GeomtryComponent_SetPrimitv(Entity.ID, (int)primitv);
+        }
 
     }
 }

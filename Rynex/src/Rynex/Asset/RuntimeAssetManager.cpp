@@ -46,9 +46,15 @@ namespace Rynex {
         return asset;
     }
 
+
     bool RuntimeAssetManager::IsAssetLoaded(AssetHandle handle) const
     {
         return m_LoadedAssets.find(handle) != m_LoadedAssets.end();
+    }
+
+    Ref<Asset> RuntimeAssetManager::GetAssetFromPath(const std::filesystem::path& path)
+    {
+        return nullptr;
     }
 
     void RuntimeAssetManager::ImportAsset(const std::filesystem::path& filepath)

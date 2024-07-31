@@ -40,17 +40,18 @@
 #include "Rynex/Scene/ScriptableEntity.h"
 
 //----- Renderer ------------------------
-#include "Rynex/Renderer/Renderer.h"
-#include "Rynex/Renderer/Renderer2D.h"
+#include "Rynex/Renderer/Rendering/Renderer.h"
+#include "Rynex/Renderer/Rendering/Renderer2D.h"
+#include "Rynex/Renderer/Rendering/Renderer3D.h"
 #include "Rynex/Renderer/RenderCommand.h"
 
-#include "Rynex/Renderer/Buffer.h"
-#include "Rynex/Renderer/Shader.h"
-#include "Rynex/Renderer/Texture.h"
-#include "Rynex/Renderer/VertexArray.h"
-#include "Rynex/Renderer/Framebuffer.h"
+#include "Rynex/Renderer/API/Buffer.h"
+#include "Rynex/Renderer/API/Shader.h"
+#include "Rynex/Renderer/API/Texture.h"
+#include "Rynex/Renderer/API/VertexArray.h"
+#include "Rynex/Renderer/API/Framebuffer.h"
 
-#include "Rynex/Renderer/OrthograficCamera.h"
+#include "Rynex/Renderer/Camera/OrthograficCamera.h"
 #include "Rynex/Core/CamerController.h"
 //---------------------------------------
 

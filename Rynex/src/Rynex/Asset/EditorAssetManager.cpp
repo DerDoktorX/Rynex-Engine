@@ -16,6 +16,8 @@ namespace Rynex {
 	{
 		RY_PROFILE_FUNCTION();
 		RY_CORE_ERROR("EditorAssetManager Constructor");
+		//m_Project->GetActive();
+		//CreateAssetFileWatcher();
 	}
 
 	bool EditorAssetManager::IsAssetHandleValid(AssetHandle handle) const
@@ -27,6 +29,7 @@ namespace Rynex {
 
 	Ref<Asset> EditorAssetManager::GetAsset(AssetHandle handle)
 	{
+		//std::scoped_lock<std::mutex> lock(m_RegistryThreedQueueMutex);
 		RY_PROFILE_FUNCTION();
 		// RY_CORE_ASSERT(false, "EditorAssetManager::GetAsset");
 		if (!IsAssetHandleValid(handle))
@@ -52,6 +55,33 @@ namespace Rynex {
 		
 	}
 
+	Ref<Asset> EditorAssetManager::GetAssetFromPath(const std::filesystem::path& path)
+	{
+		//std::scoped_lock<std::mutex> lock(m_RegistryThreedQueueMutex);
+		RY_PROFILE_FUNCTION();
+		// RY_CORE_ASSERT(false, "EditorAssetManager::GetAsset");
+		if (m_PathRegistry.find(path) == m_PathRegistry.end())
+			return nullptr;
+		Ref<Asset> asset;
+		AssetHandle handle = m_PathRegistry[path];
+		if (IsAssetLoaded(handle))
+		{
+			asset = m_LoadedAssets.at(handle);
+		}
+		else
+		{
+			const AssetMetadata& metadata = GetMetadata(handle);
+			m_AssetRegistry[handle].State = AssetState::Loading;
+			asset = AssetImporter::ImportAsset(handle, metadata);
+			asset->Handle = handle;
+			m_AssetRegistry[handle].State = AssetState::Ready;
+			if (!asset) {}
+			m_LoadedAssets[handle] = asset;
+		}
+		return asset;
+
+	}
+
 	bool EditorAssetManager::IsAssetLoaded(AssetHandle handle) const
 	{
 		RY_PROFILE_FUNCTION();
@@ -62,6 +92,7 @@ namespace Rynex {
 
 	void EditorAssetManager::ImportAsset(const std::filesystem::path& filepath)
 	{
+		//std::scoped_lock<std::mutex> lock(m_RegistryThreedQueueMutex);
 		RY_PROFILE_FUNCTION();
 		AssetHandle handle;
 		AssetMetadata metadata;
@@ -110,11 +141,16 @@ namespace Rynex {
 	const AssetHandle& EditorAssetManager::GetAssetHandle(const std::filesystem::path& path)
 	{
 		RY_PROFILE_FUNCTION();
-		return m_PathRegistry[path] ? m_PathRegistry[path] :  AddFileToRegistry(path);
+		if(m_PathRegistry.find(path) != m_PathRegistry.end())
+		{
+			return m_PathRegistry[path];
+		}
+		return AddFileToRegistry(path);
 	}
 
 	const AssetHandle& EditorAssetManager::AddFileToRegistry(const std::filesystem::path& filepath)
 	{
+		//std::scoped_lock<std::mutex> lock(m_RegistryThreedQueueMutex);
 		RY_PROFILE_FUNCTION();
 		if(m_PathRegistry.find(filepath) != m_PathRegistry.end())
 		{
@@ -150,7 +186,7 @@ namespace Rynex {
 	void EditorAssetManager::CreateDirektoryRegestriy(const std::filesystem::path& curentPath)
 	{
 		RY_PROFILE_FUNCTION();
-		AssetFileDirectory& assetDirectory = m_AssetDirectorys[curentPath];
+		AssetFileDirectory& assetDirectory = m_AssetDirectorysRegistry[curentPath];
 		assetDirectory.FolderName = curentPath.filename().string();
 		assetDirectory.FolderPath = curentPath;
 	}
@@ -158,18 +194,20 @@ namespace Rynex {
 	void EditorAssetManager::AddAssetToDirektory(const std::filesystem::path& path, const std::filesystem::path& curentPath)
 	{
 		RY_PROFILE_FUNCTION();
-		m_AssetDirectorys[curentPath].Files.push_back(AddFileToRegistry(path));
+		m_AssetDirectorysRegistry[curentPath].Files.push_back(AddFileToRegistry(path));
 	}
 
 	void EditorAssetManager::AddDirektoryToDirektory(const std::filesystem::path& path, const std::filesystem::path& curentPath)
 	{
+
 		RY_PROFILE_FUNCTION();
-		m_AssetDirectorys[curentPath].Folders.push_back(path);
+		m_AssetDirectorysRegistry[curentPath].Folders.push_back(path);
 	}
 
 
 	void EditorAssetManager::SerialzeAssetRegestriy()
 	{
+		//std::scoped_lock<std::mutex> lock(m_RegistryThreedQueueMutex);
 		RY_PROFILE_FUNCTION();
 		auto path = Project::GetActiveAssetRegistryPath();
 
@@ -230,4 +268,74 @@ namespace Rynex {
 		return true;
 	}
 
+#if 0
+	void EditorAssetManager::OnAssetFileWatcherEvent(const std::string& path, const filewatch::Event change_type)
+	{
+		std::scoped_lock<std::mutex> lock(m_RegistryThreedQueueMutex);
+		RY_PROFILE_FUNCTION();
+		//RY_CORE_INFO("AssetFileWatcher: {0}\n> {1}", (int)change_type, path.c_str());
+		
+		RY_CORE_WARN("AssetFileWatcher -> Exexute!");
+		switch (change_type)
+		{
+
+		case filewatch::Event::modified:
+		{
+			RY_CORE_INFO("Thread modified!");
+			if (IsAssetLoaded(GetAssetHandle(path)))
+			{
+				//ReLoadeAsset(handle);
+				RY_CORE_INFO("Thread ReLoadeAsset! {0}", path.c_str());
+			}
+			else
+			{
+				RY_CORE_WARN("Thread Not ReLoadeAsset! {0}", filepath.string().c_str());
+			}
+		}
+		case filewatch::Event::added:
+		{
+			RY_CORE_INFO("Thread added!");
+		}
+		case filewatch::Event::removed:
+		{
+			RY_CORE_INFO("Thread removed!");
+		}
+		case filewatch::Event::renamed_new:
+		{
+			RY_CORE_INFO("Thread renamed_new!");
+		}
+		case filewatch::Event::renamed_old:
+		{
+			RY_CORE_INFO("Thread renamed_old!");
+		}
+		default:
+			break;
+		}
+	}
+
+	void EditorAssetManager::CreateAssetFileWatcher()
+	{
+		std::scoped_lock<std::mutex> lock(m_RegistryThreedQueueMutex);
+		m_AssetFileWatcher = CreateRef<filewatch::FileWatch<std::string>>(m_Project->GetAssetDirectory().string(), OnAssetFileWatcherEvent);
+		RY_CORE_INFO("Asset FileWatcher Create");
+	}
+
+	bool EditorAssetManager::CheckRegistryAreSync()
+	{
+
+		bool alllSync = true;
+		for (auto& [handle, metadata] : m_AssetRegistry)
+		{
+			if (m_PathRegistry[metadata.FilePath] != handle)
+			{
+				alllSync = false;
+				break;
+			}
+		}
+	}
+
+	void EditorAssetManager::CheckAssetDrictorySync()
+	{
+	}
+#endif
 }

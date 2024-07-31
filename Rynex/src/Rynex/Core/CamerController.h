@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rynex/Renderer/OrthograficCamera.h"
+#include "Rynex/Renderer/Camera/OrthograficCamera.h"
 #include "Rynex/Core/TimeStep.h"
 
 #include "Rynex/Events/ApplicationEvent.h";

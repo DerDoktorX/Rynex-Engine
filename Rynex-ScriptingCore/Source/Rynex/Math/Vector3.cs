@@ -44,6 +44,20 @@ namespace Rynex
             Z = z;
         }
 
+
+        public Vector3 Normalize()
+        {
+            float length = Length();
+            if (length == 0)
+                return new Vector3(0, 0, 0);
+            return new Vector3(X / length, Y / length, Z / length);
+        }
+
+        public float Length()
+        {
+            return (float)Math.Sqrt(X * X + Y * Y + Z * Z);
+        }
+
         // operaters
         // Scalar
         public static Vector3 operator *(Vector3 vector, float scalar)
@@ -63,8 +77,6 @@ namespace Rynex
             return new Vector3(vector.X - scalar, vector.Y - scalar, vector.Z - scalar);
         }
         
-
-       
 
         // Vector2
         public static Vector3 operator +(Vector3 a, Vector2 b)

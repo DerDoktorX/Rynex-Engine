@@ -27,6 +27,10 @@ project "Sandbox"
 		"%{IncludeDir.entt}",
 	}
 
+	defines
+	{
+		"RY_SANDBOX"
+	}
 	links
 	{
 		"Rynex"

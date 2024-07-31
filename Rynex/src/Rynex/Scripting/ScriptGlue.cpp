@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 
-#include "mono/metadata/object.h"
+#include <mono/metadata/object.h>
 #include <mono/metadata/reflection.h>
 
 #include <Rynex/Core/KeyCodes.h>
@@ -82,18 +82,19 @@ namespace Rynex {
 
 
 		GeomtryInput* vertexInput = (GeomtryInput*)vertex;
-		//																	 |
+		uint32_t count = byteSize / sizeof(GeomtryInput);
 		// Byte Size														 V
 		entity.GetComponent<GeomtryComponent>().Buffer->SetData(vertexInput, byteSize);
 		
-		for (int i = 0; i < 3; i++)
-			RY_CORE_TRACE("postion : {0}, {1}, {2}", vertexInput[i].position.x, vertexInput[i].position.y, vertexInput[i].position.z);
-		for (int i = 0; i < 3; i++)
-			RY_CORE_TRACE("normal : {0}, {1}, {2}", vertexInput[i].nomale.x, vertexInput[i].nomale.y, vertexInput[i].nomale.z);
-		for (int i = 0; i < 3; i++)
-			RY_CORE_TRACE("uv : {0}, {1}", vertexInput[i].uv.x, vertexInput[i].uv.y);
+		for (int i = 0; i < count; i++)
+			RY_CORE_TRACE("postion[{0}] : {1}, {2}, {3}", i, vertexInput[i].position.x, vertexInput[i].position.y, vertexInput[i].position.z);
+		for (int i = 0; i < count; i++)
+			RY_CORE_TRACE("normal[{0}] : {1}, {2}, {3}", i, vertexInput[i].nomale.x, vertexInput[i].nomale.y, vertexInput[i].nomale.z);
+		for (int i = 0; i < count; i++)
+			RY_CORE_TRACE("uv[{0}] : {1}, {2}", i, vertexInput[i].uv.x, vertexInput[i].uv.y);
 		
-
+		
+		
 	}
 
 	static void GeomtryComponent_SetIndex(UUID entityID, uint32_t* index, uint32_t count)
@@ -105,6 +106,14 @@ namespace Rynex {
 		entity.GetComponent<GeomtryComponent>().Geometry->GetIndexBuffers()->SetData(index, count);
 	}
 
+	static void GeomtryComponent_SetPrimitv(UUID entityID, int primitv)
+	{
+		Scene* scene = ScriptingEngine::GetSceneContext();
+		Entity entity = scene->GetEntitiyByUUID(entityID);
+		if (!entity.HasComponent<GeomtryComponent>()) return;
+
+		entity.GetComponent<GeomtryComponent>().Geometry->SetPrimitv((VertexArray::Primitv)primitv);
+	}
 
 	// Components Defins
 #if USE_HASCOMPONET_FUNC_CS
@@ -191,6 +200,7 @@ namespace Rynex {
 		// Geomtry
 		RY_ADD_INTERNAL_CALL(GeomtryComponent_SetIndex);
 		RY_ADD_INTERNAL_CALL(GeometryComponent_SetVertex);
+		RY_ADD_INTERNAL_CALL(GeomtryComponent_SetPrimitv);
 
 		// Input
 		RY_ADD_INTERNAL_CALL(Input_IsKeyDown);

@@ -8,9 +8,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #endif
-
+#include <rypch.h>
 #include "Sandbox2D.h"
-
 #include <Rynex/Core/EntryPoint.h>
 
 #define DEBUGE_APLICATION_SPEED

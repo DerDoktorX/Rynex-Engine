@@ -1,8 +1,8 @@
-
+#include "rypch.h"
 #include "SceneHierachyPannel.h"
-#include "Rynex/Scene/Components.h"
-#include "Rynex/Scripting/ScriptingEngine.h"
-#include "Rynex/Asset/Base/AssetManager.h"
+#include <Rynex/Scene/Components.h>
+#include <Rynex/Scripting/ScriptingEngine.h>
+#include <Rynex/Asset/Base/AssetManager.h>
 
 #include <imgui/imgui_internal.h>
 #include <glm/gtc/type_ptr.hpp>

@@ -1,19 +1,25 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "ContentBrowserPannel.h"
 
 #include <Rynex/Core/Application.h>
-#include "Rynex/Core/Application.h"
-#include "Rynex/Asset/Base/AssetManager.h"
-#include "Rynex/Asset/Import/TextureImporter.h"
-#include "Rynex/Asset/Import/ShaderImporter.h"
-#include "Rynex/Asset/Import/SceneImporter.h"
+#include <Rynex/Core/Application.h>
+#include <Rynex/Asset/Base/AssetManager.h>
+#include <Rynex/Asset/Base/AssetImporter.h>
+#include <Rynex/Asset/Import/TextureImporter.h>
+#include <Rynex/Asset/Import/ShaderImporter.h>
+#include <Rynex/Asset/Import/SceneImporter.h>
+#include <Rynex/Renderer/Rendering/Renderer.h>
+#include <Rynex/Renderer/Rendering/Renderer2D.h>
 
 #include <imgui/imgui.h>
 
 
 namespace Rynex {
 
+#if RY_PATH_IN_LINE
 	extern const std::filesystem::path g_AssetsPath = "Assets";
+#endif
+
 	const int s_MaxFileLength = 12;
 
 #if RY_ASSETMANGER_FILE_WATCHER
@@ -43,6 +49,7 @@ namespace Rynex {
 	void ContentBrowserPannel::OnAtache()
 	{
 		RY_PROFILE_FUNCTION();
+#if RY_PATH_IN_LINE
 		m_DirectoryIcon		= TextureImporter::LoadTexture2D("Resources/Icons/ContentBrowser/DirectoryIcon.png");
 		
 		//Files
@@ -52,14 +59,14 @@ namespace Rynex {
 		m_FileIconShader	= TextureImporter::LoadTexture2D("Resources/Icons/ContentBrowser/FileIconShader.png");
 		m_FileIconTexture	= TextureImporter::LoadTexture2D("Resources/Icons/ContentBrowser/FileIconTexture.png");
 		m_AssetManger		= m_Project->GetEditorAssetManger();
-		
+#endif
 		m_AssetManger->SerialzeAssetRegestriy();
 
 		SetAssetRegestriy(m_BaseDirectory);		
 
 		m_AssetManger->CreateDirektoryRegestriy(m_BaseDirectory );
 		m_AssetManger->AddDirektoryToDirektory(m_BaseDirectory / "Unknown File Types", m_BaseDirectory);
-
+		
 		m_AssetManger->CreateDirektoryRegestriy(m_BaseDirectory);
 		m_AssetManger->AddDirektoryToDirektory(m_BaseDirectory / "Loadead (NotAssetFiles)", m_BaseDirectory);
 
@@ -71,8 +78,8 @@ namespace Rynex {
 	{
 		RY_PROFILE_FUNCTION();
 		//BrowserPannel();
-		AssetPannel();
 		AssetRegestriyPannel();
+		AssetPannel();
 	}
 
 	void ContentBrowserPannel::GetFileList(const std::filesystem::path& curentPath)
@@ -277,6 +284,7 @@ namespace Rynex {
 			ImGui::PushID(fileNameString.c_str());
 
 			Ref<Texture2D> icon;
+
 			switch (GetAssetTypeFromFilePath(path.filename()))
 				{
 				case AssetType::Texture2D:
@@ -302,6 +310,7 @@ namespace Rynex {
 					break;
 				}
 				}
+
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 			ImGui::ImageButton(
 				(ImTextureID)icon->GetRenderID(),
@@ -447,20 +456,20 @@ namespace Rynex {
 			switch (GetFileFormate(path))
 			{
 				case FileFormats::png: 
-			{
-				icon = m_FileIconTexture; 
-				break;
-			}
+				{
+					icon = m_FileIconTexture; 
+					break;
+				}
 				case FileFormats::glsl:
-			{
-				icon = m_FileIconShader;
-				break;
-			}
+				{
+					icon = m_FileIconShader;
+					break;
+				}
 				case FileFormats::rynexscene:
-			{
-				icon = m_FileIconScene;
-				break;
-			}
+				{
+					icon = m_FileIconScene;
+					break;
+				}
 				default:
 				{
 					icon = m_FileIconDefault;
@@ -562,53 +571,71 @@ namespace Rynex {
 	static void OnFileSystemEvent(const std::filesystem::path& filepath, const filewatch::Event change_type)
 	{
 		RY_PROFILE_FUNCTION();
-		
-		Application::Get().SubmiteToMainThreedQueueAssetFileWatcher([filepath, change_type]()
+		using namespace std::chrono_literals;
+		std::this_thread::sleep_for(500ms);
+		switch (change_type)
 		{
-			RY_CORE_INFO("Thread Path! -> {0}", filepath.string().c_str());
-			switch (change_type)
-			{
 			case filewatch::Event::modified:
 			{
-				RY_CORE_INFO("Thread ReLoadeAsset!");
-				Ref<EditorAssetManager> assetManger = Project::GetActive()->GetEditorAssetManger();
-				AssetHandle handle = assetManger->GetAssetHandle(filepath);
-				if (assetManger->IsAssetLoaded(handle))
+				Application::Get().SubmiteToMainThreedQueueAssetFileWatcher([filepath]()
 				{
-					assetManger->ReLoadeAsset(handle);
-					RY_CORE_INFO("Thread ReLoadeAsset! {0}", filepath.string().c_str());
-				}
-				else
-				{
-					RY_CORE_WARN("Thread Not ReLoadeAsset! {0}", filepath.string().c_str());
-				}
+					RY_CORE_INFO("Thread ReLoadeAsset! Begine");
+					Ref<EditorAssetManager> assetManger = Project::GetActive()->GetEditorAssetManger();
+					AssetHandle handle = assetManger->GetAssetHandle(("Assets" / filepath).generic_string());
+					if (assetManger->IsAssetLoaded(handle))
+					{
+						AssetImporter::ReLoadeAsset(handle, assetManger->GetMetadata(handle));
+						RY_CORE_INFO("Thread ReLoadeAsset! {0}", filepath.string().c_str());
+						//Renderer2D::Shutdown();
+						//Renderer::Init();
+						
+					}
+					else
+					{
+						RY_CORE_WARN("Thread Not ReLoadeAsset! Finished {0}", filepath.string().c_str());
+					}
+
+				});
+				break;
 			}
 			case filewatch::Event::added:
 			{
-				Ref<EditorAssetManager> assetManger = Project::GetActive()->GetEditorAssetManger();
-				AssetHandle handle = assetManger->GetAssetHandle(filepath);
+				RY_CORE_INFO("Thread Added! Begine");
+				Application::Get().SubmiteToMainThreedQueueAssetFileWatcher([filepath]()
+				{
+				});
+				break;
+
 			}
 			case filewatch::Event::removed:
 			{
-				Ref<EditorAssetManager> assetManger = Project::GetActive()->GetEditorAssetManger();
-				AssetHandle handle = assetManger->GetAssetHandle(filepath);
+				RY_CORE_INFO("Thread Removed! Begine");
+				Application::Get().SubmiteToMainThreedQueueAssetFileWatcher([filepath]()
+				{
+				});
+				break;
 			}
 			case filewatch::Event::renamed_new:
 			{
-				Ref<EditorAssetManager> assetManger = Project::GetActive()->GetEditorAssetManger();
-				AssetHandle handle = assetManger->GetAssetHandle(filepath);
+				RY_CORE_INFO("Thread Renamed New! Begine");
+				Application::Get().SubmiteToMainThreedQueueAssetFileWatcher([filepath]()
+				{
+				});
+				break;
 			}
 			case filewatch::Event::renamed_old:
 			{
-				Ref<EditorAssetManager> assetManger = Project::GetActive()->GetEditorAssetManger();
-				AssetHandle handle = assetManger->GetAssetHandle(filepath);
-			}
-			default:
+				RY_CORE_INFO("Thread Renamed Old! Begine");
+				Application::Get().SubmiteToMainThreedQueueAssetFileWatcher([filepath]()
+				{
+				});
 				break;
 			}
-		});
-		
-		
+			default:
+				RY_CORE_WARN("Thread Not found Event!");
+				break;
+		}
+		RY_CORE_INFO("Thread Path! -> {0} Now Fished", filepath.string().c_str());
 	};
 	
 	void ContentBrowserPannel::InitAssetFileWatcher()

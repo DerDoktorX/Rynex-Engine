@@ -1,6 +1,8 @@
 #include "rypch.h"
 #include "OpenGLFramebuffer.h"
+
 #include <glad/glad.h>
+
 
 namespace Rynex {
 
@@ -86,8 +88,8 @@ namespace Rynex {
 			RY_PROFILE_FUNCTION();
 			switch (format)
 			{
-			case FramebufferTextureFormat::RGBA8:       return GL_RGBA8;
-			case FramebufferTextureFormat::RED_INTEGER: return GL_RED_INTEGER;
+				case FramebufferTextureFormat::RGBA8:       return GL_RGBA8;
+				case FramebufferTextureFormat::RED_INTEGER: return GL_RED_INTEGER;
 			}
 
 			RY_CORE_ASSERT(false, "Not defint Format: RynexFBTextureFormatToGL!");

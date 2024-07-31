@@ -1,10 +1,12 @@
 #pragma once
+#include "EditorAssetManager.h"
+
 #include "Base/AssetManagerBase.h"
 #include "Base/AssetMetadata.h"
 #include "Rynex/Asset/Base/Asset.h"
-#include "EditorAssetManager.h"
 
 #include <map>
+
 
 namespace Rynex {
 
@@ -18,6 +20,7 @@ namespace Rynex {
         virtual bool IsAssetHandleValid(AssetHandle handle) const override;
         virtual Ref<Asset> GetAsset(AssetHandle handle) override;
         virtual bool IsAssetLoaded(AssetHandle handle) const override;
+        virtual Ref<Asset> GetAssetFromPath(const std::filesystem::path& path) override;
 
         void ImportAsset(const std::filesystem::path& filepath);
 

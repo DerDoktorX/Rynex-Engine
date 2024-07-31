@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rynex/Renderer/Framebuffer.h"
+#include "Rynex/Renderer/API/Framebuffer.h"
 
 
 namespace Rynex {

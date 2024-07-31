@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include "Rynex/Core/Base.h"
-#include "Rynex/Renderer/Shader.h"
+#include "Rynex/Renderer/API/Shader.h"
 
 namespace Rynex {
 	class File

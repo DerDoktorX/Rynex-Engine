@@ -1,6 +1,8 @@
 #include "rypch.h"
 #include "Project.h"
+
 #include "Rynex/Serializers/ProjectSerialiazer.h"
+
 
 namespace Rynex {
 
@@ -19,7 +21,7 @@ namespace Rynex {
         ProjectSerialiazer serialiazer(project);
         if (serialiazer.Deserlize(path))
         {
-            project->m_ProjectDircetory = path.parent_path();
+            project->m_Config.ProjectPath = path.parent_path();
             s_ActiveProject = project;
             std::shared_ptr<EditorAssetManager> editorAssetManager = std::make_shared<EditorAssetManager>();
             s_ActiveProject->m_AssetManger = editorAssetManager; 
@@ -38,7 +40,7 @@ namespace Rynex {
         ProjectSerialiazer serializer(s_ActiveProject);
         if (serializer.Serlize(path))
         {
-            s_ActiveProject->m_ProjectDircetory = path.parent_path();
+            s_ActiveProject->m_Config.ProjectPath = path.parent_path();
             return true;
         }
 

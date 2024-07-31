@@ -9,6 +9,7 @@
 #include "mono/metadata/object.h"
 
 #include "FileWatch.h"
+#include <Rynex/Project/Project.h>
 
 #define RY_AKICE_CS 1
 namespace Rynex {
@@ -157,11 +158,14 @@ namespace Rynex {
 		// Funktion in C++ defined executed in C#
 		ScriptGlue::RegisterFunktion();
 		
-
+#if RY_SCRIPT_PATH
 		LoadAssambly("Resources/Scripts/Rynex-ScriptingCore.dll");
 		LoadAppAssambly("SandboxProject/Assets/Scripts/Binaries/Sanbox.dll");
+#else
+		LoadAssambly(Project::GetActiveAssetProjectScriptingCoreDirektory());
+		LoadAppAssambly(Project::GetActiveAssetScriptingDirektory());
+#endif
 		LoadAssemblyClasses();
-
 		ScriptGlue::RegisterAllComponets();
 
 		//ExecuteScriptClass();

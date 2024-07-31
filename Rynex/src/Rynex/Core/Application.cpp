@@ -1,10 +1,13 @@
 #include "rypch.h"
 #include "Application.h"
+
 #include "Rynex/Core/Log.h"
-#include "Rynex/Renderer/Renderer.h"
 #include "Input.h"
-#include <GLFW/glfw3.h>
+#include "Rynex/Renderer/Rendering/Renderer.h"
 #include "Rynex/Scripting/ScriptingEngine.h"
+
+#include <GLFW/glfw3.h>
+
 
 #if RY_TODO_APPLICATION_REMABER
 struct AlicationMetrics
@@ -68,7 +71,7 @@ namespace Rynex {
 
 	Application::~Application()
 	{
-		ScriptingEngine::Shutdown();
+		
 	}
 
 	void Application::OnEvent(Event& e)

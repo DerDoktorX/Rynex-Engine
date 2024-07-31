@@ -43,6 +43,8 @@ namespace Rynex
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void GeomtryComponent_SetIndex(ulong uuid, IntPtr index, uint count);
 
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void GeomtryComponent_SetPrimitv(ulong uuid, int iPrimitv);
         // Componets
 #if false
 

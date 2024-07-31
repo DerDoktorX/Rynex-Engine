@@ -35,6 +35,8 @@ namespace Rynex {
 
         virtual bool IsAssetHandleValid(AssetHandle handle) const override;
         virtual Ref<Asset> GetAsset(AssetHandle handle) override;
+        virtual Ref<Asset> EditorAssetManager::GetAssetFromPath(const std::filesystem::path& path) override;
+
         virtual bool IsAssetLoaded(AssetHandle handle) const override;
 
         void ImportAsset(const std::filesystem::path& filepath);
@@ -49,22 +51,25 @@ namespace Rynex {
 
         const void ReLoadeAsset(AssetHandle handle) const;
 
-        const AssetDirectory& GetAssetDirectorys() const { return m_AssetDirectorys; }
-        AssetFileDirectory& GetAssetFileDirectory(const std::filesystem::path& curentPath) { return m_AssetDirectorys[curentPath]; }
+        const AssetDirectory& GetAssetDirectorys() const { return m_AssetDirectorysRegistry; }
+        AssetFileDirectory& GetAssetFileDirectory(const std::filesystem::path& curentPath) { return m_AssetDirectorysRegistry[curentPath]; }
 
         void CreateDirektoryRegestriy(const std::filesystem::path& curentPath);
         void AddAssetToDirektory(const std::filesystem::path& path, const std::filesystem::path& curentPath);
         void AddDirektoryToDirektory(const std::filesystem::path& path, const std::filesystem::path& curentPath);
         void CreateDirektoryUnknownTypeDirektory(const std::filesystem::path& path, const std::filesystem::path& curentPath);
-
+        
         void SerialzeAssetRegestriy();
         bool DeserialzeAssetRegestriy();
 
     private: 
         AssetMap m_LoadedAssets;
+
         AssetRegistry m_AssetRegistry;
+
         PathRegistry m_PathRegistry;
-        AssetDirectory m_AssetDirectorys;
+
+        AssetDirectory m_AssetDirectorysRegistry;
     };
 
 }

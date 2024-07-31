@@ -1,7 +1,7 @@
 #pragma once
 
 //#include "Rynex/Renderer/Renderer.h"
-#include "Rynex/Renderer/VertexArray.h"
+#include "Rynex/Renderer/API/VertexArray.h"
 
 
 namespace Rynex{
@@ -29,7 +29,7 @@ namespace Rynex{
 		uint32_t m_RendererID;
 		std::vector<Ref<VertexBuffer>> m_VertexBuffers;
 		Ref<IndexBuffer> m_IndexBuffer;
-		Primitv m_Primitv;
+		Primitv m_Primitv = Primitv::Nono;
 	};
 
 }

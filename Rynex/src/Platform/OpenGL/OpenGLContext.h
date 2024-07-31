@@ -1,5 +1,6 @@
 #pragma once
-#include "Rynex/Renderer/GraphicsContext.h"
+#include "Rynex/Renderer/API/GraphicsContext.h"
+
 struct GLFWwindow;
 
 namespace Rynex{

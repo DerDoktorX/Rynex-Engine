@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Rynex/Renderer/Shader.h"
+#include "Rynex/Renderer/API/Shader.h"
+#include <Rynex/Asset/Base/Asset.h>
 
 #include <glm/glm.hpp>
-#include <Rynex/Asset/Base/Asset.h>
 
 typedef unsigned int GLenum;
 
@@ -16,6 +16,8 @@ namespace Rynex {
 		OpenGLShader(const std::string& source, const std::string& name);
 		OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
 		virtual ~OpenGLShader();
+
+		virtual void ReganrateShader(const std::string& source) override;
 
 		virtual void Bind() const override;
 		virtual void UnBind() const override;

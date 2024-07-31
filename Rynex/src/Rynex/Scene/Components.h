@@ -2,10 +2,10 @@
 
 #include "ScenenCamera.h"
 #include "Rynex/Core/UUID.h"
-#include "Rynex/Renderer/Texture.h"
-#include "Rynex/Renderer/Shader.h"
-#include "Rynex/Renderer/VertexArray.h"
-#include "Rynex/Renderer/Geomtrys.h"
+#include "Rynex/Renderer/API/Texture.h"
+#include "Rynex/Renderer/API/Shader.h"
+#include "Rynex/Renderer/API/VertexArray.h"
+#include "Rynex/Renderer/Objects/Geomtrys.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -119,6 +119,7 @@ namespace Rynex {
 	{
 		Ref<VertexArray> Geometry;
 		Ref<VertexBuffer> Buffer;
+		
 		// Make By User or Defind Shape like Cube, Plane, Sphere ...
 
 		GeomtryComponent() = default;
@@ -132,7 +133,7 @@ namespace Rynex {
 		Ref<Shader> Shader;
 		Ref<Texture2D> Texture;
 		glm::vec3 Color{ 1.0f, 0.0f, 1.0f };
-		Shader::Algorithm Flags;
+		int AlgorithmFlags; // Shader::Algorithm
 
 		MaterialComponent() = default;
 		MaterialComponent(const MaterialComponent&) = default;

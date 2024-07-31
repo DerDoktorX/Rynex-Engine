@@ -14,6 +14,13 @@ namespace Rynex {
 			Ref<Asset> asset = Project::GetActive()->GetAssetManger()->GetAsset(handle);
 			return std::static_pointer_cast<T>(asset);
 		}
+
+		template<typename T>
+		static Ref<T> GetAssetFromPath(const std::filesystem::path& path)
+		{
+			Ref<Asset> asset = Project::GetActive()->GetAssetManger()->GetAssetFromPath(path);
+			return std::static_pointer_cast<T>(asset);
+		}
 	};
 
 }

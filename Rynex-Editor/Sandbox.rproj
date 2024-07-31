@@ -1,5 +1,5 @@
 Project:
-  Name: Facerun
+  Name: SandboxProject
   StartScene: "scenes/Example.rynexscene"
   AssetDirectory: "Assets"
   ScriptModulePath: ""

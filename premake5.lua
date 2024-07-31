@@ -2,8 +2,8 @@ include "./vendor/bin/premake/premake_customization/solution_items.lua"
 
 workspace "Rynex-Engine"
 	architecture "x86_64"
-	--startproject "Rynex-Editor"
-	startproject "Sandbox"
+	startproject "Rynex-Editor"
+	--startproject "Sandbox"
 
 	configurations 
 	{ 
@@ -49,10 +49,15 @@ IncludeDir["ImGuizmo"] 	= "%{wks.location}/Rynex/vendor/ImGuizmo"
 
 
 LibraryDir = {}
-LibraryDir["mono"] = "%{wks.location}/Rynex/vendor/mono/libs/%{cfg.buildcfg}"
+LibraryDir["mono"] = "%{wks.location}/Rynex/vendor/mono/lib/%{cfg.buildcfg}"
+LibraryDir["mono_Release"] = "%{wks.location}/Rynex/vendor/mono/lib/Release"
+LibraryDir["mono_Debug"] = "%{wks.location}/Rynex/vendor/mono/lib/Debug"
 
 Library = {}
 Library["mono"] = "%{LibraryDir.mono}/libmono-static-sgen.lib"
+Library["mono_Release"] = "%{LibraryDir.mono_Release}/libmono-static-sgen.lib"
+Library["mono_Debug"] = "%{LibraryDir.mono_Debug}/libmono-static-sgen.lib"
+
 -- Windows only
 Library["WinSock"] = "Ws2_32.lib"
 Library["WinMM"] = "Winmm.lib"

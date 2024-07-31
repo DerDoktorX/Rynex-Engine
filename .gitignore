@@ -31,7 +31,7 @@ Resources/Binaries/
 
 # Visual Studio files and folder
 *.sln
-**.vcxproj
+*.vcxproj
 **.vcxproj.filters
 **.vcxproj.user
 *.csproj

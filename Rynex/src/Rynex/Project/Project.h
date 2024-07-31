@@ -14,24 +14,28 @@ namespace Rynex {
 
 	struct ProjectConfig
 	{
-		std::string Name = "Project";
+		std::string Name;
 
 		std::filesystem::path StartScene;
+
+		std::filesystem::path AppDirektory = "";
 
 		std::filesystem::path AssetDirectory;
 		std::filesystem::path AssetRegistryPath = "AssetRegistry.ryr"; // Relative to AssetDirectory
 		std::filesystem::path ScriptModulePath;
+		std::filesystem::path ProjectPath = "C:/dev/Rynex-Enine/Rynex-Editor/SandboxProject";
 	};
 
 	class Project
 	{
 	public:
-		const std::filesystem::path& GetProjectDirectory() { return m_ProjectDircetory; }
+		const std::filesystem::path& GetProjectDirectory() { return s_ActiveProject->m_Config.ProjectPath; }
 		std::filesystem::path GetAssetDirectory() { return GetProjectDirectory() / s_ActiveProject->m_Config.AssetDirectory; }
-		std::filesystem::path GetAssetRegistryPath() { return s_ActiveProject->m_Config.AssetRegistryPath; }
+		std::filesystem::path& GetAssetRegistryPath() { return s_ActiveProject->m_Config.AssetRegistryPath; }
+		
 		// TODO(Yan): move to asset manager when we have one
 		std::filesystem::path GetAssetFileSystemPath(const std::filesystem::path& path) { return GetAssetDirectory() / path; }
-
+		std::filesystem::path& GetAppDirektory() { return s_ActiveProject->m_Config.AppDirektory; }
 
 		static const std::filesystem::path& GetActiveProjectDirectory()
 		{
@@ -57,6 +61,17 @@ namespace Rynex {
 			return s_ActiveProject->GetAssetRegistryPath();
 		}
 
+		static const std::filesystem::path GetActiveAssetScriptingDirektory()
+		{
+			RY_CORE_ASSERT(s_ActiveProject, "Erroe: Project::GetProjectDirectory()");
+			return (s_ActiveProject->GetProjectDirectory() / s_ActiveProject->m_Config.ScriptModulePath).generic_string();
+		}
+
+		static const std::filesystem::path GetActiveAssetProjectScriptingCoreDirektory()
+		{
+			RY_CORE_ASSERT(s_ActiveProject, "Erroe: Project::GetActiveAssetProjectScriptingCoreDirektory()");
+			return "Resources/Scripts/Rynex-ScriptingCore.dll";
+		}
 
 		ProjectConfig& GetConfig() { return m_Config; }
 
@@ -71,7 +86,6 @@ namespace Rynex {
 		static bool SaveActive(const std::filesystem::path& path);
 	private:
 		ProjectConfig m_Config;
-		std::filesystem::path m_ProjectDircetory;
 		Ref<AssetManagerBase> m_AssetManger;
 		
 		inline static Ref<Project> s_ActiveProject;

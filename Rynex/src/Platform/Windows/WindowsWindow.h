@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Rynex/Core/Window.h"
-#include "Rynex/Renderer/GraphicsContext.h"
-
+#include "Rynex/Renderer/API/GraphicsContext.h"
 #include "Rynex/Events/MouseEvent.h"
 #include "Rynex/Events/KeyEvent.h"
 

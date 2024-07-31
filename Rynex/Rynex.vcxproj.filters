@@ -16,6 +16,15 @@
     <Filter Include="src\Rynex">
       <UniqueIdentifier>{1223CCB3-7E8D-802A-C7CB-31D033755E7F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Rynex\Asset">
+      <UniqueIdentifier>{215D2E6F-8DE8-9B33-96F9-1E280204F833}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Rynex\Asset\Base">
+      <UniqueIdentifier>{4B16235C-37A5-AC25-E0C3-C020CC31BDCB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Rynex\Asset\Import">
+      <UniqueIdentifier>{0BAC6D02-F7A5-9654-E012-2D65CCABFCC0}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Rynex\Core">
       <UniqueIdentifier>{AA0250C5-96D0-43CB-7F64-B4F16BD11F30}</UniqueIdentifier>
     </Filter>
@@ -28,14 +37,35 @@
     <Filter Include="src\Rynex\Math">
       <UniqueIdentifier>{2B4355C5-1711-49CB-00A5-B9F1EC112530}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Rynex\Project">
+      <UniqueIdentifier>{58B94874-C4CF-460A-0D47-D22B799C1792}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Rynex\Renderer">
       <UniqueIdentifier>{F8FA6CEA-E4DE-2D40-4D3F-2893394218C2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Rynex\Renderer\API">
+      <UniqueIdentifier>{E19BFCFD-CD95-2550-B602-BC60A29B8BBC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Rynex\Renderer\Camera">
+      <UniqueIdentifier>{7088E967-DC4A-1DF2-25FB-AB7E91FCF5CF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Rynex\Renderer\Objects">
+      <UniqueIdentifier>{B111F402-9D21-A0D3-06DB-04F2F2098F6C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Rynex\Renderer\PiplineAPI">
+      <UniqueIdentifier>{52A1877D-BEB9-6EA7-8766-FE40F33D0341}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Rynex\Renderer\Rendering">
+      <UniqueIdentifier>{45DA30E4-3195-2090-DA4C-99DAC6E66A20}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Rynex\Scene">
       <UniqueIdentifier>{AF156B70-1BA1-D834-24B2-5B2990BC3435}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Rynex\Scripting">
       <UniqueIdentifier>{94166014-0078-3D22-89E5-83D4F54574E1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\Rynex\Serializers">
+      <UniqueIdentifier>{AEF4881F-1A61-441A-E354-DC774F806682}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\Rynex\Utils">
       <UniqueIdentifier>{F2A99870-5E35-0635-6746-8929D3506235}</UniqueIdentifier>
@@ -96,13 +126,58 @@
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\Windows\WinowsInstromenter.h">
+      <Filter>src\Platform\Windows</Filter>
+    </ClInclude>
     <ClInclude Include="src\Rynex.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Asset\Base\Asset.h">
+      <Filter>src\Rynex\Asset\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Asset\Base\AssetImporter.h">
+      <Filter>src\Rynex\Asset\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Asset\Base\AssetManager.h">
+      <Filter>src\Rynex\Asset\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Asset\Base\AssetManagerBase.h">
+      <Filter>src\Rynex\Asset\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Asset\Base\AssetMetadata.h">
+      <Filter>src\Rynex\Asset\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Asset\Base\AssetRegistry.h">
+      <Filter>src\Rynex\Asset\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Asset\Base\Buffer.h">
+      <Filter>src\Rynex\Asset\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Asset\EditorAssetManager.h">
+      <Filter>src\Rynex\Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Asset\Import\SceneImporter.h">
+      <Filter>src\Rynex\Asset\Import</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Asset\Import\ShaderImporter.h">
+      <Filter>src\Rynex\Asset\Import</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Asset\Import\TextureImporter.h">
+      <Filter>src\Rynex\Asset\Import</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Asset\RuntimeAssetManager.h">
+      <Filter>src\Rynex\Asset</Filter>
     </ClInclude>
     <ClInclude Include="src\Rynex\Core\Application.h">
       <Filter>src\Rynex\Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\Rynex\Core\Base.h">
+      <Filter>src\Rynex\Core</Filter>
+    </ClInclude>
     <ClInclude Include="src\Rynex\Core\CamerController.h">
+      <Filter>src\Rynex\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Core\CoreConfig.h">
       <Filter>src\Rynex\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Rynex\Core\EntryPoint.h">
@@ -112,6 +187,9 @@
       <Filter>src\Rynex\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Rynex\Core\Input.h">
+      <Filter>src\Rynex\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Core\Instrumentor.h">
       <Filter>src\Rynex\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Rynex\Core\KeyCodes.h">
@@ -159,50 +237,56 @@
     <ClInclude Include="src\Rynex\Math\Math.h">
       <Filter>src\Rynex\Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rynex\Renderer\Buffer.h">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClInclude Include="src\Rynex\Project\Project.h">
+      <Filter>src\Rynex\Project</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rynex\Renderer\Camera.h">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClInclude Include="src\Rynex\Renderer\API\Buffer.h">
+      <Filter>src\Rynex\Renderer\API</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rynex\Renderer\EditorCamera.h">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClInclude Include="src\Rynex\Renderer\API\Framebuffer.h">
+      <Filter>src\Rynex\Renderer\API</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rynex\Renderer\Framebuffer.h">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClInclude Include="src\Rynex\Renderer\API\GraphicsContext.h">
+      <Filter>src\Rynex\Renderer\API</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rynex\Renderer\Geomtrys.h">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClInclude Include="src\Rynex\Renderer\API\Shader.h">
+      <Filter>src\Rynex\Renderer\API</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rynex\Renderer\GraphicsContext.h">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClInclude Include="src\Rynex\Renderer\API\Texture.h">
+      <Filter>src\Rynex\Renderer\API</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rynex\Renderer\OrthograficCamera.h">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClInclude Include="src\Rynex\Renderer\API\VertexArray.h">
+      <Filter>src\Rynex\Renderer\API</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Renderer\Camera\Camera.h">
+      <Filter>src\Rynex\Renderer\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Renderer\Camera\EditorCamera.h">
+      <Filter>src\Rynex\Renderer\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Renderer\Camera\OrthograficCamera.h">
+      <Filter>src\Rynex\Renderer\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Renderer\Objects\Geomtrys.h">
+      <Filter>src\Rynex\Renderer\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Renderer\PiplineAPI\Pipline.h">
+      <Filter>src\Rynex\Renderer\PiplineAPI</Filter>
     </ClInclude>
     <ClInclude Include="src\Rynex\Renderer\RenderCommand.h">
-      <Filter>src\Rynex\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Rynex\Renderer\Renderer.h">
-      <Filter>src\Rynex\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Rynex\Renderer\Renderer2D.h">
-      <Filter>src\Rynex\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Rynex\Renderer\Renderer3D.h">
       <Filter>src\Rynex\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\Rynex\Renderer\RendererAPI.h">
       <Filter>src\Rynex\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rynex\Renderer\Shader.h">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClInclude Include="src\Rynex\Renderer\Rendering\Renderer.h">
+      <Filter>src\Rynex\Renderer\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rynex\Renderer\Texture.h">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClInclude Include="src\Rynex\Renderer\Rendering\Renderer2D.h">
+      <Filter>src\Rynex\Renderer\Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rynex\Renderer\VertexArray.h">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClInclude Include="src\Rynex\Renderer\Rendering\Renderer3D.h">
+      <Filter>src\Rynex\Renderer\Rendering</Filter>
     </ClInclude>
     <ClInclude Include="src\Rynex\Scene\Components.h">
       <Filter>src\Rynex\Scene</Filter>
@@ -216,9 +300,6 @@
     <ClInclude Include="src\Rynex\Scene\SceneGeomtry.h">
       <Filter>src\Rynex\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rynex\Serializers\SceneSerializer.h">
-      <Filter>src\Rynex\Scene</Filter>
-    </ClInclude>
     <ClInclude Include="src\Rynex\Scene\ScenenCamera.h">
       <Filter>src\Rynex\Scene</Filter>
     </ClInclude>
@@ -230,6 +311,15 @@
     </ClInclude>
     <ClInclude Include="src\Rynex\Scripting\ScriptingEngine.h">
       <Filter>src\Rynex\Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Serializers\ProjectSerialiazer.h">
+      <Filter>src\Rynex\Serializers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Serializers\SceneSerializer.h">
+      <Filter>src\Rynex\Serializers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Rynex\Serializers\YAML.h">
+      <Filter>src\Rynex\Serializers</Filter>
     </ClInclude>
     <ClInclude Include="src\Rynex\Utils\PlatformUtils.h">
       <Filter>src\Rynex\Utils</Filter>
@@ -1491,24 +1581,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\Rynex\Asset\Base\AssetManager.h" />
-    <ClInclude Include="src\Rynex\Asset\Base\AssetManagerBase.h" />
-    <ClInclude Include="src\Rynex\Asset\EditorAssetManager.h" />
-    <ClInclude Include="src\Rynex\Asset\RuntimeAssetManager.h" />
-    <ClInclude Include="src\Rynex\Asset\Base\Asset.h" />
-    <ClInclude Include="src\Rynex\Asset\Base\AssetMetadata.h" />
-    <ClInclude Include="src\Rynex\Project\Project.h" />
-    <ClInclude Include="src\Rynex\Asset\Base\AssetRegistry.h" />
-    <ClInclude Include="src\Rynex\Asset\Import\TextureImporter.h" />
-    <ClInclude Include="src\Rynex\Serializers\ProjectSerialiazer.h" />
-    <ClInclude Include="src\Rynex\Serializers\YAML.h" />
-    <ClInclude Include="src\Rynex\Asset\Base\AssetImporter.h" />
-    <ClInclude Include="src\Rynex\Asset\Import\SceneImporter.h" />
-    <ClInclude Include="src\Rynex\Asset\Import\ShaderImporter.h" />
-    <ClInclude Include="src\Rynex\Asset\Base\Buffer.h" />
-    <ClInclude Include="src\Rynex\Core\Base.h" />
-    <ClInclude Include="src\Rynex\Core\Instrumentor.h" />
-    <ClInclude Include="src\Rynex\Core\CoreConfig.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
@@ -1541,6 +1613,36 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="src\Rynex\Asset\Base\Asset.cpp">
+      <Filter>src\Rynex\Asset\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rynex\Asset\Base\AssetImporter.cpp">
+      <Filter>src\Rynex\Asset\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rynex\Asset\Base\AssetManager.cpp">
+      <Filter>src\Rynex\Asset\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rynex\Asset\Base\AssetManagerBase.cpp">
+      <Filter>src\Rynex\Asset\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rynex\Asset\Base\AssetRegistry.cpp">
+      <Filter>src\Rynex\Asset\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rynex\Asset\EditorAssetManager.cpp">
+      <Filter>src\Rynex\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rynex\Asset\Import\SceneImporter.cpp">
+      <Filter>src\Rynex\Asset\Import</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rynex\Asset\Import\ShaderImporter.cpp">
+      <Filter>src\Rynex\Asset\Import</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rynex\Asset\Import\TextureImporter.cpp">
+      <Filter>src\Rynex\Asset\Import</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rynex\Asset\RuntimeAssetManager.cpp">
+      <Filter>src\Rynex\Asset</Filter>
+    </ClCompile>
     <ClCompile Include="src\Rynex\Core\Application.cpp">
       <Filter>src\Rynex\Core</Filter>
     </ClCompile>
@@ -1571,44 +1673,50 @@
     <ClCompile Include="src\Rynex\Math\Math.cpp">
       <Filter>src\Rynex\Math</Filter>
     </ClCompile>
-    <ClCompile Include="src\Rynex\Renderer\Buffer.cpp">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClCompile Include="src\Rynex\Project\Project.cpp">
+      <Filter>src\Rynex\Project</Filter>
     </ClCompile>
-    <ClCompile Include="src\Rynex\Renderer\EditorCamera.cpp">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClCompile Include="src\Rynex\Renderer\API\Buffer.cpp">
+      <Filter>src\Rynex\Renderer\API</Filter>
     </ClCompile>
-    <ClCompile Include="src\Rynex\Renderer\Framebuffer.cpp">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClCompile Include="src\Rynex\Renderer\API\Framebuffer.cpp">
+      <Filter>src\Rynex\Renderer\API</Filter>
     </ClCompile>
-    <ClCompile Include="src\Rynex\Renderer\Geomtrys.cpp">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClCompile Include="src\Rynex\Renderer\API\Shader.cpp">
+      <Filter>src\Rynex\Renderer\API</Filter>
     </ClCompile>
-    <ClCompile Include="src\Rynex\Renderer\OrthograficCamera.cpp">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClCompile Include="src\Rynex\Renderer\API\Texture.cpp">
+      <Filter>src\Rynex\Renderer\API</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rynex\Renderer\API\VertexArray.cpp">
+      <Filter>src\Rynex\Renderer\API</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rynex\Renderer\Camera\EditorCamera.cpp">
+      <Filter>src\Rynex\Renderer\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rynex\Renderer\Camera\OrthograficCamera.cpp">
+      <Filter>src\Rynex\Renderer\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rynex\Renderer\Objects\Geomtrys.cpp">
+      <Filter>src\Rynex\Renderer\Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rynex\Renderer\PiplineAPI\Pipline.cpp">
+      <Filter>src\Rynex\Renderer\PiplineAPI</Filter>
     </ClCompile>
     <ClCompile Include="src\Rynex\Renderer\RenderCommand.cpp">
-      <Filter>src\Rynex\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Rynex\Renderer\Renderer.cpp">
-      <Filter>src\Rynex\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Rynex\Renderer\Renderer2D.cpp">
-      <Filter>src\Rynex\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Rynex\Renderer\Renderer3D.cpp">
       <Filter>src\Rynex\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Rynex\Renderer\RendererAPI.cpp">
       <Filter>src\Rynex\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Rynex\Renderer\Shader.cpp">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClCompile Include="src\Rynex\Renderer\Rendering\Renderer.cpp">
+      <Filter>src\Rynex\Renderer\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="src\Rynex\Renderer\Texture.cpp">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClCompile Include="src\Rynex\Renderer\Rendering\Renderer2D.cpp">
+      <Filter>src\Rynex\Renderer\Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="src\Rynex\Renderer\VertexArray.cpp">
-      <Filter>src\Rynex\Renderer</Filter>
+    <ClCompile Include="src\Rynex\Renderer\Rendering\Renderer3D.cpp">
+      <Filter>src\Rynex\Renderer\Rendering</Filter>
     </ClCompile>
     <ClCompile Include="src\Rynex\Scene\Entity.cpp">
       <Filter>src\Rynex\Scene</Filter>
@@ -1617,9 +1725,6 @@
       <Filter>src\Rynex\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\Rynex\Scene\SceneGeomtry.cpp">
-      <Filter>src\Rynex\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Rynex\Serializers\SceneSerializer.cpp">
       <Filter>src\Rynex\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\Rynex\Scene\ScenenCamera.cpp">
@@ -1631,6 +1736,12 @@
     <ClCompile Include="src\Rynex\Scripting\ScriptingEngine.cpp">
       <Filter>src\Rynex\Scripting</Filter>
     </ClCompile>
+    <ClCompile Include="src\Rynex\Serializers\ProjectSerialiazer.cpp">
+      <Filter>src\Rynex\Serializers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Rynex\Serializers\SceneSerializer.cpp">
+      <Filter>src\Rynex\Serializers</Filter>
+    </ClCompile>
     <ClCompile Include="src\rypch.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -1640,17 +1751,5 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\Rynex\Asset\Base\AssetManager.cpp" />
-    <ClCompile Include="src\Rynex\Asset\Base\AssetManagerBase.cpp" />
-    <ClCompile Include="src\Rynex\Asset\EditorAssetManager.cpp" />
-    <ClCompile Include="src\Rynex\Asset\RuntimeAssetManager.cpp" />
-    <ClCompile Include="src\Rynex\Asset\Base\Asset.cpp" />
-    <ClCompile Include="src\Rynex\Asset\Base\AssetRegistry.cpp" />
-    <ClCompile Include="src\Rynex\Asset\Import\TextureImporter.cpp" />
-    <ClCompile Include="src\Rynex\Project\Project.cpp" />
-    <ClCompile Include="src\Rynex\Serializers\ProjectSerialiazer.cpp" />
-    <ClCompile Include="src\Rynex\Asset\Base\AssetImporter.cpp" />
-    <ClCompile Include="src\Rynex\Asset\Import\SceneImporter.cpp" />
-    <ClCompile Include="src\Rynex\Asset\Import\ShaderImporter.cpp" />
   </ItemGroup>
 </Project>
