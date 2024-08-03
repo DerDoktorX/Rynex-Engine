@@ -8,17 +8,96 @@
 
 namespace Rynex {
 
-	static GLenum ShaderTypeFromString(const std::string& type)
-	{
-		if (type == "vertex") return GL_VERTEX_SHADER;
-		if (type == "fragment" || type == "pixel") return GL_FRAGMENT_SHADER;
-		if (type == "Geomtry") return GL_GEOMETRY_SHADER;
-		if (type == "tessControl") return GL_TESS_CONTROL_SHADER;
-		if (type == "tessEvalution") return GL_TESS_EVALUATION_SHADER;
+	namespace Utils {
 
-		RY_CORE_ASSERT(false, "Unkowne Shader Type!");
-		return 0;
+		static GLenum ShaderTypeFromString(const std::string& type)
+		{
+			if (type == "vertex") return GL_VERTEX_SHADER;
+			if (type == "fragment" || type == "pixel") return GL_FRAGMENT_SHADER;
+			if (type == "Geomtry") return GL_GEOMETRY_SHADER;
+			if (type == "tessControl") return GL_TESS_CONTROL_SHADER;
+			if (type == "tessEvalution") return GL_TESS_EVALUATION_SHADER;
+
+			RY_CORE_ASSERT(false, "Unkowne Shader Type!");
+			return 0;
+		}
+
+		static std::string StringFromShaderType(GLenum type)
+		{
+			switch (type)
+			{
+				case GL_VERTEX_SHADER: return "GL_VERTEX_SHADER";
+				case GL_FRAGMENT_SHADER: return "GL_FRAGMENT_SHADER";
+				case GL_GEOMETRY_SHADER: return "GL_GEOMETRY_SHADER";
+				case GL_TESS_CONTROL_SHADER: return "GL_TESS_CONTROL_SHADER";
+				case GL_TESS_EVALUATION_SHADER: return "GL_TESS_EVALUATION_SHADER";
+				default:
+					break;
+			}
+
+			RY_CORE_ASSERT(false, "Unkowne Shader Type!");
+			return 0;
+		}
+
+		bool CheckeShader(GLint shader)
+		{
+			GLint isCompiled = 0;
+			glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
+			if (isCompiled == GL_FALSE)
+			{
+				GLint maxLength = 0;
+				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+
+				std::vector<GLchar> infoLog(maxLength);
+				glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLog[0]);
+
+				glDeleteShader(shader);
+
+				RY_CORE_ERROR("{0}", infoLog.data());
+				RY_CORE_ASSERT(false, "Shader Compilation failure!");
+				return false;
+			}
+			return true;
+		}
+
+		GLint CreateShader(const GLchar* shaderSource, GLenum type)
+		{
+			GLint shader = glCreateShader(type);
+			glShaderSource(shader, 1, &shaderSource, 0);
+			glCompileShader(shader);
+			RY_CORE_INFO("CheckeShader -> {0}", StringFromShaderType(type).c_str());
+			if (CheckeShader(shader))
+				return shader;
+			return -1;
+		}
+
+		bool CheckProgrammLinking(GLint program, std::array<GLenum, 4>& glShaderIDs)
+		{
+			GLint isLinked = 0;
+			glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);
+			if (isLinked == GL_FALSE)
+			{
+				GLint maxLength = 0;
+				glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+
+				std::vector<GLchar> infoLog(maxLength);
+				glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
+
+
+
+				glDeleteProgram(program);
+				for (auto& id : glShaderIDs)
+					glDeleteShader(id);
+
+				RY_CORE_ERROR("{0}", infoLog.data());
+				RY_CORE_ASSERT(false, "Linked Program Compilation failure!");
+				return false;
+			}
+			return true;
+		}
+
 	}
+
 
 	OpenGLShader::OpenGLShader(const std::string& source, const std::string& name)
 	{
@@ -193,47 +272,26 @@ namespace Rynex {
 
 			size_t nextLinePos = source.find_first_of("\r\n",eol);
 			pos = source.find(typeToken, nextLinePos);
-			shaderSource[ShaderTypeFromString(type)] = source.substr(nextLinePos, pos - (nextLinePos == std::string::npos ? source.size() - 1 : nextLinePos));
+			shaderSource[Utils::ShaderTypeFromString(type)] = source.substr(nextLinePos, pos - (nextLinePos == std::string::npos ? source.size() - 1 : nextLinePos));
 		}
 
 		return shaderSource;
 	}
 
-	void OpenGLShader::Compile(std::unordered_map<GLenum, std::string>& shaderSources)
+	void OpenGLShader::Compile(std::unordered_map<GLenum, std::string>& shadersSources)
 	{
 		RY_PROFILE_FUNCTION();
 		GLint program = glCreateProgram();
-		RY_CORE_ASSERT(shaderSources.size() <= 4, "only 4 Shaders for now!");
+		RY_CORE_ASSERT(shadersSources.size() <= 4, "only 4 Shaders for now!");
 		std::array<GLenum, 4> glShaderIDs;
 		
 		int glShaderIndex = 0;
-		for (auto& kv : shaderSources)
+		for (auto& shaderSrc : shadersSources)
 		{
-			GLenum type = kv.first;
-			const std::string& source = kv.second;
-
-			GLint shader = glCreateShader(type);
-
+			GLenum type = shaderSrc.first;
+			const std::string& source = shaderSrc.second;
 			const GLchar* sourceCstr = source.c_str();
-			glShaderSource(shader, 1, &sourceCstr, 0);
-
-			glCompileShader(shader);
-
-			GLint isCompiled = 0;
-			glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
-			if (isCompiled == GL_FALSE)
-			{
-				GLint maxLength = 0;
-				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
-
-				std::vector<GLchar> infoLog(maxLength);
-				glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLog[0]);
-
-				glDeleteShader(shader);
-				RY_CORE_ERROR("{0}", infoLog.data());
-				RY_CORE_ASSERT(false, "Shader Compilation failure!");
-				break;
-			}
+			GLint shader = Utils::CreateShader(sourceCstr, type);
 			glAttachShader(program, shader);
 			glShaderIDs[glShaderIndex++]=shader;
 		}
@@ -241,30 +299,17 @@ namespace Rynex {
 		m_RendererID = program;
 		glLinkProgram(program);
 
-		GLint isLinked = 0;
-		glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);
-		if (isLinked == GL_FALSE)
-		{
-			GLint maxLength = 0;
-			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
-
-			std::vector<GLchar> infoLog(maxLength);
-			glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
-
-
-
-			glDeleteProgram(program);
-			for (auto& id : glShaderIDs)
-				glDeleteShader(id);
-
-			RY_CORE_ERROR("{0}", infoLog.data());
-			RY_CORE_ASSERT(false, "Linked Program Compilation failure!");
-			return;
-		}
+		
+		Utils::CheckProgrammLinking(program, glShaderIDs);
 
 		for (auto& id : glShaderIDs)
 			glDetachShader(program, id);
 
+		if (shadersSources.find(GL_TESS_CONTROL_SHADER) != shadersSources.end() &&
+			shadersSources.find(GL_TESS_EVALUATION_SHADER) != shadersSources.end())
+		{
+			glPatchParameteri(GL_PATCH_VERTICES, 4);
+		}
 	}
 
 

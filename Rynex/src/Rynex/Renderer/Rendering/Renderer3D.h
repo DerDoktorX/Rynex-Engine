@@ -27,6 +27,7 @@ namespace Rynex {
 		static void DrawLine(const Ref<VertexArray>& vertexArray);
 		static void DrawLineLoop(const Ref<VertexArray>& vertexArray);
 		static void DrawPoints(const Ref<VertexArray>& vertexArray);
+		static void DrawPatches(const Ref<VertexArray>& vertexArray);
 
 		static void DrawError();
 

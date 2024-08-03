@@ -21,6 +21,7 @@
 		app->Run();
 		RY_PROFILE_END_SESSION();
 
+
 		RY_PROFILE_BEGIN_SESSION("Shutdown", "Profile/RynexPrifile-Shutdown.json");
 		delete app;
 		RY_PROFILE_END_SESSION();

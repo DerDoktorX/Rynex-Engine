@@ -23,6 +23,7 @@
 		#define RY_MESH 0
 		#define RY_SCRIPT_PATH 1
 		#define RY_PATH_IN_LINE 1
+		#define RY_NEW_ASSET_REGISTER_SYSTEM 0
 	#endif
 #endif
 

@@ -73,6 +73,8 @@
 
 // Bit Operation
 #define BIT(x) (1 << x)
+#define BIT_AND(x, y) (x & y)
+#define BIT_OR(x, y) (x | y)
 
 // For Events
 #define RY_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
@@ -100,4 +102,5 @@ namespace Rynex {
 	{
 		return std::make_shared<T>(std::forward<Args>(args)...);
 	}
+
 }

@@ -23,7 +23,11 @@ static AlicationMetrics s_AlicationMetrics;
 void* operator new(size_t size)
 {
 	s_AlicationMetrics.TotalAliction += size;
-	//printf("Alicating: %i size\n", (int)size);
+	//printf("Alicating: 
+	// 
+	// 
+	// 
+	// size\n", (int)size);
 	return malloc(size);
 }
 
@@ -71,7 +75,8 @@ namespace Rynex {
 
 	Application::~Application()
 	{
-		
+		for (Layer* layer : m_LayerStack)
+			layer->OnDetach();
 	}
 
 	void Application::OnEvent(Event& e)
@@ -132,8 +137,6 @@ namespace Rynex {
 			{
 				for (Layer* layer : m_LayerStack)
 					layer->OnUpdate(timestep);
-				
-				
 			}
 
 			m_ImGuiLayer->Begin();

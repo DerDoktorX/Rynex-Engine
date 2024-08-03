@@ -44,14 +44,18 @@ uniform sampler2D u_Textures[32];
 
 void main()
 {
-	#if 0
-		color = vec4(1.,0.0,1., 1.0);
-		color = v_Color;
-	#endif
+	
 
-	colorTexCoord = vec4(v_TexCoord, 0.0, 1.0);
+	
 
+	colorTexCoord = vec4(v_TexCoord.xy, 0.0, 1.0);
 	color = texture(u_Textures[int(v_TexIndex)], colorTexCoord.xy ) * v_Color;
+	// TODO: Why Shader reload broke Textures
+	#if 0		
+		vec3 ligthColor = vec3(1.0);
+		vec3 ligthDirction = normalize(vec3(1.0, 2.0, 3.0));
+		color += vec4( -1.5, 0.0, 1.0, 1.0);
+	#endif
 
 	EntityID = int(v_EntityID);
 }

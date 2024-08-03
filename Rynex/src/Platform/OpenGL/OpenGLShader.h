@@ -13,6 +13,9 @@ namespace Rynex {
 	{
 	public:
 		//OpenGLShader(const std::string& filePath);
+#if 1
+		OpenGLShader() = default;
+#endif // TODO: after test dealating!
 		OpenGLShader(const std::string& source, const std::string& name);
 		OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
 		virtual ~OpenGLShader();
@@ -62,6 +65,9 @@ namespace Rynex {
 		uint32_t m_RendererID;
 		std::string m_Name;
 		BufferLayout m_Layouts;
+#if 1
+		// friend class TestOpenGL;
+#endif // TODO: Dealting after testing
 	};
 }
 

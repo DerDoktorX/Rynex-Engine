@@ -16,34 +16,45 @@ namespace Rynex {
 
     bool RuntimeAssetManager::IsAssetHandleValid(AssetHandle handle) const
     {
-        return handle != 0 && m_AssetRegistry.find(handle) != m_AssetRegistry.end();
+        return handle != 0 && m_AssetRegistry.IsAssetInRegistry(handle);
+    }
 
+    bool RuntimeAssetManager::IsAssetHandleValid(const std::filesystem::path& filepath) const
+    {
+        RY_CORE_ERROR("This Funktion 'RuntimeAssetManager::IsAssetHandleValid' Don't need to Exist in Runtime!");
+        return false;
     }
 
     Ref<Asset> RuntimeAssetManager::GetAsset(AssetHandle handle)
     {
         RY_PROFILE_FUNCTION();
-        // RY_CORE_ASSERT(false, "EditorAssetManager::GetAsset");
-        if (!IsAssetHandleValid(handle))
-            return nullptr;
-        Ref<Asset> asset;
-        if (IsAssetLoaded(handle))
+        if (m_AssetRegistry.IsAssetInRegistry(handle))
         {
-            asset = m_LoadedAssets.at(handle);
+            Ref<Asset> asset = Ref<Asset>();
+            if (m_LoadedAssets.find(handle) != m_LoadedAssets.end())
+            {
+                asset = m_LoadedAssets.at(handle);
+            }
+            else
+            {
+                AssetMetadata& metadata = m_AssetRegistry.GetMetadata(handle);
+                metadata.State = AssetState::Loading;
+                asset = AssetImporter::ImportAsset(handle, metadata);
+                metadata.State = AssetState::Ready;
+                asset->Handle = handle;
+                if (!asset) {}
+                m_LoadedAssets[handle] = asset;
+            }
+            return asset;
         }
-        else
-        {
-            const AssetMetadata& metadata = GetMetadata(handle);
-            m_AssetRegistry[handle].State = AssetState::Loading;
-            asset = AssetImporter::ImportAsset(handle, metadata);
-            asset->Handle = handle;
-            m_AssetRegistry[handle].State = AssetState::Ready;
-            if (!asset) {}
-            m_LoadedAssets[handle] = asset;
+        RY_CORE_ASSERT(false, "Error on: 'EditorAssetManager::GetAsset' No Asset handle found!");
+        return Ref<Asset>();
+    }
 
-
-        }
-        return asset;
+    Ref<Asset> RuntimeAssetManager::GetAsset(const std::filesystem::path& filepath)
+    {
+        RY_CORE_ERROR("This Funktion 'RuntimeAssetManager::GetAsset' Don't need to Exist in Runtime!");
+        return GetAsset(m_AssetRegistry.GetAssetHandle(filepath));
     }
 
 
@@ -52,17 +63,22 @@ namespace Rynex {
         return m_LoadedAssets.find(handle) != m_LoadedAssets.end();
     }
 
-    Ref<Asset> RuntimeAssetManager::GetAssetFromPath(const std::filesystem::path& path)
+    bool RuntimeAssetManager::IsAssetLoaded(const std::filesystem::path& filepath) const
     {
-        return nullptr;
+        RY_CORE_ERROR("This Funktion 'RuntimeAssetManager::IsAssetLoaded' Don't need to Exist in Runtime!");
+        return IsAssetLoaded(m_AssetRegistry.IsAssetInRegistry(filepath));
     }
+
+   
 
     void RuntimeAssetManager::ImportAsset(const std::filesystem::path& filepath)
     {
+        RY_CORE_ERROR("This Funktion 'RuntimeAssetManager::ImportAsset' Don't need to Exist in Runtime!");
     }
 
-    const AssetMetadata& RuntimeAssetManager::GetMetadata(AssetHandle handle) const
+    const AssetMetadata& RuntimeAssetManager::GetMetadata(AssetHandle handle)
     {
+#if 0
         RY_PROFILE_FUNCTION();
         static AssetMetadata s_NullMetadata;
         auto it = m_AssetRegistry.find(handle);
@@ -70,6 +86,8 @@ namespace Rynex {
             return s_NullMetadata;
 
         return it->second;
+#endif
+        return m_AssetRegistry.GetMetadata(handle);
     }
 
 }

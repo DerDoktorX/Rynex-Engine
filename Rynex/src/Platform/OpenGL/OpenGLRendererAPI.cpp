@@ -90,6 +90,23 @@ namespace Rynex {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
+	void OpenGLRendererAPI::DrawPatches(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
+	{
+		RY_PROFILE_FUNCTION();
+		vertexArray->Bind();
+		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffers()->GetCount();
+		glDrawElements(GL_PATCHES, count, GL_UNSIGNED_INT, nullptr);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	void OpenGLRendererAPI::AktivePolyGunMode(bool active)
+	{
+		if(active)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		else
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+
 	void OpenGLRendererAPI::ComputePipline()
 	{
 		RY_PROFILE_FUNCTION();

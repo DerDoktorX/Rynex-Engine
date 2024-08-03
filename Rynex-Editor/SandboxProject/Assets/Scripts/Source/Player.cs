@@ -253,17 +253,40 @@ namespace Sandbox
             };
            
             m_Geometry = GetComponent<GeometryComponent>();
-            m_Geometry.SetPrimitv(GeometryComponent.Primitv.Line);
+            m_Geometry.SetPrimitv(GeometryComponent.Primitv.Patches);
             m_Geometry.SetVertex(vertices);
             m_Geometry.SetIndex(indicies);
             Console.WriteLine(indicies.Length);
         }
 
+        void Plane3D()
+        {
+            Geometry[] vertices = new Geometry[sides * 1];
+            uint index = 0;
+
+            vertices[index++] = new Geometry(new Vector3( 0.5f, 0.0f,  0.5f), new Vector2(1.0f, 1.0f), Vector3.Up);
+            vertices[index++] = new Geometry(new Vector3(-0.5f, 0.0f,  0.5f), new Vector2(1.0f, 0.0f), Vector3.Up);
+            vertices[index++] = new Geometry(new Vector3( 0.5f, 0.0f, -0.5f), new Vector2(0.0f, 1.0f), Vector3.Up);
+            vertices[index++] = new Geometry(new Vector3(-0.5f, 0.0f, -0.5f), new Vector2(0.0f, 0.0f), Vector3.Up);
+            uint[] indicies = new uint[] {
+                 //0, 1, 2,       1, 2, 3,      // Up
+                 3, 2, 0, 1,
+            };
+
+            m_Geometry = GetComponent<GeometryComponent>();
+            m_Geometry.SetPrimitv(GeometryComponent.Primitv.Patches);
+            m_Geometry.SetVertex(vertices);
+            m_Geometry.SetIndex(indicies);
+            Console.WriteLine(indicies.Length);
+        }
+        
+
         void OnDraw()
         {
             Console.WriteLine("Player.OnDraw");
-            Cube3D();
-             // Sphere3D();
+            // Cube3D();
+            // Sphere3D();
+            Plane3D();
             Console.WriteLine("C# ->  GetComponent Finsihed");
         }
 

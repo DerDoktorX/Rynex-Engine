@@ -12,13 +12,13 @@ Rynex/vendor/glm/
 Rynex/vendor/GLFW/
 Rynex/vendor/imgui/
 Rynex/vendor/ImGuizmo/
-
+Profile/
 
 # Files
 *.bat
 *.rdc
 *.cap
-
+*.json
 # from Hazel
 
 # Binaries
@@ -26,8 +26,10 @@ Rynex/vendor/ImGuizmo/
 Intermediates/
 Resources/Binaries/
 
+
 # Hazel files
 *.log
+
 
 # Visual Studio files and folder
 *.sln

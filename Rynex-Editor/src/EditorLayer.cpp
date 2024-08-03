@@ -84,60 +84,69 @@ namespace Rynex {
 
 #if 1
 
-        m_AktiveScene->CreateEntityWitheUUID(UUID(8976786), "3D_RendererTestEntity");
-        auto& entiy = m_AktiveScene->GetEntitiyByUUID(8976786);
-
-        if(!entiy.HasComponent<TagComponent>())
-            entiy.AddComponent<TagComponent>("3D_RendererTestEntity");
-
-        if (!entiy.HasComponent<TransformComponent>())
-            entiy.AddComponent<TransformComponent>();
-
-        if (!entiy.HasComponent<GeomtryComponent>()) 
         {
-            entiy.AddComponent<GeomtryComponent>();
-            auto& geometry = entiy.GetComponent<GeomtryComponent>();
+            m_AktiveScene->CreateEntityWitheUUID(UUID(8976786), "3D_RendererTestEntity");
+            auto& entiy = m_AktiveScene->GetEntitiyByUUID(8976786);
 
-            geometry.Geometry = VertexArray::Create();
-            geometry.Buffer = VertexBuffer::Create( 160 * (4 * 3 + 4 * 2 + 4 * 3) ); // Cube: 20 * (4 * 3 + 4* 2 + 4 * 3 )
-            geometry.Geometry->SetPrimitv(VertexArray::Primitv::Traingle);
-            Geomtrys::SetCubeVertex(geometry.Geometry, geometry.Buffer);
-            Geomtrys::SetCubeIndex(geometry.Geometry);
-            
-            
-            
-        }
+            if (!entiy.HasComponent<TagComponent>())
+                entiy.AddComponent<TagComponent>("3D_RendererTestEntity");
 
-        if (!entiy.HasComponent<MaterialComponent>())
-        {
-            entiy.AddComponent<MaterialComponent>();
-            auto& material = entiy.GetComponent<MaterialComponent>();
+            if (!entiy.HasComponent<TransformComponent>())
+                entiy.AddComponent<TransformComponent>();
+
+            if (!entiy.HasComponent<GeomtryComponent>())
+            {
+                entiy.AddComponent<GeomtryComponent>();
+                auto& geometry = entiy.GetComponent<GeomtryComponent>();
+
+                geometry.Geometry = VertexArray::Create();
+                geometry.Buffer = VertexBuffer::Create(160 * (4 * 3 + 4 * 2 + 4 * 3)); // Cube: 20 * (4 * 3 + 4* 2 + 4 * 3 )
+                geometry.Geometry->SetPrimitv(VertexArray::Primitv::Traingle);
+                Geomtrys::SetCubeVertex(geometry.Geometry, geometry.Buffer);
+                Geomtrys::SetCubeIndex(geometry.Geometry);
+
+
+
+            }
+
+            if (!entiy.HasComponent<MaterialComponent>())
+            {
+                entiy.AddComponent<MaterialComponent>();
+                auto& material = entiy.GetComponent<MaterialComponent>();
 #if RY_PATH_IN_LINE
-            material.Shader = AssetManager::GetAsset<Shader>(m_AssetManger->AddFileToRegistry("Assets/shaders/3DTest.glsl"));
-            //material.Shader = AssetManager::GetAsset<Shader>(m_AssetManger->AddFileToRegistry("Assets/shaders/3DTestTess.glsl"));
+                //material.Shader = AssetManager::GetAsset<Shader>("Assets/shaders/3DTestTess.glsl");
+                material.Shader = AssetManager::GetAsset<Shader>("Assets/shaders/3DTestTess2.glsl");
+                RenderCommand::AktivePolyGunMode(true);
 #endif
-        }
+            }
 
-        if (!entiy.HasComponent<ScriptComponent>())
-        {
-            entiy.AddComponent<ScriptComponent>();
-            auto& script = entiy.GetComponent<ScriptComponent>();
-            script.Name = "Sandbox.Player";
+            if (!entiy.HasComponent<ScriptComponent>())
+            {
+                entiy.AddComponent<ScriptComponent>();
+                auto& script = entiy.GetComponent<ScriptComponent>();
+                script.Name = "Sandbox.Player";
+            }
         }
+       
+#endif
         
 
-#endif
+
     }
 
     void EditorLayer::OnDetach()
     {
+        RY_CORE_WARN("OnDetach Aktiv!");
         RY_PROFILE_FUNCTION();
         ScriptingEngine::Shutdown();
+        Project::ShutDown();
+        RY_CORE_WARN("OnDetach Done!");
     }
 
     void EditorLayer::OnUpdate(TimeStep ts)
     {   
         RY_PROFILE_FUNCTION();
+#if 0
         m_AktiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
         if (FramebufferSpecification spec = m_Framebuffer->GetFramebufferSpecification(); m_ViewPortSize.x > 0.0f && m_ViewPortSize.y > 0.0f && (spec.Width != m_ViewPortSize.x || spec.Height != m_ViewPortSize.y))
         {
@@ -145,6 +154,7 @@ namespace Rynex {
             m_CameraController.OnResize(m_ViewPortSize.x, m_ViewPortSize.y);
             m_EditorCamera.SetViewportSize(m_ViewPortSize.y, m_ViewPortSize.x);
         }
+#endif
         m_PasTime += ts;
 
 #if RY_CHECK_FOR_ERRORS
@@ -206,14 +216,13 @@ namespace Rynex {
             if (pixeldata <= -1)
             {
                 m_HoveredEntity = Entity();
-                RY_CORE_WARN("Minus Entity!");
+                // RY_CORE_WARN("Minus Entity!");
             }
             else
                 m_HoveredEntity = pixeldata == -1 || pixeldata == -2 || pixeldata == 4 ? Entity() : Entity((entt::entity)pixeldata, m_AktiveScene.get());
         }
         m_Framebuffer->Unbind();
     }
-
 
     void EditorLayer::OnEvent(Event& e)
     {
@@ -410,7 +419,7 @@ namespace Rynex {
         m_Scene_HPanel.SetContext(m_EditorScene);
 
         m_AktiveScene = m_EditorScene;
-        m_EditorScenePath = Project::GetActive()->GetEditorAssetManger()->GetFilePath(handle);
+        m_EditorScenePath = Project::GetActive()->GetEditorAssetManger()->GetMetadata(handle).FilePath;
 #endif
     }
 
@@ -533,7 +542,9 @@ namespace Rynex {
         m_ViewPortFocused = ImGui::IsWindowFocused();
         m_ViewPortHoverd = ImGui::IsWindowHovered();
         Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewPortFocused && !m_ViewPortHoverd);
-        //m_EditorCamera.SetModeFreeCamerMove(m_ViewPortFocused && m_ViewPortHoverd);
+#if 0
+        m_EditorCamera.SetModeFreeCamerMove(m_ViewPortFocused && m_ViewPortHoverd);
+#endif
         // ViewPort get Size + Resize Image + SetImage in ViewPort
         ImVec2 viewportPannelSize = ImGui::GetContentRegionAvail();
         ImGuiViewPortResize(viewportPannelSize);

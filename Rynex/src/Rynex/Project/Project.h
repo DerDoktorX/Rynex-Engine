@@ -73,13 +73,20 @@ namespace Rynex {
 			return "Resources/Scripts/Rynex-ScriptingCore.dll";
 		}
 
+		static void ShutDown()
+		{
+			RY_CORE_WARN("Projekt ShutDown! Beginn");
+			s_ActiveProject->m_AssetManger->OnDetach();
+			RY_CORE_INFO("Projekt ShutDown! Sucess");
+		}
+
 		ProjectConfig& GetConfig() { return m_Config; }
 
 		static Ref<Project> GetActive() { return s_ActiveProject; }
 
-		std::shared_ptr<AssetManagerBase> GetAssetManger() { return m_AssetManger; }
-		std::shared_ptr<RuntimeAssetManager> GetRuntimeAssetManger() const { return std::static_pointer_cast<RuntimeAssetManager>(m_AssetManger); }
-		std::shared_ptr<EditorAssetManager> GetEditorAssetManger() const { return  std::static_pointer_cast<EditorAssetManager>(m_AssetManger); }
+		Ref<AssetManagerBase> GetAssetManger() { return m_AssetManger; }
+		Ref<RuntimeAssetManager> GetRuntimeAssetManger() const { return std::static_pointer_cast<RuntimeAssetManager>(m_AssetManger); }
+		Ref<EditorAssetManager> GetEditorAssetManger() const { return  std::static_pointer_cast<EditorAssetManager>(m_AssetManger); }
 
 		static Ref<Project> New();
 		static Ref<Project> Load(const std::filesystem::path& path);

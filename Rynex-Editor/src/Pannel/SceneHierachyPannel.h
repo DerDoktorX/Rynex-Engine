@@ -24,6 +24,7 @@ namespace Rynex {
 		void OnImGuiRender();
 		Entity GetSelectedEntity() const { return m_SelectionContext; }
 		void SetSelectedEntity(Entity entity) { m_SelectionContext = entity; }
+		void CreateEntity(const std::string& name, uint32_t entityNumber = 0);
 
 		uint32_t GetEntityCount() const { return m_Context->GetEntityCount(); }
 
@@ -43,7 +44,6 @@ namespace Rynex {
 
 		ImGuiID m_ScriptEditID;
 		bool m_CheckErrors = false;
-		
 	};
 	
 }

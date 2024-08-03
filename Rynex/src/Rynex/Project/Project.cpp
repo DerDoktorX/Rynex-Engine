@@ -23,10 +23,10 @@ namespace Rynex {
         {
             project->m_Config.ProjectPath = path.parent_path();
             s_ActiveProject = project;
-            std::shared_ptr<EditorAssetManager> editorAssetManager = std::make_shared<EditorAssetManager>();
+            Ref<EditorAssetManager> editorAssetManager = CreateRef<EditorAssetManager>();
             s_ActiveProject->m_AssetManger = editorAssetManager; 
             
-            editorAssetManager->DeserialzeAssetRegestriy();
+            editorAssetManager->DeserialzeAssetRegistry();
            
             return s_ActiveProject;
         }
@@ -41,6 +41,7 @@ namespace Rynex {
         if (serializer.Serlize(path))
         {
             s_ActiveProject->m_Config.ProjectPath = path.parent_path();
+            //s_ActiveProject->m_AssetManger->OnDetach();
             return true;
         }
 

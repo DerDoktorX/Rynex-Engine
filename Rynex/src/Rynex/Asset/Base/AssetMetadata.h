@@ -23,8 +23,9 @@ namespace Rynex {
 		AssetState State = AssetState::None;
 		std::string Name = std::string("");				//FilenameDefault
 		std::filesystem::file_time_type LoadingTime;
+		bool Aktive = false;
 
-		operator bool() const { return Type != AssetType::None; }
+		operator bool() const { return Type != AssetType::None && Aktive; }
 
 		AssetMetadata() = default;
 
@@ -43,6 +44,8 @@ namespace Rynex {
 		{
 			State = state;
 		}
+
+		
 	};
 	
 

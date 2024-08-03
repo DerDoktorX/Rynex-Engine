@@ -25,6 +25,10 @@ namespace Rynex {
 
 		virtual void DrawIndexedPoints(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
 
+		virtual void DrawPatches(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
+
+		virtual void AktivePolyGunMode(bool active = true) override;
+
 		virtual void ComputePipline() override;
 
 		virtual void DrawError() override;

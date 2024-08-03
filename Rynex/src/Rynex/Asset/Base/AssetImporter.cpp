@@ -16,6 +16,7 @@ namespace Rynex {
 		{ AssetType::Texture2D, TextureImporter::ImportTexture2D },
 		{ AssetType::Shader, ShaderImporter::ImportShader },
 		{ AssetType::Scene, SceneImporter::ImportScene },
+		{ AssetType::Scene, SceneImporter::ImportScene },
 	};
 
 	using AssetsReloadingFunction = std::function <void(AssetHandle, const std::filesystem::path)>;

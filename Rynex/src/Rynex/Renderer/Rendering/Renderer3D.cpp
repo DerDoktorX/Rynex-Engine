@@ -108,6 +108,11 @@ namespace Rynex {
         RenderCommand::DrawIndexedPoints(vertexArray);
     }
 
+    void Renderer3D::DrawPatches(const Ref<VertexArray>& vertexArray)
+    {
+        RenderCommand::DrawPatches(vertexArray);
+    }
+
     void Renderer3D::DrawError()
     {
         RenderCommand::DrawError();

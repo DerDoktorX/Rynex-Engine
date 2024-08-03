@@ -60,15 +60,15 @@ namespace Rynex {
 		m_FileIconTexture	= TextureImporter::LoadTexture2D("Resources/Icons/ContentBrowser/FileIconTexture.png");
 		m_AssetManger		= m_Project->GetEditorAssetManger();
 #endif
-		m_AssetManger->SerialzeAssetRegestriy();
+		m_AssetManger->SerialzeAsseRegistry();
 
 		SetAssetRegestriy(m_BaseDirectory);		
 
-		m_AssetManger->CreateDirektoryRegestriy(m_BaseDirectory );
-		m_AssetManger->AddDirektoryToDirektory(m_BaseDirectory / "Unknown File Types", m_BaseDirectory);
+		// m_AssetManger->CreateDirektoryRegestriy(m_BaseDirectory );
+		// m_AssetManger->AddDirektoryToDirektory(m_BaseDirectory / "Unknown File Types", m_BaseDirectory);
 		
-		m_AssetManger->CreateDirektoryRegestriy(m_BaseDirectory);
-		m_AssetManger->AddDirektoryToDirektory(m_BaseDirectory / "Loadead (NotAssetFiles)", m_BaseDirectory);
+		// m_AssetManger->CreateDirektoryRegestriy(m_BaseDirectory);
+		// m_AssetManger->AddDirektoryToDirektory(m_BaseDirectory / "Loadead (NotAssetFiles)", m_BaseDirectory);
 
 		InitAssetFileWatcher();
 		
@@ -175,7 +175,7 @@ namespace Rynex {
 		{
 		case AssetState::Error:			return ImVec4(0.85, 0.05, 0.1, 1.0);
 		case AssetState::Updateing:		return ImVec4(0.3, 0.5, 0.7, 1.0);
-		case AssetState::LostConection:	return ImVec4(0.2, 0.5, 0.8, 1.0);
+		case AssetState::LostConection:	return ImVec4(0.95, 0.1, 0.05, 1.0);
 		case AssetState::Ready:			return ImVec4(0.2, 0.8, 0.3, 1.0);
 		case AssetState::NotLoaded:		return ImVec4(0.8, 0.7, 0.1, 1.0);
 		case AssetState::None:			return ImVec4(1.0, 1.0, 0.5, 1.0);
@@ -245,8 +245,7 @@ namespace Rynex {
 			ImGui::PopID();
 		}
 #else
-		//AssetFileDirectory assetFileDirectory = m_AssetDirectorys[m_CurrentDirectory];
-		AssetFileDirectory& assetFileDirectory = m_AssetManger->GetAssetFileDirectory(m_CurrentDirectory);
+		const AssetFileDirectory& assetFileDirectory = m_AssetManger->GetAssetFileDirectory(m_CurrentDirectory);
 		const std::vector<std::filesystem::path>& foldersPath = assetFileDirectory.Folders;
 		for (const std::filesystem::path& folderPath : foldersPath)
 		{
@@ -351,7 +350,7 @@ namespace Rynex {
 	{
 		RY_PROFILE_FUNCTION();
 		ImGui::Begin("Asset Regestriy");
-		const auto& assetRegestriey  = m_Project->GetEditorAssetManger()->GetAssetRegistry();
+		const auto& assetRegestriey  = m_Project->GetEditorAssetManger()->GetHandleRegistry();
 		
 		for (const auto& [handle, metadata] : assetRegestriey)
 		{
@@ -414,13 +413,13 @@ namespace Rynex {
 	void ContentBrowserPannel::SetAssetRegestriy(const std::filesystem::path& curentPath)
 	{
 		RY_PROFILE_FUNCTION();
-		m_AssetManger->CreateDirektoryRegestriy(curentPath);
+		//m_AssetManger->CreateDirektoryRegestriy(curentPath);
 		for (auto& p : std::filesystem::directory_iterator(curentPath))
 		{
 			const auto& path = p.path();
 			if (p.is_directory())
 			{
-				m_AssetManger->AddDirektoryToDirektory(path, curentPath);
+				m_AssetManger->AddDirectoryToParent(path);
 				SetAssetRegestriy(path);
 			}
 			else
@@ -428,12 +427,9 @@ namespace Rynex {
 				// assetDirectory.Files.push_back(m_AssetManger->AddFileToRegistry(path));
 				if(GetAssetTypeFromFilePath(path) != AssetType::None)
 				{
-					m_AssetManger->AddAssetToDirektory(path, curentPath);
+					m_AssetManger->CreateAsset(path);
 				}
-				else
-				{
-					m_AssetManger->AddAssetToDirektory(path, m_BaseDirectory / "Unknown File Types");
-				}
+				
 			}
 		}
 		

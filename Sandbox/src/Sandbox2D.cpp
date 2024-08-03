@@ -5,6 +5,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui/imgui.h>
 
+
+
+
+
 Sandbox2D::Sandbox2D()
 	: Layer("Sanbox2D")
 	, m_CameraController((1280.0f / 720.0f), true)
@@ -14,6 +18,10 @@ Sandbox2D::Sandbox2D()
 
 void Sandbox2D::OnAttach()
 {
+#if TEST_TESS_SHADER_OPENGL
+	m_TestOpenGL = Rynex::CreateRef<Rynex::TestOpenGL>();
+	m_TestOpenGL->OnAttache();
+#else
 	m_ChekbordTex = Rynex::TextureImporter::LoadTexture2D("Assets/textures/Checkerboard.png");
 
 
@@ -34,16 +42,21 @@ void Sandbox2D::OnAttach()
 
     m_Project = Rynex::Project::GetActive();
     m_AssetManger = m_Project->GetRuntimeAssetManger();
-    
-    Rynex::Renderer::Init();
+	Rynex::Renderer::Init();
+#endif   
 }
 
 void Sandbox2D::OnDetach()
 {
+	//m_TestOpenGL->OnDetache();
+	RY_WARN("Sandbox2D::OnDetach!");
 }
 
 void Sandbox2D::OnUpdate(Rynex::TimeStep ts)
 {
+#if TEST_TESS_SHADER_OPENGL
+	m_TestOpenGL->OnUpdate();
+#else
 	//RY_TRACE("Delta time: {0}s ({1})ms\t\t{2} FPS", ts.GetSecounds(), ts.GetMillsecounds(), 1 / ts);
 
 	m_CameraController.OnUpdate(ts);
@@ -80,10 +93,13 @@ void Sandbox2D::OnUpdate(Rynex::TimeStep ts)
 	//Rynex::Renderer::Submit(m_BlueShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 	//std::dynamic_pointer_cast<Rynex::OpenGLShader>(m_BlueShader)->Bind();
 	//std::dynamic_pointer_cast<Rynex::OpenGLShader>(m_BlueShader)->UploadUnformFloat3("u_Color", m_SquareColor);
+#endif
 }
 
 void Sandbox2D::OnImGuiRender()
 {
+#if TEST_TESS_SHADER_OPENGL
+#else
     static bool dokingEnabled = false;
  
     {
@@ -97,7 +113,7 @@ void Sandbox2D::OnImGuiRender()
         ImGui::End();
     }
 
-
+#endif
 }
 
 void Sandbox2D::OnEvent(Rynex::Event& e)

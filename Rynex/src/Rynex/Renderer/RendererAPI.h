@@ -31,6 +31,10 @@ namespace Rynex {
 		virtual void DrawIndexedLine(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 		virtual void DrawIndexedLineLoop(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 
+		virtual void AktivePolyGunMode(bool aktiv) = 0;
+
+		virtual void DrawPatches(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
+
 		virtual void ComputePipline() = 0;
 
 		virtual void DrawError() = 0;

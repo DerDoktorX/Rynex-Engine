@@ -1,76 +1,99 @@
 #pragma once
 
-
 #include "Base/AssetManagerBase.h"
 #include "Base/AssetMetadata.h"
 #include "Rynex/Asset/Base/Asset.h"
 
 #include <map>
 
+
+
 namespace Rynex {
 
-    struct AssetFileDirectory
-    {
-#if 0
-        std::map<std::filesystem::path, std::string> Folders;
-        std::map<std::filesystem::path, AssetHandle> Files;
-#else
-        std::vector<std::filesystem::path> Folders;
-        std::vector<AssetHandle> Files;
-#endif
-        std::string FolderName;
-        std::filesystem::path FolderPath;
-    };
+	struct AssetFileDirectory
+	{
+		std::vector<std::filesystem::path> Folders;
+		std::vector<AssetHandle> Files;
+		std::string FolderName;
+		std::filesystem::path FolderPath;
+	};
+
+	using HandleRegistry = std::map<AssetHandle, AssetMetadata>;
+	using PathRegistry = std::map<std::filesystem::path, AssetHandle>;
+	using DirectoryRegistry = std::map<std::filesystem::path, AssetFileDirectory>;
 
 
-    using AssetRegistry = std::map<AssetHandle, AssetMetadata>;
-    using PathRegistry = std::map<std::filesystem::path, AssetHandle>;
-    using AssetDirectory = std::map<std::filesystem::path, AssetFileDirectory>;
+	class AssetRegistry
+	{
+	public:
+		bool IsAssetInRegistry(AssetHandle handle) const;
+		bool IsAssetInRegistry(const std::filesystem::path& path) const;
+		bool IsDirectoryInRegistry(const std::filesystem::path& parentPath) const;
 
-    
-    class EditorAssetManager : public AssetManagerBase
-    {
-    public:
-        EditorAssetManager();
+		void CreateAsset(const std::filesystem::path& path, AssetHandle handle = AssetHandle(), AssetMetadata metadata = AssetMetadata(), bool findDirectOnDisc = true);
 
-        virtual bool IsAssetHandleValid(AssetHandle handle) const override;
-        virtual Ref<Asset> GetAsset(AssetHandle handle) override;
-        virtual Ref<Asset> EditorAssetManager::GetAssetFromPath(const std::filesystem::path& path) override;
+		bool UpdateAssetData(AssetHandle handle, AssetMetadata metadata);
+		bool AddDirectoryToParent(const std::filesystem::path& parentPath);
 
-        virtual bool IsAssetLoaded(AssetHandle handle) const override;
+		AssetHandle GetAssetHandle(const std::filesystem::path& path);
 
-        void ImportAsset(const std::filesystem::path& filepath);
+		// const AssetMetadata& GetMetadata(AssetHandle handle);
+		// const AssetMetadata& GetMetadata(const std::filesystem::path& path);
 
-        const AssetMetadata& GetMetadata(AssetHandle handle) const;
-        void SetMetadataState(AssetHandle handle, AssetState state);
+		AssetMetadata& GetMetadata(AssetHandle handle);
+		AssetMetadata& GetMetadata(const std::filesystem::path& path);
 
-        const std::filesystem::path& GetFilePath(AssetHandle handle) const;
-        const AssetRegistry& GetAssetRegistry() const { return m_AssetRegistry; }
-        const AssetHandle& GetAssetHandle(const std::filesystem::path& path);
-        const AssetHandle& AddFileToRegistry(const std::filesystem::path& filepath);
+		const AssetFileDirectory& GetAssetFileDirectory(const std::filesystem::path& path) { return m_DirectoryRegistry[path.generic_string()]; }
 
-        const void ReLoadeAsset(AssetHandle handle) const;
+		const HandleRegistry& GetHandleRegistry() const { return m_HandleRegistry; }
+		const PathRegistry& GetPathRegistry() const { return m_PathRegistry; }
+		const DirectoryRegistry& GetDirectorysRegistry() const { return m_DirectoryRegistry; }
 
-        const AssetDirectory& GetAssetDirectorys() const { return m_AssetDirectorysRegistry; }
-        AssetFileDirectory& GetAssetFileDirectory(const std::filesystem::path& curentPath) { return m_AssetDirectorysRegistry[curentPath]; }
+	private:
+		HandleRegistry m_HandleRegistry;
+		PathRegistry m_PathRegistry;
+		DirectoryRegistry m_DirectoryRegistry;
+	};
 
-        void CreateDirektoryRegestriy(const std::filesystem::path& curentPath);
-        void AddAssetToDirektory(const std::filesystem::path& path, const std::filesystem::path& curentPath);
-        void AddDirektoryToDirektory(const std::filesystem::path& path, const std::filesystem::path& curentPath);
-        void CreateDirektoryUnknownTypeDirektory(const std::filesystem::path& path, const std::filesystem::path& curentPath);
-        
-        void SerialzeAssetRegestriy();
-        bool DeserialzeAssetRegestriy();
+	class EditorAssetManager : public AssetManagerBase
+	{
+	public:
+		EditorAssetManager();
+		
+		virtual void OnAttach();
+		virtual void OnDetach();
 
-    private: 
-        AssetMap m_LoadedAssets;
+		virtual Ref<Asset> GetAsset(AssetHandle handle) override;
+		virtual Ref<Asset> GetAsset(const std::filesystem::path& path) override;
 
-        AssetRegistry m_AssetRegistry;
+		virtual bool IsAssetHandleValid(AssetHandle handle) const override;
+		virtual bool IsAssetHandleValid(const std::filesystem::path& path) const;
 
-        PathRegistry m_PathRegistry;
+		virtual bool IsAssetLoaded(AssetHandle handle) const override;
+		virtual bool IsAssetLoaded(const std::filesystem::path& path) const;
+		
+		void CreateAsset(const std::filesystem::path& path, AssetHandle handle = AssetHandle(), AssetMetadata metadata = AssetMetadata(), bool findDirectOnDisc = true) { m_AssetRegistry.CreateAsset(path, handle, metadata, findDirectOnDisc); }
+		bool AddDirectoryToParent(const std::filesystem::path& parentPath) { return m_AssetRegistry.AddDirectoryToParent(parentPath); }
 
-        AssetDirectory m_AssetDirectorysRegistry;
-    };
+		//
+		AssetMetadata& GetMetadata(AssetHandle handle) { return m_AssetRegistry.GetMetadata(handle); }
+		AssetMetadata& GetMetadata(const std::filesystem::path& path) { return m_AssetRegistry.GetMetadata(path); }
+
+		AssetHandle GetAssetHandle(const std::filesystem::path& path) { return m_AssetRegistry.GetAssetHandle(path); }
+
+		const AssetFileDirectory& GetAssetFileDirectory(const std::filesystem::path& path) { return m_AssetRegistry.GetAssetFileDirectory(path); }
+
+		const HandleRegistry& GetHandleRegistry() const { return m_AssetRegistry.GetHandleRegistry(); }
+		const PathRegistry& GetPathRegistry() const { return  m_AssetRegistry.GetPathRegistry(); }
+		const DirectoryRegistry& GetDirectorysRegistry() const { return  m_AssetRegistry.GetDirectorysRegistry(); }
+		//
+
+		void SerialzeAsseRegistry();
+		bool DeserialzeAssetRegistry();
+	private:
+		AssetMap m_LoadedAssets;
+		AssetRegistry m_AssetRegistry;
+	};
 
 }
 

@@ -41,9 +41,13 @@ namespace Rynex {
 
 		Entity GetEntitiyByUUID(UUID uuid);
 
+		bool IsTagInScene(const std::string& tag);
+
 		void GetMainCameraMainTransform(Camera* mainCamera, glm::mat4* mainTransform);
 		Entity GetPrimaryCameraEntity();
 		uint32_t GetEntityCount() const { return (uint32_t)m_Registery.size(); }
+
+
 
 		//void SetPaused(bool paused) { m_IsPaused = paused; }
 
@@ -67,7 +71,8 @@ namespace Rynex {
 
 		//b2World* m_PhysicsWorld = nullptr;
 
-		std::unordered_map<UUID, entt::entity> m_EntityMap;
+		std::unordered_map<UUID, entt::entity> m_EntityMapID;
+		std::map<std::string, entt::entity> m_EntityMapTag;
 
 		friend class Entity;
 		friend class SceneSerializer;

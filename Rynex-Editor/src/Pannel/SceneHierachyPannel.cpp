@@ -27,7 +27,7 @@ namespace Rynex {
 	void SceneHierachyPannel::DrawEntityNode(Entity entity)
 	{
 		auto& tag = entity.GetComponent<TagComponent>().Tag;
-
+		auto& id = entity.GetComponent<IDComponent>().ID;
 		
 		ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
 		flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
@@ -36,7 +36,9 @@ namespace Rynex {
 		if(entity.GetState() == Entity::State::Error)
 			ImGui::PushStyleColor(ImGuiCol_Header & ImGuiCol_TitleBg & ImGuiCol_TextDisabled & ImGuiCol_MenuBarBg, ImVec4(0.9f, 0.2f, 0.3f, 1.0f));
 #endif
-		bool opende = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.c_str());
+
+		bool opende = ImGui::TreeNodeEx(&id, flags, tag.c_str());
+
 #if RY_HRACHIE_STATE
 		if (entity.GetState() == Entity::State::Error)
 			ImGui::PopStyleColor();
@@ -48,6 +50,7 @@ namespace Rynex {
 		}
 
 #endif
+
 		if (ImGui::IsItemClicked())
 		{
 			m_SelectionContext = entity;
@@ -56,6 +59,7 @@ namespace Rynex {
 		bool entiytDeleted = false;
 		if (ImGui::BeginPopupContextItem(tag.c_str()))
 		{
+			
 			if (ImGui::MenuItem("Delete Entity"))
 				entiytDeleted = true;
 
@@ -65,22 +69,27 @@ namespace Rynex {
 
 		if (opende)
 		{
+
 #if RY_HRACHIE_STATE
 			if (entity.GetState() == Entity::State::Error)
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.2f, 0.3f, 1.0f));
 #endif
+
 			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
-			opende = ImGui::TreeNodeEx((void*)9817239, flags, tag.c_str());
+			opende = ImGui::TreeNodeEx( &id, flags, tag.c_str());
 			if (opende)
+			{
 				ImGui::TreePop();
+			}
 			ImGui::TreePop();
+
 #if RY_HRACHIE_STATE
 			if (entity.GetState() == Entity::State::Error)
 				ImGui::PopStyleColor();
 #endif
+
 		}
 		
-
 		if (entiytDeleted)
 		{
 			m_Context->DestroyEntity(entity);
@@ -583,7 +592,8 @@ namespace Rynex {
 		{
 			if (ImGui::MenuItem("Create Empty Entity"))
 			{
-				m_Context->CreateEntity("Empty Entiy");
+				
+				CreateEntity("Empty Entity");
 			}
 
 			ImGui::EndPopup();
@@ -601,6 +611,23 @@ namespace Rynex {
 #endif // RY_IMGUI_DEMO_WINDOW
 
 		ImGui::End();
+	}
+
+	void SceneHierachyPannel::CreateEntity(const std::string& name, uint32_t entityNumber)
+	{
+		// TODO: Whrite a System how Make a counter up
+		if (!m_Context->IsTagInScene(name))
+		{
+			if(entityNumber)
+				m_Context->CreateEntity(name + std::to_string(entityNumber));
+			else
+				m_Context->CreateEntity("Empty Entiy");
+		}
+		else
+		{
+			CreateEntity(name + std::to_string(entityNumber), entityNumber++);
+			
+		}
 	}
 
 	void SceneHierachyPannel::DrawProperties()

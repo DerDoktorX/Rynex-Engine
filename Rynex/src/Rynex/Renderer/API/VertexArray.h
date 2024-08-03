@@ -16,6 +16,7 @@ namespace Rynex {
 			Traingle, TraingleStrips, TraingleFan,
 			Line, LineLoop, LineStrips,
 			Points,
+			Patches,
 		};
 	public:
 		virtual ~VertexArray() {}

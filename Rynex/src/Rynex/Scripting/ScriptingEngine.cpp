@@ -166,7 +166,8 @@ namespace Rynex {
 		LoadAppAssambly(Project::GetActiveAssetScriptingDirektory());
 #endif
 		LoadAssemblyClasses();
-		ScriptGlue::RegisterAllComponets();
+		
+		// ScriptGlue::RegisterAllComponets();
 
 		//ExecuteScriptClass();
 		s_Data->EntityClass = ScriptClass("Rynex", "Entity", true);
@@ -193,9 +194,11 @@ namespace Rynex {
 
 	void ScriptingEngine::Shutdown()
 	{
+		RY_CORE_WARN("ScriptingEngine::Shutdown! Aktiv");
 		RY_PROFILE_FUNCTION();
 		ShutdownMono();
 		delete s_Data;
+		RY_CORE_INFO("ScriptingEngine::Shutdown! Sucess");
 	}
 
 	void ScriptingEngine::LoadAssambly(const std::filesystem::path& filepath)

@@ -66,6 +66,11 @@ namespace Rynex {
 				Renderer3D::DrawPoints(vertexArray);
 				return;
 			}
+			case VertexArray::Primitv::Patches:
+			{
+				Renderer3D::DrawPatches(vertexArray);
+				return;
+			}
 			default:
 				RY_CORE_ASSERT(false, "Primitv type is Unknown!");
 				break;
@@ -164,7 +169,8 @@ namespace Rynex {
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
 
-		m_EntityMap[uuid] = entity;
+		m_EntityMapID[uuid] = entity;
+		m_EntityMapTag[name] = entity;
 
 		return entity;
 	}
@@ -193,7 +199,8 @@ namespace Rynex {
 	void Scene::DestroyEntity(Entity entity)
 	{
 		RY_PROFILE_FUNCTION();
-		m_EntityMap.erase(entity.GetUUID());
+		m_EntityMapID.erase(entity.GetUUID());
+		m_EntityMapTag.erase(entity.GetComponent<TagComponent>().Tag);
 		m_Registery.destroy(entity);
 	}
 
@@ -498,10 +505,15 @@ namespace Rynex {
 	Entity Scene::GetEntitiyByUUID(UUID uuid)
 	{
 		RY_PROFILE_FUNCTION();
-		if(m_EntityMap.find(uuid) != m_EntityMap.end()) 
-			return { m_EntityMap.at(uuid), this};
+		if(m_EntityMapID.find(uuid) != m_EntityMapID.end()) 
+			return { m_EntityMapID.at(uuid), this};
 
 		return {};
+	}
+
+	bool Scene::IsTagInScene(const std::string& tag)
+	{
+		return (m_EntityMapTag.find(tag) != m_EntityMapTag.end());
 	}
 
 	void Scene::GetMainCameraMainTransform( Camera *mainCamera, glm::mat4* mainTransform)

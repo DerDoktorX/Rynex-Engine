@@ -56,15 +56,18 @@ namespace Rynex{
 		virtual void OnImGuiRender() override;
 
 		//--- Layoute ----------------
+
+		// ViewPort 
 		void ImGuiViewPort();
 		void ImGuiSecundaryViewPort(const Ref<Framebuffer>& framebuffer, uint32_t id = 0, float width = 12.8f, float height = 7.2f);
-		void ImGuiSettings();
-		void ImGuiScenePannel();
 		void ImGuiContentBrowserViewPort();
+		void ImGuiViewPortResize( ImVec2 vPSize);
 		void ImGuiSetMausPosInViewPort( ImVec2 vpOffset);
 		void ImGizmoInViewPort();
-		void ImGuiViewPortResize( ImVec2 vPSize);
 
+		void ImGuiSettings();
+		void ImGuiScenePannel();
+		
 
 		//--- Top Taskbar -------------
 		void ImGuiTopTaskBar();

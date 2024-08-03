@@ -41,14 +41,14 @@ namespace Rynex {
 			s_RendererAPI->DrawBatcheingIndexedMesh(vertexArray, indexcount);
 		};
 
-		inline static void DrawStripsMesh(const Ref<VertexArray>& vertexArray)
+		inline static void DrawStripsMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
 		{
-			s_RendererAPI->DrawStripsMesh(vertexArray);
+			s_RendererAPI->DrawStripsMesh(vertexArray, indexCount);
 		};
 
-		inline static void DrawIndexedLine(const Ref<VertexArray>& vertexArray)
+		inline static void DrawIndexedLine(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
 		{
-			s_RendererAPI->DrawIndexedLine(vertexArray);
+			s_RendererAPI->DrawIndexedLine(vertexArray, indexCount);
 		};
 
 
@@ -57,16 +57,25 @@ namespace Rynex {
 			s_RendererAPI->DrawIndexedLineLoop(vertexArray, indexCount);
 		};
 
-		inline static void DrawIndexedPoints(const Ref<VertexArray>& vertexArray)
+		inline static void DrawIndexedPoints(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
 		{
-			s_RendererAPI->DrawIndexedPoints(vertexArray);
+			s_RendererAPI->DrawIndexedPoints(vertexArray, indexCount);
 		};
+
+		inline static void DrawPatches(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
+		{
+			s_RendererAPI->DrawPatches(vertexArray, indexCount);
+		};
+
+		inline static void AktivePolyGunMode(bool active = true)
+		{
+			s_RendererAPI->AktivePolyGunMode(active);
+		}
 
 		inline static void ComputePipline()
 		{
 			s_RendererAPI->ComputePipline();
 		};
-
 
 		inline static void DrawError()
 		{
