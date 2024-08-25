@@ -13,7 +13,11 @@ namespace Rynex {
 		R8,
 		RGB8,
 		RGBA8,
-		RGBA32F
+		RGBA32F,
+
+		RED_INTEGER,
+		DEPTH24STENCIL8,
+		Depth = DEPTH24STENCIL8,
 	};
 
 	struct TextureSpecification
@@ -22,11 +26,13 @@ namespace Rynex {
 		uint32_t Height = 1;
 		ImageFormat Format = ImageFormat::RGBA8;
 		bool GenerateMips = true;
+		uint32_t Samples = 1;
 	};
 
 	class Texture : public Asset
 	{
 	public:
+		static Ref<Texture> CreateInstance(TextureSpecification spec, uint32_t id);
 		virtual ~Texture() = default;
 
 		virtual const TextureSpecification& GetSpecification() const = 0;
@@ -45,9 +51,10 @@ namespace Rynex {
 
 		virtual bool operator==(const Texture& other)const = 0;
 
+		static void BindTex(uint32_t renderID, uint32_t slot = 0);
+
 		static AssetType GetStaticType() { return AssetType::Texture; }
 		AssetType GetType() const { return GetStaticType(); }
-		//virtual AssetHandle GetHandle() const { return m_Handle; };
 	};
 
 	class Texture2D : public Texture
@@ -59,7 +66,6 @@ namespace Rynex {
 
 		static AssetType GetStaticType() { return AssetType::Texture2D; }
 		AssetType GetType() const { return GetStaticType(); }
-		//virtual AssetHandle GetHandle() const { return m_Handle; };
 	};
 
 	

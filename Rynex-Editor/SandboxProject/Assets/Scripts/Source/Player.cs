@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using Microsoft.Win32.SafeHandles;
 using Rynex;
 
 namespace Sandbox
@@ -205,25 +206,32 @@ namespace Sandbox
         void Cube3D()
         {
             Geometry[] vertices = new Geometry[sides * 4];
-            uint index = 0;
-
+            uint index = 0; 
+            uint size = 4; 
+            uint grid = size + 1;            
+            
+            uint size1 = 2;
+            uint grid1 = size1 + 1;
+#if true
             // up
-            vertices[index++] = new Geometry(new Vector3(  0.5f,  0.5f,  0.5f), Vector2.Zero, Vector3.Up);
-            vertices[index++] = new Geometry(new Vector3( -0.5f,  0.5f,  0.5f), Vector2.Zero, Vector3.Up);
             vertices[index++] = new Geometry(new Vector3(  0.5f,  0.5f, -0.5f), Vector2.Zero, Vector3.Up);
             vertices[index++] = new Geometry(new Vector3( -0.5f,  0.5f, -0.5f), Vector2.Zero, Vector3.Up);
+            vertices[index++] = new Geometry(new Vector3(  0.5f,  0.5f,  0.5f), Vector2.Zero, Vector3.Up);
+            vertices[index++] = new Geometry(new Vector3( -0.5f,  0.5f,  0.5f), Vector2.Zero, Vector3.Up);
             
             // front
-            vertices[index++] = new Geometry(new Vector3(  0.5f, -0.5f,  0.5f), Vector2.Zero, Vector3.Front);
-            vertices[index++] = new Geometry(new Vector3( -0.5f, -0.5f,  0.5f), Vector2.Zero, Vector3.Front);
             vertices[index++] = new Geometry(new Vector3(  0.5f,  0.5f,  0.5f), Vector2.Zero, Vector3.Front);
             vertices[index++] = new Geometry(new Vector3( -0.5f,  0.5f,  0.5f), Vector2.Zero, Vector3.Front);
+            vertices[index++] = new Geometry(new Vector3(  0.5f, -0.5f,  0.5f), Vector2.Zero, Vector3.Front);
+            vertices[index++] = new Geometry(new Vector3( -0.5f, -0.5f,  0.5f), Vector2.Zero, Vector3.Front);
+
 
             // rigth
-            vertices[index++] = new Geometry(new Vector3(  0.5f, -0.5f,  0.5f), Vector2.Zero, Vector3.Rigth);
-            vertices[index++] = new Geometry(new Vector3(  0.5f,  0.5f,  0.5f), Vector2.Zero, Vector3.Rigth);
             vertices[index++] = new Geometry(new Vector3(  0.5f, -0.5f, -0.5f), Vector2.Zero, Vector3.Rigth);
             vertices[index++] = new Geometry(new Vector3(  0.5f,  0.5f, -0.5f), Vector2.Zero, Vector3.Rigth);
+            vertices[index++] = new Geometry(new Vector3(  0.5f, -0.5f,  0.5f), Vector2.Zero, Vector3.Rigth);
+            vertices[index++] = new Geometry(new Vector3(  0.5f,  0.5f,  0.5f), Vector2.Zero, Vector3.Rigth);
+            
 
             // left
             vertices[index++] = new Geometry(new Vector3( -0.5f, -0.5f,  0.5f), Vector2.Zero, Vector3.Left);
@@ -238,39 +246,154 @@ namespace Sandbox
             vertices[index++] = new Geometry(new Vector3( -0.5f, -0.5f, -0.5f), Vector2.Zero, Vector3.Down);
             
             // back
-            vertices[index++] = new Geometry(new Vector3(  0.5f,  0.5f, -0.5f), Vector2.Zero, Vector3.Back);
-            vertices[index++] = new Geometry(new Vector3( -0.5f,  0.5f, -0.5f), Vector2.Zero, Vector3.Back);
             vertices[index++] = new Geometry(new Vector3(  0.5f, -0.5f, -0.5f), Vector2.Zero, Vector3.Back);
             vertices[index++] = new Geometry(new Vector3( -0.5f, -0.5f, -0.5f), Vector2.Zero, Vector3.Back);
-            Console.WriteLine(index);
-            uint[] indicies = new uint[] {
-                 0, 1, 2,       1, 2, 3,      // Up
-                 4, 5, 6,       5, 6, 7,      // Front
-                 8, 9, 10,      9, 10, 11,    // Rigth
-                 12, 13, 14,    13, 14, 15,   // Left
-                 16, 17, 18,    17, 18, 19,   // Down
-                 20, 21, 22,    21, 22, 23,   // Back
-            };
+            vertices[index++] = new Geometry(new Vector3(  0.5f,  0.5f, -0.5f), Vector2.Zero, Vector3.Back);
+            vertices[index++] = new Geometry(new Vector3( -0.5f,  0.5f, -0.5f), Vector2.Zero, Vector3.Back);
+
+#else
+            
            
+            float sideSize = 0.5f;
+
+            float segmentHeight = sideSize / grid;
+            float segmentWidth = sideSize / grid;
+
+            
+
+            float heightHalf = sideSize / 2;
+            float widthHalf = sideSize / 2;
+            float depthHalf = sideSize / 2;
+
+            Vector3 vector, normale;
+            Vector2 uv; 
+            for (uint iy = 0, i = 0; iy < grid; iy++)
+            {
+                float y = iy * segmentHeight - heightHalf;
+                for (uint ix = 0; ix < grid; ix++, i++)
+                {
+                    float x = ix * segmentWidth - widthHalf;
+                    vector = new Vector3( x * -1, y * -1, depthHalf);
+                    normale = Vector3.Up;
+                    uv = new Vector2(ix / size, 1 - (iy / size));
+                    vertices[index++] = new Geometry(vector, uv, normale);
+                }
+            }
+#endif
+#if true
+            uint[] quadMask = new uint[] {
+                  0, 1, 2,         1, 3, 2,
+            };
+              //uint[] indicies = new uint[] {
+              //     0, 1, 2,         1, 3, 2,      // Up
+              //     4, 5, 6,         5, 7, 6,      // Front
+              //     8, 9, 10,      9, 10, 11,    // Rigth
+              //     12, 13, 14,    13, 14, 15,   // Left
+              //     //16, 17, 18,    17, 18, 19,   // Down
+              //     //20, 21, 22,    21, 22, 23,   // Back
+              //};
+            uint quadsNum = 6;
+            uint[] indicies = new uint[quadsNum*6];
+            for (uint ix = 0; ix < quadsNum; ix++)
+            {
+                for (uint iy = 0; iy < 6; iy++)
+                {
+                    indicies[(ix*6) + iy] = quadMask[iy] + (ix * 4);
+                }
+            }
+#else
+            uint[] indicies = new uint[6 * size];
+
+            Console.WriteLine("Befor for index calculater");
+            for (uint iy = 0, i = 0; iy < size; iy++)
+            {
+                for(uint ix = 0; ix < size; ix++, i+=6)
+                {
+                    uint a = ix + grid1 * iy;
+                    uint b = ix + grid1 * (iy + 1);
+                    uint c = (ix + 1) + grid1 * (iy + 1);
+                    uint d = (ix + 1) + grid1 * iy;
+
+                    indicies[i + 0] = a;
+                    indicies[i + 1] = b;
+                    indicies[i + 2] = d;
+
+                    indicies[i + 3] = b;
+                    indicies[i + 4] = c;
+                    indicies[i + 5] = d;
+                    Console.WriteLine(a);
+                    Console.WriteLine(b);
+                    Console.WriteLine(d);
+
+                    Console.WriteLine(b);
+                    Console.WriteLine(c);
+                    Console.WriteLine(d);
+                   // Console.WriteLine(i + 5);
+                }
+            }
+#endif
             m_Geometry = GetComponent<GeometryComponent>();
-            m_Geometry.SetPrimitv(GeometryComponent.Primitv.Patches);
+            m_Geometry.SetPrimitv(GeometryComponent.Primitv.Traingle);
             m_Geometry.SetVertex(vertices);
             m_Geometry.SetIndex(indicies);
             Console.WriteLine(indicies.Length);
         }
+        void CalculatePlane()
+        {
+
+        }
 
         void Plane3D()
         {
-            Geometry[] vertices = new Geometry[sides * 1];
+            Geometry[] vertices = new Geometry[sides * 5];
             uint index = 0;
 
-            vertices[index++] = new Geometry(new Vector3( 0.5f, 0.0f,  0.5f), new Vector2(1.0f, 1.0f), Vector3.Up);
-            vertices[index++] = new Geometry(new Vector3(-0.5f, 0.0f,  0.5f), new Vector2(1.0f, 0.0f), Vector3.Up);
-            vertices[index++] = new Geometry(new Vector3( 0.5f, 0.0f, -0.5f), new Vector2(0.0f, 1.0f), Vector3.Up);
-            vertices[index++] = new Geometry(new Vector3(-0.5f, 0.0f, -0.5f), new Vector2(0.0f, 0.0f), Vector3.Up);
-            uint[] indicies = new uint[] {
-                 //0, 1, 2,       1, 2, 3,      // Up
-                 3, 2, 0, 1,
+            vertices[index++] = new Geometry(new Vector3(0.5f, 0.5f, 0.5f), Vector2.Zero, Vector3.Up);
+            vertices[index++] = new Geometry(new Vector3(-0.5f, 0.5f, 0.5f), Vector2.Zero, Vector3.Up);
+            vertices[index++] = new Geometry(new Vector3(0.5f, 0.5f, -0.5f), Vector2.Zero, Vector3.Up);
+            vertices[index++] = new Geometry(new Vector3(-0.5f, 0.5f, -0.5f), Vector2.Zero, Vector3.Up);
+#if true
+            // front
+            vertices[index++] = new Geometry(new Vector3(0.5f, -0.5f, 0.5f), Vector2.Zero, Vector3.Front);
+            vertices[index++] = new Geometry(new Vector3(-0.5f, -0.5f, 0.5f), Vector2.Zero, Vector3.Front);
+            vertices[index++] = new Geometry(new Vector3(0.5f, 0.5f, 0.5f), Vector2.Zero, Vector3.Front);
+            vertices[index++] = new Geometry(new Vector3(-0.5f, 0.5f, 0.5f), Vector2.Zero, Vector3.Front);
+
+            // rigth
+            vertices[index++] = new Geometry(new Vector3(0.5f, -0.5f, 0.5f), Vector2.Zero, Vector3.Rigth);
+            vertices[index++] = new Geometry(new Vector3(0.5f, 0.5f, 0.5f), Vector2.Zero, Vector3.Rigth);
+            vertices[index++] = new Geometry(new Vector3(0.5f, -0.5f, -0.5f), Vector2.Zero, Vector3.Rigth);
+            vertices[index++] = new Geometry(new Vector3(0.5f, 0.5f, -0.5f), Vector2.Zero, Vector3.Rigth);
+
+            // left
+            vertices[index++] = new Geometry(new Vector3(-0.5f, -0.5f, 0.5f), Vector2.Zero, Vector3.Left);
+            vertices[index++] = new Geometry(new Vector3(-0.5f, 0.5f, 0.5f), Vector2.Zero, Vector3.Left);
+            vertices[index++] = new Geometry(new Vector3(-0.5f, -0.5f, -0.5f), Vector2.Zero, Vector3.Left);
+            vertices[index++] = new Geometry(new Vector3(-0.5f, 0.5f, -0.5f), Vector2.Zero, Vector3.Left);
+
+            // Down
+            vertices[index++] = new Geometry(new Vector3(0.5f, -0.5f, 0.5f), Vector2.Zero, Vector3.Down);
+            vertices[index++] = new Geometry(new Vector3(-0.5f, -0.5f, 0.5f), Vector2.Zero, Vector3.Down);
+            vertices[index++] = new Geometry(new Vector3(0.5f, -0.5f, -0.5f), Vector2.Zero, Vector3.Down);
+            vertices[index++] = new Geometry(new Vector3(-0.5f, -0.5f, -0.5f), Vector2.Zero, Vector3.Down);
+
+            // back
+            vertices[index++] = new Geometry(new Vector3(0.5f, 0.5f, -0.5f), Vector2.Zero, Vector3.Back);
+            vertices[index++] = new Geometry(new Vector3(-0.5f, 0.5f, -0.5f), Vector2.Zero, Vector3.Back);
+            vertices[index++] = new Geometry(new Vector3(0.5f, -0.5f, -0.5f), Vector2.Zero, Vector3.Back);
+            vertices[index++] = new Geometry(new Vector3(-0.5f, -0.5f, -0.5f), Vector2.Zero, Vector3.Back);
+#endif
+            uint[] indicies = new uint[] {                            
+                 //0, 1, 2,       1, 2, 3,      // Up                 
+                 0, 1, 2, 3,
+
+                4, 5, 6, 7,
+#if true
+                 8, 9, 10, 11,
+                 12, 13, 14, 15,
+                 16, 17, 18, 19,
+                 20, 21, 22, 23,
+#endif
             };
 
             m_Geometry = GetComponent<GeometryComponent>();
@@ -284,9 +407,9 @@ namespace Sandbox
         void OnDraw()
         {
             Console.WriteLine("Player.OnDraw");
-            // Cube3D();
+            Cube3D();
             // Sphere3D();
-            Plane3D();
+            // Plane3D();
             Console.WriteLine("C# ->  GetComponent Finsihed");
         }
 

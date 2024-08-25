@@ -35,11 +35,6 @@ namespace Rynex {
 
 		void BegineSession(const std::string& name, const std::string& filePath = "results.json")
 		{
-#if 0
-			m_OutputStream.open(filePath);
-			WriteHeader();
-			m_CurrentSession = new InstrumentationSession{ name };
-#endif
 			std::lock_guard lock(m_Mutex);
 			if (m_CurrentSession)
 			{
@@ -57,6 +52,7 @@ namespace Rynex {
 
 			if (m_OutputStream.is_open())
 			{
+				RY_CORE_MEMORY_ALICATION("m_CurrentSession", "Instrumentor::BegineSession", InstrumentationSession);
 				m_CurrentSession = new InstrumentationSession({ name });
 				WriteHeader();
 			}
@@ -141,6 +137,7 @@ namespace Rynex {
 			{
 				WriteFooter();
 				m_OutputStream.close();
+				RY_CORE_MEMORY_FREE("m_CurrentSession", "Instrumentor::BegineSession");
 				delete m_CurrentSession;
 				m_CurrentSession = nullptr;
 			}
@@ -166,6 +163,7 @@ namespace Rynex {
 		{
 			if (!m_Stopped)
 				Stop();
+			delete[] m_Name;
 		}
 
 		void Stop()

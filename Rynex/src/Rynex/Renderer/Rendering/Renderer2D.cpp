@@ -4,7 +4,6 @@
 #include "Rynex/Renderer/RenderCommand.h"
 #include "Rynex/Renderer/API/Shader.h"
 #include "Rynex/Renderer/API/VertexArray.h"
-#include "Rynex/Scene/SceneGeomtry.h"
 #include "Platform/OpenGL/OpenGLShader.h"
 #include "Rynex/Asset/Base/AssetManager.h"
 #include "Rynex/Asset/Import/ShaderImporter.h"
@@ -86,8 +85,9 @@ namespace Rynex {
 		});
 		
 		s_Data.QuadVertexArray->AddVertexBuffer(s_Data.QuadVertexBuffer);
+		RY_CORE_MULTY_MEMORY_ALICATION("s_Data.QuadVertexBufferBase", "Renderer2D::Init", s_Data.MaxVertices* sizeof(QuadVertex));
 		s_Data.QuadVertexBufferBase = new QuadVertex[s_Data.MaxVertices];
-		
+		RY_CORE_MULTY_MEMORY_ALICATION("quadIndecies", "Renderer2D::Init", s_Data.MaxIndecies * sizeof(uint32_t));
 		uint32_t* quadIndecies = new uint32_t[s_Data.MaxIndecies];
 		uint32_t offset = 0;
 
@@ -110,15 +110,13 @@ namespace Rynex {
 		};
 		Ref<IndexBuffer> squareIB = IndexBuffer::Create(quadIndecies, s_Data.MaxIndecies);
 		s_Data.QuadVertexArray->SetIndexBuffer(squareIB);
-		
-		
+		RY_CORE_MULTY_FREE_ALICATION("quadIndecies", "Renderer2D::Init");
 		delete[] quadIndecies;	
 	
 		
 		s_Data.WhitheTexture = Texture2D::Create(1, 1);
 		uint32_t whitheTexData = 0xffffffff;
 		s_Data.WhitheTexture->SetData(&whitheTexData, sizeof(uint32_t));
-
 		
 		for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
 			s_Data.Samplers[i] = i;
@@ -148,7 +146,17 @@ namespace Rynex {
 
 	void Renderer2D::Shutdown()
 	{
+		RY_CORE_MULTY_FREE_ALICATION("s_Data.QuadVertexBufferBase", "Renderer2D::Shutdown");
 		delete[] s_Data.QuadVertexBufferBase;
+		RY_CORE_MULTY_FREE_ALICATION("s_Data.QuadVertexBufferBase_", "Renderer2D::Shutdown");
+		delete[] s_Data.QuadVertexBufferBase_;
+
+		//delete s_Data.QuadVertexBufferPtr;
+		s_Data.QuadVertexArray.reset();
+		s_Data.QuadVertexBuffer.reset();
+		s_Data.TextureSlots.empty();
+		s_Data.TextureShader.reset();
+		s_Data.WhitheTexture.reset();
 	}
 
 

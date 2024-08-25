@@ -9,7 +9,7 @@ RederDocs/
 # Liberays
 Rynex/vendor/spdlog/
 Rynex/vendor/glm/
-Rynex/vendor/GLFW/
+#Rynex/vendor/GLFW/
 Rynex/vendor/imgui/
 Rynex/vendor/ImGuizmo/
 Profile/

@@ -11,30 +11,25 @@ namespace Rynex {
 		Scene,
 		Shader,
 		Texture, Texture2D,
-
+#if 0
+		Value, Vector2, Vector3, Vector4, Matrix3x3, Matrix4x4,
+		Entity, SceneCamera,
+		FrameBuffer,
+		VertexBuffer, IndexBuffer,
+#endif
 	};
 
 	std::string_view AssetTypeToString(AssetType type);
 	AssetType AssetTypeFromString(std::string_view assetType);
 	AssetType GetAssetTypeFromFilePath(const std::filesystem::path& filePath);
+	std::string GetAssetTypeDragAndDropName(AssetType type);
 
 	class Asset
 	{
 	public:
-		//virtual void CreateAsset() const = 0;
-		//virtual void SetHandle(AssetHandle handle) { m_Handle = handle; }
-		//virtual AssetHandle GetHandle() { return m_Handle; }
+
 		AssetHandle Handle;
-
 		virtual AssetType GetType() const = 0;
-
-		//virtual void* GetLoadedData() const = 0;
-
-		//virtual std::string GetFilePath() const { return m_FilePath; }
-		//virtual std::string GetName() const { return m_Name; }
-		//virtual std::string GetLoadTime() const { return m_LoadingTime; }
-	//protected:
-		
 		
 	};
 

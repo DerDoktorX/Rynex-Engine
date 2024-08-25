@@ -80,21 +80,32 @@ namespace Rynex {
 		Entity entity = scene->GetEntitiyByUUID(entityID);
 		if (!entity.HasComponent<GeomtryComponent>()) return;
 
-
 		GeomtryInput* vertexInput = (GeomtryInput*)vertex;
 		uint32_t count = byteSize / sizeof(GeomtryInput);
-		// Byte Size														 V
-		entity.GetComponent<GeomtryComponent>().Buffer->SetData(vertexInput, byteSize);
 		
+		GeomtryComponent& geomtry = entity.GetComponent<GeomtryComponent>();
+
+		// Save Settings, Befor Destroying The Object.
+
+		Ref<VertexBuffer> vertexBuffer = VertexBuffer::Create(byteSize);
+		vertexBuffer->SetData(vertex, byteSize);
+		vertexBuffer->SetLayout(geomtry.Buffer->GetLayout());
+		Ref<VertexArray> vertexArray = VertexArray::Create();
+		
+
+		vertexArray->SetPrimitv(geomtry.Geometry->GetPrimitv());
+		vertexArray->AddVertexBuffer(vertexBuffer);
+
+		// Overide the old, Creat New Buffer.
+		geomtry.Buffer = vertexBuffer;
+		geomtry.Geometry = vertexArray;
+
 		for (int i = 0; i < count; i++)
-			RY_CORE_TRACE("postion[{0}] : {1}, {2}, {3}", i, vertexInput[i].position.x, vertexInput[i].position.y, vertexInput[i].position.z);
+			RY_CORE_TRACE("postion[{0}] : x{1}, y{2}, z{3}", i, vertexInput[i].position.x, vertexInput[i].position.y, vertexInput[i].position.z);
 		for (int i = 0; i < count; i++)
-			RY_CORE_TRACE("normal[{0}] : {1}, {2}, {3}", i, vertexInput[i].nomale.x, vertexInput[i].nomale.y, vertexInput[i].nomale.z);
+			RY_CORE_TRACE("normal[{0}] : x{1}, y{2}, z{3}", i, vertexInput[i].nomale.x, vertexInput[i].nomale.y, vertexInput[i].nomale.z);
 		for (int i = 0; i < count; i++)
-			RY_CORE_TRACE("uv[{0}] : {1}, {2}", i, vertexInput[i].uv.x, vertexInput[i].uv.y);
-		
-		
-		
+			RY_CORE_TRACE("uv[{0}] : x{1}, y{2}", i, vertexInput[i].uv.x, vertexInput[i].uv.y);
 	}
 
 	static void GeomtryComponent_SetIndex(UUID entityID, uint32_t* index, uint32_t count)
@@ -103,7 +114,10 @@ namespace Rynex {
 		Scene* scene = ScriptingEngine::GetSceneContext();
 		Entity entity = scene->GetEntitiyByUUID(entityID);
 		if (!entity.HasComponent<GeomtryComponent>()) return;
-		entity.GetComponent<GeomtryComponent>().Geometry->GetIndexBuffers()->SetData(index, count);
+
+		Ref<VertexArray>& vertex = entity.GetComponent<GeomtryComponent>().Geometry;
+		Ref<IndexBuffer> inicies = IndexBuffer::Create(index, count);
+		vertex->SetIndexBuffer(inicies);
 	}
 
 	static void GeomtryComponent_SetPrimitv(UUID entityID, int primitv)
@@ -112,7 +126,14 @@ namespace Rynex {
 		Entity entity = scene->GetEntitiyByUUID(entityID);
 		if (!entity.HasComponent<GeomtryComponent>()) return;
 
-		entity.GetComponent<GeomtryComponent>().Geometry->SetPrimitv((VertexArray::Primitv)primitv);
+		auto& geometryC = entity.GetComponent<GeomtryComponent>();
+		if(geometryC.Geometry)
+			geometryC.Geometry->SetPrimitv((VertexArray::Primitv)primitv);
+		else
+		{
+			geometryC.Geometry = VertexArray::Create();
+			geometryC.Geometry->SetPrimitv((VertexArray::Primitv)primitv);
+		}
 	}
 
 	// Components Defins

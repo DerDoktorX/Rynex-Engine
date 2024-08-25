@@ -12,6 +12,7 @@
 
 #include <Rynex/Renderer/Rendering/Renderer.h>
 #include <Rynex/Renderer/Rendering/Renderer2D.h>
+#include <Rynex/Renderer/Rendering/Renderer3D.h>
 
 #include <imgui/imgui.h>
 
@@ -40,10 +41,10 @@ namespace Rynex {
         FramebufferSpecification fbSpec;
         fbSpec.Attachments = 
         { 
-            FramebufferTextureFormat::RGBA8, 
-            FramebufferTextureFormat::RGBA8, 
-            FramebufferTextureFormat::RED_INTEGER, 
-            FramebufferTextureFormat::Depth 
+            FramebufferTextureFormat::RGBA8,
+            FramebufferTextureFormat::RGBA8,
+            FramebufferTextureFormat::RED_INTEGER,
+            FramebufferTextureFormat::Depth
         };
         fbSpec.Width = 1280;
         fbSpec.Height = 720;
@@ -56,7 +57,7 @@ namespace Rynex {
        
         m_EditorScene = CreateRef<Scene>();
         m_AktiveScene = m_EditorScene;
-
+        
         auto cLA = Application::Get().GetSpecification().CommandLineArgs;
         if (cLA.Count > 1)
         {
@@ -67,22 +68,27 @@ namespace Rynex {
         {
             //if(!OpenProject())
                 //Application::Get().Close();
-#if RY_PATH_IN_LINE
             OpenProject("Sandbox.rproj");
-#endif
             RY_CORE_INFO("Open A Project");
         }
 
 
         m_Content_BPannel.OnAtache();
         Renderer::Init();
-        m_EditorCamera = EditorCamera(30.0f, 1.778f, 0.1, 1000.0f);
-
+        m_EditorCamera = CreateRef<EditorCamera>(30.0f, 1.778f, 0.1, 1000.0f);
+        
         m_Project = Project::GetActive();
         m_AssetManger = m_Project->GetEditorAssetManger();
 
+        m_CallFace = CallFace::None;
+            
+        m_AktiveScene->CreateEntityWitheUUID(UUID(2), "MaiViewPort");
+        auto& entiy = m_AktiveScene->GetEntitiyByUUID(2);
+        entiy.AddComponent<MainViewPortComponent>();
+        auto& mainViewPort = entiy.GetComponent<MainViewPortComponent>();
+        mainViewPort.FrameBuffer = m_Framebuffer;
+        mainViewPort.EditorCamera = m_EditorCamera;
 
-#if 1
 
         {
             m_AktiveScene->CreateEntityWitheUUID(UUID(8976786), "3D_RendererTestEntity");
@@ -100,13 +106,11 @@ namespace Rynex {
                 auto& geometry = entiy.GetComponent<GeomtryComponent>();
 
                 geometry.Geometry = VertexArray::Create();
-                geometry.Buffer = VertexBuffer::Create(160 * (4 * 3 + 4 * 2 + 4 * 3)); // Cube: 20 * (4 * 3 + 4* 2 + 4 * 3 )
-                geometry.Geometry->SetPrimitv(VertexArray::Primitv::Traingle);
-                Geomtrys::SetCubeVertex(geometry.Geometry, geometry.Buffer);
-                Geomtrys::SetCubeIndex(geometry.Geometry);
-
-
-
+                geometry.Buffer = VertexBuffer::Create(6 * sizeof(float)); // Cube: 20 * (4 * 3 + 4* 2 + 4 * 3 )
+                geometry.Buffer->SetLayout(STANDERD_3DLAYOUTE);
+                //geometry.Geometry->SetPrimitv(VertexArray::Primitv::Traingle);
+                //Geomtrys::SetCubeVertex(geometry.Geometry, geometry.Buffer);
+                //Geomtrys::SetCubeIndex(geometry.Geometry);
             }
 
             if (!entiy.HasComponent<MaterialComponent>())
@@ -115,8 +119,23 @@ namespace Rynex {
                 auto& material = entiy.GetComponent<MaterialComponent>();
 #if RY_PATH_IN_LINE
                 //material.Shader = AssetManager::GetAsset<Shader>("Assets/shaders/3DTestTess.glsl");
-                material.Shader = AssetManager::GetAsset<Shader>("Assets/shaders/3DTestTess2.glsl");
-                RenderCommand::AktivePolyGunMode(true);
+                material.Shader = AssetManager::GetAsset<Shader>("Assets/shaders/3DLigthe.glsl");
+                material.UniformLayoute.clear();
+               
+                UniformElement ellement;
+                ellement.Name = "u_Color";
+                ellement.Type = GetShaderDataTypeFromString("vec3");
+                ellement.ShaderResourceType = ShaderResourceType::LocalColor;
+                material.UniformLayoute.push_back(ellement);
+                
+                ellement.Name = "u_Model";
+                ellement.Type = GetShaderDataTypeFromString("mat4");
+                ellement.ShaderResourceType = ShaderResourceType::LocalModel;
+                material.UniformLayoute.push_back(ellement);
+                ellement.Name = "u_ViewProj";
+                ellement.Type = GetShaderDataTypeFromString("mat4");
+                ellement.ShaderResourceType = ShaderResourceType::MainCameraViewProjectionMatrix;
+                material.UniformLayoute.push_back(ellement);
 #endif
             }
 
@@ -128,8 +147,50 @@ namespace Rynex {
             }
         }
        
-#endif
-        
+
+
+        {
+            m_AktiveScene->CreateEntityWitheUUID(UUID(8976734286), "FrameBuffer_Test");
+            auto& entiy = m_AktiveScene->GetEntitiyByUUID(8976734286);
+
+            if (!entiy.HasComponent<TagComponent>())
+                entiy.AddComponent<TagComponent>("FrameBuffer_Test");
+
+            if (!entiy.HasComponent<TransformComponent>())
+                entiy.AddComponent<TransformComponent>();
+
+
+            if (!entiy.HasComponent<FrameBufferComponent>())
+            {
+                entiy.AddComponent<FrameBufferComponent>();
+                auto& framebufferC = entiy.GetComponent<FrameBufferComponent>();
+                FramebufferSpecification fbSpeci;
+                fbSpeci.Attachments = {
+                    FramebufferTextureFormat::RGBA8,
+                    FramebufferTextureFormat::Depth
+                };
+                fbSpeci.Width = 1280 * 0.225;
+                fbSpeci.Height = 720 * 0.225;
+
+                framebufferC.FramebufferSpecification = fbSpeci;
+                framebufferC.FrameBuffer = Framebuffer::Create(fbSpec);
+            }
+
+            if (!entiy.HasComponent<CameraComponent>())
+            {
+                entiy.AddComponent<CameraComponent>();
+                auto& camer = entiy.GetComponent<CameraComponent>();
+                 
+            }
+
+            if (!entiy.HasComponent<ScriptComponent>())
+            {
+                entiy.AddComponent<ScriptComponent>();
+                auto& script = entiy.GetComponent<ScriptComponent>();
+                script.Name = "Sandbox.Player";
+            }
+        }
+
 
 
     }
@@ -138,6 +199,7 @@ namespace Rynex {
     {
         RY_CORE_WARN("OnDetach Aktiv!");
         RY_PROFILE_FUNCTION();
+        Renderer::Shutdown();
         ScriptingEngine::Shutdown();
         Project::ShutDown();
         RY_CORE_WARN("OnDetach Done!");
@@ -146,33 +208,9 @@ namespace Rynex {
     void EditorLayer::OnUpdate(TimeStep ts)
     {   
         RY_PROFILE_FUNCTION();
-#if 0
-        m_AktiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
-        if (FramebufferSpecification spec = m_Framebuffer->GetFramebufferSpecification(); m_ViewPortSize.x > 0.0f && m_ViewPortSize.y > 0.0f && (spec.Width != m_ViewPortSize.x || spec.Height != m_ViewPortSize.y))
-        {
-            m_Framebuffer->Resize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
-            m_CameraController.OnResize(m_ViewPortSize.x, m_ViewPortSize.y);
-            m_EditorCamera.SetViewportSize(m_ViewPortSize.y, m_ViewPortSize.x);
-        }
-#endif
         m_PasTime += ts;
 
-#if RY_CHECK_FOR_ERRORS
-        if (m_PasTime > 10.0f)
-        {
-            m_PasTime = 0.0f;
-            m_Scene_HPanel.SetCheckErrors();
-        }
-#endif
-
         Renderer2D::ResetStats();
-        
-        m_Framebuffer->Bind();
-        RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
-        RenderCommand::Clear();
-
-        m_Framebuffer->ClearAttachment(2, -1);
-        
         switch (m_SceneState)
         {
             case SceneState::Edit:
@@ -180,7 +218,7 @@ namespace Rynex {
                 if (m_ViewPortFocused)
                 {
                     m_CameraController.OnUpdate(ts);
-                    m_EditorCamera.OnUpdate(ts);
+                    m_EditorCamera->OnUpdate(ts);
                 }
 
                
@@ -189,7 +227,7 @@ namespace Rynex {
             }
             case SceneState::Simulate:
             {
-                m_EditorCamera.OnUpdate(ts);
+                m_EditorCamera->OnUpdate(ts);
                 m_AktiveScene->OnUpdateSimulation(ts, m_EditorCamera);
                 break;
             }
@@ -199,7 +237,7 @@ namespace Rynex {
                 break;
             }
         }
-
+        
         ////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////
         auto [mx, my] = ImGui::GetMousePos();
@@ -212,23 +250,27 @@ namespace Rynex {
    
         if ( mauseX >= 0  && mauseY >= 0  &&  mauseX < (int)viewPortSize.x  &&  mauseY < (int)viewPortSize.y )
         {
+            m_Framebuffer->Bind();
             int pixeldata = m_Framebuffer->ReadPixel(2, mauseX, mauseY);
-            if (pixeldata <= -1)
+            if (pixeldata <= -1 || m_AktiveScene->GetEntityCount() < pixeldata)
             {
                 m_HoveredEntity = Entity();
-                // RY_CORE_WARN("Minus Entity!");
+                
             }
             else
-                m_HoveredEntity = pixeldata == -1 || pixeldata == -2 || pixeldata == 4 ? Entity() : Entity((entt::entity)pixeldata, m_AktiveScene.get());
+            {
+                m_HoveredEntity = pixeldata == -1 || pixeldata == -2 ? Entity() : Entity((entt::entity)pixeldata, m_AktiveScene.get());
+            }
+            m_Framebuffer->Unbind();
         }
-        m_Framebuffer->Unbind();
+        
     }
 
     void EditorLayer::OnEvent(Event& e)
     {
         RY_PROFILE_FUNCTION();
         m_CameraController.OnEnvent(e);
-        m_EditorCamera.OnEvent(e);
+        m_EditorCamera->OnEvent(e);
 
         EventDispatcher dispatcher(e);
         dispatcher.Dispatch<KeyPressedEvent>(RY_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
@@ -372,7 +414,6 @@ namespace Rynex {
         std::string filepath = FileDialoges::OpenFile("Rynex Scene (*.rynex)\0*.rynex\0");
         if (!filepath.empty())
         {
-
             OpenScene(filepath);
         }
     }
@@ -393,7 +434,6 @@ namespace Rynex {
     void EditorLayer::OpenScene(AssetHandle handle)
     {
         RY_PROFILE_FUNCTION();
-#if 1
         RY_CORE_ASSERT(handle, "Error: EditorLayer::OpenScene(AssetHandle handle)");
 
         if (m_SceneState != SceneState::Edit)
@@ -420,7 +460,6 @@ namespace Rynex {
 
         m_AktiveScene = m_EditorScene;
         m_EditorScenePath = Project::GetActive()->GetEditorAssetManger()->GetMetadata(handle).FilePath;
-#endif
     }
 
     void EditorLayer::SaveSceneAs()
@@ -446,7 +485,7 @@ namespace Rynex {
         static bool assetsEnabled   = true;
         static bool sceneEnabled    = true;
         static bool viewPortEnabled = true;
-        static bool settingsEnabled = false;
+        static bool settingsEnabled = true;
 
         if (dokingEnabled) {
 
@@ -542,13 +581,11 @@ namespace Rynex {
         m_ViewPortFocused = ImGui::IsWindowFocused();
         m_ViewPortHoverd = ImGui::IsWindowHovered();
         Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewPortFocused && !m_ViewPortHoverd);
-#if 0
-        m_EditorCamera.SetModeFreeCamerMove(m_ViewPortFocused && m_ViewPortHoverd);
-#endif
         // ViewPort get Size + Resize Image + SetImage in ViewPort
         ImVec2 viewportPannelSize = ImGui::GetContentRegionAvail();
         ImGuiViewPortResize(viewportPannelSize);
         uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID(0);
+        //uint32_t textureID = m_Framebuffer->GetDeathAttachmentRendererID();
         ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ viewportPannelSize.x, viewportPannelSize.y }, ImVec2(0,1), ImVec2(1,0)); 
 
         // Drag and drop conten Broser
@@ -576,7 +613,7 @@ namespace Rynex {
         ImGui::Begin("Secundary Viewport");
 
         uint32_t textureID = framebuffer->GetColorAttachmentRendererID(id);
-        ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ width, height }, ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::Image((ImTextureID)textureID, ImVec2{ width, height }, ImVec2(0, 1), ImVec2(1, 0));
 
         ImGui::End();
         ImGui::PopStyleVar();
@@ -586,24 +623,8 @@ namespace Rynex {
     {
         RY_PROFILE_FUNCTION();
         ImGui::Begin("Settings");
-        
-        std::string name = "None";
-        uint64_t uuid = 0;
-        if (m_HoveredEntity)
-        {
-            name = m_HoveredEntity.GetComponent<TagComponent>().Tag;
-            uuid = m_HoveredEntity.GetUUID();
-        }
-       
-        ImGui::Text("Hovered Entity : %s", name.c_str());
-        ImGui::Text("UUID                    : %i", uuid);
-        auto stats = Renderer2D::GetStats();
-        ImGui::Text("Renderer2D Stats:");
-        ImGui::Text("Draw Calls: %d", stats.DrawCalls);
-        ImGui::Text("Quad   : %d", stats.QuadCount);
-        ImGui::Text("Vertex : %d", stats.GetTotalVertexCount());
-        ImGui::Text("Indexs : %d", stats.GetTotalIndexCount());
 
+        ImGuiRenderInfo();
 
         std::string sceneState;
         switch (m_SceneState)
@@ -647,19 +668,6 @@ namespace Rynex {
         {
             if (hasPlayButton)
                 ImGui::SameLine();
-#if 0
-            if (ImGui::Button("Simulation", ImVec2(50, 0)))
-            {
-
-                if (m_Runtime)
-                    m_AktiveScene->OnRuntimStop();
-                else
-                    m_AktiveScene->OnRuntimStart();
-                
-                m_Runtime != m_Runtime;
-
-            }
-#endif
         }
         if (hasPauseButton)
         {
@@ -670,6 +678,47 @@ namespace Rynex {
         }
 
         ImGui::End();
+    }
+
+    void EditorLayer::ImGuiRenderInfo()
+    { 
+        
+         
+        ImGui::Text("Renderer:");
+
+        if(ImGui::Checkbox("Wirframe mode:", &m_RendereWirframe))
+            Renderer3D::AktivePolyGunMode(m_RendereWirframe);
+
+        if(ImGui::Checkbox("Deaph Test mode:", &m_RendereDepthe))
+            Renderer3D::SetDethTest(m_RendereDepthe);
+        
+        if (ImGui::RadioButton("None", m_CallFace == CallFace::None))
+        {
+                m_CallFace = CallFace::None;
+                Renderer3D::SetFace(m_CallFace);
+        }
+        if (ImGui::RadioButton("Front", m_CallFace == CallFace::Front))
+        {
+            m_CallFace = CallFace::Front;
+            Renderer3D::SetFace(m_CallFace);
+        }
+        if (ImGui::RadioButton("Back", m_CallFace == CallFace::Back))
+        {
+            m_CallFace = CallFace::Back;
+            Renderer3D::SetFace(m_CallFace);
+        }
+        if (ImGui::RadioButton("FrontBacke", m_CallFace == CallFace::FrontBacke))
+        {
+            m_CallFace = CallFace::FrontBacke;
+            Renderer3D::SetFace(m_CallFace);
+        }
+        
+        ImGui::Text("Renderer2D Stats:");
+        auto stats = Renderer2D::GetStats();
+        ImGui::Text("Draw Calls: %d", stats.DrawCalls);
+        ImGui::Text("Quad   : %d", stats.QuadCount);
+        ImGui::Text("Vertex : %d", stats.GetTotalVertexCount());
+        ImGui::Text("Indexs : %d", stats.GetTotalIndexCount());
     }
 
     void EditorLayer::ImGuiScenePannel()
@@ -684,14 +733,9 @@ namespace Rynex {
         RY_PROFILE_FUNCTION();
         if (ImGui::BeginDragDropTarget())
         {
-            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
-            {
-                const wchar_t* path = (const wchar_t*)payload->Data;
-                OpenScene(std::filesystem::path(g_AssetsPath) / path);
-            }
+            
 
-
-            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_BROWSER_ITEM"))
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( GetAssetTypeDragAndDropName(AssetType::Scene).c_str() ))
             {
                 AssetHandle handle = *(AssetHandle*)payload->Data;
                 OpenScene(handle);
@@ -736,8 +780,8 @@ namespace Rynex {
             {
             case SceneState::Edit:
             {
-                camerProj = m_EditorCamera.GetProjektion();
-                camerView = m_EditorCamera.GetViewMatrix();
+                camerProj = m_EditorCamera->GetProjektion();
+                camerView = m_EditorCamera->GetViewMatrix();
                 break;
             }
             case SceneState::Play:
@@ -750,8 +794,8 @@ namespace Rynex {
             }
             default:
             {
-                camerProj = m_EditorCamera.GetProjektion();
-                camerView = m_EditorCamera.GetViewMatrix();
+                camerProj = m_EditorCamera->GetProjektion();
+                camerView = m_EditorCamera->GetViewMatrix();
                 break;
             }
                 
@@ -792,7 +836,7 @@ namespace Rynex {
         {
             m_Framebuffer->Resize((uint32_t)vPSize.x, (uint32_t)vPSize.y);
             m_ViewPortSize = { vPSize.x, vPSize.y };
-            m_EditorCamera.SetViewportSize(vPSize.x, vPSize.y);
+            m_EditorCamera->SetViewportSize(vPSize.x, vPSize.y);
             m_CameraController.OnResize((float)vPSize.x, (float)vPSize.y);
 
             m_AktiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);

@@ -19,6 +19,8 @@ namespace Rynex {
 		ScriptClass() = default;
 		ScriptClass(const std::string& classNamespace, const std::string& className, bool isCore = false);
 
+		void Shutdown();
+
 		MonoObject* Instantiate();
 		MonoMethod* GetMethode(const std::string& name, int prameCount = 0);
 		MonoObject* InvokeMethode(MonoMethod* methode, MonoObject* instance, void** params = nullptr);
@@ -39,6 +41,7 @@ namespace Rynex {
 		void InvokeCreate();
 		void InvokeOnUpdate(float ts);
 		void InvokeOnDrawn();
+		void InvokeOnDestroy();
 	private:
 		Ref<ScriptClass> m_ScriptClass;
 
@@ -47,6 +50,7 @@ namespace Rynex {
 		MonoMethod* m_OnCreateMethod = nullptr;
 		MonoMethod* m_OnUpdateMethod = nullptr;
 		MonoMethod* m_OnDrawMethod = nullptr;
+		MonoMethod* m_OnDestroyMethod = nullptr;
 
 		friend class ScriptEngine;
 		

@@ -1,16 +1,20 @@
 #pragma once
 
 #include "ScenenCamera.h"
+#include "Scene.h"
 #include "Rynex/Core/UUID.h"
 #include "Rynex/Renderer/API/Texture.h"
 #include "Rynex/Renderer/API/Shader.h"
 #include "Rynex/Renderer/API/VertexArray.h"
 #include "Rynex/Renderer/Objects/Geomtrys.h"
+#include "Rynex/Renderer/API/Framebuffer.h"
+
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
+
 
 
 namespace Rynex {
@@ -40,6 +44,7 @@ namespace Rynex {
 		glm::vec3 Transaltion{ 0.f, 0.f, 0.f };
 		glm::vec3 Rotation{ 0.f, 0.f, 0.f };
 		glm::vec3 Scale{ 1.f, 1.f, 1.f };
+		bool change = false;
 
 		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
@@ -83,7 +88,6 @@ namespace Rynex {
 		CameraComponent() = default;
 		CameraComponent(const CameraComponent&) = default;
 
-
 	};
 	
 	struct ScriptComponent
@@ -107,6 +111,7 @@ namespace Rynex {
 		template<typename T>
 		void Bind()
 		{
+			RY_CORE_MEMORY_ALICATION("InstantiateScript", "NativeSripteComponent::Bind", T);
 			InstantiateScript = []() { return static_cast<ScriptableEntity*>(new T()); };
 			DestroyScript = [](NativeSripteComponent* nsc) { delete nsc->Instance; nsc->Instance = nullptr; };
 		}
@@ -119,7 +124,6 @@ namespace Rynex {
 	{
 		Ref<VertexArray> Geometry;
 		Ref<VertexBuffer> Buffer;
-		
 		// Make By User or Defind Shape like Cube, Plane, Sphere ...
 
 		GeomtryComponent() = default;
@@ -132,11 +136,64 @@ namespace Rynex {
 	{
 		Ref<Shader> Shader;
 		Ref<Texture2D> Texture;
+
+		std::vector<UniformElement> UniformLayoute;
 		glm::vec3 Color{ 1.0f, 0.0f, 1.0f };
 		int AlgorithmFlags; // Shader::Algorithm
 
 		MaterialComponent() = default;
 		MaterialComponent(const MaterialComponent&) = default;
+	};
+
+
+	struct Matrix4x4Component
+	{
+		glm::mat<4, 4, float> Matrix4x4;
+	};
+
+	struct Matrix3x3Component
+	{
+		glm::mat<3, 3, float> Matrix3x3;
+	};
+
+	struct FrameBufferComponent 
+	{
+		Ref<Framebuffer> FrameBuffer;
+		FramebufferSpecification FramebufferSpecification;
+
+		glm::vec<3, float> ClearColor;
+		FrameBufferImageSize FramebufferSize;
+		int EntiyOrigShader;
+
+		FrameBufferComponent() = default;
+		FrameBufferComponent(const FrameBufferComponent&) = default;
+		FrameBufferComponent(Ref<Framebuffer> frameBuffer)
+			: FrameBuffer(frameBuffer) {}
+	};
+#if 0
+	using Framebuffers = std::vector<Ref<Framebuffer>>;
+	struct FrameBufferComponents
+	{
+		Ref<Framebuffers> FrameBuffers;
+	};
+#endif // TODO: Add MultyFrambuffer Component System, sigle Entity!
+	struct SceneComponent
+	{
+		Ref<Framebuffer> FrameBuffer;
+		Ref<Scene> Scene;
+
+		SceneComponent() = default;
+		SceneComponent(const SceneComponent&) = default;
+	};
+
+	struct MainViewPortComponent
+	{
+		Ref<SceneCamera> Camera;
+		Ref<EditorCamera> EditorCamera;
+		Ref<Framebuffer> FrameBuffer;
+
+		MainViewPortComponent() = default;
+		MainViewPortComponent(const MainViewPortComponent&) = default;
 	};
 
 #if 0 
@@ -158,6 +215,8 @@ namespace Rynex {
 		ComponentGroup<TransformComponent, SpriteRendererComponent,
 		/*CircleRendererComponent,*/ CameraComponent, ScriptComponent,
 		MaterialComponent, GeomtryComponent,
+		Matrix3x3Component, Matrix4x4Component,
+		FrameBufferComponent, MainViewPortComponent, SceneComponent,
 		NativeSripteComponent /*, Rigidbody2DComponent,*/ /*BoxCollider2DComponent,*/
 		/*CircleCollider2DComponent,*/ /*TextComponent*/>;
 }

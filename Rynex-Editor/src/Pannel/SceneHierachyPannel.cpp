@@ -32,24 +32,9 @@ namespace Rynex {
 		ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
 		flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
 
-#if RY_HRACHIE_STATE
-		if(entity.GetState() == Entity::State::Error)
-			ImGui::PushStyleColor(ImGuiCol_Header & ImGuiCol_TitleBg & ImGuiCol_TextDisabled & ImGuiCol_MenuBarBg, ImVec4(0.9f, 0.2f, 0.3f, 1.0f));
-#endif
 
 		bool opende = ImGui::TreeNodeEx(&id, flags, tag.c_str());
 
-#if RY_HRACHIE_STATE
-		if (entity.GetState() == Entity::State::Error)
-			ImGui::PopStyleColor();
-
-
-		if (m_CheckErrors) 
-		{
-			CheckEnttiyForError(entity);
-		}
-
-#endif
 
 		if (ImGui::IsItemClicked())
 		{
@@ -63,17 +48,13 @@ namespace Rynex {
 			if (ImGui::MenuItem("Delete Entity"))
 				entiytDeleted = true;
 
-
 			ImGui::EndPopup();
 		}
 
 		if (opende)
 		{
 
-#if RY_HRACHIE_STATE
-			if (entity.GetState() == Entity::State::Error)
-				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.2f, 0.3f, 1.0f));
-#endif
+
 
 			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
 			opende = ImGui::TreeNodeEx( &id, flags, tag.c_str());
@@ -83,10 +64,6 @@ namespace Rynex {
 			}
 			ImGui::TreePop();
 
-#if RY_HRACHIE_STATE
-			if (entity.GetState() == Entity::State::Error)
-				ImGui::PopStyleColor();
-#endif
 
 		}
 		
@@ -96,6 +73,90 @@ namespace Rynex {
 			if (m_SelectionContext == entity)
 				m_SelectionContext = {};
 		}
+	}
+
+	static void DrawVec4Controler(const std::string& label, glm::vec4& values, float resetValue = 0.0f, float columeWith = 80.0f)
+	{
+
+		ImGuiIO& io = ImGui::GetIO();
+		auto boldFont = io.Fonts->Fonts[0];
+
+		ImGui::PushID(label.c_str());
+		ImGui::Columns(2);
+		ImGui::SetColumnWidth(0, columeWith);
+		ImGui::Text(label.c_str());
+		ImGui::NextColumn();
+
+		ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0.0f , 0.0f });
+
+		float lineHeigth = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+		ImVec2 butenSize = { lineHeigth + 3.0f, lineHeigth };
+
+
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+		ImGui::PushFont(boldFont);
+		if (ImGui::Button("X", butenSize))
+			values.x = resetValue;
+		ImGui::PopFont();
+		ImGui::PopStyleColor(3);
+
+		ImGui::SameLine();
+		ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f");
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+		ImGui::PushFont(boldFont);
+		if (ImGui::Button("Y", butenSize))
+			values.y = resetValue;
+		ImGui::PopFont();
+		ImGui::PopStyleColor(3);
+
+		ImGui::SameLine();
+		ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f");
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+		ImGui::PushFont(boldFont);
+		if (ImGui::Button("Z", butenSize))
+			values.z = resetValue;
+		ImGui::PopFont();
+		ImGui::PopStyleColor(3);
+
+		ImGui::SameLine();
+		ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f");
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.85f, 0.8f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.8f, 0.95f, 0.9f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.7f, 0.85f, 0.8f, 1.0f });
+		ImGui::PushFont(boldFont);
+		if (ImGui::Button("W", butenSize))
+			values.z = resetValue;
+		ImGui::PopFont();
+		ImGui::PopStyleColor(3);
+
+		ImGui::SameLine();
+		ImGui::DragFloat("##W", &values.z, 0.1f, 0.0f, 0.0f, "%.2f");
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+
+		ImGui::PopStyleVar();
+
+		ImGui::Columns(1);
+		ImGui::PopID();
 	}
 
 	static void DrawVec3Controler(const std::string& label, glm::vec3& values, float resetValue = 0.0f, float columeWith = 80.0f)
@@ -168,6 +229,84 @@ namespace Rynex {
 		ImGui::PopID();
 	}
 
+	static void DrawVec2Controler(const std::string & label, glm::vec2& values, float resetValue = 0.0f, float columeWith = 80.0f)
+	{
+
+		ImGuiIO& io = ImGui::GetIO();
+		auto boldFont = io.Fonts->Fonts[0];
+
+		ImGui::PushID(label.c_str());
+		ImGui::Columns(2);
+		ImGui::SetColumnWidth(0, columeWith);
+		ImGui::Text(label.c_str());
+		ImGui::NextColumn();
+
+		ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0.0f , 0.0f });
+
+		float lineHeigth = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+		ImVec2 butenSize = { lineHeigth + 3.0f, lineHeigth };
+
+
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+		ImGui::PushFont(boldFont);
+		if (ImGui::Button("X", butenSize))
+			values.x = resetValue;
+		ImGui::PopFont();
+		ImGui::PopStyleColor(3);
+
+		ImGui::SameLine();
+		ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f");
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+
+
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+		ImGui::PushFont(boldFont);
+		if (ImGui::Button("Y", butenSize))
+			values.y = resetValue;
+		ImGui::PopFont();
+		ImGui::PopStyleColor(3);
+
+		ImGui::SameLine();
+		ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f");
+		ImGui::PopItemWidth();
+		ImGui::SameLine();
+
+		ImGui::PopStyleVar();
+
+		ImGui::Columns(1);
+		ImGui::PopID();
+	}
+
+	static void DrawFloatControler(const std::string& label, float* values, float resetValue = 0.0f, float columeWith = 80.0f)
+	{
+
+		ImGuiIO& io = ImGui::GetIO();
+		auto boldFont = io.Fonts->Fonts[0];
+
+		ImGui::PushID(label.c_str());
+		ImGui::Columns(2);
+		ImGui::SetColumnWidth(0, columeWith);
+		ImGui::Text(label.c_str());
+		ImGui::NextColumn();
+
+		ImGui::PushMultiItemsWidths(1, ImGui::CalcItemWidth());
+
+
+		ImGui::SameLine();
+		ImGui::DragFloat("##F", values, 0.1f, 0.0f, 0.0f, "%.2f");
+		ImGui::PopItemWidth();
+
+		ImGui::Columns(1);
+		ImGui::PopID();
+	}
+
 
 	template<typename T, typename UIFuction>
 	static void DrawComponent(const std::string& name, Entity entity, UIFuction uiFunction)
@@ -214,6 +353,75 @@ namespace Rynex {
 		}
 	}
 
+	// This Funktion Add A Butte and You Can Drag and Drop Items From your AssetManger in there, and Add A Dealte For Removing The Asset
+	// The Secound Arge is the not Ref<...> only ... 
+	// This Funktion Works only Withe UUID Assets
+	template<typename T>
+	static void DragDropButtenForAsset(Ref<T> *compontenItem, const char* buttenName, AssetType assetType)
+	{
+		ImGui::Button(buttenName, ImVec2(100.0f, 0.0f));
+		if (ImGui::BeginDragDropTarget())
+		{
+
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( GetAssetTypeDragAndDropName(assetType).c_str() ))
+			{
+				*compontenItem = AssetManager::GetAsset<T>(*(AssetHandle*)payload->Data);
+			}
+			ImGui::EndDragDropTarget();
+
+		}
+		if (*compontenItem != nullptr)
+		{
+			ImGui::SameLine();
+			if (ImGui::Button("Dealte", ImVec2(100.0f, 0.0f)))
+				*compontenItem = nullptr;
+		}
+	}
+
+	static void DargDropTextureButten(Ref<Texture2D>* compontenItem)
+	{
+		DragDropButtenForAsset<Texture2D>(compontenItem, "Texture2D", AssetType::Texture2D);
+	}
+
+	static void DargDropShaderButten(Ref<Shader>* compontenItem)
+	{
+		DragDropButtenForAsset<Shader>(compontenItem, "Shader", AssetType::Shader);
+	}
+
+	static void DargDropShaderButten(MaterialComponent& material)
+	{
+		ImGui::Button("Shader", ImVec2(100.0f, 0.0f));
+		if (ImGui::BeginDragDropTarget())
+		{
+
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( GetAssetTypeDragAndDropName(AssetType::Shader).c_str() ))
+			{
+				material.Shader = AssetManager::GetAsset<Shader>(*(AssetHandle*)payload->Data);
+				auto& layoute = material.Shader->GetUniformLayoute();
+				material.UniformLayoute.clear();
+				for (auto& [name, type] : layoute)
+				{
+					UniformElement ellement;
+					ellement.Name = name;
+					ellement.Type = GetShaderDataTypeFromString(type);
+					material.UniformLayoute.push_back(ellement);
+				}
+			}
+			ImGui::EndDragDropTarget();
+
+		}
+		if (material.Shader != nullptr)
+		{
+			ImGui::SameLine();
+			if (ImGui::Button("Dealte", ImVec2(100.0f, 0.0f)))
+			{
+				material.Shader = nullptr;
+				material.UniformLayoute.clear();
+			}
+			
+		}
+	}
+
 	void SceneHierachyPannel::DrawComponents(Entity entity)
 	{
 
@@ -249,43 +457,10 @@ namespace Rynex {
 				DisplayAddComponentEntry<MaterialComponent>("Material");
 				DisplayAddComponentEntry<GeomtryComponent>("Geomtry");
 			}
-#if 0
-			if (ImGui::MenuItem("Script"))
-			{
-				auto& tag = entity.GetComponent<TagComponent>().Tag;
-				if (tag == "Empty Entity")
-				{
-					tag = "Script Entity";
-				}
-				m_SelectionContext.AddComponent<ScriptComponent>();
-				ImGui::CloseCurrentPopup();
-			}
+			DisplayAddComponentEntry<FrameBufferComponent>("FrameBuffer");
 
-			if (ImGui::MenuItem("Camera"))
-			{
-				auto& tag = entity.GetComponent<TagComponent>().Tag;
-				if (tag == "Empty Entity")
-				{
-					tag = "Camera Entity";
-				}
-				auto& camer = m_SelectionContext.AddComponent<CameraComponent>().Camera;
-				camer.SetPerspectiv(glm::degrees(45.0f), 0.1f, 1000);
-				camer.SetOrthoGrafic(10, -1.0f, 1.0f);
-				ImGui::CloseCurrentPopup();
-			}
-
-			if (ImGui::MenuItem("Sprite Renderer"))
-			{
-				auto& tag = entity.GetComponent<TagComponent>().Tag;
-				if (tag == "Empty Entity")
-				{
-					tag = "Sprite Entity";
-				}
-				m_SelectionContext.AddComponent<SpriteRendererComponent>();
-				ImGui::CloseCurrentPopup();
-			}
-#endif
-			
+			DisplayAddComponentEntry<SceneComponent>("Scene");
+	
 
 			ImGui::EndPopup();
 		}
@@ -372,38 +547,8 @@ namespace Rynex {
 		{
 			ImGui::ColorEdit4("Color", glm::value_ptr(component.Color), 0.1f);
 			// Texture
-			ImGui::Button("Texture", ImVec2(100.0f, 0.0f));
-			if (ImGui::BeginDragDropTarget())
-			{
-#if RY_OLD_DRAG_AND_DROP
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
-				{
-					const wchar_t* path = (const wchar_t*)payload->Data;
-					std::filesystem::path texPath = (g_AssetsPath) / path;
-					component.Texture = Texture2D::Create(texPath.string());
-				}
-				ImGui::EndDragDropTarget();
-#else
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_BROWSER_ITEM"))
-				{
-					component.Texture = AssetManager::GetAsset<Texture2D>(*(AssetHandle*)payload->Data);
-				}
-				ImGui::EndDragDropTarget();
-#endif
-			}
-			if (component.Texture != nullptr)
-			{
-				ImGui::SameLine();
-				if (ImGui::Button("Dealte", ImVec2(100.0f, 0.0f)))
-					component.Texture = nullptr;
-			}
-
-
+			DargDropTextureButten(&component.Texture);
 			ImGui::Checkbox("Render Single", &component.RenderSingle);
-#if RY_TODO_TAILING_FACTOR
-			ImGui::DragFloat("TalingFloat", &component.Tali..., 0.0f, 0.0f, 100.0f);
-#endif		// TODO: Tailing Factor
-
 		});
 
 		//Material
@@ -413,66 +558,259 @@ namespace Rynex {
 				ImGui::ColorEdit3("Color", glm::value_ptr(component.Color), 0.1f);
 
 				// Texture
-				ImGui::Button("Texture", ImVec2(100.0f, 0.0f));
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_BROWSER_ITEM"))
-					{
-						component.Texture = AssetManager::GetAsset<Texture2D>(*(AssetHandle*)payload->Data);
-					}
-					ImGui::EndDragDropTarget();
-				}
 
-				if (component.Texture != nullptr)
-				{
-					ImGui::SameLine();
-					if (ImGui::Button("Dealte", ImVec2(100.0f, 0.0f)))
-						component.Texture = nullptr;
-				}
+				DargDropTextureButten(&component.Texture);
 
-				ImGui::Button("Shader", ImVec2(100.0f, 0.0f));
-				if (ImGui::BeginDragDropTarget())
-				{
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ASSET_BROWSER_ITEM"))
-					{
-						component.Shader = AssetManager::GetAsset<Shader>(*(AssetHandle*)payload->Data);
-					}
-					ImGui::EndDragDropTarget();
-				}
+
+				DargDropShaderButten(component);
 
 				if (component.Shader != nullptr)
 				{
-					ImGui::SameLine();
-					if (ImGui::Button("Dealte", ImVec2(100.0f, 0.0f)))
-						component.Shader = nullptr;
+					if (component.UniformLayoute.size() == 0)
+					{
+						component.UniformLayoute.clear();
+						auto& layoute = component.Shader->GetUniformLayoute();
+						for (auto& [name, type] : layoute)
+						{
+							UniformElement ellement;
+							ellement.Name = name;
+							ellement.Type = GetShaderDataTypeFromString(type);
+
+							if (name.find("Model") != name.size() && ellement.Type == ShaderDataType::Float4x4)
+							{
+								ellement.ShaderResourceType = ShaderResourceType::LocalModel;
+							}
+							else if (name.find("ViewProj") != name.size() && ellement.Type == ShaderDataType::Float4x4)
+							{
+								ellement.ShaderResourceType = ShaderResourceType::MainCameraViewProjectionMatrix;
+							}
+							else if(name.find("Color") != name.size() && ellement.Type == ShaderDataType::Float3)
+							{
+								ellement.ShaderResourceType = ShaderResourceType::LocalColor;
+							}
+
+							component.UniformLayoute.push_back(ellement);
+						}
+					}
+
+					for(auto& element :  component.UniformLayoute)
+					{
+						
+						ImGuiIO& io = ImGui::GetIO();
+						auto boldFont = io.Fonts->Fonts[0];
+
+						ImGui::PushID(element.Name.c_str());
+						ImGui::Columns(2, "##Material Uniform",false);
+						
+						ImGui::SetColumnWidth(0, 85);
+						
+						ImGui::Text(element.Name.c_str());
+						if (ImGui::IsItemHovered())
+							ImGui::SetTooltip(GetStringFromShaderData(element.Type).c_str());
+
+						ImGui::NextColumn();
+						ImGui::PushMultiItemsWidths( 1, ImGui::CalcItemWidth());
+
+						
+						ImGui::Checkbox("##Globle Resurce", &element.GloblelResurce);
+						
+						if(element.GloblelResurce)
+						{
+							ImGui::SameLine();
+							char* otherResources[] = {
+								"Nono",
+								"Local Model",
+								"Local Color",
+								"Main Camer Pos",
+								"Main Camera View",
+								"Main Camer Projection",
+								"Main Camera ViewProjection",
+								"Globle Resource"
+							};
+						
+							if (ImGui::BeginCombo("##", otherResources[(uint8_t)element.ShaderResourceType], ImGuiComboFlags_None))
+							{
+								
+								for (uint8_t i = 0; i < 8; i++)
+								{
+
+									if (ImGui::MenuItem(otherResources[i]))
+									{
+										element.ShaderResourceType = (ShaderResourceType)i;
+										ImGui::CloseCurrentPopup();
+									}
+								}
+								ImGui::EndCombo();
+							}
+						}
+						else
+						{
+							if (element.LocalResurce == nullptr)
+							{
+								element.LocalResurce = new void*[ShaderDataTypeSize(element.Type)];
+								switch (element.Type)
+								{
+									case ShaderDataType::Float:
+									{
+										float* value = static_cast<float*>(element.LocalResurce);
+										ImGui::DragFloat("##Float", value);
+										break;
+									}
+									case ShaderDataType::Float2:
+									{
+
+										ImGui::DragFloat2("##Float2", glm::value_ptr(*(glm::vec<2, float>*)element.LocalResurce));
+										break;
+									}
+									case ShaderDataType::Float3:
+									{
+										glm::vec<3, float>* value = static_cast<glm::vec<3, float>*>(element.LocalResurce);
+										*value = { 0.0f, 0.0f,0.0f };
+										break;
+									}
+									case ShaderDataType::Float4:
+									{
+										glm::vec<4, float>* value = static_cast<glm::vec<4, float>*>(element.LocalResurce);
+										*value = { 0.0f, 0.0f,0.0f, 0.0f };
+										break;
+									}
+									case ShaderDataType::Float3x3:
+									{
+										glm::mat3* value = static_cast<glm::mat3*>(element.LocalResurce);
+										*value = { 
+											1.0f, 0.0f, 0.0f, 
+											0.0f, 1.0f, 0.0f,
+											0.0f, 0.0f, 1.0f
+										};
+										break;
+									}
+									case ShaderDataType::Float4x4:
+									{
+										glm::mat4* value = static_cast<glm::mat4*>(element.LocalResurce);
+										*value = {
+											1.0f, 0.0f, 0.0f, 0.0f,
+											0.0f, 1.0f, 0.0f, 0.0f,
+											0.0f, 0.0f, 1.0f, 0.0f,
+											0.0f, 0.0f, 0.0f, 1.0f
+										};
+										break;
+									}
+									case ShaderDataType::Int:
+									{
+										break;
+									}
+									case ShaderDataType::Uint:
+									{
+										break;
+									}
+									default:
+										break;
+								}
+							}
+							switch (element.Type)
+							{
+								case ShaderDataType::Float:
+								{
+									ImGui::SameLine();
+									float* value = static_cast<float*>(element.LocalResurce);
+									ImGui::DragFloat("##Float", value, 0.1f, 0.0f, 0.0f, "%.1f");
+									break;
+								}
+								case ShaderDataType::Float2:
+								{
+									ImGui::SameLine();
+									float* value = static_cast<float*>(element.LocalResurce);
+									ImGui::DragFloat2("##Float2", value, 0.1f, 0.0f, 0.0f, "%.1f");
+									break;
+								}
+								case ShaderDataType::Float3:
+								{
+									ImGui::SameLine();
+									float* value = static_cast<float*>(element.LocalResurce);
+									ImGui::DragFloat3("##Float3", value, 0.1f, 0.0f, 0.0f, "%.1f");
+									break;
+								}
+								case ShaderDataType::Float4:
+								{
+									ImGui::SameLine();
+									float* value = static_cast<float*>(element.LocalResurce);
+									ImGui::DragFloat4("##Float4", value, 0.1f, 0.0f, 0.0f, "%.1f");
+									break;
+								}
+								case ShaderDataType::Float3x3:
+								{
+									break;
+								}
+								case ShaderDataType::Float4x4: 
+								{
+									float* value = static_cast<float*>(element.LocalResurce);
+									ImGui::DragFloat4("##0", &value[0], 0.1, 0.0f, 0.0f, "%.1f");
+									ImGui::DragFloat4("##4", &value[4], 0.1f, 0.0f, 0.0f, "%.1f");
+									ImGui::DragFloat4("##8", &value[8], 0.1f, 0.0f, 0.0f, "%.1f");
+									ImGui::DragFloat4("##12", &value[12], 0.1f, 0.0f, 0.0f, "%.1f");
+									break;
+								}
+								case ShaderDataType::Int:
+								{
+									ImGui::SameLine();
+									int* value = static_cast<int*>(element.LocalResurce);
+									ImGui::DragInt("##Int", value, 1);
+									break;
+								}
+								
+							default:
+								break;
+							}
+						}
+						
+											
+						ImGui::NextColumn();
+						ImGui::SameLine();
+						
+						ImGui::PopItemWidth();
+						ImGui::Columns(1);
+							
+						ImGui::PopID();
+						
+					}
+
 				}
-
 				
+				bool aBuffer = (component.AlgorithmFlags & (1 << Shader::Algorithm::A_Buffer)) != 0,
+					blend = (component.AlgorithmFlags & (1 << Shader::Algorithm::Blend)) != 0,
+					clockWise = (component.AlgorithmFlags & (1 << Shader::Algorithm::ClockWise)) != 0,
+					depthBuffer = (component.AlgorithmFlags & (1 << Shader::Algorithm::Depth_Buffer)) != 0,
+					dobbleSide = (component.AlgorithmFlags & (1 << Shader::Algorithm::DobbleSide)) != 0;
+					// frontSide = (component.AlgorithmFlags & (1 << Shader::Algorithm::)) != 0,
+					// backSide = (component.AlgorithmFlags & (1 << Shader::Algorithm::A_Buffer)) != 0;
 
-				
 
-				
+			
 
-				//if(ImGui::Checkbox("Z-Buffer:", (int)component.Flags))
-#if RY_TODO_MATERILA_FLAGS
-				ImGui::Checkbox("Render Single", &component.);
-#endif
+				if (ImGui::Checkbox("A-Buffer", &aBuffer)||
+					ImGui::Checkbox("Blend", &blend)||
+					ImGui::Checkbox("ClockWise", &clockWise)||
+					ImGui::Checkbox("Depth-Buffer", &depthBuffer)||
+					ImGui::RadioButton("Dobble-Side", &dobbleSide))
+					component.AlgorithmFlags = (aBuffer << Shader::Algorithm::A_Buffer) | 
+												(blend << Shader::Algorithm::Blend) | 
+												(clockWise << Shader::Algorithm::ClockWise) | 
+												(depthBuffer << Shader::Algorithm::Depth_Buffer) | 
+												(dobbleSide << Shader::Algorithm::DobbleSide);
+
 			});
 
 		//Geomtry
 		DrawComponent<GeomtryComponent>("Geometry", entity, [](GeomtryComponent& component)
 			{
-				//const char* primtiv = component.Geometry->GetPrimitvChar();
-				//ImGui::BeginCombo("Primtiv", primtiv);
 				if (ImGui::Button("Geomtry", ImVec2(100.0f, 0.0f)))
 				{
 
 				}
-				
 			});
 
 		// Script
-		DrawComponent<ScriptComponent>("Script", entity, [](auto& component)
+		DrawComponent<ScriptComponent>("Script", entity, [](ScriptComponent& component)
 			{
 				bool sricptClassExist = ScriptingEngine::ClassExists(component.Name);
 
@@ -484,18 +822,9 @@ namespace Rynex {
 					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.2f, 0.3f, 1.0f));
 					
 				}
-#if 1
-#if RY_OLD_TYPE_SCRIPT_NAME
-				if (ImGui::InputText("Script: Class", buffer, sizeof(buffer)) )
-				{
-					//ImGui::ItemAdd("")
-					
-					component.Name = buffer;
-					
-					
-				}
-#endif
 
+
+				ImGui::PushMultiItemsWidths(1, ImGui::CalcItemWidth());
 				if (ImGui::BeginCombo("Script: Class", buffer, ImGuiComboFlags_None))
 				{
 					uint32_t length = ScriptingEngine::GetClassLength();
@@ -513,54 +842,136 @@ namespace Rynex {
 					}
 					ImGui::EndCombo();
 				}
+				ImGui::PopItemWidth();
 
-				
-				
-				
-				//ImGui::OpenPopup("ScriptClass");
-#if RY_OLD_TYPE_SCRIPT_NAME
-				if (ImGui::BeginPopup("ScriptClass"))
-				{
-					uint32_t length = ScriptingEngine::GetClassLength();
-					for (uint32_t i = 0; i < length; i++)
-					{
-						std::string& temp = ScriptingEngine::GetListClassName(i);
-						if (ImGui::MenuItem(temp.c_str()))
-						{
-							component.Name = temp;
-							ImGui::CloseCurrentPopup();
-						}
-					}
-					ImGui::EndPopup();
-				}
-#endif
-				
-#else
-				
-				
-
-	
-
-				if (ImGui::BeginCombo("Class", buffer))
-				{
-					uint32_t length = ScriptingEngine::GetClassLength();
-					for (uint32_t i = 0; i < length; i++)
-					{
-						//bool is_selected = (component.selectedScript == i);
-						if (ImGui::Selectable(ScriptingEngine::GetListClassName(i), false))
-							component.selectedScript = i;
-
-						//if (is_selected)
-							//ImGui::SetItemDefaultFocus();
-					}
-					ImGui::EndCombo();
-				}
-				
-#endif 
 				if (!sricptClassExist)
 				{
 					ImGui::PopStyleColor();
 				}
+
+			});
+
+		DrawComponent<FrameBufferComponent>("FrameBuffer", entity, [](FrameBufferComponent& component)
+		{
+				auto& frameBuffer = component.FrameBuffer;
+					
+				if (ImGui::Button("Create Framebuffer", ImVec2(0.0f, 0.0f)))
+				{
+					component.FrameBuffer = Framebuffer::Create(component.FramebufferSpecification);
+#if 0
+					component.FrameBuffer->AsstHandle = AsstHandle();
+#endif
+				}
+				if(frameBuffer)
+				{
+					ImGui::SameLine();
+					bool dealteFrambuffer = ImGui::Button("Delete", ImVec2(100.0f, 0.0f));
+					auto& attachments = component.FramebufferSpecification.Attachments.Attachments;
+					auto& fbspec = component.FramebufferSpecification;
+
+					int delateNumber = -1;
+					int colorAtachments = 0;
+					for (size_t i = 0; i < attachments.size(); i++)
+					{
+						auto texFormat = attachments[i].TextureFormat;
+						std::string format = GetStringFromFramTexFormat(texFormat);
+						ImGui::PushID((format + std::to_string(i)).c_str());
+						ImGui::Columns(2, "##FrameBuffer Textures", false);
+
+						
+						uint32_t textureID = 0;
+
+						if (texFormat != FramebufferTextureFormat::Depth) textureID = component.FrameBuffer->GetColorAttachmentRendererID(colorAtachments);
+						else textureID = component.FrameBuffer->GetDeathAttachmentRendererID();
+
+						ImVec2 windowSize = ImGui::GetWindowSize();
+						windowSize.x = windowSize.x * 0.92 - 110;
+						ImGui::SetColumnWidth(0, windowSize.x+5);
+						
+						
+						ImGui::SetColumnWidth(1,100);
+						windowSize.y = windowSize.x / ((float)fbspec.Width / fbspec.Height);
+						ImGui::Image((ImTextureID)textureID,  windowSize, ImVec2(0, 1), ImVec2(1, 0));
+						
+						ImGui::NextColumn();
+						
+						if (ImGui::Button(format.c_str(), { 100.0f , 0.0f}))
+						{
+						}
+
+
+
+						//ImGui::SameLine();
+						if (ImGui::Button("Delete", ImVec2(100.0f, 0.0f)))
+							delateNumber = i;						
+						ImGui::NextColumn();
+						ImGui::SameLine();
+						ImGui::Columns(1);
+						if (texFormat != FramebufferTextureFormat::Depth)
+							ImGui::Text("On Color Attachment: %i", colorAtachments++);
+						else
+							ImGui::Text("On Death Attachment");
+						ImGui::PopID();
+					}
+
+					if (delateNumber != -1)
+					{
+						attachments.erase(attachments.begin(), attachments.begin() + delateNumber);
+#if 0
+						AsstHandle uuid = frameBuffer->AsstHandle;
+#endif
+						component.FrameBuffer = Framebuffer::Create(component.FramebufferSpecification);
+#if 0
+						component.FrameBuffer->AsstHandle = uuid;
+#endif
+					}
+						
+					if (ImGui::Button("Add Texture", ImVec2(100.0f, 0.0f)))
+					{
+						// TODO: Add Textur, list.
+#if 0
+						attachments.push_back(texType);
+#if 0
+						AsstHandle uuid = frameBuffer->AsstHandle;
+#endif
+						component.FrameBuffer = Framebuffer::Create(component.FramebufferSpecification);
+#if 0
+						component.FrameBuffer->AsstHandle = uuid;
+#endif
+#endif
+					}
+
+					if(dealteFrambuffer)
+						component.FrameBuffer = nullptr;
+					
+					
+
+					//ImGui::PopItemWidth();
+					
+
+					
+				}
+		});
+
+		DrawComponent<MainViewPortComponent>("MainViewPort", entity, [](MainViewPortComponent& component)
+		{
+			
+			auto& framBuffer = component.FrameBuffer;
+			if(ImGui::Button("Reset Camer"))
+			{
+				component.EditorCamera = CreateRef<EditorCamera>(30.0f, 1.778f, 0.1, 1000.0f);
+			}
+			auto& camera = component.EditorCamera;
+			glm::vec3 cameraPostion = camera->GetPosition();
+
+			ImGui::Text("Position { x: %f, y: %f, z: %f }", cameraPostion.x, cameraPostion.y, cameraPostion.z);
+			ImGui::Text("Distance { %f }", camera->GetDistance());
+		});
+
+		DrawComponent<SceneComponent>("Scene", entity, [](SceneComponent& component)
+			{
+				
+
 
 			});
 	}
@@ -577,13 +988,6 @@ namespace Rynex {
 				DrawEntityNode(entity);
 			});
 
-#if CHECK_FOR_ERRORS
-		if (m_CheckErrors)
-		{
-			m_CheckErrors = false;
-			RY_INFO("Checked For Error on Enttiy!");
-		}
-#endif
 
 		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
 			m_SelectionContext = {};
@@ -592,7 +996,6 @@ namespace Rynex {
 		{
 			if (ImGui::MenuItem("Create Empty Entity"))
 			{
-				
 				CreateEntity("Empty Entity");
 			}
 
@@ -606,9 +1009,7 @@ namespace Rynex {
 
 		DrawProperties();
 
-#if RY_IMGUI_DEMO_WINDOW
-		ImGui::ShowDemoWindow();
-#endif // RY_IMGUI_DEMO_WINDOW
+
 
 		ImGui::End();
 	}

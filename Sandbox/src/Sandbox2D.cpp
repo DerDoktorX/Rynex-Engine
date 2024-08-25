@@ -48,7 +48,13 @@ void Sandbox2D::OnAttach()
 
 void Sandbox2D::OnDetach()
 {
-	//m_TestOpenGL->OnDetache();
+	m_AssetManger.reset();
+	m_Project.reset();
+	m_AktiveScene.reset();
+	m_Framebuffer.reset();
+	m_ChekbordTex.reset();
+	m_SquareVA.reset();
+	m_BlueShader.reset();
 	RY_WARN("Sandbox2D::OnDetach!");
 }
 

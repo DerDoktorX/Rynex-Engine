@@ -67,9 +67,7 @@ namespace Rynex {
 				RY_CORE_WARN("This Shoud Not Happend!");
 			}
 
-			
-			m_PathRegistry[path.generic_string()] = handle;
-			m_HandleRegistry[handle] = metadata;
+
 		}
 		else if (IsAssetInRegistry(path)&& findDirectOnDisc)
 		{
@@ -209,7 +207,6 @@ namespace Rynex {
 		return IsAssetLoaded(m_AssetRegistry.IsAssetInRegistry(path));
 	}
 
-	
 
 	YAML::Emitter& operator<<(YAML::Emitter& out, const std::string_view& v)
 	{
@@ -288,4 +285,36 @@ namespace Rynex {
 
 
 	
+	bool AssetInternalRegistry::IsAssetInteralInRegistry(AssetHandle handle) const
+	{
+		return m_HandleRegistry.find(handle)!=m_HandleRegistry.end();
+	}
+
+	void AssetInternalRegistry::CreateAssetInteral(Ref<Asset>& asset, AssetMetadata metadata, AssetHandle handle)
+	{
+		m_HandleRegistry[handle] = metadata;
+		asset->Handle = handle;
+		m_AssetMap[handle] = asset;
+	}
+
+
+	AssetMetadata& AssetInternalRegistry::GetInteralMetadata(AssetHandle handle)
+	{
+		if (IsAssetInteralInRegistry(handle))
+		{
+			return m_HandleRegistry[handle];
+		}
+		return AssetMetadata();
+	}
+
+	Ref<Asset> AssetInternalRegistry::GetAssetInteral(AssetHandle handle)
+	{
+		if (IsAssetInteralInRegistry(handle))
+		{
+			return m_AssetMap[handle];
+		}
+		
+		return nullptr;
+	}
+
 }

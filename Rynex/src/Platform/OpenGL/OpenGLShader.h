@@ -9,6 +9,9 @@ typedef unsigned int GLenum;
 
 
 namespace Rynex {
+
+
+
 	class OpenGLShader : public Shader
 	{
 	public:
@@ -27,6 +30,8 @@ namespace Rynex {
 
 		virtual void AddShader(const std::string& shader, Type shaderType) override;
 
+		virtual void SetUniformValue(const std::string& name, void* value, ShaderDataType type);
+
 		virtual void SetInt(const std::string& name, int value) override;
 		virtual void SetIntArray(const std::string& name, int* value, uint32_t count) override;
 		virtual void SetFloat3(const std::string& name, const glm::vec3& value) override;
@@ -36,22 +41,30 @@ namespace Rynex {
 		virtual void SetAlgorithm(Algorithm ) override;
 		virtual Algorithm GetAlgorithm() override;
 
-		virtual void SetLayouteData(BufferLayout& bufferLayout, Type shaderType, void* value, uint32_t layoute = 0) override;
-		virtual const BufferLayout& GetLayout(Type shaderType, uint32_t layoute = 0) override;
+		virtual std::map<std::string, std::string>& GetUniformLayoute() override { return m_sUniformLayoute; };
 
 		virtual const std::string& GetName() const override { return m_Name;  };
 
 
 		void UploadUniformInt(const std::string& name, int values);
+		void UploadUniformInt(const std::string& name, void* values);
+
 		void UploadUniformIntArray(const std::string& name, int* values, uint32_t count);
+		void UploadUniformIntArray(const std::string& name, void* values, uint32_t count);
 
 		void UploadUniformFloat(const std::string& name, float values);
+		void UploadUniformFloat(const std::string& name, void* values);
 		void UploadUniformFloat2(const std::string& name, const glm::vec2& values);
+		void UploadUniformFloat2(const std::string& name, void* values);
 		void UploadUniformFloat3(const std::string& name, const glm::vec3& values);
+		void UploadUniformFloat3(const std::string& name, void* values);
 		void UploadUniformFloat4(const std::string& name, const glm::vec4& values);
+		void UploadUniformFloat4(const std::string& name, void* values);
 		
 		void UploadUniformMat3(const std::string& name, const glm::mat3& matrix);
+		void UploadUniformMat3(const std::string& name, void* values);
 		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
+		void UploadUniformMat4(const std::string& name, void* values);
 
 		// Asset
 		// static AssetType GetStaticType() { return AssetType::Shader; }
@@ -64,7 +77,9 @@ namespace Rynex {
 	private:
 		uint32_t m_RendererID;
 		std::string m_Name;
-		BufferLayout m_Layouts;
+		std::map<std::string, std::string> m_sUniformLayoute;
+		// std::map<std::string, UniformElement> m_UniformLayoute;
+		BufferLayout m_BufferLayout;
 #if 1
 		// friend class TestOpenGL;
 #endif // TODO: Dealting after testing

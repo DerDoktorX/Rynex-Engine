@@ -2,7 +2,7 @@
 
 namespace Rynex {
 	
-	enum class ShaderDataType
+	enum class ShaderDataType : uint8_t
 	{
 		None = 0, 
 		Float, Float2, Float3, Float4, Float3x3, Float4x4, FloatArray,
@@ -10,38 +10,80 @@ namespace Rynex {
 		Uint, Uint2, Uint3, Uint4, Uint3x3, Uint4x4, UintArray,
 		Bool,
 		Struct,
+		Texture,
 	};
 	
 	static uint32_t ShaderDataTypeSize(ShaderDataType type)
 	{
 		switch (type)
 		{
-			case Rynex::ShaderDataType::Float:		 return sizeof(float);
-			case Rynex::ShaderDataType::Float2:		 return sizeof(float) * 2;
-			case Rynex::ShaderDataType::Float3:		 return sizeof(float) * 3;
-			case Rynex::ShaderDataType::Float4:		 return sizeof(float) * 4;
-			case Rynex::ShaderDataType::Float3x3:	 return sizeof(float) * 3 * 3;
-			case Rynex::ShaderDataType::Float4x4:	 return sizeof(float) * 4 * 4;
-			//case Rynex::ShaderDataType::FloatArray:	 return 4;
-			case Rynex::ShaderDataType::Int:		 return sizeof(int);
-			case Rynex::ShaderDataType::Int2:		 return sizeof(int) * 2;
-			case Rynex::ShaderDataType::Int3:		 return sizeof(int) * 3;
-			case Rynex::ShaderDataType::Int4:		 return sizeof(int) * 4;
-			case Rynex::ShaderDataType::Int3x3:		 return sizeof(int) * 3 * 3;
-			case Rynex::ShaderDataType::Int4x4:		 return sizeof(int) * 4 * 4;
-			//case Rynex::ShaderDataType::IntArray:	return 4;
-			//case Rynex::ShaderDataType::Uint:		return 4;
-			//case Rynex::ShaderDataType::Uint2:	return 4;
-			//case Rynex::ShaderDataType::Uint3:	return 4;
-			//case Rynex::ShaderDataType::Uint4:	return 4;
-			//case Rynex::ShaderDataType::Uint3x3:	return 4;
-			//case Rynex::ShaderDataType::Uint4x4:	return 4;
-			//case Rynex::ShaderDataType::UintArray	return 4;
-			case Rynex::ShaderDataType::Bool:		 return sizeof(bool);
-			//case Rynex::ShaderDataType::Struct:	return 4;
+			case ShaderDataType::Float:		return sizeof(float);
+			case ShaderDataType::Float2:	return sizeof(float) * 2;
+			case ShaderDataType::Float3:	return sizeof(float) * 3;
+			case ShaderDataType::Float4:	return sizeof(float) * 4;
+			case ShaderDataType::Float3x3:	return sizeof(float) * 3 * 3;
+			case ShaderDataType::Float4x4:	return sizeof(float) * 4 * 4;
+			//case ShaderDataType::FloatArray:	 return 4;
+			case ShaderDataType::Int:		return sizeof(int);
+			case ShaderDataType::Int2:		return sizeof(int) * 2;
+			case ShaderDataType::Int3:		return sizeof(int) * 3;
+			case ShaderDataType::Int4:		return sizeof(int) * 4;
+			case ShaderDataType::Int3x3:	return sizeof(int) * 3 * 3;
+			case ShaderDataType::Int4x4:	return sizeof(int) * 4 * 4;
+			case ShaderDataType::Texture:	return 0;
+			//case ShaderDataType::IntArray:	return 4;
+			//case ShaderDataType::Uint:		return 4;
+			//case ShaderDataType::Uint2:	return 4;
+			//case ShaderDataType::Uint3:	return 4;
+			//case ShaderDataType::Uint4:	return 4;
+			//case ShaderDataType::Uint3x3:	return 4;
+			//case ShaderDataType::Uint4x4:	return 4;
+			//case ShaderDataType::UintArray	return 4;
+			case ShaderDataType::Bool:		 return sizeof(bool);
+			//case ShaderDataType::Struct:	return 4;
 		}
 		RY_CORE_ASSERT(false, "Uknokn ShaderDataType!")
 	};
+
+
+
+	static std::map<std::string, ShaderDataType> s_StringShaderDataType = {
+		{ "mat4",  ShaderDataType::Float4x4 },
+		{ "mat3",  ShaderDataType::Float3x3 },
+		{ "float", ShaderDataType::Float	},
+		{ "int",   ShaderDataType::Int		},
+		{ "vec2",  ShaderDataType::Float2	},
+		{ "vec3",  ShaderDataType::Float3	},
+		{ "vec4",  ShaderDataType::Float4	},
+		{ "sampler2D", ShaderDataType::Texture }
+	};
+
+	static std::map< ShaderDataType, std::string> s_ShaderDataTypeString = {
+		{ ShaderDataType::Float4x4	, "Float4x4" },
+		{ ShaderDataType::Float3x3	, "Float3x3" },
+		{ ShaderDataType::Float		, "Float"	 },
+		{ ShaderDataType::Int		, "Int"		 },
+		{ ShaderDataType::Float2	, "Float2"	 },
+		{ ShaderDataType::Float3	, "Float3"	 },
+		{ ShaderDataType::Float4	, "Float4"	 },
+		{ ShaderDataType::Texture	, "Texture"	 },
+	};
+
+	static void* GetEmtyDatyTypePlace(ShaderDataType type)
+	{
+		RY_CORE_MULTY_MEMORY_ALICATION("return", "GetEmtyDatyTypePlace", ShaderDataTypeSize(type));
+		return new void*[ShaderDataTypeSize(type)];
+	}
+
+	static ShaderDataType GetShaderDataTypeFromString(const std::string& type)
+	{
+		return s_StringShaderDataType[type];
+	}
+
+	static std::string GetStringFromShaderData(ShaderDataType type)
+	{
+		return s_ShaderDataTypeString[type];
+	}
 
 	struct BufferElement
 	{
@@ -51,7 +93,7 @@ namespace Rynex {
 		uint32_t Size;
 		bool Normilized;
 	
-		BufferElement(){}
+		BufferElement() {};
 		
 		BufferElement(ShaderDataType type, const std::string& name, bool normilized = false)
 			: Name(name), Type(type), Size(ShaderDataTypeSize(type)), Offset(0), Normilized(normilized)

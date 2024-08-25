@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Rynex/Renderer/API/Framebuffer.h"
-
+#include "Rynex/Renderer/API/Texture.h"
 
 namespace Rynex {
 
@@ -20,7 +20,11 @@ namespace Rynex {
 		virtual int ReadPixel(uint32_t attachmentsIndex, int x, int y) override;
 		virtual void ClearAttachment(uint32_t attachmentIndex, int value) override;
 
+#if 0
+		virtual Ref<Texture2D> GetTexture(uint32_t index = 0) override;
+#endif
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const override { RY_CORE_ASSERT(index < m_ColorAttachments.size(), "Error: OpenGLFramebuffer::GetColorAttachmentRendererID!"); return m_ColorAttachments[index]; }
+		virtual uint32_t GetDeathAttachmentRendererID() const override { return m_DepthAttachment; }
 
 		virtual const FramebufferSpecification& GetFramebufferSpecification() const override { return m_Specification; }
 	private:
@@ -30,6 +34,7 @@ namespace Rynex {
 		std::vector<FramebufferTextureSpecification> m_ColorAttachmentSpecifications;
 		FramebufferTextureSpecification m_DepthAttachmentSpecification = FramebufferTextureFormat::None;
 		
+
 		std::vector<uint32_t> m_ColorAttachments;
 		uint32_t m_DepthAttachment = 0;
 	};

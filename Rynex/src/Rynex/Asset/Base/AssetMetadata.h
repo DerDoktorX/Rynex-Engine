@@ -19,11 +19,12 @@ namespace Rynex {
 	struct AssetMetadata
 	{
 		AssetType Type = AssetType::None;
-		std::filesystem::path FilePath;
+		std::filesystem::path FilePath = "Not knowing Path";
 		AssetState State = AssetState::None;
 		std::string Name = std::string("");				//FilenameDefault
 		std::filesystem::file_time_type LoadingTime;
 		bool Aktive = false;
+		bool Interale = false;
 
 		operator bool() const { return Type != AssetType::None && Aktive; }
 

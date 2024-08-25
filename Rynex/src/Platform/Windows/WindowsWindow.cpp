@@ -68,7 +68,7 @@ namespace Rynex {
 
 		m_Window = glfwCreateWindow((int)m_Data.Width, (int)m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
 
-		m_Context = new OpenGLContext(m_Window);
+		m_Context = CreateRef<OpenGLContext>(m_Window);
 		m_Context->Init();
 
 		
@@ -182,6 +182,7 @@ namespace Rynex {
 	{
 		RY_PROFILE_FUNCTION();
 		glfwDestroyWindow(m_Window);
+		m_Context.reset();
 	}
 
 	void WindowsWindow::OnUpdate()

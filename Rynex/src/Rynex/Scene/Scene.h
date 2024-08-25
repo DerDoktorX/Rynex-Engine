@@ -30,14 +30,14 @@ namespace Rynex {
 		void DestroyEntity(Entity entity);
 		//entt::registry& Reg() { return m_Registery; }
 
-		void OnUpdateEditor(TimeStep ts, EditorCamera& camera);
+		void OnUpdateEditor(TimeStep ts, Ref<EditorCamera>& camera);
 		void OnUpdateRuntime(TimeStep ts);
-		void OnUpdateSimulation(TimeStep ts, EditorCamera& camera);
+		void OnUpdateSimulation(TimeStep ts, Ref<EditorCamera>& camera);
 
 		void OnViewportResize(uint32_t withe, uint32_t heigth);
 
-		void RenderScene2D(EditorCamera& camera);
-		void RenderScene3D(EditorCamera& camera);
+		void RenderScene2D(Camera& camera, glm::mat<4, 4, float>& transform);
+		void RenderScene3D(Camera& camera, glm::mat<4, 4, float>& transform);
 
 		Entity GetEntitiyByUUID(UUID uuid);
 
@@ -68,7 +68,7 @@ namespace Rynex {
 		bool m_IsRunning = false;
 		bool m_IsPaused = false;
 		int m_StepFrames = 0;
-
+		int m_EntityLeangth = 0;
 		//b2World* m_PhysicsWorld = nullptr;
 
 		std::unordered_map<UUID, entt::entity> m_EntityMapID;

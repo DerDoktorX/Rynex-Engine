@@ -4,6 +4,7 @@
 #include <Rynex/Events/KeyEvent.h>
 #include <Rynex/Core/CamerController.h>
 #include <Rynex/Renderer/API/Framebuffer.h>
+#include <Rynex/Renderer/RenderCommand.h>
 
 #include "Pannel/SceneHierachyPannel.h"
 #include "Pannel/ContentBrowserPannel.h"
@@ -29,10 +30,10 @@ namespace Rynex{
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
 
-		virtual void OnUpdate(Rynex::TimeStep ts) override;
+		virtual void OnUpdate(TimeStep ts) override;
 
 		//-- Events -----------------
-		virtual void OnEvent(Rynex::Event& e) override;
+		virtual void OnEvent(Event& e) override;
 
 		bool OnKeyPressed(KeyPressedEvent& e);
 		bool OnMousePressed(MouseButtenPressedEvent& e);
@@ -66,6 +67,8 @@ namespace Rynex{
 		void ImGizmoInViewPort();
 
 		void ImGuiSettings();
+		void ImGuiRenderInfo();
+
 		void ImGuiScenePannel();
 		
 
@@ -79,7 +82,7 @@ namespace Rynex{
 		void ImGuiHelp();
 
 	private:
-		EditorCamera m_EditorCamera;
+		Ref<EditorCamera> m_EditorCamera;
 		OrthograficCameraController	m_CameraController;
 		
 		// Scene
@@ -94,10 +97,13 @@ namespace Rynex{
 
 		// Statats
 		SceneState m_SceneState = SceneState::Edit;
-		
-
 		bool m_Runtime = false;
 		bool m_PrimeCamera = false;
+
+		// Renderer
+		bool m_RendereWirframe = false;
+		bool m_RendereDepthe = true;
+		CallFace m_CallFace;
 
 		float m_PasTime = 0.0f; // Not Current Finale Iplementet 
 		int m_GizmoType = -1;

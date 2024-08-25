@@ -41,8 +41,8 @@ namespace Rynex {
         //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
         float fontSize = 17.0f * 1.0f;
-        io.Fonts->AddFontFromFileTTF("Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
-        io.FontDefault=io.Fonts->AddFontFromFileTTF("Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
+         io.Fonts->AddFontFromFileTTF("Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
+         io.FontDefault=io.Fonts->AddFontFromFileTTF("Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
         
 		ImGui::StyleColorsDark();
         //ImGui::StyleColorsClassic();

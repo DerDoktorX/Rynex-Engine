@@ -50,4 +50,21 @@ namespace Rynex {
 
     }
 
+    std::string GetAssetTypeDragAndDropName(AssetType type)
+    {
+        RY_PROFILE_FUNCTION();
+        switch (type)
+        {
+            case AssetType::None:       return "ASSET_BROWSER_NONOE";
+            case AssetType::Scene:      return "ASSET_BROWSER_SCENE";
+            case AssetType::Shader:     return "ASSET_BROWSER_SHADER";
+            case AssetType::Texture:    return "ASSET_BROWSER_TEXTURE";
+            case AssetType::Texture2D:  return "ASSET_BROWSER_TEXTURE2D";
+            default:
+                break;
+        }
+        RY_CORE_ASSERT(false, "Error: Unkowne AssetType");
+        return "ASSET_BROWSER_ITEM";
+    }
+
 }

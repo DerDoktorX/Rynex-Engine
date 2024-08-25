@@ -151,6 +151,7 @@ namespace Rynex {
 	void ScriptingEngine::Init()
 	{
 		RY_PROFILE_FUNCTION();
+		RY_CORE_MEMORY_ALICATION("s_Data", "ScriptingEngine::Init", ScriptingEngineData);
 		s_Data = new ScriptingEngineData();
 
 		InitMono();
@@ -197,7 +198,11 @@ namespace Rynex {
 		RY_CORE_WARN("ScriptingEngine::Shutdown! Aktiv");
 		RY_PROFILE_FUNCTION();
 		ShutdownMono();
+		RY_CORE_MULTY_FREE_ALICATION("s_Data->ClassList", "Shutdown");
+		delete[] s_Data->ClassList;
+		RY_CORE_MEMORY_FREE("s_Data", "Shutdown");
 		delete s_Data;
+		
 		RY_CORE_INFO("ScriptingEngine::Shutdown! Sucess");
 	}
 
@@ -458,7 +463,7 @@ namespace Rynex {
 
 		MonoClass* entityClass = mono_class_from_name(s_Data->CoreAssemblyImage, "Rynex", "Entity");
 		
-		
+		RY_CORE_MULTY_MEMORY_ALICATION("s_Data->ClassList", "ScriptingEngine::LoadAssemblyClasses", sizeof(std::string) * numTypes);
 		s_Data->ClassList = new std::string[numTypes];
 		s_Data->ListIndex = 0;
 		
@@ -518,6 +523,13 @@ namespace Rynex {
 		RY_PROFILE_FUNCTION();
 		m_MonoClass = mono_class_from_name(isCore ? s_Data->CoreAssemblyImage : s_Data->AppAssemblyImage, m_ClassNamespace.c_str(), m_ClassName.c_str());
 	}
+
+	void ScriptClass::Shutdown()
+	{
+		RY_CORE_MEMORY_FREE("m_MonoClass", "ScriptClass::Shutdown");
+		delete m_MonoClass;
+
+	}
 	
 	MonoObject* ScriptClass::Instantiate()
 	{
@@ -553,6 +565,7 @@ namespace Rynex {
 		m_Constructor = s_Data->EntityClass.GetMethode(".ctor", 1);
 		m_OnCreateMethod = scriptClass->GetMethode("OnCreate");
 		m_OnUpdateMethod = scriptClass->GetMethode("OnUpdate", 1);
+		m_OnDestroyMethod = scriptClass->GetMethode("OnDestroy");
 		m_OnDrawMethod = scriptClass->GetMethode("OnDraw");
 
 		{
@@ -581,5 +594,16 @@ namespace Rynex {
 		RY_PROFILE_FUNCTION();
 		if (m_OnDrawMethod)
 			m_ScriptClass->InvokeMethode(m_OnDrawMethod, m_Instance);
+	}
+	void ScriptInstance::InvokeOnDestroy()
+	{
+		RY_PROFILE_FUNCTION();
+		if (m_OnDrawMethod)
+			m_ScriptClass->InvokeMethode(m_OnDestroyMethod, m_Instance);
+
+		//delete m_Constructor;
+		//delete m_OnCreateMethod;
+		//delete m_OnDrawMethod;
+		//delete m_OnUpdateMethod;
 	}
 }

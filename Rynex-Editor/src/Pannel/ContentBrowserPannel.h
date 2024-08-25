@@ -30,6 +30,11 @@ namespace Rynex {
 		Wahrning,
 	};
 
+	struct DealteAsset
+	{
+		std::string AssetFileName;
+		std::filesystem::path AssetFileParentPath;
+	};
 
 	class ContentBrowserPannel
 	{
@@ -51,6 +56,9 @@ namespace Rynex {
 		void FileFormate(const std::filesystem::directory_entry& directoryEntry, FileFormats formate = FileFormats::none) const;
 		void FileAsste(const std::filesystem::directory_entry& directoryEntry, AssetHandle handle) const;
 
+		void DelateListeAsset(DealteAsset dealeteAsset);
+		void DelateAsset();
+
 		static void InitAssetFileWatcher();
 	private:
 		Ref<Project> m_Project;
@@ -71,6 +79,8 @@ namespace Rynex {
 		
 		// AssetDirectory m_AssetDirectorys;
 		Ref<EditorAssetManager> m_AssetManger;
+
+		std::vector<DealteAsset> m_DealeteAssetList;
 	};				   
 }					   
 

@@ -8,7 +8,14 @@ namespace Rynex {
 	public:
 		inline static void Init()
 		{
+			// RY_CORE_MEMORY_ALICATION("s_RendererAPI", "RenderCommand::Init || namespace Rynex", OpenGLRendererAPI);
 			s_RendererAPI->Init();
+		}
+
+		inline static void Shutdown()
+		{
+			// RY_CORE_MEMORY_FREE("s_RendererAPI", "RenderCommand::Shutdown");
+			delete s_RendererAPI;
 		}
 
 		inline static void CreateComputePipline(glm::vec3& size)
@@ -24,6 +31,22 @@ namespace Rynex {
 		inline static void SetClearColor(const glm::vec4& color)
 		{
 			s_RendererAPI->SetClearColor(color);
+		}
+
+		inline static void AktivePolyGunMode(bool active = true)
+		{
+			s_RendererAPI->AktivePolyGunMode(active);
+		}
+
+		inline static void SetDethTest(bool active = true)
+		{
+			s_RendererAPI->SetDethTest(active);
+		}
+
+
+		inline static void SetFace(CallFace callFace = CallFace::None)
+		{
+			s_RendererAPI->SetFace(callFace);
 		}
 
 		inline static void Clear()
@@ -67,11 +90,6 @@ namespace Rynex {
 			s_RendererAPI->DrawPatches(vertexArray, indexCount);
 		};
 
-		inline static void AktivePolyGunMode(bool active = true)
-		{
-			s_RendererAPI->AktivePolyGunMode(active);
-		}
-
 		inline static void ComputePipline()
 		{
 			s_RendererAPI->ComputePipline();
@@ -82,6 +100,7 @@ namespace Rynex {
 			s_RendererAPI->DrawError();
 		};
 
+	
 	private:
 		static RendererAPI* s_RendererAPI;
 	};

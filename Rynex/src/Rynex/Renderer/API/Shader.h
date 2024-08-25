@@ -10,6 +10,31 @@
 
 namespace Rynex{
 
+	enum class ShaderResourceType : uint8_t {
+		None = 0,
+		LocalModel, LocalColor, MainCamerPos,
+		MainCameraViewMatrix, MainCamerProjectionMatrix, MainCameraViewProjectionMatrix,
+		GlobleResource,
+	};
+
+	
+	struct UniformElement
+	{
+		std::string Name;
+		ShaderDataType Type;
+		bool SingleUniform = true;
+		ShaderResourceType ShaderResourceType = ShaderResourceType::None;
+		bool GloblelResurce = true;
+		UUID UUID = 0;
+		void* LocalResurce = nullptr;
+
+		~UniformElement()
+		{
+			if (LocalResurce != nullptr)
+				delete LocalResurce;
+		}
+	};
+
 	class Shader : public Asset
 	{
 	public:
@@ -24,7 +49,7 @@ namespace Rynex{
 		TeselationEvelution = BIT(5)
 	};
 
-	enum class Algorithm
+	enum Algorithm
 	{
 		Nono = 0,
 		Z_Buffer = BIT(0), Depth_Buffer = BIT(0),
@@ -47,14 +72,16 @@ namespace Rynex{
 
 		virtual void AddShader(const std::string& shader, Shader::Type shaderType) = 0;
 
+
+		
+		virtual void SetUniformValue(const std::string& name, void* value, ShaderDataType type) = 0;
 		virtual void SetInt(const std::string& name, int value) = 0;
 		virtual void SetIntArray(const std::string& name, int* value, uint32_t count) = 0;
 		virtual void SetFloat3(const std::string& name, const glm::vec3& value) = 0;
 		virtual void SetFloat4(const std::string& name, const glm::vec4& value) = 0;
 		virtual void SetMat4(const std::string& name, const glm::mat4& value) = 0;
 
-		virtual void SetLayouteData(BufferLayout& bufferLayout, Type shaderType, void* value, uint32_t layoute = 0) = 0;
-		virtual const BufferLayout& GetLayout(Type shaderType, uint32_t layoute = 0) = 0;
+		virtual std::map<std::string, std::string>& GetUniformLayoute() = 0;
 		
 		virtual void SetAlgorithm(Shader::Algorithm) = 0;
 		virtual Algorithm GetAlgorithm() = 0;

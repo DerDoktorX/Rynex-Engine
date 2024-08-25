@@ -8,7 +8,7 @@ namespace Rynex{
 
 	namespace Utils {
 
-		static GLenum RynexImageFormatToGLDataFormat(ImageFormat format)
+		static GLenum ImageFormatToGLDataFormat(ImageFormat format)
 		{
 			switch (format)
 			{
@@ -16,11 +16,11 @@ namespace Rynex{
 				case ImageFormat::RGBA8: return GL_RGBA;
 			}
 
-			RY_CORE_ASSERT(false, "Error: Utils::RynexImageFormatToGLDataFormat!");
+			RY_CORE_ASSERT(false, "Error: Utils::ImageFormatToGLDataFormat!");
 			return 0;
 		}
 
-		static GLenum RynexImageFormatToGLInternalFormat(ImageFormat format)
+		static GLenum ImageFormatToGLInternalFormat(ImageFormat format)
 		{
 			switch (format)
 			{
@@ -28,9 +28,10 @@ namespace Rynex{
 				case ImageFormat::RGBA8: return GL_RGBA8;
 			}
 
-			RY_CORE_ASSERT(false, "Error: Utils::RynexImageFormatToGLInternalFormat!");
+			RY_CORE_ASSERT(false, "Error: Utils::ImageFormatToGLInternalFormat!");
 			return 0;
 		}
+
 
 	}
 
@@ -41,8 +42,8 @@ namespace Rynex{
 		m_Heigth(m_Specification.Height)
 	{
 		RY_PROFILE_FUNCTION();
-		m_InternalFormate = Utils::RynexImageFormatToGLInternalFormat(m_Specification.Format);
-		m_DataFormate = Utils::RynexImageFormatToGLDataFormat(m_Specification.Format);
+		m_InternalFormate = Utils::ImageFormatToGLInternalFormat(m_Specification.Format);
+		m_DataFormate = Utils::ImageFormatToGLDataFormat(m_Specification.Format);
 
 		RY_CORE_ASSERT(m_InternalFormate & m_DataFormate, "format not seportet?");
 
@@ -56,13 +57,21 @@ namespace Rynex{
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
 
+	OpenGLTexture2D::OpenGLTexture2D(const TextureSpecification& specification, uint32_t rendererID)
+		: m_Specification(specification),
+		m_Width(m_Specification.Width),
+		m_Heigth(m_Specification.Height),
+		m_RendererID(rendererID)
+	{
+	}
+
 	OpenGLTexture2D::OpenGLTexture2D(uint32_t withe, uint32_t height)
 		: m_Width(withe)
 		, m_Heigth(height)
 	{
 		RY_PROFILE_FUNCTION();
-		m_InternalFormate = Utils::RynexImageFormatToGLInternalFormat(m_Specification.Format);
-		m_DataFormate = Utils::RynexImageFormatToGLDataFormat(m_Specification.Format);
+		m_InternalFormate = Utils::ImageFormatToGLInternalFormat(m_Specification.Format);
+		m_DataFormate = Utils::ImageFormatToGLDataFormat(m_Specification.Format);
 
 		RY_CORE_ASSERT(m_InternalFormate & m_DataFormate, "format not seportet?");
 
@@ -177,8 +186,8 @@ namespace Rynex{
 		, m_IsLoaded(true)
 	{
 		RY_PROFILE_FUNCTION();
-		m_DataFormate = Utils::RynexImageFormatToGLDataFormat(m_Specification.Format);
-		m_InternalFormate = Utils::RynexImageFormatToGLInternalFormat(m_Specification.Format);
+		m_DataFormate = Utils::ImageFormatToGLDataFormat(m_Specification.Format);
+		m_InternalFormate = Utils::ImageFormatToGLInternalFormat(m_Specification.Format);
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 		glTextureStorage2D(m_RendererID, 1, m_InternalFormate, m_Width, m_Heigth);
@@ -215,5 +224,11 @@ namespace Rynex{
 	{
 		RY_PROFILE_FUNCTION();
 		glBindTextureUnit(slot, m_RendererID);
+	}
+
+	void OpenGLTexture2D::BindTex(uint32_t renderID, uint32_t slot)
+	{
+		RY_PROFILE_FUNCTION();
+		glBindTextureUnit(slot, renderID);
 	}
 }

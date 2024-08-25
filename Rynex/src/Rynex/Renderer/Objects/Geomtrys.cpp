@@ -32,6 +32,7 @@ namespace Rynex {
 
 		uint32_t count = 0;
 
+		RY_CORE_MULTY_MEMORY_ALICATION("vertex", "Geomtrys::SetCubeVertex", sizeof(VertexTestCube) * 18);
 		VertexTestCube *vertex = new VertexTestCube[18];
 		// up
 		vertex[0] = VertexTestCube(glm::vec3( -0.5f,  0.5f, -0.5f  ), glm::vec2( 0.0f, 0.0f ), glm::vec3( 0.0f,  1.0f,  0.0f ));
@@ -61,7 +62,7 @@ namespace Rynex {
 
 
 		vertexBuffer->SetData(vertex, 18 * sizeof(VertexTestCube));
-		
+		RY_CORE_MULTY_FREE_ALICATION("vertex", "Geomtrys::SetCubeVertex");
 		delete[] vertex;
 	}
 
@@ -78,6 +79,7 @@ namespace Rynex {
 				count = 673;
 				//count = 150; //36
 				indcies = new uint32_t[count * sizeof(uint32_t)];
+				RY_CORE_MULTY_MEMORY_ALICATION("indcies", "Geomtrys::SetCubeIndex", count * sizeof(uint32_t));
 				uint32_t index[] = {
 					0, 1, 2,	// 1
 					2, 3, 0,	// 2
@@ -105,6 +107,7 @@ namespace Rynex {
 			{
 				count = 21; //21
 				indcies = new uint32_t[count * sizeof(uint32_t)];
+				RY_CORE_MULTY_MEMORY_ALICATION("indcies", "Geomtrys::SetCubeIndex", count * sizeof(uint32_t));
 				uint32_t index[] = {
 					0, 1, 2, 3, 4, 5, 6, 7, 8 , 9, 9, 10, 10, 11, 12, 13, 14, 14, 15, 16, 17
 				};
@@ -126,6 +129,7 @@ namespace Rynex {
 		Ref<IndexBuffer> index = IndexBuffer::Create(indcies, count);
 		vertexArray->SetIndexBuffer(index);
 		delete[] indcies;
+		RY_CORE_MULTY_FREE_ALICATION("indcies", "Geomtrys::SetCubeIndex");
 	}
 
 }

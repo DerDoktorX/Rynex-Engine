@@ -5,6 +5,14 @@
 #include "Rynex/Renderer/API/VertexArray.h"
 
 namespace Rynex {
+
+	enum class CallFace {
+		None = 0,
+		Front,
+		Back,
+		FrontBacke
+	};
+
 	class RendererAPI 
 	{
 	public:
@@ -12,8 +20,18 @@ namespace Rynex {
 		{
 			None = 0, OpenGL = 1
 		};
+
 	public:
 		virtual void Init() = 0;
+		virtual void AktivePolyGunMode(bool aktiv) = 0;
+		virtual void SetDethTest(bool aktiv) = 0;
+		virtual void SetFace(CallFace calolFace) = 0;
+#if 0
+		virtual void SetBlendMode(bool aktiv) = 0;
+		virtual void SetFront(bool aktiv) = 0;
+#endif
+		
+
 		virtual void CreateComputePipline(glm::vec3& size) = 0;
 
 		virtual void SetViewPort(uint32_t x, uint32_t y, uint32_t withe, uint32_t heigth) = 0;
@@ -31,7 +49,7 @@ namespace Rynex {
 		virtual void DrawIndexedLine(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 		virtual void DrawIndexedLineLoop(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 
-		virtual void AktivePolyGunMode(bool aktiv) = 0;
+		
 
 		virtual void DrawPatches(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 

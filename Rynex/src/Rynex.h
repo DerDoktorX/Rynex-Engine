@@ -5,7 +5,6 @@
 #include "Rynex/Core/Application.h"
 #include "Rynex/Core/Layer.h"
 #include "Rynex/Core/Log.h"
-#include "Rynex/Core/File.h"
 #include "Rynex/Asset/Base/Buffer.h"	// TODO: find a way to move "Buffer.h" in -> "Rynex/Core/..."
 
 #include "Rynex/Core/TimeStep.h"

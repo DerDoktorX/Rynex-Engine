@@ -77,7 +77,7 @@ namespace Rynex {
 			RY_PROFILE_FUNCTION();
 			switch (format)
 			{
-			case FramebufferTextureFormat::DEPTH24STENCIL8:  return true;
+				case FramebufferTextureFormat::DEPTH24STENCIL8:  return true;
 			}
 
 			return false;
@@ -105,7 +105,9 @@ namespace Rynex {
 		for (auto specs : m_Specification.Attachments.Attachments)
 		{
 			if (!Utils::IsDepthFormat(specs.TextureFormat))
+			{
 				m_ColorAttachmentSpecifications.emplace_back(specs);
+			}
 			else
 				m_DepthAttachmentSpecification = specs;
 		}
@@ -119,6 +121,12 @@ namespace Rynex {
 		glDeleteFramebuffers(1, &m_RendererID);
 		glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
 		glDeleteTextures(1, &m_DepthAttachment);
+#if 0
+		for (auto& tex : m_TextureAttachments)
+			tex.reset();
+		m_TextureAttachments.clear();
+#endif
+		
 	}
 
 	void OpenGLFramebuffer::Invalidate()
@@ -131,6 +139,11 @@ namespace Rynex {
 			glDeleteTextures(1, &m_DepthAttachment);
 
 			m_ColorAttachments.clear();
+#if 0
+			for (auto& tex : m_TextureAttachments)
+				tex.reset();
+			m_TextureAttachments.clear();
+#endif
 			m_DepthAttachment = 0;
 		}
 
@@ -143,6 +156,9 @@ namespace Rynex {
 		if (m_ColorAttachmentSpecifications.size())
 		{
 			m_ColorAttachments.resize(m_ColorAttachmentSpecifications.size());
+#if 0
+			m_TextureAttachments.resize(m_ColorAttachmentSpecifications.size());
+#endif
 			Utils::CreateTextures(multisample, m_ColorAttachments.data(), m_ColorAttachments.size());
 
 			for (size_t i = 0; i < m_ColorAttachments.size(); i++)
@@ -189,6 +205,17 @@ namespace Rynex {
 		RY_CORE_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Frambuffer is not Complet!");
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+#if 0
+		for (size_t i = 0; i < m_ColorAttachments.size(); i++)
+		{
+			TextureSpecification textureSpecification;
+			textureSpecification.Format = m_ColorAttachmentSpecifications[i].TextureFormat;
+			textureSpecification.Samples = m_Specification.Samples;
+			textureSpecification.Width = m_Specification.Width;
+			textureSpecification.Height = m_Specification.Height;
+			m_TextureAttachments[i] = Texture2D::CreateInstance(textureSpecification, m_ColorAttachments[i]);
+		}
+#endif
 	}
 
 	void OpenGLFramebuffer::Bind()
@@ -239,7 +266,16 @@ namespace Rynex {
 
 		auto& spec = m_ColorAttachmentSpecifications[attachmentIndex];
 		glClearTexImage(m_ColorAttachments[attachmentIndex], 0,
-		Utils::RynexFBTextureFormatToGL(spec.TextureFormat), GL_INT, &value);
+			Utils::RynexFBTextureFormatToGL(spec.TextureFormat), GL_INT, &value);
+#if 0
+		m_TextureAttachments[attachmentIndex].reset();
+#endif
 	}
+#if 0
+	Ref<Texture2D> OpenGLFramebuffer::GetTexture(uint32_t index)
+	{
+		return m_TextureAttachments[index];
+	}
+#endif
 
 }

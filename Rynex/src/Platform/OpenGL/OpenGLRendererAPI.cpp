@@ -11,10 +11,9 @@ namespace Rynex {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
-		glEnable(GL_DEPTH_TEST);
-
+		SetDethTest(true);
 		//glEnable(GL_CULL_FACE);
-		//glEnable(GL_FRONT);
+		
 	}
 
 	void OpenGLRendererAPI::CreateComputePipline(glm::vec3& size)
@@ -33,6 +32,43 @@ namespace Rynex {
 		RY_PROFILE_FUNCTION();
 		glClearColor(color.r, color.g, color.b, color.a);
 	}
+
+	void OpenGLRendererAPI::SetFace(CallFace callFace)
+	{
+		switch (callFace)
+		{
+		case CallFace::None:
+			glDisable(GL_CULL_FACE);
+			break;
+		case  CallFace::Front:
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_FRONT);
+			glFrontFace(GL_CCW);
+			break;
+		case  CallFace::Back:
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
+			glFrontFace(GL_CCW);
+			break;
+		case  CallFace::FrontBacke:
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_FRONT_AND_BACK);
+			RY_CORE_WARN("Not Known Type! Thsi is Funkioning but maby not korekt!");
+			break;
+		default:
+			RY_CORE_ASSERT(false, "NOT Defiend CallFace");
+			break;
+		}
+	}
+
+	void OpenGLRendererAPI::SetDethTest(bool aktiv)
+	{
+		if (aktiv)
+			glEnable(GL_DEPTH_TEST);
+		else
+			glDisable(GL_DEPTH_TEST);
+	}
+
 
 	void OpenGLRendererAPI::Clear()
 	{

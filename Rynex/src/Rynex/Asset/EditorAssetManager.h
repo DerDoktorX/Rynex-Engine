@@ -55,6 +55,30 @@ namespace Rynex {
 		DirectoryRegistry m_DirectoryRegistry;
 	};
 
+	class AssetInternalRegistry
+	{
+	public:
+		bool IsAssetInteralInRegistry(AssetHandle handle) const;
+
+		
+		void CreateAssetInteral(Ref<Asset>& asset, AssetMetadata metadata, AssetHandle handle = AssetHandle());
+		
+
+		bool UpdateAssetData(AssetHandle handle, AssetMetadata metadata);
+
+		// const AssetMetadata& GetMetadata(AssetHandle handle);
+		// const AssetMetadata& GetMetadata(const std::filesystem::path& path);
+
+		AssetMetadata& GetInteralMetadata(AssetHandle handle);
+		Ref<Asset> GetAssetInteral(AssetHandle handle);
+
+		const HandleRegistry& GetHandleInteralRegistry() const { return m_HandleRegistry; }
+
+	private:
+		HandleRegistry m_HandleRegistry;
+		AssetMap m_AssetMap;
+	};
+
 	class EditorAssetManager : public AssetManagerBase
 	{
 	public:
@@ -83,16 +107,25 @@ namespace Rynex {
 
 		const AssetFileDirectory& GetAssetFileDirectory(const std::filesystem::path& path) { return m_AssetRegistry.GetAssetFileDirectory(path); }
 
+
 		const HandleRegistry& GetHandleRegistry() const { return m_AssetRegistry.GetHandleRegistry(); }
 		const PathRegistry& GetPathRegistry() const { return  m_AssetRegistry.GetPathRegistry(); }
 		const DirectoryRegistry& GetDirectorysRegistry() const { return  m_AssetRegistry.GetDirectorysRegistry(); }
-		//
 
+		// InteralAsset
+		void CreateAssetInteral(Ref<Asset>& asset, AssetMetadata metadata, AssetHandle handle = AssetHandle()) { return m_AssetInteralRegestriy.CreateAssetInteral(asset, metadata, handle); };
+
+		AssetMetadata& GetInteralMetadata(AssetHandle handle) { return m_AssetInteralRegestriy.GetInteralMetadata(handle); }
+		Ref<Asset> GetAssetInteral(AssetHandle handle) { return m_AssetInteralRegestriy.GetAssetInteral(handle); };
+
+		const HandleRegistry& GetHandleInteralRegistry() const { return m_AssetInteralRegestriy.GetHandleInteralRegistry(); }
+		//
 		void SerialzeAsseRegistry();
 		bool DeserialzeAssetRegistry();
 	private:
 		AssetMap m_LoadedAssets;
 		AssetRegistry m_AssetRegistry;
+		AssetInternalRegistry m_AssetInteralRegestriy;
 	};
 
 }

@@ -10,25 +10,13 @@ namespace Rynex {
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Curently not supportet"); return nullptr;
-		case RendererAPI::API::OpenGL:	return CreateRef<OpenGLTexture2D>(withe, height);
+			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Curently not supportet"); return nullptr;
+			case RendererAPI::API::OpenGL:	return CreateRef<OpenGLTexture2D>(withe, height);
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
 		return Ref<Texture2D>();
 	}
-#if 0
-	Ref<Texture2D> Texture2D::Create(const std::string& path)
-	{
-		switch (Renderer::GetAPI())
-		{
-			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Curently not supportet"); return nullptr;
-			case RendererAPI::API::OpenGL:	return CreateRef<OpenGLTexture2D>(path);
-		}
-		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
-		return nullptr;
-	}
-#else
 
 	Ref<Texture2D> Texture2D::Create(TextureSpecification spec, void* data)
 	{
@@ -62,5 +50,15 @@ namespace Rynex {
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
 	}
-#endif
+
+	void Texture::BindTex(uint32_t renderID, uint32_t slot)
+	{
+		switch (Renderer::GetAPI())
+		{
+			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Curently not supportet"); return;
+			case RendererAPI::API::OpenGL:	OpenGLTexture2D::BindTex(renderID, slot);
+		
+		}
+	}
+
 }

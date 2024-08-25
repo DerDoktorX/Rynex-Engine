@@ -24,6 +24,17 @@
 
 namespace Rynex {
 	
+	using ScenePrimitvRenderFunctions = std::function<void(const Ref<VertexArray>&)>;
+
+	static std::map<VertexArray::Primitv, ScenePrimitvRenderFunctions> s_SceneRenderFuncs = {
+		{ VertexArray::Primitv::Traingle,		Renderer3D::DrawMesh		},
+		{ VertexArray::Primitv::TraingleStrips, Renderer3D::DrawMeshStrips	},
+		{ VertexArray::Primitv::Line,			Renderer3D::DrawLine		},
+		{ VertexArray::Primitv::LineLoop,		Renderer3D::DrawLineLoop	},
+		{ VertexArray::Primitv::Points,			Renderer3D::DrawPoints		},
+		{ VertexArray::Primitv::Patches,		Renderer3D::DrawPatches		},
+	};
+
 	static void DrawObjectRender3D(const Ref<VertexArray>& vertexArray)
 	{
 		switch (vertexArray->GetPrimitv())
@@ -40,11 +51,11 @@ namespace Rynex {
 				return;
 			}
 			case VertexArray::Primitv::TraingleFan:
-		{
-			RY_CORE_ASSERT(false, "Primitv TraingleFan is not Implemantent jet!");
-			//Renderer3D::DrawMeshStrips(geomtry.Geometry);
-			return;
-		}
+			{
+				RY_CORE_ASSERT(false, "Primitv TraingleFan is not Implemantent jet!");
+				//Renderer3D::DrawMeshStrips(geomtry.Geometry);
+				return;
+			}
 			case VertexArray::Primitv::Line:
 			{
 				Renderer3D::DrawLine(vertexArray);
@@ -166,12 +177,13 @@ namespace Rynex {
 		
 		entity.AddComponent<IDComponent>(uuid);
 		entity.AddComponent<TransformComponent>();
+		entity.AddComponent<Matrix4x4Component>();
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
 
 		m_EntityMapID[uuid] = entity;
 		m_EntityMapTag[name] = entity;
-
+		m_EntityLeangth++;
 		return entity;
 	}
 
@@ -202,10 +214,11 @@ namespace Rynex {
 		m_EntityMapID.erase(entity.GetUUID());
 		m_EntityMapTag.erase(entity.GetComponent<TagComponent>().Tag);
 		m_Registery.destroy(entity);
+		m_EntityLeangth--;
 	}
 
 
-	void Scene::OnUpdateEditor(TimeStep ts, EditorCamera& camera)
+	void Scene::OnUpdateEditor(TimeStep ts, Ref<EditorCamera>& editorCamera)
 	{
 
 		RY_PROFILE_FUNCTION();
@@ -266,8 +279,11 @@ namespace Rynex {
 			}
 			ScriptingEngine::OnRuntimeStop();
 		}
-		RenderScene3D(camera);
-		RenderScene2D(camera);
+		Camera camera = Camera(editorCamera->GetProjektion());
+		glm::mat<4, 4, float> viewMatrix = editorCamera->GetViewMatrix();
+		RenderScene2D(camera, viewMatrix);
+		//Renderer3D::BeginScene(editorCamera);
+		RenderScene3D(camera, viewMatrix);
 #endif
 
 
@@ -322,13 +338,13 @@ namespace Rynex {
 		if (mainCamera) 
 		{
 
-#if RENDERER_3D
+#if  0// RENDERER_3D
 			{
 				////////////////////////////////////////////////////////////
 				/// Renderer 3D ////////////////////////////////////////////
 				////////////////////////////////////////////////////////////
 
-				Renderer3D::BeginScene(*mainCamera, *mainTransform);
+				Renderer3D::BeginScene(*mainCamera, glm::inverse(*mainTransform),);
 				auto group3D = m_Registery.group<TransformComponent>(entt::get<MaterialComponent, GeomtryComponent>);
 
 				for (auto entity3D : group3D)
@@ -372,7 +388,7 @@ namespace Rynex {
 		
 	}
 
-	void Scene::OnUpdateSimulation(TimeStep ts, EditorCamera& camera)
+	void Scene::OnUpdateSimulation(TimeStep ts, Ref<EditorCamera>& editorCamera)
 	{
 		RY_PROFILE_FUNCTION();
 		if (!m_IsPaused || m_StepFrames-- > 0)
@@ -402,15 +418,18 @@ namespace Rynex {
 		}
 
 		// Render
-		RenderScene2D(camera);
-		RenderScene3D(camera);
+		Camera camera = Camera(editorCamera->GetProjektion());
+		glm::mat<4, 4, float> viewMatrix = editorCamera->GetViewMatrix();
+		RenderScene2D(camera, viewMatrix);
+		//Renderer3D::BeginScene(editorCamera);
+		RenderScene3D(camera, viewMatrix);
 	}
 
-	void Scene::RenderScene2D(EditorCamera& camera)
+	void Scene::RenderScene2D(Camera& camera, glm::mat<4, 4, float>& viewMatrix)
 	{
 		RY_PROFILE_FUNCTION();
 #if RENDERER_2D
-		Renderer2D::BeginScene(camera);
+		Renderer2D::BeginScene(camera, viewMatrix);
 #if QUADS_DRAW
 		{
 			auto view2D = m_Registery.view<SpriteRendererComponent, TransformComponent>();
@@ -449,35 +468,76 @@ namespace Rynex {
 #endif
 	}
 
-	void Scene::RenderScene3D(EditorCamera& camera)
+	void Scene::RenderScene3D(Camera& camera, glm::mat<4, 4, float>& viewMatrix)
 	{
 		RY_PROFILE_FUNCTION();
-#if RENDERER_3D
-		{
+#if RENDERER_3D			
+		{			
+			auto mainViewPort = m_Registery.view<MainViewPortComponent>();
+			auto view3D = m_Registery.view<TransformComponent, MaterialComponent, GeomtryComponent>();
+#if 1
 			////////////////////////////////////////////////////////////
 			/// Renderer 3D ////////////////////////////////////////////
 			////////////////////////////////////////////////////////////
+			auto framebuffer = m_Registery.view<CameraComponent, FrameBufferComponent, TransformComponent>();
 
-			Renderer3D::BeginScene(camera);
-			auto view3D = m_Registery.view<TransformComponent, MaterialComponent, GeomtryComponent>();
-
-			for (auto entity3D : view3D)
+			
+			for(auto frame : framebuffer)
 			{
-				auto& [tranform, material, geomtry] = view3D.get<TransformComponent, MaterialComponent, GeomtryComponent>(entity3D);
-				Ref<VertexArray> vertexArray = geomtry.Geometry;
-				if (material.Shader == nullptr || vertexArray == nullptr)
-					continue;
-				Renderer3D::BeforDrawEntity(material, tranform.GetTransform());
-				DrawObjectRender3D(vertexArray);
-				Renderer3D::AfterDrawEntity(material);
-
 				
-
+				auto& [cameraC, frambufferC, transformC] = framebuffer.get<CameraComponent, FrameBufferComponent, TransformComponent>(frame);
+				frambufferC.FrameBuffer->Bind();
+				frambufferC.FrameBuffer->ClearAttachment(2, -1);
+				RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+				RenderCommand::Clear();
+				Renderer3D::BeginScene(cameraC.Camera, transformC.GetTransform());
+				
+				for (auto entity3D : view3D)
 				{
-					//Renderer3D::DrawLineLoop(vertexArray);
+					auto& [tranform, material, geomtry] = view3D.get<TransformComponent, MaterialComponent, GeomtryComponent>(entity3D);
+					Ref<VertexArray> vertexArray = geomtry.Geometry;
+					if (material.Shader == nullptr || vertexArray == nullptr)
+						continue;
+					Renderer3D::BeforDrawEntity(material, tranform.GetTransform());
+					// DrawObjectRender3D(vertexArray);
+					s_SceneRenderFuncs.at(vertexArray->GetPrimitv())(vertexArray);
+					Renderer3D::AfterDrawEntity(material);
 				}
+				Renderer3D::EndScene();
+				frambufferC.FrameBuffer->Unbind();
 			}
-			Renderer3D::EndScene();
+#endif
+			////////////////////////////////////////////////////////////
+			/// Main Renderer3D ////////////////////////////////////////
+			////////////////////////////////////////////////////////////
+
+
+			
+			for (auto viewPort : mainViewPort)
+			{
+				
+				auto& viewPortC = mainViewPort.get<MainViewPortComponent>(viewPort);
+				
+				
+				viewPortC.FrameBuffer->Bind();
+				viewPortC.FrameBuffer->ClearAttachment(2, -1);
+				RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+				RenderCommand::Clear();
+				Renderer3D::BeginScene(camera, viewMatrix);
+				for (auto entity3D : view3D)
+				{
+					auto& [tranform, material, geomtry] = view3D.get<TransformComponent, MaterialComponent, GeomtryComponent>(entity3D);
+					Ref<VertexArray> vertexArray = geomtry.Geometry;
+					if (material.Shader == nullptr || vertexArray == nullptr)
+						continue;
+					Renderer3D::BeforDrawEntity(material, tranform.GetTransform());
+					// DrawObjectRender3D(vertexArray);
+					s_SceneRenderFuncs.at(vertexArray->GetPrimitv())(vertexArray);
+					Renderer3D::AfterDrawEntity(material);
+				}
+				Renderer3D::EndScene();
+				viewPortC.FrameBuffer->Unbind();
+			}
 		}
 #endif	
 	}
@@ -547,29 +607,26 @@ namespace Rynex {
 		return {};
 	}
 
-	//Default
+	// Default
 	template<typename T>
 	void Scene::OnComponentAdded(Entity entity, T& component)
 	{
-#if 1
 		static_assert(false);
-#endif
 	}
 
-
+	// Template Component
 	template<>
 	void Scene::OnComponentAdded<IDComponent>(Entity entity, IDComponent& component)
 	{
 
 	}
 
-#if 1
 	template<>
 	void Scene::OnComponentAdded<TransformComponent>(Entity entity, TransformComponent& component)
 	{
 		
 	}
-#endif
+
 
 	template<>
 	void Scene::OnComponentAdded<CameraComponent>(Entity entity, CameraComponent& component)
@@ -577,7 +634,6 @@ namespace Rynex {
 		component.Camera.SetViewPortSize(m_ViewPortWithe, m_ViewPortHeigth);
 	}
 
-#if 1
 	template<>
 	void Scene::OnComponentAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component)
 	{
@@ -608,12 +664,37 @@ namespace Rynex {
 
 	}
 
-
 	template<>
 	void Scene::OnComponentAdded<ScriptComponent>(Entity entity, ScriptComponent& component)
 	{
 
 	}
-#endif
 
+	template<>
+	void Scene::OnComponentAdded<FrameBufferComponent>(Entity entity, FrameBufferComponent& component)
+	{
+
+	}
+
+	template<>
+	void Scene::OnComponentAdded<Matrix3x3Component>(Entity entity, Matrix3x3Component& component)
+	{
+
+	}
+
+	template<>
+	void Scene::OnComponentAdded<Matrix4x4Component>(Entity entity, Matrix4x4Component& component)
+	{
+
+	}
+	
+	template<>
+	void Scene::OnComponentAdded<MainViewPortComponent>(Entity entity, MainViewPortComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<SceneComponent>(Entity entity, SceneComponent& component)
+	{
+	}
 }

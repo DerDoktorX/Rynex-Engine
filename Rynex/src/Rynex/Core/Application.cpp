@@ -10,38 +10,7 @@
 
 
 #if RY_TODO_APPLICATION_REMABER
-struct AlicationMetrics
-{
-	uint32_t TotalAliction = 0;
-	uint32_t TotalFrees = 0;
 
-	uint32_t CurrentUsage() { return TotalAliction - TotalFrees;  }
-};
-
-static AlicationMetrics s_AlicationMetrics;
-
-void* operator new(size_t size)
-{
-	s_AlicationMetrics.TotalAliction += size;
-	//printf("Alicating: 
-	// 
-	// 
-	// 
-	// size\n", (int)size);
-	return malloc(size);
-}
-
-void operator delete(void* memory, size_t size)
-{
-	s_AlicationMetrics.TotalFrees += size;
-	//printf("Freing Alicating: %i size\n", (int)size);
-	return free(memory);
-}
-
-static void PrintMemoryUsage()
-{
-	printf("Memory Usage: %i bytes\n", s_AlicationMetrics.CurrentUsage());
-}
 #endif // TODO: Remeber what was that! then decide and Dealet?
 
 
@@ -70,11 +39,13 @@ namespace Rynex {
 		//m_Window->SetVSync(false);
 
 		m_ImGuiLayer = new ImGuiLayer();
+		RY_CORE_MEMORY_ALICATION("m_ImGuiLayer", "Application::Application", ImGuiLayer);
 		PushOverlay(m_ImGuiLayer);
 	}
 
 	Application::~Application()
 	{
+
 		for (Layer* layer : m_LayerStack)
 			layer->OnDetach();
 	}
