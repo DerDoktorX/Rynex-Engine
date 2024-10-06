@@ -6,15 +6,16 @@
 #include "Rynex/Renderer/API/Texture.h"
 #include "Rynex/Renderer/API/Shader.h"
 #include "Rynex/Renderer/API/VertexArray.h"
-#include "Rynex/Renderer/Objects/Geomtrys.h"
 #include "Rynex/Renderer/API/Framebuffer.h"
-
+#include "Rynex/Renderer/Objects/Geomtrys.h"
+#include "Rynex/Renderer/Objects/Mesh.h"
+#include "Rynex/Renderer/Objects/Model.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
-
+#include <glm/gtx/matrix_decompose.hpp>
 
 
 namespace Rynex {
@@ -44,7 +45,7 @@ namespace Rynex {
 		glm::vec3 Transaltion{ 0.f, 0.f, 0.f };
 		glm::vec3 Rotation{ 0.f, 0.f, 0.f };
 		glm::vec3 Scale{ 1.f, 1.f, 1.f };
-		bool change = false;
+		bool Change = false;
 
 		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
@@ -54,12 +55,22 @@ namespace Rynex {
 		glm::mat4 GetTransform() const
 		{
 			glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
-				//glm::rotate(glm::mat4(1.0f), Rotation.x, { 1.0f, 0.0f ,0.0f })
-				//* glm::rotate(glm::mat4(1.0f), Rotation.y, { 0.0f, 1.0f ,0.0f })
-				//* glm::rotate(glm::mat4(1.0f), Rotation.z, { 0.0f, 0.0f ,1.0f });
+			//glm::rotate(glm::mat4(1.0f), Rotation.x, { 1.0f, 0.0f ,0.0f })
+			//* glm::rotate(glm::mat4(1.0f), Rotation.y, { 0.0f, 1.0f ,0.0f })
+			//* glm::rotate(glm::mat4(1.0f), Rotation.z, { 0.0f, 0.0f ,1.0f });
 			return glm::translate(glm::mat4(1.0f), Transaltion)
 				* rotation
 				* glm::scale(glm::mat4(1.0f), Scale);
+		}
+
+		void SetTransform(glm::mat4& matrix)
+		{
+			glm::vec3 skew = {};
+			glm::vec4 perspectiv = {};
+			glm::qua qaurt = glm::quat(Rotation);
+			glm::decompose(matrix, Scale, qaurt, Transaltion, skew, perspectiv);
+			Rotation = glm::eulerAngles(qaurt);
+
 		}
 	};
 
@@ -67,7 +78,7 @@ namespace Rynex {
 	struct SpriteRendererComponent
 	{
 		glm::vec4 Color{ 1.0f, 0.0f, 1.0f, 1.0f };
-		Ref<Texture2D> Texture;
+		Ref<Texture> Texture;
 		
 		bool RenderSingle = false;
 
@@ -77,7 +88,6 @@ namespace Rynex {
 			: Color(color) {}
 
 	};
-
 
 	struct CameraComponent
 	{
@@ -89,16 +99,19 @@ namespace Rynex {
 		CameraComponent(const CameraComponent&) = default;
 
 	};
-	
+
 	struct ScriptComponent
 	{
 		std::string Name;
 		int selectedScript = 0;
+		
 		ScriptComponent() = default;
 		ScriptComponent(const ScriptComponent&) = default;
+
 	};
 
 	class ScriptableEntity;
+
 	struct NativeSripteComponent
 	{
 		ScriptableEntity* Instance = nullptr;
@@ -119,23 +132,19 @@ namespace Rynex {
 
 	};
 
-#if 1
 	struct GeomtryComponent
 	{
-		Ref<VertexArray> Geometry;
-		Ref<VertexBuffer> Buffer;
-		// Make By User or Defind Shape like Cube, Plane, Sphere ...
+		Ref<VertexArray> Geometry = nullptr;
+		Ref<VertexBuffer> Buffer = nullptr;
 
 		GeomtryComponent() = default;
 		GeomtryComponent(const GeomtryComponent&) = default;
 	};
-#endif // TODO: Geomtry System
-	
 
 	struct MaterialComponent
 	{
-		Ref<Shader> Shader;
-		Ref<Texture2D> Texture;
+		Ref<Shader> Shader = nullptr;
+		Ref<Texture> Texture = nullptr;
 
 		std::vector<UniformElement> UniformLayoute;
 		glm::vec3 Color{ 1.0f, 0.0f, 1.0f };
@@ -145,10 +154,10 @@ namespace Rynex {
 		MaterialComponent(const MaterialComponent&) = default;
 	};
 
-
 	struct Matrix4x4Component
 	{
-		glm::mat<4, 4, float> Matrix4x4;
+		glm::mat<4, 4, float> Matrix4x4 = glm::mat<4, 4, float>(1.0); //Locale Matrix
+		glm::mat<4, 4, float> GlobleMatrix4x4 = glm::mat<4, 4, float>(1.0);
 	};
 
 	struct Matrix3x3Component
@@ -158,7 +167,7 @@ namespace Rynex {
 
 	struct FrameBufferComponent 
 	{
-		Ref<Framebuffer> FrameBuffer;
+		Ref<Framebuffer> FrameBuffer = nullptr;
 		FramebufferSpecification FramebufferSpecification;
 
 		glm::vec<3, float> ClearColor;
@@ -170,20 +179,46 @@ namespace Rynex {
 		FrameBufferComponent(Ref<Framebuffer> frameBuffer)
 			: FrameBuffer(frameBuffer) {}
 	};
-#if 0
-	using Framebuffers = std::vector<Ref<Framebuffer>>;
-	struct FrameBufferComponents
-	{
-		Ref<Framebuffers> FrameBuffers;
-	};
-#endif // TODO: Add MultyFrambuffer Component System, sigle Entity!
-	struct SceneComponent
-	{
-		Ref<Framebuffer> FrameBuffer;
-		Ref<Scene> Scene;
 
-		SceneComponent() = default;
-		SceneComponent(const SceneComponent&) = default;
+	struct MeshComponent
+	{
+		Ref<Model> ModelR = nullptr;
+
+
+		MeshComponent() = default;
+		MeshComponent(const MeshComponent&) = default;
+
+		MeshComponent(Ref<Model> modelR)
+			: ModelR(modelR) {  }
+	};
+
+	struct StaticMeshComponent
+	{
+		Ref<Model> ModelR = nullptr;
+		std::vector<glm::mat4> GlobleMeshMatrix;
+		std::vector<glm::mat4> LocaleMeshMatrix;
+		bool UseAlleMeshes = true;
+		StaticMeshComponent() = default;
+		StaticMeshComponent(const StaticMeshComponent&) = default;
+
+		StaticMeshComponent(Ref<Model> modelR)
+		{ 
+			ModelR = modelR;
+		}
+			
+	};
+
+	struct DynamicMeshComponent
+	{
+		Ref<Mesh> MeshR = nullptr;
+		DynamicMeshComponent() = default;
+		DynamicMeshComponent(const DynamicMeshComponent&) = default;
+
+		DynamicMeshComponent(Ref<Model> modelR, int meshIndex = 0)
+			: MeshR(modelR->GetMesh(meshIndex)) 
+		{  
+		}
+
 	};
 
 	struct MainViewPortComponent
@@ -196,16 +231,38 @@ namespace Rynex {
 		MainViewPortComponent(const MainViewPortComponent&) = default;
 	};
 
-#if 0 
 	struct MaterialTransperent : MaterialComponent
 	{
 		float Trasperent = 1.0f;
 
 		MaterialTransperent() = default;
 		MaterialTransperent(const MaterialTransperent&) = default;
-	};
+	};	
+
+	struct RealtionShipComponent
+	{
+#if 0
+		int Previus = -1;
+		int First = -1;
+		int Next = -1;
+		int Parent = -1;
+#else
+		UUID PreviusID = 0;
+		UUID FirstID = 0;
+		UUID NextID = 0;
+		UUID ParentID = 0;
 #endif
-	
+		RealtionShipComponent() = default;
+		RealtionShipComponent(const RealtionShipComponent&) = default;
+#if 0
+		RealtionShipComponent(int previus, int parent = -1, int next = -1, int first = -1)
+			: Previus(previus), Parent(parent), Next(next), First(first){}
+#else
+		RealtionShipComponent(UUID previusID, UUID parentID = 0, UUID nextID = 0, UUID firstID = 0)
+			: PreviusID(previusID), ParentID(parentID), NextID(nextID), FirstID(firstID) {}
+#endif
+	};
+
 	template<typename... Component>
 	struct ComponentGroup
 	{
@@ -214,9 +271,11 @@ namespace Rynex {
 	using AllComponents =
 		ComponentGroup<TransformComponent, SpriteRendererComponent,
 		/*CircleRendererComponent,*/ CameraComponent, ScriptComponent,
-		MaterialComponent, GeomtryComponent,
+		MaterialComponent, MaterialTransperent,
+		GeomtryComponent,
 		Matrix3x3Component, Matrix4x4Component,
-		FrameBufferComponent, MainViewPortComponent, SceneComponent,
+		FrameBufferComponent, MainViewPortComponent, RealtionShipComponent,
+		MeshComponent, StaticMeshComponent, DynamicMeshComponent,
 		NativeSripteComponent /*, Rigidbody2DComponent,*/ /*BoxCollider2DComponent,*/
-		/*CircleCollider2DComponent,*/ /*TextComponent*/>;
+		/*CircleCollider2DComponent,*/ >;
 }

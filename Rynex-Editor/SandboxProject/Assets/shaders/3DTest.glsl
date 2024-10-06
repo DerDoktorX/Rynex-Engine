@@ -1,6 +1,6 @@
 // SrcShader
 
-#type vertex
+#type Vertex
 #version 450 core
 
 layout(location = 0) in vec3 a_Postion;
@@ -19,10 +19,11 @@ void main()
 	v_Normals = a_Normals;
 	v_UV = a_UV;
 	gl_Position = u_ViewProj * u_Model * vec4( a_Postion , 1. );
-	//gl_Position = vec4(0.5,0.5,0.0,1.0);
+	
+	//gl_Position = vec4(0.0,0.0,0.0,1.0);
 }
 
-#type fragment
+#type Fragment
 #version 450 core
 
 layout(location = 0) out vec4 Color;
@@ -35,7 +36,7 @@ layout(location = 1) flat in vec3	v_Normals;
 
 uniform vec3 u_Color;
 
-#define SWITCH_PICTURES 0
+#define SWITCH_PICTURES 1
 
 void main()
 {

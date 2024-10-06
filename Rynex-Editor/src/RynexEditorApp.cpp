@@ -12,7 +12,6 @@ namespace Rynex {
 		RynexEditor(const ApplicationSpecification& spec)
 			: Application(spec)
 		{
-			//PushLayer(new )
 			PushLayer(new EditorLayer());
 		}
 

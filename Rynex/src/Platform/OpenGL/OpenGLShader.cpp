@@ -12,14 +12,28 @@ namespace Rynex {
 
 		static GLenum ShaderTypeFromString(const std::string& type)
 		{
-			if (type == "vertex") return GL_VERTEX_SHADER;
-			if (type == "fragment" || type == "pixel") return GL_FRAGMENT_SHADER;
-			if (type == "Geomtry") return GL_GEOMETRY_SHADER;
-			if (type == "tessControl") return GL_TESS_CONTROL_SHADER;
-			if (type == "tessEvalution") return GL_TESS_EVALUATION_SHADER;
+			if (type == "Vertex")						return GL_VERTEX_SHADER;
+			if (type == "Fragment" || type == "Pixel")	return GL_FRAGMENT_SHADER;
+			if (type == "Geomtry")						return GL_GEOMETRY_SHADER;
+			if (type == "TessControl")					return GL_TESS_CONTROL_SHADER;
+			if (type == "TessEvalution")				return GL_TESS_EVALUATION_SHADER;
+			if (type == "Compute")						return GL_COMPUTE_SHADER;
 
 			RY_CORE_ASSERT(false, "Unkowne Shader Type!");
 			return 0;
+		}
+
+		static Shader::Type ShaderTypeEnumFromString(const std::string& type)
+		{
+			if (type == "Vertex")						return Shader::Type::Vertex;
+			if (type == "Fragment" || type == "Pixel")	return Shader::Type::Fragment;
+			if (type == "Geomtry")						return Shader::Type::Geometry;
+			if (type == "TessControl")					return Shader::Type::TeselationControl;
+			if (type == "TessEvalution")				return Shader::Type::TeselationEvelution;
+			if (type == "Compute")						return Shader::Type::Compute;
+
+			RY_CORE_ASSERT(false, "Unkowne Shader Type!");
+			return Shader::Type::None;
 		}
 
 		static std::string StringFromShaderType(GLenum type)
@@ -31,6 +45,7 @@ namespace Rynex {
 				case GL_GEOMETRY_SHADER: return "GL_GEOMETRY_SHADER";
 				case GL_TESS_CONTROL_SHADER: return "GL_TESS_CONTROL_SHADER";
 				case GL_TESS_EVALUATION_SHADER: return "GL_TESS_EVALUATION_SHADER";
+				case GL_COMPUTE_SHADER: return "GL_COMPUTE_SHADER";
 				default:
 					break;
 			}
@@ -39,7 +54,7 @@ namespace Rynex {
 			return 0;
 		}
 
-		bool CheckeShader(GLint shader)
+		static bool CheckeShader(GLint shader)
 		{
 			GLint isCompiled = 0;
 			glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
@@ -60,7 +75,7 @@ namespace Rynex {
 			return true;
 		}
 
-		GLint CreateShader(const GLchar* shaderSource, GLenum type)
+		static GLint CreateShader(const GLchar* shaderSource, GLenum type)
 		{
 			GLint shader = glCreateShader(type);
 			glShaderSource(shader, 1, &shaderSource, 0);
@@ -71,7 +86,7 @@ namespace Rynex {
 			return -1;
 		}
 
-		bool CheckProgrammLinking(GLint program, std::array<GLenum, 4>& glShaderIDs)
+		static bool CheckProgrammLinking(GLint program, std::array<GLenum, 4>& glShaderIDs)
 		{
 			GLint isLinked = 0;
 			glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);
@@ -96,7 +111,7 @@ namespace Rynex {
 			return true;
 		}
 
-		void GetUniformList(const std::string& shaderCode,std::map<std::string, std::string>& uniformMap)
+		static void GetUniformList(const std::string& shaderCode,std::map<std::string, std::string>& uniformMap)
 		{
 			std::istringstream stream(shaderCode);
 			std::string word;
@@ -114,9 +129,7 @@ namespace Rynex {
 			}
 		}
 
-		 
-
-		void GetUniformList(const std::string& shaderCode, std::map<std::string, UniformElement>& uniformMap)
+		static void GetUniformList(const std::string& shaderCode, std::map<std::string, UniformElement>& uniformMap)
 		{
 			std::istringstream stream(shaderCode);
 			std::string word;
@@ -130,34 +143,20 @@ namespace Rynex {
 						}
 						UniformElement& uniformElement = uniformMap[name];
 						uniformElement.Name = name;
-						uniformElement.Type = GetShaderDataTypeFromString(type);
-#if 0
-						uniformElement.value = GetEmtyDatyTypePlace(uniformElement.Type);
-#endif
+						uniformElement.Type = BufferAPI::GetShaderDataTypeFromString(type);
+
 					}
 				}
 			}
 		}
+
+		
+
+		
 	}
-#if 0
-	using UploadUniformFunctions = std::function<void(const std::string&, void*)>;
-	static std::map<ShaderDataType, UploadUniformFunctions> s_UploadUniformFunc = {
-		 {	ShaderDataType::Float,		OpenGLShader::UploadUniformFloat},
-		 //{	ShaderDataType::Float2,		OpenGLShader::UploadUniformFloat2	},
-		 //{	ShaderDataType::Float3,		OpenGLShader::UploadUniformFloat3	},
-		 //{	ShaderDataType::Float4,		OpenGLShader::UploadUniformFloat4	},
-		 //{	ShaderDataType::Float3x3,	OpenGLShader::UploadUniformMat3	},
-		 //{	ShaderDataType::Float4x4,	OpenGLShader::UploadUniformMat4	},
-		 //{	ShaderDataType::Int,		OpenGLShader::UploadUniformInt	}
-	};
-#endif
+
 	OpenGLShader::OpenGLShader(const std::string& source, const std::string& name)
 	{
-		RY_PROFILE_FUNCTION();
-#if RY_CONSOLE_LOG_FUNKTION_OPENGL
-		RY_CORE_INFO("OpenGLShader::OpenGLShader(const std::string& filePath)");
-#endif
-		//std::string source = ReadFile(filePath);
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);
 		m_Name = name;
@@ -166,10 +165,6 @@ namespace Rynex {
 	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
 		: m_Name(name)
 	{
-		RY_PROFILE_FUNCTION();
-#if RY_CONSOLE_LOG_FUNKTION_OPENGL
-		RY_CORE_INFO("OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)");
-#endif
 		std::unordered_map<GLenum, std::string> sources;
 		sources[GL_VERTEX_SHADER] = vertexSrc;
 		sources[GL_FRAGMENT_SHADER] = fragmentSrc;
@@ -178,46 +173,41 @@ namespace Rynex {
 
 	OpenGLShader::~OpenGLShader()
 	{
-		RY_PROFILE_FUNCTION();
 		glDeleteProgram(m_RendererID);
 	}
 
 	void OpenGLShader::ReganrateShader(const std::string& source)
 	{
 		glDeleteProgram(m_RendererID);
-		
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);
 	}
 
 	void OpenGLShader::Bind() const
 	{
-		RY_PROFILE_FUNCTION();
-#if RY_CONSOLE_LOG_FUNKTION_OPENGL
-		RY_CORE_INFO("void OpenGLShader::Bind() const");
-#endif
 		glUseProgram(m_RendererID);
 	}
 
 	void OpenGLShader::UnBind() const
 	{
-#if CONSOLE_LOG_FUNKTION_OPENGL
-		RY_CORE_INFO("void OpenGLShader::UnBind() const");
-#endif
 		glUseProgram(0);
 	}
 
 	void OpenGLShader::AddShader(const std::string& shader, Shader::Type shaderType)
 	{
-		RY_PROFILE_FUNCTION();
 		RY_CORE_ASSERT(false, "Not Rady!");
+	}
+
+	void OpenGLShader::SetPatcheVertecies(uint32_t count)
+	{
+		RY_CORE_ASSERT(count != 0 , "Patch Verticies need more then 0 Verticies!");
+		RY_CORE_ASSERT(m_ShaderType & (int)Shader::Type::TeselationControl && m_ShaderType & (int)Shader::Type::TeselationEvelution, "Shader need to be a TeselationControl and TeselationEvelution Shader!");
+		glPatchParameteri(GL_PATCH_VERTICES , count);
 	}
 
 	void OpenGLShader::SetUniformValue(const std::string& name, void* value, ShaderDataType type)
 	{
-#if 0
-		s_UploadUniformFunc.at(type)(name, value);
-#else
+
 		switch (type)
 		{
 			case ShaderDataType::Float:
@@ -258,104 +248,74 @@ namespace Rynex {
 			default:
 				break;
 		}
-#endif
-	}
 
+	}
 
 	
 	void OpenGLShader::SetInt(const std::string& name, int value)
 	{
-		RY_PROFILE_FUNCTION();
-#if RY_CONSOLE_LOG_FUNKTION_OPENGL
-		RY_CORE_INFO("void OpenGLShader::SetInt(const std::string& name, int value)");
-#endif
 		UploadUniformInt(name, value);
 	}
 
-	
 
 	void OpenGLShader::SetIntArray(const std::string& name, int* value, uint32_t count)
 	{
-		RY_PROFILE_FUNCTION();
-#if RY_CONSOLE_LOG_FUNKTION_OPENGL
-		RY_CORE_INFO("void OpenGLShader::SetIntArray(const std::string& name, int* value, uint32_t count)");
-#endif
 		UploadUniformIntArray(name, value, count);
 	}
 
 	void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)
 	{
-		RY_PROFILE_FUNCTION();
-#if RY_CONSOLE_LOG_FUNKTION_OPENGL
-		RY_CORE_INFO("void OpenGLShader::SetFloat3(const std::string& name, const glm::vec3& value)");
-#endif
 		UploadUniformFloat3(name, value);
 	}
 
 	void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value)
 	{
-		RY_PROFILE_FUNCTION();
-#if RY_CONSOLE_LOG_FUNKTION_OPENGL
-		RY_CORE_INFO("void OpenGLShader::SetFloat4(const std::string& name, const glm::vec4& value)");
-#endif
 		UploadUniformFloat4(name, value);
 	}
 
 	void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value)
 	{
-		RY_PROFILE_FUNCTION();
-#if RY_CONSOLE_LOG_FUNKTION_OPENGL
-		RY_CORE_INFO("void OpenGLShader::SetMat4(const std::string& name, const glm::mat4& value)");
-#endif
 		UploadUniformMat4(name, value);
 	}
 
 	void OpenGLShader::SetAlgorithm(Shader::Algorithm)
 	{
-		RY_PROFILE_FUNCTION();
 		RY_CORE_ASSERT(false, "Not Rady!");
 	}
 
 	Shader::Algorithm OpenGLShader::GetAlgorithm()
 	{
-		RY_PROFILE_FUNCTION();
+
 		RY_CORE_ASSERT(false, "Not Rady!");
 		return Algorithm();
 	}
 
 	void OpenGLShader::UploadUniformMat3(const std::string& name, const glm::mat3& matrix)
 	{
-		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
 	void OpenGLShader::UploadUniformMat3(const std::string& name, void* values)
 	{
-		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniformMatrix3fv(location, 1, GL_FALSE, static_cast<float*>(values));
 	}
 
 	void OpenGLShader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix)
 	{
-		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
 	void OpenGLShader::UploadUniformMat4(const std::string& name, void* values)
 	{
-		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniformMatrix4fv(location, 1, GL_FALSE, static_cast<float*>(values));
 	}
 
-	
-
 	std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(const std::string& source)
 	{
-		RY_PROFILE_FUNCTION();
 		std::unordered_map<GLenum, std::string> shaderSource;
 		std::map<std::string, std::string> sUniformBuffer;
 		std::map<std::string, UniformElement> uniformBuffer;
@@ -369,7 +329,7 @@ namespace Rynex {
 			RY_CORE_ASSERT(eol != std::string::npos, "Sytex error");
 			size_t begin = pos + typeTokenLeangth + 1;
 			std::string type = source.substr(begin, eol - begin);
-			RY_CORE_ASSERT(type == "vertex" || type == "fragment" || type == "pixel" || type == "tessControl" || type == "tessEvalution", "Invadlid shader type specification");
+			RY_CORE_ASSERT(type == "Vertex" || type == "Fragment" || type == "Pixel" || type == "TessControl" || type == "TessEvalution" || type == "Geomtry" || type == "Compute", "Invadlid shader type specification");
 			
 			size_t nextLinePos = source.find_first_of("\r\n",eol);
 			pos = source.find(typeToken, nextLinePos);
@@ -377,15 +337,15 @@ namespace Rynex {
 			Utils::GetUniformList(source, uniformBuffer);
 			Utils::GetUniformList(source, sUniformBuffer);
 			shaderSource[Utils::ShaderTypeFromString(type)] = source.substr(nextLinePos, pos - (nextLinePos == std::string::npos ? source.size() - 1 : nextLinePos));
+			m_ShaderType |= (int)Utils::ShaderTypeEnumFromString(type);
 		}
 		m_sUniformLayoute = sUniformBuffer;
-		// m_UniformLayoute = uniformBuffer;
 		return shaderSource;
 	}
 
 	void OpenGLShader::Compile(std::unordered_map<GLenum, std::string>& shadersSources)
 	{
-		RY_PROFILE_FUNCTION();
+
 		GLint program = glCreateProgram();
 		RY_CORE_ASSERT(shadersSources.size() <= 4, "only 4 Shaders for now!");
 		std::array<GLenum, 4> glShaderIDs;
@@ -411,66 +371,55 @@ namespace Rynex {
 		for (auto& id : glShaderIDs)
 			glDetachShader(program, id);
 
-		if (shadersSources.find(GL_TESS_CONTROL_SHADER) != shadersSources.end() &&
-			shadersSources.find(GL_TESS_EVALUATION_SHADER) != shadersSources.end())
-		{
-			glPatchParameteri(GL_PATCH_VERTICES, 4);
-		}
 	}
 
 
 	void OpenGLShader::UploadUniformFloat(const std::string& name, float values)
 	{
-		RY_PROFILE_FUNCTION();
+
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform1f(location, values);
 	}
 
 	void OpenGLShader::UploadUniformFloat(const std::string& name, void* values)
 	{
-		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform1fv(location, 1, static_cast<float*>(values));
 	}
 
 	void OpenGLShader::UploadUniformFloat2(const std::string& name, const glm::vec2& values)
 	{
-		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform2f(location, values.x, values.y);
 	}
 
 	void OpenGLShader::UploadUniformFloat2(const std::string& name, void* values)
 	{
-		RY_PROFILE_FUNCTION();
+
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform2fv(location, 1, static_cast<float*>(values));
 	}
 
 	void OpenGLShader::UploadUniformFloat3(const std::string& name, const glm::vec3& values)
 	{
-		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform3f(location, values.x, values.y, values.z);
 	}
 
 	void OpenGLShader::UploadUniformFloat3(const std::string& name, void* values)
 	{
-		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform3fv(location, 1, static_cast<float*>(values));
 	}
 
 	void OpenGLShader::UploadUniformFloat4(const std::string& name, const glm::vec4& values)
 	{
-		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform4f(location, values.x, values.y, values.z, values.w);
 	}
 
 	void OpenGLShader::UploadUniformFloat4(const std::string& name, void* values)
 	{
-		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform4fv(location, 1, static_cast<float*>(values));
 	}
@@ -478,28 +427,24 @@ namespace Rynex {
 
 	void OpenGLShader::UploadUniformInt(const std::string& name, const int values)
 	{
-		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform1i(location, values);
 	}
 
 	void OpenGLShader::UploadUniformInt(const std::string& name, void* values)
 	{
-		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform1iv(location, 1, static_cast<int*>(values));
 	}
 
 	void OpenGLShader::UploadUniformIntArray(const std::string& name, int* values, uint32_t count)
 	{
-		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform1iv(location, count, values);
 	}
 
 	void OpenGLShader::UploadUniformIntArray(const std::string& name, void* values, uint32_t count)
 	{
-		RY_PROFILE_FUNCTION();
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform1iv(location, count, static_cast<int*>(values));
 	}

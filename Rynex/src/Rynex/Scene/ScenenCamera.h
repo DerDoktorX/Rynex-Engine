@@ -4,7 +4,7 @@
 
 namespace Rynex{
 
-	class SceneCamera : public Camera
+	class RYNEX_API SceneCamera : public Camera
 	{
 	public:
 		enum class ProjectionType { Perspectiv = 0, Orthographic = 1 };

@@ -1,8 +1,9 @@
 #pragma once
+#include "Rynex/Asset/Base/Asset.h"
 
 namespace Rynex {
 	
-	enum class ShaderDataType : uint8_t
+	enum class RYNEX_API ShaderDataType
 	{
 		None = 0, 
 		Float, Float2, Float3, Float4, Float3x3, Float4x4, FloatArray,
@@ -13,25 +14,32 @@ namespace Rynex {
 		Texture,
 	};
 	
-	static uint32_t ShaderDataTypeSize(ShaderDataType type)
+	enum class RYNEX_API BufferDataUsage {
+		None = 0,
+		DynamicDraw,
+		StaticDraw,
+	};
+
+
+	static uint32_t ShaderDataTypeSize(ShaderDataType type, uint32_t ellements = 1)
 	{
 		switch (type)
 		{
-			case ShaderDataType::Float:		return sizeof(float);
-			case ShaderDataType::Float2:	return sizeof(float) * 2;
-			case ShaderDataType::Float3:	return sizeof(float) * 3;
-			case ShaderDataType::Float4:	return sizeof(float) * 4;
-			case ShaderDataType::Float3x3:	return sizeof(float) * 3 * 3;
-			case ShaderDataType::Float4x4:	return sizeof(float) * 4 * 4;
-			//case ShaderDataType::FloatArray:	 return 4;
-			case ShaderDataType::Int:		return sizeof(int);
-			case ShaderDataType::Int2:		return sizeof(int) * 2;
-			case ShaderDataType::Int3:		return sizeof(int) * 3;
-			case ShaderDataType::Int4:		return sizeof(int) * 4;
-			case ShaderDataType::Int3x3:	return sizeof(int) * 3 * 3;
-			case ShaderDataType::Int4x4:	return sizeof(int) * 4 * 4;
-			case ShaderDataType::Texture:	return 0;
-			//case ShaderDataType::IntArray:	return 4;
+			case ShaderDataType::Float:			return sizeof(float);
+			case ShaderDataType::Float2:		return sizeof(float) * 2;
+			case ShaderDataType::Float3:		return sizeof(float) * 3;
+			case ShaderDataType::Float4:		return sizeof(float) * 4;
+			case ShaderDataType::Float3x3:		return sizeof(float) * 3 * 3;
+			case ShaderDataType::Float4x4:		return sizeof(float) * 4 * 4;
+			case ShaderDataType::FloatArray:	return ellements * sizeof(float);
+			case ShaderDataType::Int:			return sizeof(int);
+			case ShaderDataType::Int2:			return sizeof(int) * 2;
+			case ShaderDataType::Int3:			return sizeof(int) * 3;
+			case ShaderDataType::Int4:			return sizeof(int) * 4;
+			case ShaderDataType::Int3x3:		return sizeof(int) * 3 * 3;
+			case ShaderDataType::Int4x4:		return sizeof(int) * 4 * 4;
+			case ShaderDataType::Texture:		return 0;
+			case ShaderDataType::IntArray:		return ellements * sizeof(int);
 			//case ShaderDataType::Uint:		return 4;
 			//case ShaderDataType::Uint2:	return 4;
 			//case ShaderDataType::Uint3:	return 4;
@@ -47,45 +55,8 @@ namespace Rynex {
 
 
 
-	static std::map<std::string, ShaderDataType> s_StringShaderDataType = {
-		{ "mat4",  ShaderDataType::Float4x4 },
-		{ "mat3",  ShaderDataType::Float3x3 },
-		{ "float", ShaderDataType::Float	},
-		{ "int",   ShaderDataType::Int		},
-		{ "vec2",  ShaderDataType::Float2	},
-		{ "vec3",  ShaderDataType::Float3	},
-		{ "vec4",  ShaderDataType::Float4	},
-		{ "sampler2D", ShaderDataType::Texture }
-	};
 
-	static std::map< ShaderDataType, std::string> s_ShaderDataTypeString = {
-		{ ShaderDataType::Float4x4	, "Float4x4" },
-		{ ShaderDataType::Float3x3	, "Float3x3" },
-		{ ShaderDataType::Float		, "Float"	 },
-		{ ShaderDataType::Int		, "Int"		 },
-		{ ShaderDataType::Float2	, "Float2"	 },
-		{ ShaderDataType::Float3	, "Float3"	 },
-		{ ShaderDataType::Float4	, "Float4"	 },
-		{ ShaderDataType::Texture	, "Texture"	 },
-	};
-
-	static void* GetEmtyDatyTypePlace(ShaderDataType type)
-	{
-		RY_CORE_MULTY_MEMORY_ALICATION("return", "GetEmtyDatyTypePlace", ShaderDataTypeSize(type));
-		return new void*[ShaderDataTypeSize(type)];
-	}
-
-	static ShaderDataType GetShaderDataTypeFromString(const std::string& type)
-	{
-		return s_StringShaderDataType[type];
-	}
-
-	static std::string GetStringFromShaderData(ShaderDataType type)
-	{
-		return s_ShaderDataTypeString[type];
-	}
-
-	struct BufferElement
+	struct RYNEX_API BufferElement
 	{
 		std::string Name;
 		ShaderDataType Type;
@@ -93,8 +64,9 @@ namespace Rynex {
 		uint32_t Size;
 		bool Normilized;
 	
-		BufferElement() {};
 		
+		BufferElement() = default;
+		BufferElement(const BufferElement&) = default;
 		BufferElement(ShaderDataType type, const std::string& name, bool normilized = false)
 			: Name(name), Type(type), Size(ShaderDataTypeSize(type)), Offset(0), Normilized(normilized)
 		{
@@ -135,13 +107,18 @@ namespace Rynex {
 		
 	};
 
-	class BufferLayout 
+	class RYNEX_API BufferLayout
 	{
 	public:
 		BufferLayout() {}
 		BufferLayout(const BufferLayout&) {}
 
 		BufferLayout(const std::initializer_list<BufferElement>& element)
+			: m_Elements(element)
+		{
+			CaculateOffsetAndStride();
+		}
+		BufferLayout(const std::vector<BufferElement>& element)
 			: m_Elements(element)
 		{
 			CaculateOffsetAndStride();
@@ -181,8 +158,17 @@ namespace Rynex {
 		size_t m_BufferCount = 0;
 	};
 
+	class RYNEX_API BufferAPI
+	{
+	public:
+		static void Init();
+		static void Shutdown();	
+		
+		static ShaderDataType GetShaderDataTypeFromString(const std::string& type);
+		static std::string GetStringFromShaderData(ShaderDataType type);
+	};
 
-	class VertexBuffer
+	class RYNEX_API VertexBuffer : public Asset
 	{
 	public:
 		virtual ~VertexBuffer() {}
@@ -193,22 +179,69 @@ namespace Rynex {
 		virtual const BufferLayout& GetLayout() const = 0;
 		virtual void SetLayout(const BufferLayout & layout) = 0;
 
-		virtual void SetData(const void* data, uint32_t size) = 0;
+		virtual void SetData(const void* data, uint32_t byteSize) = 0;
+		virtual uint32_t GetByteSize() = 0;
 
-		static Ref<VertexBuffer> Create(uint32_t size);
-		static Ref<VertexBuffer> Create(float* vertices, uint32_t size);
+		static Ref<VertexBuffer> Create(const uint32_t size);
+		static Ref<VertexBuffer> Create(const void* vertices, uint32_t size);
+		static Ref<VertexBuffer> Create(const void* vertices, uint32_t size, BufferDataUsage usage);
+
+		// virtual const RendererAPI::API GetRendererAPI() const = 0;
+
+		virtual const std::vector<unsigned char>& GetBufferData() = 0;
+		virtual void FreeBufferData() = 0;
+
+		static AssetType GetStaticType() { return AssetType::VertexBuffer; }
+		AssetType GetType() const { return GetStaticType(); }
 	};
 
-	class IndexBuffer
+	class RYNEX_API IndexBuffer : public Asset
 	{
 	public:
 		virtual uint32_t GetCount() const = 0;
 		virtual void Bind() const = 0;
 		virtual void UnBind() const = 0;
-		virtual void SetData(const uint32_t* indices, uint32_t count) = 0;
 
-		static Ref<IndexBuffer> Create(uint32_t count);
-		static Ref<IndexBuffer> Create(uint32_t* indices, uint32_t count);
+		virtual void SetData(const uint32_t* indices, uint32_t count) = 0;
+		virtual void SetData(const uint16_t* indices, uint32_t count) = 0;
+
+		virtual const std::vector<unsigned char> GetBufferData() = 0;
+		virtual void FreeBufferData() = 0;
+		virtual uint32_t GetElementByte() = 0; 
+		virtual uint32_t GetRenderID() = 0;
+
+		static Ref<IndexBuffer> Create(const uint32_t* indices, uint32_t count, BufferDataUsage usage = BufferDataUsage::None);
+		static Ref<IndexBuffer> Create(const uint16_t* indices, uint32_t count, BufferDataUsage usage = BufferDataUsage::None);
+
+
+		static AssetType GetStaticType() { return AssetType::IndexBuffer; }
+		AssetType GetType() const { return GetStaticType(); }
+	};
+
+	class RYNEX_API StorageBuffer : public Asset
+	{
+	public: 
+		enum class Type 
+		{
+			None = 0,
+			Dynamic,
+			Read,
+			Write,
+			Presistent,
+			Coherent,
+			Client
+		};
+	public:
+		static Ref<StorageBuffer> Create(uint32_t byteSize, Type type);
+		static Ref<StorageBuffer> Create(void* data, uint32_t byteSize, Type type);
+
+		virtual void Bind(uint32_t slot = 0) const = 0;
+		virtual void UnBind() const = 0;
+
+		virtual void SetData(const void* data, uint32_t byteSize) = 0;
+
+		static AssetType GetStaticType() { return AssetType::StorageBuffer; }
+		AssetType GetType() const { return GetStaticType(); }
 	};
 }
 

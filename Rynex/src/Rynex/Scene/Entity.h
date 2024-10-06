@@ -3,7 +3,7 @@
 #include "Scene.h"
 #include "Components.h"
 
-#include "entt.hpp"
+#include <entt.hpp>
 
 namespace Rynex {
 
@@ -57,7 +57,7 @@ namespace Rynex {
 		operator uint32_t() const { return (uint32_t)m_EntityHandle; }
 
 		UUID GetUUID() { return GetComponent<IDComponent>().ID; }
-
+		int GetEntityHandle() const { return (int)m_EntityHandle; }
 		bool operator==(const Entity& other) const
 		{
 			return m_EntityHandle == other.m_EntityHandle && m_Scene == other.m_Scene;

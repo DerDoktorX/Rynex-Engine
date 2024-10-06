@@ -1,0 +1,18 @@
+Framebuffer:
+  Width: 920
+  Height: 740
+  Attachments:
+    - TextureFormat: 2
+      TextureWrapping:
+        R: 3
+        T: 3
+        S: 3
+      TextureFiltering: 2
+    - TextureFormat: 2
+      TextureWrapping:
+        R: 3
+        T: 3
+        S: 3
+      TextureFiltering: 2
+  Samples: 1
+  SwapChainTarget: false

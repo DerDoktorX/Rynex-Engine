@@ -1,6 +1,6 @@
 // SrcShader
 
-#type vertex
+#type Vertex
 #version 330 core
 
 layout(location = 0) in vec2 a_Position;
@@ -18,7 +18,7 @@ void main()
 	gl_Position = u_ViewProjection * u_Tranform * vec4(a_Position,0.,1.);
 }
 
-#type fragment
+#type Fragment
 #version 330 core
 
 layout(location = 0) out vec4 color;

@@ -15,7 +15,7 @@
 #include <unordered_set>
 #include <filesystem>
 
-
+#include "Rynex/Core/Base.h"
 #include "Rynex/Core/Log.h"
 #include "Rynex/Core/Instrumentor.h"
 

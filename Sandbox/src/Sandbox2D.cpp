@@ -4,6 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui/imgui.h>
+#include <Rynex/Scripting/ScriptingEngine.h>
 
 
 
@@ -22,7 +23,7 @@ void Sandbox2D::OnAttach()
 	m_TestOpenGL = Rynex::CreateRef<Rynex::TestOpenGL>();
 	m_TestOpenGL->OnAttache();
 #else
-	m_ChekbordTex = Rynex::TextureImporter::LoadTexture2D("Assets/textures/Checkerboard.png");
+	m_ChekbordTex = Rynex::TextureImporter::LoadTexture("Assets/textures/Checkerboard.png");
 
 
     Rynex::FramebufferSpecification fbSpec;
@@ -38,12 +39,31 @@ void Sandbox2D::OnAttach()
     //m_Framebuffer = Rynex::Framebuffer::Create(fbSpec);
 
     
+	auto cLA = Rynex::Application::Get().GetSpecification().CommandLineArgs;
+	if (cLA.Count > 1)
+	{
+		auto projFilePath = cLA[1];
+		if (Rynex::Project::Load(projFilePath))
+		{
+			//Rynex::ScriptingEngine::Init();
+			std::filesystem::path startScene = Rynex::Project::GetActive()->GetConfig().StartScene;
+		}
+	}
+	else
+	{
+		RY_CORE_INFO("Open a Project!");
+		if (Rynex::Project::Load("Sandbox.rproj"))
+		{
+			//Rynex::ScriptingEngine::Init();
+			std::filesystem::path startScene = Rynex::Project::GetActive()->GetConfig().StartScene;
+		}
 
+	}
 
     m_Project = Rynex::Project::GetActive();
     m_AssetManger = m_Project->GetRuntimeAssetManger();
 	Rynex::Renderer::Init();
-#endif   
+#endif
 }
 
 void Sandbox2D::OnDetach()

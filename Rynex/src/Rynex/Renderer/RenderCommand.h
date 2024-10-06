@@ -3,7 +3,7 @@
 #include "RendererAPI.h"
 
 namespace Rynex {
-	class RenderCommand
+	class RYNEX_API RenderCommand
 	{
 	public:
 		inline static void Init()
@@ -90,9 +90,9 @@ namespace Rynex {
 			s_RendererAPI->DrawPatches(vertexArray, indexCount);
 		};
 
-		inline static void ComputePipline()
+		inline static void DispatcheCompute(const glm::vec<3, uint32_t>& groups)
 		{
-			s_RendererAPI->ComputePipline();
+			s_RendererAPI->DispatcheCompute(groups);
 		};
 
 		inline static void DrawError()

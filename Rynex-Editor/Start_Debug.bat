@@ -1,1 +1,0 @@
-call ..\bin\Debug-windows-x86_64\Rynex-Editor\Rynex-Editor.exe

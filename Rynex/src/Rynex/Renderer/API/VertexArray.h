@@ -1,13 +1,10 @@
 #pragma once
-
-
+#include "Rynex/Asset/Base/Asset.h"
 #include "Rynex/Renderer/API/Buffer.h"
-
-#include<memory>
 
 namespace Rynex {
 
-	class VertexArray 
+	class RYNEX_API VertexArray : public Asset
 	{
 	public:
 		enum class Primitv
@@ -20,6 +17,7 @@ namespace Rynex {
 		};
 	public:
 		virtual ~VertexArray() {}
+		static Ref<VertexArray> Create();
 
 		virtual void Bind() const = 0;
 		virtual void UnBind() const = 0;
@@ -35,7 +33,8 @@ namespace Rynex {
 		
 		virtual const char* GetPrimitvChar() const = 0;
 
-		static Ref<VertexArray> Create();
+		static AssetType GetStaticType() { return AssetType::VertexArray; }
+		AssetType GetType() const { return GetStaticType(); }
 	};
 
 	

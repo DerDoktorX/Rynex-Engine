@@ -20,7 +20,7 @@ private:
 
 	Rynex::Ref<Rynex::Shader>				m_BlueShader;
 	Rynex::Ref<Rynex::VertexArray>			m_SquareVA;
-	Rynex::Ref<Rynex::Texture2D>			m_ChekbordTex;
+	Rynex::Ref<Rynex::Texture>				m_ChekbordTex;
 	Rynex::Ref<Rynex::Framebuffer>			m_Framebuffer;
 
 	Rynex::Ref<Rynex::Scene>				m_AktiveScene;

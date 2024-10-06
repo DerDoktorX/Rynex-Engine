@@ -16,9 +16,11 @@ project "Rynex-Editor"
 
 	includedirs
 	{
+		"src",
 		-- Rynex Source Files
 		"%{wks.location}/Rynex/src",	-- Rynex
 		"%{wks.location}/Rynex/vendor",	-- Dependecies
+		
 		-- Runtime
 		"%{wks.location}/Rynex/vendor/spdlog/include",
 		-- Math
@@ -26,9 +28,12 @@ project "Rynex-Editor"
 		-- Filse
 		"%{IncludeDir.filewatch}",
 		-- Entity
+		--"%{IncludeDir.assimp}",
+
 		"%{IncludeDir.entt}",
 		-- Runtime Visuelle configs
 		"%{IncludeDir.ImGuizmo}",
+		
 	}
 
 	links

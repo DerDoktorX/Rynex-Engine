@@ -4,7 +4,7 @@
 #include "Rynex/Events/Event.h"
 
 namespace Rynex {
-	struct WindowProps
+	struct RYNEX_API WindowProps
 	{
 		std::string Title;
 		uint32_t Height;
@@ -19,7 +19,7 @@ namespace Rynex {
 		}
 	};
 
-	class Window
+	class RYNEX_API Window
 	{
 	public: 
 		using EventCallbackFn = std::function<void(Event&)>;

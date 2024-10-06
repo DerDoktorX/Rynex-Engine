@@ -32,7 +32,7 @@ namespace Rynex {
 
 	struct Renderer2DStorage
 	{
-		const uint32_t MaxQuads = 5000;
+		const uint32_t MaxQuads = 100;
 		const uint32_t MaxVertices = 4 * MaxQuads;
 		const uint32_t MaxIndecies = 6 * MaxQuads;
 		static const uint32_t MaxTextureSlots = 32;
@@ -42,7 +42,7 @@ namespace Rynex {
 		int32_t Samplers[MaxTextureSlots];
 
 		Ref<Shader> TextureShader;
-		Ref<Texture2D> WhitheTexture;
+		Ref<Texture> WhitheTexture;
 
 		void* QuadVertexBufferBase_ = nullptr;
 
@@ -50,7 +50,7 @@ namespace Rynex {
 		QuadVertex* QuadVertexBufferBase = nullptr;
 		QuadVertex* QuadVertexBufferPtr = nullptr;
 
-		std::array<Ref<Texture2D>, MaxTextureSlots> TextureSlots;
+		std::array<Ref<Texture>, MaxTextureSlots> TextureSlots;
 		uint32_t TextureSlotsIndex = 1;
 		glm::vec4 QuadVertexPos[4];
 		
@@ -82,25 +82,25 @@ namespace Rynex {
 			{ ShaderDataType::Float2,	"a_TexCoord"	},
 			{ ShaderDataType::Int,		"a_TexIndex"	},
 			{ ShaderDataType::Int,		"a_EntityID"	}
-		});
-		
+			});
+
 		s_Data.QuadVertexArray->AddVertexBuffer(s_Data.QuadVertexBuffer);
-		RY_CORE_MULTY_MEMORY_ALICATION("s_Data.QuadVertexBufferBase", "Renderer2D::Init", s_Data.MaxVertices* sizeof(QuadVertex));
+		RY_CORE_MULTY_MEMORY_ALICATION("s_Data.QuadVertexBufferBase", "Renderer2D::Init", s_Data.MaxVertices * sizeof(QuadVertex));
 		s_Data.QuadVertexBufferBase = new QuadVertex[s_Data.MaxVertices];
 		RY_CORE_MULTY_MEMORY_ALICATION("quadIndecies", "Renderer2D::Init", s_Data.MaxIndecies * sizeof(uint32_t));
 		uint32_t* quadIndecies = new uint32_t[s_Data.MaxIndecies];
 		uint32_t offset = 0;
 
-		for (uint32_t i = 0; i < s_Data.MaxIndecies; i+=6 )
+		for (uint32_t i = 0; i < s_Data.MaxIndecies; i += 6)
 		{
-			quadIndecies[i + 0] = offset + 0; 
+			quadIndecies[i + 0] = offset + 0;
 			quadIndecies[i + 1] = offset + 1;
 			quadIndecies[i + 2] = offset + 2;
-		
-			quadIndecies[i + 3] = offset + 2; 
-			quadIndecies[i + 4] = offset + 3; 
+
+			quadIndecies[i + 3] = offset + 2;
+			quadIndecies[i + 4] = offset + 3;
 			quadIndecies[i + 5] = offset + 0;
-		
+
 			offset += 4;
 		}
 
@@ -111,13 +111,27 @@ namespace Rynex {
 		Ref<IndexBuffer> squareIB = IndexBuffer::Create(quadIndecies, s_Data.MaxIndecies);
 		s_Data.QuadVertexArray->SetIndexBuffer(squareIB);
 		RY_CORE_MULTY_FREE_ALICATION("quadIndecies", "Renderer2D::Init");
-		delete[] quadIndecies;	
-	
-		
-		s_Data.WhitheTexture = Texture2D::Create(1, 1);
+		delete[] quadIndecies;
+
+#if 1
+		s_Data.WhitheTexture = Texture::Create(1, 1);
 		uint32_t whitheTexData = 0xffffffff;
 		s_Data.WhitheTexture->SetData(&whitheTexData, sizeof(uint32_t));
-		
+#else
+		uint32_t whitheTexData = 0xffffffff;
+		s_Data.WhitheTexture = Texture::Create({
+				ImageFormat::RGBA8,
+				TextureTarget::Texture2D,
+				1, 1,
+				TextureFilteringMode::Linear,
+				1,
+				false 
+			}, 
+			&whitheTexData, 
+			sizeof(uint32_t)
+		);
+#endif
+
 		for (uint32_t i = 0; i < s_Data.MaxTextureSlots; i++)
 			s_Data.Samplers[i] = i;
 
@@ -126,7 +140,7 @@ namespace Rynex {
 #ifdef RY_SANDBOX
 		s_Data.TextureShader = AssetManager::GetAssetFromPath<Shader>("Assets/shaders/Texture.glsl");
 #else
-		s_Data.TextureShader = ShaderImporter::LoadShader("Assets/shaders/Texture.glsl", "Texture");
+		s_Data.TextureShader = AssetManager::GetAsset<Shader>("Assets/shaders/Texture.glsl");
 #endif // RY_SANDBOX
 
 		
@@ -166,7 +180,7 @@ namespace Rynex {
 		glm::mat4 viewProj = camera.GetViewProjection();
 
 		s_Data.TextureShader->Bind();
-		s_Data.TextureShader->SetIntArray("u_Textures", s_Data.Samplers, s_Data.MaxTextureSlots);
+		//s_Data.TextureShader->SetIntArray("u_Textures", s_Data.Samplers, s_Data.MaxTextureSlots);
 		s_Data.TextureShader->SetMat4("u_ViewProjection", viewProj);
 
 		s_Data.QuadIndexCount = 0;
@@ -184,6 +198,7 @@ namespace Rynex {
 		//std::dynamic_pointer_cast<OpenGLShader>(s_Data->FlattColorShader)->UploadUniformMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
 		
 		s_Data.TextureShader->Bind();
+		//s_Data.TextureShader->SetIntArray("u_Textures", s_Data.Samplers, s_Data.MaxTextureSlots);
 		s_Data.TextureShader->SetMat4("u_ViewProjection", camera.GetViewProjectionMatrix());
 
 		s_Data.QuadIndexCount = 0;
@@ -195,9 +210,10 @@ namespace Rynex {
 	void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform)
 	{
 		RY_PROFILE_FUNCTION();
-		glm::mat4 viewProj = camera.GetProjektion() * glm::inverse(transform);
+		glm::mat4 viewProj = camera.GetProjektion() * transform;
 
 		s_Data.TextureShader->Bind();
+		//s_Data.TextureShader->SetIntArray("u_Textures", s_Data.Samplers, s_Data.MaxTextureSlots);
 		s_Data.TextureShader->SetMat4("u_ViewProjection", viewProj);
 
 		s_Data.QuadIndexCount = 0;
@@ -209,13 +225,11 @@ namespace Rynex {
 
 	void Renderer2D::EndScene()
 	{
-		RY_PROFILE_FUNCTION();
 		Flush();
 	}
 
 	void Renderer2D::Flush()
 	{
-		RY_PROFILE_FUNCTION();
 		if (s_Data.QuadIndexCount)
 		{
 
@@ -232,9 +246,9 @@ namespace Rynex {
 			for (uint32_t i = 0; i < s_Data.TextureSlotsIndex; i++)
 				s_Data.TextureSlots[i]->Bind(i);
 
-			
+			s_Data.QuadVertexArray->Bind();
 			RenderCommand::DrawIndexedMesh(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
-			RenderCommand::DrawIndexedLineLoop(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
+			//RenderCommand::DrawIndexedLineLoop(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
 			s_Data.Stats.DrawCalls++;
 			s_Data.QuadVertexArray->UnBind();
 		}
@@ -242,7 +256,6 @@ namespace Rynex {
 
 	void Renderer2D::FlushAndReset()
 	{
-		RY_PROFILE_FUNCTION();
 		Flush();
 		EndScene();
 	}
@@ -250,7 +263,6 @@ namespace Rynex {
 
 	void Renderer2D::DrawSprite(const glm::mat4& tranform, SpriteRendererComponent& src, int entityID)
 	{
-		RY_PROFILE_FUNCTION();
 		if (src.RenderSingle)
 		{
 #if 0
@@ -288,13 +300,11 @@ namespace Rynex {
 	//			V
 	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
 	{
-		RY_PROFILE_FUNCTION();
 		DrawQuad({ position.x, position.y, 0.0f },  size, color);
 	}
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 	{
-		RY_PROFILE_FUNCTION();
 		const float textureIndex = 0.0f;
 		glm::mat4 tranform = glm::translate(glm::mat4(1.0f), position) 
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
@@ -314,15 +324,13 @@ namespace Rynex {
 
 	//Textures	|
 	//			V
-	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D> texture)
+	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture> texture)
 	{
-		RY_PROFILE_FUNCTION();
 		DrawQuad({ position.x, position.y, 0.0f }, size, texture);
 	}
 
-	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D> texture)
+	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture> texture)
 	{
-		RY_PROFILE_FUNCTION();
 		glm::mat4 tranform = glm::translate(glm::mat4(1.0f), position)
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
@@ -349,25 +357,21 @@ namespace Rynex {
 
 	void Renderer2D::DrawQuadSingle(const glm::mat4& tranform, const glm::vec4& color, int entityID)
 	{
-		RY_PROFILE_FUNCTION();
 	}
 
-	void Renderer2D::DrawQuadSingle(const glm::mat4& tranform, const Ref<Texture2D> texture, int entityID)
+	void Renderer2D::DrawQuadSingle(const glm::mat4& tranform, const Ref<Texture> texture, int entityID)
 	{
-		RY_PROFILE_FUNCTION();
 	}
 
 	//Rotation	|
 	//			V
 	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
 	{
-		RY_PROFILE_FUNCTION();
 		DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, color);
 	}
 
 	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color)
 	{
-		RY_PROFILE_FUNCTION();
 		const float textureIndex = 0.0f;
 		glm::mat4 tranform = glm::translate(glm::mat4(1.0f), position) 
 			* glm::rotate(glm::mat4(1.0), rotation, { 0.0f, 0.0f, 1.0f }) 
@@ -390,7 +394,6 @@ namespace Rynex {
 	//			V
 	void Renderer2D::DrawQuad(const glm::mat4& transfrom, const glm::vec4& color, int entityID)
 	{
-		RY_PROFILE_FUNCTION();
 		constexpr size_t quadVertexCount = 4;
 		const int textureIndex = 0;
 		constexpr glm::vec2 TexCoord[] = {
@@ -417,9 +420,8 @@ namespace Rynex {
 		s_Data.Stats.QuadCount++;
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4& transfrom, const Ref<Texture2D> texture, int entityID)
+	void Renderer2D::DrawQuad(const glm::mat4& transfrom, const Ref<Texture> texture, int entityID)
 	{
-		RY_PROFILE_FUNCTION();
 		constexpr glm::vec4 color = { 1.0f , 1.0f, 1.0f, 1.0f };
 		
 		constexpr size_t quadVertexCount = 4;
@@ -467,15 +469,13 @@ namespace Rynex {
 
 	// Rotation + Texture	|
 	//						V
-	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D> texture)
+	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture> texture)
 	{
-		RY_PROFILE_FUNCTION();
 		DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, texture);
 	}
 
-	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D> texture)
+	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture> texture)
 	{
-		RY_PROFILE_FUNCTION();
 		glm::mat4 tranform = glm::translate(glm::mat4(1.0f), position) 
 			* glm::rotate(glm::mat4(1.0), rotation, { 0.0f, 0.0f, 1.0f }) 
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
@@ -501,7 +501,6 @@ namespace Rynex {
 
 	void Renderer2D::ResetStats()
 	{
-		RY_PROFILE_FUNCTION();
 		uint32_t chach = s_Data.Stats.ChachSize;
 		memset(&s_Data.Stats, 0, sizeof(Statistics));
 		s_Data.Stats.ChachSize = chach;
@@ -509,13 +508,11 @@ namespace Rynex {
 
 	Renderer2D::Statistics Renderer2D::GetStats()
 	{
-		RY_PROFILE_FUNCTION();
 		return s_Data.Stats;
 	}
 
 	void Renderer2D::StartNewBatch()
 	{
-		RY_PROFILE_FUNCTION();
 		EndScene();
 		s_Data.QuadIndexCount = 0;
 		s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;

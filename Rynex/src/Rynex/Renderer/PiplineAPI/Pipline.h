@@ -1,76 +1,43 @@
 #pragma once
+#include "Rynex/Core/UUID.h"
+
 
 namespace Rynex {
+#if 1
+	using RenderResouce = UUID;
 
-	enum class VertexStepMode
+	struct DrawObject
 	{
-		Nonoe = 0,
-		Vertex,
-		Instance,
-	};
-
-	enum class VertexFormat
-	{
-		Nonoe = 0,
-		Unint32,
-		Int32,
-		Float32,
-	};
-
-	enum class PrimitiveTopology
-	{
-		Nonoe = 0,
-		
-	};
-
-	struct VertexAttribute
-	{
-		VertexFormat Format;
-		uint32_t Offset;
-	};
-
-	struct VertexBufferLayout
-	{
-		uint32_t ArrayStride;
-		VertexStepMode StepMode;
-		VertexAttribute Attributes;
-	};
-
-	struct PrimitiveState
-	{
-		PrimitiveTopology Topology;// Not Rady
-	};
-
-	struct FragmentState
-	{
-
-	};
-
-	struct DepthStencilState
-	{
-
-	};
-
-	struct MultisampleState
-	{
-
-	};
-
-	struct RenderPipelineDescriptor
-	{
-		VertexBufferLayout* Vertex = nullptr; // Array
-		FragmentState Fragment;
-		PrimitiveState Primitive;
-		DepthStencilState DepthStencil;
-		MultisampleState Multisample;
+		RenderResouce Pipline;
+		std::vector<RenderResouce> VertexBuffers;
+		std::vector<RenderResouce> BindGroup;
+		RenderResouce IndexBuffer;
+		uint32_t DrawVerticiesCount = 0;
 	};
 
 	class Pipline
 	{
 	public:
-		virtual void CreateRenderPipeline(RenderPipelineDescriptor descriptor) = 0;
+		static void Init();
+		static void Shutdown();
+
+		static RenderResouce CreateBuffer();
+		static RenderResouce CreateVertex();
+		static RenderResouce CreateIndex();
+		static RenderResouce CreateTexture();
+		static RenderResouce CreateFrambuffer();
+		static RenderResouce CreateShader();
+
+		static RenderResouce CreateRenderPiline();
+		static RenderResouce CreateComputePiline();
+
+		static RenderResouce CreateComander();
+
+		static void BeginRender(RenderResouce commander);
+		static void EndeRender();
+
+		static void DrawPipline(const DrawObject& drawObject);
 	};
-
+#endif
 }
-
 

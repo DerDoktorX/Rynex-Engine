@@ -1,63 +1,60 @@
 #pragma once
-
-
-#include "Rynex/Renderer/API/Buffer.h"
 #include "Rynex/Asset/Base/Asset.h"
+#include "Rynex/Renderer/RendererAPI.h"
+
+#include "Rynex/Renderer/API/Framebuffer.h"
+#include "Rynex/Renderer/API/Buffer.h"
 
 #include <glm/glm.hpp>
-#include <string>
-
 
 namespace Rynex{
 
-	enum class ShaderResourceType : uint8_t {
+	enum class RYNEX_API ShaderResourceType {
 		None = 0,
-		LocalModel, LocalColor, MainCamerPos,
+		LocalModel, LocalColor, MainCamerPos, EnitiyID,
 		MainCameraViewMatrix, MainCamerProjectionMatrix, MainCameraViewProjectionMatrix,
 		GlobleResource,
 	};
 
-	
-	struct UniformElement
+	struct RYNEX_API UniformElement
 	{
-		std::string Name;
-		ShaderDataType Type;
+		std::string Name = "";
+		ShaderDataType Type = ShaderDataType::None;
 		bool SingleUniform = true;
 		ShaderResourceType ShaderResourceType = ShaderResourceType::None;
 		bool GloblelResurce = true;
 		UUID UUID = 0;
-		void* LocalResurce = nullptr;
+		std::vector<unsigned char> LocalResurce;
 
-		~UniformElement()
-		{
-			if (LocalResurce != nullptr)
-				delete LocalResurce;
-		}
+		UniformElement() {};
+		UniformElement(const UniformElement&) = default;
+		//UniformElement(UniformElement&&) = default;
 	};
 
 	class Shader : public Asset
 	{
 	public:
-	enum class Type
-	{
-		None = 0,
-		Fragment = BIT(0),
-		Vertex = BIT(1),
-		Compute = BIT(2),
-		Geometry = BIT(3),
-		TeselationControl = BIT(4),
-		TeselationEvelution = BIT(5)
-	};
+		enum class Type
+		{
+			None = 0,
+			Fragment = BIT(0),
+			Vertex = BIT(1),
+			Compute = BIT(2),
+			Geometry = BIT(3),
+			TeselationControl = BIT(4),
+			TeselationEvelution = BIT(5),
+			MeshShader = BIT(6)
+		};
 
-	enum Algorithm
-	{
-		Nono = 0,
-		Z_Buffer = BIT(0), Depth_Buffer = BIT(0),
-		A_Buffer = BIT(1),
-		Blend = BIT(2),
-		DobbleSide = BIT(3),
-		ClockWise = BIT(4),
-	};
+		enum Algorithm
+		{
+			Nono = 0,
+			Z_Buffer = BIT(0), Depth_Buffer = BIT(0),
+			A_Buffer = BIT(1),
+			Blend = BIT(2),
+			DobbleSide = BIT(3),
+			ClockWise = BIT(4),
+		};
 
 	public:
 		~Shader() = default;
@@ -72,6 +69,8 @@ namespace Rynex{
 
 		virtual void AddShader(const std::string& shader, Shader::Type shaderType) = 0;
 
+		// For Teselation and Evelation Shaders!
+		virtual void SetPatcheVertecies(uint32_t count) = 0;
 
 		
 		virtual void SetUniformValue(const std::string& name, void* value, ShaderDataType type) = 0;
@@ -86,7 +85,10 @@ namespace Rynex{
 		virtual void SetAlgorithm(Shader::Algorithm) = 0;
 		virtual Algorithm GetAlgorithm() = 0;
 
+		virtual bool operator==(const Shader& other)const = 0;
+
 		virtual const std::string& GetName() const = 0;
+		virtual	const RendererAPI::API GetRendererAPI() const = 0;
 
 		// Asset
 		static AssetType GetStaticType() { return AssetType::Shader; }
@@ -98,7 +100,7 @@ namespace Rynex{
 		uint32_t m_RenderID;
 	};
 
-	class ShaderLibary
+	class RYNEX_API ShaderLibary
 	{
 	public:
 		void Add(const std::string& name, const Ref<Shader>& shader);

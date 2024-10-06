@@ -13,7 +13,7 @@ extern "C" {
 
 namespace Rynex {
 
-	class ScriptClass
+	class RYNEX_API ScriptClass
 	{
 	public:
 		ScriptClass() = default;
@@ -33,7 +33,7 @@ namespace Rynex {
 		friend class ScriptEngine;
 	};
 
-	class ScriptInstance
+	class RYNEX_API ScriptInstance
 	{
 	public:
 		ScriptInstance(Ref<ScriptClass> scriptClass, Entity entity);
@@ -56,7 +56,7 @@ namespace Rynex {
 		
 	};
 
-	class ScriptingEngine
+	class RYNEX_API ScriptingEngine
 	{
 	public:
 		static void Init();

@@ -1,0 +1,65 @@
+AssetRegistry:
+  - Handle: 801565305453083678
+    FilePath: Assets/shaders/BlueShaderSrc.glsl
+    Type: AssetType::Shader
+    Name: ""
+  - Handle: 1824842606906300272
+    FilePath: Assets/scenes/3DCube_3Quads2.rynexscene
+    Type: AssetType::Scene
+    Name: ""
+  - Handle: 3567340998657604297
+    FilePath: Assets/scenes/TestDeserilaze.rynexscene
+    Type: AssetType::Scene
+    Name: ""
+  - Handle: 6715656326684789952
+    FilePath: Assets/textures/ChernoLogo.png
+    Type: AssetType::Texture2D
+    Name: ""
+  - Handle: 8290783668177911186
+    FilePath: Assets/scenes/Example.rynexscene
+    Type: AssetType::Scene
+    Name: ""
+  - Handle: 10781853565566024887
+    FilePath: Assets/scenes/3DCubeHazel.rynexscene
+    Type: AssetType::Scene
+    Name: ""
+  - Handle: 13233475410383009282
+    FilePath: Assets/scenes/Example2.rynexscene
+    Type: AssetType::Scene
+    Name: ""
+  - Handle: 14151019160980675221
+    FilePath: Assets/shaders/Texture.glsl
+    Type: AssetType::Shader
+    Name: ""
+  - Handle: 14152416206868556933
+    FilePath: Assets/shaders/SrcShader.glsl
+    Type: AssetType::Shader
+    Name: ""
+  - Handle: 15246465091008376176
+    FilePath: Assets/textures/testBlending.png
+    Type: AssetType::Texture2D
+    Name: ""
+  - Handle: 15617254238524874586
+    FilePath: Assets/textures/icon_wows_46x46.png
+    Type: AssetType::Texture2D
+    Name: ""
+  - Handle: 15855500992539510398
+    FilePath: Assets/scenes/3DCube_3Quads.rynexscene
+    Type: AssetType::Scene
+    Name: ""
+  - Handle: 15929314362697200306
+    FilePath: Assets/textures/Checkerboard.png
+    Type: AssetType::Texture2D
+    Name: ""
+  - Handle: 16462730631384214973
+    FilePath: Assets/scenes/3DCube_Hi.rynexscene
+    Type: AssetType::Scene
+    Name: ""
+  - Handle: 16990403709337309609
+    FilePath: Assets/shaders/3DTest.glsl
+    Type: AssetType::Shader
+    Name: ""
+  - Handle: 18251903351371440473
+    FilePath: Assets/textures/weniger_Speicherplatz_SSD.png
+    Type: AssetType::Texture2D
+    Name: ""

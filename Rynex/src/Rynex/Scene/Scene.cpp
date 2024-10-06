@@ -2,12 +2,14 @@
 #include "Scene.h"
 
 #include "Entity.h"
-#include "Components.h"
 #include "ScriptableEntity.h"
 #include "Rynex/Renderer/Rendering/Renderer2D.h"
 #include "Rynex/Renderer/Rendering/Renderer3D.h"
 #include "Rynex/Scripting/ScriptingEngine.h"
-
+#include "Rynex/Serializers/VertexArraySerialzer.h"
+#include "Rynex/Asset/Base/AssetMetadata.h"
+#include "Rynex/Asset/EditorAssetManager.h"
+#include "Rynex/Project/Project.h"
 
 
 // TODO: Move toCoreConfig.h
@@ -35,58 +37,7 @@ namespace Rynex {
 		{ VertexArray::Primitv::Patches,		Renderer3D::DrawPatches		},
 	};
 
-	static void DrawObjectRender3D(const Ref<VertexArray>& vertexArray)
-	{
-		switch (vertexArray->GetPrimitv())
-		{
-			case VertexArray::Primitv::Traingle:
-			{
-				Renderer3D::DrawMesh(vertexArray);
-				return;
-			}
-			case VertexArray::Primitv::TraingleStrips:
-			{
-				Renderer3D::DrawMeshStrips(vertexArray);
-
-				return;
-			}
-			case VertexArray::Primitv::TraingleFan:
-			{
-				RY_CORE_ASSERT(false, "Primitv TraingleFan is not Implemantent jet!");
-				//Renderer3D::DrawMeshStrips(geomtry.Geometry);
-				return;
-			}
-			case VertexArray::Primitv::Line:
-			{
-				Renderer3D::DrawLine(vertexArray);
-				return;
-			}
-			case VertexArray::Primitv::LineLoop:
-			{
-				//RY_CORE_ASSERT(false, "Primitv LineLoop is not Implemantent jet!");
-				Renderer3D::DrawLineLoop(vertexArray);
-				return;
-			}
-			case VertexArray::Primitv::LineStrips:
-			{
-				RY_CORE_ASSERT(false, "Primitv LineStrips is not Implemantent jet!");
-				return;
-			}
-			case VertexArray::Primitv::Points:
-			{
-				Renderer3D::DrawPoints(vertexArray);
-				return;
-			}
-			case VertexArray::Primitv::Patches:
-			{
-				Renderer3D::DrawPatches(vertexArray);
-				return;
-			}
-			default:
-				RY_CORE_ASSERT(false, "Primitv type is Unknown!");
-				break;
-		}
-	};
+	
 
 	Scene::Scene()
 	{
@@ -127,7 +78,7 @@ namespace Rynex {
 			{
 				if (src.HasComponent<Component>())
 					dst.AddOrReplaceComponent<Component>(src.GetComponent<Component>());
-			}(), ...);
+		}(), ...);
 	}
 
 	template<typename... Component>
@@ -138,7 +89,6 @@ namespace Rynex {
 
 	Ref<Scene> Scene::Copy(Ref<Scene> other)
 	{
-		RY_PROFILE_FUNCTION();
 		Ref<Scene> newScene = CreateRef<Scene>();
 
 		newScene->m_ViewPortWithe = other->m_ViewPortWithe;
@@ -166,17 +116,20 @@ namespace Rynex {
 
 	Entity Scene::CreateEntity(const std::string& name)
 	{
-		RY_PROFILE_FUNCTION();
 		return CreateEntityWitheUUID(UUID(), name);
 	}
 
-	Entity Scene::CreateEntityWitheUUID(UUID uuid, const std::string& name)
+	
+
+	Entity Scene::CreateEntityWitheUUID(UUID uuid, const std::string& name, int index)
 	{
-		RY_PROFILE_FUNCTION();
-		Entity entity = { m_Registery.create(), this };
+		Entity entity = index == -1 ? 
+			Entity(m_Registery.create(), this) : 
+			Entity(m_Registery.create((entt::entity)index), this);
 		
 		entity.AddComponent<IDComponent>(uuid);
 		entity.AddComponent<TransformComponent>();
+		entity.AddComponent<RealtionShipComponent>();
 		entity.AddComponent<Matrix4x4Component>();
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
@@ -189,7 +142,6 @@ namespace Rynex {
 
 	void Scene::OnRuntimStart()
 	{
-		RY_PROFILE_FUNCTION();
 		ScriptingEngine::OnRuntimeStart(this);
 		// Instandiat
 
@@ -203,243 +155,220 @@ namespace Rynex {
 
 	void Scene::OnRuntimStop()
 	{
-		RY_PROFILE_FUNCTION();
 		ScriptingEngine::OnRuntimeStop();
 	}
 
-
 	void Scene::DestroyEntity(Entity entity)
 	{
-		RY_PROFILE_FUNCTION();
 		m_EntityMapID.erase(entity.GetUUID());
 		m_EntityMapTag.erase(entity.GetComponent<TagComponent>().Tag);
 		m_Registery.destroy(entity);
 		m_EntityLeangth--;
 	}
 
-
-	void Scene::OnUpdateEditor(TimeStep ts, Ref<EditorCamera>& editorCamera)
+	void Scene::OnUpdateEditor(TimeStep ts)
 	{
+		if (!ScriptingEngine::ReloadeScriptAvaible()) return;
 
-		RY_PROFILE_FUNCTION();
+		ScriptingEngine::OnRuntimeStart(this);
+		auto scriptView = m_Registery.view<ScriptComponent>();
+		for (EnttEntity scriptViewE : scriptView)
+		{
+			Entity entity = { scriptViewE, this };
+			ScriptingEngine::OnDrawEntity(entity);
+		}
+		ScriptingEngine::OnRuntimeStop();
 #if 0
-#if RENDERER_3D
-		////////////////////////////////////////////////////////////
-		/// Renderer 3D ////////////////////////////////////////////
-		////////////////////////////////////////////////////////////
-		
-		
-
-
 		{
-			Renderer3D::BeginScene(camera);
-			auto group3D = m_Registery.group<TransformComponent>(entt::get<MaterialComponent, GeomtryComponent>);
-			for (auto entity3D : group3D)
+			auto entiy = GetEntitiyByUUID(8976786);
+			if(entiy.HasComponent<GeomtryComponent>())
 			{
-				auto& [tranform, material, geomtry] = group3D.get<TransformComponent, MaterialComponent, GeomtryComponent>(entity3D);
-				if (material.Shader == nullptr || geomtry.Geometry == nullptr)
-					continue;
-				Renderer3D::BeforDrawEntity(material, tranform.GetTransform());
-				Renderer3D::DrawMeshStrips(geomtry.Geometry);
-				//Renderer3D::AfterDrawEntity(material);
+				auto& geomtryC = entiy.GetComponent<GeomtryComponent>();
+				auto& vertexArray = geomtryC.Geometry;
+				vertexArray->Handle = AssetHandle();
+				AssetMetadata metadata;
+				metadata.FilePath = "Assets/VertexArrayDefault.ryarray";
+				metadata.Type = vertexArray->GetType();
+				Ref<EditorAssetManager> editorAssetManager = Project::GetActive()->GetEditorAssetManger();
+				editorAssetManager->CreateAsset(metadata.FilePath, (Ref<Asset>)vertexArray, metadata);
+				VertexArraySerialzer::Serialzer("Assets/VertexArrayDefault.ryarray", vertexArray);
 			}
-			Renderer3D::EndScene();
 		}
-#endif	
-#if RENDERER_2D
-		////////////////////////////////////////////////////////////
-		/// Renderer 2D ////////////////////////////////////////////
-		////////////////////////////////////////////////////////////
-
-		{
-			Renderer2D::BeginScene(camera);
-
-			 auto group2D = m_Registery.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-			// auto view2D = m_Registery.view<TransformComponent, SpriteRendererComponent>();
-			for (auto entity2D : group2D) //for (auto entity2D : view2D)
-			{
-				auto& [tranform, sprite] = group2D.get<TransformComponent, SpriteRendererComponent>(entity2D);
-				//auto& [tranform, sprite] = view2D.get<TransformComponent, SpriteRendererComponent>(entity2D);
-				Renderer2D::DrawSprite(tranform.GetTransform(), sprite, (int)entity2D);
-			}
-
-			Renderer2D::EndScene();
-		}
-#endif	
-#else
-		if(ScriptingEngine::ReloadeScriptAvaible())
-		{
-			ScriptingEngine::OnRuntimeStart(this);
-			auto view = m_Registery.view<ScriptComponent>();
-
-			for (auto e : view)
-			{
-				Entity entity = { e, this };
-				ScriptingEngine::OnDrawEntity(entity);
-			}
-			ScriptingEngine::OnRuntimeStop();
-		}
-		Camera camera = Camera(editorCamera->GetProjektion());
-		glm::mat<4, 4, float> viewMatrix = editorCamera->GetViewMatrix();
-		RenderScene2D(camera, viewMatrix);
-		//Renderer3D::BeginScene(editorCamera);
-		RenderScene3D(camera, viewMatrix);
 #endif
 
+	}
 
+	void Scene::OnRenderEditor(const Ref<Framebuffer>& framebuffer, const Ref<EditorCamera>& editorCamera)
+	{	
+		EnttRender3DEditeView render3dEditeView = m_Registery.view<Matrix4x4Component, MaterialComponent, GeomtryComponent>();
+		EnttRender3DStaticModelView render3DStaticModelView = m_Registery.view<Matrix4x4Component, MaterialComponent, StaticMeshComponent>();
+		EnttRender3DDynamicModelView render3DDynamicModelView = m_Registery.view<Matrix4x4Component, RealtionShipComponent, DynamicMeshComponent>();
+		EnttRender2DView render2dView = m_Registery.view<Matrix4x4Component, SpriteRendererComponent>();
+
+		RenderFrambuffers(render3dEditeView, render3DStaticModelView, render3DDynamicModelView, render2dView);
+
+		Camera& mainCamera = (Camera)editorCamera->GetProjektion();
+		glm::mat4 viewMatrix = editorCamera->GetViewMatrix();
+
+		framebuffer->Bind();
+		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+		RenderCommand::Clear();
+		framebuffer->ClearAttachment(2, -1);
+		RenderScene2D(mainCamera, viewMatrix, render2dView);
+		RenderScene3D(mainCamera, viewMatrix, render3dEditeView, render3DStaticModelView, render3DDynamicModelView);
+		framebuffer->Unbind();
+	}
+
+	void Scene::EditorFilterSreene()
+	{
+		
+	}
+
+	void Scene::ClearAll()
+	{
+		m_Registery.clear();
+		m_ViewPortWithe = 1;
+		m_ViewPortHeigth = 1;
+		m_IsRunning = false;
+		m_IsPaused = false;
+		m_StepFrames = 0;
+		m_EntityLeangth = 0;
+		m_EntityMapID.clear();
+		m_EntityMapTag.clear();
 	}
 
 	void Scene::OnUpdateRuntime(TimeStep ts)
 	{
-		RY_PROFILE_FUNCTION();
-#if ENTITY_SCRIPT
+		auto scriptView = m_Registery.view<ScriptComponent>();
+
+		m_Registery.view<NativeSripteComponent>().each([=](auto entity, auto& nsc)
 		{
-#if NATIVE_SCRIPT
-			m_Registery.view<NativeSripteComponent>().each([=](auto entity, auto& nsc)
+			if (!nsc.Instance)
 			{
-				if (!nsc.Instance)
-				{
-					nsc.Instance = nsc.InstantiateScript();
-					nsc.Instance->m_Entity = Entity{ entity , this };
-					nsc.Instance->OnCreate();
-				}
-				nsc.Instance->OnUpdate(ts);
-			});
-#endif
-#if SCRIPT_CS
-			auto view = m_Registery.view<ScriptComponent>();
-			for (auto e : view)
-			{
-				Entity entity = { e, this };
-				ScriptingEngine::OnUpdateEntity(entity, ts);
+				nsc.Instance = nsc.InstantiateScript();
+				nsc.Instance->m_Entity = Entity{ entity , this };
+				nsc.Instance->OnCreate();
 			}
-		}
-#endif
-#endif
+			nsc.Instance->OnUpdate(ts);
+		});
 
-
-		Camera *mainCamera = nullptr;
-		const glm::mat4 *mainTransform;
-
-		auto view = m_Registery.view<TransformComponent, CameraComponent>();
-		for (auto entity : view)
+		for (EnttEntity e : scriptView)
 		{
-			auto& [tranform, camera] = view.get<TransformComponent, CameraComponent>(entity);
-
-
-			if (camera.Primary)
-			{
-				mainCamera = &camera.Camera;
-				mainTransform = &tranform.GetTransform();
-				break;
-			}
-		}
-
-		if (mainCamera) 
-		{
-
-#if  0// RENDERER_3D
-			{
-				////////////////////////////////////////////////////////////
-				/// Renderer 3D ////////////////////////////////////////////
-				////////////////////////////////////////////////////////////
-
-				Renderer3D::BeginScene(*mainCamera, glm::inverse(*mainTransform),);
-				auto group3D = m_Registery.group<TransformComponent>(entt::get<MaterialComponent, GeomtryComponent>);
-
-				for (auto entity3D : group3D)
-				{
-					auto& [tranform, material, geomtry] = group3D.get<TransformComponent, MaterialComponent, GeomtryComponent>(entity3D);
-					if (material.Shader == nullptr || geomtry.Geometry == nullptr)
-						continue;
-					Renderer3D::BeforDrawEntity(material, tranform.GetTransform());
-					Renderer3D::DrawMeshStrips(geomtry.Geometry);
-					//Renderer3D::AfterDrawEntity(material);
-				}
-				Renderer3D::EndScene();
-			}
-#endif	
-
-#if RENDERER_2D
-			{
-				////////////////////////////////////////////////////////////
-				/// Renderer 2D ////////////////////////////////////////////
-				////////////////////////////////////////////////////////////
-
-				Renderer2D::BeginScene(*mainCamera, *mainTransform);
-				auto view2D = m_Registery.view<TransformComponent, SpriteRendererComponent>();
-				//auto group2D = m_Registery.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-				//for (auto entity2D : group2D)	
-				for (auto entity2D : view2D)
-				{
-					//auto& [tranform, sprite] = group2D.get<TransformComponent, SpriteRendererComponent>(entity2D);
-					auto& [tranform, sprite] = view2D.get<TransformComponent, SpriteRendererComponent>(entity2D);
-
-					//Renderer2D::DrawQuad(tranform.GetTransform(), sprite.Color);
-					Renderer2D::DrawSprite(tranform.GetTransform(), sprite, (int)entity2D);
-				}
-
-				Renderer2D::EndScene();
-		}
-
-#endif
+			Entity entity = { e, this };
+			ScriptingEngine::OnUpdateEntity(entity, ts);
 		}
 
 		
 	}
 
-	void Scene::OnUpdateSimulation(TimeStep ts, Ref<EditorCamera>& editorCamera)
+	void Scene::OnRenderRuntime(const Ref<Framebuffer>& framebuffer, int camera)
 	{
-		RY_PROFILE_FUNCTION();
-		if (!m_IsPaused || m_StepFrames-- > 0)
-		{
-			// Physics
-			{
-				const int32_t velocityIterations = 6;
-				const int32_t positionIterations = 2;
-				//m_PhysicsWorld->Step(ts, velocityIterations, positionIterations);
-#if 0
-				// Retrieve transform from Box2D
-				auto view = m_Registery.view<Rigidbody2DComponent>();
-				for (auto e : view)
-				{
-					Entity entity = { e, this };
-					auto& transform = entity.GetComponent<TransformComponent>();
-					auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
+		EnttCameraView cameraView = m_Registery.view<Matrix4x4Component, CameraComponent>();
+		EnttRender3DEditeView render3dEditeView = m_Registery.view<Matrix4x4Component, MaterialComponent, GeomtryComponent>();
+		EnttRender3DStaticModelView render3DStaticModelView = m_Registery.view<Matrix4x4Component, MaterialComponent, StaticMeshComponent>();
+		EnttRender3DDynamicModelView render3DDynamicModelView = m_Registery.view<Matrix4x4Component, RealtionShipComponent, DynamicMeshComponent>();
+		EnttRender2DView render2dView = m_Registery.view<Matrix4x4Component, SpriteRendererComponent>();
+		
+		RenderFrambuffers(render3dEditeView, render3DStaticModelView, render3DDynamicModelView, render2dView);
 
-					b2Body* body = (b2Body*)rb2d.RuntimeBody;
-					const auto& position = body->GetPosition();
-					transform.Translation.x = position.x;
-					transform.Translation.y = position.y;
-					transform.Rotation.z = body->GetAngle();
+		Camera* mainCamera = nullptr;
+		const glm::mat4* mainTransform;
+		int count = 0;
+		for (EnttEntity camerE : cameraView)
+		{
+			auto& [tranformC, cameraC] = cameraView.get<Matrix4x4Component, CameraComponent>(camerE);
+			if (cameraC.Primary)
+			{
+				if(count == camera)
+				{
+
+					mainCamera = &cameraC.Camera;
+					mainTransform = &tranformC.GlobleMatrix4x4;
+					break;
 				}
-#endif
+				count++;
 			}
 		}
 
-		// Render
-		Camera camera = Camera(editorCamera->GetProjektion());
-		glm::mat<4, 4, float> viewMatrix = editorCamera->GetViewMatrix();
-		RenderScene2D(camera, viewMatrix);
-		//Renderer3D::BeginScene(editorCamera);
-		RenderScene3D(camera, viewMatrix);
+		if(mainCamera)
+		{
+			framebuffer->Bind();
+			RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+			RenderCommand::Clear();
+			framebuffer->ClearAttachment(2, -1);
+			RenderScene2D(*mainCamera, glm::inverse(*mainTransform), render2dView);
+			RenderScene3D(*mainCamera, glm::inverse(*mainTransform), render3dEditeView, render3DStaticModelView, render3DDynamicModelView);
+			framebuffer->Unbind();
+		}
+		else
+		{
+			framebuffer->Bind();
+			RenderCommand::SetClearColor({ 1.0f, 0.0f, 0.0f, 1.0f });
+			RenderCommand::Clear();
+			framebuffer->ClearAttachment(2, -1);
+			framebuffer->Unbind();
+		}
+
 	}
 
-	void Scene::RenderScene2D(Camera& camera, glm::mat<4, 4, float>& viewMatrix)
+	void Scene::OnUpdateSimulation(TimeStep ts)
 	{
-		RY_PROFILE_FUNCTION();
+		OnUpdateEditor(ts);
+	}
+
+	void Scene::OnRenderSimulation(const Ref<Framebuffer>& framebuffer, const Ref<EditorCamera>& camera)
+	{
+		OnRenderEditor(framebuffer, camera);
+	}
+
+
+	void Scene::RenderScene2D(Camera& camera, glm::mat<4, 4, float>& viewMatrix, EnttRender2DView& enttRender2DView)
+	{
+#if 0
 #if RENDERER_2D
 		Renderer2D::BeginScene(camera, viewMatrix);
 #if QUADS_DRAW
 		{
+			auto framebuffer = m_Registery.view<CameraComponent, FrameBufferComponent, TransformComponent>();
+			auto mainViewPort = m_Registery.view<MainViewPortComponent>();
 			auto view2D = m_Registery.view<SpriteRendererComponent, TransformComponent>();
-			for (auto entity : view2D)
+			for (auto frame : framebuffer)
 			{
-				auto& [sprite, transform] = view2D.get<SpriteRendererComponent, TransformComponent>(entity);
-
-				Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+				auto& [cameraC, frambufferC, transformC] = framebuffer.get<CameraComponent, FrameBufferComponent, TransformComponent>(frame);
+				frambufferC.FrameBuffer->Bind();
+				//frambufferC.FrameBuffer->ClearAttachment(2, -1);
+				RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+				RenderCommand::Clear();
+				Renderer2D::BeginScene(cameraC.Camera, transformC.GetTransform());
+				for (auto entity : view2D)
+				{
+					auto& [sprite, transform] = view2D.get<SpriteRendererComponent, TransformComponent>(entity);
+					Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+				}
+				Renderer2D::EndScene();
+				frambufferC.FrameBuffer->Unbind();
 			}
+
+			for (auto viewPort : mainViewPort)
+			{
+				auto& viewPortC = mainViewPort.get<MainViewPortComponent>(viewPort);
+				viewPortC.FrameBuffer->Bind();
+				viewPortC.FrameBuffer->ClearAttachment(2, -1);
+				RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+				RenderCommand::Clear();
+				Renderer2D::BeginScene(camera, viewMatrix);
+
+				for (auto entity : view2D)
+				{
+					auto& [sprite, transform] = view2D.get<SpriteRendererComponent, TransformComponent>(entity);
+					Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+				}
+				Renderer2D::EndScene();
+				viewPortC.FrameBuffer->Unbind();
+			}
+
 		}
+		
 #endif
 #if CIRCLE_DRAW
 		{
@@ -464,13 +393,24 @@ namespace Rynex {
 			}
 		}
 #endif
+		//Renderer2D::EndScene();
+#endif
+#else		
+		RY_PROFILE_SCOPE("Scene Draw 2D");
+		Renderer2D::BeginScene(camera, viewMatrix);
+		for (EnttEntity render2dE : enttRender2DView)
+		{
+			auto& [transformC, spriteC] = enttRender2DView.get< Matrix4x4Component, SpriteRendererComponent>(render2dE);
+			Renderer2D::DrawSprite(transformC.GlobleMatrix4x4, spriteC, (int)render2dE);
+		}
 		Renderer2D::EndScene();
 #endif
 	}
 
-	void Scene::RenderScene3D(Camera& camera, glm::mat<4, 4, float>& viewMatrix)
+	void Scene::RenderScene3D(Camera& camera, glm::mat<4, 4, float>& viewMatrix, EnttRender3DEditeView& enttRender3DEditeView, EnttRender3DStaticModelView& enttRender3DStaticModelView, EnttRender3DDynamicModelView& enttRender3DDynamicModelView)
 	{
-		RY_PROFILE_FUNCTION();
+		RY_PROFILE_SCOPE("Scene Draw 3D")
+#if 0
 #if RENDERER_3D			
 		{			
 			auto mainViewPort = m_Registery.view<MainViewPortComponent>();
@@ -487,7 +427,7 @@ namespace Rynex {
 				
 				auto& [cameraC, frambufferC, transformC] = framebuffer.get<CameraComponent, FrameBufferComponent, TransformComponent>(frame);
 				frambufferC.FrameBuffer->Bind();
-				frambufferC.FrameBuffer->ClearAttachment(2, -1);
+				//frambufferC.FrameBuffer->ClearAttachment(2, -1);
 				RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 				RenderCommand::Clear();
 				Renderer3D::BeginScene(cameraC.Camera, transformC.GetTransform());
@@ -539,19 +479,78 @@ namespace Rynex {
 				viewPortC.FrameBuffer->Unbind();
 			}
 		}
+#endif
+#else
+		Renderer3D::BeginScene(camera, viewMatrix);
+		for (EnttEntity render3dE : enttRender3DEditeView)
+		{
+			auto& [tranformC, materialC, geomtryC] = enttRender3DEditeView.get< Matrix4x4Component, MaterialComponent, GeomtryComponent>(render3dE);
+			Ref<VertexArray> vertexArray = geomtryC.Geometry;
+			if (vertexArray == nullptr)
+				continue;
+			Renderer3D::BeforDrawEntity(materialC, tranformC.GlobleMatrix4x4, (int)render3dE);
+			
+			//s_SceneRenderFuncs.at(vertexArray->GetPrimitv())(vertexArray);
+			Renderer3D::DrawObjectRender3D(vertexArray);
+			Renderer3D::AfterDrawEntity(materialC);
+		}
+		for (EnttEntity render3dE : enttRender3DStaticModelView)
+		{
+			auto& [tranformC, materialC, geomtryC] = enttRender3DStaticModelView.get<Matrix4x4Component, MaterialComponent, StaticMeshComponent>(render3dE);
+			
+			if (geomtryC.ModelR == nullptr)
+				continue;
+			Renderer3D::DrawModdel(materialC, tranformC.GlobleMatrix4x4, geomtryC, (int)render3dE );
+			
+		}
+		for (EnttEntity render3dE : enttRender3DDynamicModelView)
+		{
+			auto& [tranformC, geomtryC, realtionC] = enttRender3DDynamicModelView.get<Matrix4x4Component, DynamicMeshComponent, RealtionShipComponent>(render3dE);
+			if (realtionC.ParentID == 0)
+				continue;
+			MaterialComponent& materialC = GetEntitiyByUUID(realtionC.ParentID).GetComponent<MaterialComponent>();
+			if (geomtryC.MeshR == nullptr)
+				continue;
+			Renderer3D::DrawModdel(materialC, tranformC.GlobleMatrix4x4, geomtryC, (int)render3dE);
+
+		}
+		Renderer3D::EndScene();
 #endif	
+
 	}
 
+	void Scene::RenderFrambuffers(EnttRender3DEditeView& enttRender3DEditeView, EnttRender3DStaticModelView& enttRender3DStaticModelView, EnttRender3DDynamicModelView& enttRender3DDynamicModelView, EnttRender2DView& enttRender2DView)
+	{
+		EnttFrameBufferView frambufferView = m_Registery.view<Matrix4x4Component, FrameBufferComponent, CameraComponent>();
+		for (EnttEntity frameE : frambufferView)
+		{
+			auto& [transformC, frambufferC, camerC] = frambufferView.get<Matrix4x4Component, FrameBufferComponent, CameraComponent>(frameE);
+			if(frambufferC.FrameBuffer)
+			{
+				frambufferC.FrameBuffer->Bind();
+				RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+				RenderCommand::Clear();
+				RenderScene2D(camerC.Camera, glm::inverse(transformC.GlobleMatrix4x4), enttRender2DView);
+				RenderScene3D(camerC.Camera, glm::inverse(transformC.GlobleMatrix4x4), enttRender3DEditeView, enttRender3DStaticModelView, enttRender3DDynamicModelView);
+
+				frambufferC.FrameBuffer->Unbind();
+			}
+		}
+	}
+
+	void Scene::SceneRendering(Camera& camera, glm::mat<4, 4, float>& viewMatrix)
+	{
+
+	}
 
 	void Scene::OnViewportResize(uint32_t withe, uint32_t heigth)
 	{
-		RY_PROFILE_FUNCTION();
 		m_ViewPortWithe = withe;
 		m_ViewPortHeigth = heigth;
 
 		//resize
 		auto view = m_Registery.view<CameraComponent>();
-		for (auto entity : view)
+		for (EnttEntity entity : view)
 		{
 			auto& cameraComponent = view.get<CameraComponent>(entity);
 
@@ -561,10 +560,8 @@ namespace Rynex {
 		}
 	}
 
-
 	Entity Scene::GetEntitiyByUUID(UUID uuid)
 	{
-		RY_PROFILE_FUNCTION();
 		if(m_EntityMapID.find(uuid) != m_EntityMapID.end()) 
 			return { m_EntityMapID.at(uuid), this};
 
@@ -576,27 +573,8 @@ namespace Rynex {
 		return (m_EntityMapTag.find(tag) != m_EntityMapTag.end());
 	}
 
-	void Scene::GetMainCameraMainTransform( Camera *mainCamera, glm::mat4* mainTransform)
-	{
-		RY_PROFILE_FUNCTION();
-		auto view = m_Registery.view<TransformComponent, CameraComponent>();
-		for (auto entity : view)
-		{
-			auto& [tranform, camera] = view.get<TransformComponent, CameraComponent>(entity);
-
-
-			if (camera.Primary)
-			{
-				mainCamera = &camera.Camera;
-				mainTransform = &tranform.GetTransform();
-				break;
-			}
-		}
-	}
-
 	Entity Scene::GetPrimaryCameraEntity()
 	{
-		RY_PROFILE_FUNCTION();
 		auto view = m_Registery.view<CameraComponent>();
 		for (auto entity : view)
 		{
@@ -694,7 +672,22 @@ namespace Rynex {
 	}
 
 	template<>
-	void Scene::OnComponentAdded<SceneComponent>(Entity entity, SceneComponent& component)
+	void Scene::OnComponentAdded<RealtionShipComponent>(Entity entity, RealtionShipComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<StaticMeshComponent>(Entity entity, StaticMeshComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<DynamicMeshComponent>(Entity entity, DynamicMeshComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<MeshComponent>(Entity entity, MeshComponent& component)
 	{
 	}
 }

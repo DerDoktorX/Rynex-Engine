@@ -25,9 +25,12 @@ namespace Rynex {
 
         virtual bool IsAssetLoaded(AssetHandle handle) const override;
         virtual bool IsAssetLoaded(const std::filesystem::path& filepath) const override;
+        
+        virtual AssetHandle CreatLocaleAsset(Ref<Asset> asset) override;
+        virtual Ref<Asset> GetLocaleAsset(AssetHandle handle) override;
+        virtual void DeleteLocaleAsset(AssetHandle handle)override;
 
         void ImportAsset(const std::filesystem::path& filepath);
-
         const AssetMetadata& GetMetadata(AssetHandle handle);
     private:
         AssetMap m_LoadedAssets;

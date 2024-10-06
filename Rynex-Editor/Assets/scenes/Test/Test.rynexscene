@@ -1,0 +1,98 @@
+Scene: Untiteld
+Entities:
+  - Entity: 14062427825887108616
+    TagComponent:
+      Tag: Cube
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 3603096116769431624
+        Path: Assets/Models/Cube.gltf
+        Index: 0
+  - Entity: 8488709186981471615
+    TagComponent:
+      Tag: Entiy Cube
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    MaterialComponent:
+      Color: [1, 0, 1]
+      AlgorithmFlags: 65538
+      Shader:
+        Path: Assets/shaders/3DLigthe.glsl
+        Handle: 16250411120058322898
+      UniformLayoute:
+        - Name: u_Ambient
+          Type: 1
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: 0.100000001
+        - Name: u_CamerPos
+          Type: 3
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: [10, 100, 20]
+        - Name: u_Color
+          Type: 3
+          ShaderResourceType: 2
+          GloblelResurce: true
+        - Name: u_EntityID
+          Type: 8
+          ShaderResourceType: 4
+          GloblelResurce: true
+        - Name: u_LigthColor
+          Type: 3
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: [1, 1, 1]
+        - Name: u_LigthPos
+          Type: 3
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: [10, 100, 20]
+        - Name: u_Model
+          Type: 6
+          ShaderResourceType: 1
+          GloblelResurce: true
+        - Name: u_Shinines
+          Type: 1
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: 32
+        - Name: u_Specular
+          Type: 1
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: 0.5
+        - Name: u_Texture_Diffuse1
+          Type: 24
+          ShaderResourceType: 0
+          GloblelResurce: true
+        - Name: u_ViewProj
+          Type: 6
+          ShaderResourceType: 7
+          GloblelResurce: true
+    RealtionShipComponent:
+      Previus: 0
+      First: 14062427825887108616
+      Next: 0
+      Parent: 0
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+    MeshComponent:
+      Model:
+        Path: Assets/Models/Cube.gltf
+        Handle: 3603096116769431624

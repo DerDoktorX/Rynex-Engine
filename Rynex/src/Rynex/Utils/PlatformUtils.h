@@ -4,7 +4,7 @@
 
 namespace Rynex {
 
-	class FileDialoges
+	class RYNEX_API FileDialoges
 	{
 	public:
 		static std::string OpenFile(const char* filter);

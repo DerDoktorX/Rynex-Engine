@@ -1,7 +1,4 @@
 #pragma once
-
-#include <string>
-
 #include "Rynex/Core/Log.h"
 #include "Rynex/Core/Base.h"
 
@@ -26,7 +23,7 @@ namespace Rynex {
 		std::filesystem::path ProjectPath = "C:/dev/Rynex-Enine/Rynex-Editor/SandboxProject";
 	};
 
-	class Project
+	class RYNEX_API Project
 	{
 	public:
 		const std::filesystem::path& GetProjectDirectory() { return s_ActiveProject->m_Config.ProjectPath; }

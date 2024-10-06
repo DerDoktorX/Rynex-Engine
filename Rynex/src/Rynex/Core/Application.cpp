@@ -28,6 +28,7 @@ namespace Rynex {
 	Application::Application(const ApplicationSpecification& specification)
 		: m_Specification(specification)
 	{
+		RY_CORE_INFO("Application::Application Start!");
 		RY_CORE_ASSERT(!s_Instance, "Applicationse allrady exists!");
 		s_Instance = this;
 
@@ -41,6 +42,7 @@ namespace Rynex {
 		m_ImGuiLayer = new ImGuiLayer();
 		RY_CORE_MEMORY_ALICATION("m_ImGuiLayer", "Application::Application", ImGuiLayer);
 		PushOverlay(m_ImGuiLayer);
+		RY_CORE_INFO("Application::Application Finished!");
 	}
 
 	Application::~Application()
@@ -87,15 +89,15 @@ namespace Rynex {
 
 	void Application::Run()
 	{
-		RY_PROFILE_FUNCTION();
+		RY_CORE_INFO("Application::Run Starte!");
 		//m_Camera.SetPostione({ 0.5f, 0.5f, 0.0f });
 		//m_Camera.SetRotation(45.0f);
 		while (m_Running) 
 		{	
 			RY_PROFILE_SCOPE("Main UpdateLoop");
-			float time = (float)glfwGetTime();
-			TimeStep timestep = time - m_LastFrameTime;
-			m_LastFrameTime = time;
+			double time = glfwGetTime();
+			TimeStep timestep((float)time - m_LastFrameTime, time);
+			m_LastFrameTime = (float)time;
 
 #if RY_KONSOLE_FPS
 			RY_CORE_INFO("FPS: {0}", 1/timestep);
@@ -106,22 +108,29 @@ namespace Rynex {
 
 			if (!m_Mineized) 
 			{
+				RY_PROFILE_SCOPE("Update Render!");
 				for (Layer* layer : m_LayerStack)
 					layer->OnUpdate(timestep);
 			}
 
-			m_ImGuiLayer->Begin();
-			for (Layer* layer : m_LayerStack)
-				layer->OnImGuiRender();
-			m_ImGuiLayer->End();
+			{
+				RY_PROFILE_SCOPE("ImGui Render!");
+				m_ImGuiLayer->Begin();
+				for (Layer* layer : m_LayerStack)
+					layer->OnImGuiRender();
+				m_ImGuiLayer->End();
+			}
 
 
 
-			m_Window->OnUpdate();
+			{
+				RY_PROFILE_SCOPE("Windows Update!");
+				m_Window->OnUpdate();
+			}
 			
 		}
 
-	
+		RY_CORE_INFO("Application::Run Finished! -> Next Shutdown From APP are Exexuted!");
 	}
 	
 	bool Application::OnWindowCloseEvent(WindowCloseEvent& e)
@@ -165,7 +174,6 @@ namespace Rynex {
 
 	void Application::ExecuteMainThreedQueue()
 	{
-		RY_PROFILE_FUNCTION();
 #if RY_TODO_APPLICATION_MULTI_THREAD
 		std::vector<std::function<void()>> copy;
 		{

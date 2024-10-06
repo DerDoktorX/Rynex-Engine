@@ -7,7 +7,7 @@
 #include "Rynex/Events/MouseEvent.h";
 
 namespace Rynex {
-	class OrthograficCameraController
+	class RYNEX_API OrthograficCameraController
 	{
 	public:
 		OrthograficCameraController(float aspectRotation, bool rotatione = false);

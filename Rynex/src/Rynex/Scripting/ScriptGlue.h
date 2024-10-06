@@ -2,7 +2,7 @@
 
 namespace Rynex {
 
-	class ScriptGlue
+	class RYNEX_API ScriptGlue
 	{
 	public:
 		static void RegisterFunktion();

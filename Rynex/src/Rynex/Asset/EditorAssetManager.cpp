@@ -1,20 +1,19 @@
 #include "rypch.h"
 #include "EditorAssetManager.h"
 
+#include "Base/AssetManager.h"
 #include "Base/AssetImporter.h"
-#include "Rynex/Serializers/YAML.h"
 #include "Rynex/Project/Project.h"
 
-#include <yaml-cpp/emitfromevents.h>
-#define YAML_CPP_STATIC_DEFINE
-#include <yaml-cpp/yaml.h>
+#include "Rynex/Serializers/EditorAssetMangerSerialzation.h"
+#include <Rynex/Renderer/API/Texture.h>
 
 namespace Rynex {
 
 
 	bool AssetRegistry::IsAssetInRegistry(AssetHandle handle) const
 	{
-		return m_HandleRegistry.find(handle) != m_HandleRegistry.end();
+		return m_HandleRegistry.find(handle) != m_HandleRegistry.end() && handle!=0;
 	}
 
 	bool AssetRegistry::IsAssetInRegistry(const std::filesystem::path& path) const
@@ -27,11 +26,17 @@ namespace Rynex {
 		return m_DirectoryRegistry.find(parentPath.generic_string()) != m_DirectoryRegistry.end();
 	}
 
+	bool AssetRegistry::IsAssetPath(const std::filesystem::path& path) const
+	{
+		return path.has_extension();
+	}
+
 	void AssetRegistry::CreateAsset(const std::filesystem::path& path, AssetHandle handle, AssetMetadata metadata, bool findDirectOnDisc)
 	{
 		
-		if (!IsAssetInRegistry(path) )
+		if (!IsAssetInRegistry(path) && IsAssetPath(path))
 		{
+			
 			if (!metadata)
 			{
 				metadata.Aktive = true;
@@ -50,30 +55,56 @@ namespace Rynex {
 			{
 				metadata.State = AssetState::LostConection;
 			}
-			
-
-			std::string& parentGenaric = path.parent_path().generic_string();
-			if (IsDirectoryInRegistry(parentGenaric))
+			std::string extension = path.extension().string();
+			if(extension.find("-",0) < extension.size())
 			{
-				AssetFileDirectory& assetFileDirectory = m_DirectoryRegistry[parentGenaric];
-				assetFileDirectory.Files.push_back(handle);
+				size_t pos = extension.find("-", 0)- extension.size();
+
+				std::string& pathGenaric = path.generic_string();
+				
+				std::string& parentGenaric = pathGenaric.substr(0, pathGenaric.size() - 2);
+				if (IsDirectoryInRegistry(parentGenaric))
+				{
+					AssetFileDirectory& assetFileDirectory = m_DirectoryRegistry[parentGenaric];
+					assetFileDirectory.Files.push_back(handle);
+				}
+				else
+				{
+					AssetFileDirectory& assetFileDirectory = m_DirectoryRegistry[parentGenaric];
+					assetFileDirectory.Files.push_back(handle);
+					assetFileDirectory.FolderName = path.parent_path().filename().generic_string();
+					assetFileDirectory.FolderPath = parentGenaric;
+					RY_CORE_WARN("This Shoud Not Happend!");
+				}
 			}
 			else
 			{
-				AssetFileDirectory& assetFileDirectory = m_DirectoryRegistry[parentGenaric];
-				assetFileDirectory.Files.push_back(handle);
-				assetFileDirectory.FolderName = path.parent_path().filename().generic_string();
-				assetFileDirectory.FolderPath = parentGenaric;
-				RY_CORE_WARN("This Shoud Not Happend!");
+				std::string& parentGenaric = path.parent_path().generic_string();
+				if (IsDirectoryInRegistry(parentGenaric))
+				{
+					AssetFileDirectory& assetFileDirectory = m_DirectoryRegistry[parentGenaric];
+					assetFileDirectory.Files.push_back(handle);
+				}
+				else
+				{
+					AssetFileDirectory& assetFileDirectory = m_DirectoryRegistry[parentGenaric];
+					assetFileDirectory.Files.push_back(handle);
+					assetFileDirectory.FolderName = path.parent_path().filename().generic_string();
+					assetFileDirectory.FolderPath = parentGenaric;
+					RY_CORE_WARN("This Shoud Not Happend!");
+				}
 			}
+			
 
-
+			m_HandleRegistry[handle] = metadata;
+			m_PathRegistry[path.generic_string()] = handle;
 		}
-		else if (IsAssetInRegistry(path)&& findDirectOnDisc)
+		else if (IsAssetInRegistry(path) && findDirectOnDisc)
 		{
 			AssetMetadata& metadata = m_HandleRegistry[GetAssetHandle(path)];
 			metadata.State = AssetState::NotLoaded;
 		}
+		
 	}
 
 	bool AssetRegistry::AddDirectoryToParent(const std::filesystem::path& path)
@@ -103,9 +134,18 @@ namespace Rynex {
 		{
 			return m_PathRegistry[pathGenaric];
 		}
-		AssetHandle handle = AssetHandle();
-		CreateAsset(path, handle);
-		return handle;
+		else if(IsAssetPath(path) && 0 != (int)GetAssetTypeFromFilePath(path))
+		{
+			AssetHandle handle;
+			do{
+				handle = AssetHandle();
+			} while (handle != 0 || !IsAssetInRegistry(handle));
+			
+			CreateAsset(path, handle);
+			return handle;
+		}
+		else
+			return AssetHandle(0);
 	}
 
 	AssetMetadata& AssetRegistry::GetMetadata(AssetHandle handle)
@@ -122,19 +162,28 @@ namespace Rynex {
 		return GetMetadata(GetAssetHandle(path));
 	}
 
-	bool DeserialzeAsset(const YAML::detail::iterator_value& node, AssetRegistry& assetRegistry)
+	void AssetRegistry::DeleteFolder(const std::filesystem::path& folderPath)
 	{
-		AssetHandle handle = node["Handle"].as<uint64_t>();
+		std::filesystem::path folderparent = folderPath.parent_path().generic_string();
+		if (IsDirectoryInRegistry(folderparent))
+		{
+			std::vector<std::filesystem::path>& fileDirectory = m_DirectoryRegistry[folderparent].Folders;
+			uint32_t delIndex = fileDirectory.size() + 1;
+			for (uint32_t i = 0, size = delIndex-1; i < size; i++)
+			{
+				if (fileDirectory[i] == folderPath)
+					delIndex = i;
+			}
 
-		AssetMetadata metadata;
-		metadata.FilePath = node["FilePath"].as<std::string>();
-		metadata.Type = AssetTypeFromString(node["Type"].as<std::string>());
-		metadata.Name = node["Name"].as<std::string>();
-		metadata.Aktive = true;
-		
-		assetRegistry.CreateAsset(metadata.FilePath, handle, metadata, false);
-		return false;
+			if (delIndex != (fileDirectory.size() + 1))
+			{
+				RY_CORE_ASSERT(false, "Not finely Rady!")
+				//fileDirectory.erase(delIndex);
+			}
+		}
 	}
+
+	
 
 	
 ///////////////////////////////////////////////////////////////////////
@@ -154,7 +203,7 @@ namespace Rynex {
 
 	void EditorAssetManager::OnDetach()
 	{
-		SerialzeAsseRegistry();
+		SerialzeAssetRegistry();
 	}
 
 	Ref<Asset> EditorAssetManager::GetAsset(AssetHandle handle)
@@ -173,11 +222,12 @@ namespace Rynex {
 				asset = AssetImporter::ImportAsset(handle, metadata);
 				metadata.State = AssetState::Ready;
 				asset->Handle = handle;
-				if (!asset) {}
+				RY_CORE_ASSERT(asset, "Error on: 'EditorAssetManager::GetAsset' No Asset Lodead!");
 				m_LoadedAssets[handle] = asset;
 			}
 			return asset;
 		}
+		
 		RY_CORE_ASSERT(false, "Error on: 'EditorAssetManager::GetAsset' No Asset handle found!");
 		return Ref<Asset>();
 	}
@@ -199,7 +249,7 @@ namespace Rynex {
 
 	bool EditorAssetManager::IsAssetLoaded(AssetHandle handle) const
 	{
-		return m_LoadedAssets.find(handle) != m_LoadedAssets.end();
+		return m_LoadedAssets.find(handle) != m_LoadedAssets.end() && (handle!=0);
 	}
 
 	bool EditorAssetManager::IsAssetLoaded(const std::filesystem::path& path) const
@@ -207,114 +257,141 @@ namespace Rynex {
 		return IsAssetLoaded(m_AssetRegistry.IsAssetInRegistry(path));
 	}
 
-
-	YAML::Emitter& operator<<(YAML::Emitter& out, const std::string_view& v)
+	AssetHandle EditorAssetManager::CreatLocaleAsset(Ref<Asset> asset)
 	{
-		RY_PROFILE_FUNCTION();
-		out << std::string(v.data(), v.size());
-		return out;
+		while (IsAssetHandleValid(asset->Handle))
+			asset->Handle = AssetHandle();
+		while (IsAssetLoaded(asset->Handle))
+			asset->Handle = AssetHandle();
+		m_LoadedAssets[asset->Handle] = asset;
+		return asset->Handle;
 	}
 
-	void EditorAssetManager::SerialzeAsseRegistry()
+	Ref<Asset> EditorAssetManager::GetLocaleAsset(AssetHandle handle)
+	{
+		if (IsAssetLoaded(handle) && !IsAssetHandleValid(handle))
+			return m_LoadedAssets.at(handle);
+		return nullptr;
+	}
+
+	void EditorAssetManager::DeleteLocaleAsset(AssetHandle handle)
+	{
+		if (IsAssetLoaded(handle) && !IsAssetHandleValid(handle))
+			m_LoadedAssets.erase(handle);
+	}
+
+
+
+	void EditorAssetManager::CreateAsset(const std::filesystem::path& path, Ref<Asset>& asset, AssetMetadata metadata)
+	{
+		std::string extensionString = path.extension().string();
+		if (!(extensionString.rfind(".ryframe-", 0) == 0 || extensionString.rfind(".ryarray-", 0) == 0 || extensionString == ".ryarray-i"))
+		{
+			if (IsAssetHandleValid(path))
+			{
+				// std::string extension = path.extension().string();
+				// std::string fileName = path.filename().string();
+				// size_t posL = fileName.find(extension);
+				// fileName.erase(posL, fileName.end());
+				// path = path
+				RY_CORE_ASSERT(false, "new Crated Asset is Alrady in path existens!");
+			}
+			while (IsAssetHandleValid(asset->Handle))
+			{
+				asset->Handle = AssetHandle();
+				RY_CORE_WARN("Gerat new AssetHandle Ther is a identikle Asset Alrady");
+			}
+		}
+		
+		if (IsAssetHandleValid(path))
+			asset->Handle = GetAssetHandle(path);
+		else
+			CreateAsset(path, asset->Handle, metadata);
+		
+		
+		
+		if (IsAssetHandleValid(asset->Handle))
+		{
+			if (!IsAssetLoaded(asset->Handle))
+			{
+				AssetMetadata& meta = m_AssetRegistry.GetMetadata(asset->Handle);
+				m_LoadedAssets[asset->Handle] = asset;
+				meta.State = AssetState::Ready;
+			}
+		}
+		else
+		{
+			RY_CORE_ASSERT(false, "new Crated Asset is not identikle There!");
+		}
+	}
+
+	void EditorAssetManager::ReLoadeAsset(AssetHandle handle)
+	{
+		RY_CORE_ASSERT(handle != 0, "This Handle is not Accipteble");
+		RY_CORE_WARN("Reloning Asset: {0}", GetMetadata(handle).FilePath.string().c_str());
+		if (IsAssetLoaded(handle))
+		{
+
+			AssetMetadata& metadata = GetMetadata(handle);
+			metadata.State = AssetState::Updateing;
+			AssetImporter::ReLoadeAsset(handle,metadata);
+			metadata.State = AssetState::Ready;
+			
+			RY_CORE_INFO("Asset: {0} Is Now Reloded", GetMetadata(handle).FilePath.string().c_str());
+		}
+		else
+		{
+			RY_CORE_INFO("don't need Reloding Asset: {0}", GetMetadata(handle).FilePath.string().c_str());
+		}
+		
+	}
+
+	void EditorAssetManager::ReLoadeAsset(const std::filesystem::path& path)
+	{
+		ReLoadeAsset(GetAssetHandle(path));
+	}
+
+	void EditorAssetManager::LoadeDownAsset(AssetHandle handle)
+	{
+		RY_CORE_ASSERT(handle != 0, "Asset is not known!");
+		RY_CORE_WARN("Down Lode Asset: {0}", GetMetadata(handle).FilePath.string().c_str());
+		if (IsAssetLoaded(handle))
+		{
+			AssetMetadata& metadata = GetMetadata(handle);
+			metadata.State = AssetState::Loading;
+			m_LoadedAssets[handle].reset();
+			m_LoadedAssets.erase(handle);
+			metadata.State = AssetState::Ready;
+		}
+		else
+		{
+			RY_CORE_INFO("don't can down lownding Asset: {0}", GetMetadata(handle).FilePath.string().c_str());
+		}
+	}
+
+	void EditorAssetManager::LoadeDownAsset(const std::filesystem::path& path)
+	{
+		LoadeDownAsset(GetAssetHandle(path));
+	}
+
+	void EditorAssetManager::SerialzeAssetRegistry()
 	{
 		//std::scoped_lock<std::mutex> lock(m_RegistryThreedQueueMutex);
 		RY_CORE_INFO("SerialzeAsseRegistry Asset Regestriey");
-		RY_PROFILE_FUNCTION();
 		auto path = Project::GetActiveAssetRegistryPath();
 
-		YAML::Emitter out;
-		{
-			out << YAML::BeginMap;
-			out << YAML::Key << "AssetRegistry" << YAML::Value;
-			out << YAML::BeginSeq;
-			for (const auto& [handle, metadata] : m_AssetRegistry.GetHandleRegistry())
-			{
-				out << YAML::BeginMap;
-				out << YAML::Key << "Handle" << YAML::Value << handle;
-				out << YAML::Key << "FilePath" << YAML::Value << metadata.FilePath.generic_string();
-				out << YAML::Key << "Type" << YAML::Value << AssetTypeToString(metadata.Type);
-				out << YAML::Key << "Name" << YAML::Value << metadata.Name;
-				out << YAML::EndMap;
-			}
-			out << YAML::EndSeq;
-			out << YAML::EndMap;
-		}
-
-		std::ofstream fout(path);
-		fout << out.c_str();
+		EditorAssetMangerSerialzation::Serilze(path, m_AssetRegistry);
 	}
 
 	bool EditorAssetManager::DeserialzeAssetRegistry()
 	{
-		RY_PROFILE_FUNCTION();
-		RY_CORE_INFO("SerialzeAsseRegistry Asset Regestriey");
+		RY_CORE_INFO("DeserialzeAssetRegistry Asset Regestriey");
 		auto path = Project::GetActiveAssetRegistryPath();
-
-		YAML::Node data;
-		try
-		{
-			data = YAML::LoadFile(path.string());
-			//data = YAML::LoadFile("AssetRegistry.ryr");
-		}
-		catch (YAML::ParserException e)
-		{
-			RY_CORE_ERROR("Failed to load project file '{0}'\n     {1}", path.string(), e.what());
-			return false;
-		}
-
-		auto rootNode = data["AssetRegistry"];
-		if (!rootNode)
-			return false;
-		for (const auto& node : rootNode)
-		{
-#if 0
-			AssetHandle handle = node["Handle"].as<uint64_t>();
-			auto& metadata = m_AssetRegistry.GetMetadata(handle);
-
-			metadata.FilePath = node["FilePath"].as<std::string>();
-			m_PathRegistry[metadata.FilePath] = handle;
-			metadata.Type = AssetTypeFromString(node["Type"].as<std::string>());
-			metadata.Name = node["Name"].as<std::string>();
-#else
-			DeserialzeAsset(node, m_AssetRegistry);
-#endif
-		}
-
+		
+		EditorAssetMangerSerialzation::Deserilze(path, m_AssetRegistry);
 		return true;
 	}
 
 
-	
-	bool AssetInternalRegistry::IsAssetInteralInRegistry(AssetHandle handle) const
-	{
-		return m_HandleRegistry.find(handle)!=m_HandleRegistry.end();
-	}
-
-	void AssetInternalRegistry::CreateAssetInteral(Ref<Asset>& asset, AssetMetadata metadata, AssetHandle handle)
-	{
-		m_HandleRegistry[handle] = metadata;
-		asset->Handle = handle;
-		m_AssetMap[handle] = asset;
-	}
-
-
-	AssetMetadata& AssetInternalRegistry::GetInteralMetadata(AssetHandle handle)
-	{
-		if (IsAssetInteralInRegistry(handle))
-		{
-			return m_HandleRegistry[handle];
-		}
-		return AssetMetadata();
-	}
-
-	Ref<Asset> AssetInternalRegistry::GetAssetInteral(AssetHandle handle)
-	{
-		if (IsAssetInteralInRegistry(handle))
-		{
-			return m_AssetMap[handle];
-		}
-		
-		return nullptr;
-	}
 
 }

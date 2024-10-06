@@ -25,6 +25,7 @@ project "Rynex"
 		"vendor/ImGuizmo/ImGuizmo.cpp",
 		--"vendor/filewatch/**.h",
 		--"vendor/filewatch/**.cpp",
+		
 	}
 
 	defines
@@ -39,6 +40,7 @@ project "Rynex"
 		"src",
 		-- Runtime
 		"vendor/spdlog/include",	-- Logs
+
 		"%{IncludeDir.entt}",		-- Entity
 		"%{IncludeDir.mono}",		-- C#
 		-- Math
@@ -50,6 +52,11 @@ project "Rynex"
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.filewatch}",
+		"%{IncludeDir.assimp}",
+		 --"%{IncludeDir.assimp}",
+			--"%{IncludeDir._config}",
+			--"%{IncludeDir.assimp_config}",
+			--"%{IncludeDir.assimp_include}",
 		-- Runtime Visuelle configs
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.ImGuizmo}",
@@ -64,7 +71,7 @@ project "Rynex"
 
 		"yaml-cpp",			-- Files
 		"ImGui", 			-- Runtime Visuelle configs
-		--"%{Library.mono}"	-- Runtime C# Scripts Reloade
+		--"%{Library.assimp}"	-- Runtime C# Scripts Reloade
 	}
 	
 	filter "files:vendor/ImGuizmo/**.cpp"
@@ -110,7 +117,8 @@ project "Rynex"
 		--	"%{Library.ShaderC_Debug}",
 		--	"%{Library.SPIRV_Cross_Debug}",
 		--	"%{Library.SPIRV_Cross_GLSL_Debug}"
-			"%{Library.mono_Debug}"
+			"%{Library.mono_Debug}",
+			"%{Library.assimp_Debug}"
 		}
 
 	filter "configurations:Release"
@@ -126,7 +134,8 @@ project "Rynex"
 		--	"%{Library.ShaderC_Release}",
 		--	"%{Library.SPIRV_Cross_Release}",
 		--	"%{Library.SPIRV_Cross_GLSL_Release}"
-			"%{Library.mono_Release}"
+			"%{Library.mono_Release}",
+			"%{Library.assimp_Release}"
 		}
 
 	filter "configurations:Dist"
@@ -142,6 +151,7 @@ project "Rynex"
 			--"%{Library.ShaderC_Release}",
 			--"%{Library.SPIRV_Cross_Release}",
 			--"%{Library.SPIRV_Cross_GLSL_Release}"
-			"%{Library.mono_Release}"
+			"%{Library.mono_Release}",
+			"%{Library.assimp_Release}"
 		}
 

@@ -1,11 +1,10 @@
 #pragma once
 
-#include "Rynex/Core/Base.h"
 #include "Rynex/Events/Event.h"
 #include "Rynex/Core/TimeStep.h"
 
 namespace Rynex{
-	class Layer
+	class RYNEX_API Layer
 	{
 	public:
 		Layer(const std::string& name = "Layer");

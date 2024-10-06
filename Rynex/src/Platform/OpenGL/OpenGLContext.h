@@ -14,6 +14,9 @@ namespace Rynex{
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
 
+		virtual const RendererAPI::API GetRendererAPI() const override { return RendererAPI::API::OpenGL; };
+
+
 	private:
 		GLFWwindow* m_WindowHandle;
 	};

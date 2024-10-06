@@ -1,7 +1,6 @@
 #include "rypch.h"
 #include "EditorAssetManager.h"
 #include "Base/AssetImporter.h"
-//#include "Rynex/Serializers/YAML.h"
 #include "Rynex/Project/Project.h"
 
 namespace Rynex {
@@ -10,7 +9,6 @@ namespace Rynex {
 
     RuntimeAssetManager::RuntimeAssetManager()
     {
-        RY_PROFILE_FUNCTION();
         RY_CORE_ERROR("RuntimeAssetManager Constructor");
     }
 
@@ -27,7 +25,6 @@ namespace Rynex {
 
     Ref<Asset> RuntimeAssetManager::GetAsset(AssetHandle handle)
     {
-        RY_PROFILE_FUNCTION();
         if (m_AssetRegistry.IsAssetInRegistry(handle))
         {
             Ref<Asset> asset = Ref<Asset>();
@@ -67,6 +64,29 @@ namespace Rynex {
     {
         RY_CORE_ERROR("This Funktion 'RuntimeAssetManager::IsAssetLoaded' Don't need to Exist in Runtime!");
         return IsAssetLoaded(m_AssetRegistry.IsAssetInRegistry(filepath));
+    }
+
+    AssetHandle RuntimeAssetManager::CreatLocaleAsset(Ref<Asset> asset)
+    {
+        while (IsAssetHandleValid(asset->Handle))
+            asset->Handle = AssetHandle();
+        while (IsAssetLoaded(asset->Handle))
+            asset->Handle = AssetHandle();
+        m_LoadedAssets[asset->Handle] = asset;
+        return asset->Handle;
+    }
+
+    Ref<Asset> RuntimeAssetManager::GetLocaleAsset(AssetHandle handle)
+    {
+        if (IsAssetLoaded(handle) && !IsAssetHandleValid(handle))
+            return m_LoadedAssets.at(handle);
+        return nullptr;
+    }
+
+    void RuntimeAssetManager::DeleteLocaleAsset(AssetHandle handle)
+    {
+        if (IsAssetLoaded(handle) && !IsAssetHandleValid(handle))
+            m_LoadedAssets.erase(handle);
     }
 
    

@@ -1,11 +1,10 @@
 #pragma once
 
-#include "Rynex/Project/Project.h"
-
 
 namespace Rynex {
+	class Project;
 
-	class ProjectSerialiazer
+	class RYNEX_API ProjectSerialiazer
 	{
 	public:
 		ProjectSerialiazer(Ref<Project> project);

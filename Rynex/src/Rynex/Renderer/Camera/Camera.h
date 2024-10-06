@@ -4,7 +4,7 @@
 
 namespace Rynex {
 
-	class Camera
+	class RYNEX_API Camera
 	{
 	public:
 		Camera() = default;

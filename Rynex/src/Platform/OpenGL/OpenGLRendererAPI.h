@@ -33,9 +33,10 @@ namespace Rynex {
 
 		virtual void DrawPatches(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
 
-		
+		// virtual const RendererAPI::API GetRendererAPI() const override { return RendererAPI::API::OpenGL; };
 
-		virtual void ComputePipline() override;
+
+		virtual void DispatcheCompute(const glm::vec<3, uint32_t>& groups) override;
 
 		virtual void DrawError() override;
 	};

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Rynex/Renderer/API/Shader.h"
-#include <Rynex/Asset/Base/Asset.h>
+#include "Rynex/Asset/Base/Asset.h"
 
 #include <glm/glm.hpp>
 
@@ -30,6 +30,8 @@ namespace Rynex {
 
 		virtual void AddShader(const std::string& shader, Type shaderType) override;
 
+		virtual void SetPatcheVertecies(uint32_t count) override;
+
 		virtual void SetUniformValue(const std::string& name, void* value, ShaderDataType type);
 
 		virtual void SetInt(const std::string& name, int value) override;
@@ -45,6 +47,10 @@ namespace Rynex {
 
 		virtual const std::string& GetName() const override { return m_Name;  };
 
+		virtual bool operator==(const Shader& other)const override
+		{
+			return m_RendererID == ((OpenGLShader&)other).m_RendererID;
+		};
 
 		void UploadUniformInt(const std::string& name, int values);
 		void UploadUniformInt(const std::string& name, void* values);
@@ -66,23 +72,18 @@ namespace Rynex {
 		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
 		void UploadUniformMat4(const std::string& name, void* values);
 
-		// Asset
-		// static AssetType GetStaticType() { return AssetType::Shader; }
-		// virtual AssetType GetType() const { return GetStaticType(); }
-		// virtual AssetHandle GetHandle() const { return m_Handle; };
+		virtual const RendererAPI::API GetRendererAPI() const override { return RendererAPI::API::OpenGL; };
+
 	private:
-		//std::string ReadFile(const std::string& fiilePath);
 		std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);
 		void Compile(std::unordered_map<GLenum, std::string>& shaderSources);
 	private:
 		uint32_t m_RendererID;
 		std::string m_Name;
 		std::map<std::string, std::string> m_sUniformLayoute;
-		// std::map<std::string, UniformElement> m_UniformLayoute;
 		BufferLayout m_BufferLayout;
-#if 1
-		// friend class TestOpenGL;
-#endif // TODO: Dealting after testing
+		int m_ShaderType = 0;
+
 	};
 }
 

@@ -1,6 +1,6 @@
 #pragma once
-
 #include "Asset.h"
+#include "AssetMetadata.h"
 
 namespace Rynex {
 
@@ -21,6 +21,9 @@ namespace Rynex {
         virtual Ref<Asset> GetAsset(AssetHandle handle) = 0;
         virtual Ref<Asset> GetAsset(const std::filesystem::path& path) = 0;
 
+        virtual AssetHandle CreatLocaleAsset(Ref<Asset> asset) = 0;
+        virtual Ref<Asset> GetLocaleAsset(AssetHandle handle) = 0;
+        virtual void DeleteLocaleAsset(AssetHandle handle) = 0;
     };
 
 }

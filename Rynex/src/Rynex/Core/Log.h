@@ -1,10 +1,9 @@
 #pragma once
 
-#include "Base.h"
 
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/ostr.h"
-
+// Arrows dont work her
 namespace Rynex {
 
 	class RYNEX_API Log

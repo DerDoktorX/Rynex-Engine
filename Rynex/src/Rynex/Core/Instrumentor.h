@@ -2,6 +2,7 @@
 
 #include "Rynex/Core/Log.h"
 
+// TODO: Check what header Fiels real need to exist
 #include <algorithm>
 #include <chrono>
 #include <fstream>
@@ -26,7 +27,7 @@ namespace Rynex {
 		std::string Name;
 	};
 
-	class Instrumentor
+	class RYNEX_API Instrumentor
 	{
 	public:
 		Instrumentor(const Instrumentor&) = delete;
@@ -163,7 +164,7 @@ namespace Rynex {
 		{
 			if (!m_Stopped)
 				Stop();
-			delete[] m_Name;
+			//delete[] m_Name;
 		}
 
 		void Stop()

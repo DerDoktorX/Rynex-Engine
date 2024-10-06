@@ -8,22 +8,23 @@
 
 #include "Pannel/SceneHierachyPannel.h"
 #include "Pannel/ContentBrowserPannel.h"
-
-
+#include "Pannel/ViewPortPannel.h"
+#include "Pannel/RendererPannel.h"
 
 struct ImVec2;
 
 namespace Rynex{
 #define CHECK_FOR_ERRORS 0
-// TODO: Make The System Worke CHECK_FOR_ERRORS
+
+	// TODO: Make The System Worke CHECK_FOR_ERRORS
+
+	enum class SceneState
+	{
+		Edit = 0, Play = 1, Simulate = 2
+	};
 
 	class EditorLayer : public Layer
 	{
-	public:
-		enum class SceneState
-		{
-			Edit = 0, Play = 1, Simulate = 2
-		};
 	public:
 		EditorLayer();
 		virtual ~EditorLayer() = default;
@@ -56,6 +57,14 @@ namespace Rynex{
 		//-- ImGui ------------------
 		virtual void OnImGuiRender() override;
 
+		Entity GetSelectedEntity() { return m_Scene_HPanel.GetSelectedEntity(); }
+		SceneState GetSceneState() { return m_SceneState; }
+		int* GetPtrGizmoType();
+
+		const Ref<Scene>& GetAktivScene() { return m_AktiveScene; }
+
+		void SetSelectedEntity(Entity enitiy) { return m_Scene_HPanel.SetSelectedEntity(enitiy); }
+
 		//--- Layoute ----------------
 
 		// ViewPort 
@@ -66,10 +75,15 @@ namespace Rynex{
 		void ImGuiSetMausPosInViewPort( ImVec2 vpOffset);
 		void ImGizmoInViewPort();
 
-		void ImGuiSettings();
+		void RenderSelectedEntity(Entity slelcted);
+		void RenderHoveredEntity(Entity hovered);
+		void FinaleImgaeFilterEditor();
+
+		void ImGuiSettings(bool renderPannnel);
+		void ImGuiPlayButten();
 		void ImGuiRenderInfo();
 
-		void ImGuiScenePannel();
+		void ImGuiPannels();
 		
 
 		//--- Top Taskbar -------------
@@ -89,9 +103,17 @@ namespace Rynex{
 		Ref<Scene>				m_AktiveScene;
 		Ref<Scene>				m_EditorScene;
 		Ref<Framebuffer>		m_Framebuffer;
+		Ref<Framebuffer>		m_SelectedFramebuffer;
+		Ref<Framebuffer>		m_HoveredFramebuffer;
+
+		Ref<Shader>				m_Filtering;
+		Ref<Texture>			m_FinaleImage;
+		Ref<Texture>			m_FrameImage;
+#if 0
 		// Camera
 		Entity					m_CamerEntity;
 		Entity					m_SecoundCameraEntity;
+#endif
 		// Selected Entity
 		Entity					m_HoveredEntity;
 
@@ -115,9 +137,10 @@ namespace Rynex{
 		glm::vec2 m_ViewportBounds[2];
 
 		// Panels
-		SceneHierachyPannel m_Scene_HPanel;
-		ContentBrowserPannel m_Content_BPannel;
-		
+		RendererPannel							m_RendererPannel;
+		SceneHierachyPannel						m_Scene_HPanel;
+		ContentBrowserPannel					m_Content_BPannel;
+		std::vector<Ref<ViewPortPannel>>		m_ViewPortPannel;
 
 		// Paths
 		std::filesystem::path m_EditorScenePath;

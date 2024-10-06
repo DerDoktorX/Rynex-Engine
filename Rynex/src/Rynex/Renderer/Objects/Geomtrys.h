@@ -13,7 +13,7 @@ namespace Rynex {
 		{  ShaderDataType::Float3,	"a_Normals"	},\
 	}
 
-	class Geomtrys
+	class RYNEX_API Geomtrys
 	{
 	public:
 		// Genrate Vertexes

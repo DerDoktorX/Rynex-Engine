@@ -6,7 +6,7 @@
 
 namespace Rynex {
 	
-	class Renderer 
+	class RYNEX_API Renderer
 	{
 	public:
 		static void Init();

@@ -1,13 +1,10 @@
 #pragma once
 
-#include "Rynex/Core/Base.h"
 #include "Layer.h"
-
-#include <vector>
 
 namespace Rynex{
 
-	class LayerStack
+	class RYNEX_API LayerStack
 	{
 	public:
 		LayerStack();

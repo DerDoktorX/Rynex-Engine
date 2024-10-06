@@ -6,7 +6,7 @@
 #include "Rynex/Scene/Components.h"
 
 namespace Rynex {
-	class Renderer2D
+	class RYNEX_API Renderer2D
 	{
 	public:
 		
@@ -30,21 +30,21 @@ namespace Rynex {
 		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
 		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
 
-		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D> texture);
-		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D> texture);
+		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture> texture);
+		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture> texture);
 
 
 		static void DrawQuad(const glm::mat4& tranform, const glm::vec4& color, int entityID = -2);
-		static void DrawQuad(const glm::mat4& tranform, const Ref<Texture2D> texture, int entityID = -2);
+		static void DrawQuad(const glm::mat4& tranform, const Ref<Texture> texture, int entityID = -2);
 
 		static void DrawQuadSingle(const glm::mat4& tranform, const glm::vec4& color, int entityID = -2);
-		static void DrawQuadSingle(const glm::mat4& tranform, const Ref<Texture2D> texture, int entityID = -2);
+		static void DrawQuadSingle(const glm::mat4& tranform, const Ref<Texture> texture, int entityID = -2);
 		
 		static void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color);
 		static void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color);
 
-		static void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D> texture);
-		static void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D> texture);
+		static void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture> texture);
+		static void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture> texture);
 
 		struct Statistics
 		{

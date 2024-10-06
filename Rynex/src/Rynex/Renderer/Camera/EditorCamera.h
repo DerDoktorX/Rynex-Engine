@@ -10,7 +10,7 @@
 
 
 namespace Rynex {
-	class EditorCamera : public Camera
+	class RYNEX_API EditorCamera : public Camera
 	{
 	public:
 		EditorCamera() = default;
@@ -30,7 +30,7 @@ namespace Rynex {
 		glm::vec3 GetUpDirection() const;
 		glm::vec3 GetRightDirection() const;
 		glm::vec3 GetForwardDirection() const;
-		const glm::vec3& GetPosition() const { return m_Position; }
+		glm::vec3 GetPosition() const { return glm::vec3(m_ViewMatrix[3].x, m_ViewMatrix[3].y, m_ViewMatrix[3].z); }
 		glm::quat GetOrientation() const;
 
 		float GetPitch() const { return m_Pitch; }

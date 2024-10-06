@@ -1,0 +1,1544 @@
+Scene: Untiteld
+Entities:
+  - Entity: 8021152424724877336
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Transaltion: [30, 25, 144.399994]
+      Rotation: [-0.104719758, 0.301941931, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectivVerticleFOV: 0.785398185
+        PerspectivNearClipe: 0.00999999978
+        PerspectivFarClipe: 1000
+        OrthographicSize: 10
+        OrthographicNearClipe: -1
+        OrthographicFarClipe: 1
+      Primary: true
+      FixedAspectRotaion: false
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    Matrix4x4Component:
+      Matrix4x4: [0.95476079, 9.31322575e-10, -0.297374845, 0, -0.0310841389, 0.994521916, -0.0997996926, 0, 0.29574579, 0.104528472, 0.949530542, 0, 30, 25, 144.399994, 1]
+      GlobleMatrix4x4: [0.95476079, 9.31322575e-10, -0.297374845, 0, -0.0310841389, 0.994521916, -0.0997996926, 0, 0.29574579, 0.104528472, 0.949530542, 0, 30, 25, 144.399994, 1]
+  - Entity: 9147734990189631776
+    TagComponent:
+      Tag: Object_73
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 2733114355386430132
+      First: 0
+      Next: 0
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 71
+  - Entity: 2733114355386430132
+    TagComponent:
+      Tag: Object_72
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 1589348081887875904
+      First: 0
+      Next: 9147734990189631776
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 70
+  - Entity: 1589348081887875904
+    TagComponent:
+      Tag: Object_71
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 16489305631189627095
+      First: 0
+      Next: 2733114355386430132
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 69
+  - Entity: 16489305631189627095
+    TagComponent:
+      Tag: Object_70
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 569770069392749917
+      First: 0
+      Next: 1589348081887875904
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 68
+  - Entity: 569770069392749917
+    TagComponent:
+      Tag: Object_69
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 12364736987176001694
+      First: 0
+      Next: 16489305631189627095
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 67
+  - Entity: 12364736987176001694
+    TagComponent:
+      Tag: Object_68
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 5036026922301436598
+      First: 0
+      Next: 569770069392749917
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 66
+  - Entity: 5036026922301436598
+    TagComponent:
+      Tag: Object_67
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 5115458015621123109
+      First: 0
+      Next: 12364736987176001694
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 65
+  - Entity: 5115458015621123109
+    TagComponent:
+      Tag: Object_66
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 4954650193985203239
+      First: 0
+      Next: 5036026922301436598
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 64
+  - Entity: 4954650193985203239
+    TagComponent:
+      Tag: Object_65
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 11525264762347082695
+      First: 0
+      Next: 5115458015621123109
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 63
+  - Entity: 11525264762347082695
+    TagComponent:
+      Tag: Object_64
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 13703097656385153913
+      First: 0
+      Next: 4954650193985203239
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 62
+  - Entity: 13703097656385153913
+    TagComponent:
+      Tag: Object_63
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 9684116461684960676
+      First: 0
+      Next: 11525264762347082695
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 61
+  - Entity: 9684116461684960676
+    TagComponent:
+      Tag: Object_62
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 10234188381803235142
+      First: 0
+      Next: 13703097656385153913
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 60
+  - Entity: 10234188381803235142
+    TagComponent:
+      Tag: Object_61
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 4576989834436046867
+      First: 0
+      Next: 9684116461684960676
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 59
+  - Entity: 4576989834436046867
+    TagComponent:
+      Tag: Object_60
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 15977616436530108775
+      First: 0
+      Next: 10234188381803235142
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 58
+  - Entity: 15977616436530108775
+    TagComponent:
+      Tag: Object_59
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 2152808251526864191
+      First: 0
+      Next: 4576989834436046867
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 57
+  - Entity: 2152808251526864191
+    TagComponent:
+      Tag: Object_58
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 5620249937977236499
+      First: 0
+      Next: 15977616436530108775
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 56
+  - Entity: 5620249937977236499
+    TagComponent:
+      Tag: Object_57
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 434408024400429267
+      First: 0
+      Next: 2152808251526864191
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 55
+  - Entity: 434408024400429267
+    TagComponent:
+      Tag: Object_56
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 4188800326986775446
+      First: 0
+      Next: 5620249937977236499
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 54
+  - Entity: 4188800326986775446
+    TagComponent:
+      Tag: Object_55
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 7160041780114890187
+      First: 0
+      Next: 434408024400429267
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 53
+  - Entity: 7160041780114890187
+    TagComponent:
+      Tag: Object_54
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 9529636235494351915
+      First: 0
+      Next: 4188800326986775446
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 52
+  - Entity: 9529636235494351915
+    TagComponent:
+      Tag: Object_53
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 6131646412187234275
+      First: 0
+      Next: 7160041780114890187
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 51
+  - Entity: 6131646412187234275
+    TagComponent:
+      Tag: Object_52
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 15010718751343594376
+      First: 0
+      Next: 9529636235494351915
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 50
+  - Entity: 15010718751343594376
+    TagComponent:
+      Tag: Object_51
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 16966904462338505026
+      First: 0
+      Next: 6131646412187234275
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 49
+  - Entity: 16966904462338505026
+    TagComponent:
+      Tag: Object_50
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 5424686267485357022
+      First: 0
+      Next: 15010718751343594376
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 48
+  - Entity: 5424686267485357022
+    TagComponent:
+      Tag: Object_49
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 1115781964071227383
+      First: 0
+      Next: 16966904462338505026
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 47
+  - Entity: 1115781964071227383
+    TagComponent:
+      Tag: Object_48
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 16485588384447687329
+      First: 0
+      Next: 5424686267485357022
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 46
+  - Entity: 16485588384447687329
+    TagComponent:
+      Tag: Object_47
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 15413109923641640493
+      First: 0
+      Next: 1115781964071227383
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 45
+  - Entity: 15413109923641640493
+    TagComponent:
+      Tag: Object_46
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 763207159000146459
+      First: 0
+      Next: 16485588384447687329
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 44
+  - Entity: 763207159000146459
+    TagComponent:
+      Tag: Object_45
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 10332592621847936544
+      First: 0
+      Next: 15413109923641640493
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 43
+  - Entity: 10332592621847936544
+    TagComponent:
+      Tag: Object_44
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 12260210548707554360
+      First: 0
+      Next: 763207159000146459
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 42
+  - Entity: 12260210548707554360
+    TagComponent:
+      Tag: Object_43
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 17922973884840467950
+      First: 0
+      Next: 10332592621847936544
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 41
+  - Entity: 17922973884840467950
+    TagComponent:
+      Tag: Object_42
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 1866808437611142914
+      First: 0
+      Next: 12260210548707554360
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 40
+  - Entity: 1866808437611142914
+    TagComponent:
+      Tag: Object_41
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 13299543757341712059
+      First: 0
+      Next: 17922973884840467950
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 39
+  - Entity: 13299543757341712059
+    TagComponent:
+      Tag: Object_40
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 6334019947416580766
+      First: 0
+      Next: 1866808437611142914
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 38
+  - Entity: 6334019947416580766
+    TagComponent:
+      Tag: Object_39
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 14034003240315266652
+      First: 0
+      Next: 13299543757341712059
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 37
+  - Entity: 14034003240315266652
+    TagComponent:
+      Tag: Object_38
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 12344784107937821804
+      First: 0
+      Next: 6334019947416580766
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 36
+  - Entity: 12344784107937821804
+    TagComponent:
+      Tag: Object_37
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 4697951990601429916
+      First: 0
+      Next: 14034003240315266652
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 35
+  - Entity: 4697951990601429916
+    TagComponent:
+      Tag: Object_36
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 15259555877185852427
+      First: 0
+      Next: 12344784107937821804
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 34
+  - Entity: 15259555877185852427
+    TagComponent:
+      Tag: Object_35
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 7772830714081060136
+      First: 0
+      Next: 4697951990601429916
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 33
+  - Entity: 7772830714081060136
+    TagComponent:
+      Tag: Object_34
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 4885232156450249060
+      First: 0
+      Next: 15259555877185852427
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 32
+  - Entity: 4885232156450249060
+    TagComponent:
+      Tag: Object_33
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 8346166272533338320
+      First: 0
+      Next: 7772830714081060136
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 31
+  - Entity: 8346166272533338320
+    TagComponent:
+      Tag: Object_32
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 8878249441960170464
+      First: 0
+      Next: 4885232156450249060
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 30
+  - Entity: 8878249441960170464
+    TagComponent:
+      Tag: Object_31
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 15771337971678642221
+      First: 0
+      Next: 8346166272533338320
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 29
+  - Entity: 15771337971678642221
+    TagComponent:
+      Tag: Object_30
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 3932415028912304959
+      First: 0
+      Next: 8878249441960170464
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 28
+  - Entity: 3932415028912304959
+    TagComponent:
+      Tag: Object_29
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 17625550120022102175
+      First: 0
+      Next: 15771337971678642221
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 27
+  - Entity: 17625550120022102175
+    TagComponent:
+      Tag: Object_28
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 9030197312937382191
+      First: 0
+      Next: 3932415028912304959
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 26
+  - Entity: 9030197312937382191
+    TagComponent:
+      Tag: Object_27
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 8984265148484737955
+      First: 0
+      Next: 17625550120022102175
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 25
+  - Entity: 8984265148484737955
+    TagComponent:
+      Tag: Object_26
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 7697482279723634353
+      First: 0
+      Next: 9030197312937382191
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 24
+  - Entity: 7697482279723634353
+    TagComponent:
+      Tag: Object_25
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 1866968094493036041
+      First: 0
+      Next: 8984265148484737955
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 23
+  - Entity: 1866968094493036041
+    TagComponent:
+      Tag: Object_24
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 4456239319303576333
+      First: 0
+      Next: 7697482279723634353
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 22
+  - Entity: 4456239319303576333
+    TagComponent:
+      Tag: Object_23
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 1620334568648882088
+      First: 0
+      Next: 1866968094493036041
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 21
+  - Entity: 1620334568648882088
+    TagComponent:
+      Tag: Object_22
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 12857978451914334935
+      First: 0
+      Next: 4456239319303576333
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 20
+  - Entity: 12857978451914334935
+    TagComponent:
+      Tag: Object_21
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 13539184454085078822
+      First: 0
+      Next: 1620334568648882088
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 19
+  - Entity: 13539184454085078822
+    TagComponent:
+      Tag: Object_20
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 5442442444330605573
+      First: 0
+      Next: 12857978451914334935
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 18
+  - Entity: 5442442444330605573
+    TagComponent:
+      Tag: Object_19
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 7476839360126896433
+      First: 0
+      Next: 13539184454085078822
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 17
+  - Entity: 7476839360126896433
+    TagComponent:
+      Tag: Object_18
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 16466703715051244331
+      First: 0
+      Next: 5442442444330605573
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 16
+  - Entity: 16466703715051244331
+    TagComponent:
+      Tag: Object_17
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 9049284430459463162
+      First: 0
+      Next: 7476839360126896433
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 15
+  - Entity: 9049284430459463162
+    TagComponent:
+      Tag: Object_16
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 1094175075757116843
+      First: 0
+      Next: 16466703715051244331
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 14
+  - Entity: 1094175075757116843
+    TagComponent:
+      Tag: Object_15
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 18382716314426896502
+      First: 0
+      Next: 9049284430459463162
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 13
+  - Entity: 18382716314426896502
+    TagComponent:
+      Tag: Object_14
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 13462575134119035004
+      First: 0
+      Next: 1094175075757116843
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 12
+  - Entity: 13462575134119035004
+    TagComponent:
+      Tag: Object_13
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 11480764322243636572
+      First: 0
+      Next: 18382716314426896502
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 11
+  - Entity: 11480764322243636572
+    TagComponent:
+      Tag: Object_12
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 13576290193369029023
+      First: 0
+      Next: 13462575134119035004
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 10
+  - Entity: 13576290193369029023
+    TagComponent:
+      Tag: Object_11
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 5544098047976808949
+      First: 0
+      Next: 11480764322243636572
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 9
+  - Entity: 5544098047976808949
+    TagComponent:
+      Tag: Object_10
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 11776432839116499270
+      First: 0
+      Next: 13576290193369029023
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 8
+  - Entity: 11776432839116499270
+    TagComponent:
+      Tag: Object_9
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 14263491220797176790
+      First: 0
+      Next: 5544098047976808949
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 7
+  - Entity: 14263491220797176790
+    TagComponent:
+      Tag: Object_8
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 18193000405657187853
+      First: 0
+      Next: 11776432839116499270
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 6
+  - Entity: 18193000405657187853
+    TagComponent:
+      Tag: Object_7
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 16094946450595306783
+      First: 0
+      Next: 14263491220797176790
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 5
+  - Entity: 16094946450595306783
+    TagComponent:
+      Tag: Object_6
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 12919347582330663800
+      First: 0
+      Next: 18193000405657187853
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 4
+  - Entity: 12919347582330663800
+    TagComponent:
+      Tag: Object_5
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 15087288237828828147
+      First: 0
+      Next: 16094946450595306783
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 3
+  - Entity: 15087288237828828147
+    TagComponent:
+      Tag: Object_4
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 5768896266097893044
+      First: 0
+      Next: 12919347582330663800
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 2
+  - Entity: 5768896266097893044
+    TagComponent:
+      Tag: Object_3
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 8635005105588943343
+      First: 0
+      Next: 15087288237828828147
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 1
+  - Entity: 8635005105588943343
+    TagComponent:
+      Tag: Object_2
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, -0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 5768896266097893044
+      Parent: 8488709186981471615
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    DynamicMeshComponent:
+      Model-D:
+        Handle: 5706196063859278851
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Index: 0
+  - Entity: 8488709186981471615
+    TagComponent:
+      Tag: Yamato
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [4.71238899, 0, 0]
+      Scale: [1, 1, 1]
+    MaterialComponent:
+      Color: [1, 0, 1]
+      AlgorithmFlags: 65538
+      Shader:
+        Path: Assets/shaders/3DLigthe.glsl
+        Handle: 16250411120058322898
+      UniformLayoute:
+        - Name: u_Ambient
+          Type: 1
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: 0.100000001
+        - Name: u_CamerPos
+          Type: 3
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: [10, 100, 20]
+        - Name: u_Color
+          Type: 3
+          ShaderResourceType: 2
+          GloblelResurce: true
+        - Name: u_EntityID
+          Type: 8
+          ShaderResourceType: 4
+          GloblelResurce: true
+        - Name: u_LigthColor
+          Type: 3
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: [1, 1, 1]
+        - Name: u_LigthPos
+          Type: 3
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: [10, 100, 20]
+        - Name: u_Model
+          Type: 6
+          ShaderResourceType: 1
+          GloblelResurce: true
+        - Name: u_Shinines
+          Type: 1
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: 32
+        - Name: u_Specular
+          Type: 1
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: 0.5
+        - Name: u_Texture_Diffuse1
+          Type: 24
+          ShaderResourceType: 0
+          GloblelResurce: true
+        - Name: u_ViewProj
+          Type: 6
+          ShaderResourceType: 7
+          GloblelResurce: true
+    RealtionShipComponent:
+      Previus: 0
+      First: 8635005105588943343
+      Next: 0
+      Parent: 0
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+    MeshComponent:
+      Model:
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Handle: 5706196063859278851

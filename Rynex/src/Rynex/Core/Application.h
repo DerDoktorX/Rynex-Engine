@@ -1,7 +1,4 @@
 #pragma once
-
-#include "Rynex/Core/Base.h"
-
 #include "Rynex/Core/Window.h"
 #include "Rynex/Core/LayerStack.h"
 #include "Rynex/Events/Event.h"

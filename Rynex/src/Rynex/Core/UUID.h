@@ -2,7 +2,7 @@
 
 namespace Rynex {
 
-	enum class ResurceType
+	enum class RYNEX_API ResurceType
 	{
 		Nono = 0,
 		Texture, Texture2D,

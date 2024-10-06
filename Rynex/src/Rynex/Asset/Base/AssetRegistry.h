@@ -4,8 +4,6 @@
 
 namespace Rynex {
 
-
-
 	class RegistryAsset
 	{
 	public:

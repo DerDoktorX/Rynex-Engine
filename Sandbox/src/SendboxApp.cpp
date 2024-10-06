@@ -68,8 +68,8 @@ public:
 
 					auto textureShader = m_ShaderLibary.Load("Assets/shaders/Texture.glsl");
 
-					m_Texture = Rynex::Texture2D::Create("Assets/textures/Checkerboard.png");
-					m_TrasperentTestTexture = Rynex::Texture2D::Create("Assets/textures/testBlending.png");
+					m_Texture = Rynex::Texture::Create("Assets/textures/Checkerboard.png");
+					m_TrasperentTestTexture = Rynex::Texture::Create("Assets/textures/testBlending.png");
 
 					std::dynamic_pointer_cast<Rynex::OpenGLShader>(textureShader)->Bind();
 					std::dynamic_pointer_cast<Rynex::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
@@ -193,7 +193,7 @@ private:
 	Rynex::Ref<Rynex::Shader>			m_BlueShader/*, m_TextureShader*/;
 	Rynex::Ref<Rynex::VertexArray>		m_SquareVA;
 
-	Rynex::Ref<Rynex::Texture2D>		m_Texture, m_TrasperentTestTexture;
+	Rynex::Ref<Rynex::Texture>		m_Texture, m_TrasperentTestTexture;
 
 	glm::vec3 m_SquerPostion;
 

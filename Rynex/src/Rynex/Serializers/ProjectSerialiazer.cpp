@@ -1,9 +1,25 @@
-
 #include "rypch.h"
-#include "YAML.h"
 #include "ProjectSerialiazer.h"
 
+#include "Rynex/Renderer/API/Buffer.h"
+#include "Rynex/Project/Project.h"
+
+#include <glm/glm.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
+#define YAML_CPP_STATIC_DEFINE
+#include <yaml-cpp/yaml.h>
+#include <fstream>
+
+#define YAML_AKTIV 0
+
+
+namespace YAML {
+
+}
+
+
 namespace Rynex {
+
 
 	ProjectSerialiazer::ProjectSerialiazer(Ref<Project> project)
 		: m_Project(project)
@@ -12,7 +28,6 @@ namespace Rynex {
 
 	bool ProjectSerialiazer::Serlize(const std::filesystem::path& filepath)
 	{
-		RY_PROFILE_FUNCTION();
 		const auto& config = m_Project->GetConfig();
 
 		YAML::Emitter out;
@@ -36,9 +51,8 @@ namespace Rynex {
 		return true;
 	}
 
-	bool Rynex::ProjectSerialiazer::Deserlize(const std::filesystem::path& filepath)
+	bool ProjectSerialiazer::Deserlize(const std::filesystem::path& filepath)
 	{
-		RY_PROFILE_FUNCTION();
 		auto& config = m_Project->GetConfig();
 
 		YAML::Node data;

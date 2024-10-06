@@ -16,3 +16,6 @@
 [submodule "Rynex/vendor/ImGuizmo"]
 	path = Rynex/vendor/ImGuizmo
 	url = https://github.com/TheCherno/ImGuizmo
+[submodule "Rynex/vendor/assimp"]
+	path = Rynex/vendor/assimp
+	url = https://github.com/assimp/assimp

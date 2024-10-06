@@ -47,7 +47,6 @@ namespace Rynex {
 
 	bool Input::IsKeyPressed(const KeyCode key)
 	{
-		RY_PROFILE_FUNCTION();
 		auto* window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		auto state = glfwGetKey(window, static_cast<int32_t>(key));
 		return state == GLFW_PRESS;
@@ -55,7 +54,6 @@ namespace Rynex {
 	
 	bool Input::IsMouseButtonPressed(const MouseCode button)
 	{
-		RY_PROFILE_FUNCTION();
 		auto* window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		auto state = glfwGetMouseButton(window, static_cast<int32_t>(button));
 		return state == GLFW_PRESS;
@@ -63,7 +61,6 @@ namespace Rynex {
 
 	glm::vec2 Input::GetMousePosition()
 	{
-		RY_PROFILE_FUNCTION();
 		auto* window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
@@ -73,13 +70,11 @@ namespace Rynex {
 
 	float Input::GetMouseX()
 	{
-		RY_PROFILE_FUNCTION();
 		return GetMousePosition().x;
 	}
 
 	float Input::GetMouseY()
 	{
-		RY_PROFILE_FUNCTION();
 		return GetMousePosition().y;
 	}
 

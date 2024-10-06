@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Rynex/Scene/Scene.h"
 
 namespace Rynex {
+	class Scene;
 
-	class SceneSerializer
+	class RYNEX_API SceneSerializer
 	{
 	public:
 		SceneSerializer(const Ref<Scene>& scene);

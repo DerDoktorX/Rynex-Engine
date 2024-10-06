@@ -1,8 +1,7 @@
 #pragma once
-
+#include "Rynex/Renderer/API/VertexArray.h"
 
 #include <glm/glm.hpp>
-#include "Rynex/Renderer/API/VertexArray.h"
 
 namespace Rynex {
 
@@ -13,7 +12,7 @@ namespace Rynex {
 		FrontBacke
 	};
 
-	class RendererAPI 
+	class RendererAPI
 	{
 	public:
 		enum class API
@@ -53,7 +52,7 @@ namespace Rynex {
 
 		virtual void DrawPatches(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 
-		virtual void ComputePipline() = 0;
+		virtual void DispatcheCompute(const glm::vec<3, uint32_t>& groups) = 0;
 
 		virtual void DrawError() = 0;
 

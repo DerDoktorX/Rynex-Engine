@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 
 namespace Rynex {
-	class OrthograficCamera
+	class RYNEX_API OrthograficCamera
 	{
 	public:
 		OrthograficCamera(float left, float rigth, float bottom, float top/*, float near = 1.0f, float far = -1.0f*/);

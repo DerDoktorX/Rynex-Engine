@@ -7,20 +7,24 @@
 
 namespace Rynex {
 
-	class Renderer3D
+	class RYNEX_API Renderer3D
 	{
 	public:
 		static void Init();
 		static void Shutdown();
-
-
+		static void BindDefault3DShader(const Ref<Texture>& bindeTexure, const glm::mat4& modelMatrix, int entityID = 0, const glm::vec3& objectColor = { 1.0f, 0.0f,1.0f });
+		
 		static void BeginScene(const Ref<EditorCamera>& camera);
 		static void BeginScene(const Camera& camera, const glm::mat4& transform);
-
+		static void DrawObjectRender3D(const Ref<VertexArray>& vertexArray);
 		static void EndScene();
 
-		static void BeforDrawEntity(const MaterialComponent& material, const glm::mat4& model);
+		static void BeforDrawEntity(const MaterialComponent& material, const glm::mat4& model, int entityID);
 		static void AfterDrawEntity(const MaterialComponent& material);
+
+		static void DrawModdel(const MaterialComponent& material, const glm::mat4& modelMatrix, const DynamicMeshComponent& model, int entityID);
+		static void DrawModdel(const MaterialComponent& material, const glm::mat4& modelMatrix, const StaticMeshComponent& model, int entityID);
+		static void DrawModdelMesh(const MaterialComponent& material, const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, int entityID);
 
 		static void AktivePolyGunMode(bool active = true);
 		static void SetDethTest(bool active = true);
@@ -79,13 +83,15 @@ namespace Rynex {
 
 		struct Statistics
 		{
-			//Frame
+			// Frame
 			uint32_t FrameCount = 0;
-			float BeginFrameTime = 0.0f;
-			float EndeFrameTime = 0.0f;
+			std::chrono::time_point<std::chrono::steady_clock> StartTimePoint;
+			std::chrono::time_point<std::chrono::steady_clock> EndTimePoint;
+			std::vector<long long> DrawTime;
+			uint32_t DrawPass = 0;
 			uint32_t LargesVertexBufferByts = 0;
 
-			//Draw
+			// Draw
 			uint32_t NewDrawCalls = 0;
 			uint32_t DrawCalls = 0;
 			
@@ -93,8 +99,8 @@ namespace Rynex {
 
 			uint32_t ChachSize = 0;
 
-			//uint32_t GetTotalVertexCount() const { return QuadCount * 4; }
-			//uint32_t GetTotalIndexCount() const { return QuadCount * 6; }
+			// uint32_t GetTotalVertexCount() const { return QuadCount * 4; }
+			// uint32_t GetTotalIndexCount() const { return QuadCount * 6; }
 
 			
 		};

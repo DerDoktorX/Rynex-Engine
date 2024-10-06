@@ -1,83 +1,59 @@
 #include "rypch.h"
 #include "TextureImporter.h"
 
-#include <Rynex/Asset/Base/Buffer.h>
+#include "Rynex/Asset/Base/Buffer.h"
 #include "Rynex/Asset/Base/AssetManager.h"
+#include "Rynex/Serializers/TextureSerialiazer.h"
 
 #include <stb_image.h>
-
 
 namespace Rynex{
 
 
 
-	Ref<Texture2D> TextureImporter::ImportTexture2D(AssetHandle handle, const AssetMetadata& metadata)
+	Ref<Texture> TextureImporter::ImportTexture(AssetHandle handle, const AssetMetadata& metadata)
 	{
-		RY_PROFILE_FUNCTION();
-		return LoadTexture2D(metadata.FilePath);
+		return LoadTexture(metadata.FilePath);
 	}
 
-	Ref<Texture2D> TextureImporter::LoadTexture2D(const std::filesystem::path& path)
+	Ref<Texture> TextureImporter::LoadTexture(const std::filesystem::path& path)
 	{
-		RY_PROFILE_FUNCTION();
-		int width, height, channels;
-		stbi_set_flip_vertically_on_load(1);
-		std::string strPath = path.string();
-		stbi_uc* data = stbi_load(strPath.c_str(), &width, &height, &channels, 0);
-		
-		if (data == nullptr)
+		if (path.extension() == ".png" || path.extension() == ".jpeg")
 		{
-			RY_CORE_ERROR("Coud not Load Image!");
-			return nullptr;
-		}
+			int width, height, channels;
+			stbi_set_flip_vertically_on_load(1);
+			std::string strPath = path.string();
+			stbi_uc* data = stbi_load(strPath.c_str(), &width, &height, &channels, 0);
 
-
-		TextureSpecification spec;
-		spec.Width = (uint32_t)width;
-		spec.Height = (uint32_t)height;
-		//data.Size = (uint64_t)width * height * channels;
-		switch (channels)
-		{
-			case 3:
+			if (data == nullptr)
 			{
-				spec.Format = ImageFormat::RGB8; 
+				RY_CORE_ERROR("Coud not Load Image!");
+				return nullptr;
+			}
+
+
+			TextureSpecification spec;
+			spec.Width = (uint32_t)width;
+			spec.Height = (uint32_t)height;
+			spec.Target = TextureTarget::Texture2D;
+			spec.FilteringMode = TextureFilteringMode::Linear;
+			spec.WrappingSpec = {
+				TextureWrappingMode::Repeate,
+				TextureWrappingMode::Repeate
+			};
+			//data.Size = (uint64_t)width * height * channels;
+			switch (channels)
+			{
+			case 1:
+			{
+				spec.Format = ImageFormat::R8;
 				break;
 			}
-			case 4:
+			case 2:
 			{
-				spec.Format = ImageFormat::RGBA8;
+				spec.Format = ImageFormat::RG8;
 				break;
 			}
-		}
-
-		Ref<Texture2D> texture = Texture2D::Create(spec, data);
-		stbi_image_free(data);
-		return texture;
-	}
-
-	void TextureImporter::ReLoadeTexture2D(AssetHandle handle, const std::filesystem::path& path)
-	{
-#if 0
-		RY_PROFILE_FUNCTION();
-		RY_CORE_WARN("In Dev Funktion: ReLoadeTexture2D!");
-		int width, height, channels;
-		stbi_set_flip_vertically_on_load(1);
-		std::string strPath = path.string();
-		stbi_uc* data = stbi_load(strPath.c_str(), &width, &height, &channels, 0);
-
-		if (data == nullptr)
-		{
-			RY_CORE_ERROR("Coud not Load Image!");
-			return;
-		}
-
-
-		TextureSpecification spec;
-		spec.Width = (uint32_t)width;
-		spec.Height = (uint32_t)height;
-		//data.Size = (uint64_t)width * height * channels;
-		switch (channels)
-		{
 			case 3:
 			{
 				spec.Format = ImageFormat::RGB8;
@@ -88,11 +64,56 @@ namespace Rynex{
 				spec.Format = ImageFormat::RGBA8;
 				break;
 			}
+			}
+
+			Ref<Texture> texture = Texture::Create(spec, data, width * height * channels);
+			stbi_image_free(data);
+			return texture;
 		}
-		
-		//Ref<Texture2D> texture = AssetManager::GetAsset<Texture2D>(handle);
-		//texture;
-		stbi_image_free(data);
+		else if (path.extension() == ".rytex2d")
+		{
+			return Texture2DSerialiazer::Deserlize(path);
+		}
+		else
+		{
+			RY_CORE_ASSERT(false, "ERROR: TextureImporter::LoadTexture!");
+		}
+		RY_CORE_ASSERT(false, "ERROR: TextureImporter::LoadTexture!");
+		return nullptr;
+	}
+
+	void TextureImporter::ReLoadeTexture(AssetHandle handle, const std::filesystem::path& path)
+	{
+#if 1
+		if (path.extension() == ".png" || path.extension() == ".jpeg")
+		{
+			RY_CORE_WARN("In Dev Funktion: ReLoadeTexture2D!");
+			int width, height, channels;
+			stbi_set_flip_vertically_on_load(1);
+			std::string strPath = path.string();
+			stbi_uc* data = stbi_load(strPath.c_str(), &width, &height, &channels, 0);
+
+			if (data == nullptr)
+			{
+				RY_CORE_ERROR("Coud not Load Image!");
+				return;
+			}
+
+			Ref<Texture> texture = AssetManager::GetAsset<Texture>(handle);
+			texture->SetData(data, width * height * channels);
+#if 1
+			stbi_image_free(data);
+		}
+		else if (path.extension() == ".rytex2d")
+		{
+			RY_CORE_ASSERT(false, "ERROR: TextureImporter::LoadTexture! '.rytex2d' is not rady");
+			Texture2DSerialiazer::Deserlize(path);
+		}
+		else
+		{
+			RY_CORE_ASSERT(false, "ERROR: TextureImporter::LoadTexture!");
+		}
+#endif // IMPORTENT! Becouse we Free the Image prt, at the ende of the conststuctor. We don't use the stbi Funktion for this because thar crated some Isuse! Withe Free meamory that alrdy has Freed.
 #endif
 	}
 

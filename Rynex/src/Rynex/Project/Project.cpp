@@ -8,14 +8,13 @@ namespace Rynex {
 
     Ref<Project> Project::New()
     {
-        RY_PROFILE_FUNCTION();
         s_ActiveProject = CreateRef<Project>();
         return s_ActiveProject;
     }
 
     Ref<Project> Project::Load(const std::filesystem::path& path)
     {
-        RY_PROFILE_FUNCTION();
+        RY_CORE_INFO("Load Project from Path: '{0}'",path.string().c_str());
         Ref<Project> project = CreateRef<Project>();
 
         ProjectSerialiazer serialiazer(project);
@@ -30,13 +29,12 @@ namespace Rynex {
            
             return s_ActiveProject;
         }
-        
+        RY_CORE_ERROR("Project Loading Faild");
         return nullptr;
     }
 
     bool Project::SaveActive(const std::filesystem::path& path)
     {
-        RY_PROFILE_FUNCTION();
         ProjectSerialiazer serializer(s_ActiveProject);
         if (serializer.Serlize(path))
         {

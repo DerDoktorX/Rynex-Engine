@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Asset.h"
 
 namespace Rynex {
@@ -21,7 +20,7 @@ namespace Rynex {
 		AssetType Type = AssetType::None;
 		std::filesystem::path FilePath = "Not knowing Path";
 		AssetState State = AssetState::None;
-		std::string Name = std::string("");				//FilenameDefault
+		std::string Name = std::string("Unkowne");				//FilenameDefault
 		std::filesystem::file_time_type LoadingTime;
 		bool Aktive = false;
 		bool Interale = false;

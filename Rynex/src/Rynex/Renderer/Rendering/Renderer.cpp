@@ -12,16 +12,19 @@ namespace Rynex {
 	void Renderer::Init()
 	{
 		RY_CORE_MEMORY_ALICATION("m_SceneData", "Renderer::Init || namespace Rynex", Renderer::SceneData);
+		RY_CORE_INFO("Renderer::Init Start!");
 		RY_PROFILE_FUNCTION();
 		RenderCommand::Init();
+		BufferAPI::Init();
 		Renderer2D::Init();
 		Renderer3D::Init();
+		RY_CORE_INFO("Renderer::Init Finished!");
 	}
 
 	void Renderer::Shutdown()
 	{
 		RY_PROFILE_FUNCTION();
-		
+		BufferAPI::Shutdown();
 		Renderer2D::Shutdown();
 		Renderer3D::Shutdown();
 		RY_CORE_MEMORY_FREE("m_SceneData", "Renderer::Shutdown");
@@ -30,24 +33,20 @@ namespace Rynex {
 
 	void Renderer::OnWindowsResize(uint32_t width, uint32_t height)
 	{
-		RY_PROFILE_FUNCTION();
 		RenderCommand::SetViewPort(0,0, width,height);
 	}
 
 	void Renderer::BeginScene(OrthograficCamera& camera)
 	{
-		RY_PROFILE_FUNCTION();
 		m_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
 	}
 
 	void Renderer::EndScene()
 	{
-		RY_PROFILE_FUNCTION();
 	}
 
 	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform)
 	{
-		RY_PROFILE_FUNCTION();
 		shader->Bind();
 		std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4("u_ViewProjection", m_SceneData->ViewProjectionMatrix);
 		std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4("u_Tranform", transform);

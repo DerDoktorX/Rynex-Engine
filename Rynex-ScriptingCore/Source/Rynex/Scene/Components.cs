@@ -28,7 +28,48 @@ namespace Rynex
             }
         }
 
-       
+        public Vector3 Rotation
+        {
+            get
+            {
+                InternalCalls.TransformComponent_GetRotation(Entity.ID, out Vector3 rotation);
+                return rotation;
+            }
+
+            set
+            {
+                InternalCalls.TransformComponent_SetRotation(Entity.ID, ref value);
+            }
+        }
+
+        public Vector3 Scale
+        {
+            get
+            {
+                InternalCalls.TransformComponent_GetScale(Entity.ID, out Vector3 scale);
+                return scale;
+            }
+
+            set
+            {
+                InternalCalls.TransformComponent_SetScale(Entity.ID, ref value);
+            }
+        }
+
+
+        public bool Change
+        {
+            get
+            {
+                InternalCalls.TransformComponent_GetChange(Entity.ID, out bool change);
+                return change;
+            }
+
+            set
+            {
+                InternalCalls.TransformComponent_SetChange(Entity.ID, ref value);
+            }
+        }
     }
 
     
@@ -36,7 +77,7 @@ namespace Rynex
     public class GeometryComponent : Component
     {
         
-
+        // old
         public void SetVertex<T>(T[] vertices, uint size = 0) where T : unmanaged
         {
             unsafe
@@ -51,23 +92,52 @@ namespace Rynex
         {
             unsafe
             {
-                fixed (T* vertexPointer = index)
-                    InternalCalls.GeomtryComponent_SetIndex(Entity.ID, (IntPtr)vertexPointer, count != 0 ? count : (uint)index.Length);
+                fixed (T* indexPointer = index)
+                    InternalCalls.GeomtryComponent_SetIndex(Entity.ID, (IntPtr)indexPointer, count != 0 ? count : (uint)index.Length);
             }
         }
 #endif
-        public enum Primitv
-        {
-            Nono = 0,
-            Traingle, TraingleStrips, TraingleFan,
-            Line, LineLoop, LineStrips,
-            Points,
-            Patches,
-        }
-        public void SetPrimitv(Primitv primitv)
+        
+        public void SetPrimitv(VertexArray.Primitv primitv)
         {
             InternalCalls.GeomtryComponent_SetPrimitv(Entity.ID, (int)primitv);
         }
+        // new 
 
+        public VertexBuffer Buffer
+        {
+            get
+            {
+                InternalCalls.GeometryComponent_GetBuffer(Entity.ID, out ulong handle);
+                return new VertexBuffer(handle);
+            }
+
+            set
+            {
+                ulong uuid = value.Handle.UUID;
+                Console.WriteLine($"C# ->  Set Buffer = VertexBuffer {uuid}, {(ulong)uuid} Begin");
+                InternalCalls.GeometryComponent_SetBuffer(Entity.ID, ref uuid);
+                Console.WriteLine($"C# ->  Set Buffer = VertexBuffer {uuid}, {(ulong)uuid} Ende");
+            }
+        }
+
+        public VertexArray Geomtry
+        {
+            get
+            {
+                InternalCalls.GeometryComponent_GetGeometry(Entity.ID, out ulong handle);
+                return new VertexArray(handle);
+            }
+
+            set
+            {
+
+               
+                ulong uuid = value.Handle.UUID;
+                Console.WriteLine($"C# ->  Set Geomtry = VertexArray {uuid}, {(ulong)uuid} Begin");
+                InternalCalls.GeometryComponent_SetGeometry(Entity.ID, ref uuid);
+                Console.WriteLine($"C# ->  Set Geomtry = VertexArray {uuid}, {(ulong)uuid} Ende");
+            }
+        }
     }
 }

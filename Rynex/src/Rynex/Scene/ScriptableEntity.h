@@ -5,7 +5,7 @@
 namespace Rynex {
 	
 
-	class ScriptableEntity
+	class RYNEX_API ScriptableEntity
 	{
 	public:
 		virtual ~ScriptableEntity() {}

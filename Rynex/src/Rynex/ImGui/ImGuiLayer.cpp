@@ -4,6 +4,7 @@
 #include "Rynex/Core/Application.h"
 
 #include <imgui.h>
+#include <ImGuizmo.h>
 #define IMGUI_IMPL_API
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
@@ -12,19 +13,17 @@
  #include <GLFW/glfw3.h>
 // #include <glad/glad.h>
 
-#include <ImGuizmo.h>
+
 
 namespace Rynex {
    
 	ImGuiLayer::ImGuiLayer()
 		: Layer("ImGuiLayer")
 	{
-        RY_PROFILE_FUNCTION();
 	}
 
 	ImGuiLayer::~ImGuiLayer()
 	{
-        RY_PROFILE_FUNCTION();
 	} 
 
 	void ImGuiLayer::OnAttach()
@@ -40,7 +39,8 @@ namespace Rynex {
        
         //io.ConfigFlags |= ImGuiConfigFlags_ViewportsNoMerge;
 
-        float fontSize = 17.0f * 1.0f;
+         float fontSize = 16.0f * 1.0f;
+         fontSize = 15.0;
          io.Fonts->AddFontFromFileTTF("Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
          io.FontDefault=io.Fonts->AddFontFromFileTTF("Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
         
@@ -72,7 +72,6 @@ namespace Rynex {
 
     void ImGuiLayer::OnEvent(Event& e)
     {
-        RY_PROFILE_FUNCTION();
         if (m_BlockEvents)
         {
             ImGuiIO& io = ImGui::GetIO();
@@ -103,7 +102,6 @@ namespace Rynex {
 
     void ImGuiLayer::Begin()
     {
-        RY_PROFILE_FUNCTION();
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -112,7 +110,6 @@ namespace Rynex {
 
     void ImGuiLayer::End()
     {
-        RY_PROFILE_FUNCTION();
         ImGuiIO& io = ImGui::GetIO();
         Application& app = Application::Get();
         io.DisplaySize = ImVec2(app.GetWindow().GetWidth(), app.GetWindow().GetHeight());
@@ -133,7 +130,6 @@ namespace Rynex {
 
     void ImGuiLayer::SetDarkThemeColore()
     {
-        RY_PROFILE_FUNCTION();
         auto& colors = ImGui::GetStyle().Colors;
 
         colors[ImGuiCol_WindowBg] = ImVec4{ 0.1f, 0.105f, 0.11f, 1.0f };
