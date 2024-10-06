@@ -1,4 +1,3 @@
-
 import os
 import subprocess
 import platform
@@ -21,7 +20,7 @@ subprocess.call(["git", "submodule", "update", "--init", "--recursive"])
 if (premakeInstalled):
     if platform.system() == "Windows":
         print("\nRunning premake...")
-        subprocess.call([os.path.abspath("./scripts/Win-GenProjects.bat"), "nopause"])
+        subprocess.call([os.path.abspath("./scripts/Win-GenProjects.bat")])
 
     print("\nSetup completed!")
 else:
