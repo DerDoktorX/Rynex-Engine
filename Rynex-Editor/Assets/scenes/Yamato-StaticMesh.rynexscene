@@ -1,5 +1,65 @@
 Scene: Untiteld
 Entities:
+  - Entity: 9602718723979563166
+    TagComponent:
+      Tag: Spot
+    TransformComponent:
+      Transaltion: [-13.8385668, 20.6270905, -50.4358521]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -13.8385668, 20.6270905, -50.4358521, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -13.8385668, 20.6270905, -50.4358521, 1]
+  - Entity: 5455012069440129222
+    TagComponent:
+      Tag: point
+    TransformComponent:
+      Transaltion: [-20.9350681, 13.6709576, 35.7871056]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -20.9350681, 13.6709576, 35.7871056, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -20.9350681, 13.6709576, 35.7871056, 1]
+  - Entity: 3056472762523855576
+    TagComponent:
+      Tag: Dirktionel
+    TransformComponent:
+      Transaltion: [10, 100, 20]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 10, 100, 20, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 10, 100, 20, 1]
+  - Entity: 14668069288910999674
+    TagComponent:
+      Tag: Ambient
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
   - Entity: 6934700488835536706
     TagComponent:
       Tag: Camera
@@ -30,15 +90,15 @@ Entities:
     TagComponent:
       Tag: Yamato
     TransformComponent:
-      Transaltion: [0, 0, 0]
-      Rotation: [4.71238899, 0, 0]
-      Scale: [1, 1, 1]
+      Transaltion: [-10.408659, 0, 0]
+      Rotation: [-1.57079601, 0, 0]
+      Scale: [1, 0.999983072, 0.999983072]
     MaterialComponent:
       Color: [1, 0, 1]
-      AlgorithmFlags: 65538
+      AlgorithmFlags: 65604
       Shader:
         Path: Assets/shaders/3DLigthe.glsl
-        Handle: 16250411120058322898
+        Handle: 15446452666463780001
       UniformLayoute:
         - Name: u_Ambient
           Type: 1
@@ -96,13 +156,13 @@ Entities:
       Next: 0
       Parent: 0
     Matrix4x4Component:
-      Matrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
-      GlobleMatrix4x4: [1, 0, 0, 0, 0, 5.96046448e-08, -0.99999994, 0, 0, 0.99999994, 5.96046448e-08, 0, 0, 0, 0, 1]
+      Matrix4x4: [1, 0, 0, 0, 0, 3.57621815e-07, -0.999983013, 0, 0, 0.999983013, 3.57621815e-07, 0, -10.408659, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 3.57621815e-07, -0.999983013, 0, 0, 0.999983013, 3.57621815e-07, 0, -10.408659, 0, 0, 1]
     MeshComponent:
       Model:
         Path: Assets/Models/Yamto-Model/scene.gltf
-        Handle: 5706196063859278851
+        Handle: 5470238956552605290
     StaticMeshComponent:
       Model-S:
         Path: Assets/Models/Yamto-Model/scene.gltf
-        Handle: 5706196063859278851
+        Handle: 5470238956552605290

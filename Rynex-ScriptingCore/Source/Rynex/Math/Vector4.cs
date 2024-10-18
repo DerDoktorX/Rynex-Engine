@@ -1,23 +1,14 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Rynex;
-
-namespace Rynex
+﻿namespace Rynex
 {
     public struct Vector4
     {
         public float X, Y, Z, W;
 
-    // KeyWords
+        // KeyWords
         public static Vector4 Zero => new Vector4(0.0f);
 
 
-    // Vector3 <-> Scalar operations
+        // Vector3 <-> Scalar operations
         // Set
         public Vector4(float scalar)
         {
@@ -35,7 +26,7 @@ namespace Rynex
 
 
 
-    // Vector4 <-> Vector4 operations
+        // Vector4 <-> Vector4 operations
         // Set
         public Vector4(float x, float y, float z, float w)
         {
@@ -46,7 +37,7 @@ namespace Rynex
         }
 
         // operaters
-       
+
 
         // Vector2
         public static Vector4 operator +(Vector4 a, Vector2 b)

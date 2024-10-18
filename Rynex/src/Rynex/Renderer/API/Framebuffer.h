@@ -132,6 +132,7 @@ namespace Rynex {
 
 		virtual void Resize(uint32_t withe, uint32_t heigth) = 0;
 		virtual int ReadPixel(uint32_t attachmentsIndex, int x, int y) = 0;
+		virtual const glm::uvec2& GetFrambufferSize() = 0;
 
 		virtual void Bind() = 0;
 		virtual void Unbind() = 0;

@@ -1,7 +1,7 @@
 using System;
-using System.Runtime.CompilerServices;
 
-namespace Rynex {
+namespace Rynex
+{
 
     public class Entity
     {
@@ -13,7 +13,7 @@ namespace Rynex {
 
         public readonly ulong ID;
 
-        public Vector3 Translation  
+        public Vector3 Translation
         {
             get
             {
@@ -48,11 +48,11 @@ namespace Rynex {
             //    return null;
 
             Console.WriteLine("C# -> GetComponent");
-            T componten = new T() { Entity = this};
+            T componten = new T() { Entity = this };
             return componten;
         }
 
     }
- 
+
 
 }

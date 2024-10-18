@@ -1,521 +1,549 @@
 AssetRegistry:
-  - Handle: 153674837933475666
-    FilePath: Assets/Models/Yamto-Model/textures/JM007_Life_Buoy_box_247_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM007_Life_Buoy_box_247_baseColor.jpeg
-  - Handle: 212048283076354332
-    FilePath: Assets/scenes/Working-Scene.rynexscene
-    Type: AssetType::Scene
-    Name: Working-Scene.rynexscene
-  - Handle: 233136811356469435
-    FilePath: Assets/Models/Yamto-Model/textures/JC001_Catapult_Cradle_skinned_135_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JC001_Catapult_Cradle_skinned_135_baseColor.jpeg
-  - Handle: 308402284856917306
-    FilePath: Assets/Models/CV-Model/textures/R2Y2_Keiun-Kai_V1_material_1_137_specularGlossiness.jpeg
-    Type: AssetType::Texture2D
-    Name: R2Y2_Keiun-Kai_V1_material_1_137_specularGlossiness.jpeg
-  - Handle: 362869328300250944
-    FilePath: Assets/Models/Yamto-Model/textures/JM003_Searchlight_Control_1_853_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM003_Searchlight_Control_1_853_baseColor.jpeg
-  - Handle: 458493237909180525
-    FilePath: Assets/scenes/Test/Test.rynexscene
-    Type: AssetType::Scene
-    Name: Test.rynexscene
-  - Handle: 950167725694652159
-    FilePath: Assets/Models/Yamto-Model/textures/JM033_Roller_Fairled_548_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM033_Roller_Fairled_548_baseColor.jpeg
-  - Handle: 1056844687414616366
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jd011_director_type_95_mod3_skinned_255_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jd011_director_type_95_mod3_skinned_255_diffuse.jpeg
-  - Handle: 1167616555156436521
-    FilePath: Assets/Models/Yamto-Model/textures/JM025_Fairled_500_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM025_Fairled_500_baseColor.jpeg
-  - Handle: 1188971604701756285
-    FilePath: Assets/Models/Yamto-Model/textures/JD095_Director_Type_95_Mod2_skinned_468_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JD095_Director_Type_95_Mod2_skinned_468_baseColor.jpeg
-  - Handle: 1421626068105876638
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm368_life_buoy_56_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm368_life_buoy_56_diffuse.jpeg
-  - Handle: 1622511519239133544
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm092_running_lights_r_515_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm092_running_lights_r_515_diffuse.jpeg
-  - Handle: 1791552915762413848
-    FilePath: Assets/Models/Yamto-Model/textures/JM039_Cutter_12m_95_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM039_Cutter_12m_95_baseColor.jpeg
-  - Handle: 1902682125223897219
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm033_roller_fairled_980_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm033_roller_fairled_980_diffuse.jpeg
-  - Handle: 1905700210432697663
-    FilePath: Assets/textures/Checkerboard.png
-    Type: AssetType::Texture2D
-    Name: Checkerboard.png
-  - Handle: 2007874964263365274
-    FilePath: Assets/Models/Yamto-Model/textures/JD056_MachineGun_Control_Position_49_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JD056_MachineGun_Control_Position_49_baseColor.jpeg
-  - Handle: 2114199457726574009
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_cm016_boat_stowage_2_495_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_cm016_boat_stowage_2_495_diffuse.jpeg
-  - Handle: 2394724711705676886
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm107_binocular_719_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm107_binocular_719_diffuse.jpeg
-  - Handle: 2457050596885727543
-    FilePath: Assets/shaders/Default_Rynex-Editor_Shader.glsl
-    Type: AssetType::Shader
-    Name: Default_Rynex-Editor_Shader.glsl
-  - Handle: 2571837643632585204
-    FilePath: Assets/Models/CV-Model/textures/Material_196_diffuse.png
-    Type: AssetType::Texture2D
-    Name: Material_196_diffuse.png
-  - Handle: 2624601389944459506
-    FilePath: Assets/Models/Yamto-Model/textures/JM002_Paravane_845_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM002_Paravane_845_baseColor.jpeg
-  - Handle: 2800326309848603776
-    FilePath: Assets/Models/Yamto-Model/textures/JM026_Bollards_542_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM026_Bollards_542_baseColor.jpeg
-  - Handle: 3032651896548153160
-    FilePath: Assets/shaders/3DTestTess.glsl
-    Type: AssetType::Shader
-    Name: 3DTestTess.glsl
-  - Handle: 3075166815916120702
-    FilePath: Assets/scenes/Test/Test2.rynexscene
-    Type: AssetType::Scene
-    Name: Test2.rynexscene
-  - Handle: 3437774652888422992
-    FilePath: Assets/textures/testBlending.png
-    Type: AssetType::Texture2D
-    Name: testBlending.png
-  - Handle: 3534979379233933175
-    FilePath: Assets/Models/CV-Model/textures/R2Y2_Keiun-Kai_V1_material_3_137_specularGlossiness.jpeg
-    Type: AssetType::Texture2D
-    Name: R2Y2_Keiun-Kai_V1_material_3_137_specularGlossiness.jpeg
-  - Handle: 3603096116769431624
-    FilePath: Assets/Models/Cube.gltf
-    Type: AssetType::Model
-    Name: Cube.gltf
-  - Handle: 3987036151768382559
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm025_fairled_900_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm025_fairled_900_diffuse.jpeg
-  - Handle: 4013587190138848940
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm007_life_buoy_box_400_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm007_life_buoy_box_400_diffuse.jpeg
-  - Handle: 4298560573176927699
-    FilePath: Assets/Models/Yamto-Model/textures/JRS010_Radar_Type_13_skinned_337_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JRS010_Radar_Type_13_skinned_337_baseColor.jpeg
-  - Handle: 4391262151901837981
-    FilePath: Assets/Models/Yamto-Model/textures/JM086_Crane_3_180_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM086_Crane_3_180_baseColor.jpeg
-  - Handle: 4673035945889595484
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm059_deck_hatch_8_534_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm059_deck_hatch_8_534_diffuse.jpeg
-  - Handle: 4816654931495899893
-    FilePath: Assets/shaders/3DTest.glsl
-    Type: AssetType::Shader
-    Name: 3DTest.glsl
-  - Handle: 4847206248915243944
-    FilePath: Assets/shaders/SrcShader.glsl
-    Type: AssetType::Shader
-    Name: SrcShader.glsl
-  - Handle: 5121022488523870115
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm008_searchlight_394_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm008_searchlight_394_diffuse.jpeg
-  - Handle: 5706196063859278851
-    FilePath: Assets/Models/Yamto-Model/scene.gltf
-    Type: AssetType::Model
-    Name: scene.gltf
-  - Handle: 6022351880116834679
-    FilePath: Assets/scenes/Yamato-StaticMesh.rynexscene
-    Type: AssetType::Scene
-    Name: Yamato-StaticMesh.rynexscene
-  - Handle: 6103431768936407936
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm099_signal_lamp_30_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm099_signal_lamp_30_diffuse.jpeg
-  - Handle: 6171150724112434612
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_cm001_propeller_994_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_cm001_propeller_994_diffuse.jpeg
-  - Handle: 6198197256179943601
-    FilePath: Assets/Models/Yamto-Model/textures/JM112_Gun_Deck_3_430_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM112_Gun_Deck_3_430_baseColor.jpeg
-  - Handle: 6306222953340882031
-    FilePath: Assets/Models/CV-Model/textures/Kikka_material_4_685_diffuse.png
-    Type: AssetType::Texture2D
-    Name: Kikka_material_4_685_diffuse.png
-  - Handle: 6378768209516134927
-    FilePath: Assets/scenes/Yamato-DynamicMesh.rynexscene
-    Type: AssetType::Scene
-    Name: Yamato-DynamicMesh.rynexscene
-  - Handle: 6799263839862845063
-    FilePath: Assets/Models/Yamto-Model/textures/JM310_Chrysanthemum_full_949_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM310_Chrysanthemum_full_949_baseColor.jpeg
-  - Handle: 6855340012620035911
-    FilePath: Assets/Models/Yamto-Model/textures/JM059_Deck_Hatch_8_968_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM059_Deck_Hatch_8_968_baseColor.jpeg
-  - Handle: 6949674692392945271
-    FilePath: Assets/Models/CV-Model/textures/R2Y2_Keiun-Kai_V1_material_3_137_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: R2Y2_Keiun-Kai_V1_material_3_137_diffuse.jpeg
-  - Handle: 7057115141843076631
-    FilePath: Assets/Models/Yamto-Model/textures/JM029_Leadsman_Platform_461_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM029_Leadsman_Platform_461_baseColor.jpeg
-  - Handle: 7084307774406479196
-    FilePath: Assets/Models/Yamto-Model/textures/JSB018_Yamato_1944_deck_176_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JSB018_Yamato_1944_deck_176_baseColor.jpeg
-  - Handle: 7110616467209888757
-    FilePath: Assets/Models/Yamto-Model/textures/JM009_Signal_Lamp_849_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM009_Signal_Lamp_849_baseColor.jpeg
-  - Handle: 7171930351450620397
-    FilePath: Assets/Models/Yamto-Model/textures/JGS157_127mm40_Type89_Mod_A_skinned_548_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JGS157_127mm40_Type89_Mod_A_skinned_548_baseColor.jpeg
-  - Handle: 7531326790583027707
-    FilePath: Assets/Models/Yamto-Model/textures/JD099_Director_Type_98_10m_935_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JD099_Director_Type_98_10m_935_baseColor.jpeg
-  - Handle: 7564788536006976257
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_c010_grid_8_alpha_441_diffuse.png
-    Type: AssetType::Texture2D
-    Name: Shokaku_c010_grid_8_alpha_441_diffuse.png
-  - Handle: 7613931605167184280
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm075_crane_2_485_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm075_crane_2_485_diffuse.jpeg
-  - Handle: 8007181644867384835
-    FilePath: Assets/Models/Yamto-Model/textures/C004_Grid_1_alpha_skinned_169_baseColor.png
-    Type: AssetType::Texture2D
-    Name: C004_Grid_1_alpha_skinned_169_baseColor.png
-  - Handle: 8167275384295951596
-    FilePath: Assets/Models/CV-Model/textures/Ise_jga195_120mm_launcher_708_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Ise_jga195_120mm_launcher_708_diffuse.jpeg
-  - Handle: 8326319985910208485
-    FilePath: Assets/Models/CV-Model/textures/R2Y2_Keiun-Kai_V1_material_5_137_diffuse.png
-    Type: AssetType::Texture2D
-    Name: R2Y2_Keiun-Kai_V1_material_5_137_diffuse.png
-  - Handle: 8759747691189397573
-    FilePath: Assets/Models/Yamto-Model/textures/JM111_Deck_Hatch_13_367_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM111_Deck_Hatch_13_367_baseColor.jpeg
-  - Handle: 8780884809194892254
-    FilePath: Assets/Models/Yamto-Model/textures/JM110_Deck_Hatch_12_817_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM110_Deck_Hatch_12_817_baseColor.jpeg
-  - Handle: 8867227879967919832
-    FilePath: Assets/Models/CV-Model/textures/Kikka_material_3_685_specularGlossiness.jpeg
-    Type: AssetType::Texture2D
-    Name: Kikka_material_3_685_specularGlossiness.jpeg
-  - Handle: 8887514201988062942
-    FilePath: Assets/Models/Yamto-Model/textures/JC001_Catapult_Shiki2_skinned_134_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JC001_Catapult_Shiki2_skinned_134_baseColor.jpeg
-  - Handle: 9171591901271163344
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm076_elevating_mast_542_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm076_elevating_mast_542_diffuse.jpeg
-  - Handle: 9437345886271465601
-    FilePath: Assets/Models/CV-Model/textures/R2Y2_Keiun-Kai_V1_material_1_137_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: R2Y2_Keiun-Kai_V1_material_1_137_diffuse.jpeg
-  - Handle: 9538685606740279382
-    FilePath: Assets/Models/CV-Model/textures/R2Y2_Keiun-Kai_V1_material_4_137_specularGlossiness.jpeg
-    Type: AssetType::Texture2D
-    Name: R2Y2_Keiun-Kai_V1_material_4_137_specularGlossiness.jpeg
-  - Handle: 9759173170659120498
-    FilePath: Assets/shaders/3DTestTess2.glsl
-    Type: AssetType::Shader
-    Name: 3DTestTess2.glsl
-  - Handle: 9968273704671323307
-    FilePath: Assets/Models/Yamto-Model/textures/JGA010_25mm_Type96_443_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JGA010_25mm_Type96_443_baseColor.jpeg
-  - Handle: 10012754621265366935
-    FilePath: Assets/Models/Yamto-Model/textures/JM089_Signal_Platform_1_985_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM089_Signal_Platform_1_985_baseColor.jpeg
-  - Handle: 10398268283527860434
-    FilePath: Assets/FrameBufferDefaulte1.ryframe
-    Type: AssetType::FrameBuffer
-    Name: FrameBufferDefaulte1.ryframe
-  - Handle: 10608020025585826521
-    FilePath: Assets/Models/Yamto-Model/textures/C001_Net_alpha_879_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: C001_Net_alpha_879_baseColor.jpeg
-  - Handle: 10647434499586857724
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_transparent_glass_alpha_193_diffuse.png
-    Type: AssetType::Texture2D
-    Name: Shokaku_transparent_glass_alpha_193_diffuse.png
-  - Handle: 10768888785336769007
-    FilePath: Assets/shaders/Compute.glsl
-    Type: AssetType::Shader
-    Name: Compute.glsl
-  - Handle: 10794463890763273862
-    FilePath: Assets/Models/Yamto-Model/textures/JM008_Searchlight_24_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM008_Searchlight_24_baseColor.jpeg
-  - Handle: 10839240653034833183
-    FilePath: Assets/Models/CV-Model/textures/Kikka_material_3_685_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Kikka_material_3_685_diffuse.jpeg
-  - Handle: 10890889236264129776
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jsa012_zuikaku_1944_deck_house_582_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jsa012_zuikaku_1944_deck_house_582_diffuse.jpeg
-  - Handle: 10976935504395867734
-    FilePath: Assets/Models/Yamto-Model/textures/JF029_Rangefinder_1_5m_Yamato_951_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JF029_Rangefinder_1_5m_Yamato_951_baseColor.jpeg
-  - Handle: 11070349934191789708
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm038_motor_boats_11m_237_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm038_motor_boats_11m_237_diffuse.jpeg
-  - Handle: 11087222106873344648
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jsa012_zuikaku_1944_hull_452_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jsa012_zuikaku_1944_hull_452_diffuse.jpeg
-  - Handle: 11651040149761755808
-    FilePath: Assets/Models/Yamto-Model/textures/JM013_Reels_1_482_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM013_Reels_1_482_baseColor.jpeg
-  - Handle: 11748599596488657066
-    FilePath: Assets/shaders/LernOpenglTest.glsl
-    Type: AssetType::Shader
-    Name: LernOpenglTest.glsl
-  - Handle: 12035925537512142296
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm032_electric_deck_winch_76_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm032_electric_deck_winch_76_diffuse.jpeg
-  - Handle: 12036354630952690606
-    FilePath: Assets/scenes/Cube.rynexscene
-    Type: AssetType::Scene
-    Name: Cube.rynexscene
-  - Handle: 12276110123282134484
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jf033_rangefinder_1_5m_skinned_60_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jf033_rangefinder_1_5m_skinned_60_diffuse.jpeg
-  - Handle: 12365855431167991751
-    FilePath: Assets/Models/Yamto-Model/textures/JD022_Director_Type_95_Mod1_14_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JD022_Director_Type_95_Mod1_14_baseColor.jpeg
-  - Handle: 12571831782400788341
-    FilePath: Assets/FrameBufferDefaulte0.ryframe
-    Type: AssetType::FrameBuffer
-    Name: FrameBufferDefaulte0.ryframe
-  - Handle: 12576461079073698375
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm026_bollards_532_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm026_bollards_532_diffuse.jpeg
-  - Handle: 12590939367650888388
-    FilePath: Assets/Models/CV-Model/textures/Hayate_jga096_40mm_bofors_161_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Hayate_jga096_40mm_bofors_161_diffuse.jpeg
-  - Handle: 12678325203125702113
-    FilePath: Assets/Models/Yamto-Model/textures/CM008_Life_Buoy_1_250_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: CM008_Life_Buoy_1_250_baseColor.jpeg
-  - Handle: 12905196814952294231
-    FilePath: Assets/Models/Yamto-Model/textures/JD019_Machine_Gun_ControlTower_48_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JD019_Machine_Gun_ControlTower_48_baseColor.jpeg
-  - Handle: 12930395014396841802
-    FilePath: Assets/Models/Yamto-Model/textures/JSB018_Yamato_1944_hull_399_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JSB018_Yamato_1944_hull_399_baseColor.jpeg
-  - Handle: 12970019930110168177
-    FilePath: Assets/CheckeBordLinear.rytex2d
-    Type: AssetType::Texture2D
-    Name: CheckeBordLinear.rytex2d
-  - Handle: 13159184689347678601
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_c001_net_alpha_452_diffuse.png
-    Type: AssetType::Texture2D
-    Name: Shokaku_c001_net_alpha_452_diffuse.png
-  - Handle: 13269506900007183308
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jd022_director_type_95_mod1_441_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jd022_director_type_95_mod1_441_diffuse.jpeg
-  - Handle: 13281342359736301493
-    FilePath: Assets/Models/CV-Model/scene.gltf
-    Type: AssetType::Model
-    Name: scene.gltf
-  - Handle: 13505331561201506856
-    FilePath: Assets/shaders/BlueShaderSrc.glsl
-    Type: AssetType::Shader
-    Name: BlueShaderSrc.glsl
-  - Handle: 13607952726631815785
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_cm010_fire_hose_reel_59_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_cm010_fire_hose_reel_59_diffuse.jpeg
-  - Handle: 13630890028432530490
-    FilePath: Assets/Models/CV-Model/textures/R2Y2_Keiun-Kai_V1_material_4_137_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: R2Y2_Keiun-Kai_V1_material_4_137_diffuse.jpeg
-  - Handle: 13822500379893862938
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm049_davit_2_492_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm049_davit_2_492_diffuse.jpeg
-  - Handle: 13907302583477255220
-    FilePath: Assets/Models/Yamto-Model/textures/CM001_Propeller_994_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: CM001_Propeller_994_baseColor.jpeg
-  - Handle: 13911136929683809052
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm310_chrysanthemum_full_530_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm310_chrysanthemum_full_530_diffuse.jpeg
-  - Handle: 13997831867343932544
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jrs010_radar_type_13_skinned_525_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jrs010_radar_type_13_skinned_525_diffuse.jpeg
-  - Handle: 14083092324325194901
-    FilePath: Assets/Models/Yamto-Model/textures/JM109_Deck_Hatch_11_911_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM109_Deck_Hatch_11_911_baseColor.jpeg
-  - Handle: 14119286350590547831
-    FilePath: Assets/Models/Yamto-Model/textures/JD013_Director_Type_98_Mod1_2_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JD013_Director_Type_98_Mod1_2_baseColor.jpeg
-  - Handle: 14256846602009035008
-    FilePath: Assets/Models/Yamto-Model/textures/JM030_Wind_detection_985_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM030_Wind_detection_985_baseColor.jpeg
-  - Handle: 14265487883093145525
-    FilePath: Assets/Models/CV-Model/textures/Kikka_material_1_685_specularGlossiness.jpeg
-    Type: AssetType::Texture2D
-    Name: Kikka_material_1_685_specularGlossiness.jpeg
-  - Handle: 14448439470101952837
-    FilePath: Assets/textures/icon_wows_46x46.png
-    Type: AssetType::Texture2D
-    Name: icon_wows_46x46.png
-  - Handle: 14536792150271913922
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm101_runway_lights_1l_603_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm101_runway_lights_1l_603_diffuse.jpeg
-  - Handle: 14677126594126329380
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_cm005_anchor_1_51_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_cm005_anchor_1_51_diffuse.jpeg
-  - Handle: 14944773803329970630
-    FilePath: Assets/shaders/Texture.glsl
-    Type: AssetType::Shader
-    Name: Texture.glsl
-  - Handle: 15190932435074013984
-    FilePath: Assets/Models/CV-Model/textures/Shikishima_JGS076_100mm65_Type98_skinned_365_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shikishima_JGS076_100mm65_Type98_skinned_365_diffuse.jpeg
-  - Handle: 15422334714770800222
-    FilePath: Assets/Models/Yamto-Model/textures/JM107_Binocular_918_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM107_Binocular_918_baseColor.jpeg
-  - Handle: 15455516715257222632
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm009_signal_lamp_447_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm009_signal_lamp_447_diffuse.jpeg
-  - Handle: 15500887350873786289
-    FilePath: Assets/VertexArrayDefault.ryarray
-    Type: AssetType::VertexArray
-    Name: VertexArrayDefault.ryarray
-  - Handle: 15509036959557054835
-    FilePath: Assets/textures/ChernoLogo.png
-    Type: AssetType::Texture2D
-    Name: ChernoLogo.png
-  - Handle: 15642038596395619585
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm013_reels_1_207_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm013_reels_1_207_diffuse.jpeg
-  - Handle: 16070696754475246643
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm181_motor_boats_11m_193_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm181_motor_boats_11m_193_diffuse.jpeg
-  - Handle: 16128258636305105834
-    FilePath: Assets/Models/Yamto-Model/textures/JF017_Rangefinder_4_5m_13_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JF017_Rangefinder_4_5m_13_baseColor.jpeg
-  - Handle: 16130818393591921445
+  - Handle: 33444419250637453
     FilePath: Assets/Models/Yamto-Model/textures/JD098_Director_Type_98_15m_skinned_169_baseColor.jpeg
     Type: AssetType::Texture2D
     Name: JD098_Director_Type_98_15m_skinned_169_baseColor.jpeg
-  - Handle: 16162151647909542032
-    FilePath: Assets/Models/Yamto-Model/textures/CM005_Anchor_1_538_baseColor.jpeg
+  - Handle: 166837546676153298
+    FilePath: Assets/Models/CV-Model/textures/R2Y2_Keiun-Kai_V1_material_3_137_diffuse.jpeg
     Type: AssetType::Texture2D
-    Name: CM005_Anchor_1_538_baseColor.jpeg
-  - Handle: 16250411120058322898
-    FilePath: Assets/shaders/3DLigthe.glsl
-    Type: AssetType::Shader
-    Name: 3DLigthe.glsl
-  - Handle: 16432655363194376631
-    FilePath: Assets/Models/Yamto-Model/textures/JGS156_155mm_60_Type3_skinned_787_baseColor.jpeg
+    Name: R2Y2_Keiun-Kai_V1_material_3_137_diffuse.jpeg
+  - Handle: 197742680801335950
+    FilePath: Assets/Models/CV-Model/textures/Kikka_material_3_685_diffuse.jpeg
     Type: AssetType::Texture2D
-    Name: JGS156_155mm_60_Type3_skinned_787_baseColor.jpeg
-  - Handle: 16445669348643713397
-    FilePath: Assets/Models/Yamto-Model/textures/JM368_Life_Buoy_814_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JM368_Life_Buoy_814_baseColor.jpeg
-  - Handle: 16486424818306716284
-    FilePath: Assets/Models/CV-Model/textures/Kikka_material_1_685_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Kikka_material_1_685_diffuse.jpeg
-  - Handle: 16844537274828339839
-    FilePath: Assets/Models/Yamto-Model/textures/JRS007_Radar_Type_22_skinned_370_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JRS007_Radar_Type_22_skinned_370_baseColor.jpeg
-  - Handle: 16952509001988492523
-    FilePath: Assets/CheckeBordNearest.rytex2d
-    Type: AssetType::Texture2D
-    Name: CheckeBordNearest.rytex2d
-  - Handle: 17331344265979035604
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm002_paravane_29_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jm002_paravane_29_diffuse.jpeg
-  - Handle: 17600418237952013114
-    FilePath: Assets/textures/weniger_Speicherplatz_SSD.png
-    Type: AssetType::Texture2D
-    Name: weniger_Speicherplatz_SSD.png
-  - Handle: 17626479397530880556
-    FilePath: Assets/Models/Yamto-Model/textures/JGA004_25mm_Type96_Triple_1_421_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JGA004_25mm_Type96_Triple_1_421_baseColor.jpeg
-  - Handle: 17662224465269889244
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jga004_25mm_type96_triple_1_727_diffuse.jpeg
-    Type: AssetType::Texture2D
-    Name: Shokaku_jga004_25mm_type96_triple_1_727_diffuse.jpeg
-  - Handle: 17666826994205434171
-    FilePath: Assets/Models/Yamto-Model/textures/JGS009_127mm40_Type_89_skinned_626_baseColor.jpeg
-    Type: AssetType::Texture2D
-    Name: JGS009_127mm40_Type_89_skinned_626_baseColor.jpeg
-  - Handle: 17751497415383950654
+    Name: Kikka_material_3_685_diffuse.jpeg
+  - Handle: 351578050229674459
     FilePath: Assets/Models/CV-Model/textures/Shokaku_jga010_25mm_type96_839_diffuse.jpeg
     Type: AssetType::Texture2D
     Name: Shokaku_jga010_25mm_type96_839_diffuse.jpeg
-  - Handle: 18166844519885097674
-    FilePath: Assets/Models/CV-Model/textures/Shokaku_jd025_director_type_94_mod1_38_diffuse.jpeg
+  - Handle: 1070811793291048697
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_cm010_fire_hose_reel_59_diffuse.jpeg
     Type: AssetType::Texture2D
-    Name: Shokaku_jd025_director_type_94_mod1_38_diffuse.jpeg
-  - Handle: 18355292086794237595
+    Name: Shokaku_cm010_fire_hose_reel_59_diffuse.jpeg
+  - Handle: 1092154427231603775
+    FilePath: Assets/shaders/ViewPort-Shader.glsl
+    Type: AssetType::Shader
+    Name: ViewPort-Shader.glsl
+  - Handle: 1100017094619426219
+    FilePath: Assets/Models/Yamto-Model/textures/CM001_Propeller_994_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: CM001_Propeller_994_baseColor.jpeg
+  - Handle: 1170042274630622881
+    FilePath: Assets/Models/CV-Model/textures/R2Y2_Keiun-Kai_V1_material_1_137_specularGlossiness.jpeg
+    Type: AssetType::Texture2D
+    Name: R2Y2_Keiun-Kai_V1_material_1_137_specularGlossiness.jpeg
+  - Handle: 1439005943059729626
+    FilePath: Assets/CheckeBordNearest.rytex2d
+    Type: AssetType::Texture2D
+    Name: CheckeBordNearest.rytex2d
+  - Handle: 1471450638490197263
+    FilePath: Assets/Models/Yamto-Model/textures/JM007_Life_Buoy_box_247_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM007_Life_Buoy_box_247_baseColor.jpeg
+  - Handle: 1626668605361335498
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm092_running_lights_r_515_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm092_running_lights_r_515_diffuse.jpeg
+  - Handle: 1706948475018174268
+    FilePath: Assets/Models/Yamto-Model/textures/JC001_Catapult_Cradle_skinned_135_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JC001_Catapult_Cradle_skinned_135_baseColor.jpeg
+  - Handle: 1867535622702560155
+    FilePath: Assets/Models/CV-Model/textures/Kikka_material_3_685_specularGlossiness.jpeg
+    Type: AssetType::Texture2D
+    Name: Kikka_material_3_685_specularGlossiness.jpeg
+  - Handle: 1876910554188057418
+    FilePath: Assets/Models/Yamto-Model/textures/C001_Net_alpha_879_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: C001_Net_alpha_879_baseColor.jpeg
+  - Handle: 1877189849440401357
+    FilePath: Assets/Models/Yamto-Model/textures/JM368_Life_Buoy_814_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM368_Life_Buoy_814_baseColor.jpeg
+  - Handle: 1930092035226723117
+    FilePath: Assets/FrameBufferDefaulte0.ryframe
+    Type: AssetType::FrameBuffer
+    Name: FrameBufferDefaulte0.ryframe
+  - Handle: 1940545795119146298
+    FilePath: Assets/CheckeBordLinear.rytex2d
+    Type: AssetType::Texture2D
+    Name: CheckeBordLinear.rytex2d
+  - Handle: 2330433380806887340
+    FilePath: Assets/Models/Yamto-Model/textures/JF029_Rangefinder_1_5m_Yamato_951_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JF029_Rangefinder_1_5m_Yamato_951_baseColor.jpeg
+  - Handle: 2520529397156217448
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm033_roller_fairled_980_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm033_roller_fairled_980_diffuse.jpeg
+  - Handle: 2535854031937694696
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_c001_net_alpha_452_diffuse.png
+    Type: AssetType::Texture2D
+    Name: Shokaku_c001_net_alpha_452_diffuse.png
+  - Handle: 2536436703698839015
+    FilePath: Assets/textures/Checkerboard.png
+    Type: AssetType::Texture2D
+    Name: Checkerboard.png
+  - Handle: 2552847958018296317
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jga004_25mm_type96_triple_1_727_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jga004_25mm_type96_triple_1_727_diffuse.jpeg
+  - Handle: 2561368586655177801
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_c010_grid_8_alpha_441_diffuse.png
+    Type: AssetType::Texture2D
+    Name: Shokaku_c010_grid_8_alpha_441_diffuse.png
+  - Handle: 2562173671605722244
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm075_crane_2_485_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm075_crane_2_485_diffuse.jpeg
+  - Handle: 2580097046157501852
+    FilePath: Assets/Models/Yamto-Model/textures/JM026_Bollards_542_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM026_Bollards_542_baseColor.jpeg
+  - Handle: 2730961630050393425
+    FilePath: Assets/Models/CV-Model/textures/Kikka_material_1_685_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Kikka_material_1_685_diffuse.jpeg
+  - Handle: 2886601491443037063
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jsa012_zuikaku_1944_deck_house_582_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jsa012_zuikaku_1944_deck_house_582_diffuse.jpeg
+  - Handle: 2923837066523885244
+    FilePath: Assets/Models/Yamto-Model/textures/JM025_Fairled_500_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM025_Fairled_500_baseColor.jpeg
+  - Handle: 3081329746523167967
+    FilePath: Assets/Models/Yamto-Model/textures/JD095_Director_Type_95_Mod2_skinned_468_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JD095_Director_Type_95_Mod2_skinned_468_baseColor.jpeg
+  - Handle: 3112160892126910327
+    FilePath: Assets/Models/Yamto-Model/textures/JRS007_Radar_Type_22_skinned_370_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JRS007_Radar_Type_22_skinned_370_baseColor.jpeg
+  - Handle: 3263441555967668018
+    FilePath: Assets/Models/Yamto-Model/textures/JM003_Searchlight_Control_1_853_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM003_Searchlight_Control_1_853_baseColor.jpeg
+  - Handle: 3485341233322393246
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jrs010_radar_type_13_skinned_525_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jrs010_radar_type_13_skinned_525_diffuse.jpeg
+  - Handle: 3597555371942054741
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm049_davit_2_492_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm049_davit_2_492_diffuse.jpeg
+  - Handle: 3699416270090367717
+    FilePath: Assets/Models/CV-Model/textures/Kikka_material_4_685_diffuse.png
+    Type: AssetType::Texture2D
+    Name: Kikka_material_4_685_diffuse.png
+  - Handle: 3787252380267411517
+    FilePath: Assets/Models/Yamto-Model/textures/JC001_Catapult_Shiki2_skinned_134_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JC001_Catapult_Shiki2_skinned_134_baseColor.jpeg
+  - Handle: 3829220701970410768
+    FilePath: Assets/Models/CV-Model/textures/Ise_jga195_120mm_launcher_708_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Ise_jga195_120mm_launcher_708_diffuse.jpeg
+  - Handle: 3880167010358722862
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_cm001_propeller_994_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_cm001_propeller_994_diffuse.jpeg
+  - Handle: 3972035231427755841
+    FilePath: Assets/shaders/BlueShaderSrc.glsl
+    Type: AssetType::Shader
+    Name: BlueShaderSrc.glsl
+  - Handle: 4008513898914880601
+    FilePath: Assets/shaders/3DTest.glsl
+    Type: AssetType::Shader
+    Name: 3DTest.glsl
+  - Handle: 4091509204932789356
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm013_reels_1_207_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm013_reels_1_207_diffuse.jpeg
+  - Handle: 4146047407430997858
+    FilePath: Assets/Models/Yamto-Model/textures/JM107_Binocular_918_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM107_Binocular_918_baseColor.jpeg
+  - Handle: 4455923351527213029
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm076_elevating_mast_542_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm076_elevating_mast_542_diffuse.jpeg
+  - Handle: 4669233228273831627
+    FilePath: Assets/Models/Cube.gltf
+    Type: AssetType::Model
+    Name: Cube.gltf
+  - Handle: 4688614288463664562
+    FilePath: Assets/scenes/Working-Scene2.rynexscene
+    Type: AssetType::Scene
+    Name: Working-Scene2.rynexscene
+  - Handle: 4797672991110700844
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jsa012_zuikaku_1944_hull_452_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jsa012_zuikaku_1944_hull_452_diffuse.jpeg
+  - Handle: 5328665237112956013
+    FilePath: Assets/Models/Yamto-Model/textures/JM109_Deck_Hatch_11_911_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM109_Deck_Hatch_11_911_baseColor.jpeg
+  - Handle: 5470238956552605290
+    FilePath: Assets/Models/Yamto-Model/scene.gltf
+    Type: AssetType::Model
+    Name: scene.gltf
+  - Handle: 5813287527542781469
+    FilePath: Assets/Models/CV-Model/textures/Hayate_jga096_40mm_bofors_161_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Hayate_jga096_40mm_bofors_161_diffuse.jpeg
+  - Handle: 5844918979211545258
+    FilePath: Assets/Models/Yamto-Model/textures/JD099_Director_Type_98_10m_935_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JD099_Director_Type_98_10m_935_baseColor.jpeg
+  - Handle: 6075828065927193243
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm101_runway_lights_1l_603_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm101_runway_lights_1l_603_diffuse.jpeg
+  - Handle: 6115798945492562705
+    FilePath: Assets/textures/weniger_Speicherplatz_SSD.png
+    Type: AssetType::Texture2D
+    Name: weniger_Speicherplatz_SSD.png
+  - Handle: 6290491266466566494
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm026_bollards_532_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm026_bollards_532_diffuse.jpeg
+  - Handle: 6412413030981176773
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm368_life_buoy_56_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm368_life_buoy_56_diffuse.jpeg
+  - Handle: 6532803420521204918
+    FilePath: Assets/Models/Yamto-Model/textures/JD019_Machine_Gun_ControlTower_48_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JD019_Machine_Gun_ControlTower_48_baseColor.jpeg
+  - Handle: 6551777466389940388
+    FilePath: Assets/Models/Yamto-Model/textures/CM005_Anchor_1_538_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: CM005_Anchor_1_538_baseColor.jpeg
+  - Handle: 6816059102748850927
+    FilePath: Assets/Models/CV-Model/textures/Shikishima_JGS076_100mm65_Type98_skinned_365_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shikishima_JGS076_100mm65_Type98_skinned_365_diffuse.jpeg
+  - Handle: 6853574118056803154
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_cm005_anchor_1_51_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_cm005_anchor_1_51_diffuse.jpeg
+  - Handle: 6962049720584377698
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_cm016_boat_stowage_2_495_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_cm016_boat_stowage_2_495_diffuse.jpeg
+  - Handle: 7108027762665528256
+    FilePath: Assets/Models/Yamto-Model/textures/JGS009_127mm40_Type_89_skinned_626_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JGS009_127mm40_Type_89_skinned_626_baseColor.jpeg
+  - Handle: 7153336337830406812
+    FilePath: Assets/textures/testBlending.png
+    Type: AssetType::Texture2D
+    Name: testBlending.png
+  - Handle: 7328355693455750155
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm107_binocular_719_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm107_binocular_719_diffuse.jpeg
+  - Handle: 7450305335896252617
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jf033_rangefinder_1_5m_skinned_60_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jf033_rangefinder_1_5m_skinned_60_diffuse.jpeg
+  - Handle: 7643762806624823731
+    FilePath: Assets/textures/ChernoLogo.png
+    Type: AssetType::Texture2D
+    Name: ChernoLogo.png
+  - Handle: 7985912726814003476
+    FilePath: Assets/scenes/Yamato-StaticMesh.rynexscene
+    Type: AssetType::Scene
+    Name: Yamato-StaticMesh.rynexscene
+  - Handle: 8062094841143973595
     FilePath: Assets/Models/Yamto-Model/textures/JGM164_460mm45_Type96_96_baseColor.jpeg
     Type: AssetType::Texture2D
     Name: JGM164_460mm45_Type96_96_baseColor.jpeg
+  - Handle: 8104077697102821110
+    FilePath: Assets/Models/Yamto-Model/textures/C004_Grid_1_alpha_skinned_169_baseColor.png
+    Type: AssetType::Texture2D
+    Name: C004_Grid_1_alpha_skinned_169_baseColor.png
+  - Handle: 8105557312243550422
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm310_chrysanthemum_full_530_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm310_chrysanthemum_full_530_diffuse.jpeg
+  - Handle: 8148478656134224626
+    FilePath: Assets/Models/Yamto-Model/textures/JM089_Signal_Platform_1_985_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM089_Signal_Platform_1_985_baseColor.jpeg
+  - Handle: 8248844815483400894
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm181_motor_boats_11m_193_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm181_motor_boats_11m_193_diffuse.jpeg
+  - Handle: 8284750990456039747
+    FilePath: Assets/Models/Yamto-Model/textures/JM086_Crane_3_180_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM086_Crane_3_180_baseColor.jpeg
+  - Handle: 8315842669866893537
+    FilePath: Assets/Models/Yamto-Model/textures/JM013_Reels_1_482_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM013_Reels_1_482_baseColor.jpeg
+  - Handle: 8647136354236535081
+    FilePath: Assets/Models/Yamto-Model/textures/JM039_Cutter_12m_95_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM039_Cutter_12m_95_baseColor.jpeg
+  - Handle: 8775198441882198713
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jd022_director_type_95_mod1_441_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jd022_director_type_95_mod1_441_diffuse.jpeg
+  - Handle: 8784496237440243459
+    FilePath: Assets/Models/CV-Model/textures/R2Y2_Keiun-Kai_V1_material_4_137_specularGlossiness.jpeg
+    Type: AssetType::Texture2D
+    Name: R2Y2_Keiun-Kai_V1_material_4_137_specularGlossiness.jpeg
+  - Handle: 8795624056500534398
+    FilePath: Assets/VertexArrayDefault.ryarray
+    Type: AssetType::VertexArray
+    Name: VertexArrayDefault.ryarray
+  - Handle: 8866408936302355699
+    FilePath: Assets/Models/Yamto-Model/JGM164_460mm45_Type96_96_baseColor.jpg
+    Type: AssetType::Texture2D
+    Name: JGM164_460mm45_Type96_96_baseColor.jpg
+  - Handle: 9652375888155163385
+    FilePath: Assets/textures/icon_wows_46x46.png
+    Type: AssetType::Texture2D
+    Name: icon_wows_46x46.png
+  - Handle: 9820104281463179781
+    FilePath: Assets/shaders/LernOpenglTest.glsl
+    Type: AssetType::Shader
+    Name: LernOpenglTest.glsl
+  - Handle: 10142766137353334466
+    FilePath: Assets/Models/CV-Model/textures/R2Y2_Keiun-Kai_V1_material_4_137_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: R2Y2_Keiun-Kai_V1_material_4_137_diffuse.jpeg
+  - Handle: 10194266659677536605
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm025_fairled_900_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm025_fairled_900_diffuse.jpeg
+  - Handle: 10337277250306632961
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm009_signal_lamp_447_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm009_signal_lamp_447_diffuse.jpeg
+  - Handle: 10445259993507180323
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm008_searchlight_394_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm008_searchlight_394_diffuse.jpeg
+  - Handle: 10495106443409867325
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm032_electric_deck_winch_76_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm032_electric_deck_winch_76_diffuse.jpeg
+  - Handle: 10637653088877390228
+    FilePath: Assets/scenes/Working-Scene3.rynexscene
+    Type: AssetType::Scene
+    Name: Working-Scene3.rynexscene
+  - Handle: 10706550350602998681
+    FilePath: Assets/scenes/Cube.rynexscene
+    Type: AssetType::Scene
+    Name: Cube.rynexscene
+  - Handle: 10806552599392106327
+    FilePath: Assets/shaders/SrcShader.glsl
+    Type: AssetType::Shader
+    Name: SrcShader.glsl
+  - Handle: 11046096505971140958
+    FilePath: Assets/Models/Yamto-Model/textures/JM111_Deck_Hatch_13_367_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM111_Deck_Hatch_13_367_baseColor.jpeg
+  - Handle: 11325886587714801563
+    FilePath: Assets/Models/Yamto-Model/textures/JRS010_Radar_Type_13_skinned_337_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JRS010_Radar_Type_13_skinned_337_baseColor.jpeg
+  - Handle: 11787574237389180541
+    FilePath: Assets/Models/Yamto-Model/textures/JGA004_25mm_Type96_Triple_1_421_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JGA004_25mm_Type96_Triple_1_421_baseColor.jpeg
+  - Handle: 11806378723447444397
+    FilePath: Assets/Models/Yamto-Model/textures/JGS157_127mm40_Type89_Mod_A_skinned_548_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JGS157_127mm40_Type89_Mod_A_skinned_548_baseColor.jpeg
+  - Handle: 11851625300218396111
+    FilePath: Assets/shaders/Compute.glsl
+    Type: AssetType::Shader
+    Name: Compute.glsl
+  - Handle: 12002754718973408262
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm059_deck_hatch_8_534_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm059_deck_hatch_8_534_diffuse.jpeg
+  - Handle: 12163150527797673044
+    FilePath: Assets/Models/Yamto-Model/textures/JM029_Leadsman_Platform_461_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM029_Leadsman_Platform_461_baseColor.jpeg
+  - Handle: 12219078418876694286
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_transparent_glass_alpha_193_diffuse.png
+    Type: AssetType::Texture2D
+    Name: Shokaku_transparent_glass_alpha_193_diffuse.png
+  - Handle: 12568630467210409025
+    FilePath: Assets/Models/Yamto-Model/textures/JM033_Roller_Fairled_548_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM033_Roller_Fairled_548_baseColor.jpeg
+  - Handle: 12743264855841263044
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm002_paravane_29_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm002_paravane_29_diffuse.jpeg
+  - Handle: 12745633597747606120
+    FilePath: Assets/Models/Yamto-Model/textures/JD022_Director_Type_95_Mod1_14_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JD022_Director_Type_95_Mod1_14_baseColor.jpeg
+  - Handle: 12848686271402323521
+    FilePath: Assets/Models/Yamto-Model/textures/JGA010_25mm_Type96_443_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JGA010_25mm_Type96_443_baseColor.jpeg
+  - Handle: 12994043301984853535
+    FilePath: Assets/Models/Yamto-Model/textures/JGS156_155mm_60_Type3_skinned_787_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JGS156_155mm_60_Type3_skinned_787_baseColor.jpeg
+  - Handle: 13117041162111236261
+    FilePath: Assets/Models/Yamto-Model/textures/JSB018_Yamato_1944_deck_176_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JSB018_Yamato_1944_deck_176_baseColor.jpeg
+  - Handle: 13299308982959269815
+    FilePath: Assets/Models/Yamto-Model/textures/JM009_Signal_Lamp_849_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM009_Signal_Lamp_849_baseColor.jpeg
+  - Handle: 13324964688403651076
+    FilePath: Assets/Models/Yamto-Model/textures/JM110_Deck_Hatch_12_817_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM110_Deck_Hatch_12_817_baseColor.jpeg
+  - Handle: 13782598631675293252
+    FilePath: Assets/Models/Yamto-Model/textures/JM059_Deck_Hatch_8_968_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM059_Deck_Hatch_8_968_baseColor.jpeg
+  - Handle: 14013531302495582073
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jd011_director_type_95_mod3_skinned_255_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jd011_director_type_95_mod3_skinned_255_diffuse.jpeg
+  - Handle: 14529120759075337616
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm038_motor_boats_11m_237_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm038_motor_boats_11m_237_diffuse.jpeg
+  - Handle: 14697282444553249656
+    FilePath: Assets/Models/CV-Model/scene.gltf
+    Type: AssetType::Model
+    Name: scene.gltf
+  - Handle: 14823373881244153694
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm007_life_buoy_box_400_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm007_life_buoy_box_400_diffuse.jpeg
+  - Handle: 14909826301499945922
+    FilePath: Assets/Models/Yamto-Model/textures/JSB018_Yamato_1944_hull_399_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JSB018_Yamato_1944_hull_399_baseColor.jpeg
+  - Handle: 14977551223914240723
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jm099_signal_lamp_30_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jm099_signal_lamp_30_diffuse.jpeg
+  - Handle: 15256108531161550752
+    FilePath: Assets/FrameBufferDefaulte1.ryframe
+    Type: AssetType::FrameBuffer
+    Name: FrameBufferDefaulte1.ryframe
+  - Handle: 15338379692547403884
+    FilePath: Assets/Models/CV-Model/textures/R2Y2_Keiun-Kai_V1_material_1_137_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: R2Y2_Keiun-Kai_V1_material_1_137_diffuse.jpeg
+  - Handle: 15446452666463780001
+    FilePath: Assets/shaders/3DLigthe.glsl
+    Type: AssetType::Shader
+    Name: 3DLigthe.glsl
+  - Handle: 15473352082891987996
+    FilePath: Assets/shaders/3DTestTess2.glsl
+    Type: AssetType::Shader
+    Name: 3DTestTess2.glsl
+  - Handle: 15634819463710079783
+    FilePath: Assets/Models/Yamto-Model/textures/JF017_Rangefinder_4_5m_13_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JF017_Rangefinder_4_5m_13_baseColor.jpeg
+  - Handle: 15700267277264798356
+    FilePath: Assets/Models/Yamto-Model/textures/JM030_Wind_detection_985_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM030_Wind_detection_985_baseColor.jpeg
+  - Handle: 15772901442391588974
+    FilePath: Assets/Models/CV-Model/textures/R2Y2_Keiun-Kai_V1_material_3_137_specularGlossiness.jpeg
+    Type: AssetType::Texture2D
+    Name: R2Y2_Keiun-Kai_V1_material_3_137_specularGlossiness.jpeg
+  - Handle: 16189099610662436434
+    FilePath: Assets/Models/Yamto-Model/textures/JD013_Director_Type_98_Mod1_2_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JD013_Director_Type_98_Mod1_2_baseColor.jpeg
+  - Handle: 16228532441116203484
+    FilePath: Assets/shaders/IconTexture.glsl
+    Type: AssetType::Shader
+    Name: IconTexture.glsl
+  - Handle: 16321352292322139928
+    FilePath: Assets/Models/Yamto-Model/textures/JM112_Gun_Deck_3_430_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM112_Gun_Deck_3_430_baseColor.jpeg
+  - Handle: 16347585313747100471
+    FilePath: Assets/Models/Yamto-Model/textures/JM008_Searchlight_24_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM008_Searchlight_24_baseColor.jpeg
+  - Handle: 16843405427658622103
+    FilePath: Assets/scenes/Test/Test2.rynexscene
+    Type: AssetType::Scene
+    Name: Test2.rynexscene
+  - Handle: 16858967940542853138
+    FilePath: Assets/Models/CV-Model/textures/Kikka_material_1_685_specularGlossiness.jpeg
+    Type: AssetType::Texture2D
+    Name: Kikka_material_1_685_specularGlossiness.jpeg
+  - Handle: 16865324753760712389
+    FilePath: Assets/Models/Yamto-Model/textures/JM310_Chrysanthemum_full_949_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM310_Chrysanthemum_full_949_baseColor.jpeg
+  - Handle: 16930356078734060906
+    FilePath: Assets/Models/Yamto-Model/textures/JM002_Paravane_845_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JM002_Paravane_845_baseColor.jpeg
+  - Handle: 17035514360283589101
+    FilePath: Assets/shaders/Default_Rynex-Editor_Shader.glsl
+    Type: AssetType::Shader
+    Name: Default_Rynex-Editor_Shader.glsl
+  - Handle: 17113055064533397575
+    FilePath: Assets/scenes/Yamato-DynamicMesh.rynexscene
+    Type: AssetType::Scene
+    Name: Yamato-DynamicMesh.rynexscene
+  - Handle: 17221722514257630598
+    FilePath: Assets/shaders/3DTestTess.glsl
+    Type: AssetType::Shader
+    Name: 3DTestTess.glsl
+  - Handle: 17292265079687184861
+    FilePath: Assets/Models/CV-Model/textures/R2Y2_Keiun-Kai_V1_material_5_137_diffuse.png
+    Type: AssetType::Texture2D
+    Name: R2Y2_Keiun-Kai_V1_material_5_137_diffuse.png
+  - Handle: 17383909965985118514
+    FilePath: Assets/scenes/Test/Test.rynexscene
+    Type: AssetType::Scene
+    Name: Test.rynexscene
+  - Handle: 17434692265466180560
+    FilePath: Assets/Models/Yamto-Model/textures/JD056_MachineGun_Control_Position_49_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: JD056_MachineGun_Control_Position_49_baseColor.jpeg
+  - Handle: 17502816664062893996
+    FilePath: Assets/scenes/Working-Scene.rynexscene
+    Type: AssetType::Scene
+    Name: Working-Scene.rynexscene
+  - Handle: 17525868215795085774
+    FilePath: Assets/shaders/Texture.glsl
+    Type: AssetType::Shader
+    Name: Texture.glsl
+  - Handle: 17914662229477404625
+    FilePath: Assets/Models/Yamto-Model/textures/CM008_Life_Buoy_1_250_baseColor.jpeg
+    Type: AssetType::Texture2D
+    Name: CM008_Life_Buoy_1_250_baseColor.jpeg
+  - Handle: 17939221335691688586
+    FilePath: Assets/shaders/BoxAABB.glsl
+    Type: AssetType::Shader
+    Name: BoxAABB.glsl
+  - Handle: 18348307447185150116
+    FilePath: Assets/Models/CV-Model/textures/Material_196_diffuse.png
+    Type: AssetType::Texture2D
+    Name: Material_196_diffuse.png
+  - Handle: 18400390804875047947
+    FilePath: Assets/scenes/Cube2-Test-LigthShader.rynexscene
+    Type: AssetType::Scene
+    Name: Cube2-Test-LigthShader.rynexscene
+  - Handle: 18404170290428402841
+    FilePath: Assets/Models/CV-Model/textures/Shokaku_jd025_director_type_94_mod1_38_diffuse.jpeg
+    Type: AssetType::Texture2D
+    Name: Shokaku_jd025_director_type_94_mod1_38_diffuse.jpeg

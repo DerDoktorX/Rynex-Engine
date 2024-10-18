@@ -4,6 +4,7 @@
 #include <Rynex/Scene/Components.h>
 #include <Rynex/Scripting/ScriptingEngine.h>
 #include <Rynex/Asset/Base/AssetManager.h>
+#include <Rynex/Renderer/Rendering/Renderer.h>
 
 #include <imgui/imgui_internal.h>
 
@@ -51,7 +52,6 @@ namespace Rynex {
 		static void DealteAllChilrenFromEntity(Entity parentEntity, Ref<Scene>& context, Entity *selectionContext)
 		{
 			RealtionShipComponent& parentRealtionshipC = parentEntity.GetComponent<RealtionShipComponent>();
-			UUID parentIntEntiy = parentEntity.GetComponent<IDComponent>().ID;
 			UUID nextCild = parentRealtionshipC.FirstID;
 			while (nextCild)
 			{
@@ -59,7 +59,7 @@ namespace Rynex {
 
 				RealtionShipComponent& childeRealtionshipC = childEntity.GetComponent<RealtionShipComponent>();
 
-				RY_CORE_ASSERT(childeRealtionshipC.ParentID == parentIntEntiy, "is not SameParent!");
+				RY_CORE_ASSERT(childeRealtionshipC.ParentID == parentEntity.GetUUID(), "is not SameParent!");
 				
 				UUID first = childeRealtionshipC.FirstID;
 				if (first)
@@ -536,7 +536,7 @@ namespace Rynex {
 		auto& realtionship = entity.GetComponent<RealtionShipComponent>();
 		bool parent = realtionship.FirstID, 
 			cildern = realtionship.ParentID;
-		if (cildern && !parent && normale)
+		if (((cildern && !parent) || (cildern && parent)) && normale)
 			return;
 
 		if (!parent)
@@ -550,16 +550,21 @@ namespace Rynex {
 			m_SelectionContext = entity;
 		}
 
-		bool entiytDeleted = false, enitityCildeAdd = false;
+		bool entiytDeleted = false, entiytChildrenDeleted = false,enitityCildeAdd = false, createCopyEnitity = false;
 		if (ImGui::BeginPopupContextItem(tag.c_str()))
 		{
 			
 			if (ImGui::MenuItem("Delete Entity"))
 				entiytDeleted = true;
+			if (ImGui::MenuItem("Delete Entity + Children"))
+				entiytDeleted = true;
 			
 			if (ImGui::MenuItem("Add Childe Entity"))
 				enitityCildeAdd = true;
-			
+#if 0
+			if (ImGui::MenuItem("Create Copy"))
+				createCopyEnitity = true;
+#endif	// TODO: Create Copy Entity
 			ImGui::EndPopup();
 		}
 
@@ -589,10 +594,18 @@ namespace Rynex {
 			Utils::AddChilrenToEntity(entity, m_Context, "Empty Childern Entiy");
 			Utils::UpdateChilrenMatrixeCompentens(entity, m_Context);
 		}
-		if (entiytDeleted)
+#if 0
+		if (createCopyEnitity)
 		{
-			DeleteEntity(entity);
+
 		}
+#endif	// TODO: Create Copy Entity
+		if (entiytDeleted || entiytChildrenDeleted)
+		{
+			DeleteEntity(entity, entiytChildrenDeleted);
+		}
+		
+		
 	}
 
 	void SceneHierachyPannel::DrawComponents(Entity entity)
@@ -639,7 +652,25 @@ namespace Rynex {
 			}
 			DisplayAddComponentEntry<FrameBufferComponent>("FrameBuffer");
 
-	
+			if (!m_SelectionContext.HasComponent<DrirektionleLigthComponent>() && 
+				!m_SelectionContext.HasComponent<PointLigthComponent>() &&
+				!m_SelectionContext.HasComponent<SpotLigthComponent>())
+				DisplayAddComponentEntry<AmbientLigthComponent>("Ambient-Ligth");
+
+			if (!m_SelectionContext.HasComponent<AmbientLigthComponent>() &&
+				!m_SelectionContext.HasComponent<PointLigthComponent>() &&
+				!m_SelectionContext.HasComponent<SpotLigthComponent>())
+			DisplayAddComponentEntry<DrirektionleLigthComponent>("Drirektionle-Ligth");
+
+			if (!m_SelectionContext.HasComponent<AmbientLigthComponent>() &&
+				!m_SelectionContext.HasComponent<DrirektionleLigthComponent>() &&
+				!m_SelectionContext.HasComponent<SpotLigthComponent>())
+			DisplayAddComponentEntry<PointLigthComponent>("Point-Ligth");
+
+			if (!m_SelectionContext.HasComponent<AmbientLigthComponent>() &&
+				!m_SelectionContext.HasComponent<PointLigthComponent>() &&
+				!m_SelectionContext.HasComponent<DrirektionleLigthComponent>())
+			DisplayAddComponentEntry<SpotLigthComponent>("Spot-Ligth");
 
 			ImGui::EndPopup();
 		}
@@ -661,11 +692,28 @@ namespace Rynex {
 					glm::mat4& mat4C = entity.GetComponent<Matrix4x4Component>().GlobleMatrix4x4;
 					StaticMeshComponent& staticMesh = entity.GetComponent<StaticMeshComponent>();
 					uint32_t index = 0;
+#if 1
 					for (auto& meshData : staticMesh.LocaleMeshMatrix)
 					{
 						staticMesh.GlobleMeshMatrix[index] = mat4C * meshData;
 						index++;
 					}
+#else
+					const std::vector<Ref<Node>>& dataNode = staticMesh.ModelR->GetNodeDatas();
+					for (auto& meshData : dataNode)
+					{
+						int parent = meshData->ParentIndex;
+						if(parent!=-1)
+						{
+							meshData->GlobleMatrix = dataNode[parent]->LocaleMatrix * meshData->LocaleMatrix;
+						}
+						else
+						{
+							meshData->GlobleMatrix = mat4C * meshData->LocaleMatrix;
+						}
+						index++;
+					}
+#endif
 				}
 			}
 		});
@@ -763,31 +811,15 @@ namespace Rynex {
 			if (component.Shader != nullptr)
 			{
 				if (component.UniformLayoute.size() == 0)
-					{
-						component.UniformLayoute.clear();
-						auto& layoute = component.Shader->GetUniformLayoute();
-						for (auto& [name, type] : layoute)
-						{
-							UniformElement ellement;
-							ellement.Name = name;
-							ellement.Type = BufferAPI::GetShaderDataTypeFromString(type);
+				{
+					component.UniformLayoute.clear();
+					
+					const auto& layoute = component.Shader->GetUniformLayoute();
+					component.UniformLayoute.reserve(layoute.size());
 
-							if (name.find("Model") != name.size() && ellement.Type == ShaderDataType::Float4x4)
-							{
-								ellement.ShaderResourceType = ShaderResourceType::LocalModel;
-							}
-							else if (name.find("ViewProj") != name.size() && ellement.Type == ShaderDataType::Float4x4)
-							{
-								ellement.ShaderResourceType = ShaderResourceType::MainCameraViewProjectionMatrix;
-							}
-							else if(name.find("Color") != name.size() && ellement.Type == ShaderDataType::Float3)
-							{
-								ellement.ShaderResourceType = ShaderResourceType::LocalColor;
-							}
-
-							component.UniformLayoute.push_back(ellement);
-						}
-					}
+					for (const auto& [name, type] : layoute)
+						component.UniformLayoute.emplace_back(name, BufferAPI::GetShaderDataTypeFromString(type), ShaderResourceType::None);
+				}
 
 				for(auto& element :  component.UniformLayoute)
 				{
@@ -813,27 +845,18 @@ namespace Rynex {
 					if(element.GloblelResurce)
 					{
 						ImGui::SameLine();
-						char* otherResources[] = {
-							"Nono",
-							"Local Model",
-							"Local Color",
-							"Main Camer Pos",
-							"EnitiyID",
-							"Main Camera View",
-							"Main Camer Projection",
-							"Main Camera ViewProjection",
-							"Globle Resource"
-						};
+						std::map<ShaderResourceType,std::string>& otherResources = BufferAPI::GetShaderResourceTypeStringMap();
 					
-						if (ImGui::BeginCombo("##", otherResources[(uint8_t)element.ShaderResourceType], ImGuiComboFlags_None))
+						if (ImGui::BeginCombo("##", otherResources[element.ShResourceType].c_str(), ImGuiComboFlags_None))
 						{
-							
-							for (uint8_t i = 0; i < 8; i++)
+							ShaderResourceType name;
+							uint8_t size = otherResources.size();
+							for (uint8_t i = 0; i < size; i++)
 							{
-
-								if (ImGui::MenuItem(otherResources[i]))
+								name = (ShaderResourceType)i;
+								if (ImGui::MenuItem(otherResources[name].c_str()))
 								{
-									element.ShaderResourceType = (ShaderResourceType)i;
+									element.ShResourceType = name;
 									ImGui::CloseCurrentPopup();
 								}
 							}
@@ -973,27 +996,68 @@ namespace Rynex {
 
 			}
 			
-			bool aBuffer = (component.AlgorithmFlags & (1 << Shader::Algorithm::A_Buffer)) != 0,
-				blend = (component.AlgorithmFlags & (1 << Shader::Algorithm::Blend)) != 0,
-				clockWise = (component.AlgorithmFlags & (1 << Shader::Algorithm::ClockWise)) != 0,
-				depthBuffer = (component.AlgorithmFlags & (1 << Shader::Algorithm::Depth_Buffer)) != 0,
-				dobbleSide = (component.AlgorithmFlags & (1 << Shader::Algorithm::DobbleSide)) != 0;
-				// frontSide = (component.AlgorithmFlags & (1 << Shader::Algorithm::)) != 0,
-				// backSide = (component.AlgorithmFlags & (1 << Shader::Algorithm::A_Buffer)) != 0;
+			int entityRendererMode = component.AlgorithmFlags;
+
+			bool wireFrame = BIT_EQUAL(entityRendererMode, Renderer::WireFrame),
+				a_Buffer = BIT_EQUAL(entityRendererMode, Renderer::A_Buffer),
+				death_Buffer = BIT_EQUAL(entityRendererMode, Renderer::Death_Buffer),
+				callFace_Nono = BIT_EQUAL(entityRendererMode, Renderer::CallFace_Nono),
+				callFace_Front = BIT_EQUAL(entityRendererMode, Renderer::CallFace_Front),
+				callFace_Back = BIT_EQUAL(entityRendererMode, Renderer::CallFace_Back),
+				callFace_FrontBack = BIT_EQUAL(entityRendererMode, Renderer::CallFace_FrontBack);
+
+			if (ImGui::Checkbox("Wirframe mode:", &wireFrame))
+			{
+				component.AlgorithmFlags = BIT_SET_ON(wireFrame, Renderer::WireFrame, entityRendererMode);
+
+			}
+			if (ImGui::Checkbox("A-Buffer mode:", &a_Buffer))
+			{
+				component.AlgorithmFlags = BIT_SET_ON(a_Buffer, Renderer::A_Buffer, entityRendererMode);
+			}
+			if (ImGui::Checkbox("Death-Buffer mode:", &death_Buffer))
+			{
+				component.AlgorithmFlags = BIT_SET_ON(death_Buffer, Renderer::Death_Buffer, entityRendererMode);
+			}
+
+			if (ImGui::RadioButton("None", callFace_Nono))
+			{
+				entityRendererMode = BIT_SET_ON(1, Renderer::CallFace_Nono, entityRendererMode);
+				entityRendererMode = BIT_SET_ON(0, Renderer::CallFace_Front, entityRendererMode);
+				entityRendererMode = BIT_SET_ON(0, Renderer::CallFace_Back, entityRendererMode);
+				entityRendererMode = BIT_SET_ON(0, Renderer::CallFace_FrontBack, entityRendererMode);
+				component.AlgorithmFlags = entityRendererMode;
+			}
+			if (ImGui::RadioButton("Front", callFace_Front))
+			{
+				entityRendererMode = BIT_SET_ON(0, Renderer::CallFace_Nono, entityRendererMode);
+				entityRendererMode = BIT_SET_ON(1, Renderer::CallFace_Front, entityRendererMode);
+				entityRendererMode = BIT_SET_ON(0, Renderer::CallFace_Back, entityRendererMode);
+				entityRendererMode = BIT_SET_ON(0, Renderer::CallFace_FrontBack, entityRendererMode);
+				component.AlgorithmFlags = entityRendererMode;
+			}
+			if (ImGui::RadioButton("Back", callFace_Back))
+			{
+				entityRendererMode = BIT_SET_ON(0, Renderer::CallFace_Nono, entityRendererMode);
+				entityRendererMode = BIT_SET_ON(0, Renderer::CallFace_Front, entityRendererMode);
+				entityRendererMode = BIT_SET_ON(1, Renderer::CallFace_Back, entityRendererMode);
+				entityRendererMode = BIT_SET_ON(0, Renderer::CallFace_FrontBack, entityRendererMode);
+				component.AlgorithmFlags = entityRendererMode;
+			}
+			if (ImGui::RadioButton("Front Back", callFace_FrontBack))
+			{
+				entityRendererMode = BIT_SET_ON(0, Renderer::CallFace_Nono, entityRendererMode);
+				entityRendererMode = BIT_SET_ON(0, Renderer::CallFace_Front, entityRendererMode);
+				entityRendererMode = BIT_SET_ON(0, Renderer::CallFace_Back, entityRendererMode);
+				entityRendererMode = BIT_SET_ON(1, Renderer::CallFace_FrontBack, entityRendererMode);
+				component.AlgorithmFlags = entityRendererMode;
+			}
+
 
 
 		
 
-			if (ImGui::Checkbox("A-Buffer", &aBuffer)||
-				ImGui::Checkbox("Blend", &blend)||
-				ImGui::Checkbox("ClockWise", &clockWise)||
-				ImGui::Checkbox("Depth-Buffer", &depthBuffer)||
-				ImGui::RadioButton("Dobble-Side", &dobbleSide))
-				component.AlgorithmFlags = (aBuffer << Shader::Algorithm::A_Buffer) | 
-											(blend << Shader::Algorithm::Blend) | 
-											(clockWise << Shader::Algorithm::ClockWise) | 
-											(depthBuffer << Shader::Algorithm::Depth_Buffer) | 
-											(dobbleSide << Shader::Algorithm::DobbleSide);
+
 
 		});
 
@@ -1050,6 +1114,7 @@ namespace Rynex {
 
 			});
 
+		// FrameBuffer
 		Utils::DrawComponent<FrameBufferComponent>("FrameBuffer", entity, [](FrameBufferComponent& component)
 		{
 			auto& frameBuffer = component.FrameBuffer;
@@ -1116,11 +1181,11 @@ namespace Rynex {
 			}
 		});
 
-
+		// Mesh
 		Utils::DrawComponent<MeshComponent>("Mesh", entity, [&](MeshComponent& component)
 		{
+			
 			auto& model = component.ModelR;
-
 			ImGui::Button("Mesh", ImVec2(100.0f, 0.0f));
 			if (ImGui::BeginDragDropTarget())
 			{
@@ -1131,9 +1196,6 @@ namespace Rynex {
 					model = AssetManager::GetAsset<Model>(*(AssetHandle*)payload->Data);
 					ImGui::EndDragDropTarget();
 				}
-				
-				
-
 			}
 			
 			if (ImGui::BeginPopup("Loade-Mesh"))
@@ -1150,8 +1212,6 @@ namespace Rynex {
 						if (entity.HasComponent<StaticMeshComponent>())
 						{
 							auto& smC = entity.GetComponent<StaticMeshComponent>();
-							smC.GlobleMeshMatrix.clear();
-							smC.LocaleMeshMatrix.clear();
 							smC.ModelR = nullptr;
 						}
 					}
@@ -1160,9 +1220,11 @@ namespace Rynex {
 						entity.AddComponent<StaticMeshComponent>();
 					StaticMeshComponent& staticMesh = entity.GetComponent<StaticMeshComponent>();
 					staticMesh.ModelR = model;
+					Matrix4x4Component& parentMat4C = entity.GetComponent<Matrix4x4Component>();
+
 					auto& modelData = model->GetRootDatas();
 					staticMesh.LocaleMeshMatrix.reserve(modelData.size());
-					Matrix4x4Component& parentMat4C = entity.GetComponent<Matrix4x4Component>();
+					
 					for (auto& meshData : modelData)
 					{
 						staticMesh.LocaleMeshMatrix.emplace_back(meshData.NodeMatrix);
@@ -1187,6 +1249,9 @@ namespace Rynex {
 
 					if (!entity.HasComponent<RealtionShipComponent>())
 						entity.AddComponent<RealtionShipComponent>();
+					if (!entity.HasComponent<MaterialComponent>())
+						entity.AddComponent<MaterialComponent>();
+					MaterialComponent& materialCParent = entity.GetComponent<MaterialComponent>();
 
 					std::vector<MeshRootData> rootDatas = model->GetRootDatas();
 					std::vector<Ref<Mesh>> meshes = model->GetMeshes();
@@ -1198,7 +1263,8 @@ namespace Rynex {
 						Entity childeEntity = Utils::AddChilrenToEntity(entity, m_Context, rootData.NodeName);
 
 						childeEntity.AddComponent<DynamicMeshComponent>();
-
+						childeEntity.AddComponent<MaterialComponent>();
+						
 						if (!childeEntity.HasComponent<Matrix4x4Component>())
 							childeEntity.AddComponent<Matrix4x4Component>();
 						Matrix4x4Component& childMat4C = childeEntity.GetComponent<Matrix4x4Component>();
@@ -1214,6 +1280,10 @@ namespace Rynex {
 							childeEntity.AddComponent<DynamicMeshComponent>();
 						DynamicMeshComponent& dynamicMeshC = childeEntity.GetComponent<DynamicMeshComponent>();
 						dynamicMeshC.MeshR = mesh;
+
+						if (!childeEntity.HasComponent<MaterialComponent>())
+							childeEntity.AddComponent<MaterialComponent>();
+
 						
 					}
 					Utils::UpdateChilrenMatrixeCompentens(entity, m_Context);
@@ -1243,7 +1313,7 @@ namespace Rynex {
 			}
 			
 		});
-
+#if 0
 		Utils::DrawComponent<DynamicMeshComponent>("Dynamic-Mesh", entity, [](DynamicMeshComponent& component)
 		{
 			auto& model = component.MeshR;
@@ -1252,44 +1322,83 @@ namespace Rynex {
 
 
 		});
-		
+#endif
+		// Ambient-Ligth
+		Utils::DrawComponent<AmbientLigthComponent>("Ambient-Ligth", entity, [](AmbientLigthComponent& component)
+			{
+				ImGui::ColorEdit3("Color: ", glm::value_ptr(component.Color));
+				ImGui::DragFloat("Intensitie: ", &component.Intensitie, 0.01f, -1.0f, 10.0f, "%.2f");
+			});
+
+		// Drirektionle-Ligth
+		Utils::DrawComponent<DrirektionleLigthComponent>("Drirektionle-Ligth", entity, [](DrirektionleLigthComponent& component)
+			{
+				ImGui::ColorEdit3("Color: ", glm::value_ptr(component.Color));
+				ImGui::DragFloat("Intensitie: ", &component.Intensitie, 0.01f, -1.0f, 10.0f, "%.2f");
+			});
+
+		// Point-Ligth
+		Utils::DrawComponent<PointLigthComponent>("Point-Ligth", entity, [](PointLigthComponent& component)
+			{
+				ImGui::ColorEdit3("Color: ", glm::value_ptr(component.Color));
+				ImGui::DragFloat("Intensitie: ", &component.Intensitie, 0.01f, -1.0f, 10.0f, "%.2f");
+				ImGui::DragFloat("Distence: ", &component.Distence, 0.01f, -1.0f, 10.0f, "%.2f");
+			});
+
+		// Point-Ligth
+		Utils::DrawComponent<SpotLigthComponent>("Spot-Ligth", entity, [](SpotLigthComponent& component)
+			{
+				ImGui::ColorEdit3("Color: ", glm::value_ptr(component.Color));
+				ImGui::DragFloat("Intensitie: ", &component.Intensitie, 0.01f, -1.0f, 10.0f, "%.2f");
+				ImGui::DragFloat("Distence: ", &component.Distence, 0.01f, -1.0f, 10.0f, "%.2f");
+				ImGui::DragFloat("Inner: ", &component.Inner, 0.01f, -1.0f, 10.0f, "%.2f");
+				ImGui::DragFloat("Outer: ", &component.Outer, 0.01f, -1.0f, 10.0f, "%.2f");
+			});
+	}
+
+	void SceneHierachyPannel::OpenSceneHierachy()
+	{
+		m_WindowSceneHierachyOpen = true;
+	}
+
+	void SceneHierachyPannel::OpenProperties()
+	{
+		m_WindowPropertiesOpen = true;
 	}
 
 	void SceneHierachyPannel::OnImGuiRender()
 	{
-		ImGui::Begin("Scene Hierachy");
-		
-		// loop thorw all Entity
-		m_Context->m_Registery.each([&](auto entityID)
+		if(m_WindowSceneHierachyOpen)
 		{
-			Entity entity{ entityID, m_Context.get() };
-			DrawEntityNode(entity);
-		});
+			ImGui::Begin("Scene Hierachy", &m_WindowSceneHierachyOpen);
 
-		EcexuterDeleteing();
+			// loop thorw all Entity
+			m_Context->m_Registery.each([&](auto entityID)
+				{
+					Entity entity{ entityID, m_Context.get() };
+					DrawEntityNode(entity);
+				});
+			EcexuterDeleteing();
+			if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
+				m_SelectionContext = {};
 
-		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
-			m_SelectionContext = {};
-
-		if (ImGui::BeginPopupContextWindow(0, ImGuiPopupFlags_NoOpenOverItems | ImGuiPopupFlags_MouseButtonRight))
-		{
-			if (ImGui::MenuItem("Create Empty Entity"))
+			if (ImGui::BeginPopupContextWindow(0, ImGuiPopupFlags_NoOpenOverItems | ImGuiPopupFlags_MouseButtonRight))
 			{
-				CreateEntity("Empty Entity");
+				if (ImGui::MenuItem("Create Empty Entity"))
+				{
+					CreateEntity("Empty Entity");
+				}
+				ImGui::EndPopup();
 			}
-			ImGui::EndPopup();
+			ImGui::End();
 		}
 
-
-		ImGui::End();
-
-		ImGui::Begin("Properties");
-
-		DrawProperties();
-
-
-
-		ImGui::End();
+		if (m_WindowPropertiesOpen)
+		{
+			ImGui::Begin("Properties", &m_WindowPropertiesOpen);
+			DrawProperties();
+			ImGui::End();
+		}
 	}
 
 	void SceneHierachyPannel::CreateEntity(const std::string& name, uint32_t entityNumber)
@@ -1308,15 +1417,16 @@ namespace Rynex {
 		}
 	}
 
-	void SceneHierachyPannel::DeleteEntity(Entity entitiy)
+	void SceneHierachyPannel::DeleteEntity(Entity entitiy, bool childeren)
 	{
-		m_EntityDelete.push_back(entitiy);
+		m_EntityDelete.emplace_back(entitiy, childeren);
 	}
 
 	void SceneHierachyPannel::EcexuterDeleteing()
 	{
-		for(Entity enity : m_EntityDelete)
+		for(auto&[entitiy, childeren] : m_EntityDelete)
 		{
+#if 0
 			RealtionShipComponent& realtionship = enity.GetComponent<RealtionShipComponent>();
 
 			Utils::DealteAllChilrenFromEntity(enity, m_Context, &m_SelectionContext);
@@ -1342,12 +1452,15 @@ namespace Rynex {
 				
 			}
 			
-			if (m_SelectionContext == enity)
-				m_SelectionContext = {};
-			m_Context->DestroyEntity(enity);
+#endif
+			if (childeren)
+				entitiy.DestroyEntityChildrens();
+			m_Context->DestroyEntity(entitiy);
 		}
 
 		m_EntityDelete.clear();
+		if (!m_SelectionContext)
+			m_SelectionContext = {};
 	}
 
 	void SceneHierachyPannel::DrawProperties()

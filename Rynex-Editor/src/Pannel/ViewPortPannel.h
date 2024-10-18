@@ -82,6 +82,7 @@ namespace Rynex {
 		int							*m_GizmoType = nullptr;
 		Entity						m_HoveredEntity;
 		std::vector<Ref<ViewPort>>	m_ViewPorts;
+		MaterialComponent			m_MaterialC;
 	};
 
 

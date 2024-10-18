@@ -13,7 +13,13 @@ namespace Rynex {
 		static void Init();
 		static void Shutdown();
 		static void BindDefault3DShader(const Ref<Texture>& bindeTexure, const glm::mat4& modelMatrix, int entityID = 0, const glm::vec3& objectColor = { 1.0f, 0.0f,1.0f });
-		
+
+		static void SetLigthUniform(AmbientLigthComponent& ambient, int index);
+		static void SetLigthUniform(DrirektionleLigthComponent& drirektion, const glm::mat4& matrix, int index);
+		static void SetLigthUniform(SpotLigthComponent& spot, const glm::mat4& matrix, int index);
+		static void SetLigthUniform(PointLigthComponent& point, const glm::mat4& matrix, int index);
+
+
 		static void BeginScene(const Ref<EditorCamera>& camera);
 		static void BeginScene(const Camera& camera, const glm::mat4& transform);
 		static void DrawObjectRender3D(const Ref<VertexArray>& vertexArray);
@@ -22,9 +28,12 @@ namespace Rynex {
 		static void BeforDrawEntity(const MaterialComponent& material, const glm::mat4& model, int entityID);
 		static void AfterDrawEntity(const MaterialComponent& material);
 
+		static void SetMaterial(const MaterialComponent& material, const glm::mat4& modelMatrix, int entityID);
 		static void DrawModdel(const MaterialComponent& material, const glm::mat4& modelMatrix, const DynamicMeshComponent& model, int entityID);
 		static void DrawModdel(const MaterialComponent& material, const glm::mat4& modelMatrix, const StaticMeshComponent& model, int entityID);
 		static void DrawModdelMesh(const MaterialComponent& material, const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, int entityID);
+		static void DrawLineBoxAABB(const BoxAABB& aabb, const glm::mat4& modelMatrix, int entityID);
+
 
 		static void AktivePolyGunMode(bool active = true);
 		static void SetDethTest(bool active = true);
@@ -87,14 +96,14 @@ namespace Rynex {
 			uint32_t FrameCount = 0;
 			std::chrono::time_point<std::chrono::steady_clock> StartTimePoint;
 			std::chrono::time_point<std::chrono::steady_clock> EndTimePoint;
-			std::vector<long long> DrawTime;
+			std::vector<int64_t> DrawTime;
 			uint32_t DrawPass = 0;
 			uint32_t LargesVertexBufferByts = 0;
 
 			// Draw
 			uint32_t NewDrawCalls = 0;
 			uint32_t DrawCalls = 0;
-			
+
 			StatisticsScene Scene;
 
 			uint32_t ChachSize = 0;
@@ -102,7 +111,7 @@ namespace Rynex {
 			// uint32_t GetTotalVertexCount() const { return QuadCount * 4; }
 			// uint32_t GetTotalIndexCount() const { return QuadCount * 6; }
 
-			
+
 		};
 
 		static void ResetStats();

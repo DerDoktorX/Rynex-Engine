@@ -52,7 +52,7 @@ namespace YAML {
 		out << YAML::BeginSeq;
 		for (uint8_t i = 0; i < 3; i++)
 		{
-			
+
 			out << v[i].x << v[i].y << v[i].z;
 		}
 		out << YAML::EndSeq;
@@ -65,7 +65,7 @@ namespace YAML {
 		out << BeginSeq;
 		for (uint8_t i = 0; i < 4; i++)
 		{
-			
+
 			out << v[i].x << v[i].y << v[i].z << v[i].w;
 		}
 		out << EndSeq;
@@ -102,7 +102,7 @@ namespace YAML {
 		out << YAML::BeginSeq;
 		for (uint8_t i = 0; i < 3; i++)
 		{
-			
+
 			out << v[i].x << v[i].y << v[i].z;
 		}
 		out << YAML::EndSeq;
@@ -115,7 +115,7 @@ namespace YAML {
 		out << YAML::BeginSeq;
 		for (uint8_t i = 0; i < 4; i++)
 		{
-			out <<  v[i].x << v[i].y << v[i].z << v[i].w ;
+			out << v[i].x << v[i].y << v[i].z << v[i].w;
 		}
 		out << YAML::EndSeq;
 		return out;
@@ -151,8 +151,8 @@ namespace YAML {
 		out << YAML::BeginSeq;
 		for (uint8_t i = 0; i < 3; i++)
 		{
-			
-			out << v[i].x << v[i].y << v[i].z ;
+
+			out << v[i].x << v[i].y << v[i].z;
 		}
 		out << YAML::EndSeq;
 		return out;
@@ -164,7 +164,7 @@ namespace YAML {
 		out << YAML::BeginSeq;
 		for (uint8_t i = 0; i < 4; i++)
 		{
-			
+
 			out << v[i].x << v[i].y << v[i].z << v[i].w;
 		}
 		out << YAML::EndSeq;
@@ -401,7 +401,7 @@ namespace YAML {
 				node.push_back(rhs[i].x);
 				node.push_back(rhs[i].y);
 				node.push_back(rhs[i].z);
-				
+
 			}
 			node.SetStyle(EmitterStyle::Flow);
 			return node;
@@ -414,9 +414,9 @@ namespace YAML {
 
 			for (uint8_t i = 0; i < 3; i++)
 			{
-				rhs[i].x = node[0 + i*3].as<float>();
-				rhs[i].y = node[0 + i*3].as<float>();
-				rhs[i].z = node[0 + i*3].as<float>();
+				rhs[i].x = node[0 + i * 3].as<float>();
+				rhs[i].y = node[0 + i * 3].as<float>();
+				rhs[i].z = node[0 + i * 3].as<float>();
 			}
 			return true;
 		}
@@ -446,10 +446,10 @@ namespace YAML {
 
 			for (uint8_t i = 0; i < 4; i++)
 			{
-				rhs[i].x = node[0 + i*4].as<float>();
-				rhs[i].y = node[1 + i*4].as<float>();
-				rhs[i].z = node[2 + i*4].as<float>();
-				rhs[i].w = node[3 + i*4].as<float>();
+				rhs[i].x = node[0 + i * 4].as<float>();
+				rhs[i].y = node[1 + i * 4].as<float>();
+				rhs[i].z = node[2 + i * 4].as<float>();
+				rhs[i].w = node[3 + i * 4].as<float>();
 			}
 			return true;
 		}
@@ -554,9 +554,9 @@ namespace YAML {
 				return false;
 			for (uint8_t i = 0; i < 3; i++)
 			{
-				rhs[i].x = node[0 + i*3].as<int>();
-				rhs[i].y = node[1 + i*3].as<int>();
-				rhs[i].z = node[1 + i*3].as<int>();
+				rhs[i].x = node[0 + i * 3].as<int>();
+				rhs[i].y = node[1 + i * 3].as<int>();
+				rhs[i].z = node[1 + i * 3].as<int>();
 			}
 			return true;
 		}
@@ -586,10 +586,10 @@ namespace YAML {
 
 			for (uint8_t i = 0; i < 4; i++)
 			{
-				rhs[i].x = node[0 + i*4].as<int>();
-				rhs[i].y = node[0 + i*4].as<int>();
-				rhs[i].z = node[0 + i*4].as<int>();
-				rhs[i].w = node[0 + i*4].as<int>();
+				rhs[i].x = node[0 + i * 4].as<int>();
+				rhs[i].y = node[0 + i * 4].as<int>();
+				rhs[i].z = node[0 + i * 4].as<int>();
+				rhs[i].w = node[0 + i * 4].as<int>();
 			}
 			return true;
 		}
@@ -684,7 +684,7 @@ namespace YAML {
 				node.push_back(rhs[i].x);
 				node.push_back(rhs[i].y);
 				node.push_back(rhs[i].z);
-				
+
 			}
 			node.SetStyle(EmitterStyle::Flow);
 			return node;
@@ -697,9 +697,9 @@ namespace YAML {
 
 			for (uint8_t i = 0; i < 3; i++)
 			{
-				rhs[i].x = node[0 + i*3].as<uint32_t>();
-				rhs[i].y = node[1 + i*3].as<uint32_t>();
-				rhs[i].z = node[2 + i*3].as<uint32_t>();
+				rhs[i].x = node[0 + i * 3].as<uint32_t>();
+				rhs[i].y = node[1 + i * 3].as<uint32_t>();
+				rhs[i].z = node[2 + i * 3].as<uint32_t>();
 			}
 			return true;
 		}
@@ -717,7 +717,7 @@ namespace YAML {
 				node.push_back(rhs[i].y);
 				node.push_back(rhs[i].z);
 				node.push_back(rhs[i].w);
-				
+
 			}
 			node.SetStyle(EmitterStyle::Flow);
 
@@ -731,10 +731,10 @@ namespace YAML {
 
 			for (uint8_t i = 0; i < 4; i++)
 			{
-				rhs[i].x = node[0 + i*4].as<uint32_t>();
-				rhs[i].y = node[1 + i*4].as<uint32_t>();
-				rhs[i].z = node[2 + i*4].as<uint32_t>();
-				rhs[i].w = node[3 + i*4].as<uint32_t>();
+				rhs[i].x = node[0 + i * 4].as<uint32_t>();
+				rhs[i].y = node[1 + i * 4].as<uint32_t>();
+				rhs[i].z = node[2 + i * 4].as<uint32_t>();
+				rhs[i].w = node[3 + i * 4].as<uint32_t>();
 			}
 			return true;
 		}
@@ -743,7 +743,7 @@ namespace YAML {
 }
 
 namespace Rynex {
-	
+
 	struct EntitySerialData
 	{
 		uint64_t UUID;
@@ -771,66 +771,66 @@ namespace Rynex {
 	{
 		switch (type)
 		{
-			case ShaderDataType::Float:
-			{
-				float* value = (float*)data.data();
-				out << YAML::Key << name.c_str() << YAML::Value << *value;
-				break;
-			}
-			case ShaderDataType::Float2:
-			{
-				glm::vec<2, float>* value = (glm::vec<2, float>*)data.data();
-				out << YAML::Key << name.c_str() << YAML::Value << *value;
-				break;
-			}
-			case ShaderDataType::Float3:
-			{
-				glm::vec<3, float>* value = (glm::vec<3, float>*)data.data();
-				out << YAML::Key << name.c_str() << YAML::Value << *value;
-				break;
-			}
-			case ShaderDataType::Float4:
-			{
-				glm::vec<4, float>* value = (glm::vec<4, float>*)data.data();
-				out << YAML::Key << name.c_str() << YAML::Value << *value;
-				break;
-			}
-			case ShaderDataType::Float3x3:
-			{
-				glm::mat<3,3, float>* value = (glm::mat<3, 3, float>*)data.data();
-				out << YAML::Key << name.c_str() << YAML::Value << *value;
-				break;
-			}
-			case ShaderDataType::Float4x4:
-			{
-				glm::mat<4, 4, float>* value = (glm::mat<4, 4, float>*)data.data();
-				out << YAML::Key << name.c_str() << YAML::Value << *value;
-				break;
-			}
-			case ShaderDataType::Int:
-			{
-				int* value = (int*)data.data();
-				out << YAML::Key << name.c_str() << YAML::Value << *value;
-				break;
-			}
-			case ShaderDataType::Int2:
-			{
-				glm::vec<2, float>* value = (glm::vec<2,float>*)data.data();
-				out << YAML::Key << name.c_str() << YAML::Value << *value;
-				break;
-			}
-			case ShaderDataType::Int3:
-			{
-				glm::vec<3, float>* value = (glm::vec<3, float>*)data.data();
-				out << YAML::Key << name.c_str() << YAML::Value << *value;
-				break;
-			}
-			case ShaderDataType::Int4:
-			{
-				glm::vec<4, float>* value = (glm::vec<4, float>*)data.data();
-				out << YAML::Key << name.c_str() << YAML::Value << *value;
-				break;
-			}
+		case ShaderDataType::Float:
+		{
+			float* value = (float*)data.data();
+			out << YAML::Key << name.c_str() << YAML::Value << *value;
+			break;
+		}
+		case ShaderDataType::Float2:
+		{
+			glm::vec<2, float>* value = (glm::vec<2, float>*)data.data();
+			out << YAML::Key << name.c_str() << YAML::Value << *value;
+			break;
+		}
+		case ShaderDataType::Float3:
+		{
+			glm::vec<3, float>* value = (glm::vec<3, float>*)data.data();
+			out << YAML::Key << name.c_str() << YAML::Value << *value;
+			break;
+		}
+		case ShaderDataType::Float4:
+		{
+			glm::vec<4, float>* value = (glm::vec<4, float>*)data.data();
+			out << YAML::Key << name.c_str() << YAML::Value << *value;
+			break;
+		}
+		case ShaderDataType::Float3x3:
+		{
+			glm::mat<3, 3, float>* value = (glm::mat<3, 3, float>*)data.data();
+			out << YAML::Key << name.c_str() << YAML::Value << *value;
+			break;
+		}
+		case ShaderDataType::Float4x4:
+		{
+			glm::mat<4, 4, float>* value = (glm::mat<4, 4, float>*)data.data();
+			out << YAML::Key << name.c_str() << YAML::Value << *value;
+			break;
+		}
+		case ShaderDataType::Int:
+		{
+			int* value = (int*)data.data();
+			out << YAML::Key << name.c_str() << YAML::Value << *value;
+			break;
+		}
+		case ShaderDataType::Int2:
+		{
+			glm::vec<2, float>* value = (glm::vec<2, float>*)data.data();
+			out << YAML::Key << name.c_str() << YAML::Value << *value;
+			break;
+		}
+		case ShaderDataType::Int3:
+		{
+			glm::vec<3, float>* value = (glm::vec<3, float>*)data.data();
+			out << YAML::Key << name.c_str() << YAML::Value << *value;
+			break;
+		}
+		case ShaderDataType::Int4:
+		{
+			glm::vec<4, float>* value = (glm::vec<4, float>*)data.data();
+			out << YAML::Key << name.c_str() << YAML::Value << *value;
+			break;
+		}
 		}
 	}
 
@@ -846,66 +846,66 @@ namespace Rynex {
 
 				switch (ellement.Type)
 				{
-					case ShaderDataType::Float:
-					{
-						float* value = (float*)(data.data() + offset);
-						out << YAML::Value << *value;
-						break;
-					}
-					case ShaderDataType::Float2:
-					{
-						glm::vec<2, float>* value = (glm::vec<2, float>*)(data.data()+ offset);
-						out  << YAML::Value << *value;
-						break;
-					}
-					case ShaderDataType::Float3:
-					{
-						glm::vec<3, float>* value = (glm::vec<3, float>*)(data.data() + offset);
-						out << YAML::Value << *value;
-						break;
-					}
-					case ShaderDataType::Float4:
-					{
-						glm::vec<4, float>* value = (glm::vec<4, float>*)(data.data() + offset);
-						out << YAML::Value << *value;
-						break;
-					}
-					case ShaderDataType::Float3x3:
-					{
-						glm::mat<3, 3, float>* value = (glm::mat<3, 3, float>*)(data.data() + offset);
-						out << YAML::Value << *value;
-						break;
-					}
-					case ShaderDataType::Float4x4:
-					{
-						glm::mat<4, 4, float>* value = (glm::mat<4, 4, float>*)(data.data() + offset);
-						out << YAML::Value << *value;
-						break;
-					}
-					case ShaderDataType::Int:
-					{
-						int* value = (int*)(data.data() + offset);
-						out << YAML::Value << *value;
-						break;
-					}
-					case ShaderDataType::Int2:
-					{
-						glm::vec<2, float>* value = (glm::vec<2, float>*)(data.data() + offset);
-						out << YAML::Value << *value;
-						break;
-					}
-					case ShaderDataType::Int3:
-					{
-						glm::vec<3, float>* value = (glm::vec<3, float>*)(data.data() + offset);
-						out << YAML::Value << *value;
-						break;
-					}
-					case ShaderDataType::Int4:
-					{
-						glm::vec<4, float>* value = (glm::vec<4, float>*)(data.data() + offset);
-						out << YAML::Value << *value;
-						break;
-					}
+				case ShaderDataType::Float:
+				{
+					float* value = (float*)(data.data() + offset);
+					out << YAML::Value << *value;
+					break;
+				}
+				case ShaderDataType::Float2:
+				{
+					glm::vec<2, float>* value = (glm::vec<2, float>*)(data.data() + offset);
+					out << YAML::Value << *value;
+					break;
+				}
+				case ShaderDataType::Float3:
+				{
+					glm::vec<3, float>* value = (glm::vec<3, float>*)(data.data() + offset);
+					out << YAML::Value << *value;
+					break;
+				}
+				case ShaderDataType::Float4:
+				{
+					glm::vec<4, float>* value = (glm::vec<4, float>*)(data.data() + offset);
+					out << YAML::Value << *value;
+					break;
+				}
+				case ShaderDataType::Float3x3:
+				{
+					glm::mat<3, 3, float>* value = (glm::mat<3, 3, float>*)(data.data() + offset);
+					out << YAML::Value << *value;
+					break;
+				}
+				case ShaderDataType::Float4x4:
+				{
+					glm::mat<4, 4, float>* value = (glm::mat<4, 4, float>*)(data.data() + offset);
+					out << YAML::Value << *value;
+					break;
+				}
+				case ShaderDataType::Int:
+				{
+					int* value = (int*)(data.data() + offset);
+					out << YAML::Value << *value;
+					break;
+				}
+				case ShaderDataType::Int2:
+				{
+					glm::vec<2, float>* value = (glm::vec<2, float>*)(data.data() + offset);
+					out << YAML::Value << *value;
+					break;
+				}
+				case ShaderDataType::Int3:
+				{
+					glm::vec<3, float>* value = (glm::vec<3, float>*)(data.data() + offset);
+					out << YAML::Value << *value;
+					break;
+				}
+				case ShaderDataType::Int4:
+				{
+					glm::vec<4, float>* value = (glm::vec<4, float>*)(data.data() + offset);
+					out << YAML::Value << *value;
+					break;
+				}
 				}
 			}
 		}
@@ -994,14 +994,14 @@ namespace Rynex {
 	static void DeserializeDynamicDataLayout(YAML::Node& node, const BufferLayout& layout, std::vector<unsigned char>& data)
 	{
 		uint32_t size = layout.GetStride();
-		data.resize(size* node.size());
+		data.resize(size * node.size());
 		uint32_t offset = 0;
 		uint32_t index = 0;
 		const std::vector<BufferElement>& elements = layout.GetElements();
 		uint32_t elementsSize = elements.size();
 		for (auto& element : node)
 		{
-			
+
 			switch (elements[(index % elementsSize)].Type)
 			{
 			case ShaderDataType::Float:
@@ -1018,7 +1018,7 @@ namespace Rynex {
 			}
 			case ShaderDataType::Float3:
 			{
-				glm::vec<3, float>* dataV = (glm::vec<3, float>*)(data.data()+ offset);
+				glm::vec<3, float>* dataV = (glm::vec<3, float>*)(data.data() + offset);
 				*dataV = element.as<glm::vec<3, float>>();
 				break;
 			}
@@ -1088,8 +1088,8 @@ namespace Rynex {
 	{
 	}
 
-	
-	
+
+
 
 	static void SerializerEntity(YAML::Emitter& out, Entity entity, const Ref<Scene>& scene)
 	{
@@ -1098,15 +1098,15 @@ namespace Rynex {
 		RY_CORE_ASSERT(entity.HasComponent<IDComponent>(), "Error: Entity has not IDComponent");
 		out << YAML::BeginMap;
 		out << YAML::Key << "Entity" << YAML::Value << entity.GetUUID();
-		
+
 		if (entity.HasComponent<TagComponent>())
 		{
 			out << YAML::Key << "TagComponent";
 			out << YAML::BeginMap;
-	
+
 			auto& tag = entity.GetComponent<TagComponent>().Tag;
 			out << YAML::Key << "Tag" << YAML::Value << tag;
-	
+
 			out << YAML::EndMap;
 		}
 
@@ -1132,13 +1132,13 @@ namespace Rynex {
 			auto& camera = cc.Camera;
 			out << YAML::Key << "Camera" << YAML::Value;
 			out << YAML::BeginMap;
-			out << YAML::Key << "ProjectionType"		<< YAML::Value << (int)camera.GetProjectionType();
+			out << YAML::Key << "ProjectionType" << YAML::Value << (int)camera.GetProjectionType();
 			out << YAML::Key << "PerspectivVerticleFOV" << YAML::Value << camera.GetPerspectivVerticleFOV();
-			out << YAML::Key << "PerspectivNearClipe"	<< YAML::Value << camera.GetPerspectivNearClipe();
-			out << YAML::Key << "PerspectivFarClipe"	<< YAML::Value << camera.GetPerspectivFarClipe();
-			out << YAML::Key << "OrthographicSize"		<< YAML::Value << camera.GetOrthographicSize();
+			out << YAML::Key << "PerspectivNearClipe" << YAML::Value << camera.GetPerspectivNearClipe();
+			out << YAML::Key << "PerspectivFarClipe" << YAML::Value << camera.GetPerspectivFarClipe();
+			out << YAML::Key << "OrthographicSize" << YAML::Value << camera.GetOrthographicSize();
 			out << YAML::Key << "OrthographicNearClipe" << YAML::Value << camera.GetOrthographicNearClipe();
-			out << YAML::Key << "OrthographicFarClipe"	<< YAML::Value << camera.GetOrthographicFarClipe();
+			out << YAML::Key << "OrthographicFarClipe" << YAML::Value << camera.GetOrthographicFarClipe();
 			out << YAML::EndMap;
 
 			out << YAML::Key << "Primary" << YAML::Value << cc.Primary;
@@ -1256,7 +1256,7 @@ namespace Rynex {
 					out << YAML::BeginMap;
 					out << YAML::Key << "Name" << YAML::Value << ellement.Name.c_str();
 					out << YAML::Key << "Type" << YAML::Value << (int)ellement.Type;
-					out << YAML::Key << "ShaderResourceType" << YAML::Value << (int)ellement.ShaderResourceType;
+					out << YAML::Key << "ShaderResourceType" << YAML::Value << (int)ellement.ShResourceType;
 					out << YAML::Key << "GloblelResurce" << YAML::Value << ellement.GloblelResurce;
 					if (!ellement.GloblelResurce)
 						SerializerDynamicData(out, "LocalResurce", ellement.Type, ellement.LocalResurce);
@@ -1266,13 +1266,13 @@ namespace Rynex {
 			}
 
 			out << YAML::EndMap;
-			
+
 		}
 
 		if (entity.HasComponent<RealtionShipComponent>())
 		{
 			auto& rSc = entity.GetComponent<RealtionShipComponent>();
-			
+
 			UUID parent = rSc.ParentID;
 			UUID previus = rSc.PreviusID;
 			UUID first = rSc.FirstID;
@@ -1301,7 +1301,7 @@ namespace Rynex {
 			out << YAML::Key << "MeshComponent";
 			out << YAML::BeginMap;
 			auto& meshC = entity.GetComponent<MeshComponent>();
-			if(meshC.ModelR)
+			if (meshC.ModelR)
 			{
 				SerializerAssetFormate(out, "Model", meshC.ModelR->Handle);
 			}
@@ -1358,17 +1358,17 @@ namespace Rynex {
 		out << YAML::Key << "Scene" << YAML::Value << "Untiteld";
 		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
 		m_Scene->m_Registery.each([&](auto entityID)
-		{
-			Entity entity = { entityID, m_Scene.get() };
-			if (!entity)
-				return;
-	
-			SerializerEntity(out, entity, m_Scene);
-		});
-	
+			{
+				Entity entity = { entityID, m_Scene.get() };
+				if (!entity)
+					return;
+
+				SerializerEntity(out, entity, m_Scene);
+			});
+
 
 		out << YAML::EndMap;
-	
+
 		std::ofstream fout(filepath);
 		fout << out.c_str();
 	}
@@ -1390,14 +1390,14 @@ namespace Rynex {
 		Ref<EditorAssetManager> editorAssetManger = Project::GetActive()->GetEditorAssetManger();
 
 		YAML::Node data = YAML::Load(strStream.str());
-		if(!data["Scene"])
+		if (!data["Scene"])
 			return false;
 
 		std::string sceneName = data["Scene"].as<std::string>();
 		RY_CORE_ASSERT("Deserializing scene '{0}'", sceneName);
 
 		auto entities = data["Entities"];
-		if(entities)
+		if (entities)
 		{
 			for (auto entity : entities)
 			{
@@ -1430,7 +1430,7 @@ namespace Rynex {
 					rSc.FirstID = realtionShipComponent["First"].as<uint64_t>();
 					rSc.PreviusID = realtionShipComponent["Previus"].as<uint64_t>();
 					rSc.NextID = realtionShipComponent["Next"].as<uint64_t>();
-					rSc.ParentID = realtionShipComponent["Parent"].as<uint64_t>();				
+					rSc.ParentID = realtionShipComponent["Parent"].as<uint64_t>();
 				}
 
 				auto cameraComponent = entity["CameraComponent"];
@@ -1473,9 +1473,9 @@ namespace Rynex {
 				{
 					auto& gc = deserializedEntity.AddComponent<GeomtryComponent>();
 					gc.Geometry = VertexArray::Create();
-					if(geomtryComponent)
+					if (geomtryComponent)
 						gc.Geometry->SetPrimitv((VertexArray::Primitv)geomtryComponent["Primtiv"].as<int>());
-					
+
 					for (auto vertexBuffer : geomtryComponent["VertexBuffers"])
 					{
 						auto layoute = vertexBuffer["Laoute"];
@@ -1501,7 +1501,7 @@ namespace Rynex {
 					auto indexBufferN = geomtryComponent["IndexBuffer"];
 					if (indexBufferN)
 					{
-						
+
 						uint32_t size = indexBufferN["Size-Byte"].as<uint32_t>();
 
 						std::vector<unsigned char> indexData;
@@ -1511,7 +1511,7 @@ namespace Rynex {
 						{
 							uint32_t* value = (uint32_t*)(indexData.data() + offset);
 							*value = index.as<uint32_t>();
-							offset+=4;
+							offset += 4;
 						}
 						Ref<IndexBuffer> ibuffer = IndexBuffer::Create((uint32_t*)indexData.data(), size);
 						gc.Geometry->SetIndexBuffer(ibuffer);
@@ -1537,13 +1537,13 @@ namespace Rynex {
 						bufferElement.GloblelResurce = uniformN["GloblelResurce"].as<bool>();
 						if (!bufferElement.GloblelResurce)
 							DeserializeDynamicData(uniformN["LocalResurce"], bufferElement.Type, bufferElement.LocalResurce);
-						bufferElement.ShaderResourceType = (ShaderResourceType)uniformN["ShaderResourceType"].as<int>();
-						
+						bufferElement.ShResourceType = (ShaderResourceType)uniformN["ShaderResourceType"].as<int>();
+
 						index++;
 					}
 				}
 
-				
+
 
 				auto matrix4x4Component = entity["Matrix4x4Component"];
 				if (matrix4x4Component)
@@ -1582,7 +1582,6 @@ namespace Rynex {
 
 		}
 
-		
 		return true;
 	}
 

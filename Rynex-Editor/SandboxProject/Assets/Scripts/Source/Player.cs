@@ -473,12 +473,63 @@ namespace Sandbox
             vertexArray.UnBind();
         }
 
+        void Box3D_AABB()
+        {
+            float[] vertices = {
+                -1.0f, -1.0f,  1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
+                 1.0f, -1.0f,  1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
+                 1.0f,  1.0f,  1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
+                -1.0f,  1.0f,  1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
+
+                -1.0f, -1.0f, -1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
+                 1.0f, -1.0f, -1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
+                 1.0f,  1.0f, -1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 0.0f,
+                -1.0f,  1.0f, -1.0f,    0.0f, 0.0f,     0.0f, 0.0f, 0.0f
+            };
+            VertexBuffer vertexBuffer = new VertexBuffer(vertices, 8 * sizeof(float) * 2 * 4, BufferDataUsage.StaticDraw);
+            BufferLayout layout = new BufferLayout(new BufferElement[] {
+                new BufferElement(ShaderDataType.Float3, "a_Postion"),
+                new BufferElement(ShaderDataType.Float2, "a_UV"),
+                new BufferElement(ShaderDataType.Float3, "a_Normals")
+            });
+
+            vertexBuffer.SetLayout(layout);
+            uint[] indicies = {
+                0, 1,
+                1, 2, 
+                2, 3,
+                3, 0, 
+                0, 4,
+                4, 5,
+                5, 6,
+                6, 7,
+                7, 4,
+                7, 3,
+                6, 2,
+                5, 1
+                // 1, 5, 
+                // 6, 2, 6, 7
+            };
+            
+            IndexBuffer indexBuffer = new IndexBuffer(indicies, (uint)indicies.Length, BufferDataUsage.StaticDraw);
+            VertexArray vertexArray = new VertexArray();
+            vertexArray.AddVertexBuffer(vertexBuffer);
+            vertexArray.SetIndexBuffer(indexBuffer);
+
+            vertexArray.SetPrimitv(VertexArray.Primitv.Line);
+            m_Geometry = GetComponent<GeometryComponent>();
+            m_Geometry.Buffer = vertexBuffer;
+            m_Geometry.Geomtry = vertexArray;
+            vertexArray.UnBind();
+        }
+
         void OnDraw()
         {
             Console.WriteLine("Player.OnDraw");
-            Cube3DNewAPI();
+            Box3D_AABB();
+            //Cube3DNewAPI();
             //Cube3D();
-            
+
             Console.WriteLine("C# ->  GetComponent Finsihed");
            
             //tex.Destroy();

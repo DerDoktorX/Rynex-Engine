@@ -10,7 +10,7 @@ enum aiTextureType;
 
 
 namespace Rynex {
-	
+
 	class Model : public Asset
 	{
 	public:
@@ -23,7 +23,7 @@ namespace Rynex {
 		{
 			return AssetType::Mesh;
 		}
-		
+
 		const std::vector<Ref<Mesh>>& GetMeshes() { return m_Meshes; }
 		const Ref<Mesh>& GetMesh(uint32_t index) { return m_Meshes[index]; }
 
@@ -31,7 +31,7 @@ namespace Rynex {
 		const MeshRootData& GetRootData(uint32_t index) { return m_MeshRootDatas[index]; }
 
 		void SetMeshes(std::vector<Ref<Mesh>>& meshes) { m_Meshes.clear(); m_Meshes = meshes; }
-		void PushMesh(Ref<Mesh>& mesh) {  m_Meshes.push_back(mesh); }
+		void PushMesh(Ref<Mesh>& mesh) { m_Meshes.push_back(mesh); }
 
 		void Draw(const Ref<Shader>& shader);
 	private:
@@ -40,7 +40,7 @@ namespace Rynex {
 		std::vector<MeshTexture> Model::LoadMaterialTextures(aiMaterial* material, aiTextureType type, const std::string& typeName);
 		Ref<Texture> TextureFromFile(const std::filesystem::path& toFile, bool gamma = false);
 
-		
+
 	private:
 		std::vector<Ref<Mesh>> m_Meshes;
 		std::vector<MeshRootData> m_MeshRootDatas;

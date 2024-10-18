@@ -16,7 +16,7 @@ namespace Rynex {
 		Value, Vector2, Vector3, Vector4, Matrix3x3, Matrix4x4,
 		Entity, SceneCamera,
 		FrameBuffer,
-		VertexBuffer, IndexBuffer, StorageBuffer,
+		VertexBuffer, IndexBuffer, StorageBuffer, UniformBuffer,
 		VertexArray, StorageArray,
 		Mesh, Model
 #endif

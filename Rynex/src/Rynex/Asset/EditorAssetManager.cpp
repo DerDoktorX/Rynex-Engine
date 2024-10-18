@@ -112,8 +112,16 @@ namespace Rynex {
 		std::string& parentGenaric = path.parent_path().generic_string();
 		if (IsDirectoryInRegistry(parentGenaric))
 		{
+			
 			AssetFileDirectory& assetFileDirectory = m_DirectoryRegistry[parentGenaric];
-			assetFileDirectory.Folders.push_back(path.generic_string());
+			bool findeFile = false;
+			std::filesystem::path pathGenaric = path.generic_string();
+			for (auto& folder:  assetFileDirectory.Folders)
+			{
+				if (folder == pathGenaric)
+					return true;
+			}
+			assetFileDirectory.Folders.push_back(pathGenaric);
 			return true;
 		}
 		else
@@ -137,9 +145,11 @@ namespace Rynex {
 		else if(IsAssetPath(path) && 0 != (int)GetAssetTypeFromFilePath(path))
 		{
 			AssetHandle handle;
-			do{
+			do
+			{
 				handle = AssetHandle();
-			} while (handle != 0 || !IsAssetInRegistry(handle));
+			} 
+			while (handle == 0 || IsAssetInRegistry(handle));
 			
 			CreateAsset(path, handle);
 			return handle;
@@ -331,7 +341,6 @@ namespace Rynex {
 		RY_CORE_WARN("Reloning Asset: {0}", GetMetadata(handle).FilePath.string().c_str());
 		if (IsAssetLoaded(handle))
 		{
-
 			AssetMetadata& metadata = GetMetadata(handle);
 			metadata.State = AssetState::Updateing;
 			AssetImporter::ReLoadeAsset(handle,metadata);
@@ -347,8 +356,12 @@ namespace Rynex {
 	}
 
 	void EditorAssetManager::ReLoadeAsset(const std::filesystem::path& path)
-	{
-		ReLoadeAsset(GetAssetHandle(path));
+	{	
+		AssetHandle handle = GetAssetHandle(path);
+		if (handle != 0)
+			ReLoadeAsset(handle);
+		else
+			RY_CORE_ERROR("Try to Realoding On Path: {0} but It is not An Rynex Asset probebly!", path.string().c_str());
 	}
 
 	void EditorAssetManager::LoadeDownAsset(AssetHandle handle)

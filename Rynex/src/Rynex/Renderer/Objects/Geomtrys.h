@@ -17,7 +17,7 @@ namespace Rynex {
 	{
 	public:
 		// Genrate Vertexes
-		static void SetCubeVertex(const Ref<VertexArray>& vertexArray, Ref<VertexBuffer> vertexBuffer,const glm::vec3& size = { 0.5f, 0.5f, 0.5f }, const BufferLayout& layoute = STANDERD_3DLAYOUTE);
+		static void SetCubeVertex(const Ref<VertexArray>& vertexArray, Ref<VertexBuffer>& vertexBuffer,const glm::vec3& size = { 0.5f, 0.5f, 0.5f }, const BufferLayout& layoute = STANDERD_3DLAYOUTE);
 		static void SetSphereVertex(const Ref<VertexArray>& vertexArray, const glm::vec3& size = { 0.5f, 0.5f, 0.5f }, const BufferLayout& layoute = STANDERD_3DLAYOUTE);
 		static void SetPyremadVertex(const Ref<VertexArray>& vertexArray, const glm::vec3& size = { 0.5f, 0.5f, 0.5f }, const BufferLayout& layoute = STANDERD_3DLAYOUTE);
 		static void SetPlaneVertex(const Ref<VertexArray>& vertexArray, const glm::vec3& size = { 0.5f, 0.5f, 0.5f }, const BufferLayout& layoute = STANDERD_3DLAYOUTE);

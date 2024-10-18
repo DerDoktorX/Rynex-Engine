@@ -9,6 +9,17 @@
 
 namespace Rynex {
 
+	struct DealeatEntitiy {
+		Entity Entiy;
+		bool Children;
+
+		DealeatEntitiy(Entity entity, bool children = false)
+			: Entiy(entity), Children(children) { }
+
+		DealeatEntitiy(const DealeatEntitiy&) = default;
+		DealeatEntitiy(DealeatEntitiy&&) = default;
+	};
+
 	class SceneHierachyPannel
 	{
 	public:
@@ -19,6 +30,8 @@ namespace Rynex {
 		void DrawEntityNode(Entity entity, bool normale = true);
 		void DrawComponents(Entity entity);
 
+		void OpenSceneHierachy();
+		void OpenProperties();
 		
 		void OnImGuiRender();
 		Entity GetSelectedEntity() const { return m_SelectionContext; }
@@ -31,7 +44,7 @@ namespace Rynex {
 	private:
 		//Properties
 		void DrawProperties();
-		void DeleteEntity(Entity entitiy);
+		void DeleteEntity(Entity entitiy, bool children);
 		void EcexuterDeleteing();
 
 		template<typename T>
@@ -41,11 +54,15 @@ namespace Rynex {
 
 	private:
 		Ref<Scene> m_Context;
-		std::vector<Entity> m_EntityDelete;
+		std::vector<DealeatEntitiy> m_EntityDelete;
 		Entity	m_SelectionContext;
 
 		ImGuiID m_ScriptEditID;
 		bool m_CheckErrors = false;
+
+		bool m_WindowSceneHierachyOpen = true;
+		bool m_WindowPropertiesOpen = true;
+
 	};
 	
 }

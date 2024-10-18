@@ -61,9 +61,6 @@ namespace Rynex {
 
 		for (auto& vertexBuffer : m_VertexBuffers)
 			vertexBuffer->Bind();
-#if CONSOLE_LOG_FUNKTION_OPENGL
-		RY_CORE_INFO("void OpenGLVertexArray::Bind() const");
-#endif
 	}
 
 	void OpenGLVertexArray::UnBind() const
@@ -74,20 +71,15 @@ namespace Rynex {
 
 		for (auto& vertexBuffer : m_VertexBuffers)
 			vertexBuffer->UnBind();
-#if CONSOLE_LOG_FUNKTION_OPENGL
-	RY_CORE_INFO("void OpenGLVertexArray::UnBind() const");
-#endif
 	}
 
 	void OpenGLVertexArray::SetPrimitv(Primitv primitv)
 	{
 		m_Primitv = primitv;
-		//RY_CORE_ASSERT(false, "Not Rady!");
 	}
 
 	VertexArray::Primitv OpenGLVertexArray::GetPrimitv()
 	{
-		//RY_CORE_ASSERT(false, "Not Rady!");
 		return m_Primitv;
 	}
 
@@ -165,6 +157,16 @@ namespace Rynex {
 		RY_CORE_INFO("void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)");
 #endif
 	}
+
+	void OpenGLVertexArray::SetBoxAABB(BufferElement postionElement)
+	{
+		for (auto& buffer : m_VertexBuffers)
+		{
+			m_Box.SetBoxAABB(buffer, postionElement);
+		}
+	}
+
+	
 
 	const char* OpenGLVertexArray::GetPrimitvChar() const
 	{

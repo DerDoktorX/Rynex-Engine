@@ -15,13 +15,14 @@ namespace Rynex {
             {ShaderDataType::Float3, "a_Postion"},
             {ShaderDataType::Float2, "a_UV"},
             {ShaderDataType::Float3, "a_Normals"},
-        });
+            });
         m_VertexArray->AddVertexBuffer(vertexBuffer);
         m_VertexArray->SetIndexBuffer(indexBuffer);
         m_VertexArray->SetPrimitv(VertexArray::Primitv::Traingle);
+        m_VertexArray->SetBoxAABB({ ShaderDataType::Float3, "a_Postion" });
     }
 
-        
+
 
     Mesh::~Mesh()
     {
@@ -35,7 +36,7 @@ namespace Rynex {
         shader->Bind();
         for (unsigned int i = 0; i < m_Textures.size(); i++)
         {
-            
+
             std::string& name = m_Textures[i].Type;
             if (name == "u_Texture_Diffuse")
                 number = std::to_string(diffuseNr++);
@@ -45,7 +46,7 @@ namespace Rynex {
             shader->SetInt(("material." + name + number).c_str(), i);
             m_Textures[i].TextureResur->Bind(i);
         }
-        
+
 
         // draw mesh
         m_VertexArray->Bind();

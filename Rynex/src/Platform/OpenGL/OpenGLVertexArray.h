@@ -2,6 +2,7 @@
 #include "Rynex/Renderer/API/VertexArray.h"
 
 
+
 namespace Rynex{
 
 	class OpenGLVertexArray : public VertexArray
@@ -19,8 +20,8 @@ namespace Rynex{
 		virtual void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) override;
 		virtual void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) override;
 
-		
-
+		virtual void SetBoxAABB(BufferElement postionElement) override;
+		virtual const BoxAABB GetBoxAABB() const override { return m_Box; }
 		virtual const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const { return m_VertexBuffers; };
 		virtual const Ref<IndexBuffer>& GetIndexBuffers() const { return m_IndexBuffer; }
 
@@ -32,6 +33,7 @@ namespace Rynex{
 		std::vector<Ref<VertexBuffer>> m_VertexBuffers;
 		Ref<IndexBuffer> m_IndexBuffer;
 		Primitv m_Primitv = Primitv::Nono;
+		BoxAABB m_Box;
 	};
 
 }

@@ -19,7 +19,6 @@ namespace Rynex {
 		static void BeginScene(const Camera& camera, const glm::mat4& transform);
 		static void EndScene();
 		static void Flush();
-		static void FlushAndReset();
 
 		//Entity
 
@@ -36,6 +35,10 @@ namespace Rynex {
 
 		static void DrawQuad(const glm::mat4& tranform, const glm::vec4& color, int entityID = -2);
 		static void DrawQuad(const glm::mat4& tranform, const Ref<Texture> texture, int entityID = -2);
+		static void DrawLigthPointIcon(const glm::mat4& tranform, int entityID = -2);
+		static void DrawLigthSpotIcon(const glm::mat4& tranform,  int entityID = -2);
+		static void DrawLigthDirctionelIcon(const glm::mat4& tranform,  int entityID = -2);
+		static void DrawCameraIcon(const glm::mat4& tranform, int entityID = -2);
 
 		static void DrawQuadSingle(const glm::mat4& tranform, const glm::vec4& color, int entityID = -2);
 		static void DrawQuadSingle(const glm::mat4& tranform, const Ref<Texture> texture, int entityID = -2);

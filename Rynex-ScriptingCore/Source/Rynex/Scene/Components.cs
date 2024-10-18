@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rynex
 {
@@ -15,7 +11,7 @@ namespace Rynex
     {
 
         public Vector3 Translation
-        { 
+        {
             get
             {
                 InternalCalls.TransformComponent_GetTranslation(Entity.ID, out Vector3 translation);
@@ -72,18 +68,18 @@ namespace Rynex
         }
     }
 
-    
+
 
     public class GeometryComponent : Component
     {
-        
+
         // old
         public void SetVertex<T>(T[] vertices, uint size = 0) where T : unmanaged
         {
             unsafe
             {
                 fixed (T* vertexPointer = vertices)
-                    InternalCalls.GeometryComponent_SetVertex(Entity.ID,  (IntPtr)vertexPointer, size != 0 ? size :(uint)sizeof(T) * (uint)vertices.Length); 
+                    InternalCalls.GeometryComponent_SetVertex(Entity.ID, (IntPtr)vertexPointer, size != 0 ? size : (uint)sizeof(T) * (uint)vertices.Length);
             }
         }
 
@@ -97,7 +93,7 @@ namespace Rynex
             }
         }
 #endif
-        
+
         public void SetPrimitv(VertexArray.Primitv primitv)
         {
             InternalCalls.GeomtryComponent_SetPrimitv(Entity.ID, (int)primitv);
@@ -132,7 +128,7 @@ namespace Rynex
             set
             {
 
-               
+
                 ulong uuid = value.Handle.UUID;
                 Console.WriteLine($"C# ->  Set Geomtry = VertexArray {uuid}, {(ulong)uuid} Begin");
                 InternalCalls.GeometryComponent_SetGeometry(Entity.ID, ref uuid);

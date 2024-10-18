@@ -1,10 +1,4 @@
-﻿using Rynex;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace Rynex
 {
@@ -13,7 +7,7 @@ namespace Rynex
         public enum Type
         {
             None = 0,
-            Fragment = (1<<0),
+            Fragment = (1 << 0),
             Vertex = (1 << 1),
             Compute = (1 << 2),
             Geometry = (1 << 3),
@@ -33,7 +27,7 @@ namespace Rynex
             Handle = new AssetHandle(uuid);
         }
 
-        ~Shader() 
+        ~Shader()
         {
             Destroy();
         }

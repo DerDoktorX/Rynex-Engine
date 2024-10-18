@@ -14,6 +14,15 @@ namespace Rynex{
 		LocalModel, LocalColor, MainCamerPos, EnitiyID,
 		MainCameraViewMatrix, MainCamerProjectionMatrix, MainCameraViewProjectionMatrix,
 		GlobleResource,
+		AmbientLigths, PointLigths, SpotLigths, DrirektionLigths,
+		ShadowTexture
+	};
+
+	enum class RYNEX_API ShaderBufferType {
+		None = 0,
+		VertexIn, 
+		Uniform,
+		FragmentOut
 	};
 
 	struct RYNEX_API UniformElement
@@ -21,17 +30,40 @@ namespace Rynex{
 		std::string Name = "";
 		ShaderDataType Type = ShaderDataType::None;
 		bool SingleUniform = true;
-		ShaderResourceType ShaderResourceType = ShaderResourceType::None;
+		ShaderResourceType ShResourceType = ShaderResourceType::None;
 		bool GloblelResurce = true;
 		UUID UUID = 0;
 		std::vector<unsigned char> LocalResurce;
 
 		UniformElement() {};
 		UniformElement(const UniformElement&) = default;
-		//UniformElement(UniformElement&&) = default;
+		// UniformElement(UniformElement&&) = default;
+
+		UniformElement(const std::string& name, ShaderDataType type, ShaderResourceType resurce)
+			: Type(type) , Name(name) , ShResourceType(resurce) { }
 	};
 
-	class Shader : public Asset
+	struct RYNEX_API ShaderCPUVaribels
+	{
+		std::string Name = "";
+		ShaderBufferType BufferType = ShaderBufferType::None;
+		ShaderDataType Type = ShaderDataType::None;
+		ShaderResourceType ShResourceType = ShaderResourceType::None;
+		Ref<Asset> Asset = nullptr;
+		int Layoute = -1;
+		std::vector<unsigned char> EntityVarible;
+		bool EntityResurce = true;
+
+		ShaderCPUVaribels() = default;
+		ShaderCPUVaribels(const ShaderCPUVaribels&) = default;
+		ShaderCPUVaribels(const std::string& name, ShaderDataType type, ShaderResourceType resurce)
+			: Type(type), Name(name), ShResourceType(resurce) { }
+	};
+
+	
+	
+
+	class RYNEX_API Shader : public Asset
 	{
 	public:
 		enum class Type
@@ -45,17 +77,6 @@ namespace Rynex{
 			TeselationEvelution = BIT(5),
 			MeshShader = BIT(6)
 		};
-
-		enum Algorithm
-		{
-			Nono = 0,
-			Z_Buffer = BIT(0), Depth_Buffer = BIT(0),
-			A_Buffer = BIT(1),
-			Blend = BIT(2),
-			DobbleSide = BIT(3),
-			ClockWise = BIT(4),
-		};
-
 	public:
 		~Shader() = default;
 		static Ref<Shader> Create(const std::string& filePath);
@@ -74,21 +95,46 @@ namespace Rynex{
 
 		
 		virtual void SetUniformValue(const std::string& name, void* value, ShaderDataType type) = 0;
-		virtual void SetInt(const std::string& name, int value) = 0;
-		virtual void SetIntArray(const std::string& name, int* value, uint32_t count) = 0;
+
+		virtual void SetUint(const std::string& name, uint32_t value) = 0;
+		virtual void SetUintArray(const std::string& name, uint32_t* value, uint32_t count) = 0;
+		virtual void SetUint2(const std::string& name, const glm::uvec2& value) = 0;
+		virtual void SetUint2Array(const std::string& name, uint32_t* value, uint32_t count) = 0;
+		virtual void SetUint3(const std::string& name, const glm::uvec3& value) = 0;
+		virtual void SetUint3Array(const std::string& name, uint32_t* value, uint32_t count) = 0;
+		virtual void SetUint4(const std::string& name, const glm::uvec4& value) = 0;
+		virtual void SetUint4Array(const std::string& name, uint32_t* value, uint32_t count) = 0;
+
+		virtual void SetInt(const std::string& name, int32_t value) = 0;
+		virtual void SetIntArray(const std::string& name, int32_t*, uint32_t count) = 0;
+		virtual void SetInt2(const std::string& name, const glm::ivec2& value) = 0;
+		virtual void SetInt2Array(const std::string& name, int32_t* value, uint32_t count) = 0;
+		virtual void SetInt3(const std::string& name, const glm::ivec3& value) = 0;
+		virtual void SetInt3Array(const std::string& name, int32_t* value, uint32_t count) = 0;
+		virtual void SetInt4(const std::string& name, const glm::ivec4& value) = 0;
+		virtual void SetInt4Array(const std::string& name, int32_t* value, uint32_t count) = 0;
+
+		virtual void SetFloat(const std::string& name, float value) = 0;
+		virtual void SetFloatArray(const std::string& name, float* value, uint32_t count) = 0;
+		virtual void SetFloat2(const std::string& name, const glm::vec2& value) = 0;
+		virtual void SetFloat2Array(const std::string& name, float* value, uint32_t count) = 0;
 		virtual void SetFloat3(const std::string& name, const glm::vec3& value) = 0;
+		virtual void SetFloat3Array(const std::string& name, float* value, uint32_t count) = 0;
 		virtual void SetFloat4(const std::string& name, const glm::vec4& value) = 0;
+		virtual void SetFloat4Array(const std::string& name, float* value, uint32_t count) = 0;
+
+		virtual void SetMat3(const std::string& name, const glm::mat3& value) = 0;
+		virtual void SetMat3Array(const std::string& name, float* value, uint32_t count) = 0;
 		virtual void SetMat4(const std::string& name, const glm::mat4& value) = 0;
+		virtual void SetMat4Array(const std::string& name, float* value, uint32_t count) = 0;
 
 		virtual std::map<std::string, std::string>& GetUniformLayoute() = 0;
 		
-		virtual void SetAlgorithm(Shader::Algorithm) = 0;
-		virtual Algorithm GetAlgorithm() = 0;
+
 
 		virtual bool operator==(const Shader& other)const = 0;
 
 		virtual const std::string& GetName() const = 0;
-		virtual	const RendererAPI::API GetRendererAPI() const = 0;
 
 		// Asset
 		static AssetType GetStaticType() { return AssetType::Shader; }
@@ -115,4 +161,7 @@ namespace Rynex{
 	private:
 		std::unordered_map<std::string, Ref<Shader>> m_Shaders;
 	};
+
+
+	
 }

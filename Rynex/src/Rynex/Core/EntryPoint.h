@@ -4,37 +4,35 @@
 
 	extern Rynex::Application* Rynex::CreateApplication(ApplicationCommandLineArgs spec);
 #if 0
-	struct AlicationMetrics
-	{
-		uint64_t TotalAliction = 0;
-		uint64_t TotalFree = 0;
-		bool MainEnde = false;
-		bool MainStart = false;
-		uint64_t CurrentUsage() const { return TotalAliction - TotalFree; }
-	};
+	
 
-	static AlicationMetrics s_AlicationMetrics;
-
+	static uint64_t s_Free = 0;
+	static uint64_t s_Allocated = 0;
+	static uint64_t s_Remains = 0;
+	static uint64_t s_RemainsSize = 0;
+	static std::mutex s_MemoryMutex;
 	static void PrintMemoryUsage()
 	{
-		printf("Memory Usage: { \n\t\tfree:  %i bytes, \n\t\talloc: %i bytes,\n\t\tcurent: %i bytes\n}\n", s_AlicationMetrics.TotalFree, s_AlicationMetrics.TotalAliction, s_AlicationMetrics.CurrentUsage());
-		
+		std::scoped_lock<std::mutex> lock(s_MemoryMutex);
+		printf("We have in totale: \n\t\033[35mAllections = %llu,\n\t\033[34mFree = %llu,\n\t\033[32mRemains Allections = %llu\n\t\033[33mRemains Allections Size = %llu\n\033[0m", s_Allocated, s_Free, s_Remains, s_RemainsSize);
 	}
 
 	void* operator new(size_t size)
 	{
-		if (s_AlicationMetrics.MainStart)
-			s_AlicationMetrics.TotalAliction += size;
-		return malloc(size);
+		std::scoped_lock<std::mutex> lock(s_MemoryMutex);
+		s_Allocated++;
+		s_Remains++;
+		s_RemainsSize += size;
+		return std::malloc(size);
 	}
 
-	void operator delete(void* memory, size_t size)
+	void operator delete(void* ptr, size_t size) noexcept
 	{
-		if (s_AlicationMetrics.MainStart)
-			s_AlicationMetrics.TotalFree += size;
-		if (s_AlicationMetrics.MainEnde)
-			PrintMemoryUsage();
-		return free(memory);
+		std::scoped_lock<std::mutex> lock(s_MemoryMutex);
+		s_Free++;
+		s_Remains--;
+		s_RemainsSize -= size;
+		std::free(ptr);
 	}
 
 #endif
@@ -45,12 +43,11 @@
 
 	int main(int argc, char** argv)
 	{
-		//s_AlicationMetrics.MainStart = true;
 		printf("Rynex Engin\n");
 		
 		Rynex::Log::Init();
+		
 		RY_PROFILE_BEGIN_SESSION("Startup", "Profile/RynexPrifile-Startup.json");
-
 		RY_CORE_INFO("Initlatione Log!");
 		
 		auto app = Rynex::CreateApplication({ argc, argv });
@@ -62,12 +59,9 @@
 		app->Run();
 		RY_PROFILE_END_SESSION();
 
-
 		RY_PROFILE_BEGIN_SESSION("Shutdown", "Profile/RynexPrifile-Shutdown.json");
 		delete app;
 		RY_PROFILE_END_SESSION();
-		//s_AlicationMetrics.MainEnde = true;
-		//PrintMemoryUsage();
 	}
 
 #endif // RY_PLATFORM_WINDOWS

@@ -4,17 +4,15 @@
 #include "Rynex/Renderer/RenderCommand.h"
 #include "Rynex/Renderer/API/Shader.h"
 #include "Rynex/Renderer/API/VertexArray.h"
-#include "Platform/OpenGL/OpenGLShader.h"
 #include "Rynex/Asset/Base/AssetManager.h"
 #include "Rynex/Asset/Import/ShaderImporter.h"
-
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "Rynex/Asset/Import/TextureImporter.h"
 
 
 
 
 #define OLD_GEOMTRY_HANDLE 1
+
 namespace Rynex {
 
 	// TODO: Add TailingFactor for texture
@@ -44,8 +42,6 @@ namespace Rynex {
 		Ref<Shader> TextureShader;
 		Ref<Texture> WhitheTexture;
 
-		void* QuadVertexBufferBase_ = nullptr;
-
 		uint32_t QuadIndexCount = 0;
 		QuadVertex* QuadVertexBufferBase = nullptr;
 		QuadVertex* QuadVertexBufferPtr = nullptr;
@@ -53,26 +49,18 @@ namespace Rynex {
 		std::array<Ref<Texture>, MaxTextureSlots> TextureSlots;
 		uint32_t TextureSlotsIndex = 1;
 		glm::vec4 QuadVertexPos[4];
-		
+		glm::mat4 ViewPorj;
+
 		Renderer2D::Statistics Stats;
 	};
 
-
 	static Renderer2DStorage s_Data;
-
-	
 
 	void Renderer2D::Init()
 	{
 		RY_PROFILE_FUNCTION();
 		s_Data.QuadVertexArray = VertexArray::Create();
 
-		float squareVertices[] = {
-			-1.0f,  1.0f,		1.0f, 0.0f,
-			 1.0f,  1.0f,		0.0f, 0.0f,
-			 1.0f, -1.0f,		0.0f, 1.0f,
-			-1.0f, -1.0f,		1.0f, 1.0f
-		};
 
 		s_Data.QuadVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(QuadVertex));
 
@@ -82,7 +70,7 @@ namespace Rynex {
 			{ ShaderDataType::Float2,	"a_TexCoord"	},
 			{ ShaderDataType::Int,		"a_TexIndex"	},
 			{ ShaderDataType::Int,		"a_EntityID"	}
-			});
+		});
 
 		s_Data.QuadVertexArray->AddVertexBuffer(s_Data.QuadVertexBuffer);
 		RY_CORE_MULTY_MEMORY_ALICATION("s_Data.QuadVertexBufferBase", "Renderer2D::Init", s_Data.MaxVertices * sizeof(QuadVertex));
@@ -112,7 +100,7 @@ namespace Rynex {
 		s_Data.QuadVertexArray->SetIndexBuffer(squareIB);
 		RY_CORE_MULTY_FREE_ALICATION("quadIndecies", "Renderer2D::Init");
 		delete[] quadIndecies;
-
+		
 #if 1
 		s_Data.WhitheTexture = Texture::Create(1, 1);
 		uint32_t whitheTexData = 0xffffffff;
@@ -162,13 +150,10 @@ namespace Rynex {
 	{
 		RY_CORE_MULTY_FREE_ALICATION("s_Data.QuadVertexBufferBase", "Renderer2D::Shutdown");
 		delete[] s_Data.QuadVertexBufferBase;
-		RY_CORE_MULTY_FREE_ALICATION("s_Data.QuadVertexBufferBase_", "Renderer2D::Shutdown");
-		delete[] s_Data.QuadVertexBufferBase_;
 
 		//delete s_Data.QuadVertexBufferPtr;
 		s_Data.QuadVertexArray.reset();
 		s_Data.QuadVertexBuffer.reset();
-		s_Data.TextureSlots.empty();
 		s_Data.TextureShader.reset();
 		s_Data.WhitheTexture.reset();
 	}
@@ -210,11 +195,11 @@ namespace Rynex {
 	void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform)
 	{
 		RY_PROFILE_FUNCTION();
-		glm::mat4 viewProj = camera.GetProjektion() * transform;
+		s_Data.ViewPorj = camera.GetProjektion() * transform;
 
-		s_Data.TextureShader->Bind();
+		
 		//s_Data.TextureShader->SetIntArray("u_Textures", s_Data.Samplers, s_Data.MaxTextureSlots);
-		s_Data.TextureShader->SetMat4("u_ViewProjection", viewProj);
+		
 
 		s_Data.QuadIndexCount = 0;
 		s_Data.QuadVertexBufferPtr = s_Data.QuadVertexBufferBase;
@@ -232,7 +217,8 @@ namespace Rynex {
 	{
 		if (s_Data.QuadIndexCount)
 		{
-
+			s_Data.TextureShader->Bind();
+			s_Data.TextureShader->SetMat4("u_ViewProjection", s_Data.ViewPorj);
 			uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase);
 			s_Data.Stats.ChachSize = dataSize;
 
@@ -251,50 +237,20 @@ namespace Rynex {
 			//RenderCommand::DrawIndexedLineLoop(s_Data.QuadVertexArray, s_Data.QuadIndexCount);
 			s_Data.Stats.DrawCalls++;
 			s_Data.QuadVertexArray->UnBind();
+			s_Data.TextureShader->UnBind();
 		}
-	}
-
-	void Renderer2D::FlushAndReset()
-	{
-		Flush();
-		EndScene();
 	}
 
 
 	void Renderer2D::DrawSprite(const glm::mat4& tranform, SpriteRendererComponent& src, int entityID)
 	{
-		if (src.RenderSingle)
-		{
-#if 0
-			if (src.Shader)
-			{
-				
-				src.Shader->Bind();
-				
-			}
-			else
-			{
-
-			}
-
-
-			if (src.Texture)
-				DrawQuadSingle(tranform, src.Texture, entityID);
-			else
-				DrawQuadSingle(tranform, src.Color, entityID);
-#endif // TODO: Shader if runtim Sricpteble
-		}
+		if(src.Texture) 
+			DrawQuad(tranform, src.Texture, entityID);
 		else
-		{
-			if(src.Texture) 
-				DrawQuad(tranform, src.Texture, entityID);
-			else
-				DrawQuad(tranform, src.Color, entityID);
-		}
-			
+			DrawQuad(tranform, src.Color, entityID);
+		
 	}
 
-	
 
 	//Quad		|
 	//			V
@@ -311,15 +267,6 @@ namespace Rynex {
 
 		DrawQuad(tranform, color);
 
-#if 0
-		s_Data.TextureShader->SetFloat4("u_Color", color);
-		s_Data.WhitheTexture->Bind();
-
-		glm::mat4 tranform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-		s_Data.TextureShader->SetMat4("u_Tranform", tranform);
-		s_Data.QuadVertexArray->Bind();
-		RenderCommand::DrawIndexedMesh(s_Data.QuadVertexArray);
-#endif
 	}
 
 	//Textures	|
@@ -333,25 +280,7 @@ namespace Rynex {
 	{
 		glm::mat4 tranform = glm::translate(glm::mat4(1.0f), position)
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-
 		DrawQuad(tranform, texture);
-
-#if 0
-
-#if 0
-		std::dynamic_pointer_cast<OpenGLShader>(s_Data->TextureShader)->Bind();
-		std::dynamic_pointer_cast<OpenGLShader>(s_Data->TextureShader)->UploadUniformFloat4("u_Color", color);
-#endif
-
-		s_Data.TextureShader->SetFloat4("u_Color", {0.2f, 0.3f, 0.8f, 0.5f}); //glm::vec4(1.0));
-		texture->Bind();
-
-		glm::mat4 tranform = glm::translate(glm::mat4(1.0f), position) * /*rotation*/ glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-		s_Data.TextureShader->SetMat4("u_Tranform", tranform);
-
-		s_Data.QuadVertexArray->Bind();
-		RenderCommand::DrawIndexedMesh(s_Data.QuadVertexArray);
-#endif
 		
 	}
 
@@ -378,16 +307,6 @@ namespace Rynex {
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
 		DrawQuad(tranform, color);
-		
-#if 0
-		s_Data.TextureShader->SetFloat4("u_Color", color);
-		s_Data.WhitheTexture->Bind();
-		
-		glm::mat4 tranform = glm::translate(glm::mat4(1.0f), position) * glm::rotate(glm::mat4(1.0), rotation, { 0.0f, 0.0f, 1.0f }) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
-		s_Data.TextureShader->SetMat4("u_Tranform", tranform);
-		s_Data.QuadVertexArray->Bind();
-		RenderCommand::DrawIndexedMesh(s_Data.QuadVertexArray);
-#endif
 	}
 
 	//Matrix	|
@@ -467,6 +386,24 @@ namespace Rynex {
 		s_Data.Stats.QuadCount++;
 	}
 
+	void Renderer2D::DrawLigthPointIcon(const glm::mat4& tranform, int entityID)
+	{
+	}
+
+	void Renderer2D::DrawLigthSpotIcon(const glm::mat4& tranform, int entityID)
+	{
+	}
+
+	void Renderer2D::DrawLigthDirctionelIcon(const glm::mat4& tranform, int entityID)
+	{
+	}
+
+	void Renderer2D::DrawCameraIcon(const glm::mat4& tranform, int entityID)
+	{
+	}
+
+
+
 	// Rotation + Texture	|
 	//						V
 	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture> texture)
@@ -481,23 +418,7 @@ namespace Rynex {
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
 		DrawQuad(tranform, texture);
-
-#if 0
-		s_Data.TextureShader->SetFloat4("u_Color", { 0.2f, 0.3f, 0.8f, 0.5f }); //glm::vec4(1.0));
-		texture->Bind();
-
-		glm::mat4 tranform = glm::translate(glm::mat4(1.0f), position) * glm::rotate(glm::mat4(1.0), rotation, { 0.0f, 0.0f, 1.0f }) * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
-		s_Data.TextureShader->SetMat4("u_Tranform", tranform);
-
-		s_Data.QuadVertexArray->Bind();
-		RenderCommand::DrawIndexedMesh(s_Data.QuadVertexArray);
-#endif
 	}
-
-	// RenderWithout Batching	|
-	//							V
-	
-
 
 	void Renderer2D::ResetStats()
 	{

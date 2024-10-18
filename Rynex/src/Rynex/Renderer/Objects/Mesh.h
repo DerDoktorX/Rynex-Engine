@@ -10,7 +10,7 @@ namespace Rynex {
 		glm::vec3 Postion;
 		glm::vec2 TexCorrds; // UV
 		glm::vec3 Normale;
-		
+
 
 		MeshVertex() = default;
 		MeshVertex(const MeshVertex&) = default;
@@ -58,7 +58,7 @@ namespace Rynex {
 		Mesh(Mesh&&) = default;
 		~Mesh();
 
-		const Ref<VertexArray>& GetVertexArray() const { return m_VertexArray;}
+		const Ref<VertexArray>& GetVertexArray() const { return m_VertexArray; }
 		const MeshTexture& GetTexture(uint32_t index) const { return m_Textures[index]; }
 		const std::vector<MeshTexture>& GetTextures() const { return m_Textures; }
 

@@ -18,7 +18,7 @@ namespace Rynex {
 		{}
 	};
 	
-	void Geomtrys::SetCubeVertex(const Ref<VertexArray>& vertexArray, Ref<VertexBuffer> vertexBuffer, const glm::vec3& size, const BufferLayout& layoute)
+	void Geomtrys::SetCubeVertex(const Ref<VertexArray>& vertexArray, Ref<VertexBuffer>& vertexBuffer, const glm::vec3& size, const BufferLayout& layoute)
 	{
 		RY_CORE_WARN("Geomtrys::GetCubeVertex is not Final Radey!");
 		
@@ -27,7 +27,7 @@ namespace Rynex {
 			{  ShaderDataType::Float2,	"a_UV"	},
 			{  ShaderDataType::Float3,	"a_Normals"	},
 		});
-		vertexArray->AddVertexBuffer(vertexBuffer);
+		
 
 		uint32_t count = 0;
 
@@ -61,6 +61,7 @@ namespace Rynex {
 
 
 		vertexBuffer->SetData(vertex, 18 * sizeof(VertexTestCube));
+		vertexArray->AddVertexBuffer(vertexBuffer);
 		RY_CORE_MULTY_FREE_ALICATION("vertex", "Geomtrys::SetCubeVertex");
 		delete[] vertex;
 	}

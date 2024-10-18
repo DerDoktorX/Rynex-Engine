@@ -43,6 +43,20 @@ namespace Rynex {
 			s_RendererAPI->SetDethTest(active);
 		}
 
+		inline static void SetMode(int mode)
+		{
+			s_RendererAPI->SetMode(mode);
+		}
+
+		inline static int GetMode()
+		{
+			return s_RendererAPI->GetMode();
+		}
+
+		inline static bool IsModeEqual(int mode)
+		{
+			return s_RendererAPI->IsModeEqual(mode);
+		}
 
 		inline static void SetFace(CallFace callFace = CallFace::None)
 		{

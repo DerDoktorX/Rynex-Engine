@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Rynex;
 
 namespace Rynex
 {
@@ -12,15 +6,15 @@ namespace Rynex
     {
         public float X, Y, Z;
 
-    // KeyWords
+        // KeyWords
         public static Vector3 Zero => new Vector3(0.0f);
 
-        public static Vector3 Rigth =>  new Vector3(  1.0f,  0.0f,  0.0f );
-        public static Vector3 Left =>   new Vector3( -1.0f,  0.0f,  0.0f );
-        public static Vector3 Up =>     new Vector3(  0.0f,  1.0f,  0.0f );
-        public static Vector3 Down =>   new Vector3(  0.0f, -1.0f,  0.0f );
-        public static Vector3 Front =>  new Vector3(  0.0f,  0.0f,  1.0f );
-        public static Vector3 Back =>   new Vector3(  0.0f,  0.0f, -1.0f );
+        public static Vector3 Rigth => new Vector3(1.0f, 0.0f, 0.0f);
+        public static Vector3 Left => new Vector3(-1.0f, 0.0f, 0.0f);
+        public static Vector3 Up => new Vector3(0.0f, 1.0f, 0.0f);
+        public static Vector3 Down => new Vector3(0.0f, -1.0f, 0.0f);
+        public static Vector3 Front => new Vector3(0.0f, 0.0f, 1.0f);
+        public static Vector3 Back => new Vector3(0.0f, 0.0f, -1.0f);
 
 
         // Vector3 <-> Scalar operations
@@ -76,7 +70,7 @@ namespace Rynex
         {
             return new Vector3(vector.X - scalar, vector.Y - scalar, vector.Z - scalar);
         }
-        
+
 
         // Vector2
         public static Vector3 operator +(Vector3 a, Vector2 b)

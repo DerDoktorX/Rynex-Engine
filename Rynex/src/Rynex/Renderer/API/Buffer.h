@@ -1,6 +1,8 @@
 #pragma once
 #include "Rynex/Asset/Base/Asset.h"
 
+
+
 namespace Rynex {
 	
 	enum class RYNEX_API ShaderDataType
@@ -14,12 +16,14 @@ namespace Rynex {
 		Texture,
 	};
 	
+
 	enum class RYNEX_API BufferDataUsage {
 		None = 0,
 		DynamicDraw,
 		StaticDraw,
 	};
 
+	enum class RYNEX_API ShaderResourceType;
 
 	static uint32_t ShaderDataTypeSize(ShaderDataType type, uint32_t ellements = 1)
 	{
@@ -63,14 +67,16 @@ namespace Rynex {
 		uint32_t Offset;
 		uint32_t Size;
 		bool Normilized;
-	
+		uint32_t Count;
 		
 		BufferElement() = default;
 		BufferElement(const BufferElement&) = default;
-		BufferElement(ShaderDataType type, const std::string& name, bool normilized = false)
-			: Name(name), Type(type), Size(ShaderDataTypeSize(type)), Offset(0), Normilized(normilized)
+		BufferElement(ShaderDataType type, const std::string& name,  uint32_t count = 0, bool normilized = false)
+			: Name(name), Type(type), Size(ShaderDataTypeSize(type)), Offset(0), Normilized(normilized), Count(count)
 		{
 		}
+
+		
 		
 		
 		uint32_t GetCompontsCount() const
@@ -104,14 +110,18 @@ namespace Rynex {
 			return 0;
 		}
 
-		
+		bool operator==(const BufferElement& elemnet) const
+		{
+			return (elemnet.Name == Name && elemnet.Type == Type && elemnet.Size == Size && Count == elemnet.Count);
+		}
 	};
 
 	class RYNEX_API BufferLayout
 	{
 	public:
-		BufferLayout() {}
-		BufferLayout(const BufferLayout&) {}
+		BufferLayout() = default;
+		
+		BufferLayout(const BufferLayout&) = default;
 
 		BufferLayout(const std::initializer_list<BufferElement>& element)
 			: m_Elements(element)
@@ -134,6 +144,22 @@ namespace Rynex {
 
 		size_t GetLength() const { return m_Length; };
 		size_t GetBufferCount() const { return m_BufferCount; };
+
+		bool operator==(const BufferElement& elemnet) const
+		{
+			for(auto& elements : m_Elements)
+			{
+				if (elements == elemnet)
+					return true;
+			}
+			return false;
+		}
+
+		void AddBufferElement(BufferElement& ellements)
+		{
+			m_Elements.push_back(ellements);
+			CaculateOffsetAndStride();
+		}
 	private:
 		void CaculateOffsetAndStride() 
 		{
@@ -166,6 +192,11 @@ namespace Rynex {
 		
 		static ShaderDataType GetShaderDataTypeFromString(const std::string& type);
 		static std::string GetStringFromShaderData(ShaderDataType type);
+		static  std::map<ShaderDataType,std::string>& GetShaderDataStringMap();
+		static std::map<std::string, ShaderDataType>& GetShaderDataFromStringMap();
+
+		static std::map<ShaderResourceType, std::string>& BufferAPI::GetShaderResourceTypeStringMap();
+		static std::map<std::string, ShaderResourceType>& BufferAPI::GetShaderResourceTypeFromStringMap();
 	};
 
 	class RYNEX_API VertexBuffer : public Asset
@@ -241,6 +272,33 @@ namespace Rynex {
 		virtual void SetData(const void* data, uint32_t byteSize) = 0;
 
 		static AssetType GetStaticType() { return AssetType::StorageBuffer; }
+		AssetType GetType() const { return GetStaticType(); }
+	};
+
+	class RYNEX_API UniformBuffer : public Asset
+	{
+	public:
+		virtual ~UniformBuffer() {}
+
+
+		virtual const BufferLayout& GetLayout() const = 0;
+		virtual void SetLayout(const BufferLayout& layout) = 0;
+
+		virtual void SetData(const void* data, uint32_t byteSize) = 0;
+		virtual void SetData(const void* data, uint32_t byteSize, const BufferElement& ellement) = 0;
+		virtual void SetData(const void* data, uint32_t offset, uint32_t byteSize) = 0;
+		virtual uint32_t GetByteSize() = 0;
+
+		static Ref<UniformBuffer> Create( uint32_t byteSize, uint32_t binding);
+		static Ref<UniformBuffer> Create(const void* data, uint32_t byteSize, uint32_t binding);
+		static Ref<UniformBuffer> Create(const void* data, uint32_t byteSize, const BufferLayout& layout, uint32_t binding);
+
+		// virtual const RendererAPI::API GetRendererAPI() const = 0;
+
+		virtual const std::vector<unsigned char>& GetBufferData() = 0;
+		virtual void FreeBufferData() = 0;
+
+		static AssetType GetStaticType() { return AssetType::UniformBuffer; }
 		AssetType GetType() const { return GetStaticType(); }
 	};
 }

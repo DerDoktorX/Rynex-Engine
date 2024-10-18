@@ -87,6 +87,16 @@ namespace Rynex {
 		RY_CORE_INFO("ContentBrowserPannel::OnAtache Finished!");
 	}
 
+	void ContentBrowserPannel::OpenAssetPannel()
+	{
+		m_WindowAssetPannelOpen = true;
+	}
+
+	void ContentBrowserPannel::OpenRegestriyPannel()
+	{
+		m_WindowRegestriyPannellOpen = true;
+	}
+
 	void ContentBrowserPannel::OnImGuiRender()
 	{
 		AssetRegestriyPannel();
@@ -132,89 +142,91 @@ namespace Rynex {
 
 	void ContentBrowserPannel::AssetPannel()
 	{
-		ImGui::Begin("Asset Content");
-		
-		if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered())
+		if(m_WindowAssetPannelOpen)
 		{
-			ImGui::OpenPopup("Empty-Space-Menu");
-		}
+			ImGui::Begin("Asset Content", &m_WindowAssetPannelOpen, ImGuiWindowFlags_None);
 
-		if (m_CurrentDirectory != std::filesystem::path(m_BaseDirectory))
-		{
-			if (ImGui::Button("<-"))
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered())
 			{
-				m_CurrentDirectory = m_CurrentDirectory.parent_path();
-			}
-		}
-
-		static float thumbernailSize = 80.0f;// 128.0f
-		static float padding = 16.0f;
-
-
-		float cellSize = thumbernailSize + padding;
-
-		float pannelWidth = ImGui::GetContentRegionAvail().x;
-		int columnCount = (int)(pannelWidth / cellSize);
-		if (columnCount < 1)
-			columnCount = 1;
-
-		ImGui::Columns(columnCount, 0, false);
-
-		const AssetFileDirectory& assetFileDirectory = m_AssetManger->GetAssetFileDirectory(m_CurrentDirectory);
-		const std::vector<std::filesystem::path>& foldersPath = assetFileDirectory.Folders;
-		// Folders
-		for (const std::filesystem::path& folderPath : foldersPath)
-		{
-			
-			std::string fileNameString = folderPath.filename().string();
-			ImGui::PushID(fileNameString.c_str());
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-
-			if(folderPath != m_BaseDirectory / "Loadead (NotAssetFiles)" && folderPath != m_BaseDirectory / "Unknown File Types")
-				ImGui::ImageButton((ImTextureID)m_DirectoryIcon->GetRenderID(), { thumbernailSize , thumbernailSize }, { 0, 1 }, { 1, 0 }, -1, ImVec4(0.15f, 0.75f, 0.2f, 0.15f), ImVec4(1, 1, 1, 1));
-			else
-				ImGui::ImageButton((ImTextureID)m_DirectoryIcon->GetRenderID(), { thumbernailSize , thumbernailSize }, { 0, 1 }, { 1, 0 }, -1, ImVec4(0.875f, 0.875f, 0.35f, 0.5f), ImVec4(1, 1, 1, 1));
-
-			ImGui::PopStyleColor();
-			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-			{
-				m_CurrentDirectory /= folderPath.filename();
+				ImGui::OpenPopup("Empty-Space-Menu");
 			}
 
-			if (ImGui::BeginPopupContextItem(fileNameString.c_str()))
+			if (m_CurrentDirectory != std::filesystem::path(m_BaseDirectory))
 			{
-				const AssetFileDirectory& folder = m_AssetManger->GetAssetFileDirectory(folderPath);
-				if ((!folder.Files.size()) && ImGui::MenuItem("Delete Folder"))
+				if (ImGui::Button("<-"))
 				{
-					RY_CORE_WARN("Delete Folder {0}", fileNameString.c_str());
+					m_CurrentDirectory = m_CurrentDirectory.parent_path();
 				}
-				
-				ImGui::EndPopup();
 			}
-			ImGui::TextWrapped(fileNameString.c_str());
-			ImGui::NextColumn();
-			ImGui::PopID();
-			
-		}
 
-		std::vector<AssetHandle> handles = assetFileDirectory.Files;
-		// Files
-		for (AssetHandle handle : handles)
-		{
-			
-			const AssetMetadata& metaData = m_AssetManger->GetMetadata(handle);
-			const std::filesystem::path& path = metaData.FilePath;
+			static float thumbernailSize = 80.0f;// 128.0f
+			static float padding = 16.0f;
 
 
-			std::filesystem::path realtivPath = std::filesystem::relative(path, g_AssetsPath);
-			std::string fileNameString = path.filename().string();
+			float cellSize = thumbernailSize + padding;
 
-			ImGui::PushID(fileNameString.c_str());
+			float pannelWidth = ImGui::GetContentRegionAvail().x;
+			int columnCount = (int)(pannelWidth / cellSize);
+			if (columnCount < 1)
+				columnCount = 1;
 
-			Ref<Texture> icon;
-			AssetType assetType = GetAssetTypeFromFilePath(path.filename());
-			switch (assetType)
+			ImGui::Columns(columnCount, 0, false);
+
+			const AssetFileDirectory& assetFileDirectory = m_AssetManger->GetAssetFileDirectory(m_CurrentDirectory);
+			const std::vector<std::filesystem::path>& foldersPath = assetFileDirectory.Folders;
+			// Folders
+			for (const std::filesystem::path& folderPath : foldersPath)
 			{
+
+				std::string fileNameString = folderPath.filename().string();
+				ImGui::PushID(fileNameString.c_str());
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+
+				if (folderPath != m_BaseDirectory / "Loadead (NotAssetFiles)" && folderPath != m_BaseDirectory / "Unknown File Types")
+					ImGui::ImageButton((ImTextureID)m_DirectoryIcon->GetRenderID(), { thumbernailSize , thumbernailSize }, { 0, 1 }, { 1, 0 }, -1, ImVec4(0.15f, 0.75f, 0.2f, 0.15f), ImVec4(1, 1, 1, 1));
+				else
+					ImGui::ImageButton((ImTextureID)m_DirectoryIcon->GetRenderID(), { thumbernailSize , thumbernailSize }, { 0, 1 }, { 1, 0 }, -1, ImVec4(0.875f, 0.875f, 0.35f, 0.5f), ImVec4(1, 1, 1, 1));
+
+				ImGui::PopStyleColor();
+				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+				{
+					m_CurrentDirectory /= folderPath.filename();
+				}
+
+				if (ImGui::BeginPopupContextItem(fileNameString.c_str()))
+				{
+					const AssetFileDirectory& folder = m_AssetManger->GetAssetFileDirectory(folderPath);
+					if ((!folder.Files.size()) && ImGui::MenuItem("Delete Folder"))
+					{
+						RY_CORE_WARN("Delete Folder {0}", fileNameString.c_str());
+					}
+
+					ImGui::EndPopup();
+				}
+				ImGui::TextWrapped(fileNameString.c_str());
+				ImGui::NextColumn();
+				ImGui::PopID();
+
+			}
+
+			std::vector<AssetHandle> handles = assetFileDirectory.Files;
+			// Files
+			for (AssetHandle handle : handles)
+			{
+
+				const AssetMetadata& metaData = m_AssetManger->GetMetadata(handle);
+				const std::filesystem::path& path = metaData.FilePath;
+
+
+				std::filesystem::path realtivPath = std::filesystem::relative(path, g_AssetsPath);
+				std::string fileNameString = path.filename().string();
+
+				ImGui::PushID(fileNameString.c_str());
+
+				Ref<Texture> icon;
+				AssetType assetType = GetAssetTypeFromFilePath(path.filename());
+				switch (assetType)
+				{
 				case AssetType::Texture2D:
 				{
 					icon = m_FileIconTexture;
@@ -253,63 +265,63 @@ namespace Rynex {
 					icon = m_FileIconDefault;
 					break;
 				}
-			}
-			AssetState state = m_AssetManger->GetMetadata(handle).State;
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-			ImGui::ImageButton(
-				(ImTextureID)icon->GetRenderID(),
-				{ thumbernailSize , thumbernailSize },
-				{ 0, 1 },
-				{ 1, 0 },
-				-1,
-				ImVec4(0.15f, 0.85f, 0.2f, 0.1f),
-				GetAssetStateColor(state));
-
-			if (state == AssetState::LostConection || state == AssetState::Error)
-			{
-				ImGui::BeginDragDropSource();
-				const AssetHandle* handleE = &m_AssetManger->GetAssetHandle(path);
-				ImGui::SetDragDropPayload(GetAssetTypeMoveAssetInfosName(assetType).c_str(), handleE, sizeof(AssetHandle));
-				ImGui::EndDragDropSource();
-			}
-			else
-			{
-				if (ImGui::BeginDragDropTarget())
-				{
-
-					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(GetAssetTypeMoveAssetInfosName(assetType).c_str()))
-					{
-						(AssetHandle*)payload->Data;
-						AssetHandle handleO = m_AssetManger->GetAssetHandle(path);
-						
-					}
-					ImGui::EndDragDropTarget();
-
 				}
-			}
+				AssetState state = m_AssetManger->GetMetadata(handle).State;
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+				ImGui::ImageButton(
+					(ImTextureID)icon->GetRenderID(),
+					{ thumbernailSize , thumbernailSize },
+					{ 0, 1 },
+					{ 1, 0 },
+					-1,
+					ImVec4(0.15f, 0.85f, 0.2f, 0.1f),
+					GetAssetStateColor(state));
 
-			if (ImGui::BeginPopupContextItem(fileNameString.c_str()))
-			{
-				if (ImGui::MenuItem("Open"));
-				if (ImGui::MenuItem("Rename"));
-				if (ImGui::MenuItem("Delete Asset"));
+				if (state == AssetState::LostConection || state == AssetState::Error)
+				{
+					ImGui::BeginDragDropSource();
+					const AssetHandle* handleE = &m_AssetManger->GetAssetHandle(path);
+					ImGui::SetDragDropPayload(GetAssetTypeMoveAssetInfosName(assetType).c_str(), handleE, sizeof(AssetHandle));
+					ImGui::EndDragDropSource();
+				}
+				else
+				{
+					if (ImGui::BeginDragDropTarget())
+					{
+
+						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(GetAssetTypeMoveAssetInfosName(assetType).c_str()))
+						{
+							(AssetHandle*)payload->Data;
+							AssetHandle handleO = m_AssetManger->GetAssetHandle(path);
+
+						}
+						ImGui::EndDragDropTarget();
+
+					}
+				}
+
+				if (ImGui::BeginPopupContextItem(fileNameString.c_str()))
+				{
+					if (ImGui::MenuItem("Open"));
+					if (ImGui::MenuItem("Rename"));
+					if (ImGui::MenuItem("Delete Asset"));
 					//DelateListeAsset({ fileNameString, m_CurrentDirectory });
-				if (ImGui::MenuItem("Delete Asset + File"));
-				if (ImGui::MenuItem("Details"));
-				ImGui::EndPopup();
-			}
+					if (ImGui::MenuItem("Delete Asset + File"));
+					if (ImGui::MenuItem("Details"));
+					ImGui::EndPopup();
+				}
 
-			if (ImGui::BeginDragDropSource())
-			{
-				const AssetHandle* handle = &m_AssetManger->GetAssetHandle(path);
-				ImGui::SetDragDropPayload( GetAssetTypeDragAndDropName(assetType).c_str(), handle, sizeof(AssetHandle) );
-				ImGui::EndDragDropSource();
-			}
+				if (ImGui::BeginDragDropSource())
+				{
+					const AssetHandle* handle = &m_AssetManger->GetAssetHandle(path);
+					ImGui::SetDragDropPayload(GetAssetTypeDragAndDropName(assetType).c_str(), handle, sizeof(AssetHandle));
+					ImGui::EndDragDropSource();
+				}
 
-			//RY_CORE_INFO("after drag drop ContentBrowserPannel");
-			ImGui::PopStyleColor();
-			switch (assetType)
-			{
+				//RY_CORE_INFO("after drag drop ContentBrowserPannel");
+				ImGui::PopStyleColor();
+				switch (assetType)
+				{
 				case AssetType::FrameBuffer:
 				{
 					if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
@@ -322,54 +334,58 @@ namespace Rynex {
 				{
 					break;
 				}
-			}
-			
+				}
 
-			ImGui::TextWrapped(fileNameString.c_str());
-			ImGui::NextColumn();
-			ImGui::PopID();
-		}
-		
-		if (ImGui::BeginPopup("Empty-Space-Menu"))
-		{
-			if (ImGui::BeginMenu("New"))
+
+				ImGui::TextWrapped(fileNameString.c_str());
+				ImGui::NextColumn();
+				ImGui::PopID();
+			}
+
+			if (ImGui::BeginPopup("Empty-Space-Menu"))
 			{
-				 NewMenue();
+				if (ImGui::BeginMenu("New"))
+				{
+					NewMenue();
+				}
+				if (ImGui::MenuItem("Scane Directory"));
+				ImGui::EndPopup();
 			}
-			if (ImGui::MenuItem("Scane Directory"));
-			ImGui::EndPopup();
-		}
 
-		
+
 
 #if RY_FRAMBUFFER_WINDOW
-		
-		if (m_OppenWindow == SettingsPopUpWindow::CeateFarmbufferSettings)
-		{
-			ImGui::OpenPopup("Settings-FrameBuffer");
-			m_OppenWindow = SettingsPopUpWindow::None;
-			m_CreateFrambuffer = CreateFrambuffer();
-			m_FrambufferWindow->OnOpen(m_CurrentDirectory);
-		}
-		m_FrambufferWindow->OnImGuiRender();
+
+			if (m_OppenWindow == SettingsPopUpWindow::CeateFarmbufferSettings)
+			{
+				ImGui::OpenPopup("Settings-FrameBuffer");
+				m_OppenWindow = SettingsPopUpWindow::None;
+				m_CreateFrambuffer = CreateFrambuffer();
+				m_FrambufferWindow->OnOpen(m_CurrentDirectory);
+			}
+			m_FrambufferWindow->OnImGuiRender();
 #else
-		CreateFrambufferAsset( m_CurrentDirectory);
+			CreateFrambufferAsset(m_CurrentDirectory);
 
 #endif
-		ImGui::End();
+			ImGui::End();
+		}
 	}
 
 	void ContentBrowserPannel::AssetRegestriyPannel()
 	{
-		ImGui::Begin("Asset Regestriy");
-		const auto& assetRegestriey  = m_Project->GetEditorAssetManger()->GetHandleRegistry();
-		
-		for (const auto& [handle, metadata] : assetRegestriey)
+		if(m_WindowRegestriyPannellOpen)
 		{
-			ImGui::Text("AssetHandle(UUID): (%i), Realtiv FilePath: %s", handle, metadata.FilePath.string().c_str());
+			ImGui::Begin("Asset Regestriy", &m_WindowRegestriyPannellOpen, ImGuiWindowFlags_None);
+			const auto& assetRegestriey = m_Project->GetEditorAssetManger()->GetHandleRegistry();
+
+			for (const auto& [handle, metadata] : assetRegestriey)
+			{
+				ImGui::Text("AssetHandle(UUID): (%i), Realtiv FilePath: %s", handle, metadata.FilePath.string().c_str());
+			}
+
+			ImGui::End();
 		}
-			
-		ImGui::End();
 	}
 
 	void ContentBrowserPannel::CreateFrambufferAsset(std::filesystem::path& path)

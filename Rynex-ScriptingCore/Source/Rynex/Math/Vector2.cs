@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Rynex;
-
-namespace Rynex
+﻿namespace Rynex
 {
     public struct Vector2
     {
@@ -31,7 +23,7 @@ namespace Rynex
         }
 
 
-    // Vector2 <-> Vector2 operations
+        // Vector2 <-> Vector2 operations
         // Set
         public Vector2(float x, float y)
         {
@@ -40,7 +32,7 @@ namespace Rynex
         }
 
         // operaters
-      
+
 
         // Vector2
         public static Vector2 operator +(Vector2 a, Vector2 b)

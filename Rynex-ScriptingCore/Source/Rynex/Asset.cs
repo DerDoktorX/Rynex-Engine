@@ -1,12 +1,4 @@
-﻿using System;
-using Rynex;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Security.Cryptography;
-
-namespace Rynex
+﻿namespace Rynex
 {
 
     public struct AssetHandle
@@ -22,10 +14,10 @@ namespace Rynex
             return handle.UUID;
         }
 
-       // public static explicit operator AssetHandle(ulong uuid)
-       // {
-       //     return new AssetHandle(uuid);
-       // }
+        // public static explicit operator AssetHandle(ulong uuid)
+        // {
+        //     return new AssetHandle(uuid);
+        // }
 
     }
 

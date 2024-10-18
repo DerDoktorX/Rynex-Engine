@@ -1,29 +1,24 @@
-﻿using Rynex;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace Rynex
 {
     public enum ShaderDataType
     {
-        None = 0, 
-		Float, Float2, Float3, Float4, Float3x3, Float4x4, FloatArray,
-		Int, Int2, Int3, Int4, Int3x3, Int4x4, IntArray,
-		Uint, Uint2, Uint3, Uint4, Uint3x3, Uint4x4, UintArray,
-		Bool,
-		Struct,
-		Texture,
-	};
+        None = 0,
+        Float, Float2, Float3, Float4, Float3x3, Float4x4, FloatArray,
+        Int, Int2, Int3, Int4, Int3x3, Int4x4, IntArray,
+        Uint, Uint2, Uint3, Uint4, Uint3x3, Uint4x4, UintArray,
+        Bool,
+        Struct,
+        Texture,
+    };
 
     public enum BufferDataUsage
     {
         None = 0,
-		DynamicDraw,
-		StaticDraw,
-	};
+        DynamicDraw,
+        StaticDraw,
+    };
 
     public struct BufferElement
     {
@@ -36,76 +31,76 @@ namespace Rynex
 
         public BufferElement(ShaderDataType type, string name, bool normilized = false)
         {
-			Name = name;
-			Type = type;
-			Normilized = normilized;
-			Offset = 0;
-			Size = 0;
+            Name = name;
+            Type = type;
+            Normilized = normilized;
+            Offset = 0;
+            Size = 0;
         }
 
 
         public uint GetCompontsCount()
-		{
-			switch (Type)
-			{
-				case ShaderDataType.Float:			return 1;
-				case ShaderDataType.Float2:			return 2;
-				case ShaderDataType.Float3:			return 3;
-				case ShaderDataType.Float4:			return 4;
-				case ShaderDataType.Float3x3:		return 3 * 3;
-				case ShaderDataType.Float4x4:		return 4 * 4;
-				//caseShaderDataType.FloatArray:	 return 4;
-				case ShaderDataType.Int:			return 1;
-				case ShaderDataType.Int2:			return 2;
-				case ShaderDataType.Int3:			return 3;
-				case ShaderDataType.Int4:			return 4;
-				case ShaderDataType.Int3x3:			return 3 * 3;
-				case ShaderDataType.Int4x4:			return 4 * 4;
-				//case ShaderDataType.IntArray:		return 4;
-				//case ShaderDataType.Uint:			return 4;
-				//case ShaderDataType.Uint2:		return 4;
-				//case ShaderDataType.Uint3:		return 4;
-				//case ShaderDataType.Uint4:		return 4;
-				//case ShaderDataType.Uint3x3:		return 4;
-				//case ShaderDataType.Uint4x4:		return 4;
-				//case ShaderDataType.UintArray		return 4;
-				case ShaderDataType.Bool:			return 1;
-				//case ShaderDataType.Struct:		return 4;
-			}
-			return 0;
-		}
+        {
+            switch (Type)
+            {
+                case ShaderDataType.Float: return 1;
+                case ShaderDataType.Float2: return 2;
+                case ShaderDataType.Float3: return 3;
+                case ShaderDataType.Float4: return 4;
+                case ShaderDataType.Float3x3: return 3 * 3;
+                case ShaderDataType.Float4x4: return 4 * 4;
+                //caseShaderDataType.FloatArray:	 return 4;
+                case ShaderDataType.Int: return 1;
+                case ShaderDataType.Int2: return 2;
+                case ShaderDataType.Int3: return 3;
+                case ShaderDataType.Int4: return 4;
+                case ShaderDataType.Int3x3: return 3 * 3;
+                case ShaderDataType.Int4x4: return 4 * 4;
+                //case ShaderDataType.IntArray:		return 4;
+                //case ShaderDataType.Uint:			return 4;
+                //case ShaderDataType.Uint2:		return 4;
+                //case ShaderDataType.Uint3:		return 4;
+                //case ShaderDataType.Uint4:		return 4;
+                //case ShaderDataType.Uint3x3:		return 4;
+                //case ShaderDataType.Uint4x4:		return 4;
+                //case ShaderDataType.UintArray		return 4;
+                case ShaderDataType.Bool: return 1;
+                    //case ShaderDataType.Struct:		return 4;
+            }
+            return 0;
+        }
 
-		
-	};
+
+    };
 
     public struct BufferLayout
     {
-		private BufferElement[] m_Elements;
+        private BufferElement[] m_Elements;
         private uint m_Stride;
         private uint m_Length;
         private uint m_BufferCount;
         public BufferLayout(BufferElement[] element)
-		{
+        {
             m_Stride = 0;
             m_Length = 0;
             m_BufferCount = 0;
-			m_Elements = element;
-			CaculateOffsetAndStride();
+            m_Elements = element;
+            CaculateOffsetAndStride();
         }
-		
-		private void CaculateOffsetAndStride()
-		{
-			
+
+        private void CaculateOffsetAndStride()
+        {
+
             m_Stride = 0;
             m_Length = 0;
             m_BufferCount = 0;
 
-			int length = m_Elements.Length;
-			uint offset = 0;
+            int length = m_Elements.Length;
+            uint offset = 0;
 
             for (int i = 0; i < length; i++)
-			{
-				m_Elements[i].Offset = offset;
+            {
+                m_Elements[i].Offset = offset;
                 offset += m_Elements[i].Size;
                 m_Stride += m_Elements[i].Size;
                 m_Length++;
@@ -123,10 +118,10 @@ namespace Rynex
             return m_Elements;
         }
     }
-  
 
-	public class VertexBuffer : Asset
-	{
+
+    public class VertexBuffer : Asset
+    {
         public new AssetHandle Handle { get; internal set; }
 
         public VertexBuffer(ulong handle)
@@ -135,9 +130,9 @@ namespace Rynex
         }
 
         public VertexBuffer(uint size)
-		{
+        {
 
-		}
+        }
 
         public VertexBuffer(byte[] vertices, uint size)
         {
@@ -156,18 +151,18 @@ namespace Rynex
         public VertexBuffer(float[] vertices, uint size, BufferDataUsage usage)
         {
             unsafe
-			{
-				fixed (float* verticesPtr = vertices)
-				{
-					InternalCalls.VertexBuffer_Create_Vertices_Size_Usage(out ulong uuid, (IntPtr)verticesPtr, size, usage);
+            {
+                fixed (float* verticesPtr = vertices)
+                {
+                    InternalCalls.VertexBuffer_Create_Vertices_Size_Usage(out ulong uuid, (IntPtr)verticesPtr, size, usage);
                     Handle = new AssetHandle(uuid);
 
-                }			
-			}
+                }
+            }
         }
 
         public void SetLayout(BufferLayout layout)
-		{
+        {
             BufferElement[] bufferElements = layout.GetElements();
             uint size = (uint)bufferElements.Length;
             for (uint i = 0; i < size; i++)
@@ -180,7 +175,7 @@ namespace Rynex
                     bufferElements[i].Normilized
                     );
             }
-		}
+        }
         ~VertexBuffer()
         {
             InternalCalls.VertexBuffer_Destroy(Handle.UUID);
@@ -214,9 +209,9 @@ namespace Rynex
                 bufferElements[i].Offset = bE_Offset;
             }
 
-            return new BufferLayout(bufferElements);                         
+            return new BufferLayout(bufferElements);
         }
-       
+
         public void Bind()
         {
             InternalCalls.VertexBuffer_Bind(Handle.UUID);
@@ -227,19 +222,19 @@ namespace Rynex
             InternalCalls.VertexBuffer_UnBind(Handle.UUID);
         }
 
-		public void SetData(byte[] data, uint byteSize)
-		{
+        public void SetData(byte[] data, uint byteSize)
+        {
             unsafe
             {
                 fixed (byte* dataPointer = data)
                     InternalCalls.VertexBuffer_SetData(Handle.UUID, (IntPtr)dataPointer, byteSize);
             }
-		}
+        }
 
-		public uint GetByteSize()
-		{
-			InternalCalls.VertexBuffer_GetByteSize(Handle.UUID, out uint size);
-			return size;
+        public uint GetByteSize()
+        {
+            InternalCalls.VertexBuffer_GetByteSize(Handle.UUID, out uint size);
+            return size;
 
         }
     }

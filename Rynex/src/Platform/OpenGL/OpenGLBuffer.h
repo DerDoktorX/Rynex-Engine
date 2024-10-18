@@ -88,6 +88,40 @@ namespace Rynex {
 		Type m_PolicieType;
 	};
 
+	class OpenGLUniformBuffer : public UniformBuffer
+	{
+	public:
+		OpenGLUniformBuffer(uint32_t byteSize, uint32_t binding);
+		OpenGLUniformBuffer(const void* data, uint32_t byteSize, uint32_t binding);
+		OpenGLUniformBuffer(const void* data, uint32_t byteSize, const BufferLayout& layout, uint32_t binding);
+		OpenGLUniformBuffer(const void* data, uint32_t byteSize, const BufferLayout& layout, BufferDataUsage usage, uint32_t binding);
+
+		virtual ~OpenGLUniformBuffer();
+
+
+		virtual void SetData(const void* data, uint32_t byteSize) override;
+		virtual void SetData(const void* data, uint32_t offset, uint32_t byteSize) override;
+		virtual void SetData(const void* data, uint32_t byteSize, const BufferElement& ellement) override;
+		virtual uint32_t GetByteSize() override { return m_Size; }
+
+		virtual const std::vector<unsigned char>& GetBufferData() override;
+		virtual void FreeBufferData() override;
+
+
+		virtual const BufferLayout& GetLayout() const override { return m_Layout; }
+		virtual void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
+
+		// virtual const RendererAPI::API GetRendererAPI() const override { return RendererAPI::API::OpenGL; };
+
+	private:
+		uint32_t m_RendererID;
+		uint32_t m_Binding;
+		BufferLayout m_Layout;
+		uint32_t m_Size = 0;
+		std::vector<unsigned char> m_Data;
+		GLenum m_Target;
+		BufferDataUsage m_Usage = BufferDataUsage::None;
+	};
 }
 
 

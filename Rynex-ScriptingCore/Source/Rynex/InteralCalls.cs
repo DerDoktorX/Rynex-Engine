@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 
 namespace Rynex
@@ -50,7 +46,7 @@ namespace Rynex
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void TransformComponent_SetChange(ulong uuid, ref bool prameter);
-       
+
 
         // Geometry
 
@@ -110,7 +106,7 @@ namespace Rynex
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Shader_Create_Source_Name(out ulong handle, string source, string name);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Shader_Create_Source_Name_VertexSrc_FragmentSrc(out ulong handle,  string name, string vertexSrc, string fragmentSrc);
+        internal extern static void Shader_Create_Source_Name_VertexSrc_FragmentSrc(out ulong handle, string name, string vertexSrc, string fragmentSrc);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Shader_Destroy(ulong handle);
         // - Funktions
@@ -155,9 +151,9 @@ namespace Rynex
             uint elementCount,
             uint elementIndex,
             string bufferElementName,
-            ShaderDataType bufferElementType,  
+            ShaderDataType bufferElementType,
             bool bufferElementNormilized);
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]        
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void VertexBuffer_SetData(ulong handle, IntPtr data, uint size);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void VertexBuffer_GetByteSize(ulong handle, out uint size);

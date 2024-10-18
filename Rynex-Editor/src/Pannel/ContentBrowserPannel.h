@@ -64,10 +64,12 @@ namespace Rynex {
 
 		void OnImGuiRender();
 		void OnAtache();
+		void OpenAssetPannel();
+		void OpenRegestriyPannel();
 
 		static void AssetFileWatcher();
-
 		static void SetAssetRegestriy(const std::filesystem::path& curentPath, Ref<EditorAssetManager>& assetManager);
+		
 	private:
 		void BrowserPannel();
 		void AssetPannel();
@@ -107,6 +109,8 @@ namespace Rynex {
 
 
 		bool m_CompletAssetDirectory = false;
+		bool m_WindowAssetPannelOpen = true;
+		bool m_WindowRegestriyPannellOpen = true;
 		SettingsPopUpWindow m_OppenWindow = SettingsPopUpWindow::None;
 		
 		// AssetDirectory m_AssetDirectorys;

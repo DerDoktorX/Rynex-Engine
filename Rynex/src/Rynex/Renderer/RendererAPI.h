@@ -1,9 +1,10 @@
 #pragma once
-#include "Rynex/Renderer/API/VertexArray.h"
 
+#include "Rynex/Renderer/API/VertexArray.h"
 #include <glm/glm.hpp>
 
 namespace Rynex {
+
 
 	enum class CallFace {
 		None = 0,
@@ -25,6 +26,10 @@ namespace Rynex {
 		virtual void AktivePolyGunMode(bool aktiv) = 0;
 		virtual void SetDethTest(bool aktiv) = 0;
 		virtual void SetFace(CallFace calolFace) = 0;
+
+		virtual void SetMode(int mode) = 0;
+		virtual int GetMode() = 0;
+		virtual bool IsModeEqual(int mode) = 0;
 #if 0
 		virtual void SetBlendMode(bool aktiv) = 0;
 		virtual void SetFront(bool aktiv) = 0;
@@ -57,6 +62,7 @@ namespace Rynex {
 		virtual void DrawError() = 0;
 
 		inline static API GetAPI() { return s_API; }
+
 	private:
 		static API s_API;
 	};

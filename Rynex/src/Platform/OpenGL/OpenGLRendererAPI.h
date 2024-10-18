@@ -6,7 +6,6 @@ namespace Rynex {
 	class OpenGLRendererAPI : public RendererAPI
 	{
 	public:
-
 		virtual void Init() override;
 		virtual void CreateComputePipline(glm::vec3& size) override;
 
@@ -16,6 +15,10 @@ namespace Rynex {
 		virtual void SetFace(CallFace callface = CallFace::None) override;
 		virtual void SetDethTest(bool aktiv = true) override;
 	
+		virtual void SetMode(int mode) override;
+		virtual int GetMode() override;
+		virtual bool IsModeEqual(int mode) override;
+
 		virtual void AktivePolyGunMode(bool active = true) override;
 
 		virtual void Clear() override;
@@ -39,6 +42,12 @@ namespace Rynex {
 		virtual void DispatcheCompute(const glm::vec<3, uint32_t>& groups) override;
 
 		virtual void DrawError() override;
+
+
+		void ModeEnable(int bitCount);
+		void ModeDisenable(int bitCount);
+	public:
+		int m_CurentMode = 0;
 	};
 }
 

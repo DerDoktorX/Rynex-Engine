@@ -10,14 +10,14 @@
 
 namespace Rynex {
 
-	Model::Model(const std::string& path)
-	{
+    Model::Model(const std::string& path)
+    {
         std::string directory;
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile(path.c_str(),
             aiProcess_Triangulate |
             aiProcess_GenSmoothNormals |
-            aiProcess_FlipUVs | 
+            aiProcess_FlipUVs |
             aiProcess_CalcTangentSpace);
 
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -30,8 +30,8 @@ namespace Rynex {
 
         //ProcessNode(scene->mRootNode, scene);
 
-        
-	}
+
+    }
 
     Model::Model(std::vector<Ref<Mesh>>& meshes, std::vector<MeshRootData>& meshRootDatas)
         : m_Meshes(meshes), m_MeshRootDatas(meshRootDatas)
@@ -67,7 +67,7 @@ namespace Rynex {
 
 
         bool hasNormals = mesh->mNormals != nullptr;
-        bool hasTexCorrds = mesh->HasTextureCoords(0); 
+        bool hasTexCorrds = mesh->HasTextureCoords(0);
         uint32_t size = mesh->mNumVertices;
         vertices.resize(size);
         for (uint32_t i = 0; i < size; i++)
@@ -87,7 +87,7 @@ namespace Rynex {
                     hasTexCorrds ? mesh->mTextureCoords[0][i].x : 0.0f,
                     hasTexCorrds ? mesh->mTextureCoords[0][i].y : 0.0f,
                 }
-            });
+                });
         }
 
         for (uint32_t i = 0; i < mesh->mNumFaces; i++)
@@ -106,7 +106,7 @@ namespace Rynex {
 
         std::vector<MeshTexture> normaleMaps = LoadMaterialTextures(materials, aiTextureType_HEIGHT, "u_Texture_Normale");
         texures.insert(texures.end(), normaleMaps.begin(), normaleMaps.end());
-            
+
         std::vector<MeshTexture> heigthMaps = LoadMaterialTextures(materials, aiTextureType_AMBIENT, "u_Texture_Heigth");
         texures.insert(texures.end(), heigthMaps.begin(), heigthMaps.end());
 
@@ -122,15 +122,15 @@ namespace Rynex {
             aiString str;
             material->GetTexture(type, i, &str);
             bool skip = false;
-           
 
-            if(!skip)
+
+            if (!skip)
             {
                 textures.push_back({
                     TextureFromFile(str.C_Str()),
                     typeName,
                     str.C_Str()
-                });
+                    });
             }
         }
         return textures;

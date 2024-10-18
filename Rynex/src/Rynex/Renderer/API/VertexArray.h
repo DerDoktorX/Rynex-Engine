@@ -1,6 +1,7 @@
 #pragma once
 #include "Rynex/Asset/Base/Asset.h"
 #include "Rynex/Renderer/API/Buffer.h"
+#include "Rynex/Renderer/Objects/BoxAABB.h"
 
 namespace Rynex {
 
@@ -31,6 +32,9 @@ namespace Rynex {
 		virtual const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const = 0;
 		virtual const Ref<IndexBuffer>& GetIndexBuffers() const = 0;
 		
+		virtual void SetBoxAABB(BufferElement element) = 0;
+		virtual const BoxAABB GetBoxAABB() const = 0;
+
 		virtual const char* GetPrimitvChar() const = 0;
 
 		static AssetType GetStaticType() { return AssetType::VertexArray; }

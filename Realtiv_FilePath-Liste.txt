@@ -1,0 +1,37 @@
+Scripting:
+	{
+	-Need one binary File in: "mono/lib/mono/4.5/mscorlib.dll"
+	-Load: "Resources/Scripts/Rynex-ScriptingCore.dll"
+	-Load: "SandboxProject/Assets/Scripts/Binaries/Sanbox.dll"
+	}
+
+Project:
+	{
+	-Load: "Sandbox.rproj"
+	-Create: "SandboxTest.rproj"
+	}
+
+ContentBrowserPannel:
+	{
+	-Load: "Resources/Icons/ContentBrowser/DirectoryIcon.png"
+	-Load: "Resources/Icons/ContentBrowser/FileIconError.png"
+	-Load: "Resources/Icons/ContentBrowser/FileIconScene.png"
+	-Load: "Resources/Icons/ContentBrowser/FileIconDefault.png"
+	-Load: "Resources/Icons/ContentBrowser/FileIconShader.png"
+	-Load: "Resources/Icons/ContentBrowser/FileIconTexture.png"
+	}
+ImGuiLayer:
+	{
+	-Load: "Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf"
+	}
+
+Renderer2D:
+	{
+	-Load: "Assets/shaders/Texture.glsl"
+	}
+
+AssetMager:
+	{
+	-Load all Asset Filse from: "Assets/" ... 
+	}
+

@@ -34,7 +34,7 @@ namespace Rynex {
         fbSpec.Attachments =
         {
             FramebufferTextureFormat::RGBA8,
-            FramebufferTextureFormat::RGBA8,
+            //FramebufferTextureFormat::RGBA8,
             FramebufferTextureFormat::RED_INTEGER,
             FramebufferTextureFormat::DEPTH24STENCIL8
         };
@@ -71,6 +71,13 @@ namespace Rynex {
                 index++;
             }
         }
+        m_MaterialC.AlgorithmFlags = Renderer::A_Buffer | Renderer::Death_Buffer | Renderer::CallFace_Back;
+        m_MaterialC.Color = { 1.0f,1.0f,1.0f };
+        m_MaterialC.Shader = AssetManager::GetAsset<Shader>("Assets/shaders/ViewPort-Shader.glsl");
+        m_MaterialC.UniformLayoute.reserve(3);
+        m_MaterialC.UniformLayoute.emplace_back("u_ViewProj", ShaderDataType::Float4x4, ShaderResourceType::MainCameraViewProjectionMatrix);
+        m_MaterialC.UniformLayoute.emplace_back("u_Model", ShaderDataType::Float4x4, ShaderResourceType::LocalModel);
+        m_MaterialC.UniformLayoute.emplace_back("u_Color", ShaderDataType::Float3, ShaderResourceType::LocalColor);
     }
 
     void ViewPortPannel::OnUpdate()
@@ -231,15 +238,29 @@ namespace Rynex {
                 Renderer2D::DrawSprite(mat4C.GlobleMatrix4x4, spriteC, slelcted.GetEntityHandle());
                 Renderer2D::EndScene();
             }
-            else  if (slelcted.HasComponent<StaticMeshComponent>() && slelcted.HasComponent<MaterialComponent>())
+            else  if (slelcted.HasComponent<GeomtryComponent>() )
+            {
+                Renderer3D::BeginScene(mainCamera, viewMatrix);
+                GeomtryComponent geomtryC = slelcted.GetComponent<GeomtryComponent>();
+
+                if (geomtryC.Geometry != nullptr)
+                {
+                    
+                    Renderer3D::BeforDrawEntity(m_MaterialC, mat4C.GlobleMatrix4x4, slelcted.GetEntityHandle());
+                    Renderer3D::DrawObjectRender3D(geomtryC.Geometry);
+                    Renderer3D::AfterDrawEntity(m_MaterialC);
+                }
+                Renderer3D::EndScene();
+            }
+            else  if (slelcted.HasComponent<StaticMeshComponent>() )
             {
                 Renderer3D::BeginScene(mainCamera, viewMatrix);
                 StaticMeshComponent staticMeshC = slelcted.GetComponent<StaticMeshComponent>();
-                MaterialComponent materialC = slelcted.GetComponent<MaterialComponent>();
+                
 
                 if ( staticMeshC.ModelR != nullptr)
                 {
-                    Renderer3D::DrawModdel(materialC, mat4C.GlobleMatrix4x4, staticMeshC, slelcted.GetEntityHandle());
+                    Renderer3D::DrawModdel(m_MaterialC, mat4C.GlobleMatrix4x4, staticMeshC, slelcted.GetEntityHandle());
                 }
                 Renderer3D::EndScene();
             }
@@ -250,10 +271,10 @@ namespace Rynex {
                 Renderer3D::BeginScene(mainCamera, viewMatrix);
                 if (parent)
                 {
-                    MaterialComponent materialC = m_AktiveScene->GetEntitiyByUUID(parent).GetComponent<MaterialComponent>();
                     if ( dynamicMeshC.MeshR != nullptr)
                     {
-                        Renderer3D::DrawModdel(materialC, mat4C.GlobleMatrix4x4, dynamicMeshC, slelcted.GetEntityHandle());
+                        Renderer3D::DrawModdel(m_MaterialC, mat4C.GlobleMatrix4x4, dynamicMeshC, slelcted.GetEntityHandle());
+                        
                     }
                 }
                 Renderer3D::EndScene();
@@ -607,8 +628,12 @@ namespace Rynex {
             if (mauseX >= 0 && mauseY >= 0 && mauseX < (int)viewPortSize.x && mauseY < (int)viewPortSize.y)
             {
                 m_Framebuffer->Bind();
-                int pixeldata = m_Framebuffer->ReadPixel(2, mauseX, mauseY);
-                if (pixeldata <= -1 || m_AktiveScene->GetEntityCount() < pixeldata)
+                int pixeldata = m_Framebuffer->ReadPixel(1, mauseX, mauseY);
+#if 0
+                if (pixeldata <= -1  || m_AktiveScene->GetEntityCount() < pixeldata)
+#else
+                if (pixeldata <= -1)
+#endif
                 {
                     *m_HoveredEntity = Entity();
                 }

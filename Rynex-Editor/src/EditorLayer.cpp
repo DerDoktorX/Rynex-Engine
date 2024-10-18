@@ -30,7 +30,7 @@
 
 namespace Rynex {
 
-#define RY_EDITOR_TEST_ENITITY 0
+#define RY_EDITOR_TEST_ENITITY 1
 #define RY_ENABLE_VIEWPORT 1
 
     extern const std::filesystem::path g_AssetsPath;
@@ -120,11 +120,7 @@ namespace Rynex {
 
 #if RY_EDITOR_TEST_ENITITY
 
-#if 1
-        {
-            
-        }
-#endif
+
 #if 0
         {
             m_AktiveScene->CreateEntityWitheUUID(UUID(2), "MaiViewPort");
@@ -174,21 +170,21 @@ namespace Rynex {
                 {
                     ellement.Name = "u_Color";
                     ellement.Type = BufferAPI::GetShaderDataTypeFromString("vec3");
-                    ellement.ShaderResourceType = ShaderResourceType::LocalColor;
+                    ellement.ShResourceType = ShaderResourceType::LocalColor;
                     material.UniformLayoute.push_back(ellement);
                 }
                 
                 {
                     ellement.Name = "u_Model";
                     ellement.Type = BufferAPI::GetShaderDataTypeFromString("mat4");
-                    ellement.ShaderResourceType = ShaderResourceType::LocalModel;
+                    ellement.ShResourceType = ShaderResourceType::LocalModel;
                     material.UniformLayoute.push_back(ellement);
                 }
 
                 {
                     ellement.Name = "u_ViewProj";
                     ellement.Type = BufferAPI::GetShaderDataTypeFromString("mat4");
-                    ellement.ShaderResourceType = ShaderResourceType::MainCameraViewProjectionMatrix;
+                    ellement.ShResourceType = ShaderResourceType::MainCameraViewProjectionMatrix;
                     material.UniformLayoute.push_back(ellement);
 
                 }
@@ -196,21 +192,21 @@ namespace Rynex {
                 {
                     ellement.Name = "u_EntityID";
                     ellement.Type = BufferAPI::GetShaderDataTypeFromString("int");
-                    ellement.ShaderResourceType = ShaderResourceType::EnitiyID;
+                    ellement.ShResourceType = ShaderResourceType::EnitiyID;
                     material.UniformLayoute.push_back(ellement);
                 }
 
                 {
                     ellement.Name = "u_CamerPos";
                     ellement.Type = BufferAPI::GetShaderDataTypeFromString("vec3");
-                    ellement.ShaderResourceType = ShaderResourceType::MainCamerPos;
+                    ellement.ShResourceType = ShaderResourceType::MainCamerPos;
                     material.UniformLayoute.push_back(ellement);
                 }
 
                 {
                     ellement.Name = "u_LigthPos";
                     ellement.Type = BufferAPI::GetShaderDataTypeFromString("vec3");
-                    ellement.ShaderResourceType = ShaderResourceType::None;
+                    ellement.ShResourceType = ShaderResourceType::None;
                     ellement.GloblelResurce = false;
                     material.UniformLayoute.push_back(ellement);
                 }
@@ -218,7 +214,7 @@ namespace Rynex {
                 {
                     ellement.Name = "u_LigthColor";
                     ellement.Type = BufferAPI::GetShaderDataTypeFromString("vec3");
-                    ellement.ShaderResourceType = ShaderResourceType::None;
+                    ellement.ShResourceType = ShaderResourceType::None;
                     ellement.GloblelResurce = false;
                     material.UniformLayoute.push_back(ellement);
                 }
@@ -226,7 +222,7 @@ namespace Rynex {
                 {
                     ellement.Name = "u_Shinines";
                     ellement.Type = BufferAPI::GetShaderDataTypeFromString("float");
-                    ellement.ShaderResourceType = ShaderResourceType::None;
+                    ellement.ShResourceType = ShaderResourceType::None;
                     ellement.GloblelResurce = false;
                     material.UniformLayoute.push_back(ellement);
                 }
@@ -234,7 +230,7 @@ namespace Rynex {
                 {
                     ellement.Name = "u_Specular";
                     ellement.Type = BufferAPI::GetShaderDataTypeFromString("float");
-                    ellement.ShaderResourceType = ShaderResourceType::None;
+                    ellement.ShResourceType = ShaderResourceType::None;
                     ellement.GloblelResurce = false;
                     material.UniformLayoute.push_back(ellement);
                     
@@ -243,7 +239,7 @@ namespace Rynex {
                 {
                     ellement.Name = "u_Ambient";
                     ellement.Type = BufferAPI::GetShaderDataTypeFromString("float");
-                    ellement.ShaderResourceType = ShaderResourceType::None;
+                    ellement.ShResourceType = ShaderResourceType::None;
                     // ellement.GloblelResurce = false;
                     material.UniformLayoute.push_back(ellement); 
                 }
@@ -255,7 +251,7 @@ namespace Rynex {
                             element.LocalResurce.resize(ShaderDataTypeSize(element.Type));
                             switch (element.Type)
                             {
-                            case ShaderDataType::Float:
+                                case ShaderDataType::Float:
                             {
                                 float* value = (float*)element.LocalResurce.data();
                                 *value = 0.0f;
@@ -267,13 +263,13 @@ namespace Rynex {
                                     *value = 0.1f;
                                 break;
                             }
-                            case ShaderDataType::Float2:
+                                case ShaderDataType::Float2:
                             {
                                 glm::vec<2, float>* value = (glm::vec<2, float>*)element.LocalResurce.data();
                                 *value = { 0.0f, 0.0f};
                                 break;
                             }
-                            case ShaderDataType::Float3:
+                                case ShaderDataType::Float3:
                             {
                                 
                                 glm::vec<3, float>* value = (glm::vec<3, float>*)element.LocalResurce.data();
@@ -284,15 +280,7 @@ namespace Rynex {
                                     *value = { 1.0f, 1.0f, 1.0f };
                                 break;
                             }
-                            case ShaderDataType::Float4:
-                            {
-                                
-                                
-, float>* value = (glm::vec<4, float>*)element.LocalResurce.data();
-                                *value = { 0.0f, 0.0f,0.0f, 0.0f };
-                                break;
-                            }
-                            case ShaderDataType::Float3x3:
+                                case ShaderDataType::Float3x3:
                             {
                                 glm::mat3* value = (glm::mat3*)element.LocalResurce.data();
                                 *value = {
@@ -302,7 +290,7 @@ namespace Rynex {
                                 };
                                 break;
                             }
-                            case ShaderDataType::Float4x4:
+                                case ShaderDataType::Float4x4:
                             {
                                 glm::mat4* value = (glm::mat4*)element.LocalResurce.data();
                                 *value = {
@@ -313,20 +301,20 @@ namespace Rynex {
                                 };
                                 break;
                             }
-                            case ShaderDataType::Int:
+                                case ShaderDataType::Int:
                             {
                                 int* value = (int*)element.LocalResurce.data();
                                 *value = 0;
                                 break;
                             }
-                            case ShaderDataType::Uint:
+                                case ShaderDataType::Uint:
                             {
                                 uint32_t* value = (uint32_t*)element.LocalResurce.data();
                                 *value = 0;
                                 break;
                             }
-                            default:
-                                break;
+                                default:
+                                    break;
                             }
                         }
                     }
@@ -334,13 +322,30 @@ namespace Rynex {
 #endif
             }
 
+#if 1
+            if (!entiy.HasComponent<GeomtryComponent>())
+            {
+                entiy.AddComponent<GeomtryComponent>();
+                GeomtryComponent& geomtry = entiy.GetComponent<GeomtryComponent>();
+                geomtry.Geometry = VertexArray::Create();
+                { 
+                    Ref<VertexBuffer> vertexBuffer = VertexBuffer::Create(32 * 18);
+                    Geomtrys::SetCubeVertex(geomtry.Geometry, vertexBuffer);
+                    Geomtrys::SetCubeIndex(geomtry.Geometry);
+                    
+                }
+                geomtry.Geometry->SetBoxAABB({ ShaderDataType::Float3, "a_Postion" });
+            }
+#endif
+#if 0
             if (!entiy.HasComponent<ScriptComponent>())
             {
                 entiy.AddComponent<ScriptComponent>();
                 auto& script = entiy.GetComponent<ScriptComponent>();
                 script.Name = "Sandbox.Player";
             }
-#if 1
+#endif
+#if 0
             if (!entiy.HasComponent<MeshComponent>())
             {
                 entiy.AddComponent<MeshComponent>();
@@ -473,8 +478,20 @@ namespace Rynex {
 
         }
 #endif
+
+#if 1
+        {
+            Entity ambinet = m_AktiveScene->CreateEntity("3D_TestAmbient");
+            if (!ambinet.HasComponent<AmbientLigthComponent>())
+                ambinet.AddComponent<AmbientLigthComponent>();
+            AmbientLigthComponent& ambienTC = ambinet.GetComponent<AmbientLigthComponent>();
+            ambienTC.Color = { 1.0,0.1,0.1 };
+            ambienTC.Intensitie = 1.0;
+        }
+#endif
 #endif
         m_RendererPannel.OnAttache(this);
+        m_MenuBarPannel.OnAttache(this);
         RY_CORE_INFO("EditorLayer::Sucese Finished!");
     }
 
@@ -642,6 +659,30 @@ namespace Rynex {
         return false;
     }
 
+    void EditorLayer::OpenRenderPannel()
+    {
+        m_RendererPannel.OpenWindow();
+    }
+
+    void EditorLayer::OpenAssetPannel()
+    {
+        m_Content_BPannel.OpenAssetPannel();
+    }
+
+    void EditorLayer::OpenRegestriyPannel()
+    {
+        m_Content_BPannel.OpenRegestriyPannel();
+    }
+
+    void EditorLayer::OpenSceneHierachy()
+    {
+        m_Scene_HPanel.OpenSceneHierachy();
+    }
+
+    void EditorLayer::OpenProperties()
+    {
+        m_Scene_HPanel.OpenProperties();
+    }
 
     void EditorLayer::NewProject()
     {
@@ -778,6 +819,7 @@ namespace Rynex {
         static bool viewPortEnabled = false;
         static bool settingsEnabled = true;
         static bool renderPannnel = false;
+        static bool menuBarPannnel = false;
 
         if (dokingEnabled) {
 
@@ -832,9 +874,14 @@ namespace Rynex {
             //////////////////////////////////////////////////
             ///// Top Taskbar ////////////////////////////////
             //////////////////////////////////////////////////
-
-            ImGuiTopTaskBar();
-            
+            if(menuBarPannnel)
+            {
+                ImGuiTopTaskBar();
+            }
+            else
+            {
+                m_MenuBarPannel.OnImGuiRender();
+            }
             //////////////////////////////////////////////////
             ///// Windoe Layoute /////////////////////////////
             //////////////////////////////////////////////////
@@ -844,6 +891,7 @@ namespace Rynex {
             {
                 ImGuiViewPort();
             }
+           
             else
             {
                 bool blockEvents = false;
@@ -867,7 +915,7 @@ namespace Rynex {
             if(sceneEnabled)    ImGuiPannels();
             if(settingsEnabled) ImGuiSettings(renderPannnel);
             if(viewPortEnabled) ImGuiViewPort();
-            if (!renderPannnel)
+            if(!renderPannnel)
             {
                 m_RendererPannel.OnImGuiRender();
             }

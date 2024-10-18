@@ -1,11 +1,4 @@
-﻿using Rynex;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Rynex
+﻿namespace Rynex
 {
 
     public enum FramebufferTextureFormat
@@ -24,10 +17,10 @@ namespace Rynex
     }
 
     public enum FrameBufferImageSize
-    {        
+    {
         Nono = 0,
-		MainViewPort,
-		RelativToMainViewPort,
+        MainViewPort,
+        RelativToMainViewPort,
         StaticSize
     }
 
@@ -56,7 +49,7 @@ namespace Rynex
 
     struct FramebufferSpecification
     {
-        
+
         public uint Width;
         public uint Height;
         public FramebufferAttachmentSpecification Attachments;
@@ -76,7 +69,7 @@ namespace Rynex
             Samples = sample;
             SwapChainTarget = swapChainTarget;
         }
-        
+
     }
 
     public class Frambuffer : Asset

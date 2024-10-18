@@ -18,7 +18,7 @@ namespace Rynex {
 	struct ProfileResult
 	{
 		std::string Name;
-		long long Start, End;
+		int64_t Start, End;
 		uint32_t ThreadID;
 	};
 
@@ -171,8 +171,8 @@ namespace Rynex {
 		{
 			auto endTimePoint = std::chrono::high_resolution_clock::now();
 
-			long long start = std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch().count();
-			long long end = std::chrono::time_point_cast<std::chrono::microseconds>(endTimePoint).time_since_epoch().count();
+			int64_t start = std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch().count();
+			int64_t end = std::chrono::time_point_cast<std::chrono::microseconds>(endTimePoint).time_since_epoch().count();
 
 			
 

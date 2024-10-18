@@ -1,0 +1,2 @@
+Eine Breakpointanweisung (__debugbreak()-Anweisung oder ein ähnlicher Aufruf) wurde in Rynex-Editor.exe ausgeführt.
+Ausnahmefehler bei 0x00007FFEA093DFF6 (ntdll.dll) in Rynex-Editor.exe: 0xC0000005: Zugriffsverletzung beim Lesen an Position 0x000001F469770028

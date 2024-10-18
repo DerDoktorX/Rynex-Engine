@@ -12,7 +12,7 @@ Entities:
       AlgorithmFlags: 65538
       Shader:
         Path: Assets/shaders/3DLigthe.glsl
-        Handle: 16250411120058322898
+        Handle: 15446452666463780001
       UniformLayoute:
         - Name: u_Ambient
           Type: 1
@@ -75,8 +75,8 @@ Entities:
     MeshComponent:
       Model:
         Path: Assets/Models/Cube.gltf
-        Handle: 3603096116769431624
+        Handle: 4669233228273831627
     StaticMeshComponent:
       Model-S:
         Path: Assets/Models/Cube.gltf
-        Handle: 3603096116769431624
+        Handle: 4669233228273831627

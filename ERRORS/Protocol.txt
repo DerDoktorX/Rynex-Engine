@@ -1,0 +1,152 @@
+Error: 
+{
+	Discription: Debug Modus tritt nicht im Realse oder Dist Build auf! Machmal Least sich Debug modus nutzen, aber 90% strürtz in der inzalsiierung ab.
+	Beginn: 16.10.2024 probly 19:00
+	Protokol Beginn: 17.10.2024 probly 14:30
+	Error-Type: Runtime
+	Error-Postion: Dynamic, löst an ähnlichen stellen aus gerne aus, aber nicht immer an gleichen!
+	Auffealigkeiten: ein Datei Names "ntdll.dll" wird gerne erwähnt aber nicht immer!
+	Error-Protokol: [
+		{
+			Error: True
+			Time: 14:42
+			Errore-Line:  35
+			Errore-File: EntryPoint.h
+			Errore-Masage: Eine Breakpointanweisung (__debugbreak()-Anweisung oder ein ähnlicher Aufruf) wurde in Rynex-Editor.exe ausgeführt.
+			Commant: Fehler nicht von bedutung wegen uhrsprung selbst geschribenener meory Allections tracker
+		}
+		{
+			Error:True
+			Time: 14:46
+			Errore-Line: unkowne
+			Errore-File: ntd.dll
+			Errore-Masage: Ausnahme ausgelöst bei 0x00007FFEA092E9E6 (ntdll.dll) in Rynex-Editor.exe: 0xC0000005: Zugriffsverletzung beim Lesen an Position 0x0000029712200028.
+			Commant: assambly datei, Dispay Masege: ntdll.pdp nicht geladen \n ntdll.pdb enthält die Debuginformationen, die erforderlich sind für die Suche nach der Quelle für Modul ntdll.dll
+		}
+		{
+			Error:True
+			Time: 14:49
+			Errore-Line: unkowne
+			Errore-File: ntd.dll
+			Errore-Masage: vergessen
+			Commant: assambly datei, Dispay Masege: kernelbase.pdp nicht geladen \n kernelbase.pdb enthält die Debuginformationen, die erforderlich sind für die Suche nach der Quelle für Modul KernelBase.dll
+		}
+		{
+			Error:True
+			Time: 14:52
+			Errore-Line: unkowne
+			Errore-File: ntd.dll
+			Errore-Masage: Ausnahme ausgelöst bei 0x00007FFEA093DFF6 (ntdll.dll) in Rynex-Editor.exe: 0xC0000005: Zugriffsverletzung beim Lesen an Position 0x000002095B310028.
+			Commant: assambly datei, Dispay Masege: ntdll.pdp nicht geladen \n ntdll.pdb enthält die Debuginformationen, die erforderlich sind für die Suche nach der Quelle für Modul ntdll.dll
+		}
+		{
+			Error:True
+			Time: 15:04
+			Errore-Line: unkowne
+			Errore-File: nvoglv64.dll
+			Errore-Masage: vergessen
+			Commant: assambly datei, Dispay Masege: nvoglv64.pdb nicht geladen \n nvoglv64.pdb enthält die Debuginformationen, die erforderlich sind für die Suche nach der Quelle für Modul nvoglv64.dll
+		}
+		{
+			Error:True
+			Time: 15:07
+			Errore-Line: 573
+			Errore-File: __msvc_filebuf.hpp / ndtll.dll
+			Errore-Masage: Ausnahme ausgelöst bei 0x00007FFEA093DFF6 (ntdll.dll) in Rynex-Editor.exe: 0xC0000005: Zugriffsverletzung beim Lesen an Position 0x0000025FF74F0028.
+			Commant: uhrsprung std::ifstream.close()
+		}
+		{
+			Error:True
+			Time: 15:09
+			Errore-Line: 573
+			Errore-File: __msvc_filebuf.hpp / ndtll.dll
+			Errore-Masage: Ausnahme ausgelöst bei 0x00007FFEA093DFF6 (ntdll.dll) in Rynex-Editor.exe: 0xC0000005: Zugriffsverletzung beim Lesen an Position 0x00000216C7EE0028.
+			Commant: uhrsprung std::ifstream.read()
+		}
+		{
+			Error: True
+			Time: 15:11
+			Errore-Line:  26
+			Errore-File: EntryPoint.h
+			Errore-Masage: Ausnahme ausgelöst bei 0x00007FFEA093DFF6 (ntdll.dll) in Rynex-Editor.exe: 0xC0000005: Zugriffsverletzung beim Lesen an Position 0x0000025BDDAC0028.
+			Commant: uhrsprung selbst geschribenener meory Allections tracker std::malloc 801428 bytes sind breits aleced und jetzt wären 1360 bytes noch dazu gekommen
+		}
+		{
+			Error: True
+			Time: 15:14
+			Errore-Line:  26
+			Errore-File: EntryPoint.h
+			Errore-Masage: Ausnahme ausgelöst bei 0x00007FFEA093DFF6 (ntdll.dll) in Rynex-Editor.exe: 0xC0000005: Zugriffsverletzung beim Lesen an Position 0x000001A370C30028.
+			Commant: uhrsprung selbst geschribenener meory Allections tracker std::malloc 801428 bytes sind breits aleced und jetzt wären 1360 bytes noch dazu gekommen. aufgerufen durch std::string.resize();
+		}
+
+		{
+			Fixxe: Alles Neu ersttelen:
+				- bin
+				- bin-int
+				- Visuel Studio Sulution + alle ander projekt mange datein
+				- per premake neu generiren lassen.
+		}
+		{
+			Error: False
+			Time: 15:18
+			Errore-Line: none
+			Errore-File: none
+			Errore-Masage: none
+			Commant: Es funktioiert wieder
+		}
+		{
+			Error: True
+			Time: 15:24
+			Errore-Line:  26
+			Errore-File: EntryPoint.h
+			Errore-Masage: Ausnahme ausgelöst bei 0x00007FFEA093DFF6 (ntdll.dll) in Rynex-Editor.exe: 0xC0000005: Zugriffsverletzung beim Lesen an Position 0x0000024F20E70028.
+			Commant: uhrsprung selbst geschribenener meory Allections tracker std::malloc 803964 bytes sind breits aleced und jetzt wären 32 bytes noch dazu gekommen. aufgerufen durch erstellen eines std::string
+		}
+		{
+			Error: False
+			Time: 15:27
+			Errore-Line: none
+			Errore-File: none
+			Errore-Masage: none
+			Commant: kein code änderung
+		}
+		{
+			Error: True
+			Time: 15:28
+			Errore-Line:  35
+			Errore-File: EntryPoint.h
+			Errore-Masage: Eine Breakpointanweisung (__debugbreak()-Anweisung oder ein ähnlicher Aufruf) wurde in Rynex-Editor.exe ausgeführt.
+			Commant: uhrsprung selbst geschribenener meory Allections tracker free 802492 bytes sind breits aleced und jetzt wären 864 bytes noch wengiger. aufgerufen durch std::unordered_map<GLenum, std::string> welche sich im begriff sein müste sich zu löschen da sie aus dem scope gelauft ist.
+		}
+		{
+			Error: True
+			Time: 15:32
+			Errore-Line:  26
+			Errore-File: EntryPoint.h
+			Errore-Masage: Ausnahme ausgelöst bei 0x00007FFEA093DFF6 (ntdll.dll) in Rynex-Editor.exe: 0xC0000005: Zugriffsverletzung beim Lesen an Position 0x0000015D92630028.
+			Commant: uhrsprung selbst geschribenener meory Allections tracker 801428 bytes sind breits aleced und jetzt wären kommen 1360 bytes noch dazu. aufgerufen durch std::string.resize welche sich im begriff neuen speicher zu resaviern.
+		}
+		{
+			Error: True
+			Time: 15:35
+			Errore-Line:  35
+			Errore-File: EntryPoint.h
+			Errore-Masage: Ausnahme ausgelöst bei 0x00007FFEA096F8E5 (ntdll.dll) in Rynex-Editor.exe: 0xC0000005: Zugriffsverletzung beim Lesen an Position 0x000002016DB60028.
+			Commant: uhrsprung selbst geschribenener meory Allections tracker free 800444 bytes sind breits aleced und jetzt wären 1360 bytes noch wengiger. aufgerufen durch std::make_shared<Shader> welche sich im begriff sein müste sich zu löschen da sie aus dem scope gelauft ist.
+		}
+		{
+			führe Projekt mappen bereingung aus und erstelle projeckt mappe neu.
+		}
+		{
+			Error: True
+			Time: 15:40
+			Errore-Line:  26
+			Errore-File: EntryPoint.h
+			Errore-Masage: Ausnahme ausgelöst bei 0x00007FFEA093DFF6 (ntdll.dll) in Rynex-Editor.exe: 0xC0000005: Zugriffsverletzung beim Lesen an Position 0x0000024205540028.
+			Commant: uhrsprung selbst geschribenener meory Allections tracker free 803420 bytes sind breits aleced und jetzt wären kommen 448 bytes noch dazu. aufgerufen durch std::unordered_map<GLenum, std::string> welche sich im begriff sein müste neune speicher für ein neunen eingefügten wert zu resavieren.
+		}
+	]
+}
+
+ 

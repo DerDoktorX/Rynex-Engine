@@ -48,6 +48,15 @@ project "Rynex-Editor"
 		defines "RY_DEBUG"
 		runtime "Debug"
 		symbols "on"
+		--editandcontinue "Off"
+		--buildoptions 
+		--{ 
+		--	"/Zi", "/fsanitize=address"
+		--}
+      	--linkoptions 
+		--{ 
+		--	"/fsanitize=address" 
+		--}
 
 	filter "configurations:Release"
 		defines "RY_REALSE"

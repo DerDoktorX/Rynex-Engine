@@ -53,7 +53,7 @@ namespace Rynex {
     AssetType GetAssetTypeFromFilePath(const std::filesystem::path& filePath)
     {
         std::filesystem::path extension = filePath.extension();
-        if (extension == ".png" || extension == ".rytex2d" || extension == ".jpeg")	return AssetType::Texture2D;
+        if (extension == ".png" || extension == ".rytex2d" || extension == ".jpeg" || extension == ".jpg")	return AssetType::Texture2D;
         if (extension.string().rfind(".ryframe-", 0) == 0) 
             return AssetType::Texture2D;
         if (extension == ".glsl")		    return AssetType::Shader;

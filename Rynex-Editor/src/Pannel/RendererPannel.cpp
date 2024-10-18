@@ -5,7 +5,6 @@
 #include <Rynex/Renderer/Rendering/Renderer.h>
 #include <Rynex/Renderer/Rendering/Renderer2D.h>
 #include <Rynex/Renderer/Rendering/Renderer3D.h>
-#include <bitset>
 
 namespace Rynex {
 
@@ -15,10 +14,12 @@ namespace Rynex {
 
 	RendererPannel::RendererPannel(const std::string& name)
 		: m_Name(name)
-		, m_RendererMode(RenderMode::CallFace_Back
-			| RenderMode::Death_Buffer)
+		, m_RendererMode(
+			Renderer::CallFace_Back 
+			| Renderer::Death_Buffer 
+			| Renderer::A_Buffer
+		)
 	{
-		RenderCommand::SetFace(CallFace::Back);
 	}
 
 	RendererPannel::~RendererPannel()
@@ -29,8 +30,8 @@ namespace Rynex {
 	void RendererPannel::OnAttache(EditorLayer* editorLayer)
 	{
 		m_EditorLayer = editorLayer;
+		Renderer::SetMode(m_RendererMode);
 	}
-
 
 	void RendererPannel::OnDetache()
 	{
@@ -44,7 +45,7 @@ namespace Rynex {
 
 	void RendererPannel::OpenWindow()
 	{
-
+		m_WindowOpen = true;
 	}
 
 	bool RendererPannel::OnKeyPressed(KeyPressedEvent& e)
@@ -71,69 +72,58 @@ namespace Rynex {
 			ImGui::Text("FPS: %.1f", m_CurentTS.GetFPS());
 			
 			ImGui::Text("Update Time: %.2f milsec", m_CurentTS.GetMillsecounds());
-			
 
-			bool wireFrame = m_RendererMode & ( RenderMode::WireFrame) ,
-#if 0
-				a_Buffer = m_RendererMode & (RenderMode::A_Buffer),
-#endif
-				death_Buffer = m_RendererMode & (RenderMode::Death_Buffer),
-				callFace_Nono = m_RendererMode & (RenderMode::CallFace_Nono),
-				callFace_Front = m_RendererMode & (RenderMode::CallFace_Front),
-				callFace_Back  = m_RendererMode & (RenderMode::CallFace_Back ),
-				callFace_FrontBack = m_RendererMode & (RenderMode::CallFace_FrontBack);
+			bool wireFrame = BIT_EQUAL(m_RendererMode, Renderer::WireFrame),
+				a_Buffer = BIT_EQUAL(m_RendererMode, Renderer::A_Buffer),
+				death_Buffer = BIT_EQUAL(m_RendererMode, Renderer::Death_Buffer),
+				callFace_Nono = BIT_EQUAL(m_RendererMode,Renderer::CallFace_Nono),
+				callFace_Front = BIT_EQUAL(m_RendererMode, Renderer::CallFace_Front),
+				callFace_Back  = BIT_EQUAL(m_RendererMode, Renderer::CallFace_Back ),
+				callFace_FrontBack = BIT_EQUAL(m_RendererMode,Renderer::CallFace_FrontBack);
 
 			if (ImGui::Checkbox("Wirframe mode:", &wireFrame))
 			{
-				m_RendererMode = wireFrame ? m_RendererMode | RenderMode::WireFrame : m_RendererMode & ~RenderMode::WireFrame;
-				RenderCommand::AktivePolyGunMode(wireFrame);
-			}
-#if 0
-			if (ImGui::Checkbox("A-Buffer mode:", &a_Buffer))
-			{
-				m_RendererMode = a_Buffer ? m_RendererMode | RenderMode::A_Buffer : m_RendererMode & ~RenderMode::A_Buffer;
+				m_RendererMode = BIT_SET_ON(wireFrame, Renderer::WireFrame, m_RendererMode);
 				
 			}
-#endif
+			if (ImGui::Checkbox("A-Buffer mode:", &a_Buffer))
+			{
+				m_RendererMode = BIT_SET_ON(a_Buffer, Renderer::A_Buffer, m_RendererMode);
+			}
 			if (ImGui::Checkbox("Death-Buffer mode:", &death_Buffer))
 			{
-				m_RendererMode = death_Buffer ? m_RendererMode | RenderMode::Death_Buffer : m_RendererMode & ~RenderMode::Death_Buffer;
-				RenderCommand::SetDethTest(death_Buffer);
+				m_RendererMode = BIT_SET_ON(death_Buffer, Renderer::Death_Buffer, m_RendererMode);
 			}
 
 			if (ImGui::RadioButton("None", callFace_Nono))
 			{
-				m_RendererMode = 1 ? m_RendererMode | RenderMode::CallFace_Nono : m_RendererMode & ~RenderMode::CallFace_Nono;
-				m_RendererMode = 0 ? m_RendererMode | RenderMode::CallFace_Front : m_RendererMode & ~RenderMode::CallFace_Front;
-				m_RendererMode = 0 ? m_RendererMode | RenderMode::CallFace_Back : m_RendererMode & ~RenderMode::CallFace_Back;
-				m_RendererMode = 0 ? m_RendererMode | RenderMode::CallFace_FrontBack : m_RendererMode & ~RenderMode::CallFace_FrontBack;
-				RenderCommand::SetFace(CallFace::None);
+				m_RendererMode = BIT_SET_ON(1, Renderer::CallFace_Nono	   , m_RendererMode);
+				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Front	   , m_RendererMode);
+				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Back	   , m_RendererMode);
+				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_FrontBack, m_RendererMode);
 			}
 			if (ImGui::RadioButton("Front", callFace_Front))
 			{
-				m_RendererMode = 0  ? m_RendererMode | RenderMode::CallFace_Nono : m_RendererMode & ~RenderMode::CallFace_Nono;
-				m_RendererMode = 1  ? m_RendererMode | RenderMode::CallFace_Front : m_RendererMode & ~RenderMode::CallFace_Front;
-				m_RendererMode = 0  ? m_RendererMode | RenderMode::CallFace_Back : m_RendererMode & ~RenderMode::CallFace_Back;
-				m_RendererMode = 0  ? m_RendererMode | RenderMode::CallFace_FrontBack : m_RendererMode & ~RenderMode::CallFace_FrontBack;
-				RenderCommand::SetFace(CallFace::Front);
+				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Nono, m_RendererMode);
+				m_RendererMode = BIT_SET_ON(1, Renderer::CallFace_Front, m_RendererMode);
+				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Back, m_RendererMode);
+				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_FrontBack, m_RendererMode);
 			}
 			if (ImGui::RadioButton("Back", callFace_Back))
 			{
-				m_RendererMode = 0  ? m_RendererMode | RenderMode::CallFace_Nono : m_RendererMode & ~RenderMode::CallFace_Nono;
-				m_RendererMode = 0  ? m_RendererMode | RenderMode::CallFace_Front : m_RendererMode & ~RenderMode::CallFace_Front;
-				m_RendererMode = 1  ? m_RendererMode | RenderMode::CallFace_Back : m_RendererMode & ~RenderMode::CallFace_Back;
-				m_RendererMode = 0  ? m_RendererMode | RenderMode::CallFace_FrontBack : m_RendererMode & ~RenderMode::CallFace_FrontBack;
-				RenderCommand::SetFace(CallFace::Back);
+				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Nono, m_RendererMode);
+				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Front, m_RendererMode);
+				m_RendererMode = BIT_SET_ON(1, Renderer::CallFace_Back, m_RendererMode);
+				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_FrontBack, m_RendererMode);
 			}
 			if (ImGui::RadioButton("Front Back", callFace_FrontBack))
 			{
-				m_RendererMode =  0 ? m_RendererMode | RenderMode::CallFace_Nono : m_RendererMode & ~RenderMode::CallFace_Nono;
-				m_RendererMode =  0 ? m_RendererMode | RenderMode::CallFace_Front : m_RendererMode & ~RenderMode::CallFace_Front;
-				m_RendererMode =  0 ? m_RendererMode | RenderMode::CallFace_Back : m_RendererMode & ~RenderMode::CallFace_Back;
-				m_RendererMode =  1 ? m_RendererMode | RenderMode::CallFace_FrontBack : m_RendererMode & ~RenderMode::CallFace_FrontBack;
-
-				RenderCommand::SetFace(CallFace::FrontBacke);
+				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Nono, m_RendererMode);
+				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Front, m_RendererMode);
+				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Back, m_RendererMode);
+				m_RendererMode = BIT_SET_ON(1, Renderer::CallFace_FrontBack, m_RendererMode);
 			}
+			Renderer::SetMode(m_RendererMode);
 			{
 				ImGui::Text("Renderer 3D:");
 				Renderer3D::Statistics renderer = Renderer3D::GetStats();
@@ -146,6 +136,7 @@ namespace Rynex {
 				}
 				Renderer3D::ResetStats();
 			}
+			
 			{
 				ImGui::Text("Renderer 2D:");
 				Renderer2D::Statistics stats = Renderer2D::GetStats();

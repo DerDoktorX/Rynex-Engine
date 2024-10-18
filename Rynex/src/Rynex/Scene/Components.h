@@ -10,6 +10,7 @@
 #include "Rynex/Renderer/Objects/Geomtrys.h"
 #include "Rynex/Renderer/Objects/Mesh.h"
 #include "Rynex/Renderer/Objects/Model.h"
+#include "Rynex/Renderer/Rendering/Renderer.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -79,7 +80,7 @@ namespace Rynex {
 	{
 		glm::vec4 Color{ 1.0f, 0.0f, 1.0f, 1.0f };
 		Ref<Texture> Texture;
-		
+
 		bool RenderSingle = false;
 
 		SpriteRendererComponent() = default;
@@ -104,7 +105,7 @@ namespace Rynex {
 	{
 		std::string Name;
 		int selectedScript = 0;
-		
+
 		ScriptComponent() = default;
 		ScriptComponent(const ScriptComponent&) = default;
 
@@ -119,7 +120,7 @@ namespace Rynex {
 		ScriptableEntity* (*InstantiateScript)();
 		void (*DestroyScript)(NativeSripteComponent*);
 
-		
+
 
 		template<typename T>
 		void Bind()
@@ -148,8 +149,8 @@ namespace Rynex {
 
 		std::vector<UniformElement> UniformLayoute;
 		glm::vec3 Color{ 1.0f, 0.0f, 1.0f };
-		int AlgorithmFlags; // Shader::Algorithm
-
+		int AlgorithmFlags = Renderer::CallFace_Back | Renderer::Death_Buffer | Renderer::A_Buffer | Renderer::Ligths; // 
+	
 		MaterialComponent() = default;
 		MaterialComponent(const MaterialComponent&) = default;
 	};
@@ -165,7 +166,7 @@ namespace Rynex {
 		glm::mat<3, 3, float> Matrix3x3;
 	};
 
-	struct FrameBufferComponent 
+	struct FrameBufferComponent
 	{
 		Ref<Framebuffer> FrameBuffer = nullptr;
 		FramebufferSpecification FramebufferSpecification;
@@ -202,10 +203,10 @@ namespace Rynex {
 		StaticMeshComponent(const StaticMeshComponent&) = default;
 
 		StaticMeshComponent(Ref<Model> modelR)
-		{ 
+		{
 			ModelR = modelR;
 		}
-			
+
 	};
 
 	struct DynamicMeshComponent
@@ -215,8 +216,8 @@ namespace Rynex {
 		DynamicMeshComponent(const DynamicMeshComponent&) = default;
 
 		DynamicMeshComponent(Ref<Model> modelR, int meshIndex = 0)
-			: MeshR(modelR->GetMesh(meshIndex)) 
-		{  
+			: MeshR(modelR->GetMesh(meshIndex))
+		{
 		}
 
 	};
@@ -237,7 +238,79 @@ namespace Rynex {
 
 		MaterialTransperent() = default;
 		MaterialTransperent(const MaterialTransperent&) = default;
-	};	
+	};
+
+
+	// TOOD: make a Ligth compoent System
+	struct AmbientLigthComponent
+	{
+		glm::vec3 Color = { 1.0f, 1.0f, 1.0f };
+		float Intensitie = 0.1f;
+
+		AmbientLigthComponent() = default;
+		AmbientLigthComponent(const AmbientLigthComponent&) = default;
+	};
+
+	struct DrirektionleLigthComponent
+	{
+		glm::vec3 Color = { 1.0f, 1.0f, 1.0f };
+		float Intensitie = 0.1f;
+
+		DrirektionleLigthComponent() = default;
+		DrirektionleLigthComponent(const DrirektionleLigthComponent&) = default;
+
+	};
+
+	struct PointLigthComponent
+	{
+		glm::vec3 Color = { 1.0f, 1.0f, 1.0f };
+		float Distence = 10.0f;
+		float Intensitie = 10.0f;
+
+		PointLigthComponent() = default;
+		PointLigthComponent(const PointLigthComponent&) = default;
+	};
+
+	struct SpotLigthComponent
+	{
+		glm::vec3 Color = { 1.0f, 1.0f, 1.0f };
+		float Distence = 10.0f;
+		float Intensitie = 10.0f;
+
+		float Inner = 0.9f;
+		float Outer = 0.1f;
+
+		SpotLigthComponent() = default;
+		SpotLigthComponent(const SpotLigthComponent&) = default;
+	};
+
+	// TOOD: make a Partikel Component System
+	struct ParticelComponente
+	{
+		glm::vec3 Force = { 0.0f, 1.0f, 0.0f };
+		glm::vec3 Randome = { 0.0f, 1.0f, 0.0f };
+		uint32_t Count = 0;
+	};
+
+	struct PostProcessingComponent
+	{
+		Ref<Shader> Shader = nullptr;
+		glm::vec<3, uint16_t> Dispatch = { 1, 1, 1 };
+		// this is an Index how Defined the using order
+		uint8_t Order;
+
+		// PostProcessingFlags Are Flags vor Memory Barrier In the GPU 
+		// or Flags Like Screen Size Indipenden
+		int PostProcessingFlags = 0;
+
+		PostProcessingComponent() = default;
+		PostProcessingComponent(const PostProcessingComponent&) = default;
+
+		void SetDispatch(glm::vec<3, uint16_t> dispatch)
+		{
+
+		}
+	};
 
 	struct RealtionShipComponent
 	{
@@ -256,7 +329,7 @@ namespace Rynex {
 		RealtionShipComponent(const RealtionShipComponent&) = default;
 #if 0
 		RealtionShipComponent(int previus, int parent = -1, int next = -1, int first = -1)
-			: Previus(previus), Parent(parent), Next(next), First(first){}
+			: Previus(previus), Parent(parent), Next(next), First(first) {}
 #else
 		RealtionShipComponent(UUID previusID, UUID parentID = 0, UUID nextID = 0, UUID firstID = 0)
 			: PreviusID(previusID), ParentID(parentID), NextID(nextID), FirstID(firstID) {}
@@ -276,6 +349,9 @@ namespace Rynex {
 		Matrix3x3Component, Matrix4x4Component,
 		FrameBufferComponent, MainViewPortComponent, RealtionShipComponent,
 		MeshComponent, StaticMeshComponent, DynamicMeshComponent,
-		NativeSripteComponent /*, Rigidbody2DComponent,*/ /*BoxCollider2DComponent,*/
+		NativeSripteComponent,
+		AmbientLigthComponent, DrirektionleLigthComponent, PointLigthComponent, SpotLigthComponent,
+		ParticelComponente
+		/*, Rigidbody2DComponent,*/ /*BoxCollider2DComponent,*/
 		/*CircleCollider2DComponent,*/ >;
 }

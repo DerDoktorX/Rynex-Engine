@@ -195,7 +195,6 @@ namespace Rynex {
 #endif		
 	}
 
-#if 1
 	void Application::ExecuteMainThreedQueueAssetFileWatcher()
 	{
 		RY_PROFILE_FUNCTION();
@@ -206,5 +205,4 @@ namespace Rynex {
 
 		m_MainThreedQueueAssetFileWatcher.clear();
 	}
-#endif
 }

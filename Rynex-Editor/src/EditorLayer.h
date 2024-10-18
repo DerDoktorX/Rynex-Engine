@@ -10,6 +10,7 @@
 #include "Pannel/ContentBrowserPannel.h"
 #include "Pannel/ViewPortPannel.h"
 #include "Pannel/RendererPannel.h"
+#include "Pannel/MenuBarPannel.h"
 
 struct ImVec2;
 
@@ -39,6 +40,11 @@ namespace Rynex{
 		bool OnKeyPressed(KeyPressedEvent& e);
 		bool OnMousePressed(MouseButtenPressedEvent& e);
 
+		void OpenRenderPannel();
+		void OpenAssetPannel();
+		void OpenRegestriyPannel();
+		void OpenSceneHierachy();
+		void OpenProperties();
 
 		//-- Task -------------------
 		void NewProject();
@@ -59,6 +65,7 @@ namespace Rynex{
 
 		Entity GetSelectedEntity() { return m_Scene_HPanel.GetSelectedEntity(); }
 		SceneState GetSceneState() { return m_SceneState; }
+
 		int* GetPtrGizmoType();
 
 		const Ref<Scene>& GetAktivScene() { return m_AktiveScene; }
@@ -140,6 +147,7 @@ namespace Rynex{
 		RendererPannel							m_RendererPannel;
 		SceneHierachyPannel						m_Scene_HPanel;
 		ContentBrowserPannel					m_Content_BPannel;
+		MenuBarPannel							m_MenuBarPannel;
 		std::vector<Ref<ViewPortPannel>>		m_ViewPortPannel;
 
 		// Paths

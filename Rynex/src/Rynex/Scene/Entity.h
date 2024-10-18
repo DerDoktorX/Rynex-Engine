@@ -32,6 +32,11 @@ namespace Rynex {
 			return component;
 		}
 
+		Entity AddChildrenEntity(const std::string& name = std::string(""));
+
+		void DestroyEntity();
+		void DestroyEntityChildrens();
+
 		template<typename T>
 		T& GetComponent()
 		{
@@ -52,12 +57,13 @@ namespace Rynex {
 			m_Scene->m_Registery.remove<T>(m_EntityHandle);
 		};
 
-		operator bool() { return m_EntityHandle != entt::null; };
+		operator bool() { return m_EntityHandle != entt::null && m_Scene->m_Registery.valid(m_EntityHandle); };
 		operator entt::entity() const { return m_EntityHandle; }
 		operator uint32_t() const { return (uint32_t)m_EntityHandle; }
 
 		UUID GetUUID() { return GetComponent<IDComponent>().ID; }
 		int GetEntityHandle() const { return (int)m_EntityHandle; }
+
 		bool operator==(const Entity& other) const
 		{
 			return m_EntityHandle == other.m_EntityHandle && m_Scene == other.m_Scene;
@@ -70,7 +76,7 @@ namespace Rynex {
 
 		State GetState() const { return m_State; }
 		void SetState(State state) { m_State = state; }
-
+		
 	
 	private:
 		entt::entity m_EntityHandle{ entt::null };

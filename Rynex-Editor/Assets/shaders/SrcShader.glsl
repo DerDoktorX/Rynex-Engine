@@ -1,7 +1,7 @@
 // SrcShader
 
 #type Vertex
-#version 330 core
+#version 450 core
 
 layout(location = 0) in vec2 a_Position;
 layout(location = 1) in vec3 a_Color;
@@ -19,7 +19,7 @@ void main()
 }
 
 #type Fragment
-#version 330 core
+#version 450 core
 
 layout(location = 0) out vec4 color;
 
