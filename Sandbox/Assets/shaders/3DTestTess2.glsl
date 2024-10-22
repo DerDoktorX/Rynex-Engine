@@ -2,7 +2,7 @@
 
 #type Vertex
 
-#version 460 core
+#version 450 core
 layout(location = 0) in vec3 a_Postion;
 layout(location = 1) in vec2 a_UV;
 layout(location = 2) in vec3 a_Normals;
@@ -30,11 +30,10 @@ void main()
 
 
 #type Fragment
-#version 460 core
+#version 450 core
 
 layout(location = 0) out vec4 Color;
-layout(location = 1) out vec4 Normals;
-layout(location = 2) out int  EntityID;
+layout(location = 1) out int  EntityID;
 
 in Data {
     vec3 normal;
@@ -72,13 +71,12 @@ void main()
 //////////////////////////////////////////////
 	Color =  colorOut * vec4(0.15, 0.15, 0.75, 1.);
 	// Color =  colorOut * vec4( u_Color.rgb  , 1.0 );
-	Normals = vec4( DataIn.normal.xyz , 1.0 );
 	EntityID = int(0);
 }
 
 
 #type TessControl
-#version 460 core
+#version 450 core
 
 layout(vertices = 4) out;
 
@@ -128,7 +126,7 @@ void main()
 
 #type TessEvalution
 
-#version 460 core
+#version 450 core
 layout(quads, equal_spacing, ccw) in;
 
 

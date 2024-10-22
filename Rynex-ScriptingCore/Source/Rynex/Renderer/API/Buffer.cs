@@ -161,6 +161,27 @@ namespace Rynex
             }
         }
 
+        ~VertexBuffer()
+        {
+            InternalCalls.VertexBuffer_Destroy(Handle.UUID);
+        }
+
+        public void Destroy()
+        {
+            InternalCalls.VertexBuffer_Destroy(Handle.UUID);
+        }
+
+        public static VertexBuffer GetAsset(string path)
+        {
+            InternalCalls.AssetManger_GetAsset_Path(path, AssetType.VertexBuffer, out ulong handle);
+            return new VertexBuffer(handle);
+        }
+        public static VertexBuffer GetAsset(ulong handle)
+        {
+            InternalCalls.AssetManger_GetAsset_Handle(handle, AssetType.VertexBuffer);
+            return new VertexBuffer(handle);
+        }
+
         public void SetLayout(BufferLayout layout)
         {
             BufferElement[] bufferElements = layout.GetElements();
@@ -176,10 +197,7 @@ namespace Rynex
                     );
             }
         }
-        ~VertexBuffer()
-        {
-            InternalCalls.VertexBuffer_Destroy(Handle.UUID);
-        }
+       
         public BufferLayout GetLayout()
         {
             InternalCalls.VertexBuffer_GetElementFromLayout(Handle.UUID,

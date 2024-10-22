@@ -139,7 +139,7 @@ namespace Rynex {
 			
 			{
 				ImGui::Text("Renderer 2D:");
-				Renderer2D::Statistics stats = Renderer2D::GetStats();
+				Renderer2D::Statistics stats = Renderer2D::GetQuadeStats();
 				ImGui::Text("Draw Calls: %d", stats.DrawCalls);
 				ImGui::Text("Quad   : %d", stats.QuadCount);
 				ImGui::Text("Vertex : %d", stats.GetTotalVertexCount());

@@ -15,6 +15,12 @@ namespace Rynex
             TeselationEvelution = (1 << 5)
         }
         public new AssetHandle Handle { get; internal set; }
+
+        public Shader(ulong handle)
+        {
+            Handle = new AssetHandle(handle);
+        }
+
         public Shader(string source, string name)
         {
             InternalCalls.Shader_Create_Source_Name(out ulong uuid, source, name);

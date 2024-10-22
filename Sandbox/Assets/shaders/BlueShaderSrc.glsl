@@ -2,7 +2,7 @@
 
 
 #type Vertex
-#version 330 core
+#version 450 core
 
 layout(location = 0) in vec2 a_Position;
 
@@ -15,7 +15,7 @@ void main()
 }
 
 #type Fragment
-#version 330 core
+#version 450 core
 
 layout(location = 0) out vec4 color;
 

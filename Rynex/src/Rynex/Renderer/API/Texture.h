@@ -147,6 +147,7 @@ namespace Rynex {
 	};
 
 	struct RYNEX_API FramebufferTextureSpecification;
+
 	class RYNEX_API Texture : public Asset
 	{
 	public:

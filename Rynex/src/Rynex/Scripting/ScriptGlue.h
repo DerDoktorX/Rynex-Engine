@@ -5,8 +5,8 @@ namespace Rynex {
 	class RYNEX_API ScriptGlue
 	{
 	public:
-		static void RegisterFunktion();
-		static void RegisterAllComponets();
+		static void RegisterFunctions();
+		static void RegisterComponents();
 	};
 
 }

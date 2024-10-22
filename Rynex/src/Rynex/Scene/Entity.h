@@ -63,6 +63,8 @@ namespace Rynex {
 
 		UUID GetUUID() { return GetComponent<IDComponent>().ID; }
 		int GetEntityHandle() const { return (int)m_EntityHandle; }
+		std::string GetTagName() { return GetComponent<TagComponent>().Tag; }
+		void UpdateMatrix();
 
 		bool operator==(const Entity& other) const
 		{

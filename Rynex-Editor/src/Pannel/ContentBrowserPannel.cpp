@@ -67,7 +67,7 @@ namespace Rynex {
 		//Files
 		Ref<Texture> defaultIcon = TextureImporter::LoadTexture("Resources/Icons/ContentBrowser/FileIconDefault.png");
 		AssetManager::CreatLocaleAsset<Texture>(defaultIcon);
-		m_FileIconDefault	= AssetManager::GetLocaleAsset<Texture>(defaultIcon->Handle);
+		m_FileIconDefault	= AssetManager::GetAsset<Texture>(defaultIcon->Handle);
 		m_FileIconError		= TextureImporter::LoadTexture("Resources/Icons/ContentBrowser/FileIconError.png");
 		m_FileIconScene		= TextureImporter::LoadTexture("Resources/Icons/ContentBrowser/FileIconScene.png");
 		m_FileIconShader	= TextureImporter::LoadTexture("Resources/Icons/ContentBrowser/FileIconShader.png");
@@ -242,7 +242,7 @@ namespace Rynex {
 					icon = m_FileIconScene;
 					break;
 				}
-				case AssetType::FrameBuffer:
+				case AssetType::Framebuffer:
 				{
 					// TODO: Creat Framebuffer Image
 					icon = m_FileIconDefault;
@@ -322,7 +322,7 @@ namespace Rynex {
 				ImGui::PopStyleColor();
 				switch (assetType)
 				{
-				case AssetType::FrameBuffer:
+				case AssetType::Framebuffer:
 				{
 					if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 					{

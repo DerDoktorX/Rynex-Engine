@@ -1,6 +1,8 @@
 #include "rypch.h"
 #include "BoxAABB.h"
 
+#include "Rynex/Core/Assert.h"
+
 namespace Rynex {
 
 #define RY_MAX_FLOAT 1000.0f
@@ -124,7 +126,7 @@ namespace Rynex {
 		}
 		default:
 		{
-			RY_CORE_ASSERT(false, "Not Seport Data Formate {0}, for Box Min Max", (int)element.Type);
+			RY_CORE_ASSERT(false, ("Not Seport Data Formate {0}, for Box Min Max", (int)element.Type));
 			break;
 		}
 		}

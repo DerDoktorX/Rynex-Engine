@@ -10,10 +10,11 @@
 
 namespace Rynex {
 
+#pragma region AssetRegistry
 
 	bool AssetRegistry::IsAssetInRegistry(AssetHandle handle) const
 	{
-		return m_HandleRegistry.find(handle) != m_HandleRegistry.end() && handle!=0;
+		return handle!=0 && m_HandleRegistry.find(handle) != m_HandleRegistry.end();
 	}
 
 	bool AssetRegistry::IsAssetInRegistry(const std::filesystem::path& path) const
@@ -31,9 +32,13 @@ namespace Rynex {
 		return path.has_extension();
 	}
 
+	bool AssetRegistry::IsAssetInteral(AssetHandle handle) const
+	{
+		return IsAssetInRegistry(handle) && GetMetadataConst(handle).Interale;
+	}
+
 	void AssetRegistry::CreateAsset(const std::filesystem::path& path, AssetHandle handle, AssetMetadata metadata, bool findDirectOnDisc)
 	{
-		
 		if (!IsAssetInRegistry(path) && IsAssetPath(path))
 		{
 			
@@ -107,6 +112,18 @@ namespace Rynex {
 		
 	}
 
+	AssetHandle AssetRegistry::CreatLocaleAsset(Ref<Asset>& asset, AssetMetadata& metadata)
+	{
+		while (asset->Handle == 0 && IsAssetInRegistry(asset->Handle))
+			asset->Handle = AssetHandle();
+
+		metadata.Interale = true;
+		metadata.State = AssetState::Ready;
+		m_HandleRegistry[asset->Handle] = metadata;
+
+		return asset->Handle;
+	}
+
 	bool AssetRegistry::AddDirectoryToParent(const std::filesystem::path& path)
 	{
 		std::string& parentGenaric = path.parent_path().generic_string();
@@ -161,9 +178,14 @@ namespace Rynex {
 	AssetMetadata& AssetRegistry::GetMetadata(AssetHandle handle)
 	{
 		if (IsAssetInRegistry(handle))
-		{
 			return m_HandleRegistry[handle];
-		}
+		return AssetMetadata();
+	}
+
+	const AssetMetadata& AssetRegistry::GetMetadataConst(AssetHandle handle) const
+	{
+		if (IsAssetInRegistry(handle))
+			return m_HandleRegistry.at(handle);
 		return AssetMetadata();
 	}
 
@@ -193,13 +215,14 @@ namespace Rynex {
 		}
 	}
 
+	void AssetRegistry::DeleteLocaleAsset(AssetHandle handle)
+	{
+		while(IsAssetInteral(handle))
+			m_HandleRegistry.erase(handle);
+	}
+#pragma endregion
 	
-
-	
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////
-
+#pragma region EditorAssetManager
 
 	EditorAssetManager::EditorAssetManager()
 	{
@@ -221,12 +244,17 @@ namespace Rynex {
 		if (m_AssetRegistry.IsAssetInRegistry(handle))
 		{
 			Ref<Asset> asset = Ref<Asset>();
-			if (m_LoadedAssets.find(handle) != m_LoadedAssets.end())
+			if (IsAssetLoaded(handle))
 			{
 				asset = m_LoadedAssets.at(handle);
 			}
-			else
+			else if(!IsAssetInteral(handle))
 			{
+				if(GetMetadata(handle).Interale)
+				{
+					RY_CORE_ASSERT(false, "Error on: 'EditorAssetManager::GetAsset' Asset is known In Regestry as Interale-Asset But got not Loadede! This cinde off error is a def Error");
+					return nullptr;
+				}
 				AssetMetadata& metadata = m_AssetRegistry.GetMetadata(handle);
 				metadata.State = AssetState::Loading;
 				asset = AssetImporter::ImportAsset(handle, metadata);
@@ -235,11 +263,21 @@ namespace Rynex {
 				RY_CORE_ASSERT(asset, "Error on: 'EditorAssetManager::GetAsset' No Asset Lodead!");
 				m_LoadedAssets[handle] = asset;
 			}
+			else if (IsAssetInteral(handle))
+			{
+				RY_CORE_ASSERT(false, "Error on: 'EditorAssetManager::GetAsset' Asset is known In Regestry as Interale-Asset But got not Loadede! This cinde off error is a def Error");
+				return nullptr;
+			}
+			else
+			{
+				RY_CORE_ASSERT(false, "Error on: 'EditorAssetManager::GetAsset' I Dont't know some isuse kan go to hear!");
+				return nullptr;
+			}
 			return asset;
 		}
 		
 		RY_CORE_ASSERT(false, "Error on: 'EditorAssetManager::GetAsset' No Asset handle found!");
-		return Ref<Asset>();
+		return nullptr;
 	}
 
 	Ref<Asset> EditorAssetManager::GetAsset(const std::filesystem::path& path)
@@ -267,18 +305,18 @@ namespace Rynex {
 		return IsAssetLoaded(m_AssetRegistry.IsAssetInRegistry(path));
 	}
 
-	AssetHandle EditorAssetManager::CreatLocaleAsset(Ref<Asset> asset)
+	AssetHandle EditorAssetManager::CreatLocaleAsset(Ref<Asset> asset, AssetMetadata& metadata)
 	{
-		while (IsAssetHandleValid(asset->Handle))
-			asset->Handle = AssetHandle();
-		while (IsAssetLoaded(asset->Handle))
-			asset->Handle = AssetHandle();
-		m_LoadedAssets[asset->Handle] = asset;
-		return asset->Handle;
+		AssetHandle handle = m_AssetRegistry.CreatLocaleAsset(asset, metadata);
+		m_LoadedAssets[handle] = asset;
+		if(IsAssetInteral(handle))
+			return handle;
+		return AssetHandle(0);
 	}
 
 	Ref<Asset> EditorAssetManager::GetLocaleAsset(AssetHandle handle)
 	{
+		RY_CORE_ASSERT(false, "This funktion is not any longer Sepoted! Use the funktion GetAsset");
 		if (IsAssetLoaded(handle) && !IsAssetHandleValid(handle))
 			return m_LoadedAssets.at(handle);
 		return nullptr;
@@ -289,7 +327,6 @@ namespace Rynex {
 		if (IsAssetLoaded(handle) && !IsAssetHandleValid(handle))
 			m_LoadedAssets.erase(handle);
 	}
-
 
 
 	void EditorAssetManager::CreateAsset(const std::filesystem::path& path, Ref<Asset>& asset, AssetMetadata metadata)
@@ -333,6 +370,11 @@ namespace Rynex {
 		{
 			RY_CORE_ASSERT(false, "new Crated Asset is not identikle There!");
 		}
+	}
+
+	bool EditorAssetManager::IsAssetInteral(AssetHandle handle) const
+	{
+		return m_AssetRegistry.IsAssetInteral(handle);
 	}
 
 	void EditorAssetManager::ReLoadeAsset(AssetHandle handle)
@@ -405,6 +447,7 @@ namespace Rynex {
 		return true;
 	}
 
+#pragma endregion
 
 
 }

@@ -2,7 +2,11 @@
 #include "SceneHierachyPannel.h"
 
 #include <Rynex/Scene/Components.h>
+#if RY_SCRIPTING_HAZEL
+#include <Rynex/Scripting/HazelScripting/ScriptEngine.h>
+#else
 #include <Rynex/Scripting/ScriptingEngine.h>
+#endif
 #include <Rynex/Asset/Base/AssetManager.h>
 #include <Rynex/Renderer/Rendering/Renderer.h>
 
@@ -686,6 +690,9 @@ namespace Rynex {
 			use = Utils::DrawVec3Controler("Scale", component.Scale, 1.0f) || use;
 			if(use)
 			{
+
+				entity.UpdateMatrix();
+#if 0
 				Utils::UpdateChilrenMatrixeCompentens(entity, m_Context);
 				if (entity.HasComponent<StaticMeshComponent>())
 				{
@@ -715,6 +722,7 @@ namespace Rynex {
 					}
 #endif
 				}
+#endif
 			}
 		});
 
@@ -1075,8 +1083,12 @@ namespace Rynex {
 		// Script
 		Utils::DrawComponent<ScriptComponent>("Script", entity, [](ScriptComponent& component)
 			{
+#if RY_SCRIPTING_HAZEL
+				std::unordered_map<std::string, Ref<ScriptClass>> clasesMap = ScriptEngine::GetEntityClasses();
+				bool sricptClassExist = clasesMap.find(component.Name) != clasesMap.end();
+#else
 				bool sricptClassExist = ScriptingEngine::ClassExists(component.Name);
-
+#endif
 				static char buffer[64];
 				strcpy(buffer, component.Name.c_str());
 
@@ -1090,6 +1102,25 @@ namespace Rynex {
 				ImGui::PushMultiItemsWidths(1, ImGui::CalcItemWidth());
 				if (ImGui::BeginCombo("Script: Class", buffer, ImGuiComboFlags_None))
 				{
+#if RY_SCRIPTING_HAZEL
+					if (ImGui::MenuItem("None"))
+					{
+						component.Name = "None";
+						ImGui::CloseCurrentPopup();
+					}
+
+					for (auto& [name, script] : clasesMap)
+					{
+						if (ImGui::MenuItem(name.c_str()))
+						{
+
+							component.Name = std::string(name);
+							ImGui::CloseCurrentPopup();
+						}
+					}
+					ImGui::EndCombo();
+#else
+
 					uint32_t length = ScriptingEngine::GetClassLength();
 					for (uint32_t i = 0; i < length; i++)
 					{
@@ -1104,6 +1135,7 @@ namespace Rynex {
 						}
 					}
 					ImGui::EndCombo();
+#endif
 				}
 				ImGui::PopItemWidth();
 
@@ -1120,7 +1152,7 @@ namespace Rynex {
 			auto& frameBuffer = component.FrameBuffer;
 					
 			
-			Utils::DragDropButtenForAsset<Framebuffer>(&component.FrameBuffer, "FrameBuffer", AssetType::FrameBuffer);
+			Utils::DragDropButtenForAsset<Framebuffer>(&component.FrameBuffer, "FrameBuffer", AssetType::Framebuffer);
 			
 
 			if(frameBuffer)
@@ -1474,10 +1506,19 @@ namespace Rynex {
 		if (entity.HasComponent<ScriptComponent>())
 		{
 			auto component = entity.GetComponent<ScriptComponent>();
+#if RY_SCRIPTING_HAZEL
+			std::unordered_map<std::string, Ref<ScriptClass>> clasesMap = ScriptEngine::GetEntityClasses();
+			if(clasesMap.find(component.Name) == clasesMap.end())
+				entity.SetState(Entity::State::Error);
+			else
+				entity.SetState(Entity::State::None);
+#else
 			if (!ScriptingEngine::ClassExists(component.Name))
 				entity.SetState(Entity::State::Error);
 			else
 				entity.SetState(Entity::State::None);
+#endif
+			
 		}
 	}
 

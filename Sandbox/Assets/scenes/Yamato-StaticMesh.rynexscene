@@ -1,0 +1,168 @@
+Scene: Untiteld
+Entities:
+  - Entity: 9602718723979563166
+    TagComponent:
+      Tag: Spot
+    TransformComponent:
+      Transaltion: [-13.8385668, 20.6270905, -50.4358521]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -13.8385668, 20.6270905, -50.4358521, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -13.8385668, 20.6270905, -50.4358521, 1]
+  - Entity: 5455012069440129222
+    TagComponent:
+      Tag: point
+    TransformComponent:
+      Transaltion: [-20.9350681, 13.6709576, 35.7871056]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -20.9350681, 13.6709576, 35.7871056, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -20.9350681, 13.6709576, 35.7871056, 1]
+  - Entity: 3056472762523855576
+    TagComponent:
+      Tag: Dirktionel
+    TransformComponent:
+      Transaltion: [10, 100, 20]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 10, 100, 20, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 10, 100, 20, 1]
+  - Entity: 14668069288910999674
+    TagComponent:
+      Tag: Ambient
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+  - Entity: 6934700488835536706
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Transaltion: [-66, 37.4000015, 94.9000015]
+      Rotation: [-0.305432618, -0.776671529, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectivVerticleFOV: 0.785398185
+        PerspectivNearClipe: 0.00999999978
+        PerspectivFarClipe: 1000
+        OrthographicSize: 100
+        OrthographicNearClipe: 0.00100000005
+        OrthographicFarClipe: 1000
+      Primary: true
+      FixedAspectRotaion: false
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    Matrix4x4Component:
+      Matrix4x4: [0.713250458, 0, 0.700909257, 0, 0.210767493, 0.953716934, -0.214478582, 0, -0.668469071, 0.30070582, 0.680239081, 0, -66, 37.4000015, 94.9000015, 1]
+      GlobleMatrix4x4: [0.713250458, 0, 0.700909257, 0, 0.210767493, 0.953716934, -0.214478582, 0, -0.668469071, 0.30070582, 0.680239081, 0, -66, 37.4000015, 94.9000015, 1]
+  - Entity: 8488709186981471615
+    TagComponent:
+      Tag: Yamato
+    TransformComponent:
+      Transaltion: [-10.408659, 0, 0]
+      Rotation: [-1.57079601, 0, 0]
+      Scale: [1, 0.999983072, 0.999983072]
+    MaterialComponent:
+      Color: [1, 0, 1]
+      AlgorithmFlags: 65604
+      Shader:
+        Path: Assets/shaders/3DLigthe.glsl
+        Handle: 15446452666463780001
+      UniformLayoute:
+        - Name: u_Ambient
+          Type: 1
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: 0.100000001
+        - Name: u_CamerPos
+          Type: 3
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: [10, 100, 20]
+        - Name: u_Color
+          Type: 3
+          ShaderResourceType: 2
+          GloblelResurce: true
+        - Name: u_EntityID
+          Type: 8
+          ShaderResourceType: 4
+          GloblelResurce: true
+        - Name: u_LigthColor
+          Type: 3
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: [1, 1, 1]
+        - Name: u_LigthPos
+          Type: 3
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: [10, 100, 20]
+        - Name: u_Model
+          Type: 6
+          ShaderResourceType: 1
+          GloblelResurce: true
+        - Name: u_Shinines
+          Type: 1
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: 32
+        - Name: u_Specular
+          Type: 1
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: 0.5
+        - Name: u_Texture_Diffuse1
+          Type: 24
+          ShaderResourceType: 0
+          GloblelResurce: true
+        - Name: u_ViewProj
+          Type: 6
+          ShaderResourceType: 7
+          GloblelResurce: true
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 3.57621815e-07, -0.999983013, 0, 0, 0.999983013, 3.57621815e-07, 0, -10.408659, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 3.57621815e-07, -0.999983013, 0, 0, 0.999983013, 3.57621815e-07, 0, -10.408659, 0, 0, 1]
+    MeshComponent:
+      Model:
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Handle: 5470238956552605290
+    StaticMeshComponent:
+      Model-S:
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Handle: 5470238956552605290

@@ -118,10 +118,12 @@ namespace Rynex {
 		void SetBeckGroundColor(const glm::vec4& backGound) { m_BackGround = backGound; }
 
 		Entity GetEntitiyByUUID(UUID uuid);
+		Entity GetEntityByName(const std::string& tag);
+		Entity GetEntityPrimaryCamera();
 
 		bool IsTagInScene(const std::string& tag);
 
-		Entity GetPrimaryCameraEntity();
+
 		uint32_t GetEntityCount() const { return (uint32_t)m_Registery.size(); }
 
 		// void SetRenderFramBuffer(const std::string& viewPortName, const Ref<Framebuffer>& framebuffer) { m_RenderFrambuffer[viewPortName] = framebuffer; }
@@ -135,7 +137,8 @@ namespace Rynex {
 		{
 			return m_Registry.view<Components...>();
 		}
-		
+
+		void RenderSingleEntity(Camera& camera, const glm::mat<4, 4, float>& viewMatrix, const glm::vec4& backGroundColor);
 
 	private:
 		template<typename T>
@@ -148,6 +151,8 @@ namespace Rynex {
 		void SetLigthsEditor(EnttViewLigths& enttViewLigths, Camera& camera, const glm::mat<4, 4, float>& viewMatrix, const glm::uvec2& viewPortSize);
 
 		void SceneRendering(Camera& camera, glm::mat<4, 4, float>& viewMatrix);
+
+		
 
 		void EditorFilterSreene();
 		void ClearAll();

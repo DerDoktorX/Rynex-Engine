@@ -23,6 +23,11 @@ namespace Rynex {
         return false;
     }
 
+    bool RuntimeAssetManager::IsAssetInteral(AssetHandle handle) const
+    {
+        return m_AssetRegistry.IsAssetInteral(handle);
+    }
+
     Ref<Asset> RuntimeAssetManager::GetAsset(AssetHandle handle)
     {
         if (m_AssetRegistry.IsAssetInRegistry(handle))
@@ -32,7 +37,7 @@ namespace Rynex {
             {
                 asset = m_LoadedAssets.at(handle);
             }
-            else
+            else if (!IsAssetInteral(handle))
             {
                 AssetMetadata& metadata = m_AssetRegistry.GetMetadata(handle);
                 metadata.State = AssetState::Loading;
@@ -42,7 +47,19 @@ namespace Rynex {
                 if (!asset) {}
                 m_LoadedAssets[handle] = asset;
             }
-            return asset;
+            else if (IsAssetInteral(handle))
+            {
+                RY_CORE_ASSERT(false, "Error on: 'EditorAssetManager::GetAsset' Asset is known In Regestry as Interale-Asset But got not Loadede! This cinde off error is a def Error");
+                return nullptr;
+            }
+            else
+            {
+                RY_CORE_ASSERT(false, "Error on: 'EditorAssetManager::GetAsset' I Dont't know some isuse kan go to hear!");
+                return nullptr;
+            }
+
+        return asset;
+
         }
         RY_CORE_ASSERT(false, "Error on: 'EditorAssetManager::GetAsset' No Asset handle found!");
         return Ref<Asset>();
@@ -66,18 +83,18 @@ namespace Rynex {
         return IsAssetLoaded(m_AssetRegistry.IsAssetInRegistry(filepath));
     }
 
-    AssetHandle RuntimeAssetManager::CreatLocaleAsset(Ref<Asset> asset)
+    AssetHandle RuntimeAssetManager::CreatLocaleAsset(Ref<Asset> asset, AssetMetadata& metadata)
     {
-        while (IsAssetHandleValid(asset->Handle))
-            asset->Handle = AssetHandle();
-        while (IsAssetLoaded(asset->Handle))
-            asset->Handle = AssetHandle();
-        m_LoadedAssets[asset->Handle] = asset;
-        return asset->Handle;
+        AssetHandle handle = m_AssetRegistry.CreatLocaleAsset(asset, metadata);
+        m_LoadedAssets[handle] = asset;
+        if (IsAssetHandleValid(handle) && IsAssetLoaded(handle))
+            return handle;
+        return AssetHandle(0);
     }
 
     Ref<Asset> RuntimeAssetManager::GetLocaleAsset(AssetHandle handle)
     {
+        RY_CORE_ASSERT(false, "This funktion is not any longer Sepoted! Use the funktion GetAsset");
         if (IsAssetLoaded(handle) && !IsAssetHandleValid(handle))
             return m_LoadedAssets.at(handle);
         return nullptr;
@@ -85,11 +102,13 @@ namespace Rynex {
 
     void RuntimeAssetManager::DeleteLocaleAsset(AssetHandle handle)
     {
-        if (IsAssetLoaded(handle) && !IsAssetHandleValid(handle))
-            m_LoadedAssets.erase(handle);
+        if (IsAssetInteral(handle))
+        {
+            m_AssetRegistry.DeleteLocaleAsset(handle);
+            if(!IsAssetHandleValid(handle))
+                m_LoadedAssets.erase(handle);
+        }
     }
-
-   
 
     void RuntimeAssetManager::ImportAsset(const std::filesystem::path& filepath)
     {

@@ -63,6 +63,8 @@ namespace Rynex {
 		FramebufferAttachmentSpecification() = default;
 		FramebufferAttachmentSpecification(std::initializer_list<FramebufferTextureSpecification> attachments)
 			: Attachments(attachments) {}
+		FramebufferAttachmentSpecification(std::vector<FramebufferTextureSpecification>& attachments)
+			: Attachments(attachments) {}
 
 		std::vector<FramebufferTextureSpecification> Attachments;
 	};
@@ -143,7 +145,7 @@ namespace Rynex {
 		virtual void BindColorAttachmentImage(Acces acces, uint32_t index = 0, uint32_t slot = 0) const = 0;
 		virtual void BindDeathAttachmentImage(Acces acces, uint32_t slot = 0) const = 0;
 
-		static AssetType GetStaticType() { return AssetType::FrameBuffer; }
+		static AssetType GetStaticType() { return AssetType::Framebuffer; }
 		AssetType GetType() const { return GetStaticType(); }
 	};
 }

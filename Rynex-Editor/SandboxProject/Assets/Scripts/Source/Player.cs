@@ -8,7 +8,7 @@ namespace Sandbox
     public class Player : Entity
     {
         private TransformComponent m_transform;
-        private GeometryComponent m_Geometry;
+        private GeomtryComponent m_Geometry;
 
         void OnCreate()
         {
@@ -98,11 +98,12 @@ namespace Sandbox
 
 
 
-
+#if false
             m_Geometry = GetComponent<GeometryComponent>();
             m_Geometry.SetPrimitv(VertexArray.Primitv.TraingleStrips);
             m_Geometry.SetVertex(geometry);
             m_Geometry.SetIndex(index);
+#endif
         }
 
         void Sphere3D(float radius = 1f, float widthSegments = 32, float heightSegments = 16, float phiStart = 0, float phiLength = (float)Math.PI * 2, float thetaStart = 0, float thetaLength = (float)Math.PI)
@@ -195,12 +196,13 @@ namespace Sandbox
                 }
 
             }
-            
+#if false
             m_Geometry = GetComponent<GeometryComponent>();
             
             m_Geometry.SetVertex(geometry);
             m_Geometry.SetIndex(indices);
             m_Geometry.SetPrimitv(VertexArray.Primitv.TraingleStrips);
+#endif
         }
 
         public int sides = 6;
@@ -333,11 +335,13 @@ namespace Sandbox
                 }
             }
 #endif
+#if false
             m_Geometry = GetComponent<GeometryComponent>();
             m_Geometry.SetPrimitv(VertexArray.Primitv.Traingle);
             m_Geometry.SetVertex(vertices);
             m_Geometry.SetIndex(indicies);
             Console.WriteLine(indicies.Length);
+#endif
         }
         void CalculatePlane()
         {
@@ -396,12 +400,13 @@ namespace Sandbox
                  20, 21, 22, 23,
 #endif
             };
-
+#if false
             m_Geometry = GetComponent<GeometryComponent>();
             m_Geometry.SetPrimitv(VertexArray.Primitv.Patches);
             m_Geometry.SetVertex(vertices);
             m_Geometry.SetIndex(indicies);
             Console.WriteLine(indicies.Length);
+#endif
         }
 
         void Cube3DNewAPI()
@@ -467,7 +472,7 @@ namespace Sandbox
             vertexArray.AddVertexBuffer(vertexBuffer);
             vertexArray.SetIndexBuffer(indexBuffer);
             vertexArray.SetPrimitv(VertexArray.Primitv.Traingle);
-            m_Geometry = GetComponent<GeometryComponent>();
+            m_Geometry = GetComponent<GeomtryComponent>();
             m_Geometry.Buffer = vertexBuffer;
             m_Geometry.Geomtry = vertexArray;
             vertexArray.UnBind();
@@ -517,7 +522,7 @@ namespace Sandbox
             vertexArray.SetIndexBuffer(indexBuffer);
 
             vertexArray.SetPrimitv(VertexArray.Primitv.Line);
-            m_Geometry = GetComponent<GeometryComponent>();
+            m_Geometry = GetComponent<GeomtryComponent>();
             m_Geometry.Buffer = vertexBuffer;
             m_Geometry.Geomtry = vertexArray;
             vertexArray.UnBind();

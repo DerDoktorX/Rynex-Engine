@@ -113,6 +113,11 @@ namespace Rynex
     public class Texture : Asset
     {
         public new AssetHandle Handle { get; internal set; }
+
+        public Texture(ulong handle)
+        {
+            Handle = new AssetHandle(handle);
+        }
         public Texture(uint withe, uint heigth)
         {
             InternalCalls.Texture_Create_Withe_Heigth(out ulong uuid, withe, heigth);
@@ -168,10 +173,22 @@ namespace Rynex
             Destroy();
             Console.WriteLine($"C# -> Destruktur Aktiv from Texture {(uint)Handle.UUID}");
         }
+
         public void Destroy()
         {
             InternalCalls.Texture_Destroy(Handle.UUID);
             Console.WriteLine($"C# -> Destroy Aktiv from Texture {(uint)Handle.UUID}");
+        }
+
+        public static Texture GetAsset(string path)
+        {
+            InternalCalls.AssetManger_GetAsset_Path(path, AssetType.Texture, out ulong handle);
+            return new Texture(handle);
+        }
+        public static Texture GetAsset(ulong handle)
+        {
+            InternalCalls.AssetManger_GetAsset_Handle(handle, AssetType.Texture);
+            return new Texture(handle);
         }
 
         public TextureSpecification GetSpecification()

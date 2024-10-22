@@ -16,7 +16,7 @@ namespace Rynex {
             case AssetType::Shader:         return "AssetType::Shader";
             case AssetType::Texture:        return "AssetType::Texture";
             case AssetType::Texture2D:      return "AssetType::Texture2D";
-            case AssetType::FrameBuffer:    return "AssetType::FrameBuffer";
+            case AssetType::Framebuffer:    return "AssetType::FrameBuffer";
             case AssetType::VertexArray:    return "AssetType::VertexArray";
             case AssetType::VertexBuffer:   return "AssetType::VertexBuffer";
             case AssetType::IndexBuffer:    return "AssetType::IndexBuffer";
@@ -36,7 +36,7 @@ namespace Rynex {
         if (assetType == "AssetType::Texture")      return AssetType::Texture;
         if (assetType == "AssetType::Shader")       return AssetType::Shader;   
         if (assetType == "AssetType::Scene")        return AssetType::Scene;
-        if (assetType == "AssetType::FrameBuffer")  return AssetType::FrameBuffer;
+        if (assetType == "AssetType::FrameBuffer")  return AssetType::Framebuffer;
         if (assetType == "AssetType::VertexArray")  return AssetType::VertexArray;
         if (assetType == "AssetType::VertexBuffer") return AssetType::VertexBuffer;
         if (assetType == "AssetType::IndexBuffer")  return AssetType::IndexBuffer;
@@ -60,7 +60,7 @@ namespace Rynex {
         if (extension == ".gltf")           return AssetType::Model;
         if (extension == ".rymesh")         return AssetType::Mesh;
         if (extension == ".rynexscene")     return AssetType::Scene;
-        if (extension == ".ryframe")        return AssetType::FrameBuffer;
+        if (extension == ".ryframe")        return AssetType::Framebuffer;
         if (extension == ".ryarray")        return AssetType::VertexArray;
         if (extension == ".ryarray-i")      return AssetType::IndexBuffer;
         if (extension.string().rfind(".ryarray-", 0) == 0)
@@ -80,7 +80,7 @@ namespace Rynex {
         case AssetType::Shader:         return "ASSET_BROWSER_SHADER";
         case AssetType::Texture:        return "ASSET_BROWSER_TEXTURE";
         case AssetType::Texture2D:      return "ASSET_BROWSER_TEXTURE2D";
-        case AssetType::FrameBuffer:    return "ASSET_BROWSER_FRAMBUFFER";
+        case AssetType::Framebuffer:    return "ASSET_BROWSER_FRAMBUFFER";
         case AssetType::VertexArray:    return "ASSET_BROWSER_VERTEXARRAY";
         case AssetType::VertexBuffer:   return "ASSET_BROWSER_VERTEXBUFFER";
         case AssetType::IndexBuffer:    return "ASSET_BROWSER_INDEXBUFFER";
@@ -103,7 +103,7 @@ namespace Rynex {
             case AssetType::Shader:         return "ASSET_BROWSER_OVERIDE_SHADER";
             case AssetType::Texture:        return "ASSET_BROWSER_OVERIDE_TEXTURE";
             case AssetType::Texture2D:      return "ASSET_BROWSER_OVERIDE_TEXTURE2D";
-            case AssetType::FrameBuffer:    return "ASSET_BROWSER_OVERIDE_FRAMBUFFER";
+            case AssetType::Framebuffer:    return "ASSET_BROWSER_OVERIDE_FRAMBUFFER";
             case AssetType::VertexArray:    return "ASSET_BROWSER_OVERIDE_VERTEXARRAY";
             case AssetType::VertexBuffer:   return "ASSET_BROWSER_OVERIDE_VERTEXBUFFER";
             case AssetType::IndexBuffer:    return "ASSET_BROWSER_OVERIDE_INDEXBUFFER";

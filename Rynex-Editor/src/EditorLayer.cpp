@@ -11,8 +11,11 @@
 #include <Rynex/Serializers/SceneSerializer.h>
 #include <Rynex/Serializers/TextureSerialiazer.h>
 #include <Rynex/Serializers/VertexArraySerialzer.h>
-
-#include <Rynex/Scripting/ScriptingEngine.h>
+#if RY_SCRIPTING_HAZEL
+   #include <Rynex/Scripting/HazelScripting/ScriptEngine.h> 
+#else
+    #include <Rynex/Scripting/ScriptingEngine.h>
+#endif
 #include <Rynex/Renderer/Rendering/Renderer.h>
 #include <Rynex/Renderer/Rendering/Renderer2D.h>
 #include <Rynex/Renderer/Rendering/Renderer3D.h>
@@ -30,7 +33,7 @@
 
 namespace Rynex {
 
-#define RY_EDITOR_TEST_ENITITY 1
+#define RY_EDITOR_TEST_ENITITY 0
 #define RY_ENABLE_VIEWPORT 1
 
     extern const std::filesystem::path g_AssetsPath;
@@ -79,7 +82,7 @@ namespace Rynex {
         m_Project = Project::GetActive();
         m_AssetManger = m_Project->GetEditorAssetManger(); 
         
-        Renderer::Init();
+        Renderer::InitEditor();
         FramebufferSpecification fbSpec, fbSpec2;
         fbSpec.Attachments =
         {
@@ -501,7 +504,12 @@ namespace Rynex {
         RY_PROFILE_FUNCTION();
         
         Renderer::Shutdown();
+#if RY_SCRIPTING_HAZEL
+        ScriptEngine::Shutdown();
+#else
         ScriptingEngine::Shutdown();
+#endif
+
         Project::ShutDown();
         
         m_RendererPannel.OnDetache();
@@ -516,7 +524,7 @@ namespace Rynex {
     {   
         m_PasTime += ts;
 
-        Renderer2D::ResetStats();
+        Renderer2D::ResetQuadeStats();
         switch (m_SceneState)
         {
             case SceneState::Edit:
@@ -703,7 +711,11 @@ namespace Rynex {
     {
         if (Project::Load(path))
         {
+#if RY_SCRIPTING_HAZEL
+            ScriptEngine::Init();
+#else
             ScriptingEngine::Init();
+#endif
             std::filesystem::path startScene = Project::GetActive()->GetConfig().StartScene;
             if (startScene.string() != "")
                 OpenScene(startScene);
@@ -821,7 +833,8 @@ namespace Rynex {
         static bool renderPannnel = false;
         static bool menuBarPannnel = false;
 
-        if (dokingEnabled) {
+        if (dokingEnabled) 
+        {
 
             static bool dokingSpaceOpen = true;
             static bool opt_fullscreen = true;
@@ -829,8 +842,6 @@ namespace Rynex {
             
             static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
-            // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-            // because it would be confusing to have two docking targets within each others.
             ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
             if (opt_fullscreen)
             {
@@ -845,19 +856,11 @@ namespace Rynex {
             }
             
 
-            // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
-            // and handle the pass-thru hole, so we ask Begin() to not render a background.
             if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
                 window_flags |= ImGuiWindowFlags_NoBackground;
 
-            // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-            // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
-            // all active windows docked into it will lose their parent and become undocked.
-            // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
-            // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
-
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-            ImGui::Begin("DockSpace Demo", &dokingSpaceOpen, window_flags);
+            ImGui::Begin("Ryenex-Eitor-Gui", &dokingSpaceOpen, window_flags);
             ImGui::PopStyleVar();
 
             if (opt_fullscreen)
@@ -871,9 +874,6 @@ namespace Rynex {
                 ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
             }
 
-            //////////////////////////////////////////////////
-            ///// Top Taskbar ////////////////////////////////
-            //////////////////////////////////////////////////
             if(menuBarPannnel)
             {
                 ImGuiTopTaskBar();
@@ -882,9 +882,6 @@ namespace Rynex {
             {
                 m_MenuBarPannel.OnImGuiRender();
             }
-            //////////////////////////////////////////////////
-            ///// Windoe Layoute /////////////////////////////
-            //////////////////////////////////////////////////
             if(sceneEnabled)    ImGuiPannels();
             if(settingsEnabled) ImGuiSettings(renderPannnel);
             if(viewPortEnabled) 
@@ -1040,7 +1037,10 @@ namespace Rynex {
                     m_AktiveScene->OnRuntimStart();
                 }
                 else if(m_SceneState == SceneState::Play)
+                {
                     m_SceneState = SceneState::Edit;
+                    m_AktiveScene->OnRuntimStop();
+                }
 
             }
         }
@@ -1054,6 +1054,7 @@ namespace Rynex {
             if (ImGui::Button("Pause", ImVec2(50, 0)))
             {
                 m_SceneState = SceneState::Edit;
+                m_AktiveScene->OnRuntimStop();
             }
         }
     }
@@ -1092,7 +1093,7 @@ namespace Rynex {
         }
         
         ImGui::Text("Renderer2D Stats:");
-        auto stats = Renderer2D::GetStats();
+        auto stats = Renderer2D::GetQuadeStats();
         ImGui::Text("Draw Calls: %d", stats.DrawCalls);
         ImGui::Text("Quad   : %d", stats.QuadCount);
         ImGui::Text("Vertex : %d", stats.GetTotalVertexCount());
@@ -1158,7 +1159,7 @@ namespace Rynex {
                 }
                 case SceneState::Play:
                 {
-                    auto camerEntt = m_AktiveScene->GetPrimaryCameraEntity();
+                    auto camerEntt = m_AktiveScene->GetEntityPrimaryCamera();
                     const auto& camera = camerEntt.GetComponent<CameraComponent>().Camera;
                     const glm::mat4& camerProj = camera.GetProjektion();
                     camerView = glm::inverse(camerEntt.GetComponent<TransformComponent>().GetTransform());
@@ -1215,10 +1216,10 @@ namespace Rynex {
             TransformComponent transformC = slelcted.GetComponent<TransformComponent>();
             if (slelcted.HasComponent<SpriteRendererComponent>())
             {
-                Renderer2D::BeginScene(mainCamera, viewMatrix);
+                Renderer2D::BeginSceneQuade(mainCamera, viewMatrix);
                 SpriteRendererComponent spriteC = slelcted.GetComponent<SpriteRendererComponent>();
                 Renderer2D::DrawSprite(transformC.GetTransform(), spriteC, slelcted.GetEntityHandle());
-                Renderer2D::EndScene();
+                Renderer2D::EndSceneQuade();
             }
             else  if (slelcted.HasComponent<GeomtryComponent>() && slelcted.HasComponent<MaterialComponent>())
             {
@@ -1251,10 +1252,10 @@ namespace Rynex {
             TransformComponent transformC = hovered.GetComponent<TransformComponent>();
             if (hovered.HasComponent<SpriteRendererComponent>())
             {
-                Renderer2D::BeginScene(mainCamera, viewMatrix);
+                Renderer2D::BeginSceneQuade(mainCamera, viewMatrix);
                 SpriteRendererComponent spriteC = hovered.GetComponent<SpriteRendererComponent>();
                 Renderer2D::DrawSprite(transformC.GetTransform(), spriteC, hovered.GetEntityHandle());
-                Renderer2D::EndScene();
+                Renderer2D::EndSceneQuade();
             }
             else  if (hovered.HasComponent<GeomtryComponent>() && hovered.HasComponent<MaterialComponent>())
             {
@@ -1363,7 +1364,11 @@ namespace Rynex {
         if (ImGui::BeginMenu("Script"))
         {
             if (ImGui::MenuItem("Reload assembly", "Ctrl+R"))
+#if RY_SCRIPTING_HAZEL
+                ScriptEngine::ReloadAssembly();
+#else
                 ScriptingEngine::ReloadAssambly();
+#endif
 
             ImGui::EndMenu();
         }

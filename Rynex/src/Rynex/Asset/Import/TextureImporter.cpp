@@ -18,7 +18,7 @@ namespace Rynex{
 
 	Ref<Texture> TextureImporter::LoadTexture(const std::filesystem::path& path)
 	{
-		if (path.extension() == ".png" || path.extension() == ".jpeg")
+		if (path.extension() == ".png" || path.extension() == ".jpeg" || path.extension() == ".jpg")
 		{
 			int width, height, channels;
 			stbi_set_flip_vertically_on_load(1);

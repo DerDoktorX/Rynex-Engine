@@ -13,8 +13,12 @@ public:
 	virtual void OnUpdate(Rynex::TimeStep ts) override;
 	virtual void OnImGuiRender() override;
 	virtual void OnEvent(Rynex::Event& e) override;
-	
 
+	void OnResize(Rynex::WindowResizeEvent& e);
+private:
+
+	void ImGuiViewPortResize(const glm::uvec2& vPSize);
+	void ImGuiViewPortRender();
 private:
 	Rynex::OrthograficCameraController		m_CameraController;
 
@@ -29,5 +33,6 @@ private:
 
 	float m_ChekebordRotaion;
 	glm::vec3 m_SquareColor = { 0.2f,0.3f,0.8f };
+	glm::uvec2 m_ViewPortSize = { 0, 0 };
 };
 

@@ -1,8 +1,10 @@
 #include "rypch.h"
 #include "Buffer.h"
 
+
 #include "Rynex/Renderer/Rendering/Renderer.h"
 #include "Platform/OpenGL/OpenGLBuffer.h"
+#include "Rynex/Core/Assert.h"
 
 namespace Rynex {
 
@@ -155,7 +157,7 @@ namespace Rynex {
 
 	ShaderDataType BufferAPI::GetShaderDataTypeFromString(const std::string& type)
 	{
-		RY_CORE_ASSERT(s_Data.StringShaderDataType.find(type) != s_Data.StringShaderDataType.end(), "Critle Error: This '{0}' string, is not a defined Type!", type.c_str());
+		RY_CORE_ASSERT(s_Data.StringShaderDataType.find(type) != s_Data.StringShaderDataType.end(), ("Critle Error: This '{0}' string, is not a defined Type!", type.c_str()));
 		return s_Data.StringShaderDataType[type];
 	};
 

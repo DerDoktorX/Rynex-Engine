@@ -1,15 +1,17 @@
 #pragma once
+#include "Rynex/Core/CoreConfig.h"
 
 #include <memory>
-#include "Rynex/Core/CoreConfig.h"
+
 
 // Check Curent Platfrom Seport + massages for curent State
 #ifdef _WIN32
 
 	#ifdef _WIN64
-		#define RY_PLATFORM_WINDOWS
+		#define RY_DEBUG_BREAK() __debugbreak();
 	#else
 		#error "Rynex only Seports x64 Bit Builds or Platforms (x84 Bit or x32 Bit Builds are not seported and x32 Bit Has no Plans to seport in Futer)"
+		#define RY_DEBUG_BREAK()
 	#endif // _WIN64
 
 #elif defined(__APPLE__) || defined(__MACH__)
@@ -18,26 +20,23 @@
 	#if TARGET_IPHONE_SIMULATOR == 1
 		#error "Rynex do not seported IOS simultion at Curent Time! (At the monoent they are no Plans to do it in Futer)"
 	#elif TARGET_IPHONE_MAC == 1
-		#define RY_PLATFORM_IOS
 		#error "Rynex do not seported IOS at Curent Time! (At the monoent they are no Plans to do it in Futer)"
 	#elif TARGET_OS_MAC == 1
-		#define RY_PLATFORM_MAC
 		#error "Rynex do not seported MacOS at Curent Time! (mabey in Futer seportetd)"
 	#else
 		#error "Rynex do not Unknown or seport this Aple Platform! (At the monoent they are no Plans to do it in Futer)"
 	#endif
-
+	#define RY_DEBUG_BREAK()
 #elif defined(__ADROID__)
-
-	#define RY_PLATFORM_ADROID
+	#define RY_DEBUG_BREAK()
 	#error "Rynex do not seported Android at Curent Time! (At the monoent they are no Plans to do it in Futer)"
 #elif define(__linux__)
-
-	#define RY_PLATFORM_LINUX
 	#error "Rynex not seported Linux  at Curent Time!"
-
+	#define RY_DEBUG_BREAK()
 #else 
 	#error "Rynex not seport Platform! Or Unknown!"
+	#include <signal.h>
+	#define RY_DEBUG_BREAK() raise(SIGTRAP)
 #endif
 // This Error Masseges are written from 21.07.2024
 // TDOD: Check if State mants to Seport or not Seport has change
@@ -61,16 +60,6 @@
 	#endif // RY_DYNAMIC_LINK
 #endif
 
-
-// DebugBreakPoint on Error
-#if RY_ENABLE_ASSERTS
-	#define RY_ASSERT(x, ...) { if(!(x)) { RY_ERROR("Assertion Faild: {0}", __VA_ARGS__); __debugbreak(); } }
-	#define RY_CORE_ASSERT(x, ...) { if(!(x)) { RY_CORE_ERROR("Assertion Faild: {0}", __VA_ARGS__); __debugbreak(); } }
-#else
-	#define RY_ASSERT(x, ...) 
-	#define RY_CORE_ASSERT(x, ...) 
-#endif
-
 // Bit Operation
 #define BIT(x) (1 << x)
 #define BIT_NOT(x) (~x)
@@ -89,6 +78,9 @@
 #define RY_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
 #define COMBINE(x,y) x##y
+#define RY_EXPAND_MOAKRO(x) x
+#define RY_STRINGIFY_MOAKRO(x) #x
+
 
 // Globle Short Defines
 namespace Rynex {
@@ -113,3 +105,6 @@ namespace Rynex {
 	}
 
 }
+
+#include "Rynex/Core/Log.h"
+#include "Rynex/Core/Assert.h"

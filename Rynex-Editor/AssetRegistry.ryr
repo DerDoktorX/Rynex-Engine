@@ -399,6 +399,10 @@ AssetRegistry:
     FilePath: Assets/Models/Yamto-Model/textures/JSB018_Yamato_1944_deck_176_baseColor.jpeg
     Type: AssetType::Texture2D
     Name: JSB018_Yamato_1944_deck_176_baseColor.jpeg
+  - Handle: 13175441234125715311
+    FilePath: Not knowing Path
+    Type: AssetType::Texture
+    Name: Unkowne
   - Handle: 13299308982959269815
     FilePath: Assets/Models/Yamto-Model/textures/JM009_Signal_Lamp_849_baseColor.jpeg
     Type: AssetType::Texture2D

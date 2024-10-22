@@ -26,12 +26,15 @@ namespace Rynex {
 		template<typename T>
 		static AssetHandle CreatLocaleAsset(Ref<T> asset)
 		{
-			return Project::GetActive()->GetAssetManger()->CreatLocaleAsset(asset);
+			AssetMetadata metadata = AssetMetadata();
+			metadata.Type = asset->GetType();
+			return Project::GetActive()->GetAssetManger()->CreatLocaleAsset(asset, metadata);
 		}
 
 		template<typename T>
 		static Ref<T> GetLocaleAsset(AssetHandle handle)
 		{
+			RY_CORE_ASSERT(false, "This funktion is not any longer Sepoted! Use the funktion GetAsset");
 			Ref<Asset> asset = Project::GetActive()->GetAssetManger()->GetLocaleAsset(handle);
 			return std::static_pointer_cast<T>(asset);
 		}

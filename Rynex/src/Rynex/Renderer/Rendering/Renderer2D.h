@@ -11,43 +11,31 @@ namespace Rynex {
 	public:
 		
 
+		static void InitEditor();
 		static void Init();
 		static void Shutdown();
 
-		static void BeginScene(const EditorCamera& camera);
-		static void BeginScene(const OrthograficCamera& camera);	//TODO: Remove 
-		static void BeginScene(const Camera& camera, const glm::mat4& transform);
-		static void EndScene();
-		static void Flush();
-
-		//Entity
+		static void BeginSceneQuade(const EditorCamera& camera);
+		static void BeginSceneQuade(const OrthograficCamera& camera);	//TODO: Remove 
+		static void BeginSceneQuade(const Camera& camera, const glm::mat4& transform);
+		static void EndSceneQuade();
+		static void FlushQuade();
 
 		static void DrawSprite(const glm::mat4& tranform, SpriteRendererComponent& src, int entityID);
-
-
-		//Primitv
-		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
-		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
-
-		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture> texture);
-		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture> texture);
-
-
 		static void DrawQuad(const glm::mat4& tranform, const glm::vec4& color, int entityID = -2);
 		static void DrawQuad(const glm::mat4& tranform, const Ref<Texture> texture, int entityID = -2);
+
+
+
+		static void BeginSceneIcon(const Camera& camera, const glm::mat4& transform, const glm::uvec2& viewPortSize);
+		static void EndSceneIcon();
+		static void FlushIcon();
+
 		static void DrawLigthPointIcon(const glm::mat4& tranform, int entityID = -2);
 		static void DrawLigthSpotIcon(const glm::mat4& tranform,  int entityID = -2);
 		static void DrawLigthDirctionelIcon(const glm::mat4& tranform,  int entityID = -2);
 		static void DrawCameraIcon(const glm::mat4& tranform, int entityID = -2);
-
-		static void DrawQuadSingle(const glm::mat4& tranform, const glm::vec4& color, int entityID = -2);
-		static void DrawQuadSingle(const glm::mat4& tranform, const Ref<Texture> texture, int entityID = -2);
-		
-		static void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color);
-		static void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color);
-
-		static void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture> texture);
-		static void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture> texture);
+		static void DrawIcon(const glm::mat4& tranform, int index = 0, int entityID = -2);
 
 		struct Statistics
 		{
@@ -58,10 +46,15 @@ namespace Rynex {
 			uint32_t GetTotalVertexCount() const { return QuadCount * 4; }
 			uint32_t GetTotalIndexCount() const { return QuadCount * 6; }
 		};
-		static void ResetStats();
-		static Statistics GetStats();
+		
+		static Statistics GetQuadeStats();
+		static Statistics GetIconStats();
+		
+		static void ResetQuadeStats();
+		static void ResetIconStats();
 	private:
-		static void StartNewBatch();
+		static void StartNewBatchQuade();
+		static void StartNewBatchIcon();
 	};
 }
 

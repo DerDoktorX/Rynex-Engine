@@ -5,7 +5,11 @@
 #include "ScriptableEntity.h"
 #include "Rynex/Renderer/Rendering/Renderer2D.h"
 #include "Rynex/Renderer/Rendering/Renderer3D.h"
-#include "Rynex/Scripting/ScriptingEngine.h"
+#if RY_SCRIPTING_HAZEL
+	#include "Rynex/Scripting/HazelScripting/ScriptEngine.h"
+#else
+	#include "Rynex/Scripting/ScriptingEngine.h"
+#endif
 #include "Rynex/Serializers/VertexArraySerialzer.h"
 #include "Rynex/Asset/Base/AssetMetadata.h"
 #include "Rynex/Asset/EditorAssetManager.h"
@@ -142,19 +146,39 @@ namespace Rynex {
 
 	void Scene::OnRuntimStart()
 	{
+#if RY_SCRIPTING_HAZEL
+		ScriptEngine::OnRuntimeStart(this);
+#else
 		ScriptingEngine::OnRuntimeStart(this);
+#endif
 		// Instandiat
 
 		auto view = m_Registery.view<ScriptComponent>();
 		for (auto e : view)
 		{
 			Entity entity = { e, this };
+#if RY_SCRIPTING_HAZEL
+			ScriptEngine::OnCreateEntity(entity);
+#else
 			ScriptingEngine::OnCreatEntity(entity);
+#endif
 		}
 	}
 
 	void Scene::OnRuntimStop()
 	{
+#if RY_SCRIPTING_HAZEL
+		ScriptEngine::OnRuntimeStop();
+#else
+		
+#endif
+		auto view = m_Registery.view<ScriptComponent>();
+		for (auto e : view)
+		{
+			Entity entity = { e, this };
+			RY_CORE_ASSERT(entity);
+			ScriptingEngine::OnDestroyEntity(entity);
+		}
 		ScriptingEngine::OnRuntimeStop();
 	}
 
@@ -169,32 +193,27 @@ namespace Rynex {
 
 	void Scene::OnUpdateEditor(TimeStep ts)
 	{
-		if (!ScriptingEngine::ReloadeScriptAvaible()) return;
+#if RY_SCRIPTING_HAZEL
+		// ScriptEngine::ReloadAssembly();
+		// ScriptEngine::OnRuntimeStart(this);
+		auto scriptView = m_Registery.view<ScriptComponent>();
+		for (EnttEntity scriptViewE : scriptView)
+		{
+			Entity entity = { scriptViewE, this };
+		}
+		// ScriptEngine::OnRuntimeStop();
+#else
 
-		ScriptingEngine::OnRuntimeStart(this);
+		// if (!ScriptingEngine::ReloadeScriptAvaible()) return;
+
+		// ScriptingEngine::OnRuntimeStart(this);
 		auto scriptView = m_Registery.view<ScriptComponent>();
 		for (EnttEntity scriptViewE : scriptView)
 		{
 			Entity entity = { scriptViewE, this };
 			ScriptingEngine::OnDrawEntity(entity);
 		}
-		ScriptingEngine::OnRuntimeStop();
-#if 0
-		{
-			auto entiy = GetEntitiyByUUID(8976786);
-			if (entiy.HasComponent<GeomtryComponent>())
-			{
-				auto& geomtryC = entiy.GetComponent<GeomtryComponent>();
-				auto& vertexArray = geomtryC.Geometry;
-				vertexArray->Handle = AssetHandle();
-				AssetMetadata metadata;
-				metadata.FilePath = "Assets/VertexArrayDefault.ryarray";
-				metadata.Type = vertexArray->GetType();
-				Ref<EditorAssetManager> editorAssetManager = Project::GetActive()->GetEditorAssetManger();
-				editorAssetManager->CreateAsset(metadata.FilePath, (Ref<Asset>)vertexArray, metadata);
-				VertexArraySerialzer::Serialzer("Assets/VertexArrayDefault.ryarray", vertexArray);
-			}
-		}
+		// ScriptingEngine::OnRuntimeStop();
 #endif
 
 	}
@@ -229,9 +248,7 @@ namespace Rynex {
 		SetLigthsEditor(enttViewLigths, mainCamera, viewMatrix, size);
 		RenderScene3D(mainCamera, viewMatrix, enttView3D);
 		RenderScene2D(mainCamera, viewMatrix, enttView2D);
-#if RY_ANABLE_RENDERER_ICONE
-		RendererIcons::EndScene();
-#endif
+		Renderer2D::EndSceneIcon();
 		framebuffer->Unbind();
 	}
 
@@ -271,7 +288,11 @@ namespace Rynex {
 		for (EnttEntity e : scriptView)
 		{
 			Entity entity = { e, this };
+#if RY_SCRIPTING_HAZEL
+			ScriptEngine::OnUpdateEntity(entity, ts);
+#else
 			ScriptingEngine::OnUpdateEntity(entity, ts);
+#endif
 		}
 
 
@@ -350,13 +371,13 @@ namespace Rynex {
 	{
 		EnttRender2DView& enttRender2DView = enttView2D.RendererCV;
 		RY_PROFILE_SCOPE("Scene Draw 2D");
-		Renderer2D::BeginScene(camera, viewMatrix);
+		Renderer2D::BeginSceneQuade(camera, viewMatrix);
 		for (EnttEntity render2dE : enttRender2DView)
 		{
 			auto& [transformC, spriteC] = enttRender2DView.get< Matrix4x4Component, SpriteRendererComponent>(render2dE);
 			Renderer2D::DrawSprite(transformC.GlobleMatrix4x4, spriteC, (int)render2dE);
 		}
-		Renderer2D::EndScene();
+		Renderer2D::EndSceneQuade();
 	}
 
 	void Scene::RenderScene3D(Camera& camera, glm::mat<4, 4, float>& viewMatrix, EnttView3D& enttView3D)
@@ -474,9 +495,10 @@ namespace Rynex {
 			Renderer3D::SetLigthUniform(ambientC, shaderCount);
 			shaderCount++;
 		}
-		shaderCount = 1;
 #if RY_ANABLE_RENDERER_ICONE
 		RendererIcons::BeginScene(camera, viewMatrix, viewPortSize);
+#else
+		Renderer2D::BeginSceneIcon(camera, viewMatrix, viewPortSize);
 #endif
 		for (EnttEntity directionelE : directionelView)
 		{
@@ -484,35 +506,35 @@ namespace Rynex {
 			Renderer3D::SetLigthUniform(directionelC, matrixC.GlobleMatrix4x4, shaderCount);
 #if RY_ANABLE_RENDERER_ICONE
 			RendererIcons::DrawLigthDirctionelIcon(matrixC.GlobleMatrix4x4, (int)directionelE);
+#else
+			Renderer2D::DrawLigthDirctionelIcon(matrixC.GlobleMatrix4x4, (int)directionelE);
 #endif
-			shaderCount++;
+
 		}
 
-		shaderCount = 1;
 		for (EnttEntity pointE : pointView)
 		{
 			auto& [matrixC, pointC] = pointView.get<Matrix4x4Component, PointLigthComponent>(pointE);
 			Renderer3D::SetLigthUniform(pointC, matrixC.GlobleMatrix4x4, shaderCount);
 #if RY_ANABLE_RENDERER_ICONE
 			RendererIcons::DrawLigthPointIcon(matrixC.GlobleMatrix4x4, (int)pointE);
+#else
+			Renderer2D::DrawLigthPointIcon(matrixC.GlobleMatrix4x4, (int)pointE);
 #endif
-			shaderCount++;
 		}
 
-		shaderCount = 1;
 		for (EnttEntity spotE : spotView)
 		{
 			auto& [matrixC, spotC] = spotView.get<Matrix4x4Component, SpotLigthComponent>(spotE);
 			Renderer3D::SetLigthUniform(spotC, matrixC.GlobleMatrix4x4, shaderCount);
 #if RY_ANABLE_RENDERER_ICONE
 			RendererIcons::DrawLigthSpotIcon(matrixC.GlobleMatrix4x4, (int)spotE);
+#else
+			Renderer2D::DrawLigthSpotIcon(matrixC.GlobleMatrix4x4, (int)spotE);
 #endif
-			shaderCount++;
 		}
 		
 	}
-
-
 
 
 
@@ -542,12 +564,21 @@ namespace Rynex {
 		return {};
 	}
 
-	bool Scene::IsTagInScene(const std::string& tag)
+	Entity Scene::GetEntityByName(const std::string& tag)
 	{
-		return (m_EntityMapTag.find(tag) != m_EntityMapTag.end());
+		auto viewTag = m_Registery.view<TagComponent>();
+		for (auto& entityTag : viewTag)
+		{
+			const auto& tagC = viewTag.get<TagComponent>(entityTag);
+			if (tagC.Tag == tag)
+			{
+				return Entity{ entityTag, this };
+			}
+		}
+		return Entity();
 	}
 
-	Entity Scene::GetPrimaryCameraEntity()
+	Entity Scene::GetEntityPrimaryCamera()
 	{
 		auto view = m_Registery.view<CameraComponent>();
 		for (auto entity : view)
@@ -558,6 +589,12 @@ namespace Rynex {
 		}
 		return {};
 	}
+	bool Scene::IsTagInScene(const std::string& tag)
+	{
+		return (m_EntityMapTag.find(tag) != m_EntityMapTag.end());
+	}
+
+	
 
 	// Default
 	template<typename T>

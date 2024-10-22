@@ -16,10 +16,26 @@ namespace Rynex {
 		RY_CORE_MEMORY_ALICATION("m_SceneData", "Renderer::Init || namespace Rynex", Renderer::SceneData);
 		RY_CORE_INFO("Renderer::Init Start!");
 		RY_PROFILE_FUNCTION();
-	
+
 		RenderCommand::Init();
 		BufferAPI::Init();
 		Renderer2D::Init();
+		Renderer3D::Init();
+#if RY_ANABLE_RENDERER_ICONE
+		RendererIcons::Init();
+#endif
+		RY_CORE_INFO("Renderer::Init Finished!");
+	}
+
+	void Renderer::InitEditor()
+	{
+		RY_CORE_MEMORY_ALICATION("m_SceneData", "Renderer::Init || namespace Rynex", Renderer::SceneData);
+		RY_CORE_INFO("Renderer::Init Start!");
+		RY_PROFILE_FUNCTION();
+	
+		RenderCommand::Init();
+		BufferAPI::Init();
+		Renderer2D::InitEditor();
 		Renderer3D::Init();
 #if RY_ANABLE_RENDERER_ICONE
 		RendererIcons::Init();

@@ -157,8 +157,7 @@ namespace Rynex {
 
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
-            RY_CORE_ASSERT(false, "Error Faild to loade File: {0}", importer.GetErrorString());
-            std::cout << "Fehler beim Laden der Datei: " << importer.GetErrorString() << std::endl;
+            RY_CORE_ASSERT(false, ("Error Faild to loade File: {0}", importer.GetErrorString()));
             return nullptr;
         }
         

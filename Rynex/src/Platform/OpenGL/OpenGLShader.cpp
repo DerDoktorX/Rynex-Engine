@@ -292,7 +292,7 @@ namespace Rynex {
 		}
 		case ShaderDataType::Int:
 		{
-			UploadUniformIntArray(name, value, count);
+			//UploadUniformIntArray(name, value, count);
 			break;
 		}
 		default:
@@ -420,7 +420,7 @@ namespace Rynex {
 
 	void OpenGLShader::SetIntArray(const std::string& name, int32_t* value, uint32_t count)
 	{
-		UploadUniformIntArray(name, &value, count);
+		UploadUniformIntArray(name, value, count);
 	}
 
 
@@ -598,12 +598,13 @@ namespace Rynex {
 		glUniform1iv(location, count, values);
 	}
 
+#if 0
 	void OpenGLShader::UploadUniformIntArray(const std::string& name, void* values, uint32_t count)
 	{
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform1iv(location, count, static_cast<int32_t*>(values));
 	}
-
+#endif
 
 	void OpenGLShader::UploadUniformInt2(const std::string& name, const glm::ivec2& value)
 	{

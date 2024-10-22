@@ -38,6 +38,8 @@ namespace Rynex {
 		return childe;
 	}
 
+
+	// Destroy not From Scene Regestriy only prepar childrens
 	void Entity::DestroyEntity()
 	{
 		RealtionShipComponent& parentRealtionshipC = GetComponent<RealtionShipComponent>();
@@ -78,7 +80,6 @@ namespace Rynex {
 	{
 		RealtionShipComponent& parentRealtionshipC = GetComponent<RealtionShipComponent>();
 		UUID nextChilde = parentRealtionshipC.FirstID;
-		UUID newParentEnitity = parentRealtionshipC.ParentID;
 		while (nextChilde)
 		{
 			Entity childeEntity = m_Scene->GetEntitiyByUUID(nextChilde);
@@ -93,6 +94,42 @@ namespace Rynex {
 			}
 			nextChilde = childeRealtionshipC.NextID;
 			m_Scene->DestroyEntity(childeEntity);
+		}
+	}
+
+	void Entity::UpdateMatrix()
+	{
+		TransformComponent& entityTransformC = GetComponent<TransformComponent>();
+		Matrix4x4Component& entityMatrix4x4C = GetComponent<Matrix4x4Component>();
+		RealtionShipComponent& parentRealtionshipC = GetComponent<RealtionShipComponent>();
+		UUID nextChilde = parentRealtionshipC.FirstID;
+
+		entityMatrix4x4C.Matrix4x4 = entityTransformC.GetTransform();
+		UUID parentEnitity = parentRealtionshipC.ParentID;
+		if(parentEnitity)
+		{
+			Entity parent = m_Scene->GetEntitiyByUUID(parentEnitity);
+			glm::mat4& parentMat =  parent.GetComponent<Matrix4x4Component>().GlobleMatrix4x4;
+			entityMatrix4x4C.GlobleMatrix4x4 = parentMat * entityMatrix4x4C.Matrix4x4;
+		}
+		else
+		{
+			entityMatrix4x4C.GlobleMatrix4x4 = entityMatrix4x4C.Matrix4x4;
+		}
+
+		while (nextChilde)
+		{
+			Entity childeEntity = m_Scene->GetEntitiyByUUID(nextChilde);
+			RealtionShipComponent& childeRealtionshipC = childeEntity.GetComponent<RealtionShipComponent>();
+			RY_CORE_ASSERT(childeRealtionshipC.ParentID == GetUUID(), "is not SameParent!");
+
+			UUID first = childeRealtionshipC.FirstID;
+			if (first)
+			{
+				Entity firstChilde = m_Scene->GetEntitiyByUUID(nextChilde);
+				firstChilde.UpdateMatrix();
+			}
+			nextChilde = childeRealtionshipC.NextID;
 		}
 	}
 

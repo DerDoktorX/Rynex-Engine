@@ -45,6 +45,7 @@ namespace Rynex {
 		virtual void SetUint4Array(const std::string& name, uint32_t* value, uint32_t count)override;
 
 		virtual void SetInt(const std::string& name, int32_t value) override;
+
 		virtual void SetIntArray(const std::string& name, int32_t* value, uint32_t count) override;
 		virtual void SetInt2(const std::string& name, const glm::ivec2& value) override;
 		virtual void SetInt2Array(const std::string& name, int32_t* value, uint32_t count) override;
@@ -84,6 +85,7 @@ namespace Rynex {
 		void UploadUniformUint(const std::string& name, uint32_t value);
 		void UploadUniformUint(const std::string& name, void* value);
 		void UploadUniformUintArray(const std::string& name, uint32_t* value, uint32_t count);
+
 		void UploadUniformUintArray(const std::string& name, void* value, uint32_t count);
 
 		void UploadUniformUint2(const std::string& name, const glm::uvec2& value);
@@ -105,8 +107,10 @@ namespace Rynex {
 		void UploadUniformInt(const std::string& name, int value);
 		void UploadUniformInt(const std::string& name, void* value);
 		void UploadUniformIntArray(const std::string& name, int32_t* value, uint32_t count);
+#if 0
 		void UploadUniformIntArray(const std::string& name, void* value, uint32_t count);
-		
+#endif	
+
 		void UploadUniformInt2(const std::string& name, const glm::ivec2& value);
 		void UploadUniformInt2(const std::string& name, void* value);
 		void UploadUniformInt2Array(const std::string& name, int32_t* value, uint32_t count);

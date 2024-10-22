@@ -18,7 +18,7 @@ namespace Rynex {
 		{ AssetType::Texture, TextureImporter::ImportTexture },
 		{ AssetType::Shader, ShaderImporter::ImportShader },
 		{ AssetType::Scene, SceneImporter::ImportScene },
-		{ AssetType::FrameBuffer, FramebufferImporter::ImportFramebuffer },
+		{ AssetType::Framebuffer, FramebufferImporter::ImportFramebuffer },
 		{ AssetType::VertexArray, VertexArrayImporter::ImportVertexArray },
 		{ AssetType::Model, ModelImporter::ImportModel }
 
@@ -31,7 +31,7 @@ namespace Rynex {
 		{ AssetType::Texture, TextureImporter::ReLoadeTexture },
 		{ AssetType::Shader, ShaderImporter::ReLoadeShader },
 		{ AssetType::Scene, SceneImporter::ReLoadingScene },
-		{ AssetType::FrameBuffer, FramebufferImporter::ReLoadingFramebuffer },
+		{ AssetType::Framebuffer, FramebufferImporter::ReLoadingFramebuffer },
 		{ AssetType::VertexArray, VertexArrayImporter::ReLoadeVertexArray },
 		{ AssetType::Model, ModelImporter::ReLoadeModel }
 

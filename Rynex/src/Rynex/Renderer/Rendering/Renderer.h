@@ -24,7 +24,9 @@ namespace Rynex {
 		};
 	public:
 		static void Init();
+		static void InitEditor();
 		static void Shutdown();
+
 		static void OnWindowsResize(uint32_t width, uint32_t height);
 
 		static void BeginScene(OrthograficCamera& camera);

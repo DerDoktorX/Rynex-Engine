@@ -5,21 +5,19 @@ namespace Rynex {
 
 	using AssetHandle = UUID;
 
-	enum class AssetType : uint8_t
+	enum class AssetType
 	{
 		None = 0,
 		Scene,
 		Shader,
 		Texture, 
 		Texture2D,
-#if 1
 		Value, Vector2, Vector3, Vector4, Matrix3x3, Matrix4x4,
 		Entity, SceneCamera,
-		FrameBuffer,
+		Framebuffer,
 		VertexBuffer, IndexBuffer, StorageBuffer, UniformBuffer,
 		VertexArray, StorageArray,
 		Mesh, Model
-#endif
 	};
 
 	std::string_view AssetTypeToString(AssetType type);

@@ -1,5 +1,19 @@
 ﻿namespace Rynex
 {
+    public enum AssetType
+    {
+        None = 0,
+        Scene,
+        Shader,
+        Texture,
+        Texture2D,
+        Value, Vector2, Vector3, Vector4, Matrix3x3, Matrix4x4,
+        Entity, SceneCamera,
+        Framebuffer,
+        VertexBuffer, IndexBuffer, StorageBuffer, UniformBuffer,
+        VertexArray, StorageArray,
+        Mesh, Model
+    }
 
     public struct AssetHandle
     {
@@ -30,5 +44,6 @@
         }
 
         public readonly AssetHandle Handle;
+
     }
 }

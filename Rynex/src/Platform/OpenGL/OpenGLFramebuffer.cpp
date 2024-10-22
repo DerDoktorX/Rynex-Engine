@@ -171,6 +171,8 @@ namespace Rynex {
 		
 		size_t iT = 0;
 		uint32_t indexAsset = 0;
+		m_FrambufferSize = { m_Specification.Width, m_Specification.Height };
+
 		// Atachments
 		if (m_ColorAttachmentSpecifications.size())
 		{
@@ -208,6 +210,14 @@ namespace Rynex {
 			case FramebufferTextureFormat::DEPTH24STENCIL8:
 				Utils::AttachDepthTexture(m_DepthAttachment, m_Specification.Samples, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, m_Specification.Width, m_Specification.Height);
 				m_Texures.push_back(Texture::CreateFrame(Handle, -1));
+				if (m_ColorAttachments.size() == 0)
+				{	
+					glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
+					glDrawBuffer(GL_NONE);
+					glReadBuffer(GL_NONE);
+					glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				}
+
 				break;
 			}
 
@@ -279,7 +289,7 @@ namespace Rynex {
 		}
 		m_Specification.Width = width;
 		m_Specification.Height = height;
-
+		
 		Invalidate();
 	}
 

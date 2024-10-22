@@ -103,7 +103,7 @@ namespace Rynex {
 
 	struct ScriptComponent
 	{
-		std::string Name;
+		std::string Name = "None";
 		int selectedScript = 0;
 
 		ScriptComponent() = default;
@@ -173,7 +173,7 @@ namespace Rynex {
 
 		glm::vec<3, float> ClearColor;
 		FrameBufferImageSize FramebufferSize;
-		int EntiyOrigShader;
+		
 
 		FrameBufferComponent() = default;
 		FrameBufferComponent(const FrameBufferComponent&) = default;

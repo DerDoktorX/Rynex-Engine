@@ -31,8 +31,7 @@ void main()
 #version 450 core
 
 layout(location = 0) out vec4 Color;
-layout(location = 1) out vec4 Normal;
-layout(location = 2) out int  EntityID;
+layout(location = 1) out int  EntityID;
 
 uniform vec3 u_Color;
 uniform vec3 u_CamerPos;
@@ -84,12 +83,10 @@ void main()
     vec3 specular =  ligthColor * vec3(specAmount * specularStrength);
 
     vec3 colorLigth = vec3(ambient + diffuse + specular);
-    vec3 result = colorLigth * u_Color.rgb;
+    vec3 result =  u_Color.rgb;
 
 
 
-
-	Color =  texture2D(u_Texture_Diffuse1, vec2(DataIn.uv.x, -DataIn.uv.y)) + vec4(result,1.);
-    Normal = vec4( normal, 1.0 );
-	
+    vec4 texureColore = texture2D(u_Texture_Diffuse1, vec2(DataIn.uv));	
+    Color =  vec4(colorLigth *result, 1.0);
 }

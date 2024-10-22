@@ -1,5 +1,5 @@
 #type Vertex
-#version 330 core
+#version 450 core
 
 layout (location = 0) in vec3 a_Postion;
 layout (location = 1) in vec2 a_UV;
@@ -21,9 +21,10 @@ void main()
 }
 
 #type Fragment
-#version 330 core
+#version 450 core
 
-out vec4 FragColor;
+layout (location = 0) out vec4 FragColor;
+layout (location = 1) out int EntityID;
 
 in vec3 Normal;  
 in vec3 FragPos;  
@@ -32,9 +33,10 @@ uniform vec3 lightPos;
 uniform vec3 viewPos; 
 uniform vec3 lightColor;
 uniform vec3 objectColor;
-
+uniform int u_EntityID;
 void main()
 {
+    EntityID = u_EntityID;
     // ambient
     float ambientStrength = 0.1;
     vec3 ambient = ambientStrength * lightColor;

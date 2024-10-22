@@ -27,8 +27,7 @@ void main()
 #version 450 core
 
 layout(location = 0) out vec4 Color;
-layout(location = 1) out vec4 Normal;
-layout(location = 2) out int  EntityID;
+layout(location = 1) out int  EntityID;
 
 
 layout(location = 0)      in vec2	v_UV;
@@ -42,13 +41,11 @@ void main()
 {
 #if SWITCH_PICTURES
 
-	Normal = vec4( u_Color.rgb 	 , 1.0 );
 	Color  = vec4( v_Normals.rgb , 1.0 );
 
 #else
 
 	Color =  vec4( u_Color.rgb  , 1.0 );
-	Normal = vec4( v_Normals.rgb, 1.0 );
 #endif
 	EntityID = int(0);
 }

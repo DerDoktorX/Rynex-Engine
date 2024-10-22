@@ -1,0 +1,208 @@
+Scene: Untiteld
+Entities:
+  - Entity: 3118441644552840709
+    TagComponent:
+      Tag: Cube
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.899999976, 0.899999976, 0.899999976]
+    MaterialComponent:
+      Color: [1, 0, 1]
+      AlgorithmFlags: 228
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    Matrix4x4Component:
+      Matrix4x4: [0.899999976, 0, 0, 0, 0, 0.899999976, 0, 0, 0, 0, 0.899999976, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [0.899999976, 0, 0, 0, 0, 0.899999976, 0, 0, 0, 0, 0.899999976, 0, 0, 0, 0, 1]
+    MeshComponent:
+      Model:
+        Path: Assets/Models/Cube.gltf
+        Handle: 4669233228273831627
+    StaticMeshComponent:
+      Model-S:
+        Path: Assets/Models/Cube.gltf
+        Handle: 4669233228273831627
+  - Entity: 4582435539733203406
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Transaltion: [12, 8.69999981, 15]
+      Rotation: [-0.432841629, 0.649262488, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectivVerticleFOV: 0.785398185
+        PerspectivNearClipe: 0.00999999978
+        PerspectivFarClipe: 1000
+        OrthographicSize: 10
+        OrthographicNearClipe: 0.00100000005
+        OrthographicFarClipe: 1000
+      Primary: true
+      FixedAspectRotaion: false
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    Matrix4x4Component:
+      Matrix4x4: [0.796529889, 0, -0.604599118, 0, -0.253600359, 0.907777488, -0.334106088, 0, 0.548841476, 0.419452071, 0.723071933, 0, 12, 8.69999981, 15, 1]
+      GlobleMatrix4x4: [0.796529889, 0, -0.604599118, 0, -0.253600359, 0.907777488, -0.334106088, 0, 0.548841476, 0.419452071, 0.723071933, 0, 12, 8.69999981, 15, 1]
+  - Entity: 2742813763717321731
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ClassName: Sandbox.Player
+    GeomtryComponent:
+      Primtiv: 4
+      VertexBuffers:
+        - Laoute:
+            - Name: a_Postion
+              Type: 3
+              Size: 12
+              Offset: 0
+              Normilized: false
+            - Name: a_UV
+              Type: 2
+              Size: 8
+              Offset: 12
+              Normilized: false
+            - Name: a_Normals
+              Type: 3
+              Size: 12
+              Offset: 20
+              Normilized: false
+          BuferData:
+            - [-1, 1, -1]
+            - [-1, 1]
+            - [-1, 1, -1]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+            - [0, 0, 0]
+            - [0, 0]
+            - [0, 0, 0]
+      IndexBuffer:
+        Size-Byte: 384
+        Byts: 4
+        Indicies: [0, 1, 1, 2, 2, 3, 3, 0, 0, 4, 4, 5, 5, 6, 6, 7, 7, 4, 7, 3, 6, 2, 5, 1, 2573882336, 438, 490331835, 2415975680, 2577122192, 438, 2577120800, 438, 2577119792, 438, 2577120080, 438, 2577120416, 438, 2577120704, 438, 2573937728, 438, 2573937296, 438, 2573938592, 438, 2573937152, 438, 6776176, 1701866030, 1734672487, 0, 7536741, 0, 489742002, 2147540480, 2577111680, 438, 2577113168, 438, 2577112448, 438, 2577112304, 438, 2577110624, 438, 2577113264, 438, 2577112064, 438, 2577110576, 438, 2577110864, 438, 2577111056, 438, 2577113456, 438, 2577116144, 438, 2577114704, 438, 490200757, 2147540736, 1702064961, 1294955380, 1818584175, 1633234803, 762279021, 1701080909, 1702113132, 1920300152, 1244623717, 825241667, 1952531295, 1819635809]
+    MaterialComponent:
+      Color: [1, 0, 1]
+      AlgorithmFlags: 65604
+      Shader:
+        Path: Assets/shaders/LernOpenglTest.glsl
+        Handle: 9820104281463179781
+      UniformLayoute:
+        - Name: lightColor
+          Type: 3
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: [1, 1, 1]
+        - Name: lightPos
+          Type: 3
+          ShaderResourceType: 0
+          GloblelResurce: false
+          LocalResurce: [10, 100, 20]
+        - Name: model
+          Type: 6
+          ShaderResourceType: 1
+          GloblelResurce: true
+        - Name: objectColor
+          Type: 3
+          ShaderResourceType: 2
+          GloblelResurce: true
+        - Name: projection
+          Type: 6
+          ShaderResourceType: 6
+          GloblelResurce: true
+        - Name: u_EntityID
+          Type: 8
+          ShaderResourceType: 4
+          GloblelResurce: true
+        - Name: view
+          Type: 6
+          ShaderResourceType: 5
+          GloblelResurce: true
+        - Name: viewPos
+          Type: 3
+          ShaderResourceType: 3
+          GloblelResurce: true
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    Matrix4x4Component:
+      Matrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      GlobleMatrix4x4: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]

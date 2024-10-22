@@ -223,6 +223,8 @@ namespace Rynex {
     void ViewPortPannel::RenderSelectedEntity()
     {
         Entity slelcted = m_EditorLayer->GetSelectedEntity();
+        if (!slelcted)
+            return;
         m_SelectedFramebuffer->Bind();
         RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
         RenderCommand::Clear();
@@ -233,10 +235,10 @@ namespace Rynex {
             Matrix4x4Component mat4C = slelcted.GetComponent<Matrix4x4Component>();
             if (slelcted.HasComponent<SpriteRendererComponent>())
             {
-                Renderer2D::BeginScene(mainCamera, viewMatrix);
+                Renderer2D::BeginSceneQuade(mainCamera, viewMatrix);
                 SpriteRendererComponent spriteC = slelcted.GetComponent<SpriteRendererComponent>();
                 Renderer2D::DrawSprite(mat4C.GlobleMatrix4x4, spriteC, slelcted.GetEntityHandle());
-                Renderer2D::EndScene();
+                Renderer2D::EndSceneQuade();
             }
             else  if (slelcted.HasComponent<GeomtryComponent>() )
             {
@@ -413,7 +415,7 @@ namespace Rynex {
     {
         ImGuiWindow* window = ImGui::GetCurrentWindow();
         ImGuiDockNode* node = window->DockNode;
-        bool isTabBarVisible = node->WantHiddenTabBarToggle;
+        bool isTabBarVisible = node ? node->WantHiddenTabBarToggle : false;
 
         ImVec2 windowSize = ImGui::GetWindowSize();
         ImVec2 minBound = ImGui::GetWindowPos();
@@ -489,7 +491,7 @@ namespace Rynex {
             }
             case SceneState::Play:
             {
-                auto camerEntt = m_AktiveScene->GetPrimaryCameraEntity();
+                auto camerEntt = m_AktiveScene->GetEntityPrimaryCamera();
                 const auto& camera = camerEntt.GetComponent<CameraComponent>().Camera;
                 const glm::mat4& camerProj = camera.GetProjektion();
                 camerView = glm::inverse(camerEntt.GetComponent<Matrix4x4Component>().GlobleMatrix4x4);

@@ -3,8 +3,11 @@
 #include "EditorLayer.h"
 
 #include <Rynex/Core/Application.h>
-#include <Rynex/Scripting/ScriptingEngine.h>
-
+#if RY_SCRIPTING_HAZEL
+	#include <Rynex/Scripting/HazelScripting/ScriptEngine.h> 
+#else
+	#include <Rynex/Scripting/ScriptingEngine.h>
+#endif
 #include <imgui/imgui.h>
 
 namespace Rynex {
@@ -113,7 +116,11 @@ namespace Rynex {
 		if (ImGui::BeginMenu("Script"))
 		{
 			if (ImGui::MenuItem("Reload assembly", "Ctrl+R"))
+#if RY_SCRIPTING_HAZEL
+				ScriptEngine::ReloadAssembly();
+#else
 				ScriptingEngine::ReloadAssambly();
+#endif
 			ImGui::EndMenu();
 		}
 	}

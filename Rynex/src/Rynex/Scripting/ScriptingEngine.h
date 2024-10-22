@@ -62,15 +62,15 @@ namespace Rynex {
 		static void Init();
 		static void Shutdown();
 
-		static void LoadAssambly(const std::filesystem::path& filepath);
-		static void LoadAppAssambly(const std::filesystem::path& filepath);
+		static bool LoadAssambly(const std::filesystem::path& filepath);
+		static bool LoadAppAssambly(const std::filesystem::path& filepath);
 		static void OnRuntimeStart(Scene* scene);
 		static void OnRuntimeStop();
 
 		static void ReloadAssambly();
 		static bool ReloadeScriptAvaible();
 
-		static std::string* GetListExistClasses();
+		static std::vector<std::string> GetListExistClasses();
 		static std::string& GetListClassName(uint32_t count);
 		static uint32_t GetClassLength();
 
@@ -78,11 +78,13 @@ namespace Rynex {
 		static void OnCreatEntity(Entity entity);
 		static void OnUpdateEntity(Entity entity, float ts);
 		static void OnDrawEntity(Entity entity);
+		static void OnDestroyEntity(Entity entity);
 		static Scene* GetSceneContext();
 
 		static std::unordered_map<std::string, Ref<ScriptClass>> GetEntityClasses();
 		
 		static MonoImage* GetCoreAssemblyImage();
+		static MonoImage* GetAppAssemblyImage();
 	private:
 		static void InitMono();
 		static void ShutdownMono();

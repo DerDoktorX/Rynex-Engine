@@ -1,4 +1,6 @@
-﻿namespace Rynex
+﻿using System;
+
+namespace Rynex
 {
     public class VertexArray : Asset
     {
@@ -26,7 +28,23 @@
 
         ~VertexArray()
         {
+            Destroy();
+        }
+
+        public void Destroy()
+        {
             InternalCalls.VertexArray_Destroy(Handle.UUID);
+        }
+
+        public static VertexArray GetAsset(string path)
+        {
+            InternalCalls.AssetManger_GetAsset_Path(path, AssetType.VertexArray, out ulong handle);
+            return new VertexArray(handle);
+        }
+        public static VertexArray GetAsset(ulong handle)
+        {
+            InternalCalls.AssetManger_GetAsset_Handle(handle, AssetType.VertexArray);
+            return new VertexArray(handle);
         }
         public void Bind()
         {
