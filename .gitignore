@@ -25,7 +25,8 @@ Profile/
 #Intermediates/
 Intermediates/
 Resources/Binaries/
-
+SandboxProject/Assets/Scripts/Binaries
+SandboxProject/Assets/Scripts/Intermediates
 
 # Hazel files
 *.log
