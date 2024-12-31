@@ -3,8 +3,13 @@
 
 #define GL_ARB_separate_shader_objects
 #include <fstream>
+
 #include <glad/glad.h>
+
+#include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "Rynex/Core/Application.h"
 
 namespace Rynex {
 
@@ -19,6 +24,29 @@ namespace Rynex {
 			if (type == "TessEvalution")				return GL_TESS_EVALUATION_SHADER;
 			if (type == "Compute")						return GL_COMPUTE_SHADER;
 
+			RY_CORE_ASSERT(false, "Unkowne Shader Type!");
+			return 0;
+		}
+
+		static GLenum ShaderTypeFrom(Shader::Type type)
+		{
+			switch (type)
+			{
+			case Shader::Type::Vertex:					return GL_VERTEX_SHADER;
+			case Shader::Type::Fragment:				return GL_FRAGMENT_SHADER;
+			case Shader::Type::TeselationControl:		return GL_TESS_CONTROL_SHADER;
+			case Shader::Type::TeselationEvelution:		return GL_TESS_EVALUATION_SHADER;
+			case Shader::Type::Compute:					return GL_COMPUTE_SHADER;
+			case Shader::Type::Geometry:				return GL_GEOMETRY_SHADER;
+			case Shader::Type::MeshShader:		
+				RY_CORE_ASSERT(false, "Not Impl Shader Type MeshShader");		
+				return 0;
+			case Shader::Type::None:					
+				RY_CORE_ASSERT(false, "Unkowne Shader Type! None"); 
+				return 0;
+			default:
+				break;
+			}
 			RY_CORE_ASSERT(false, "Unkowne Shader Type!");
 			return 0;
 		}
@@ -40,12 +68,12 @@ namespace Rynex {
 		{
 			switch (type)
 			{
-				case GL_VERTEX_SHADER: return "GL_VERTEX_SHADER";
-				case GL_FRAGMENT_SHADER: return "GL_FRAGMENT_SHADER";
-				case GL_GEOMETRY_SHADER: return "GL_GEOMETRY_SHADER";
-				case GL_TESS_CONTROL_SHADER: return "GL_TESS_CONTROL_SHADER";
+				case GL_VERTEX_SHADER:			return "GL_VERTEX_SHADER";
+				case GL_FRAGMENT_SHADER:		return "GL_FRAGMENT_SHADER";
+				case GL_GEOMETRY_SHADER:		return "GL_GEOMETRY_SHADER";
+				case GL_TESS_CONTROL_SHADER:	return "GL_TESS_CONTROL_SHADER";
 				case GL_TESS_EVALUATION_SHADER: return "GL_TESS_EVALUATION_SHADER";
-				case GL_COMPUTE_SHADER: return "GL_COMPUTE_SHADER";
+				case GL_COMPUTE_SHADER:			return "GL_COMPUTE_SHADER";
 				default:
 					break;
 			}
@@ -54,7 +82,90 @@ namespace Rynex {
 			return 0;
 		}
 
-		static bool CheckeShader(GLint shader)
+
+		static uint32_t GetErrorMassgaeLine(const std::vector<GLchar>& infoLog, uint32_t* places, uint32_t *startIndex)
+		{
+			uint8_t state = 0;
+			uint32_t number = 0;
+			uint32_t size = infoLog.size();
+			for (uint32_t i = 0; i < size; i++)
+			{
+				auto& charekter = infoLog[i];
+				switch (state)
+				{
+				case 0:
+				{
+					if (charekter == '(')
+					{
+						state = 1;
+						*startIndex = i + 1;
+					}
+					break;
+				}
+				case 1:
+				{
+					if (charekter == ')')
+					{
+						state = 2;
+						return number;
+					}
+					number = number * 10 + (charekter - '0');
+					*places++;
+					break;
+
+				}
+				
+				}
+			}
+		}
+
+		static void ChangeLocaleLineInGlobleLine(std::vector<GLchar>& infoLog, uint32_t shaderLineOffset)
+		{
+			if (shaderLineOffset == 0)
+				return;
+			uint32_t places = 0, startIndex = 0;
+			uint32_t number = GetErrorMassgaeLine(infoLog, &places, &startIndex);
+			number += shaderLineOffset;
+			RY_CORE_FATAL("Mayby Line {} is mean!", number);
+			return;
+#if 0
+			uint32_t count = 1;
+			while (1.0f < (number * std::pow(0.1, count)))
+				count++;
+			
+			if (places < count)
+			{
+				uint32_t space = count - places;
+				uint32_t end = startIndex + space;
+				for (uint32_t i = startIndex; i < end; i++)
+				{
+					auto it = infoLog.begin() + i;
+					infoLog.insert(it, ' ');
+				}
+				
+			}
+
+			{
+				uint32_t end = startIndex + count;
+				for (uint32_t i = startIndex; i < end; i++)
+				{
+					uint32_t num = (number * std::pow(0.1, count - i));
+					RY_CORE_ASSERT(num < 10, "We need values between 0-9!");
+
+					if (num < 10)
+						infoLog[i] = num + '0';
+					else
+					{
+						RY_CORE_FATAL("Mayby Line {} is mean!", number);
+						return;
+					}
+				}
+			}
+#endif // TODO: Config the opengl Error Masge
+
+		}
+
+		static bool CheckeShader(GLint shader, uint32_t shaderLineOffset)
 		{
 			GLint isCompiled = 0;
 			glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
@@ -67,6 +178,7 @@ namespace Rynex {
 				glGetShaderInfoLog(shader, maxLength, &maxLength, &infoLog[0]);
 
 				glDeleteShader(shader);
+				ChangeLocaleLineInGlobleLine(infoLog, shaderLineOffset);
 
 				RY_CORE_ERROR("{0}", infoLog.data());
 				RY_CORE_ASSERT(false, "Shader Compilation failure!");
@@ -75,13 +187,13 @@ namespace Rynex {
 			return true;
 		}
 
-		static GLint CreateShader(const GLchar* shaderSource, GLenum type)
+		static GLint CreateShader(const GLchar* shaderSource, GLenum type, uint32_t shaderLineOffset)
 		{
 			GLint shader = glCreateShader(type);
 			glShaderSource(shader, 1, &shaderSource, 0);
 			glCompileShader(shader);
 			RY_CORE_INFO("CheckeShader -> {0}", StringFromShaderType(type).c_str());
-			if (CheckeShader(shader))
+			if (CheckeShader(shader, shaderLineOffset))
 				return shader;
 			return -1;
 		}
@@ -128,7 +240,7 @@ namespace Rynex {
 				}
 			}
 		}
-
+#if 0
 		static void GetUniformList(const std::string& shaderCode, std::map<std::string, UniformElement>& uniformMap)
 		{
 			std::istringstream stream(shaderCode);
@@ -147,24 +259,45 @@ namespace Rynex {
 						UniformElement& uniformElement = uniformMap[name];
 						uniformElement.Name = name;
 						uniformElement.Type = BufferAPI::GetShaderDataTypeFromString(type);
-
 					}
 				}
 			}
 			stream.clear();
 		}
+#endif
 
-		
+		static uint32_t GetLineCount(const std::string& shader)
+		{
+			uint32_t count = 0;
+			std::string sub = "\n";
+			size_t pos = shader.find(sub);
+
+			while (pos != std::string::npos)
+			{
+				++count;
+				pos = shader.find(sub, pos + sub.length());
+			}
+			return count;
+		}
 
 		
 	}
 
 
-	OpenGLShader::OpenGLShader(const std::string& source, const std::string& name)
+	OpenGLShader::OpenGLShader(std::string&& source)
+		: m_Source(std::move(source))
 	{
-		auto shaderSources = PreProcess(source);
+		Application::Get().SubmiteToMainThreedQueue([this]() {
+			InitAsync();
+		});
+	}
+
+	OpenGLShader::OpenGLShader(const std::string& source, const std::string& name)
+		: m_Name(name), m_Source(source)
+	{
+		std::unordered_map<uint32_t, std::string> shaderSources = PreProcess(m_Source);
 		Compile(shaderSources);
-		m_Name = name;
+		
 	}
 
 	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
@@ -196,6 +329,14 @@ namespace Rynex {
 	void OpenGLShader::UnBind() const
 	{
 		glUseProgram(0);
+	}
+
+	void OpenGLShader::InitAsync()
+	{
+		auto shaderSources = PreProcess(m_Source);
+		Compile(shaderSources);
+		m_Source.clear();
+		m_Source.shrink_to_fit();
 	}
 
 	void OpenGLShader::AddShader(const std::string& shader, Shader::Type shaderType)
@@ -304,9 +445,10 @@ namespace Rynex {
 	std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(const std::string& source)
 	{
 		std::unordered_map<GLenum, std::string> shaderSource;
+		
 #if 0
 		std::map<std::string, std::string> sUniformBuffer;
-		std::map<std::string, UniformElement> uniformBuffer;
+		std::map<std::string, Buu> uniformBuffer;
 #endif
 		const char* typeToken = "#type";
 		size_t typeTokenLeangth = strlen(typeToken);
@@ -325,7 +467,9 @@ namespace Rynex {
 			Utils::GetUniformList(source, uniformBuffer);
 			Utils::GetUniformList(source, sUniformBuffer);
 #endif
-			shaderSource[Utils::ShaderTypeFromString(type)] = source.substr(nextLinePos, pos - (nextLinePos == std::string::npos ? source.size() - 1 : nextLinePos));
+			std::string& shader = source.substr(nextLinePos, pos - (nextLinePos == std::string::npos ? source.size() - 1 : nextLinePos));
+			m_ShaderMap[Utils::ShaderTypeEnumFromString(type)] = shader;
+			shaderSource[Utils::ShaderTypeFromString(type)] = shader;
 			m_ShaderType |= (int)Utils::ShaderTypeEnumFromString(type);
 		}
 #if 0
@@ -342,15 +486,18 @@ namespace Rynex {
 		std::array<GLenum, 4> glShaderIDs;
 		
 		int glShaderIndex = 0;
+		uint32_t shaderLineOffset = 0;
 		for (auto& shaderSrc : shadersSources)
 		{
 			GLenum type = shaderSrc.first;
 			const std::string& source = shaderSrc.second;
 			const GLchar* sourceCstr = source.c_str();
 			
-			GLint shader = Utils::CreateShader(sourceCstr, type);
+			GLint shader = Utils::CreateShader(sourceCstr, type, shaderLineOffset);
+			shaderLineOffset += Utils::GetLineCount(sourceCstr);
 			glAttachShader(program, shader);
 			glShaderIDs[glShaderIndex++]=shader;
+			
 		}
 
 		m_RendererID = program;
@@ -517,7 +664,7 @@ namespace Rynex {
 
 	void OpenGLShader::SetMat4Array(const std::string& name, float* value, uint32_t count)
 	{
-		UploadUniformMat3Array(name, value, count);
+		UploadUniformMat4Array(name, value, count);
 	}
 
 #pragma endregion

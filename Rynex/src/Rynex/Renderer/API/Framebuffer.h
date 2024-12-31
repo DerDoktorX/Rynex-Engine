@@ -5,20 +5,7 @@
 
 namespace Rynex {
 #if 1
-	enum class RYNEX_API FramebufferTextureFormat
-	{
-		None = 0,
-
-		// Color
-		RGBA8,
-		RED_INTEGER,
-
-		// Depth/stencil
-		DEPTH24STENCIL8,
-
-		// Defaults
-		Depth = DEPTH24STENCIL8
-	};
+	
 #endif
 	enum class RYNEX_API FrameBufferImageSize : uint8_t {
 		Nono = 0,
@@ -27,30 +14,36 @@ namespace Rynex {
 		StaticSize
 	};
 
-	
+
 
 	struct RYNEX_API FramebufferTextureSpecification
 	{
 		FramebufferTextureSpecification() = default;
 
-		FramebufferTextureSpecification(FramebufferTextureFormat format)
+		FramebufferTextureSpecification(TextureFormat format)
 			: TextureFormat(format) {}
 
-		FramebufferTextureSpecification(FramebufferTextureFormat format, TextureWrappingSpecification wrapping)
-			: TextureFormat(format), TextureWrapping(wrapping) {}
+		FramebufferTextureSpecification(TextureFormat format, uint32_t samples)
+			: TextureFormat(format), Samples(samples){}
 
-		FramebufferTextureSpecification(FramebufferTextureFormat format, TextureFilteringMode filtering)
-			: TextureFormat(format), TextureFiltering(filtering) {}
+		FramebufferTextureSpecification(TextureFormat format, uint32_t samples, TextureWrappingSpecification wrapping)
+			: TextureFormat(format), Samples(samples), TextureWrapping(wrapping) {}
 
-		FramebufferTextureSpecification(FramebufferTextureFormat format, TextureWrappingSpecification wrapping, TextureFilteringMode filtering)
-			: TextureFormat(format), TextureWrapping(wrapping), TextureFiltering(filtering) {}
+
+		FramebufferTextureSpecification(TextureFormat format, uint32_t samples, TextureWrappingSpecification wrapping, TextureFilteringMode filtering)
+			: TextureFormat(format), Samples(samples), TextureWrapping(wrapping), TextureFiltering(filtering) {}
 		
 
-		FramebufferTextureFormat TextureFormat = FramebufferTextureFormat::None;
-		TextureWrappingSpecification TextureWrapping = TextureWrappingSpecification();
-		TextureFilteringMode TextureFiltering = TextureFilteringMode::None;
+		TextureFormat TextureFormat = TextureFormat::RGBA8;
+		uint32_t Samples = 1;
+		TextureWrappingSpecification TextureWrapping = {
+			TextureWrappingMode::ClampEdge,
+			TextureWrappingMode::ClampEdge,
+			TextureWrappingMode::ClampEdge
+		};
+		TextureFilteringMode TextureFiltering = TextureFilteringMode::Linear;
 
-		bool operator ==(FramebufferTextureSpecification framebufferTextureSpecification)
+		bool operator ==(FramebufferTextureSpecification& framebufferTextureSpecification)
 		{
 			return (framebufferTextureSpecification.TextureFormat == TextureFormat) && 
 				(framebufferTextureSpecification.TextureFiltering == TextureFiltering) &&
@@ -66,47 +59,57 @@ namespace Rynex {
 		FramebufferAttachmentSpecification(std::vector<FramebufferTextureSpecification>& attachments)
 			: Attachments(attachments) {}
 
+		std::vector<FramebufferTextureSpecification>::iterator begin()
+		{
+			return Attachments.begin();
+		}
+
+		std::vector<FramebufferTextureSpecification>::iterator end()
+		{
+			return Attachments.end();
+		}
+
+		std::vector<FramebufferTextureSpecification>::const_iterator begin() const
+		{
+			return Attachments.begin();
+		}
+
+		std::vector<FramebufferTextureSpecification>::const_iterator end() const
+		{
+			return Attachments.end();
+		}
+
+		FramebufferTextureSpecification& operator[](uint32_t index)
+		{
+			RY_CORE_ASSERT(index > Attachments.size());
+			return Attachments[index];
+		}
+
+		const FramebufferTextureSpecification& operator[](uint32_t index) const
+		{
+			RY_CORE_ASSERT(index > Attachments.size());
+			return Attachments[index];
+		}
+
 		std::vector<FramebufferTextureSpecification> Attachments;
 	};
 
 	struct FramebufferSpecification
 	{
-		uint32_t Width = 0, Height = 0;
+		uint32_t Width = 1, Height = 1;
 		FramebufferAttachmentSpecification Attachments;
 		uint32_t Samples = 1;
 		bool SwapChainTarget = false;
-
-		FramebufferSpecification() = default;
-		FramebufferSpecification(FramebufferAttachmentSpecification attachments)
-			: Attachments(attachments) {}
-
-		FramebufferSpecification(FramebufferAttachmentSpecification attachments, uint32_t width,  uint32_t height)
-			: Attachments(attachments), Width(width), Height(height) {}
-
-		FramebufferSpecification(FramebufferAttachmentSpecification attachments, uint32_t sample)
-			: Attachments(attachments), Samples(sample) {}
-
-		FramebufferSpecification(FramebufferAttachmentSpecification attachments, uint32_t width, uint32_t height, uint32_t sample)
-			: Attachments(attachments), Width(width), Height(height), Samples(sample) {}
-
-		FramebufferSpecification(FramebufferAttachmentSpecification attachments, uint32_t width, uint32_t height, uint32_t sample, bool swapChainTarget)
-			: Attachments(attachments), Width(width), Height(height), Samples(sample), SwapChainTarget(swapChainTarget) {}
-	
-		FramebufferSpecification(FramebufferAttachmentSpecification attachments, bool swapChainTarget)
-			: Attachments(attachments),  SwapChainTarget(swapChainTarget) {}
-
-		FramebufferSpecification(FramebufferAttachmentSpecification attachments, uint32_t width, uint32_t height, bool swapChainTarget)
-			: Attachments(attachments), Width(width), Height(height), SwapChainTarget(swapChainTarget) {}
 	};
 
-	static std::string GetStringFromFramTexFormat(FramebufferTextureFormat format)
+	static std::string GetStringFromFramTexFormat(TextureFormat format)
 	{
 		switch (format)
 		{
-			case FramebufferTextureFormat::None:			return "None";
-			case FramebufferTextureFormat::RGBA8:			return "RGBA8";
-			case FramebufferTextureFormat::RED_INTEGER:		return "RED_INTEGER";
-			case FramebufferTextureFormat::Depth:			return "Depth";
+			case TextureFormat::None:			return "None";
+			case TextureFormat::RGBA8:			return "RGBA8";
+			case TextureFormat::RED_INTEGER:	return "RED_INTEGER";
+			// case TextureFormat::Depth:			return "Depth";
 			default:
 				break;
 		}
@@ -128,9 +131,12 @@ namespace Rynex {
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const = 0;
 		virtual uint32_t GetDeathAttachmentRendererID() const = 0;
 
-		virtual Ref<Texture> GetTexture(uint32_t index = 0) const = 0;
-		virtual std::vector<Ref<Texture>> GetTextures() const = 0;
-		virtual const uint32_t GetTexturesSize() const = 0;
+		virtual const Ref<Texture>& GetAttachmentTexture(uint32_t index = 0) const = 0;
+		virtual const std::vector<Ref<Texture>>& GetAttachmentsTextures() const = 0;
+		virtual const uint32_t GetAttachmentTexturesSize() const = 0;
+
+		virtual const Ref<Texture>& GetDepthTexture() const = 0;
+		
 
 		virtual void Resize(uint32_t withe, uint32_t heigth) = 0;
 		virtual int ReadPixel(uint32_t attachmentsIndex, int x, int y) = 0;

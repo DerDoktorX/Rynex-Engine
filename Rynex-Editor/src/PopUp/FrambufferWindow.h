@@ -28,7 +28,12 @@ namespace Rynex {
 		FramebufferSpecification m_FBspec;
 		std::filesystem::path m_Path;
 		char m_Name[64] = "FrameBufferDefaulte";
+
+#if RY_EDITOR_ASSETMANGER_THREADE
+		Ref<EditorAssetManegerThreade> m_AssetManger;
+#else
 		Ref<EditorAssetManager> m_AssetManger;
+#endif
 
 	};
 }

@@ -29,18 +29,22 @@ project "Rynex-Editor"
 		"%{IncludeDir.filewatch}",
 		-- Entity
 		--"%{IncludeDir.assimp}",
+		"%{IncludeDir.magic_enum}",
 
 		"%{IncludeDir.entt}",
 		-- Runtime Visuelle configs
 		"%{IncludeDir.ImGuizmo}",
 		
+		-- "%{IncludeDir.msdfgen}",
+		-- "%{IncludeDir.msdf_atlas_gen}",
+		-- "%{IncludeDir.freetype}"
 	}
 
 	links
 	{
 		"Rynex"
 	}
-
+	
 	filter "system:windows"
 		systemversion "latest"
 	
@@ -57,14 +61,26 @@ project "Rynex-Editor"
 		--{ 
 		--	"/fsanitize=address" 
 		--}
+		-- links
+		-- {
+		-- 	"%{Library.gtest_Debug}"
+		-- }
 
 	filter "configurations:Release"
 		defines "RY_REALSE"
 		runtime "Release"
 		optimize "on"
+		-- links
+		-- {
+		-- 	"%{Library.gtest_Release}"	
+		-- }
 
 	filter "configurations:Dist"
 		defines "RY_DIST"
 		runtime "Release"
 		optimize "on"
+		-- links
+		-- {
+		-- 	"%{Library.gtest_Release}"
+		-- }
 

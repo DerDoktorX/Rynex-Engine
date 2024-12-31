@@ -13,7 +13,7 @@ namespace Rynex {
 
 		const glm::mat4& GetProjektion() const { return m_Projektion; }
 	protected:
-		glm::mat4 m_Projektion = glm::mat4(1.0f);
+		glm::mat4 m_Projektion = glm::mat4(1.0f); 
 	};
 
 	

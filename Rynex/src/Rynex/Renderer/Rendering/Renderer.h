@@ -11,7 +11,7 @@ namespace Rynex {
 	public:
 		enum Mode {
 			None = 0,
-			CallFace_Nono = BIT(0),
+			CallFace_None = BIT(0),
 			CallFace_Front = BIT(1),
 			CallFace_Back = BIT(2),
 			CallFace_FrontBack = BIT(3),
@@ -26,6 +26,7 @@ namespace Rynex {
 		static void Init();
 		static void InitEditor();
 		static void Shutdown();
+		static void ShutdownEditor();
 
 		static void OnWindowsResize(uint32_t width, uint32_t height);
 
@@ -36,7 +37,7 @@ namespace Rynex {
 		static void SetMode(int mode);
 
 		static void Submit(const Ref<Shader>& shader ,const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
-		
+		static bool IsInit();
 
 		inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
 	private:
@@ -45,7 +46,7 @@ namespace Rynex {
 			glm::mat4 ViewProjectionMatrix;
 		};
 
-		static SceneData* m_SceneData;
+		inline static Ref<SceneData> m_SceneData;
 		
 	};
 		

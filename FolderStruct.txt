@@ -1,0 +1,23 @@
+
+└── Rynex-Engine
+    ├── premake5.lua {'workspace "Rynex-Engine" ...'}
+    ├── Rynex
+    │   ├── premake5.lua {'project "Rynex" ...'}
+    │   ├── src 
+    │   │   ├── Platform
+    │   │   └── Rynex
+    │   │       ├── Core
+    │   │       │    ├── EntryPoint.h    -> (int main() { ... } )
+    │   │       │    ├── Application.h   -> (class Rynex::Application ... Rynex::Application* Rynex::CreateApplication(Rynex::ApplicationCommandLineArgs spec);)
+    │   │       │    ├── Application.cpp -> (class Rynex::Application)
+    │   │       ...  ├── ...
+    │   │            ...   
+    │   └── vendor
+    │       ├ ...
+    │       ...
+    │
+    └── Rynex-Editor {'project "Rynex-Editor" ...'}
+        ├── premake5.lua 
+        └── src
+            ├ EditorApplication.cpp -> (class Rynex::RynexEditor : public Rynex::Application ... Rynex::Application* Rynex::CreateApplication(ApplicationCommandLineArgs args) { ... return new Rynex::RynexEditor(...))
+            ...

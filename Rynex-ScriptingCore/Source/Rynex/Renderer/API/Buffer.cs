@@ -178,8 +178,8 @@ namespace Rynex
         }
         public static VertexBuffer GetAsset(ulong handle)
         {
-            InternalCalls.AssetManger_GetAsset_Handle(handle, AssetType.VertexBuffer);
-            return new VertexBuffer(handle);
+            InternalCalls.AssetManger_GetAsset_Handle(handle, AssetType.VertexBuffer, out ulong outHandle);
+            return new VertexBuffer(outHandle);
         }
 
         public void SetLayout(BufferLayout layout)

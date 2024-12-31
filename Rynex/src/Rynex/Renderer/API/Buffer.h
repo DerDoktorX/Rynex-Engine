@@ -11,8 +11,6 @@ namespace Rynex {
 		Float, Float2, Float3, Float4, Float3x3, Float4x4, FloatArray,
 		Int, Int2, Int3, Int4, Int3x3, Int4x4, IntArray,
 		Uint, Uint2, Uint3, Uint4, Uint3x3, Uint4x4, UintArray,
-		Bool,
-		Struct,
 		Texture,
 	};
 	
@@ -22,6 +20,9 @@ namespace Rynex {
 		DynamicDraw,
 		StaticDraw,
 	};
+
+	using SDT = ShaderDataType;
+	using BDU = BufferDataUsage;
 
 	enum class RYNEX_API ShaderResourceType;
 
@@ -44,15 +45,15 @@ namespace Rynex {
 			case ShaderDataType::Int4x4:		return sizeof(int) * 4 * 4;
 			case ShaderDataType::Texture:		return 0;
 			case ShaderDataType::IntArray:		return ellements * sizeof(int);
-			//case ShaderDataType::Uint:		return 4;
-			//case ShaderDataType::Uint2:	return 4;
-			//case ShaderDataType::Uint3:	return 4;
-			//case ShaderDataType::Uint4:	return 4;
-			//case ShaderDataType::Uint3x3:	return 4;
-			//case ShaderDataType::Uint4x4:	return 4;
-			//case ShaderDataType::UintArray	return 4;
-			case ShaderDataType::Bool:		 return sizeof(bool);
-			//case ShaderDataType::Struct:	return 4;
+			// case ShaderDataType::Uint:		return 4;
+			// case ShaderDataType::Uint2:	return 4;
+			// case ShaderDataType::Uint3:	return 4;
+			// case ShaderDataType::Uint4:	return 4;
+			// case ShaderDataType::Uint3x3:	return 4;
+			// case ShaderDataType::Uint4x4:	return 4;
+			// case ShaderDataType::UintArray	return 4;
+			// case ShaderDataType::Bool:		 return sizeof(bool);
+			// case ShaderDataType::Struct:	return 4;
 		}
 		RY_CORE_ASSERT(false, "Uknokn ShaderDataType!")
 	};
@@ -104,7 +105,7 @@ namespace Rynex {
 			//case ShaderDataType::Uint3x3:		return 4;
 			//case ShaderDataType::Uint4x4:		return 4;
 			//case ShaderDataType::UintArray	return 4;
-			case ShaderDataType::Bool:			return 1;
+			// case ShaderDataType::Bool:			return 1;
 			//case ShaderDataType::Struct:		return 4;
 			}
 			return 0;
@@ -112,6 +113,7 @@ namespace Rynex {
 
 		bool operator==(const BufferElement& elemnet) const
 		{
+			RY_CORE_ASSERT(Count == elemnet.Count, "Decied If we can left that!");
 			return (elemnet.Name == Name && elemnet.Type == Type && elemnet.Size == Size && Count == elemnet.Count);
 		}
 	};
@@ -147,7 +149,7 @@ namespace Rynex {
 
 		bool operator==(const BufferElement& elemnet) const
 		{
-			for(auto& elements : m_Elements)
+			for(const BufferElement& elements : m_Elements)
 			{
 				if (elements == elemnet)
 					return true;
@@ -167,7 +169,7 @@ namespace Rynex {
 			m_Stride = 0;
 			m_Length = 0;
 			m_BufferCount = 0;
-			for (auto& elements : m_Elements)
+			for (BufferElement& elements : m_Elements)
 			{
 				elements.Offset = offset;
 				offset += elements.Size;
@@ -210,13 +212,17 @@ namespace Rynex {
 		virtual const BufferLayout& GetLayout() const = 0;
 		virtual void SetLayout(const BufferLayout & layout) = 0;
 
+		virtual void InitAsync() = 0;
 		virtual void SetData(const void* data, uint32_t byteSize) = 0;
 		virtual uint32_t GetByteSize() = 0;
 
 		static Ref<VertexBuffer> Create(const uint32_t size);
 		static Ref<VertexBuffer> Create(const void* vertices, uint32_t size);
 		static Ref<VertexBuffer> Create(const void* vertices, uint32_t size, BufferDataUsage usage);
+		static Ref<VertexBuffer> Create(const void* vertices, uint32_t size, BufferDataUsage usage, const BufferLayout& layout);
+		static Ref<VertexBuffer> CreateAsync( std::vector<unsigned char>&& data, uint32_t size, BufferDataUsage usage, const BufferLayout& layout);
 
+		static Ref<VertexBuffer> Default();
 		// virtual const RendererAPI::API GetRendererAPI() const = 0;
 
 		virtual const std::vector<unsigned char>& GetBufferData() = 0;
@@ -232,21 +238,26 @@ namespace Rynex {
 		virtual uint32_t GetCount() const = 0;
 		virtual void Bind() const = 0;
 		virtual void UnBind() const = 0;
-
+		
+		virtual void InitAsync() = 0;
 		virtual void SetData(const uint32_t* indices, uint32_t count) = 0;
 		virtual void SetData(const uint16_t* indices, uint32_t count) = 0;
 
-		virtual const std::vector<unsigned char> GetBufferData() = 0;
+		virtual const std::vector<uint32_t> GetBufferData() = 0;
 		virtual void FreeBufferData() = 0;
 		virtual uint32_t GetElementByte() = 0; 
 		virtual uint32_t GetRenderID() = 0;
-
+		
 		static Ref<IndexBuffer> Create(const uint32_t* indices, uint32_t count, BufferDataUsage usage = BufferDataUsage::None);
 		static Ref<IndexBuffer> Create(const uint16_t* indices, uint32_t count, BufferDataUsage usage = BufferDataUsage::None);
-
+		static Ref<IndexBuffer> CreateAsync(std::vector<uint32_t>&& data, uint32_t size, BufferDataUsage usage = BufferDataUsage::None);
+		
 
 		static AssetType GetStaticType() { return AssetType::IndexBuffer; }
 		AssetType GetType() const { return GetStaticType(); }
+
+	
+		
 	};
 
 	class RYNEX_API StorageBuffer : public Asset
@@ -262,6 +273,7 @@ namespace Rynex {
 			Coherent,
 			Client
 		};
+
 	public:
 		static Ref<StorageBuffer> Create(uint32_t byteSize, Type type);
 		static Ref<StorageBuffer> Create(void* data, uint32_t byteSize, Type type);
@@ -283,17 +295,22 @@ namespace Rynex {
 
 		virtual const BufferLayout& GetLayout() const = 0;
 		virtual void SetLayout(const BufferLayout& layout) = 0;
+		virtual void Bind(uint32_t slot = 15) = 0;
 
 		virtual void SetData(const void* data, uint32_t byteSize) = 0;
-		virtual void SetData(const void* data, uint32_t byteSize, const BufferElement& ellement) = 0;
 		virtual void SetData(const void* data, uint32_t offset, uint32_t byteSize) = 0;
+		virtual void SetLocelData(const BufferElement& ellement, const void* data, uint32_t byteSize) = 0;
+		
 		virtual uint32_t GetByteSize() = 0;
+		virtual void SetOnDelete(std::function<void()> onDelete) = 0;
 
-		static Ref<UniformBuffer> Create( uint32_t byteSize, uint32_t binding);
+		static Ref<UniformBuffer> Create(uint32_t byteSize, uint32_t binding);
 		static Ref<UniformBuffer> Create(const void* data, uint32_t byteSize, uint32_t binding);
 		static Ref<UniformBuffer> Create(const void* data, uint32_t byteSize, const BufferLayout& layout, uint32_t binding);
-
+		static Ref<UniformBuffer> Create(const void* data, uint32_t byteSize, const BufferLayout& layout, BufferDataUsage usage, uint32_t binding);
+		static Ref<UniformBuffer> CreateAsync(std::vector<unsigned char>&& data, const BufferLayout& layout, BufferDataUsage usage, uint32_t binding);
 		// virtual const RendererAPI::API GetRendererAPI() const = 0;
+		virtual void InitAsync() = 0;
 
 		virtual const std::vector<unsigned char>& GetBufferData() = 0;
 		virtual void FreeBufferData() = 0;

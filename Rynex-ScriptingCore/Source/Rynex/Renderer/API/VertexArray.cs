@@ -43,8 +43,8 @@ namespace Rynex
         }
         public static VertexArray GetAsset(ulong handle)
         {
-            InternalCalls.AssetManger_GetAsset_Handle(handle, AssetType.VertexArray);
-            return new VertexArray(handle);
+            InternalCalls.AssetManger_GetAsset_Handle(handle, AssetType.VertexArray, out ulong outHandle);
+            return new VertexArray(outHandle);
         }
         public void Bind()
         {

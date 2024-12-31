@@ -7,58 +7,115 @@
 
 #include <Rynex/Scripting/ScriptingEngine.h>
 #include <Rynex/Scene/Components.h>
+#include <Rynex/Serializers/SceneSerializer.h>
 
 
-#define RY_TEST_ENITY 1
-
+#define RY_TEST_ENITY 0
+#define RY_ENABLE_GUI 0
 Sandbox2D::Sandbox2D()
 	: Layer("Sanbox2D")
 	, m_CameraController((1280.0f / 720.0f), true)
-	, m_ChekebordRotaion(0.25f)
 {
 }
 
 void Sandbox2D::OnAttach()
 {
+	Rynex::Window* window = &Rynex::Application::Get().GetWindow();
+	m_ViewPortSize = { window->GetWidth() ,window->GetHeight()};
+	m_WindowPos = { window->GetPosX() ,window->GetPosY() };
+	m_MousePos = { window->GetMousePosX() ,window->GetMousePosY() };
+    m_AktiveScene = Rynex::CreateRef<Rynex::Scene>();
 
-    Rynex::FramebufferSpecification fbSpec;
-    fbSpec.Attachments =
-    {
-         Rynex::FramebufferTextureFormat::RGBA8,
-         Rynex::FramebufferTextureFormat::RED_INTEGER,
-         Rynex::FramebufferTextureFormat::Depth
-    };
-    fbSpec.Width = 1280;
-    fbSpec.Height = 720;
-    m_Framebuffer = Rynex::Framebuffer::Create(fbSpec);
-
-    
 	auto cLA = Rynex::Application::Get().GetSpecification().CommandLineArgs;
 	if (cLA.Count > 1)
 	{
 		auto projFilePath = cLA[1];
 		if (Rynex::Project::Load(projFilePath))
 		{
-			// Rynex::ScriptingEngine::Init();
+			Rynex::ScriptingEngine::Init();
 			std::filesystem::path startScene = Rynex::Project::GetActive()->GetConfig().StartScene;
+			m_Project = Rynex::Project::GetActive();
+			m_AssetManger = m_Project->GetRuntimeAssetManger();
+			if (startScene.string() != "")
+			{
+				Rynex::SceneSerializer serialzer(m_AktiveScene);
+				serialzer.Deserialize(startScene.string(), false);
+			}
 		}
 	}
 	else
 	{
-		RY_CORE_INFO("Open a Project!");
-		if (Rynex::Project::Load("Sandbox.rproj"))
+		std::filesystem::path filepath = "";
+		do
 		{
-			// Rynex::ScriptingEngine::Init();
+			filepath = Rynex::FileDialoges::OpenFile("Rynex Project (*.rproj)\0*.rproj\0");
+		} while (filepath == "");
+
+		if (Rynex::Project::Load(filepath))
+		{
+			Rynex::ScriptingEngine::Init();
 			std::filesystem::path startScene = Rynex::Project::GetActive()->GetConfig().StartScene;
+			m_Project = Rynex::Project::GetActive();
+			m_AssetManger = m_Project->GetRuntimeAssetManger();
+			if (startScene.string() != "")
+			{
+				Rynex::SceneSerializer serialzer(m_AktiveScene);
+				serialzer.Deserialize(startScene.string(), false);
+			}
 		}
 
 	}
-	m_AktiveScene = Rynex::CreateRef<Rynex::Scene>();
-    m_Project = Rynex::Project::GetActive();
-    m_AssetManger = m_Project->GetRuntimeAssetManger();
+	m_AktiveScene->OnRuntimStart();
+
+	Rynex::FramebufferSpecification fbSpec = {
+		1280ul, 720ul,
+		{
+			{Rynex::TextureFormat::RGBA8},
+			{Rynex::TextureFormat::RED_INTEGER},
+			{Rynex::TextureFormat::Depth24Stencil8}
+		}
+	};
+	std::vector<Rynex::FramebufferTextureSpecification> framTexSpec;
+
+
+    m_Framebuffer = Rynex::Framebuffer::Create(fbSpec);
+
+
+    
 	Rynex::Renderer::Init();
-	int rendererMode = Rynex::Renderer::CallFace_Back | Rynex::Renderer::Death_Buffer | Rynex::Renderer::A_Buffer;
+	int rendererMode = Rynex::Renderer::CallFace_None | Rynex::Renderer::Death_Buffer | Rynex::Renderer::A_Buffer; // | Rynex::Renderer::WireFrame;
 	Rynex::Renderer::SetMode(rendererMode);
+
+	m_AktiveScene->OnViewportResize(m_ViewPortSize.x, m_ViewPortSize.y);
+	Rynex::RenderCommand::SetViewPort(0, 0, m_ViewPortSize.x, m_ViewPortSize.y);
+	m_Framebuffer->Resize(m_ViewPortSize.x, m_ViewPortSize.y);
+#if RY_ENABLE_GUI-1
+	
+
+	// 0001 1011  0000 0000
+	int vertecies[4] = {
+		0, BIT(0), BIT(1), BIT(0) | BIT(1)
+	};
+
+	Rynex::Ref<Rynex::VertexBuffer> vertexBuffer = Rynex::VertexBuffer::Create(&vertecies, sizeof(int)*4, Rynex::BufferDataUsage::StaticDraw );
+	vertexBuffer->SetLayout({
+		{Rynex::ShaderDataType::Int, "a_Vertex"},
+	});
+	
+	uint32_t inidcies[] = {
+		0,1,2,3
+	};
+	Rynex::Ref<Rynex::IndexBuffer> indexBuffer = Rynex::IndexBuffer::Create(inidcies, sizeof(uint32_t), Rynex::BufferDataUsage::StaticDraw);
+	m_FullScreenQuade = Rynex::VertexArray::Create();
+	m_FullScreenQuade->AddVertexBuffer(vertexBuffer);
+	m_FullScreenQuade->SetIndexBuffer(indexBuffer);
+	m_FullScreenQuade->SetPrimitv(Rynex::VertexArray::Primitv::TraingleStrips);
+
+	
+	m_FullScreenShader = Rynex::ShaderImporter::LoadShader("../Rynex-Editor/Editor-Assets/shaders/FullScreeShader.glsl", "FullScreeShader", false);
+
+	RY_ASSERT(m_FullScreenShader && indexBuffer && vertexBuffer && m_FullScreenQuade, "Screen Rendering ERROR");
+#endif
 
 #if RY_TEST_ENITY
 
@@ -126,7 +183,7 @@ void Sandbox2D::OnAttach()
 	{
 		Rynex::Entity entityE = m_AktiveScene->CreateEntity("Entity");
 		Rynex::SpriteRendererComponent& spriteC = entityE.AddComponent<Rynex::SpriteRendererComponent>();
-		spriteC.Texture = Rynex::TextureImporter::LoadTexture("Assets/textures/Checkerboard.png");
+		spriteC.Texture = Rynex::TextureImporter::LoadTexture("../Rynex-Editor/Editor-Assets/textures/Checkerboard.png");
 		spriteC.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		if (!entityE.HasComponent<Rynex::TransformComponent>())
 			entityE.AddComponent<Rynex::TransformComponent>();
@@ -185,12 +242,19 @@ void Sandbox2D::OnDetach()
 
 void Sandbox2D::OnUpdate(Rynex::TimeStep ts)
 {
-	m_CameraController.OnUpdate(ts);
+	// m_CameraController.OnUpdate(ts);
+	if (m_FirstFrame)
+	{
+		ts = Rynex::TimeStep();
+		m_FirstFrame = false;
+	}
+	m_AktiveScene->OnUpdateRuntime(ts);
 	m_AktiveScene->OnRenderRuntime(m_Framebuffer, 0);
 }
 
 void Sandbox2D::OnImGuiRender()
 {
+#if RY_ENABLE_GUI
 	static bool dokingEnabled = true;
 
 	if (dokingEnabled)
@@ -238,13 +302,60 @@ void Sandbox2D::OnImGuiRender()
 	{
 		ImGuiViewPortRender();
 	}
+#else
 
+	
+
+	
+#if 0
+
+		glm::vec2 mausOffset = { m_MousePos.x - m_WindowPos.x, m_MousePos.y - m_WindowPos.y };
+		glm::vec2 minBound = m_WindowPos;
+		minBound.x += mausOffset.x;
+		minBound.y += mausOffset.y;
+
+		glm::vec2 maxBound = { minBound.x + m_ViewPortSize.x, minBound.y + m_ViewPortSize.y };
+		m_WindowBounds[0] = { minBound.x,  minBound.y };
+		m_WindowBounds[1] = { maxBound.x,  maxBound.y };
+
+		m_MousePixelPos = m_MousePos;
+		m_MousePixelPos -= m_WindowBounds[0];
+		glm::vec2 viewPortSize = m_WindowBounds[1] - m_WindowBounds[0];
+		m_MousePixelPos.y = viewPortSize.y - m_MousePixelPos.y;
+		glm::ivec2 mause = m_MousePixelPos;
+		if (mause.x >= 0 && mause.y >= 0 && mause.x < (int)viewPortSize.x && mause.y < (int)viewPortSize.y)
+		{
+			m_AktiveScene->SetMousPixelPos(mause);
+			m_Hovered = true;
+		}
+		else
+		{
+			m_Hovered = false;
+		}
+		m_AktiveScene->SetHoverViewPort(m_Hovered);
+#else
+	
+	
+
+#endif
+	
+	Rynex::RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+	Rynex::RenderCommand::Clear();
+	m_FullScreenShader->Bind();
+	m_Framebuffer->BindColorAttachment(0, 0);
+	Rynex::RenderCommand::DrawStripsMesh(m_FullScreenQuade, 4);
+	m_FullScreenShader->UnBind();
+	m_FullScreenQuade->UnBind();
+
+#endif
 }
 
 
 void Sandbox2D::ImGuiViewPortResize(const glm::uvec2& vPSize)
 {
-	if (m_ViewPortSize != vPSize)
+	bool result = m_ViewPortSize != vPSize;
+	m_AktiveScene->SetWindowResize(result);
+	if (result)
 	{
 		glm::uvec2 size = { vPSize.x , vPSize.y };
 		m_Framebuffer->Resize(size.x, size.y);
@@ -269,7 +380,69 @@ void Sandbox2D::ImGuiViewPortRender()
 
 void Sandbox2D::OnEvent(Rynex::Event& e)
 {
+	Rynex::EventDispatcher dispatcher(e);
 	m_CameraController.OnEnvent(e);
+	dispatcher.Dispatch<Rynex::WindowMovedEvent>(RY_BIND_EVENT_FN(Sandbox2D::OnWindowMove));
+	dispatcher.Dispatch<Rynex::MouseMoveEvent>(RY_BIND_EVENT_FN(Sandbox2D::OnMouseMove));
+	dispatcher.Dispatch<Rynex::WindowResizeEvent>(RY_BIND_EVENT_FN(Sandbox2D::OnResize));
+	dispatcher.Dispatch<Rynex::WindowFocuseEvent>(RY_BIND_EVENT_FN(Sandbox2D::OnFocuse));
+	dispatcher.Dispatch<Rynex::WindowLostFocuseEvent>(RY_BIND_EVENT_FN(Sandbox2D::OnFocuseLost));
+	dispatcher.Dispatch<Rynex::WindowCurserEnterEvent>(RY_BIND_EVENT_FN(Sandbox2D::OnCurserEnter));
+	dispatcher.Dispatch<Rynex::WindowCurserLeaveEvent>(RY_BIND_EVENT_FN(Sandbox2D::OnCurserLeave));
+}
 
+bool Sandbox2D::OnResize(Rynex::WindowResizeEvent& e)
+{
+	glm::uvec2 size = { e.GetWidth(), e.GetHeight() };
+	
+	if (m_ViewPortSize != size)
+	{
+		m_Resized = true;
+		Rynex::RenderCommand::SetViewPort(0, 0, size.x, size.y);
+		m_Framebuffer->Resize(size.x, size.y);
+		m_ViewPortSize = size;
+		m_AktiveScene->OnViewportResize(size.x, size.y);
+		return true;
+	}
+	return false;
+}
+
+bool Sandbox2D::OnMouseMove(Rynex::MouseMoveEvent& e)
+{
+	m_MousePos = { e.GetX(), e.GetY() };
+	return true;
+}
+
+bool Sandbox2D::OnWindowMove(Rynex::WindowMovedEvent& e)
+{
+	m_WindowPos = { e.GetPosX(), e.GetPosY() };
+	
+	return true;
+}
+
+bool Sandbox2D::OnFocuse(Rynex::WindowFocuseEvent& e)
+{
+	m_Focuse = true;
+	return true;
+}
+
+bool Sandbox2D::OnFocuseLost(Rynex::WindowLostFocuseEvent& e)
+{
+	m_Focuse = false;
+	return true;
+}
+
+bool Sandbox2D::OnCurserEnter(Rynex::WindowCurserEnterEvent& e)
+{
+	m_Hovered = true;
+	m_AktiveScene->SetHoverViewPort(m_Hovered);
+	return true;
+}
+
+bool Sandbox2D::OnCurserLeave(Rynex::WindowCurserLeaveEvent& e)
+{
+	m_Hovered = false;
+	m_AktiveScene->SetHoverViewPort(m_Hovered);
+	return true;
 }
 

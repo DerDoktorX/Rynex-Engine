@@ -1,0 +1,33 @@
+	|--- [ProjectName] 
+	|	|--- .vs
+	|	|	|--- ...
+	|	|
+	|	|--- Asset
+	|	|	|--- Shader
+	|	|	|--- Scene
+	|	|	|--- Models
+	|	|	|--- Texture
+	|	|	|--- Scripts
+	|	|
+	|	|--- Binaries 
+	|	|	|--- Rynex-ScriptingCore.dll
+	|	|	|--- Rynex-ScriptingCore.pdb
+	|	|	|--- Sanbox.dll
+	|	|	|--- Sanbox.pdb
+	|	|	 
+	|	|--- Intermediates
+	|	|	|--- Debug
+	|	|	|	|--- ...
+	|	|	|
+	|	|	|--- Dist
+	|	|	|	|--- ...
+	|	|	|
+	|	|	|--- Realease
+	|	|	|	|--- ...
+	|	|
+	|	|--- AssetRegistry.ryr
+	|	|--- [ProjectName].rproj
+	|	|--- premake5.exe
+	|	|--- premake5.lua
+	|	|--- Sanbox.sln
+	|

@@ -7,8 +7,35 @@
 
 namespace Rynex {
 
+	namespace Utils {
+
+		static void ErrorMassageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+		{
+
+			if (type == GL_DEBUG_TYPE_ERROR)
+			{
+				RY_CORE_FATAL("GL CALLBACK: ** GL ERROR ** message = {}", message);
+			}
+#if RY_ENABLE_GRIFIC_API_WARN_MASGES
+			else
+			{
+				RY_CORE_WARN("GL CALLBACK: ** GL WARN **  message = {}", message);
+			}
+#endif
+
+
+
+		}
+
+	}
+
+
 	void OpenGLRendererAPI::Init()
 	{
+#if RY_ENABLE_GRIFIC_API_ERROR_MASGES
+		glEnable(GL_DEBUG_OUTPUT);
+		glDebugMessageCallback(Utils::ErrorMassageCallback, 0);
+#endif
 		RY_PROFILE_FUNCTION();		
 	}
 
@@ -23,6 +50,7 @@ namespace Rynex {
 
 	void OpenGLRendererAPI::SetClearColor(const glm::vec4& color)
 	{
+
 		glClearColor(color.r, color.g, color.b, color.a);
 	}
 
@@ -96,7 +124,13 @@ namespace Rynex {
 
 	void OpenGLRendererAPI::Clear()
 	{
+
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	}
+
+	void OpenGLRendererAPI::ClearDepth()
+	{
+		glClear(GL_DEPTH_BUFFER_BIT);
 	}
 
 	void OpenGLRendererAPI::DrawIndexedMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
@@ -110,9 +144,16 @@ namespace Rynex {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	void OpenGLRendererAPI::DrawBatcheingIndexedMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
+	void OpenGLRendererAPI::DrawIndexedMeshInstecing(uint32_t instecing, const Ref<VertexArray>& vertexArray, uint32_t indexCount)
 	{
+		vertexArray->Bind();
+		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffers()->GetCount();
+		
+		glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr, instecing);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+
+	
 
 	void OpenGLRendererAPI::DrawStripsMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount )
 	{
@@ -196,7 +237,7 @@ namespace Rynex {
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				break;
 			}
-			case Renderer::CallFace_Nono:
+			case Renderer::CallFace_None:
 			{
 				glDisable(GL_CULL_FACE);
 				break;

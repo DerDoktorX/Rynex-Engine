@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Rynex;
+using System.Numerics;
 
 namespace Rynex
 {
@@ -55,20 +56,6 @@ namespace Rynex
             }
         }
 
-
-        public bool Change
-        {
-            get
-            {
-                InternalCalls.TransformComponent_GetChange(Entity.ID, out bool change);
-                return change;
-            }
-
-            set
-            {
-                InternalCalls.TransformComponent_SetChange(Entity.ID, ref value);
-            }
-        }
     }
 
     public class GeomtryComponent : Component
@@ -151,7 +138,7 @@ namespace Rynex
 
             set
             {
-                InternalCalls.TagComponent_SetTag(Entity.ID, ref value);
+                InternalCalls.TagComponent_SetTag(Entity.ID, value);
             }
         }
     }
@@ -162,8 +149,7 @@ namespace Rynex
         {
             get
             {
-                InternalCalls.Matrix4x4Component_GetMatrix4x4(Entity.ID, out Matrix4x4 matrix);
-                return matrix;
+                return InternalCalls.Matrix4x4Component_GetMatrix4x4(Entity.ID);
             }
 
             set
@@ -176,8 +162,8 @@ namespace Rynex
         {
             get
             {
-                InternalCalls.Matrix4x4Component_GetMatrix4x4(Entity.ID, out Matrix4x4 matrix);
-                return matrix;
+               
+                return InternalCalls.Matrix4x4Component_GetMatrix4x4(Entity.ID);;
             }
 
             set
@@ -218,7 +204,21 @@ namespace Rynex
             set
             {
                 ulong uuid = value.Handle.UUID;
-                InternalCalls.MeshComponent_SetModelR(Entity.ID, ref uuid);
+                InternalCalls.MeshComponent_SetModelR(Entity.ID, uuid);
+            }
+        }
+
+        public MeshMode MeshMode
+        {
+            get
+            {
+                return InternalCalls.MeshComponent_GetMeshMode(Entity.ID);
+
+            }
+
+            set
+            {
+               InternalCalls.MeshComponent_SetMeshMode(Entity.ID, value);
             }
         }
     }
@@ -250,56 +250,20 @@ namespace Rynex
             set
             {
                 ulong uuid = value.Handle.UUID;
-                InternalCalls.MeshComponent_SetModelR(Entity.ID, ref uuid);
+                InternalCalls.MeshComponent_SetModelR(Entity.ID, uuid);
             }
         }
     }
 
     public class CameraComponent : Component
     {
-#if false
-        public SceneCamera Camera
-        {
-            get
-            {
-                InternalCalls.CameraComponent_Camera(Entity.ID,);
-                return Primary;
-            }
+        public SceneCamera Camer;
 
-            set
-            {
-                InternalCalls.CameraComponent_SetPrimary(Entity.ID);
-            }
-        }
-#endif
-        public Matrix4x4 ViewMatrixe
+        public CameraComponent()
         {
-            get
-            {
-                InternalCalls.Matrix4x4Component_GetMatrix4x4(Entity.ID, out Matrix4x4 matrix);
-                return matrix;
-            }
-
-            set
-            {
-                InternalCalls.Matrix4x4Component_SetMatrix4x4(Entity.ID, ref value);
-            }
+            Camer = new SceneCamera(Entity);
         }
-#if false
-        public Matrix4x4 ProjectionMatrixe
-        {
-            get
-            {
-                InternalCalls.CameraComponent_GetProjection(Entity.ID, out Matrix4x4 matrix);
-                return matrix;
-            }
 
-            set
-            {
-                InternalCalls.CameraComponent_SetProjection(Entity.ID, ref value);
-            }
-        }
-#endif
         public bool Primary
         {
             get
@@ -329,7 +293,7 @@ namespace Rynex
             }
         }
     }
-
+#if false
     public class MaterialComponent : Component
     {
         public Shader Shader
@@ -361,6 +325,7 @@ namespace Rynex
             }
         }
     }
+#endif
 
     public class ScriptComponent : Component
     {
@@ -374,7 +339,179 @@ namespace Rynex
 
             set
             {
-                InternalCalls.ScriptComponent_SetName(Entity.ID, ref value);
+                InternalCalls.ScriptComponent_SetName(Entity.ID, value);
+            }
+        }
+    }
+
+    public class AmbientLigthComponent : Component
+    { 
+        public Vector3 Color
+        {
+            get
+            {
+                InternalCalls.AmbientLigthComponent_GetColor(Entity.ID, out Vector3 color);
+                return color;
+            }
+
+            set 
+            {
+                InternalCalls.AmbientLigthComponent_SetColor(Entity.ID, ref value);
+            }
+        }
+        public float Intensitie
+        {
+            get
+            {
+                InternalCalls.AmbientLigthComponent_GetIntensitie(Entity.ID, out float v);
+                return v;
+            }
+
+            set
+            {
+                InternalCalls.AmbientLigthComponent_SetIntensitie(Entity.ID, ref value);
+            }
+        }
+    }
+
+    public class DrirektionleLigthComponent : Component
+    {
+        public Vector3 Color
+        {
+            get
+            {
+                InternalCalls.DrirektionleLigthComponent_GetColor(Entity.ID, out Vector3 color);
+                return color;
+            }
+
+            set
+            {
+                InternalCalls.DrirektionleLigthComponent_SetColor(Entity.ID, ref value);
+            }
+        }
+        public float Intensitie
+        {
+            get
+            {
+                InternalCalls.DrirektionleLigthComponent_GetIntensitie(Entity.ID, out float v);
+                return v;
+            }
+
+            set
+            {
+                InternalCalls.DrirektionleLigthComponent_SetIntensitie(Entity.ID, ref value);
+            }
+        }
+    }
+
+    public class PointLigthComponent : Component
+    {
+        public Vector3 Color
+        {
+            get
+            {
+                InternalCalls.PointLigthComponent_GetColor(Entity.ID, out Vector3 color);
+                return color;
+            }
+
+            set
+            {
+                InternalCalls.PointLigthComponent_SetColor(Entity.ID, ref value);
+            }
+        }
+        public float Intensitie
+        {
+            get
+            {
+                InternalCalls.PointLigthComponent_GetIntensitie(Entity.ID, out float v);
+                return v;
+            }
+
+            set
+            {
+                InternalCalls.PointLigthComponent_SetIntensitie(Entity.ID, ref value);
+            }
+        }
+        public float Distence
+        {
+            get
+            {
+                InternalCalls.PointLigthComponent_GetDistence(Entity.ID, out float v);
+                return v;
+            }
+
+            set
+            {
+                InternalCalls.PointLigthComponent_SetDistence(Entity.ID, ref value);
+            }
+        }
+    }
+
+    public class SpotLigthComponent : Component
+    {
+        public Vector3 Color
+        {
+            get
+            {
+                InternalCalls.SpotLigthComponent_GetColor(Entity.ID, out Vector3 color);
+                return color;
+            }
+
+            set
+            {
+                InternalCalls.SpotLigthComponent_SetColor(Entity.ID, ref value);
+            }
+        }
+        public float Intensitie
+        {
+            get
+            {
+                InternalCalls.SpotLigthComponent_GetIntensitie(Entity.ID, out float v);
+                return v;
+            }
+
+            set
+            {
+                InternalCalls.SpotLigthComponent_SetIntensitie(Entity.ID, ref value);
+            }
+        }
+        public float Distence
+        {
+            get
+            {
+                InternalCalls.SpotLigthComponent_GetDistence(Entity.ID, out float v);
+                return v;
+            }
+
+            set
+            {
+                InternalCalls.SpotLigthComponent_SetDistence(Entity.ID, ref value);
+            }
+        }
+        public float Inner
+        {
+            get
+            {
+                InternalCalls.SpotLigthComponent_GetInner(Entity.ID, out float v);
+                return v;
+            }
+
+            set
+            {
+                InternalCalls.SpotLigthComponent_SetInner(Entity.ID, ref value);
+            }
+        }
+        public float Outer
+        {
+            get
+            {
+                InternalCalls.SpotLigthComponent_GetOuter(Entity.ID, out float v);
+                return v;
+            }
+
+            set
+            {
+                InternalCalls.SpotLigthComponent_SetOuter(Entity.ID, ref value);
             }
         }
     }

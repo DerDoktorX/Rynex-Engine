@@ -1,4 +1,7 @@
-﻿namespace Rynex
+﻿using System;
+using System.Dynamic;
+
+namespace Rynex
 {
     public enum AssetType
     {
@@ -28,6 +31,8 @@
             return handle.UUID;
         }
 
+        
+
         // public static explicit operator AssetHandle(ulong uuid)
         // {
         //     return new AssetHandle(uuid);
@@ -38,12 +43,20 @@
     public class Asset
     {
         protected internal Asset() { Handle = new AssetHandle(0uL); }
+
         internal Asset(AssetHandle assetHandle)
         {
             Handle = assetHandle;
         }
 
-        public readonly AssetHandle Handle;
+        public Asset(ulong uuid)
+        {
+            Handle = new AssetHandle(uuid);
+        }
 
+       
+
+        public readonly AssetHandle Handle;
+        
     }
 }

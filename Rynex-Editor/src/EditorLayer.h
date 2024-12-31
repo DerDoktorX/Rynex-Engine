@@ -2,7 +2,7 @@
 
 #include <Rynex/Core/Layer.h>
 #include <Rynex/Events/KeyEvent.h>
-#include <Rynex/Core/CamerController.h>
+#include <Rynex/Renderer/Camera/CamerController.h>
 #include <Rynex/Renderer/API/Framebuffer.h>
 #include <Rynex/Renderer/RenderCommand.h>
 
@@ -11,12 +11,13 @@
 #include "Pannel/ViewPortPannel.h"
 #include "Pannel/RendererPannel.h"
 #include "Pannel/MenuBarPannel.h"
+#include "Pannel/ProjectPannel.h"
 
 struct ImVec2;
+#define CHECK_FOR_ERRORS 0
+#define RY_VIEW_PORT_FUNKTION 0
 
 namespace Rynex{
-#define CHECK_FOR_ERRORS 0
-
 	// TODO: Make The System Worke CHECK_FOR_ERRORS
 
 	enum class SceneState
@@ -40,11 +41,14 @@ namespace Rynex{
 		bool OnKeyPressed(KeyPressedEvent& e);
 		bool OnMousePressed(MouseButtenPressedEvent& e);
 
+		
+
 		void OpenRenderPannel();
 		void OpenAssetPannel();
 		void OpenRegestriyPannel();
-		void OpenSceneHierachy();
-		void OpenProperties();
+		void OpenSceneHierachyPannel();
+		void OpenPropertiesPannel();
+		void OpenProjectPannel();
 
 		//-- Task -------------------
 		void NewProject();
@@ -56,8 +60,10 @@ namespace Rynex{
 		void OpenScene();
 		void OpenScene(const std::filesystem::path& path);
 		void OpenScene(AssetHandle handle);
+		void OpenSceneAsync(AssetHandle handle);
+
 		void SaveSceneAs();
-		void SaveScene();
+		void SaveCurentScene();
 
 
 		//-- ImGui ------------------
@@ -75,12 +81,17 @@ namespace Rynex{
 		//--- Layoute ----------------
 
 		// ViewPort 
+
+#if RY_VIEW_PORT_FUNKTION
+
 		void ImGuiViewPort();
 		void ImGuiSecundaryViewPort(const Ref<Framebuffer>& framebuffer, uint32_t id = 0, float width = 12.8f, float height = 7.2f);
 		void ImGuiContentBrowserViewPort();
 		void ImGuiViewPortResize( ImVec2 vPSize);
 		void ImGuiSetMausPosInViewPort( ImVec2 vpOffset);
 		void ImGizmoInViewPort();
+
+#endif
 
 		void RenderSelectedEntity(Entity slelcted);
 		void RenderHoveredEntity(Entity hovered);
@@ -101,7 +112,6 @@ namespace Rynex{
 		void ImGuiEdit();
 		void ImGuiView();
 		void ImGuiHelp();
-
 	private:
 		Ref<EditorCamera> m_EditorCamera;
 		OrthograficCameraController	m_CameraController;
@@ -109,18 +119,18 @@ namespace Rynex{
 		// Scene
 		Ref<Scene>				m_AktiveScene;
 		Ref<Scene>				m_EditorScene;
+		Ref<Scene>				m_NextScene = nullptr;
+
+#if 0
 		Ref<Framebuffer>		m_Framebuffer;
 		Ref<Framebuffer>		m_SelectedFramebuffer;
 		Ref<Framebuffer>		m_HoveredFramebuffer;
+#endif
 
 		Ref<Shader>				m_Filtering;
 		Ref<Texture>			m_FinaleImage;
 		Ref<Texture>			m_FrameImage;
-#if 0
-		// Camera
-		Entity					m_CamerEntity;
-		Entity					m_SecoundCameraEntity;
-#endif
+
 		// Selected Entity
 		Entity					m_HoveredEntity;
 
@@ -148,14 +158,23 @@ namespace Rynex{
 		SceneHierachyPannel						m_Scene_HPanel;
 		ContentBrowserPannel					m_Content_BPannel;
 		MenuBarPannel							m_MenuBarPannel;
-		std::vector<Ref<ViewPortPannel>>		m_ViewPortPannel;
+		ProjectPannel							m_ProjectPannel;
+		ViewPortPannel							m_ViewPortPannel;
 
 		// Paths
-		std::filesystem::path m_EditorScenePath;
+		std::filesystem::path	m_EditorScenePath;
 
 		// Project
 		Ref<Project> m_Project;
+
+		std::mutex						s_WorkingThreadMutex;
+		std::vector<std::future<void>>	s_WorkingThread;
+
+#if RY_EDITOR_ASSETMANGER_THREADE
+		Ref<EditorAssetManegerThreade> m_AssetManger;
+#else
 		Ref<EditorAssetManager> m_AssetManger;
+#endif
 	};
 }
 

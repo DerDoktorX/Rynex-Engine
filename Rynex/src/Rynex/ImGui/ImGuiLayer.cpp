@@ -41,8 +41,8 @@ namespace Rynex {
 
          float fontSize = 16.0f * 1.0f;
          fontSize = 15.0;
-         io.Fonts->AddFontFromFileTTF("Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
-         io.FontDefault=io.Fonts->AddFontFromFileTTF("Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
+         io.Fonts->AddFontFromFileTTF("../Rynex-Editor/Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
+         io.FontDefault=io.Fonts->AddFontFromFileTTF("../Rynex-Editor/Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
         
 		ImGui::StyleColorsDark();
         //ImGui::StyleColorsClassic();

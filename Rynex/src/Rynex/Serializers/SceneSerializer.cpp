@@ -841,7 +841,7 @@ namespace Rynex {
 
 		for (uint64_t offset = 0, size = data.size(); offset < size; offset += layout.GetStride())
 		{
-			for (auto& ellement : layout)
+			for (const BufferElement& ellement : layout)
 			{
 
 				switch (ellement.Type)
@@ -999,7 +999,7 @@ namespace Rynex {
 		uint32_t index = 0;
 		const std::vector<BufferElement>& elements = layout.GetElements();
 		uint32_t elementsSize = elements.size();
-		for (auto& element : node)
+		for (YAML::detail::iterator_value& element : node)
 		{
 
 			switch (elements[(index % elementsSize)].Type)
@@ -1070,7 +1070,7 @@ namespace Rynex {
 	}
 
 	template< typename T>
-	void DeserializeAssetFormate(YAML::Node& nodeE, Ref<T>* entityC)
+	bool DeserializeAssetFormate(YAML::Node& nodeE, Ref<T>* entityC, bool async)
 	{
 		if (nodeE)
 		{
@@ -1078,8 +1078,23 @@ namespace Rynex {
 			AssetHandle handle = nodeE["Handle"].as<uint64_t>();
 			AssetHandle handleP = Project::GetActive()->GetEditorAssetManger()->GetAssetHandle(path);
 			RY_CORE_ASSERT(handleP == handle, "Not Simulare Asset Handle!");
-			*entityC = AssetManager::GetAsset<T>(handleP);
+			if(async)
+			{
+				if (handle != 0)
+					AssetManager::GetAssetAsync<T>(handle, entityC);
+				else
+					AssetManager::GetAssetAsync<T>(handleP, entityC);
+			}
+			else
+			{
+				if (handle != 0)
+					*entityC = AssetManager::GetAsset<T>( handle );
+				else
+					*entityC = AssetManager::GetAsset<T>(handleP);
+			}
+			return handleP != handle;
 		}
+		return false;
 	}
 
 
@@ -1093,7 +1108,12 @@ namespace Rynex {
 
 	static void SerializerEntity(YAML::Emitter& out, Entity entity, const Ref<Scene>& scene)
 	{
+#if RY_EDITOR_ASSETMANGER_THREADE
+		Ref<EditorAssetManegerThreade> editorAssetManger = Project::GetActive()->GetEditorAssetManger();
+#else
 		Ref<EditorAssetManager> editorAssetManger = Project::GetActive()->GetEditorAssetManger();
+#endif
+		
 
 		RY_CORE_ASSERT(entity.HasComponent<IDComponent>(), "Error: Entity has not IDComponent");
 		out << YAML::BeginMap;
@@ -1104,7 +1124,7 @@ namespace Rynex {
 			out << YAML::Key << "TagComponent";
 			out << YAML::BeginMap;
 
-			auto& tag = entity.GetComponent<TagComponent>().Tag;
+			std::string& tag = entity.GetComponent<TagComponent>().Tag;
 			out << YAML::Key << "Tag" << YAML::Value << tag;
 
 			out << YAML::EndMap;
@@ -1115,7 +1135,7 @@ namespace Rynex {
 			out << YAML::Key << "TransformComponent";
 			out << YAML::BeginMap;
 
-			auto& tc = entity.GetComponent<TransformComponent>();
+			TransformComponent& tc = entity.GetComponent<TransformComponent>();
 			out << YAML::Key << "Transaltion" << YAML::Value << tc.Transaltion;
 			out << YAML::Key << "Rotation" << YAML::Value << tc.Rotation;
 			out << YAML::Key << "Scale" << YAML::Value << tc.Scale;
@@ -1128,8 +1148,8 @@ namespace Rynex {
 			out << YAML::Key << "CameraComponent";
 			out << YAML::BeginMap;
 
-			auto& cc = entity.GetComponent<CameraComponent>();
-			auto& camera = cc.Camera;
+			CameraComponent& cc = entity.GetComponent<CameraComponent>();
+			SceneCamera& camera = cc.Camera;
 			out << YAML::Key << "Camera" << YAML::Value;
 			out << YAML::BeginMap;
 			out << YAML::Key << "ProjectionType" << YAML::Value << (int)camera.GetProjectionType();
@@ -1151,7 +1171,7 @@ namespace Rynex {
 		{
 			out << YAML::Key << "ScriptComponent";
 			out << YAML::BeginMap;
-			auto& sc = entity.GetComponent<ScriptComponent>();
+			ScriptComponent& sc = entity.GetComponent<ScriptComponent>();
 			out << YAML::Key << "ClassName" << YAML::Value << sc.Name;
 			out << YAML::EndMap;
 		}
@@ -1161,19 +1181,25 @@ namespace Rynex {
 			out << YAML::Key << "SpriteRendererComponent";
 			out << YAML::BeginMap;
 
-			auto& sc = entity.GetComponent<SpriteRendererComponent>();
+			SpriteRendererComponent& sc = entity.GetComponent<SpriteRendererComponent>();
 			out << YAML::Key << "Color" << YAML::Value << sc.Color;
+#if RY_DISABLE_WEAK_PTR
 			if (sc.Texture)
 			{
 				SerializerAssetFormate(out, "Texture", sc.Texture->Handle);
 			}
-
+#else
+			if (Ref<Texture> tex = sc.Texture.lock())
+			{
+				SerializerAssetFormate(out, "Texture", tex->Handle);
+			}
+#endif
 			out << YAML::EndMap;
 		}
 
 		if (entity.HasComponent<GeomtryComponent>())
 		{
-			auto& gc = entity.GetComponent<GeomtryComponent>();
+			GeomtryComponent& gc = entity.GetComponent<GeomtryComponent>();
 			out << YAML::Key << "GeomtryComponent";
 			out << YAML::BeginMap;
 			if (gc.Geometry)
@@ -1184,13 +1210,13 @@ namespace Rynex {
 				if (gc.Geometry->GetVertexBuffers().size())
 				{
 
-					for (auto& buffer : gc.Geometry->GetVertexBuffers())
+					for (const Ref<VertexBuffer>& buffer : gc.Geometry->GetVertexBuffers())
 					{
-						auto& layout = buffer->GetLayout();
+						const BufferLayout& layout = buffer->GetLayout();
 						out << YAML::BeginMap;
 						out << YAML::Key << "Laoute" << YAML::Value;
 						out << YAML::BeginSeq;
-						for (auto& element : layout)
+						for (const BufferElement& element : layout)
 						{
 							out << YAML::BeginMap;
 							out << YAML::Key << "Name" << element.Name;
@@ -1214,7 +1240,7 @@ namespace Rynex {
 
 					{
 						Ref<IndexBuffer> indexBuffer = gc.Geometry->GetIndexBuffers();
-						std::vector<unsigned char> dataIndex = indexBuffer->GetBufferData();
+						std::vector<uint32_t> dataIndex = indexBuffer->GetBufferData();
 
 						out << YAML::Key << "Size-Byte" << YAML::Value << dataIndex.size();
 						out << YAML::Key << "Byts" << YAML::Value << 4ull;
@@ -1231,12 +1257,12 @@ namespace Rynex {
 			}
 			out << YAML::EndMap;
 		}
-
+#if 0
 		if (entity.HasComponent<MaterialComponent>())
 		{
 			out << YAML::Key << "MaterialComponent" << YAML::Value;
 			out << YAML::BeginMap;
-			auto& mc = entity.GetComponent<MaterialComponent>();
+			MaterialComponent& mc = entity.GetComponent<MaterialComponent>();
 			out << YAML::Key << "Color" << YAML::Value << mc.Color;
 			out << YAML::Key << "AlgorithmFlags" << YAML::Value << mc.AlgorithmFlags;
 			if (mc.Texture)
@@ -1251,7 +1277,7 @@ namespace Rynex {
 			{
 				out << YAML::Key << "UniformLayoute";
 				out << YAML::BeginSeq;
-				for (auto& ellement : mc.UniformLayoute)
+				for (UniformElement& ellement : mc.UniformLayoute)
 				{
 					out << YAML::BeginMap;
 					out << YAML::Key << "Name" << YAML::Value << ellement.Name.c_str();
@@ -1268,10 +1294,11 @@ namespace Rynex {
 			out << YAML::EndMap;
 
 		}
+#endif
 
 		if (entity.HasComponent<RealtionShipComponent>())
 		{
-			auto& rSc = entity.GetComponent<RealtionShipComponent>();
+			RealtionShipComponent& rSc = entity.GetComponent<RealtionShipComponent>();
 
 			UUID parent = rSc.ParentID;
 			UUID previus = rSc.PreviusID;
@@ -1290,7 +1317,7 @@ namespace Rynex {
 		{
 			out << YAML::Key << "Matrix4x4Component";
 			out << YAML::BeginMap;
-			auto& m4c = entity.GetComponent<Matrix4x4Component>();
+			Matrix4x4Component& m4c = entity.GetComponent<Matrix4x4Component>();
 			out << YAML::Key << "Matrix4x4" << YAML::Value << m4c.Matrix4x4;
 			out << YAML::Key << "GlobleMatrix4x4" << YAML::Value << m4c.GlobleMatrix4x4;
 			out << YAML::EndMap;
@@ -1300,7 +1327,7 @@ namespace Rynex {
 		{
 			out << YAML::Key << "MeshComponent";
 			out << YAML::BeginMap;
-			auto& meshC = entity.GetComponent<MeshComponent>();
+			MeshComponent& meshC = entity.GetComponent<MeshComponent>();
 			if (meshC.ModelR)
 			{
 				SerializerAssetFormate(out, "Model", meshC.ModelR->Handle);
@@ -1312,7 +1339,7 @@ namespace Rynex {
 		{
 			out << YAML::Key << "StaticMeshComponent";
 			out << YAML::BeginMap;
-			auto& meshS_C = entity.GetComponent<StaticMeshComponent>();
+			StaticMeshComponent& meshS_C = entity.GetComponent<StaticMeshComponent>();
 			if (meshS_C.ModelR)
 			{
 				SerializerAssetFormate(out, "Model-S", meshS_C.ModelR->Handle);
@@ -1324,14 +1351,14 @@ namespace Rynex {
 		{
 			out << YAML::Key << "DynamicMeshComponent";
 			out << YAML::BeginMap;
-			auto& meshD_C = entity.GetComponent<DynamicMeshComponent>();
+			DynamicMeshComponent& meshD_C = entity.GetComponent<DynamicMeshComponent>();
 			if (meshD_C.MeshR)
 			{
-				auto& rSc = entity.GetComponent<RealtionShipComponent>();
+				RealtionShipComponent& rSc = entity.GetComponent<RealtionShipComponent>();
 				Entity parent = scene->GetEntitiyByUUID(rSc.ParentID);
-				auto& meshDP_C = parent.GetComponent<MeshComponent>();
+				MeshComponent& meshDP_C = parent.GetComponent<MeshComponent>();
 				uint32_t index = 0;
-				for (auto& meshP : meshDP_C.ModelR->GetMeshes())
+				for (const Ref<Mesh>& meshP : meshDP_C.ModelR->GetMeshes())
 				{
 					if (meshP == meshD_C.MeshR)
 						break;
@@ -1347,12 +1374,413 @@ namespace Rynex {
 			out << YAML::EndMap;
 		}
 
+		if (entity.HasComponent<TextComponent>())
+		{
+			out << YAML::Key << "TextComponent";
+			out << YAML::BeginMap;
+			TextComponent& textC = entity.GetComponent<TextComponent>();
+			
+				
+			out << YAML::Key << "TextString" << YAML::Value << textC.TextString.c_str();
+			out << YAML::Key << "Color" << YAML::Value << textC.Color;
+			out << YAML::Key << "Kerning" << YAML::Value << textC.Kerning;
+			out << YAML::Key << "LineSpacing" << YAML::Value << textC.LineSpacing;
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<AmbientLigthComponent>())
+		{
+			out << YAML::Key << "AmbientLigthComponent";
+			out << YAML::BeginMap;
+			AmbientLigthComponent& ambientC = entity.GetComponent<AmbientLigthComponent>();
+
+
+			out << YAML::Key << "Color" << YAML::Value << ambientC.Color;
+			out << YAML::Key << "Intensitie" << YAML::Value << ambientC.Intensitie;
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<DrirektionleLigthComponent>())
+		{
+			out << YAML::Key << "DrirektionleLigthComponent";
+			out << YAML::BeginMap;
+			DrirektionleLigthComponent& drirektionleC = entity.GetComponent<DrirektionleLigthComponent>();
+
+
+			out << YAML::Key << "Color" << YAML::Value << drirektionleC.Color;
+			out << YAML::Key << "Intensitie" << YAML::Value << drirektionleC.Intensitie;
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<PointLigthComponent>())
+		{
+			out << YAML::Key << "PointLigthComponent";
+			out << YAML::BeginMap;
+			PointLigthComponent& pointC = entity.GetComponent<PointLigthComponent>();
+
+			out << YAML::Key << "Color" << YAML::Value << pointC.Color;
+			out << YAML::Key << "Intensitie" << YAML::Value << pointC.Intensitie;
+			out << YAML::Key << "Distence" << YAML::Value << pointC.Distence;
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<SpotLigthComponent>())
+		{
+			out << YAML::Key << "SpotLigthComponent";
+			out << YAML::BeginMap;
+			SpotLigthComponent& spotC = entity.GetComponent<SpotLigthComponent>();
+
+			out << YAML::Key << "Color" << YAML::Value << spotC.Color;
+			out << YAML::Key << "Intensitie" << YAML::Value << spotC.Intensitie;
+			out << YAML::Key << "Distence" << YAML::Value << spotC.Distence;
+			out << YAML::Key << "Inner" << YAML::Value << spotC.Inner;
+			out << YAML::Key << "Outer" << YAML::Value << spotC.Outer;
+			out << YAML::EndMap;
+		}
+
 		out << YAML::EndMap;
 	}
 
+	static void SerializerEntityAsync(YAML::Emitter& out, Entity entity, const Ref<Scene>& scene)
+	{
+#if RY_EDITOR_ASSETMANGER_THREADE
+		Ref<EditorAssetManegerThreade> editorAssetManger = Project::GetActive()->GetEditorAssetManger();
+#else
+		Ref<EditorAssetManager> editorAssetManger = Project::GetActive()->GetEditorAssetManger();
+#endif
+
+
+		RY_CORE_ASSERT(entity.HasComponent<IDComponent>(), "Error: Entity has not IDComponent");
+		out << YAML::BeginMap;
+		out << YAML::Key << "Entity" << YAML::Value << entity.GetUUID();
+
+		if (entity.HasComponent<TagComponent>())
+		{
+			out << YAML::Key << "TagComponent";
+			out << YAML::BeginMap;
+
+			std::string& tag = entity.GetComponent<TagComponent>().Tag;
+			out << YAML::Key << "Tag" << YAML::Value << tag;
+
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<TransformComponent>())
+		{
+			out << YAML::Key << "TransformComponent";
+			out << YAML::BeginMap;
+
+			TransformComponent& tc = entity.GetComponent<TransformComponent>();
+			out << YAML::Key << "Transaltion" << YAML::Value << tc.Transaltion;
+			out << YAML::Key << "Rotation" << YAML::Value << tc.Rotation;
+			out << YAML::Key << "Scale" << YAML::Value << tc.Scale;
+
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<CameraComponent>())
+		{
+			out << YAML::Key << "CameraComponent";
+			out << YAML::BeginMap;
+
+			CameraComponent& cc = entity.GetComponent<CameraComponent>();
+			SceneCamera& camera = cc.Camera;
+			out << YAML::Key << "Camera" << YAML::Value;
+			out << YAML::BeginMap;
+			out << YAML::Key << "ProjectionType" << YAML::Value << (int)camera.GetProjectionType();
+			out << YAML::Key << "PerspectivVerticleFOV" << YAML::Value << camera.GetPerspectivVerticleFOV();
+			out << YAML::Key << "PerspectivNearClipe" << YAML::Value << camera.GetPerspectivNearClipe();
+			out << YAML::Key << "PerspectivFarClipe" << YAML::Value << camera.GetPerspectivFarClipe();
+			out << YAML::Key << "OrthographicSize" << YAML::Value << camera.GetOrthographicSize();
+			out << YAML::Key << "OrthographicNearClipe" << YAML::Value << camera.GetOrthographicNearClipe();
+			out << YAML::Key << "OrthographicFarClipe" << YAML::Value << camera.GetOrthographicFarClipe();
+			out << YAML::EndMap;
+
+			out << YAML::Key << "Primary" << YAML::Value << cc.Primary;
+			out << YAML::Key << "FixedAspectRotaion" << YAML::Value << cc.FixedAspectRotaion;
+
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<ScriptComponent>())
+		{
+			out << YAML::Key << "ScriptComponent";
+			out << YAML::BeginMap;
+			ScriptComponent& sc = entity.GetComponent<ScriptComponent>();
+			out << YAML::Key << "ClassName" << YAML::Value << sc.Name;
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<SpriteRendererComponent>())
+		{
+			out << YAML::Key << "SpriteRendererComponent";
+			out << YAML::BeginMap;
+
+			SpriteRendererComponent& sc = entity.GetComponent<SpriteRendererComponent>();
+			out << YAML::Key << "Color" << YAML::Value << sc.Color;
+#if RY_DISABLE_WEAK_PTR
+			if (sc.Texture)
+			{
+				SerializerAssetFormate(out, "Texture", sc.Texture->Handle);
+			}
+#else
+			if (Ref<Texture> tex = sc.Texture.lock())
+			{
+				SerializerAssetFormate(out, "Texture", tex->Handle);
+			}
+#endif
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<GeomtryComponent>())
+		{
+			GeomtryComponent& gc = entity.GetComponent<GeomtryComponent>();
+			out << YAML::Key << "GeomtryComponent";
+			out << YAML::BeginMap;
+			if (gc.Geometry)
+			{
+				out << YAML::Key << "Primtiv" << YAML::Value << (int)gc.Geometry->GetPrimitv();
+				out << YAML::Key << "VertexBuffers" << YAML::Value;
+				out << YAML::BeginSeq;
+				if (gc.Geometry->GetVertexBuffers().size())
+				{
+
+					for (const Ref<VertexBuffer>& buffer : gc.Geometry->GetVertexBuffers())
+					{
+						const BufferLayout& layout = buffer->GetLayout();
+						out << YAML::BeginMap;
+						out << YAML::Key << "Laoute" << YAML::Value;
+						out << YAML::BeginSeq;
+						for (const BufferElement& element : layout)
+						{
+							out << YAML::BeginMap;
+							out << YAML::Key << "Name" << element.Name;
+							out << YAML::Key << "Type" << (int)element.Type;
+							out << YAML::Key << "Size" << element.Size;
+							out << YAML::Key << "Offset" << element.Offset;
+							out << YAML::Key << "Normilized" << element.Normilized;
+							out << YAML::EndMap;
+						}
+						out << YAML::EndSeq;
+						const std::vector<unsigned char>& buferData = buffer->GetBufferData();
+						SerializerDynamicDataLayout(out, "BuferData", layout, buferData);
+						out << YAML::EndMap;
+					}
+					out << YAML::EndSeq;
+				}
+				out << YAML::Key << "IndexBuffer" << YAML::Value;
+				out << YAML::BeginMap;
+				if (gc.Geometry->GetIndexBuffers())
+				{
+
+					{
+						Ref<IndexBuffer> indexBuffer = gc.Geometry->GetIndexBuffers();
+						std::vector<uint32_t> dataIndex = indexBuffer->GetBufferData();
+
+						out << YAML::Key << "Size-Byte" << YAML::Value << dataIndex.size();
+						out << YAML::Key << "Byts" << YAML::Value << 4ull;
+						out << YAML::Key << "Indicies" << YAML::Flow << YAML::BeginSeq;
+						for (uint64_t i = 0; i < dataIndex.size(); i += 4ull)
+						{
+							uint32_t* value = (uint32_t*)(dataIndex.data() + i);
+							out << YAML::Value << *value;
+						}
+						out << YAML::EndSeq;
+					}
+				}
+				out << YAML::EndMap;
+			}
+			out << YAML::EndMap;
+		}
+
+#if 0
+		if (entity.HasComponent<MaterialComponent>())
+		{
+			out << YAML::Key << "MaterialComponent" << YAML::Value;
+			out << YAML::BeginMap;
+			MaterialComponent& mc = entity.GetComponent<MaterialComponent>();
+			out << YAML::Key << "Color" << YAML::Value << mc.Color;
+			out << YAML::Key << "AlgorithmFlags" << YAML::Value << mc.AlgorithmFlags;
+
+			if (mc.Texture)
+			{
+				SerializerAssetFormate(out, "Texture", mc.Texture->Handle);
+			}
+			if (mc.Shader)
+			{
+				SerializerAssetFormate(out, "Shader", mc.Shader->Handle);
+			}
+			if (mc.UniformLayoute.size())
+			{
+				out << YAML::Key << "UniformLayoute";
+				out << YAML::BeginSeq;
+				for (UniformElement& ellement : mc.UniformLayoute)
+				{
+					out << YAML::BeginMap;
+					out << YAML::Key << "Name" << YAML::Value << ellement.Name.c_str();
+					out << YAML::Key << "Type" << YAML::Value << (int)ellement.Type;
+					out << YAML::Key << "ShaderResourceType" << YAML::Value << (int)ellement.ShResourceType;
+					out << YAML::Key << "GloblelResurce" << YAML::Value << ellement.GloblelResurce;
+					if (!ellement.GloblelResurce)
+						SerializerDynamicData(out, "LocalResurce", ellement.Type, ellement.LocalResurce);
+					out << YAML::EndMap;
+				}
+				out << YAML::EndSeq;
+			}
+
+			out << YAML::EndMap;
+
+		}
+#endif
+
+		if (entity.HasComponent<RealtionShipComponent>())
+		{
+			RealtionShipComponent& rSc = entity.GetComponent<RealtionShipComponent>();
+
+			UUID parent = rSc.ParentID;
+			UUID previus = rSc.PreviusID;
+			UUID first = rSc.FirstID;
+			UUID next = rSc.NextID;
+			out << YAML::Key << "RealtionShipComponent";
+			out << YAML::BeginMap;
+			out << YAML::Key << "Previus" << YAML::Value << previus;
+			out << YAML::Key << "First" << YAML::Value << first;
+			out << YAML::Key << "Next" << YAML::Value << next;
+			out << YAML::Key << "Parent" << YAML::Value << parent;
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<Matrix4x4Component>())
+		{
+			out << YAML::Key << "Matrix4x4Component";
+			out << YAML::BeginMap;
+			Matrix4x4Component& m4c = entity.GetComponent<Matrix4x4Component>();
+			out << YAML::Key << "Matrix4x4" << YAML::Value << m4c.Matrix4x4;
+			out << YAML::Key << "GlobleMatrix4x4" << YAML::Value << m4c.GlobleMatrix4x4;
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<MeshComponent>())
+		{
+			out << YAML::Key << "MeshComponent";
+			out << YAML::BeginMap;
+			MeshComponent& meshC = entity.GetComponent<MeshComponent>();
+			if (meshC.ModelR)
+			{
+				SerializerAssetFormate(out, "Model", meshC.ModelR->Handle);
+			}
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<StaticMeshComponent>())
+		{
+			out << YAML::Key << "StaticMeshComponent";
+			out << YAML::BeginMap;
+			StaticMeshComponent& meshS_C = entity.GetComponent<StaticMeshComponent>();
+			if (meshS_C.ModelR)
+			{
+				SerializerAssetFormate(out, "Model-S", meshS_C.ModelR->Handle);
+			}
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<DynamicMeshComponent>())
+		{
+			out << YAML::Key << "DynamicMeshComponent";
+			out << YAML::BeginMap;
+			DynamicMeshComponent& meshD_C = entity.GetComponent<DynamicMeshComponent>();
+			if (meshD_C.MeshR)
+			{
+				RealtionShipComponent& rSc = entity.GetComponent<RealtionShipComponent>();
+				Entity parent = scene->GetEntitiyByUUID(rSc.ParentID);
+				MeshComponent& meshDP_C = parent.GetComponent<MeshComponent>();
+				uint32_t index = 0;
+				for (const Ref<Mesh>& meshP : meshDP_C.ModelR->GetMeshes())
+				{
+					if (meshP == meshD_C.MeshR)
+						break;
+					index++;
+				}
+				out << YAML::Key << "Model-D";
+				out << YAML::BeginMap;
+				out << YAML::Key << "Handle" << YAML::Value << meshDP_C.ModelR->Handle;
+				out << YAML::Key << "Path" << YAML::Value << editorAssetManger->GetMetadata(meshDP_C.ModelR->Handle).FilePath.string();
+				out << YAML::Key << "Index" << YAML::Value << index;
+				out << YAML::EndMap;
+			}
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<TextComponent>())
+		{
+			out << YAML::Key << "TextComponent";
+			out << YAML::BeginMap;
+			TextComponent& textC = entity.GetComponent<TextComponent>();
+
+
+			out << YAML::Key << "TextString" << YAML::Value << textC.TextString.c_str();
+			out << YAML::Key << "Color" << YAML::Value << textC.Color;
+			out << YAML::Key << "Kerning" << YAML::Value << textC.Kerning;
+			out << YAML::Key << "LineSpacing" << YAML::Value << textC.LineSpacing;
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<AmbientLigthComponent>())
+		{
+			out << YAML::Key << "AmbientLigthComponent";
+			out << YAML::BeginMap;
+			AmbientLigthComponent& ambientC = entity.GetComponent<AmbientLigthComponent>();
+
+
+			out << YAML::Key << "Color" << YAML::Value << ambientC.Color;
+			out << YAML::Key << "Intensitie" << YAML::Value << ambientC.Intensitie;
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<DrirektionleLigthComponent>())
+		{
+			out << YAML::Key << "DrirektionleLigthComponent";
+			out << YAML::BeginMap;
+			DrirektionleLigthComponent& drirektionleC = entity.GetComponent<DrirektionleLigthComponent>();
+
+
+			out << YAML::Key << "Color" << YAML::Value << drirektionleC.Color;
+			out << YAML::Key << "Intensitie" << YAML::Value << drirektionleC.Intensitie;
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<PointLigthComponent>())
+		{
+			out << YAML::Key << "PointLigthComponent";
+			out << YAML::BeginMap;
+			PointLigthComponent& pointC = entity.GetComponent<PointLigthComponent>();
+
+			out << YAML::Key << "Color" << YAML::Value << pointC.Color;
+			out << YAML::Key << "Intensitie" << YAML::Value << pointC.Intensitie;
+			out << YAML::Key << "Distence" << YAML::Value << pointC.Distence;
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<SpotLigthComponent>())
+		{
+			out << YAML::Key << "SpotLigthComponent";
+			out << YAML::BeginMap;
+			SpotLigthComponent& spotC = entity.GetComponent<SpotLigthComponent>();
+
+			out << YAML::Key << "Color" << YAML::Value << spotC.Color;
+			out << YAML::Key << "Intensitie" << YAML::Value << spotC.Intensitie;
+			out << YAML::Key << "Distence" << YAML::Value << spotC.Distence;
+			out << YAML::Key << "Inner" << YAML::Value << spotC.Inner;
+			out << YAML::Key << "Outer" << YAML::Value << spotC.Outer;
+			out << YAML::EndMap;
+		}
+
+		out << YAML::EndMap;
+	}
 
 	void SceneSerializer::Serialize(const std::string& filepath)
 	{
+		RY_CORE_WARN("Begin Serialize a Scene from '{}'", filepath.c_str());
 		YAML::Emitter out;
 		out << YAML::BeginMap;
 		out << YAML::Key << "Scene" << YAML::Value << "Untiteld";
@@ -1371,6 +1799,7 @@ namespace Rynex {
 
 		std::ofstream fout(filepath);
 		fout << out.c_str();
+		RY_CORE_INFO("Ende Scene Serializetation");
 	}
 
 	void SceneSerializer::SerializeRuntime(const std::string& filepath)
@@ -1380,31 +1809,40 @@ namespace Rynex {
 	}
 
 
-	bool SceneSerializer::Deserialize(const std::string& filepath)
+	bool SceneSerializer::Deserialize(const std::string& filepath, bool async)
 	{
+		RY_CORE_WARN("Begin Serialize a Scene from {} '{}'", async, filepath.c_str());
+
 		m_Scene->ClearAll();
 		std::ifstream stream(filepath);
 		std::stringstream strStream;
 		strStream << stream.rdbuf();
-
+#if RY_EDITOR_ASSETMANGER_THREADE
+		Ref<EditorAssetManegerThreade> editorAssetManger = Project::GetActive()->GetEditorAssetManger();
+#else
 		Ref<EditorAssetManager> editorAssetManger = Project::GetActive()->GetEditorAssetManger();
+#endif
+		Ref<Scene> scene = CreateRef<Scene>();
 
 		YAML::Node data = YAML::Load(strStream.str());
 		if (!data["Scene"])
 			return false;
 
 		std::string sceneName = data["Scene"].as<std::string>();
-		RY_CORE_ASSERT("Deserializing scene '{0}'", sceneName);
+		RY_CORE_ASSERT("Deserialize scene '{0}'", sceneName);
 
-		auto entities = data["Entities"];
+		YAML::Node entities = data["Entities"];
 		if (entities)
 		{
-			for (auto entity : entities)
+
+			std::vector<std::thread> threadProceses;
+			bool assetHandleError = false;
+			for (YAML::detail::iterator_value entity : entities)
 			{
 				uint64_t uuid = entity["Entity"].as<uint64_t>();
 
 				std::string name;
-				auto tagComponent = entity["TagComponent"];
+				YAML::Node tagComponent = entity["TagComponent"];
 				if (tagComponent)
 					name = tagComponent["Tag"].as<std::string>();
 
@@ -1413,32 +1851,29 @@ namespace Rynex {
 				Entity deserializedEntity = m_Scene->CreateEntityWitheUUID(uuid, name);
 
 
-				auto transformComponent = entity["TransformComponent"];
-				if (transformComponent)
+				if (YAML::Node transformComponent = entity["TransformComponent"])
 				{
 					// Entities always have transforms
-					auto& tc = deserializedEntity.GetComponent<TransformComponent>();
+					TransformComponent& tc = deserializedEntity.GetComponent<TransformComponent>();
 					tc.Transaltion = transformComponent["Transaltion"].as<glm::vec3>();
 					tc.Rotation = transformComponent["Rotation"].as<glm::vec3>();
 					tc.Scale = transformComponent["Scale"].as<glm::vec3>();
 				}
 
-				auto realtionShipComponent = entity["RealtionShipComponent"];
-				if (realtionShipComponent)
+				if (YAML::Node realtionShipComponent = entity["RealtionShipComponent"])
 				{
-					auto& rSc = deserializedEntity.GetComponent<RealtionShipComponent>();
+					RealtionShipComponent& rSc = deserializedEntity.GetComponent<RealtionShipComponent>();
 					rSc.FirstID = realtionShipComponent["First"].as<uint64_t>();
 					rSc.PreviusID = realtionShipComponent["Previus"].as<uint64_t>();
 					rSc.NextID = realtionShipComponent["Next"].as<uint64_t>();
 					rSc.ParentID = realtionShipComponent["Parent"].as<uint64_t>();
 				}
 
-				auto cameraComponent = entity["CameraComponent"];
-				if (cameraComponent)
+				if (YAML::Node cameraComponent = entity["CameraComponent"])
 				{
-					auto& cc = deserializedEntity.AddComponent<CameraComponent>();
+					CameraComponent& cc = deserializedEntity.AddComponent<CameraComponent>();
 
-					auto& cameraProps = cameraComponent["Camera"];
+					YAML::Node& cameraProps = cameraComponent["Camera"];
 					cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
 
 					cc.Camera.SetPerspectivVerticleFOV(cameraProps["PerspectivVerticleFOV"].as<float>());
@@ -1453,36 +1888,81 @@ namespace Rynex {
 					cc.FixedAspectRotaion = cameraComponent["FixedAspectRotaion"].as<bool>();
 				}
 
-				auto scriptComponent = entity["ScriptComponent"];
-				if (scriptComponent)
+				if (YAML::Node scriptComponent = entity["ScriptComponent"])
 				{
-					auto& tc = deserializedEntity.AddComponent<ScriptComponent>();
+					ScriptComponent& tc = deserializedEntity.AddComponent<ScriptComponent>();
 					tc.Name = scriptComponent["ClassName"].as<std::string>();
 				}
 
-				auto spriteRendererComponent = entity["SpriteRendererComponent"];
-				if (spriteRendererComponent)
+				if (YAML::Node spriteRendererComponent = entity["SpriteRendererComponent"])
 				{
-					auto& sc = deserializedEntity.AddComponent<SpriteRendererComponent>();
+					SpriteRendererComponent& sc = deserializedEntity.AddComponent<SpriteRendererComponent>();
 					sc.Color = spriteRendererComponent["Color"].as<glm::vec4>();
-					DeserializeAssetFormate<Texture>(spriteRendererComponent["Texture"], &sc.Texture);
+#if RY_DISABLE_WEAK_PTR
+					// if (Ref<Texture> tex = sc.Texture)
+						assetHandleError = DeserializeAssetFormate<Texture>(spriteRendererComponent["Texture"], &sc.Texture, async) || assetHandleError;
+#else
+					// if(Ref<Texture> tex = sc.Texture.lock())
+
+					Ref<Texture> tex = nullptr;
+					// DeserializeAssetFormate<Texture>(spriteRendererComponent["Texture"], &tex, false);
+					
+					if (YAML::Node nodeE = spriteRendererComponent["Texture"])
+					{
+						std::string path = nodeE["Path"].as<std::string>();
+						AssetHandle handle = nodeE["Handle"].as<uint64_t>();
+						AssetHandle handleP = Project::GetActive()->GetEditorAssetManger()->GetAssetHandle(path);
+						RY_CORE_ASSERT(handleP == handle, "Not Simulare Asset Handle!");
+						if (async)
+						{
+							if (handle != 0)
+							{
+								Ref<Asset> asset = Project::GetActive()->GetAssetManger()->GetAsset(handle, true);
+								tex = std::static_pointer_cast<Texture>(asset);
+							}
+							else
+							{
+								Ref<Asset> asset = Project::GetActive()->GetAssetManger()->GetAsset(handleP, true);
+								tex = std::static_pointer_cast<Texture>(asset);
+							}
+							
+						}
+						else
+						{
+							if (handle != 0)
+								tex = AssetManager::GetAsset<Texture>(handle);
+							else
+								tex = AssetManager::GetAsset<Texture>(handleP);
+						}
+						
+					}
+					sc.Texture = tex;
+#endif
 				}
 #if 1
-				auto geomtryComponent = entity["GeomtryComponent"];
-				if (geomtryComponent)
+				
+				if (YAML::Node geomtryComponent = entity["GeomtryComponent"])
 				{
-					auto& gc = deserializedEntity.AddComponent<GeomtryComponent>();
-					gc.Geometry = VertexArray::Create();
-					if (geomtryComponent)
-						gc.Geometry->SetPrimitv((VertexArray::Primitv)geomtryComponent["Primtiv"].as<int>());
+					GeomtryComponent& gc = deserializedEntity.AddComponent<GeomtryComponent>();
 
-					for (auto vertexBuffer : geomtryComponent["VertexBuffers"])
+					if (async)
 					{
-						auto layoute = vertexBuffer["Laoute"];
+						RY_CORE_ASSERT(false);
+					}
+					else
+					{
+						gc.Geometry = VertexArray::Create();
+						if (geomtryComponent)
+							gc.Geometry->SetPrimitv((VertexArray::Primitv)geomtryComponent["Primtiv"].as<int>());
+					}
+
+					for (YAML::detail::iterator_value vertexBuffer : geomtryComponent["VertexBuffers"])
+					{
+						YAML::Node layoute = vertexBuffer["Laoute"];
 						std::vector<BufferElement> bufferElements;
 						bufferElements.reserve(layoute.size());
 
-						for (auto elementN : layoute)
+						for (YAML::detail::iterator_value elementN : layoute)
 						{
 							BufferElement& bufferElement = bufferElements.emplace_back(BufferElement());
 							bufferElement.Name = elementN["Name"].as<std::string>();
@@ -1494,11 +1974,18 @@ namespace Rynex {
 						BufferLayout bufferLayout(bufferElements);
 						std::vector<unsigned char> data;
 						DeserializeDynamicDataLayout(vertexBuffer["BuferData"], bufferLayout, data);
-						Ref<VertexBuffer> vbuffer = VertexBuffer::Create(data.data(), data.size());
-						vbuffer->SetLayout(bufferLayout);
-						gc.Geometry->AddVertexBuffer(vbuffer);
+						if (async)
+						{
+							RY_CORE_ASSERT(false);
+						}
+						else
+						{
+							Ref<VertexBuffer> vbuffer = VertexBuffer::Create(data.data(), data.size());
+							vbuffer->SetLayout(bufferLayout);
+							gc.Geometry->AddVertexBuffer(vbuffer);
+						}
 					}
-					auto indexBufferN = geomtryComponent["IndexBuffer"];
+					YAML::Node indexBufferN = geomtryComponent["IndexBuffer"];
 					if (indexBufferN)
 					{
 
@@ -1507,29 +1994,40 @@ namespace Rynex {
 						std::vector<unsigned char> indexData;
 						indexData.resize(size);
 						uint32_t offset = 0;
-						for (auto index : indexBufferN["Indicies"])
+						for (YAML::detail::iterator_value index : indexBufferN["Indicies"])
 						{
 							uint32_t* value = (uint32_t*)(indexData.data() + offset);
 							*value = index.as<uint32_t>();
 							offset += 4;
 						}
-						Ref<IndexBuffer> ibuffer = IndexBuffer::Create((uint32_t*)indexData.data(), size);
-						gc.Geometry->SetIndexBuffer(ibuffer);
+						if(size!=0)
+						{
+							if (async)
+							{
+								RY_CORE_ASSERT(false);
+							}
+							else
+							{
+								Ref<IndexBuffer> ibuffer = IndexBuffer::Create((uint32_t*)indexData.data(), size, BufferDataUsage::StaticDraw);
+								gc.Geometry->SetIndexBuffer(ibuffer);
+							}
+						}
 					}
 				}
 
-				auto materialComponent = entity["MaterialComponent"];
-				if (materialComponent)
+#if 0
+				if (YAML::Node materialComponent = entity["MaterialComponent"])
 				{
-					auto& mc = deserializedEntity.AddComponent<MaterialComponent>();
+					MaterialComponent& mc = deserializedEntity.AddComponent<MaterialComponent>();
 					mc.Color = materialComponent["Color"].as<glm::vec3>();
 					mc.AlgorithmFlags = materialComponent["AlgorithmFlags"].as<int>();
-					DeserializeAssetFormate(materialComponent["Texture"], &mc.Texture);
-					DeserializeAssetFormate(materialComponent["Shader"], &mc.Shader);
-					auto uniformLayoute = materialComponent["UniformLayoute"];
+					
+					assetHandleError = DeserializeAssetFormate(materialComponent["Texture"], &mc.Texture, async) || assetHandleError;
+					assetHandleError = DeserializeAssetFormate(materialComponent["Shader"], &mc.Shader, async) || assetHandleError; // TODO: Make Async loding Posible for Shaders , async
+					YAML::Node uniformLayoute = materialComponent["UniformLayoute"];
 					mc.UniformLayoute.reserve(uniformLayoute.size());
 					uint32_t index = 0;
-					for (auto uniformN : uniformLayoute)
+					for (YAML::detail::iterator_value uniformN : uniformLayoute)
 					{
 						UniformElement& bufferElement = mc.UniformLayoute.emplace_back(UniformElement());
 						bufferElement.Name = uniformN["Name"].as<std::string>();
@@ -1537,53 +2035,219 @@ namespace Rynex {
 						bufferElement.GloblelResurce = uniformN["GloblelResurce"].as<bool>();
 						if (!bufferElement.GloblelResurce)
 							DeserializeDynamicData(uniformN["LocalResurce"], bufferElement.Type, bufferElement.LocalResurce);
+
 						bufferElement.ShResourceType = (ShaderResourceType)uniformN["ShaderResourceType"].as<int>();
 
 						index++;
 					}
 				}
+#endif
 
 
-
-				auto matrix4x4Component = entity["Matrix4x4Component"];
-				if (matrix4x4Component)
+				if (YAML::Node matrix4x4Component = entity["Matrix4x4Component"])
 				{
-					auto& m4c = deserializedEntity.GetComponent<Matrix4x4Component>();
+					Matrix4x4Component& m4c = deserializedEntity.GetComponent<Matrix4x4Component>();
 					m4c.Matrix4x4 = matrix4x4Component["Matrix4x4"].as<glm::mat4>();
 					m4c.GlobleMatrix4x4 = matrix4x4Component["GlobleMatrix4x4"].as<glm::mat4>();
 				}
 
-				auto meshComponent = entity["MeshComponent"];
+				YAML::Node meshComponent = entity["MeshComponent"];
 				if (meshComponent)
 				{
-					auto& mc = deserializedEntity.AddComponent<MeshComponent>();
-					DeserializeAssetFormate<Model>(meshComponent["Model"], &mc.ModelR);
+					MeshComponent& mc = deserializedEntity.AddComponent<MeshComponent>();
+					if (async)
+					{
+						YAML::Node modelN = meshComponent["Model"];
+						std::string path = modelN["Path"].as<std::string>();
+						AssetHandle handle = modelN["Handle"].as<uint64_t>();
+						
+#if 0
+						mc.ModelR = nullptr;
+						threadProceses.emplace_back([](std::string pathLem, AssetHandle handleLem, Ref<Model>* modelLem) {
+							
+
+
+							AssetHandle handleP = Project::GetActive()->GetEditorAssetManger()->GetAssetHandle(pathLem);
+							Ref<Model> model = nullptr;
+							Ref<Asset> asset = Project::GetActive()->GetAssetManger()->GetAsset(handleLem, true);
+							model = std::static_pointer_cast<Model>(asset);
+
+							if(*modelLem != nullptr)
+								*modelLem = nullptr;
+
+							*modelLem = model;
+
+							}, path, handle, &mc.ModelR);
+#else
+						Ref<Asset> asset = Project::GetActive()->GetAssetManger()->GetAsset(handle, true);
+						Ref<Model> model = nullptr;
+						mc.ModelR = nullptr;
+						model = std::static_pointer_cast<Model>(asset);
+						mc.ModelR = model;
+#endif
+					}
+					else
+					{
+						assetHandleError = DeserializeAssetFormate<Model>(meshComponent["Model"], &mc.ModelR, false) || assetHandleError;
+					}
 				}
 
-				auto staticMeshComponent = entity["StaticMeshComponent"];
-				if (staticMeshComponent)
+				
+				if (YAML::Node  staticMeshComponent = entity["StaticMeshComponent"])
 				{
-					auto& smc = deserializedEntity.AddComponent<StaticMeshComponent>();
-					DeserializeAssetFormate<Model>(meshComponent["Model"], &smc.ModelR);
+					StaticMeshComponent& smc = deserializedEntity.AddComponent<StaticMeshComponent>();
+					smc.ModelR = nullptr;
+					if (async)
+					{
+						YAML::Node meshN = meshComponent["Model"];
+						std::string path = meshN["Path"].as<std::string>();
+						AssetHandle handle = meshN["Handle"].as<uint64_t>();
+#if 0
+						smc.ModelR = nullptr;
+						threadProceses.emplace_back([](std::string pathLem, AssetHandle handleLem, Ref<Model>* modelLem) {
+
+
+
+							AssetHandle handleP = Project::GetActive()->GetEditorAssetManger()->GetAssetHandle(pathLem);
+							Ref<Model> model = nullptr;
+							Ref<Asset> asset = Project::GetActive()->GetAssetManger()->GetAsset(handleLem, true);
+							model = std::static_pointer_cast<Model>(asset);
+
+							if (*modelLem != nullptr)
+								*modelLem = nullptr;
+
+							*modelLem = model;
+
+							}, path, handle, &smc.ModelR);
+#else
+						
+						Ref<Asset> asset = Project::GetActive()->GetAssetManger()->GetAsset(handle, true);
+						Ref<Model> model = nullptr;
+						smc.ModelR = nullptr;
+						model = std::static_pointer_cast<Model>(asset);
+						smc.ModelR = model;
+#endif
+					}
+					else
+					{
+						assetHandleError = DeserializeAssetFormate<Model>(meshComponent["Model"], &smc.ModelR, false) || assetHandleError;
+					}
+#if 0
+					assetHandleError = DeserializeAssetFormate<Model>(meshComponent["Model"], &smc.ModelR, false) || assetHandleError;
+#else
+					
+#endif
 				}
 
-				auto dynamicMeshComponent = entity["DynamicMeshComponent"];
-				if (dynamicMeshComponent)
+				
+				if (YAML::Node dynamicMeshComponent = entity["DynamicMeshComponent"])
 				{
-					auto modelN = dynamicMeshComponent["Model-D"];
-					auto& dmc = deserializedEntity.AddComponent<DynamicMeshComponent>();
-					Ref<Model> model = nullptr;
-					DeserializeAssetFormate<Model>(modelN, &model);
+					YAML::Node modelN = dynamicMeshComponent["Model-D"];
+					DynamicMeshComponent& dmc = deserializedEntity.AddComponent<DynamicMeshComponent>();
+					
 					uint32_t index = modelN["Index"].as<uint32_t>();
-					dmc.MeshR = model->GetMesh(index);
+					if(async)
+					{
+						std::string path = modelN["Path"].as<std::string>();
+						AssetHandle handle = modelN["Handle"].as<uint64_t>();
+#if 0
+						dmc.MeshR = nullptr;
+						threadProceses.emplace_back([](uint32_t indexlem, std::string pathlem, AssetHandle handlelem, Ref<Mesh>* meshlem) {
+							Ref<Model> model = nullptr;
+
+							
+							AssetHandle handleP = Project::GetActive()->GetEditorAssetManger()->GetAssetHandle(pathlem);
+
+							Ref<Asset> asset = Project::GetActive()->GetAssetManger()->GetAsset(handlelem, false);
+							model = std::static_pointer_cast<Model>(asset);
+							const Ref<Mesh> mesh = model->GetMesh(indexlem);
+							if (*meshlem != nullptr)
+								*meshlem = nullptr;
+							*meshlem = mesh;
+							}, index, modelN["Path"].as<std::string>(), modelN["Handle"].as<uint64_t>(), &dmc.MeshR);
+#else
+						Ref<Asset> asset = Project::GetActive()->GetAssetManger()->GetAsset(handle, true);
+						Ref<Model> model = nullptr;
+						dmc.MeshR = nullptr;
+						model = std::static_pointer_cast<Model>(asset);
+						const Ref<Mesh> mesh = model->GetMesh(index);
+						dmc.MeshR = model->GetMesh(index);
+#endif
+					}
+					else
+					{
+						Ref<Model> model = nullptr;
+						assetHandleError = DeserializeAssetFormate<Model>(modelN, &model, false) || assetHandleError;// TODO: Make single Mesh Loding Posible!
+						dmc.MeshR = model->GetMesh(index);
+					}
+					
+					
+					
+				}
+
+				if (YAML::Node textComponent = entity["TextComponent"])
+				{
+					deserializedEntity.AddComponent<TextComponent>();
+					TextComponent& textC = deserializedEntity.GetComponent<TextComponent>();
+					textC.FontAsset = Font::GetDefault();
+					textC.TextString = textComponent["TextString"].as<std::string>();
+					textC.Color = textComponent["Color"].as<glm::vec4>();
+					
+					textC.LineSpacing = textComponent["LineSpacing"].as<float>();
+					textC.Kerning = textComponent["Kerning"].as<float>();
+
+					RY_CORE_ASSERT(deserializedEntity.HasComponent<TextComponent>())
+				}
+
+				if (YAML::Node ambientComponent = entity["AmbientLigthComponent"])
+				{
+					AmbientLigthComponent& ambientC = deserializedEntity.AddComponent<AmbientLigthComponent>();
+					ambientC.Color = ambientComponent["Color"].as<glm::vec3>();
+					ambientC.Intensitie = ambientComponent["Intensitie"].as<float>();
+				}
+
+				if (YAML::Node drirektionleComponent = entity["DrirektionleLigthComponent"])
+				{
+					DrirektionleLigthComponent& drirektionleC = deserializedEntity.AddComponent<DrirektionleLigthComponent>();
+					drirektionleC.Color = drirektionleComponent["Color"].as<glm::vec3>();
+					drirektionleC.Intensitie = drirektionleComponent["Intensitie"].as<float>();
+				}
+
+				if (YAML::Node pointLigthComponent = entity["PointLigthComponent"])
+				{
+					PointLigthComponent& pointLigthC = deserializedEntity.AddComponent<PointLigthComponent>();
+					pointLigthC.Color = pointLigthComponent["Color"].as<glm::vec3>();
+					pointLigthC.Intensitie = pointLigthComponent["Intensitie"].as<float>();
+					pointLigthC.Distence = pointLigthComponent["Distence"].as<float>();
+				}
+
+				if (YAML::Node spotLigthComponent = entity["SpotLigthComponent"])
+				{
+					SpotLigthComponent& spotLigthC = deserializedEntity.AddComponent<SpotLigthComponent>();
+					spotLigthC.Color = spotLigthComponent["Color"].as<glm::vec3>();
+					spotLigthC.Intensitie = spotLigthComponent["Intensitie"].as<float>();
+					spotLigthC.Distence = spotLigthComponent["Distence"].as<float>();
+
+					spotLigthC.Inner = spotLigthComponent["Inner"].as<float>();
+					spotLigthC.Outer = spotLigthComponent["Outer"].as<float>();
 				}
 #endif
 			}
 
-		}
+			for (std::thread& t : threadProceses)
+			{
+				t.join();
+			}
+			// m_Scene = scene;
+			if (assetHandleError)
+				Serialize(filepath);
 
+		}
+		RY_CORE_INFO("Ende Scene Deserializetion");
 		return true;
 	}
+
+	
 
 	bool SceneSerializer::DeserializeRuntime(const std::string& filepath)
 	{

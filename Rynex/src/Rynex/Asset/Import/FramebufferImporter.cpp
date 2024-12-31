@@ -6,25 +6,32 @@
 
 namespace Rynex {
 
-	Ref<Framebuffer> FramebufferImporter::ImportFramebuffer(AssetHandle handle, const AssetMetadata& metadata)
+	Ref<Framebuffer> FramebufferImporter::ImportFramebuffer(AssetHandle handle, const AssetMetadata& metadata, bool async)
 	{
-		return LoadFramebuffer(metadata.FilePath.string());
+		return LoadFramebuffer((Project::GetActiveProjectDirectory() / metadata.FilePath).string(), async);
 	}
 
-	Ref<Framebuffer> FramebufferImporter::LoadFramebuffer(const std::filesystem::path& path)
+	Ref<Framebuffer> FramebufferImporter::LoadFramebuffer(const std::filesystem::path& path, bool async)
 	{
 		Ref<Framebuffer> frambuffer = FrambufferSerializer::Deserilze(path.string());
+#if RY_EDITOR_ASSETMANGER_THREADE
+		Ref<EditorAssetManegerThreade> editorAssetManager = Project::GetActive()->GetEditorAssetManger();
+#else
 		Ref<EditorAssetManager> editorAssetManager = Project::GetActive()->GetEditorAssetManger();
+#endif
 		std::string pathForTex = path.string() + "-";
 		int index = 0;
-		for (auto& texture : frambuffer->GetTextures())
+		for (const auto& texture : frambuffer->GetAttachmentsTextures())
 		{ 
 			std::string pathWitheExtension = pathForTex + std::to_string(index);
 			if(!editorAssetManager->IsAssetLoaded(pathWitheExtension))
 			{
 				AssetMetadata metadeta;
 				metadeta.Type = texture->GetType();
+#if RY_EDITOR_ASSETMANGER_THREADE
+#else
 				editorAssetManager->CreateAsset(pathWitheExtension, (Ref<Asset>)texture, metadeta);
+#endif
 			}
 			
 			texture->Handle = editorAssetManager->GetAssetHandle(pathWitheExtension);
@@ -36,7 +43,7 @@ namespace Rynex {
 		return frambuffer;
 	}
 
-	void FramebufferImporter::ReLoadingFramebuffer(AssetHandle handle, const std::filesystem::path& path)
+	void FramebufferImporter::ReLoadingFramebuffer(AssetHandle handle, const std::filesystem::path& path, bool async)
 	{
 		// Ref<Framebuffer> frambuffer = AssetManager::GetAsset<Framebuffer>(handle);
 	}

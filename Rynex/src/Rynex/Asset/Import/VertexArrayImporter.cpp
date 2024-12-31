@@ -7,15 +7,21 @@
 namespace Rynex {
 
 
-	Ref<VertexArray> VertexArrayImporter::ImportVertexArray(AssetHandle handle, const AssetMetadata& metadata)
+	Ref<VertexArray> VertexArrayImporter::ImportVertexArray(AssetHandle handle, const AssetMetadata& metadata, bool async)
 	{
-		return LoadVertexArry(metadata.FilePath.string());
+		return LoadVertexArry((Project::GetActiveProjectDirectory()/metadata.FilePath).string(), async);
 	}
 
-	Ref<VertexArray> VertexArrayImporter::LoadVertexArry(const std::filesystem::path& path)
+	Ref<VertexArray> VertexArrayImporter::LoadVertexArry(const std::filesystem::path& path, bool async)
 	{
 		Ref<VertexArray> vertexArray = VertexArraySerialzer::Deserlize(path.string());
+
+#if RY_EDITOR_ASSETMANGER_THREADE
+		Ref<EditorAssetManegerThreade> editorAssetManager = Project::GetActive()->GetEditorAssetManger();
+#else
 		Ref<EditorAssetManager> editorAssetManager = Project::GetActive()->GetEditorAssetManger();
+#endif
+		
 		std::string pathForTex = path.string() + "-";
 		int index = 0;
 		for (auto& vertexbuffer : vertexArray->GetVertexBuffers())
@@ -25,7 +31,10 @@ namespace Rynex {
 			{
 				AssetMetadata metadeta;
 				metadeta.Type = vertexbuffer->GetType();
+#if RY_EDITOR_ASSETMANGER_THREADE
+#else				
 				editorAssetManager->CreateAsset(pathWitheExtension, (Ref<Asset>)vertexbuffer, metadeta);
+#endif
 			}
 			vertexbuffer->Handle = editorAssetManager->GetAssetHandle(pathWitheExtension);
 			Ref<VertexBuffer> assetVertexBuffer = AssetManager::GetAsset<VertexBuffer>(vertexbuffer->Handle);
@@ -41,7 +50,10 @@ namespace Rynex {
 			{
 				AssetMetadata metadeta;
 				metadeta.Type = indexBuffer->GetType();
+#if RY_EDITOR_ASSETMANGER_THREADE
+#else	
 				editorAssetManager->CreateAsset(pathWitheExtension, (Ref<Asset>)indexBuffer, metadeta);
+#endif
 			}
 			indexBuffer->Handle = editorAssetManager->GetAssetHandle(pathWitheExtension);
 			Ref<IndexBuffer> assetIndexBuffer = AssetManager::GetAsset<IndexBuffer>(indexBuffer->Handle);
@@ -51,7 +63,7 @@ namespace Rynex {
 		return vertexArray;
 	}
 
-	void VertexArrayImporter::ReLoadeVertexArray(AssetHandle handle, const std::filesystem::path& path)
+	void VertexArrayImporter::ReLoadeVertexArray(AssetHandle handle, const std::filesystem::path& path, bool async)
 	{
 	}
 }

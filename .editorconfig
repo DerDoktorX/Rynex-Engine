@@ -1,0 +1,4 @@
+﻿[*.{cs,vb}]
+
+# IDE0032: Automatisch generierte Eigenschaft verwenden
+dotnet_style_prefer_auto_properties = true

@@ -1,0 +1,128 @@
+#include "rypch.h"
+#include "FrambufferSerializer.h"
+
+#include <Rynex/Renderer/API/Texture.h>
+#include <Rynex/Renderer/API/Buffer.h>
+#include <Rynex/Project/Project.h>
+#include <Rynex/Utils/EnumString.h>
+
+#include <glm/glm.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
+#define YAML_CPP_STATIC_DEFINE
+#include <yaml-cpp/yaml.h>
+#include <fstream>
+
+
+
+namespace YAML {
+
+	Emitter& operator<<(Emitter& out, const std::string_view& v);
+}
+
+
+namespace Rynex {
+
+
+
+	bool FrambufferSerializer::Serilze(const std::filesystem::path& filepath, Ref<Framebuffer> frambuffer)
+	{
+
+		const FramebufferSpecification& spec = frambuffer->GetFramebufferSpecification();
+		YAML::Emitter out;
+		{
+			out << YAML::BeginMap; // Root
+			//out << YAML::Key << "Framebuffer-AssetHandle" << YAML::Value << AssetHandle();
+			out << YAML::Key << "Framebuffer" << YAML::Value;
+			{
+				out << YAML::BeginMap;// Project
+				out << YAML::Key << "Width" << YAML::Value << spec.Width;
+				out << YAML::Key << "Height" << YAML::Value << spec.Height;
+				out << YAML::Key << "Attachments";
+				{
+					out << YAML::BeginSeq;
+					for (const FramebufferTextureSpecification& framTexSpec : spec.Attachments)
+					{
+						// out << YAML::Key << "TextureAssetHandle" << YAML::Value << AssetHandle();
+						out << YAML::BeginMap;
+						out << YAML::Key << "TextureFormat" << YAML::Value << EnumString::GetStringFromEnum<TextureFormat>(framTexSpec.TextureFormat);
+						out << YAML::Key << "TextureWrapping" << YAML::Value;
+						out << YAML::BeginMap;
+						{
+							out << YAML::Key << "R" << YAML::Value << EnumString::GetStringFromEnum<TextureWrappingMode>(framTexSpec.TextureWrapping.R);
+							out << YAML::Key << "T" << YAML::Value << EnumString::GetStringFromEnum<TextureWrappingMode>(framTexSpec.TextureWrapping.T);
+							out << YAML::Key << "S" << YAML::Value << EnumString::GetStringFromEnum<TextureWrappingMode>(framTexSpec.TextureWrapping.S);
+						}
+						out << YAML::EndMap;
+						out << YAML::Key << "TextureFiltering" << YAML::Value << EnumString::GetStringFromEnum<TextureFilteringMode>(framTexSpec.TextureFiltering);
+						out << YAML::Key << "Samples" << YAML::Value << framTexSpec.Samples;
+						out << YAML::EndMap;
+					}
+					out << YAML::EndSeq;
+				}
+				
+				out << YAML::Key << "SwapChainTarget" << YAML::Value << spec.SwapChainTarget;
+			}
+			out << YAML::EndMap; // Root
+		}
+
+		std::ofstream fout(filepath);
+		fout << out.c_str();
+
+		return true;
+	}
+
+	Ref<Framebuffer> FrambufferSerializer::Deserilze(const std::filesystem::path& filepath)
+	{
+		YAML::Node data;
+		try
+		{
+			data = YAML::LoadFile(filepath.string());
+		}
+		catch (YAML::ParserException e)
+		{
+			RY_CORE_ERROR("Failed to load project file '{0}'\n     {1}", filepath.string(), e.what());
+			return false;
+		}
+		FramebufferSpecification spec = FramebufferSpecification();
+		YAML::Node& frameNode = data["Framebuffer"];
+		
+		if (frameNode)
+		{
+			spec.Width = frameNode["Width"].as<uint32_t>();
+			spec.Height = frameNode["Height"].as<uint32_t>();
+			YAML::Node& attachmentsNode = frameNode["Attachments"];
+
+			std::vector<FramebufferTextureSpecification>& attachments = spec.Attachments;
+			
+			for (YAML::Node& attachmentNode : attachmentsNode)
+			{
+				FramebufferTextureSpecification framSpec;
+				framSpec.TextureFormat = EnumString::GetEnumFormString<TextureFormat>(attachmentNode["TextureFormat"].as<std::string>());
+
+				YAML::Node& textureWrappingNode = attachmentNode["TextureWrapping"];
+				YAML::Node& T_Node = textureWrappingNode["T"];
+				YAML::Node& S_Node = textureWrappingNode["S"];
+				YAML::Node& R_Node = textureWrappingNode["R"];
+				if (R_Node)
+					framSpec.TextureWrapping.R = EnumString::GetEnumFormString<TextureWrappingMode>(R_Node.as<std::string>());
+				if (T_Node)
+					framSpec.TextureWrapping.T = EnumString::GetEnumFormString<TextureWrappingMode>(T_Node.as<std::string>());
+				if (S_Node)
+					framSpec.TextureWrapping.S = EnumString::GetEnumFormString<TextureWrappingMode>(S_Node.as<std::string>());
+				
+				framSpec.TextureFiltering = EnumString::GetEnumFormString<TextureFilteringMode>(attachmentNode["TextureFiltering"].as<std::string>());
+				
+				if(YAML::Node & Samples_Node = attachmentNode["Samples"])
+				{
+					framSpec.Samples = Samples_Node.as<uint32_t>();
+				}
+				attachments.push_back(framSpec);
+			}
+
+			spec.SwapChainTarget = frameNode["SwapChainTarget"].as<bool>();
+		}
+		Ref<Framebuffer> frameBuffer = Framebuffer::Create(spec);
+		return frameBuffer;
+	}
+
+};

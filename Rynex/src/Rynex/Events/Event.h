@@ -10,7 +10,7 @@ namespace Rynex {
 	enum class EventType
 	{
 		None = 0,
-		WindowClose, WindowResize, WindowFocuse, Window, WindowLostFocuse, WindowMoved,
+		WindowClose, WindowResize, WindowMoved, WindowFocuse, Window, WindowLostFocuse, WindowCurserEnter, WindowCurserLeave,
 		AppTick, AppUpdate, AppRender,
 		KeyPressed, KeyReleased, KeyTyped,
 		MouseButtonPressed, MouseButtonRealsed, MouseMoved, MouseSrolled
@@ -47,8 +47,7 @@ namespace Rynex {
 		{
 			return GetCategoryFlags() & category;
 		}
-	//protected:
-	//	bool m_Handled = false;
+
 	};
 
 	class EventDispatcher

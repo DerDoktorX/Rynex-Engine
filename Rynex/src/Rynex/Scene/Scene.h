@@ -30,11 +30,13 @@ namespace Rynex {
 	struct PointLigthComponent;
 	struct SpotLigthComponent;
 	struct ParticelComponente;
+	struct TextComponent;
 
 	using EnttRender2DView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, SpriteRendererComponent>;
+	using EnttRenderTextView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, TextComponent>;
 	using EnttRender3DEditeView = entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, MaterialComponent, GeomtryComponent>;
-	using EnttRender3DDynamicModelView = entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, MaterialComponent, DynamicMeshComponent>;
-	using EnttRender3DStaticModelView = entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, MaterialComponent, StaticMeshComponent>;
+	using EnttRender3DDynamicModelView = entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, DynamicMeshComponent>;
+	using EnttRender3DStaticModelView = entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, StaticMeshComponent>;
 
 	using EnttFrameBufferView	= entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, FrameBufferComponent, CameraComponent>;
 	using EnttCameraView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, CameraComponent>;
@@ -56,10 +58,7 @@ namespace Rynex {
 		EnttDrirektionLeLView DrirektionLCV;
 		EnttPointLView PointLCV;
 		EnttSpotLView SpotLCV;
-		EnttViewLigths(EnttAmbientLView& ambientLCV, EnttDrirektionLeLView& drirektionLCV, EnttPointLView& pointLCV, EnttSpotLView& spotLCV)
-			: AmbientLCV(ambientLCV), DrirektionLCV(drirektionLCV), PointLCV(pointLCV), SpotLCV(spotLCV) { }
-		EnttViewLigths(const EnttViewLigths&) = default;
-		EnttViewLigths(EnttViewLigths&&) = default;
+
 	};
 
 	struct EnttView3D
@@ -68,21 +67,14 @@ namespace Rynex {
 		EnttRender3DStaticModelView StaticCV;
 		EnttRender3DEditeView EditeCV;
 
-		EnttView3D(EnttRender3DDynamicModelView& dynamicModelCV, EnttRender3DStaticModelView& staticCV, EnttRender3DEditeView& editeCV)
-			: DynamicModelCV(dynamicModelCV), StaticCV(staticCV), EditeCV(editeCV) {  }
-		EnttView3D(const EnttView3D&) = default;
-		EnttView3D(EnttView3D&&) = default;
+	
 	};
 
 	struct EnttView2D
 	{
-		EnttRender2DView RendererCV;
-
-		EnttView2D(EnttRender2DView& rendererCV)
-			: RendererCV(rendererCV) { }
-
-		EnttView2D(const EnttView2D&) = default;
-		EnttView2D(EnttView2D&&) = default;
+		EnttRender2DView Renderer2DCV;
+		EnttRenderTextView RendererTextCV;
+		
 	};
 
 	class RYNEX_API Scene : public Asset
@@ -115,14 +107,20 @@ namespace Rynex {
 
 		void OnViewportResize(uint32_t withe, uint32_t heigth);
 		
-		void SetBeckGroundColor(const glm::vec4& backGound) { m_BackGround = backGound; }
+		void SetBackgroundColor(const glm::vec4& backGound) { m_BackGround = backGound; }
+		glm::uvec2 GetViewPortSize() { return { m_ViewPortWithe , m_ViewPortHeigth }; }
+		const glm::vec2& GetMousPixelPos() { return m_MausPixlePos; }
 
 		Entity GetEntitiyByUUID(UUID uuid);
 		Entity GetEntityByName(const std::string& tag);
 		Entity GetEntityPrimaryCamera();
 
 		bool IsTagInScene(const std::string& tag);
-
+		void SetMousPixelPos(const glm::vec2& pos) { m_MausPixlePos = pos; }
+		void SetHoverViewPort(bool isHovered) { m_Hovered = isHovered; }
+		void SetWindowResize(bool isResized) { m_Resized = isResized; }
+		bool IsViewPortHovered() { return m_Hovered; }
+		bool IsWindowResize() { return m_Resized; }
 
 		uint32_t GetEntityCount() const { return (uint32_t)m_Registery.size(); }
 
@@ -138,19 +136,19 @@ namespace Rynex {
 			return m_Registry.view<Components...>();
 		}
 
-		void RenderSingleEntity(Camera& camera, const glm::mat<4, 4, float>& viewMatrix, const glm::vec4& backGroundColor);
+		void RenderSingleEntity(Camera& camera, const glm::mat4& viewMatrix, const glm::vec4& backGroundColor);
 
 	private:
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);		
 		
-		void RenderScene2D(Camera& camera, glm::mat<4, 4, float>& transform, EnttView2D& enttView2D);
-		void RenderScene3D(Camera& camera, glm::mat<4, 4, float>& transform, EnttView3D& enttView3D);
+		void RenderScene2D(Camera& camera, glm::mat4& transform, EnttView2D& enttView2D);
+		void RenderScene3D(Camera& camera, glm::mat4& transform, EnttView3D& enttView3D);
 		void RenderFrambuffers( EnttView3D& enttView3D, EnttView2D& enttView2D, EnttCameraView& enttCameraView);
-		void SetLigthsRuntime(EnttViewLigths& enttViewLigths);
-		void SetLigthsEditor(EnttViewLigths& enttViewLigths, Camera& camera, const glm::mat<4, 4, float>& viewMatrix, const glm::uvec2& viewPortSize);
+		void SetLigthsRuntime(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D);
+		void SetLigthsEditor(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D, Camera& camera, const glm::mat4& viewMatrix, const glm::uvec2& viewPortSize);
 
-		void SceneRendering(Camera& camera, glm::mat<4, 4, float>& viewMatrix);
+		void RenderScene3DShadows(Camera& camera, glm::mat4& transform, EnttView3D& enttView3D, Ref<Framebuffer>& frambuffer, int ligthIndex);
 
 		
 
@@ -159,6 +157,10 @@ namespace Rynex {
 	private:
 		entt::registry m_Registery;
 		uint32_t m_ViewPortWithe = 1, m_ViewPortHeigth = 1;
+		glm::vec2 m_MausPixlePos = { -1.0, -1.0 };
+		bool m_Hovered = false;
+		bool m_Resized = false;
+
 		bool m_IsRunning = false;
 		bool m_IsPaused = false;
 		int m_StepFrames = 0;
@@ -171,6 +173,7 @@ namespace Rynex {
 		// std::map<std::string, Ref<Framebuffer>> m_RenderFrambuffer;
 		std::map<std::string, entt::entity> m_EntityMapTag;
 		glm::vec4 m_BackGround = { 0.1,0.1f,0.1f,1.0f };
+
 		friend class Entity;
 		friend class SceneSerializer;
 		friend class SceneHierachyPannel;

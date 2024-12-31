@@ -51,6 +51,7 @@ inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternion)
 	#define	RY_CORE_WARN(...)	::Rynex::Log::GetCoreLogger()->warn(__VA_ARGS__)
 	#define	RY_CORE_ERROR(...)	::Rynex::Log::GetCoreLogger()->error(__VA_ARGS__)
 	#define	RY_CORE_FATAL(...)	::Rynex::Log::GetCoreLogger()->critical(__VA_ARGS__)
+
 	
 	#define	RY_TRACE(...)		::Rynex::Log::GetClientLogger()->trace(__VA_ARGS__)
 	#define	RY_INFO(...)		::Rynex::Log::GetClientLogger()->info(__VA_ARGS__)
@@ -89,3 +90,4 @@ inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternion)
 	#define	RY_CORE_MEMORY_FREE(name, in)
 	#define	RY_CORE_MULTY_FREE_ALICATION(name, in)
 #endif
+

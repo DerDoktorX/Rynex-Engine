@@ -10,6 +10,7 @@ namespace Rynex{
 	{
 	public:
 		OpenGLContext(GLFWwindow* windowHandle);
+		~OpenGLContext();
 
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
@@ -18,7 +19,7 @@ namespace Rynex{
 
 
 	private:
-		GLFWwindow* m_WindowHandle;
+		GLFWwindow* m_WindowHandle = nullptr;
 	};
 
 }

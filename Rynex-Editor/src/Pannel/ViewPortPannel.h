@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Rynex/Core/CamerController.h>
+#include <Rynex/Renderer/Camera/CamerController.h>
 #include <Rynex/Renderer/API/Texture.h>
 #include <Rynex/Scene/Scene.h>
 #include <Rynex/Scene/Entity.h>
@@ -76,7 +76,6 @@ namespace Rynex {
 
 		Ref<Framebuffer>			m_Framebuffer = nullptr;
 		Ref<Framebuffer>			m_SelectedFramebuffer = nullptr;
-
 		std::string					m_WindowName;
 
 		int							*m_GizmoType = nullptr;
@@ -129,7 +128,7 @@ namespace Rynex {
 
 		Ref<Framebuffer>			m_Framebuffer = nullptr;
 		Ref<Framebuffer>			m_SelectedFramebuffer = nullptr;
-
+		Weak<Texture>				m_ShadowMap;
 		SceneState*					m_SceneState = nullptr;
 		EditorLayer*				m_EditorLayer = nullptr;
 		ViewPortPannel*				m_vViewPortPannel = nullptr;

@@ -9,59 +9,26 @@
 
 namespace Rynex{
 
-	enum class RYNEX_API ShaderResourceType {
+	enum class RYNEX_API ShaderResourceType 
+	{
 		None = 0,
-		LocalModel, LocalColor, MainCamerPos, EnitiyID,
+		LocalModel, LocalColor, MainCamerPos, EnitiyID, 
 		MainCameraViewMatrix, MainCamerProjectionMatrix, MainCameraViewProjectionMatrix,
 		GlobleResource,
 		AmbientLigths, PointLigths, SpotLigths, DrirektionLigths,
 		ShadowTexture
 	};
 
-	enum class RYNEX_API ShaderBufferType {
+	enum class RYNEX_API ShaderBufferType 
+	{
 		None = 0,
 		VertexIn, 
 		Uniform,
 		FragmentOut
 	};
-
-	struct RYNEX_API UniformElement
-	{
-		std::string Name = "";
-		ShaderDataType Type = ShaderDataType::None;
-		bool SingleUniform = true;
-		ShaderResourceType ShResourceType = ShaderResourceType::None;
-		bool GloblelResurce = true;
-		UUID UUID = 0;
-		std::vector<unsigned char> LocalResurce;
-
-		UniformElement() {};
-		UniformElement(const UniformElement&) = default;
-		// UniformElement(UniformElement&&) = default;
-
-		UniformElement(const std::string& name, ShaderDataType type, ShaderResourceType resurce)
-			: Type(type) , Name(name) , ShResourceType(resurce) { }
-	};
-
-	struct RYNEX_API ShaderCPUVaribels
-	{
-		std::string Name = "";
-		ShaderBufferType BufferType = ShaderBufferType::None;
-		ShaderDataType Type = ShaderDataType::None;
-		ShaderResourceType ShResourceType = ShaderResourceType::None;
-		Ref<Asset> Asset = nullptr;
-		int Layoute = -1;
-		std::vector<unsigned char> EntityVarible;
-		bool EntityResurce = true;
-
-		ShaderCPUVaribels() = default;
-		ShaderCPUVaribels(const ShaderCPUVaribels&) = default;
-		ShaderCPUVaribels(const std::string& name, ShaderDataType type, ShaderResourceType resurce)
-			: Type(type), Name(name), ShResourceType(resurce) { }
-	};
-
 	
-	
+	using ShBuTy = ShaderBufferType;
+	using ShReTy = ShaderResourceType;
 
 	class RYNEX_API Shader : public Asset
 	{
@@ -79,14 +46,20 @@ namespace Rynex{
 		};
 	public:
 		~Shader() = default;
-		static Ref<Shader> Create(const std::string& filePath);
+		// static Ref<Shader> Create(const std::string& filePath);
 		static Ref<Shader> Create(const std::string& source, const std::string& name);
 		static Ref<Shader> Create(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
+
+		static Ref<Shader> CreateAsync(std::string&& source);
+		static Ref<Shader> Default();
+		static void Shutdown();
 
 		virtual void ReganrateShader(const std::string& source) = 0;
 
 		virtual void Bind() const = 0;
 		virtual void UnBind() const = 0;
+
+		virtual void InitAsync() = 0;
 
 		virtual void AddShader(const std::string& shader, Shader::Type shaderType) = 0;
 
@@ -129,7 +102,7 @@ namespace Rynex{
 		virtual void SetMat4Array(const std::string& name, float* value, uint32_t count) = 0;
 
 		virtual std::map<std::string, std::string>& GetUniformLayoute() = 0;
-		
+		virtual const std::map<Type, std::string>& GetShaderMap() const = 0;
 
 
 		virtual bool operator==(const Shader& other)const = 0;
@@ -138,6 +111,7 @@ namespace Rynex{
 
 		// Asset
 		static AssetType GetStaticType() { return AssetType::Shader; }
+		
 		AssetType GetType() const { return GetStaticType(); }
 		// virtual AssetHandle GetHandle() const { return m_Handle; };
 		

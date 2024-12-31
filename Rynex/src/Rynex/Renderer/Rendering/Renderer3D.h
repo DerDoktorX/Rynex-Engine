@@ -7,6 +7,19 @@
 
 namespace Rynex {
 
+
+    struct MeshInstences
+    {
+		Ref<Mesh> Mesh;
+		std::vector<glm::mat4> ModelMatrix;
+		std::vector<int> EntityIDs;
+		MeshInstences()
+			: Mesh()
+			, ModelMatrix(std::vector<glm::mat4>())
+			, EntityIDs(std::vector<int>())
+		{};
+    };
+
 	class RYNEX_API Renderer3D
 	{
 	public:
@@ -14,14 +27,24 @@ namespace Rynex {
 		static void Shutdown();
 		static void BindDefault3DShader(const Ref<Texture>& bindeTexure, const glm::mat4& modelMatrix, int entityID = 0, const glm::vec3& objectColor = { 1.0f, 0.0f,1.0f });
 
-		static void SetLigthUniform(AmbientLigthComponent& ambient, int index);
-		static void SetLigthUniform(DrirektionleLigthComponent& drirektion, const glm::mat4& matrix, int index);
+		static void SetLigthUniform(AmbientLigthComponent* ambient, int ambientActiv, int directionActiv, int spotActiv, int pointActiv);
+		static void SetLigthUniform(DrirektionleLigthComponent& drirection, const glm::mat4& matrix, int index);
 		static void SetLigthUniform(SpotLigthComponent& spot, const glm::mat4& matrix, int index);
 		static void SetLigthUniform(PointLigthComponent& point, const glm::mat4& matrix, int index);
+		static void SetShadowsUniform();
 
+
+		static void BeginFrame();
+		static void EndFrame();
 
 		static void BeginScene(const Ref<EditorCamera>& camera);
 		static void BeginScene(const Camera& camera, const glm::mat4& transform);
+
+		static void BeginSceneShadow(const Camera& camera, const glm::mat4& transform);
+		static void EndSceneShadow(const Ref<Texture>& deathTextur, int index);
+		static void DrawModdelMeshShadow(const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, int entityID);
+		static void DrawModdelShadow(glm::mat4& modelMatrix, const StaticMeshComponent& model, int entityID);
+
 		static void DrawObjectRender3D(const Ref<VertexArray>& vertexArray);
 		static void EndScene();
 
@@ -29,9 +52,10 @@ namespace Rynex {
 		static void AfterDrawEntity(const MaterialComponent& material);
 
 		static void SetMaterial(const MaterialComponent& material, const glm::mat4& modelMatrix, int entityID);
-		static void DrawModdel(const MaterialComponent& material, const glm::mat4& modelMatrix, const DynamicMeshComponent& model, int entityID);
-		static void DrawModdel(const MaterialComponent& material, const glm::mat4& modelMatrix, const StaticMeshComponent& model, int entityID);
-		static void DrawModdelMesh(const MaterialComponent& material, const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, int entityID);
+		static void DrawModdel(glm::mat4& modelMatrix, const DynamicMeshComponent& model, int entityID);
+		static void DrawModdel(glm::mat4& modelMatrix, const StaticMeshComponent& model, int entityID);
+		static void DrawModdelMesh(const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, int entityID);
+		static void DrawModdelMesh(const Ref<Mesh>& mesh, std::vector<glm::mat4>& modelMatricies, std::vector<int>& entityIDs);
 		static void DrawLineBoxAABB(const BoxAABB& aabb, const glm::mat4& modelMatrix, int entityID);
 
 
@@ -47,9 +71,6 @@ namespace Rynex {
 		static void DrawPatches(const Ref<VertexArray>& vertexArray);
 
 		static void DrawError();
-
-		static void BeginFrame();
-		static void EndeFrame();
 
 		struct StatisticsShader
 		{
@@ -110,11 +131,12 @@ namespace Rynex {
 
 			// uint32_t GetTotalVertexCount() const { return QuadCount * 4; }
 			// uint32_t GetTotalIndexCount() const { return QuadCount * 6; }
-
-
+			std::array<Ref<Texture>, 72>* ShadowsTex;
+			uint32_t* MaxShadowsLigthsCount;
 		};
 
 		static void ResetStats();
 		static Statistics GetStats();
 	};
 }
+

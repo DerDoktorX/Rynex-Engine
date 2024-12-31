@@ -16,6 +16,10 @@ project "Rynex-ScriptingCore"
 		"Properties/**.cs"
 	}
 
+	links 
+	{  
+		-- "System.Numerics"
+	}
 	
 
 	filter "configurations:Debug"

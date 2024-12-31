@@ -1,7 +1,7 @@
 #include "rypch.h"
-#include "EditorAssetManager.h"
 #include "Base/AssetImporter.h"
 #include "Rynex/Project/Project.h"
+
 
 namespace Rynex {
 
@@ -19,7 +19,7 @@ namespace Rynex {
 
     bool RuntimeAssetManager::IsAssetHandleValid(const std::filesystem::path& filepath) const
     {
-        RY_CORE_ERROR("This Funktion 'RuntimeAssetManager::IsAssetHandleValid' Don't need to Exist in Runtime!");
+        RY_CORE_ASSERT(false, "This Funktion 'RuntimeAssetManager::IsAssetHandleValid' Don't need to Exist in Runtime!");
         return false;
     }
 
@@ -28,7 +28,7 @@ namespace Rynex {
         return m_AssetRegistry.IsAssetInteral(handle);
     }
 
-    Ref<Asset> RuntimeAssetManager::GetAsset(AssetHandle handle)
+    Ref<Asset> RuntimeAssetManager::GetAsset(AssetHandle handle, bool async)
     {
         if (m_AssetRegistry.IsAssetInRegistry(handle))
         {
@@ -41,7 +41,7 @@ namespace Rynex {
             {
                 AssetMetadata& metadata = m_AssetRegistry.GetMetadata(handle);
                 metadata.State = AssetState::Loading;
-                asset = AssetImporter::ImportAsset(handle, metadata);
+                asset = AssetImporter::ImportAsset(handle, metadata, async);
                 metadata.State = AssetState::Ready;
                 asset->Handle = handle;
                 if (!asset) {}
@@ -49,19 +49,19 @@ namespace Rynex {
             }
             else if (IsAssetInteral(handle))
             {
-                RY_CORE_ASSERT(false, "Error on: 'EditorAssetManager::GetAsset' Asset is known In Regestry as Interale-Asset But got not Loadede! This cinde off error is a def Error");
+                RY_CORE_ASSERT(false, "Error on: 'RuntimeAssetManager::GetAsset' Asset is known In Regestry as Interale-Asset But got not Loadede! This cinde off error is a def Error");
                 return nullptr;
             }
             else
             {
-                RY_CORE_ASSERT(false, "Error on: 'EditorAssetManager::GetAsset' I Dont't know some isuse kan go to hear!");
+                RY_CORE_ASSERT(false, "Error on: 'RuntimeAssetManager::GetAsset' I Dont't know some isuse kan go to hear!");
                 return nullptr;
             }
 
         return asset;
 
         }
-        RY_CORE_ASSERT(false, "Error on: 'EditorAssetManager::GetAsset' No Asset handle found!");
+        RY_CORE_ASSERT(false, "Error on: 'RuntimeAssetManager::GetAsset' No Asset handle found!");
         return Ref<Asset>();
     }
 
@@ -71,16 +71,30 @@ namespace Rynex {
         return GetAsset(m_AssetRegistry.GetAssetHandle(filepath));
     }
 
+    Ref<Asset> RuntimeAssetManager::GetAssetAsync(AssetHandle handle)
+    {
+        return GetAsset(handle);
+    }
+
+    Ref<Asset> RuntimeAssetManager::GetAssetAsync(const std::filesystem::path& path)
+    {
+        return GetAsset(m_AssetRegistry.GetAssetHandle(path));
+    }
 
     bool RuntimeAssetManager::IsAssetLoaded(AssetHandle handle) const
     {
         return m_LoadedAssets.find(handle) != m_LoadedAssets.end();
     }
 
-    bool RuntimeAssetManager::IsAssetLoaded(const std::filesystem::path& filepath) const
+    bool RuntimeAssetManager::IsAssetLoaded(const std::filesystem::path& filepath) const 
     {
         RY_CORE_ERROR("This Funktion 'RuntimeAssetManager::IsAssetLoaded' Don't need to Exist in Runtime!");
         return IsAssetLoaded(m_AssetRegistry.IsAssetInRegistry(filepath));
+    }
+
+    void RuntimeAssetManager::CreatLocaleAsset(Ref<Asset> asset, AssetMetadata& metadata, AssetHandle handle)
+    {
+        RY_CORE_ASSERT(false);
     }
 
     AssetHandle RuntimeAssetManager::CreatLocaleAsset(Ref<Asset> asset, AssetMetadata& metadata)
@@ -117,17 +131,10 @@ namespace Rynex {
 
     const AssetMetadata& RuntimeAssetManager::GetMetadata(AssetHandle handle)
     {
-#if 0
-        RY_PROFILE_FUNCTION();
-        static AssetMetadata s_NullMetadata;
-        auto it = m_AssetRegistry.find(handle);
-        if (it == m_AssetRegistry.end())
-            return s_NullMetadata;
-
-        return it->second;
-#endif
         return m_AssetRegistry.GetMetadata(handle);
     }
+
+    
 
 }
 

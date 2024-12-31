@@ -2,7 +2,6 @@
 #include "ContentBrowserPannel.h"
 
 #include <Rynex/Core/Application.h>
-#include <Rynex/Core/Application.h>
 
 #include <Rynex/Asset/Base/AssetManager.h>
 #include <Rynex/Asset/Base/AssetImporter.h>
@@ -15,18 +14,19 @@
 
 #include <Rynex/Renderer/API/Framebuffer.h>
 #include <Rynex/Serializers/FrambufferSerializer.h>
+#include <Rynex/Utils/EnumString.h>
 
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 
-#include "future"
+#include <future>
 
 namespace Rynex {
 
 #define RY_FRAMBUFFER_WINDOW 1
 #if RY_PATH_IN_LINE
-	extern const std::filesystem::path g_AssetsPath = "Assets";
+	// extern const std::filesystem::path g_AssetsPath = "Assets";
 #endif
 
 	const int s_MaxFileLength = 12;
@@ -53,7 +53,7 @@ namespace Rynex {
 	
 	ContentBrowserPannel::ContentBrowserPannel()
 		: m_Project(Project::GetActive())
-		 , m_BaseDirectory(g_AssetsPath)
+		 , m_BaseDirectory("")
 		 , m_CurrentDirectory(m_BaseDirectory)
 	{
 	}
@@ -62,21 +62,25 @@ namespace Rynex {
 	{
 #if RY_PATH_IN_LINE
 		RY_CORE_INFO("ContentBrowserPannel::OnAtache Start!");
-		m_DirectoryIcon		= TextureImporter::LoadTexture("Resources/Icons/ContentBrowser/DirectoryIcon.png");
+		m_DirectoryIcon		= TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ContentBrowser/DirectoryIcon.png", false);
 		
 		//Files
-		Ref<Texture> defaultIcon = TextureImporter::LoadTexture("Resources/Icons/ContentBrowser/FileIconDefault.png");
+		Ref<Texture> defaultIcon = TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ContentBrowser/FileIconDefault.png", false);
 		AssetManager::CreatLocaleAsset<Texture>(defaultIcon);
 		m_FileIconDefault	= AssetManager::GetAsset<Texture>(defaultIcon->Handle);
-		m_FileIconError		= TextureImporter::LoadTexture("Resources/Icons/ContentBrowser/FileIconError.png");
-		m_FileIconScene		= TextureImporter::LoadTexture("Resources/Icons/ContentBrowser/FileIconScene.png");
-		m_FileIconShader	= TextureImporter::LoadTexture("Resources/Icons/ContentBrowser/FileIconShader.png");
-		m_FileIconTexture	= TextureImporter::LoadTexture("Resources/Icons/ContentBrowser/FileIconTexture.png");
+		m_FileIconError		= TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ContentBrowser/FileIconError.png", false);
+		m_FileIconScene		= TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ContentBrowser/FileIconScene.png", false);
+		m_FileIconShader	= TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ContentBrowser/FileIconShader.png", false);
+		m_FileIconTexture	= TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ContentBrowser/FileIconTexture.png", false);
 		m_AssetManger		= m_Project->GetEditorAssetManger();
 #endif
 		m_AssetManger->SerialzeAssetRegistry();
-
+		RY_CORE_INFO("Fished SerialzeAssetRegistry!");
+		m_BaseDirectory = Project::GetActiveAssetDirectory();
+		m_CurrentDirectory = m_BaseDirectory;
+#if RY_EDITOR_ASSETMANGER_THREADE ? 0 : 1 
 		SetAssetRegestriy(m_BaseDirectory, m_AssetManger);
+#endif
 		InitAssetFileWatcher();
 
 #if RY_FRAMBUFFER_WINDOW
@@ -100,8 +104,10 @@ namespace Rynex {
 	void ContentBrowserPannel::OnImGuiRender()
 	{
 		AssetRegestriyPannel();
+
 		AssetPannel();
 		DelateAsset();
+		OnloadeAssetsList();
 		
 	}
 
@@ -130,6 +136,7 @@ namespace Rynex {
 			case AssetState::Error:			return ImVec4(0.95, 0.05, 0.1, 1.0);
 			case AssetState::Updateing:		return ImVec4(0.3, 0.5, 0.7, 1.0);
 			case AssetState::LostConection:	return ImVec4(0.75, 0.1, 0.05, 1.0);
+			case AssetState::Loading:		return ImVec4(0.85, 0.275, 0.05, 1.0);
 			case AssetState::Ready:			return ImVec4(0.2, 0.8, 0.3, 1.0);
 			case AssetState::NotLoaded:		return ImVec4(0.8, 0.7, 0.1, 1.0);
 			case AssetState::None:			return ImVec4(1.0, 1.0, 0.5, 1.0);
@@ -145,7 +152,6 @@ namespace Rynex {
 		if(m_WindowAssetPannelOpen)
 		{
 			ImGui::Begin("Asset Content", &m_WindowAssetPannelOpen, ImGuiWindowFlags_None);
-
 			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered())
 			{
 				ImGui::OpenPopup("Empty-Space-Menu");
@@ -171,7 +177,7 @@ namespace Rynex {
 				columnCount = 1;
 
 			ImGui::Columns(columnCount, 0, false);
-
+#if 0
 			const AssetFileDirectory& assetFileDirectory = m_AssetManger->GetAssetFileDirectory(m_CurrentDirectory);
 			const std::vector<std::filesystem::path>& foldersPath = assetFileDirectory.Folders;
 			// Folders
@@ -211,6 +217,7 @@ namespace Rynex {
 
 			std::vector<AssetHandle> handles = assetFileDirectory.Files;
 			// Files
+
 			for (AssetHandle handle : handles)
 			{
 
@@ -218,7 +225,7 @@ namespace Rynex {
 				const std::filesystem::path& path = metaData.FilePath;
 
 
-				std::filesystem::path realtivPath = std::filesystem::relative(path, g_AssetsPath);
+				std::filesystem::path realtivPath = std::filesystem::relative(path, m_BaseDirectory);
 				std::string fileNameString = path.filename().string();
 
 				ImGui::PushID(fileNameString.c_str());
@@ -304,9 +311,11 @@ namespace Rynex {
 				{
 					if (ImGui::MenuItem("Open"));
 					if (ImGui::MenuItem("Rename"));
-					if (ImGui::MenuItem("Delete Asset"));
-					//DelateListeAsset({ fileNameString, m_CurrentDirectory });
+					// if (ImGui::MenuItem("Delete Asset"));
+					// DelateListeAsset({ fileNameString, m_CurrentDirectory });
 					if (ImGui::MenuItem("Delete Asset + File"));
+					if (ImGui::MenuItem("OnLoade Asset"))
+						OnLoadeAsset(handle);
 					if (ImGui::MenuItem("Details"));
 					ImGui::EndPopup();
 				}
@@ -341,7 +350,183 @@ namespace Rynex {
 				ImGui::NextColumn();
 				ImGui::PopID();
 			}
+#else
 
+			if (m_AssetManger->IsCurentAssetState(m_CurrentDirectory))
+			{
+				m_FileItemes = m_AssetManger->GetCurentAssetInformation(m_CurrentDirectory);
+				RY_CORE_WARN("New Asset Items Ordert");
+			}
+
+			for (auto& [isAsset, isFolder, handle, metadata, type, typeString, texture, state, name, path, relativPath, pathString] : m_FileItemes)
+			{
+				if (isAsset)
+				{
+
+					if(relativPath == "")
+						relativPath = std::filesystem::relative(path, m_BaseDirectory);
+					
+
+					ImGui::PushID(name.c_str());
+
+					if(!texture)
+					{
+						switch (type)
+						{
+						case AssetType::Texture2D:
+						{
+							texture = m_FileIconTexture;
+							break;
+						}
+						case AssetType::Shader:
+						{
+							texture = m_FileIconShader;
+							break;
+						}
+						case AssetType::Scene:
+						{
+							texture = m_FileIconScene;
+							break;
+						}
+						case AssetType::Framebuffer:
+						{
+							// TODO: Creat Framebuffer Image
+							texture = m_FileIconDefault;
+							break;
+						}
+						case AssetType::Model:
+						{
+							// TODO: Creat Model Image
+							texture = m_FileIconDefault;
+							break;
+						}
+						case AssetType::Mesh:
+						{
+							// TODO: Creat Mesh Image
+							texture = m_FileIconDefault;
+							break;
+						}
+						default:
+						{
+							texture = m_FileIconDefault;
+							break;
+						}
+						}
+					}
+
+					
+					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+					ImGui::ImageButton(
+						(ImTextureID)texture->GetRenderID(),
+						{ thumbernailSize , thumbernailSize },
+						{ 0, 1 },
+						{ 1, 0 },
+						-1,
+						ImVec4(0.15f, 0.85f, 0.2f, 0.1f),
+						GetAssetStateColor(state));
+
+					if (state == AssetState::LostConection || state == AssetState::Error)
+					{
+						// ImGui::BeginDragDropSource();
+						// const AssetHandle* handleE = &m_AssetManger->GetAssetHandle(path);
+						// ImGui::SetDragDropPayload(GetAssetTypeMoveAssetInfosName(type).c_str(), handleE, sizeof(AssetHandle));
+						// ImGui::EndDragDropSource();
+					}
+					else
+					{
+						if (ImGui::BeginDragDropTarget())
+						{
+
+							if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(typeString.c_str()))
+							{
+								(AssetHandle*)payload->Data;
+								AssetHandle handleO = AssetHandle(handle);
+
+							}
+							ImGui::EndDragDropTarget();
+
+						}
+					}
+
+					if (ImGui::BeginPopupContextItem(name.c_str()))
+					{
+						if (ImGui::MenuItem("Open"));
+						if (ImGui::MenuItem("Rename"));
+						// if (ImGui::MenuItem("Delete Asset"));
+						// DelateListeAsset({ fileNameString, m_CurrentDirectory });
+						if (ImGui::MenuItem("Delete Asset + File"));
+						if (ImGui::MenuItem("OnLoade Asset"))
+							OnLoadeAsset(handle);
+						if (ImGui::MenuItem("Details"));
+						ImGui::EndPopup();
+					}
+
+					if (ImGui::BeginDragDropSource())
+					{
+						const AssetHandle* handle = &m_AssetManger->GetAssetHandle(path);
+						ImGui::SetDragDropPayload(typeString.c_str(), handle, sizeof(AssetHandle));
+						ImGui::EndDragDropSource();
+					}
+
+					//RY_CORE_INFO("after drag drop ContentBrowserPannel");
+					ImGui::PopStyleColor();
+					if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+					{
+						switch (type)
+						{
+						case AssetType::Framebuffer:
+						{
+
+							m_CurrentDirectory /= name;
+							break;
+						}
+						default:
+						{
+							break;
+						}
+						}
+					}
+
+
+					ImGui::TextWrapped(name.c_str());
+					ImGui::NextColumn();
+					ImGui::PopID();
+				}
+				else if (isFolder)
+				{
+					ImGui::PushID(name.c_str());
+					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+					if (path != m_BaseDirectory / "Loadead (NotAssetFiles)" && path != m_BaseDirectory / "Unknown File Types")
+						ImGui::ImageButton((ImTextureID)m_DirectoryIcon->GetRenderID(), { thumbernailSize , thumbernailSize }, { 0, 1 }, { 1, 0 }, -1, ImVec4(0.15f, 0.75f, 0.2f, 0.15f), ImVec4(1, 1, 1, 1));
+					else
+						ImGui::ImageButton((ImTextureID)m_DirectoryIcon->GetRenderID(), { thumbernailSize , thumbernailSize }, { 0, 1 }, { 1, 0 }, -1, ImVec4(0.875f, 0.875f, 0.35f, 0.5f), ImVec4(1, 1, 1, 1));
+
+					ImGui::PopStyleColor();
+					if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+					{
+						m_CurrentDirectory /= name;
+					}
+
+					if (ImGui::BeginPopupContextItem(name.c_str()))
+					{
+						if (ImGui::MenuItem("Delete Folder"))
+						{
+							RY_CORE_WARN("Delete Folder {} form path {0}", name.c_str(), pathString.c_str());
+						}
+
+						ImGui::EndPopup();
+					}
+					ImGui::TextWrapped(name.c_str());
+					ImGui::NextColumn();
+					ImGui::PopID();
+				}
+				else
+				{
+					RY_CORE_ASSERT(false);
+				}
+			}
+
+#endif
 			if (ImGui::BeginPopup("Empty-Space-Menu"))
 			{
 				if (ImGui::BeginMenu("New"))
@@ -349,10 +534,9 @@ namespace Rynex {
 					NewMenue();
 				}
 				if (ImGui::MenuItem("Scane Directory"));
+
 				ImGui::EndPopup();
 			}
-
-
 
 #if RY_FRAMBUFFER_WINDOW
 
@@ -368,8 +552,11 @@ namespace Rynex {
 			CreateFrambufferAsset(m_CurrentDirectory);
 
 #endif
+
 			ImGui::End();
 		}
+	
+			
 	}
 
 	void ContentBrowserPannel::AssetRegestriyPannel()
@@ -377,6 +564,22 @@ namespace Rynex {
 		if(m_WindowRegestriyPannellOpen)
 		{
 			ImGui::Begin("Asset Regestriy", &m_WindowRegestriyPannellOpen, ImGuiWindowFlags_None);
+
+#if RY_EDITOR_ASSETMANGER_THREADE
+			
+			if (m_AssetManger->IsCurentRegistryAssetChandge())
+			{
+				m_RegisterItemes = m_AssetManger->GetCurentAssetRegistry();
+			}
+			
+			for (const auto& [handle, metadata, filePath] : m_RegisterItemes)
+			{
+				if(filePath != "")
+					ImGui::Text("AssetHandle(UUID): (%ull), Realtiv FilePath: %s", handle, filePath.c_str());
+				else
+					ImGui::Text("AssetHandle(UUID): (%ull), Data Type: %i", handle, (int)metadata.Type);
+			}
+#else
 			const auto& assetRegestriey = m_Project->GetEditorAssetManger()->GetHandleRegistry();
 
 			for (const auto& [handle, metadata] : assetRegestriey)
@@ -384,10 +587,12 @@ namespace Rynex {
 				ImGui::Text("AssetHandle(UUID): (%i), Realtiv FilePath: %s", handle, metadata.FilePath.string().c_str());
 			}
 
+#endif
 			ImGui::End();
 		}
 	}
 
+#if 0
 	void ContentBrowserPannel::CreateFrambufferAsset(std::filesystem::path& path)
 	{
 		if (m_OppenWindow == SettingsPopUpWindow::CeateFarmbufferSettings)
@@ -439,30 +644,7 @@ namespace Rynex {
 			
 
 			{
-				char* textureFormatChar[] = {
-					"None",
-					"RGBA8",
-					"RED_INTEGER",
-					"DEPTH24STENCIL8",
-				};
-				uint32_t textureFormatLength = 4; 
-				char* textureWarpingChar[] = {
-					"None",
-					"Repeate",
-					"MirrorRepeate",
-					"ClampEdge",
-					"ClampBorder",
-					"MirrorClampEdge",
-				};
-				uint32_t textureWarpingLength = 6;
-				char* texWarpingDimenChar[] = { "S","T","R" };
-				uint32_t texWarpingDimenLength = 3;
-				char* textureFilteringChar[] = {
-					"None",
-					"Linear",
-					"Nearest",
-				};
-				uint32_t textureFilteringLength = 3;
+
 				ImGui::NewLine();
 				ImGui::Text("Texture Attachments:");
 				ImGui::NewLine();
@@ -500,33 +682,39 @@ namespace Rynex {
 					{
 
 						//ImGui::Text("Texture: %i", index);
-						if (ImGui::BeginCombo("TextureFormat: ", textureFormatChar[(int)framTexSpec.TextureFormat], ImGuiComboFlags_None))
+						if (ImGui::BeginCombo("TextureFormat: ", EnumString::GetStringFromEnum<TextureFormat>(framTexSpec.TextureFormat).data(), ImGuiComboFlags_None))
 						{
-							for (uint32_t i = 1; i < textureFormatLength; i++)
+							for (uint32_t i = 1; i < 12; i++)
 							{
-								if (ImGui::MenuItem(textureFormatChar[i]))
+								TextureFormat format = (TextureFormat)i;
+								if (ImGui::MenuItem(EnumString::GetStringFromEnum<TextureFormat>(format).data()))
 								{
-									framTexSpec.TextureFormat = (FramebufferTextureFormat)i;
+									framTexSpec.TextureFormat = format;
 									ImGui::CloseCurrentPopup();
 								}
 							}
 							ImGui::EndCombo();
 
 						}
-						auto& warping = framTexSpec.TextureWrapping;
-						ImGui::Columns(3, "##Texture Atachments", true);
-						float columWithe = windowSize.y / (texWarpingDimenLength + 1);
 
-						for (int texDimeIndex = 1; texDimeIndex < texWarpingDimenLength; texDimeIndex++)
+						uint32_t textureWarpingLength = 6;
+						char* texWarpingDimenChar[] = { "R","S","T" };
+
+						TextureWrappingSpecification& warping = framTexSpec.TextureWrapping;
+						ImGui::Columns(3, "##Texture Atachments", true);
+						float columWithe = windowSize.y / (3 + 1);
+
+						for (int texDimeIndex = 1; texDimeIndex < 3; texDimeIndex++)
 						{
 							ImGui::SetColumnWidth(texDimeIndex, columWithe);
-							if (ImGui::BeginCombo(texWarpingDimenChar[texDimeIndex], textureWarpingChar[(int)warping[texDimeIndex]], ImGuiComboFlags_None))
+							if (ImGui::BeginCombo(texWarpingDimenChar[texDimeIndex], EnumString::GetStringFromEnum<TextureWrappingMode>(warping[texDimeIndex]).data(), ImGuiComboFlags_None))
 							{
 								for (uint32_t i = 1; i < textureWarpingLength; i++)
 								{
-									if (ImGui::MenuItem(textureWarpingChar[i]))
+									TextureWrappingMode texWarpMode = (TextureWrappingMode)i;
+									if (ImGui::MenuItem(EnumString::GetStringFromEnum<TextureWrappingMode>(texWarpMode).data()))
 									{
-										warping[texDimeIndex] = TextureWrappingMode(i);
+										warping[texDimeIndex] = texWarpMode;
 										ImGui::CloseCurrentPopup();
 									}
 								}
@@ -537,13 +725,14 @@ namespace Rynex {
 
 						ImGui::Columns(1, "##Texture-Filtering", true);
 
-						if (ImGui::BeginCombo("Texture-Filtering: ", textureFilteringChar[(int)framTexSpec.TextureFiltering], ImGuiComboFlags_None))
+						if (ImGui::BeginCombo("Texture-Filtering: ", EnumString::GetStringFromEnum<TextureFilteringMode>(framTexSpec.TextureFiltering).data(), ImGuiComboFlags_None))
 						{
-							for (uint32_t i = 1; i < textureFilteringLength; i++)
+							for (uint32_t i = 1; i < 2; i++)
 							{
-								if (ImGui::MenuItem(textureFilteringChar[i]))
+								TextureFilteringMode texFilteringMode = TextureFilteringMode(i);
+								if (ImGui::MenuItem(EnumString::GetStringFromEnum<TextureFilteringMode>(texFilteringMode).data()))
 								{
-									framTexSpec.TextureFiltering = (TextureFilteringMode)i;
+									framTexSpec.TextureFiltering = texFilteringMode;
 									ImGui::CloseCurrentPopup();
 								}
 							}
@@ -560,16 +749,16 @@ namespace Rynex {
 				{
 					FramebufferTextureSpecification ftspec = FramebufferTextureSpecification();
 					ftspec.TextureFiltering = TextureFilteringMode::Nearest;
-					ftspec.TextureFormat = FramebufferTextureFormat::RGBA8;
+					ftspec.TextureFormat = TextureFormat::RGBA8;
 					ftspec.TextureWrapping.S = TextureWrappingMode::ClampEdge;
 					ftspec.TextureWrapping.T = TextureWrappingMode::ClampEdge;
 					ftspec.TextureWrapping.R = TextureWrappingMode::ClampEdge;
-					spec.Attachments.Attachments.push_back(ftspec);
+					spec.Attachments.push_back(ftspec);
 				}
 				
 				if (removeTex != -1)
 				{
-					spec.Attachments.Attachments.erase(spec.Attachments.Attachments.begin() + removeTex);
+					spec.Attachments.erase(spec.Attachments.begin() + removeTex);
 				}
 			}
 			
@@ -595,8 +784,10 @@ namespace Rynex {
 					metadata.FilePath = m_CreateFrambuffer.Path;
 					i++;
 				}
+#if RY_EDITOR_ASSETMANGER_THREADE
+#else
 				m_AssetManger->CreateAsset(metadata.FilePath, (Ref<Asset>)frambuffer, metadata);
-				
+#endif
 				if(FrambufferSerializer::Serilze(metadata.FilePath, frambuffer))
 					ImGui::CloseCurrentPopup();
 				
@@ -612,6 +803,7 @@ namespace Rynex {
 
 		}
 	}
+#endif
 
 	static ImVec4 GetFileStateColor(FileStats state)
 	{
@@ -629,39 +821,14 @@ namespace Rynex {
 		RY_CORE_ASSERT(false, "Error not defined FileStats: ContentBrowserPannel::SetFileStateColor!");
 		return ImVec4(0, 0, 0, 1);
 	}
-#if 0
-	static FileFormats GetFileFormate(const std::filesystem::path& filePath)
-	{
-		std::filesystem::path extension = filePath.filename().extension();
 
-		if (extension == ".png") return FileFormats::png;
-		if (extension == ".txt") return FileFormats::txt;
-		if (extension == ".glsl") return FileFormats::glsl;
-		if (extension == ".rynexscene") return FileFormats::rynexscene;
-
-		return FileFormats::none;
-	}
-#endif
-
-	
-
-#if 0
-	static Ref<Texture> GetFileIconeTexture(FileFormats format)
-	{
-		switch (format)
-		{
-		case FileFormats::png:		return;
-		case FileFormats::txt:		return;
-		}
-
-
-		return Ref<Texture>();
-	}
-#endif // TODO: Make Separte Funktion for Textur
+#if RY_EDITOR_ASSETMANGER_THREADE ? 0 : 1
 
 	void ContentBrowserPannel::SetAssetRegestriy(const std::filesystem::path& curentPath, Ref<EditorAssetManager>& assetManger)
 	{
 		//m_AssetManger->CreateDirektoryRegestriy(curentPath);
+		if (curentPath.empty())
+			return;
 		for (auto& p : std::filesystem::directory_iterator(curentPath))
 		{
 			const auto& path = p.path();
@@ -682,53 +849,16 @@ namespace Rynex {
 		}
 		
 	}
-#if 0
-	void ContentBrowserPannel::FileFormate(const std::filesystem::directory_entry& directoryEntry, FileFormats formate) const
-	{
-		FileStats state = FileStats::None;
-		static float padding = 16.0f;
-		static float thumbernailSize = 80.0f;
-		Ref<Texture> icon;
-		if (directoryEntry.is_directory())
-		{
-			icon = m_DirectoryIcon;
-		}
-		else
-		{
-			const auto& path = directoryEntry.path();
-			switch (GetFileFormate(path))
-			{
-				case FileFormats::png: 
-				{
-					icon = m_FileIconTexture; 
-					break;
-				}
-				case FileFormats::glsl:
-				{
-					icon = m_FileIconShader;
-					break;
-				}
-				case FileFormats::rynexscene:
-				{
-					icon = m_FileIconScene;
-					break;
-				}
-				default:
-				{
-					icon = m_FileIconDefault;
-					break;
-				}
-			}
-		}
-		
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-		ImGui::ImageButton((ImTextureID)icon->GetRenderID(), { thumbernailSize , thumbernailSize }, { 0, 1 }, { 1, 0 },-1, ImVec4(0, 0, 0, 0), directoryEntry.is_directory() ? ImVec4(1, 1, 1, 1) : GetFileStateColor(state));
-	}
-#endif 
+
+#endif
+
+
 	void ContentBrowserPannel::NewMenue()
 	{
-		if (ImGui::BeginMenu("Asset")) NewAsset();
+		if (ImGui::BeginMenu("Asset")) 
+			NewAsset();
 		if (ImGui::MenuItem("File"));
+
 		ImGui::EndMenu();
 	}
 
@@ -747,7 +877,8 @@ namespace Rynex {
 
 	void ContentBrowserPannel::NewFile()
 	{
-		 if (ImGui::BeginMenu("Asset"))		NewAsset();
+		 if (ImGui::BeginMenu("Asset"))		
+			 NewAsset();
 		 if (ImGui::MenuItem("File"));
 		 ImGui::EndMenu();
 	}
@@ -755,7 +886,7 @@ namespace Rynex {
 
 	void ContentBrowserPannel::DelateListeAsset(DealteAsset deleateAsset)
 	{
-		m_DealeteAssetList.push_back(deleateAsset);
+		m_DealeteAssetList.emplace_back(deleateAsset);
 	}
 
 	void ContentBrowserPannel::DelateAsset()
@@ -764,13 +895,16 @@ namespace Rynex {
 		for (auto& assetDealte :  m_DealeteAssetList)
 		{
 			RY_CORE_ASSERT(false, "Asset Dealt System Not Finished!");
+#if RY_EDITOR_ASSETMANGER_THREADE
+#else
 			m_AssetManger->GetAssetFileDirectory(assetDealte.AssetFileParentPath);
+#endif
 		}
 	}
 
-	void ContentBrowserPannel::DelateListeFolder(std::filesystem::path& folderPath)
+	void ContentBrowserPannel::DelateListeFolder(const std::filesystem::path& folderPath)
 	{
-		m_DealeteFolderList.push_back(folderPath);
+		m_DealeteFolderList.emplace_back(folderPath);
 	}
 
 	void ContentBrowserPannel::DelateFolder()
@@ -794,100 +928,148 @@ namespace Rynex {
 	// TODO: ADD File Watcher
 	static void OnFileSystemEvent(std::string filepath, const filewatch::Event change_type)
 	{
-		std::filesystem::path filePath = ("Assets" / std::filesystem::path(filepath)).generic_string();
-		using namespace std::chrono_literals;
-		std::this_thread::sleep_for(500ms);
-		
+		std::filesystem::path filePath = (Project::GetActiveAssetDirectory() / std::filesystem::path(filepath)).generic_string();
+		// using namespace std::chrono_literals;
+		// std::this_thread::sleep_for(10ms);
+
+		RY_CORE_TRACE("FileWatcher Event Info : {}!", filePath.string().c_str());
 		switch (change_type)
 		{
 			case filewatch::Event::modified:
 			{
+
+#if RY_EDITOR_ASSETMANGER_THREADE
+				Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
+				assetManger->EventAsyncModified(filePath);
+#else
+				RY_CORE_INFO("Thread triger Modified! Submit! {0}", filePath.string().c_str());
 				Application::Get().SubmiteToMainThreedQueueAssetFileWatcher([filePath]()
 				{
-					RY_CORE_INFO("Thread ReLoadeAsset! Begine");
+					RY_CORE_INFO("Thread Execut Call -> ReLoadeAsset");
 					Ref<EditorAssetManager> assetManger = Project::GetActive()->GetEditorAssetManger();
-		
-
 					
 					assetManger->ReLoadeAsset(filePath);
 					RY_CORE_INFO("Thread ReLoadeAsset! {0}", filePath.string().c_str());
-						//Renderer2D::Shutdown();
-						//Renderer::Init();
-						
-					
+
 					if(assetManger->IsAssetLoaded(filePath))
 					{
-					
 						RY_CORE_WARN("Thread Not ReLoadeAsset! Finished {0}", filePath.string().c_str());
-						
 					}
-
 				});
+#endif
 				break;
 			}
 			case filewatch::Event::added:
 			{
-				RY_CORE_INFO("Thread Added! Begine! {0}", filePath.string().c_str());
+#if RY_EDITOR_ASSETMANGER_THREADE
+				Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
+				assetManger->EventAsyncAdded(filePath);
+#else
+				RY_CORE_INFO("Thread triger Added! Submit! {0}", filePath.string().c_str());
 				Application::Get().SubmiteToMainThreedQueueAssetFileWatcher([filePath]()
 				{
+					RY_CORE_INFO("Thread Assets! Exexut! {0}", filePath.string().c_str());
 					Ref<EditorAssetManager> assetManger = Project::GetActive()->GetEditorAssetManger();
 					std::filesystem::path filepath = std::filesystem::path(filePath);
 					
 					ContentBrowserPannel::SetAssetRegestriy(filepath.parent_path().generic_string(), assetManger);
 				});
+#endif
 				break;
 
 			}
 			case filewatch::Event::removed:
 			{
-				RY_CORE_INFO("Thread Removed! Begine! {0}", filePath.string().c_str());
+
+#if RY_EDITOR_ASSETMANGER_THREADE
+				Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
+				assetManger->EventAsyncRemoved(filePath);
+#else
+				RY_CORE_INFO("Thread Removed! Submit! {0}", filePath.string().c_str());
 				Application::Get().SubmiteToMainThreedQueueAssetFileWatcher([filePath]()
 				{
+					RY_CORE_INFO("Thread Assets! Exexut! {0}", filePath.string().c_str());
+					RY_CORE_WARN("Thread is nothing doing! TODO!");
 				});
+#endif
 				break;
 			}
 			case filewatch::Event::renamed_new:
 			{
+#if RY_EDITOR_ASSETMANGER_THREADE
+				Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
+				assetManger->EventAsyncRenamedNew(filePath);
+#else				
 				RY_CORE_INFO("Thread Renamed New! {0}", filePath.string().c_str());
 				Application::Get().SubmiteToMainThreedQueueAssetFileWatcher([filePath]()
 				{
+					RY_CORE_INFO("Thread Assets! Exexut! {0}", filePath.string().c_str());
 					Ref<EditorAssetManager> assetManger = Project::GetActive()->GetEditorAssetManger();
 					std::filesystem::path filepath = std::filesystem::path(filePath);
 
 					ContentBrowserPannel::SetAssetRegestriy(filepath.parent_path().generic_string(), assetManger);
 				});
+#endif
 				break;
 			}
 			case filewatch::Event::renamed_old:
 			{
+#if RY_EDITOR_ASSETMANGER_THREADE
+				Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
+				assetManger->EventAsyncRenamedOld(filePath);
+#else
 				RY_CORE_INFO("Thread Renamed Old! Begine! {0}", filePath.string().c_str());
 				Application::Get().SubmiteToMainThreedQueueAssetFileWatcher([filePath]()
 				{
+						RY_CORE_INFO("Thread Renamed Old! Execut {0}", filePath.string().c_str());
+						RY_CORE_WARN("Thread is nothing doing! TODO!");
+
+					RY_CORE_INFO("Thread Assets! Exexut! {0}", filePath.string().c_str());
+					RY_CORE_WARN("Thread is nothing doing! TODO!");
+
 				});
+#endif
 				break;
 			}
 			default:
-				RY_CORE_WARN("Thread Not found Event! {0}", filePath.string().c_str());
+				RY_CORE_FATAL("Thread Not found Event! {0}", filePath.string().c_str());
 				break;
 		}
-		RY_CORE_INFO("Thread Path! -> {0} Now Fished", filePath.string().c_str());
+		
 	};
 
 	void ContentBrowserPannel::InitAssetFileWatcher()
 	{
 		s_Data = new AssetMangerFileWatcherData();
-		//for(auto&[folderPath, assetFile] : m_AssetDirectorys)
 		{
-			//AssetFileDirectory& asset = m_AssetDirectorys["Assets"];
 			AssetFileWatcher();
 		}
 		
 	}
 
+	void ContentBrowserPannel::OnloadeAssetsList()
+	{
+		for (AssetHandle assetunLoade : m_OnLoadeAsset)
+		{
+#if RY_EDITOR_ASSETMANGER_THREADE
+			Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
+			assetManger->UnLoadeFileAsset(assetunLoade);
+#else
+			m_AssetManger->OnLoadeAsset(assetonLoade);
+#endif
+		}
+		m_OnLoadeAsset.clear();
+	}
+
+	void ContentBrowserPannel::OnLoadeAsset(AssetHandle handle)
+	{
+		m_OnLoadeAsset.emplace_back(handle);
+		
+	}
+
 	void ContentBrowserPannel::AssetFileWatcher()
 	{
-
-		s_Data->AssetFileWatcher = CreateScope<filewatch::FileWatch<std::string>>("Assets", OnFileSystemEvent);
+		s_Data->AssetFileWatcher = CreateScope<filewatch::FileWatch<std::string>>(Project::GetActiveAssetDirectory().string(), OnFileSystemEvent);
 		RY_CORE_INFO("New Thread Raedy!");
 	}
 

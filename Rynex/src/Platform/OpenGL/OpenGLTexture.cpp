@@ -1,44 +1,82 @@
 #include "rypch.h"
 #include "OpenGLTexture.h"
 
-#include <stb_image.h>
-#include "Rynex/Renderer/API/Framebuffer.h"
+#include <Platform/OpenGL/OpenGLFramebuffer.h>
+#include <Rynex/Renderer/API/Framebuffer.h>
+#include <Rynex/Core/Application.h>
 
+#include <glad/glad.h>
 
 namespace Rynex{
 
-	namespace Utils {
-
 #define RY_CHECK_MULTYSAMPLE(samples) samples > 1
 
-		static GLenum ImageFormatToGLDataFormat(ImageFormat attachmentType)
+	namespace Utils {
+
+
+		static GLenum FormatData(TextureFormat attachmentType)
 		{
 			switch (attachmentType)
 			{
-				case ImageFormat::R8:				return GL_RED;
-				case ImageFormat::RG8:				return GL_RG;
-				case ImageFormat::RGB8:				return GL_RGB;
-				case ImageFormat::RGBA8:			return GL_RGBA;
-				case ImageFormat::RGBA32F:			return GL_RGBA;
-				case ImageFormat::RED_INTEGER:		return GL_RED_INTEGER;
-				case ImageFormat::DEPTH24STENCIL8:	return GL_DEPTH_STENCIL_ATTACHMENT;
+				case TextureFormat::R8:					
+					return GL_RED;
+
+				case TextureFormat::RG8:				
+					return GL_RG;
+
+				case TextureFormat::RGB8:				
+					return GL_RGB;
+
+				case TextureFormat::RGBA8:				
+				case TextureFormat::RGBA16F:			
+				case TextureFormat::RGBA32F:			
+					return GL_RGBA;
+
+				case TextureFormat::RED_INTEGER:		
+					return GL_RED_INTEGER;
+
+				case TextureFormat::DepthComp:			
+				case TextureFormat::DepthComp16:		
+				case TextureFormat::DepthComp24:		
+				case TextureFormat::DepthComp32:		
+				case TextureFormat::DepthComp32F:		
+					return GL_DEPTH_COMPONENT;
+
+				case TextureFormat::Depth24Stencil8:	
+				case TextureFormat::Depth32FStencil8:	
+					return GL_DEPTH_STENCIL;
 			}
 
 			RY_CORE_ASSERT(false, "Error: Utils::ImageFormatToGLDataFormat!");
 			return GL_RGBA;
 		}
 
-		static GLenum ImageFormatToGLInternalFormat(ImageFormat interalformat)
+		static GLenum InternalFormat(TextureFormat interalformat)
 		{
 			switch (interalformat)
 			{
-				case ImageFormat::R8:				return GL_R8;
-				case ImageFormat::RG8:				return GL_RG8;
-				case ImageFormat::RGB8:				return GL_RGB8;
-				case ImageFormat::RGBA8:			return GL_RGBA8;
-				case ImageFormat::RGBA32F:			return GL_RGBA32F;
-				case ImageFormat::RED_INTEGER:		return GL_R32I;
-				case ImageFormat::DEPTH24STENCIL8:	return GL_DEPTH24_STENCIL8;
+				case TextureFormat::R8:					return GL_R8;
+
+				case TextureFormat::RG8:				return GL_RG8;
+
+				case TextureFormat::RGB8:				return GL_RGB8;
+				case TextureFormat::RGB16F:				return GL_RGB16F;
+				case TextureFormat::RGB32F:				return GL_RGB32F;
+
+				case TextureFormat::RGBA8:				return GL_RGBA8;
+				case TextureFormat::RGBA16F:			return GL_RGBA16F;
+				case TextureFormat::RGBA32F:			return GL_RGBA32F;
+
+				case TextureFormat::RED_INTEGER:		return GL_R32I;
+
+				case TextureFormat::DepthComp:			return GL_DEPTH_COMPONENT;
+				case TextureFormat::DepthComp16:		return GL_DEPTH_COMPONENT16;
+				case TextureFormat::DepthComp24:		return GL_DEPTH_COMPONENT24;
+				case TextureFormat::DepthComp32:		return GL_DEPTH_COMPONENT32;
+				case TextureFormat::DepthComp32F:		return GL_DEPTH_COMPONENT32F;
+
+				case TextureFormat::Depth24Stencil8:	return GL_DEPTH24_STENCIL8;
+				case TextureFormat::Depth32FStencil8:	return GL_DEPTH32F_STENCIL8;
 				default:
 				{
 					RY_CORE_ERROR("Error SetTextureWrappingMode whrong TextureWrappingMode!");
@@ -50,21 +88,29 @@ namespace Rynex{
 			return GL_RGBA8;
 		}
 
-		static uint32_t ImageFormatCahnelsCount(ImageFormat interalformat)
+		
+
+		static uint32_t ImageCahnels(TextureFormat interalformat)
 		{
 			switch (interalformat)
 			{
-				case ImageFormat::R8:				return 1;
-				case ImageFormat::RG8:				return 2;
-				case ImageFormat::RGB8:				return 3;
-				case ImageFormat::RGB32F:			return 3;
-				case ImageFormat::RGBA8:			return 4;
-				case ImageFormat::RGBA32F:			return 4;
-				case ImageFormat::RED_INTEGER:		return 1;
-				case ImageFormat::DEPTH24STENCIL8:	return 1;
+				case TextureFormat::R8:					return 1;
+
+				case TextureFormat::RG8:				return 2;
+
+				case TextureFormat::RGB8:				return 3;
+				case TextureFormat::RGB32F:				return 3;
+
+				case TextureFormat::RGBA8:				return 4;
+				case TextureFormat::RGBA32F:			return 4;
+
+				case TextureFormat::RED_INTEGER:		return 1;
+
+				case TextureFormat::Depth24Stencil8:	return 1;
+				case TextureFormat::Depth32FStencil8:	return 1;
 				default:
 				{
-					RY_CORE_ERROR("Error SetTextureWrappingMode whrong TextureWrappingMode!");
+					RY_CORE_ASSERT(false,"Error SetTextureWrappingMode whrong TextureWrappingMode!");
 					return GL_RGBA8;
 				}
 			}
@@ -73,7 +119,7 @@ namespace Rynex{
 			return GL_RGBA8;
 		}
 
-		static GLenum SetTextureWrappingMode(TextureWrappingMode textureWrapping)
+		static GLenum WrappingMode(TextureWrappingMode textureWrapping)
 		{
 			switch (textureWrapping)
 			{
@@ -84,14 +130,14 @@ namespace Rynex{
 				case TextureWrappingMode::Repeate:			return GL_REPEAT;
 				default:
 				{
-					RY_CORE_ERROR("Error SetTextureWrappingMode whrong TextureWrappingMode!");
+					RY_CORE_ASSERT(false, "Error SetTextureWrappingMode whrong TextureWrappingMode!");
 					return GL_REPEAT;
 				}
 			}
 			return GL_REPEAT;
 		}
 
-		static GLenum SetTextureWrappingDimension(int index)
+		static GLenum WrappingDimension(int index)
 		{
 			switch (index)
 			{
@@ -100,27 +146,29 @@ namespace Rynex{
 				case 2:	return GL_TEXTURE_WRAP_R;
 				default: 
 				{
-					RY_CORE_ASSERT(false, "Error SetTextureWrappingDimension whrong index! not mor than 2!");
+					RY_CORE_ASSERT(false, "Error WrappingDimension whrong index! not mor than 2!");
 					return GL_TEXTURE_WRAP_R;
 				}
 			}
 		}
 
-		static GLenum SetTextureFilteringMode(TextureFilteringMode filteringMode)
+		static GLenum FilteringMode(TextureFilteringMode filteringMode)
 		{
 			switch (filteringMode)
 			{
 				case TextureFilteringMode::Linear:	return GL_LINEAR;
 				case TextureFilteringMode::Nearest:	return GL_NEAREST;
+				case TextureFilteringMode::LinearMidmapLinear:	return GL_NEAREST_MIPMAP_LINEAR;
+				case TextureFilteringMode::LinearMidmapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
 				default:
 				{
-					RY_CORE_ERROR("Error SetTextureFiltering whrong TextureFilteringMode!");
+					RY_CORE_ASSERT(false, "Error SetTextureFiltering whrong TextureFilteringMode!");
 					return GL_LINEAR;
 				}
 			}
 		}
 
-		static GLenum SetTexturFilteringDimensionality(int index)
+		static GLenum FilteringDimensionality(int index)
 		{
 			switch (index)
 			{
@@ -128,13 +176,13 @@ namespace Rynex{
 				case 1:	return GL_TEXTURE_MAG_FILTER;
 				default:
 				{
-					RY_CORE_ASSERT(false, "Error SetTexturFilteringDimensionality whrong index! not mor than 1!");
+					RY_CORE_ASSERT(false, "Error FilteringDimensionality whrong index! not mor than 1!");
 					return GL_TEXTURE_MAG_FILTER;
 				}
 			}
 		}
 		
-		static GLenum SetTextureTarget(TextureTarget target, bool multisampled)
+		static GLenum TexTarget(TextureTarget target, bool multisampled)
 		{
 			switch (target)
 			{
@@ -150,13 +198,13 @@ namespace Rynex{
 				case TextureTarget::TextureCubeMap:		return GL_TEXTURE_CUBE_MAP;
 				default:
 				{
-					RY_CORE_ERROR("Error SetTextureFiltering whrong TextureFilteringMode!");
+					RY_CORE_ASSERT(false, "Error SetTextureFiltering whrong TextureFilteringMode!");
 					return GL_TEXTURE_2D;
 				}
 			}
 		}
 
-		static void CreateTextureWrapping(TextureSpecification spec, uint32_t renderID)
+		static void TextureWrapping(TextureSpecification spec, uint32_t renderID)
 		{
 			TextureWrappingMode warping;
 			TextureTarget taget = spec.Target;
@@ -165,32 +213,159 @@ namespace Rynex{
 			{	
 				warping = spec.WrappingSpec[i];
 				if ((warping != TextureWrappingMode::None) && (i < 3 || i >= 0))
-					glTextureParameteri(renderID, SetTextureWrappingDimension(i), SetTextureWrappingMode(warping));
+					glTextureParameteri(renderID, WrappingDimension(i), WrappingMode(warping));
 			}
 		}
 
-		static void CreateTextureFiltering(TextureSpecification spec, uint32_t renderID)
+		static void TextureFiltering(TextureSpecification spec, uint32_t renderID)
 		{
 			TextureFilteringMode filering = spec.FilteringMode;
 			TextureTarget taget = spec.Target;
 			if (filering == TextureFilteringMode::None) return;
 			for (int i = 0; i < 2; i++)
 			{
-				glTextureParameteri(renderID, SetTexturFilteringDimensionality(i), SetTextureFilteringMode(filering));
+				glTextureParameteri(renderID, FilteringDimensionality(i), FilteringMode(filering));
 			}
+		}
+		
+		static void Texture2DValue(uint32_t id, int samples, TextureTarget target, int midmap, TextureFormat format, uint32_t width, uint32_t height, void* data = nullptr)
+		{
+			GLenum type;
+			GLenum formatGL;
+			GLenum internalFormat;
+			GLenum targetGL = GL_TEXTURE_2D;
+			switch (format)
+			{
+			
+			case TextureFormat::RG8:
+			{
+				type = GL_UNSIGNED_BYTE;
+				formatGL = GL_RGB;
+				internalFormat = GL_RG8;
+				break;
+			}
+			case TextureFormat::RGB8:
+			{
+				type = GL_UNSIGNED_BYTE;
+				formatGL = GL_RGB;
+				internalFormat = GL_RGB8;
+				break;
+			}
+			case TextureFormat::RGBA8:
+			{
+				type = GL_UNSIGNED_BYTE;
+				formatGL = GL_RGBA;
+				internalFormat = GL_RGBA8;
+				break;
+			}
+			
+			
+			case TextureFormat::RGBA32F:
+			{
+				type = GL_UNSIGNED_BYTE;
+				formatGL = GL_RGBA;
+				internalFormat = GL_RGBA32F;
+				break;
+			}
+
+			case TextureFormat::RED_INTEGER:
+			{
+				type = GL_UNSIGNED_BYTE;
+				formatGL = GL_RED_INTEGER;
+				internalFormat = GL_R32I;
+				break;
+			}
+			case TextureFormat::Depth24Stencil8:
+			{
+				
+				// 
+				type = GL_FLOAT;
+				formatGL = GL_DEPTH_STENCIL;
+				internalFormat = GL_DEPTH24_STENCIL8;
+				glTexStorage2D(targetGL, 1, internalFormat, width, height);
+				return;
+			}
+			case TextureFormat::Depth32FStencil8:
+			{
+				// glTexStorage2D(targetGL, 1, InternalFormat(format), width, height);
+				// return;
+				formatGL = GL_DEPTH_STENCIL;
+				internalFormat = GL_DEPTH32F_STENCIL8;
+				type = GL_FLOAT;
+				break;
+			}
+			case TextureFormat::DepthComp:
+			{
+				// glTexStorage2D(targetGL, 1, InternalFormat(format), width, height);
+				// return;
+				formatGL = GL_DEPTH_COMPONENT;
+				internalFormat = GL_DEPTH_COMPONENT;
+				type = GL_FLOAT;
+				break;
+			}
+			case TextureFormat::DepthComp16:
+			{
+				// glTexStorage2D(targetGL, 1, InternalFormat(format), width, height);
+				// return;
+				formatGL = GL_DEPTH_COMPONENT;
+				internalFormat = GL_DEPTH_COMPONENT16;
+				type = GL_FLOAT;
+				break;
+			}
+			case TextureFormat::DepthComp24:
+			{
+				// glTexStorage2D(targetGL, 1, InternalFormat(format), width, height);
+				// return;
+				formatGL = GL_DEPTH_COMPONENT;
+				internalFormat = GL_DEPTH_COMPONENT24;
+				type = GL_FLOAT;
+				break;
+			}
+			case TextureFormat::DepthComp32:
+			{
+				// glTexStorage2D(targetGL, 1, InternalFormat(format), width, height);
+				// return;
+				formatGL = GL_DEPTH_COMPONENT;
+				internalFormat = GL_DEPTH_COMPONENT32;
+				type = GL_FLOAT;
+				break;
+			}
+			case TextureFormat::DepthComp32F:
+			{
+				// glTexStorage2D(TexTarget(target, samples > 1), 1, InternalFormat(format), width, height);
+				// return;
+				formatGL = GL_DEPTH_COMPONENT;
+				internalFormat = GL_DEPTH_COMPONENT32F;
+				type = GL_FLOAT;
+				break;
+			}
+
+			default:
+				RY_CORE_ASSERT(false);
+				return;
+			}
+			
+			GLint midmapLevel = midmap;
+			GLenum border = 0;
+			
+			glTexImage2D(targetGL, midmapLevel, internalFormat, width, height, 0, formatGL, type, data);
 		}
 
 		static void CreateTexture2D(TextureSpecification spec, uint32_t outID, void* data = nullptr)
 		{
-				int samples = spec.Samples;
-				bool multisampled = RY_CHECK_MULTYSAMPLE(samples);
-				uint32_t width = spec.Width, height = spec.Height;
-				ImageFormat format = spec.Format;
-				TextureTarget target = spec.Target;
-				if (multisampled)
-					glTextureStorage2DMultisample(outID, samples, ImageFormatToGLInternalFormat(format), width, height, GL_FALSE);
-				else
-					glTextureStorage2D(outID, format == ImageFormat::Depth ? 0 : 1, ImageFormatToGLInternalFormat(format), width, height);
+			int samples = spec.Samples;
+			bool multisampled = RY_CHECK_MULTYSAMPLE(samples);
+			uint32_t width = spec.Width, height = spec.Height;
+			TextureFormat format = spec.Format;
+			TextureTarget target = spec.Target;
+			if (multisampled)
+			{
+				glTexImage2DMultisample(TexTarget(target, multisampled), samples, InternalFormat(format), width, height, GL_FALSE);
+			}
+			else
+			{
+				Texture2DValue(outID, samples, target, 0, format, width, height, data);
+			}
 		}
 
 		static bool CreateTexture(TextureSpecification spec, uint32_t* outID, void* data = nullptr)
@@ -198,24 +373,26 @@ namespace Rynex{
 			int samples = spec.Samples;
 			bool multisampled = RY_CHECK_MULTYSAMPLE(samples);
 			uint32_t width = spec.Width, height = spec.Height;
-			ImageFormat format = spec.Format;
+			TextureFormat format = spec.Format;
 			TextureTarget textureTarget = spec.Target;
-			glCreateTextures(SetTextureTarget(textureTarget, multisampled), 1, outID);
+			GLenum target = TexTarget(textureTarget, multisampled);
+			glCreateTextures(target, 1, outID);
+			glBindTexture(target, *outID);
 			switch (textureTarget)
 			{
-				case TextureTarget::Nono:	return false;
-				case TextureTarget::Texture1D:
+				// case TextureTarget::None:	return false;
+				// case TextureTarget::Texture1D: break;
 				case TextureTarget::Texture2D:
 				{
 					CreateTexture2D(spec, *outID, data);
 					return true;
 				}
-				case TextureTarget::Texture3D:
-				case TextureTarget::TextureRectAngle:
-				case TextureTarget::TextureBuffer:
-				case TextureTarget::TextureCubeMap:
-				case TextureTarget::ImageTexture:
-				case TextureTarget::FrameBufferTexture:
+				// case TextureTarget::Texture3D:
+				// case TextureTarget::TextureRectAngle:
+				// case TextureTarget::TextureBuffer:
+				// case TextureTarget::TextureCubeMap:
+				// case TextureTarget::ImageTexture:
+				// case TextureTarget::FrameBufferTexture:
 				default:
 					return false;
 			}
@@ -225,8 +402,7 @@ namespace Rynex{
 		static GLenum GetAccesType(Acces acces)
 		{
 			switch (acces)
-			{
-		
+			{		
 			case Acces::Read:		return GL_READ_ONLY;
 			case Acces::Write:		return GL_WRITE_ONLY;
 			case Acces::ReadWrite:	return GL_READ_WRITE;
@@ -240,34 +416,23 @@ namespace Rynex{
 
 
 
+#pragma region Texture
+
+
+	OpenGLTexture::OpenGLTexture()
+	{
+	}
 
 	OpenGLTexture::OpenGLTexture(const TextureSpecification& specification)
-		: m_Specification(specification), 
-		m_Width(m_Specification.Width), 
-		m_Height(m_Specification.Height)
+		: m_Specification(specification)
+		, m_Width(specification.Width)
+		, m_Height(specification.Height)
 	{
-#if 0
-		specification.FilteringMode
-		RY_PROFILE_FUNCTION();
-		m_InternalFormate = Utils::ImageFormatToGLInternalFormat(m_Specification.Format);
-		m_DataFormate = Utils::ImageFormatToGLDataFormat(m_Specification.Format);
-		RY_CORE_ASSERT(m_InternalFormate & m_DataFormate, "format not seportet?");
-
-		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
-		glTextureStorage2D(m_RendererID, 1, m_InternalFormate, m_Width, m_Heigth);
-
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
-#else
-		Invalidate();
-#endif
-
+		Invalidate(nullptr);
 	}
 
 	
+#if 0
 
 	OpenGLTexture::OpenGLTexture(uint32_t withe, uint32_t height)
 		: m_Width(withe)
@@ -291,6 +456,7 @@ namespace Rynex{
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
+
 
 	OpenGLTexture::OpenGLTexture(const std::string& path)
 	{
@@ -392,50 +558,64 @@ namespace Rynex{
 
 		}
 	}
+#endif
 
 	OpenGLTexture::OpenGLTexture(const TextureSpecification& spec, void* data, uint32_t size)
 		: m_Specification(spec)
-		, m_Width(m_Specification.Width)
-		, m_Height(m_Specification.Height)
+		, m_Width(spec.Width)
+		, m_Height(spec.Height)
 	{
-
-#if 0
-		RY_PROFILE_FUNCTION();
-		m_DataFormate = Utils::ImageFormatToGLDataFormat(m_Specification.Format);
-		m_InternalFormate = Utils::ImageFormatToGLInternalFormat(m_Specification.Format);
-
-		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
-		glTextureStorage2D(m_RendererID, 1, m_InternalFormate, m_Width, m_Height);
-
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-
-		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		if (data)
+		if(size == m_Width * m_Height * Utils::ImageCahnels(m_Specification.Format))
 		{
-			glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormate, GL_UNSIGNED_BYTE, data);
+			Invalidate(data);
 		}
-#endif
-		Invalidate();
-		SetData(data, size);
+		else
+		{
+			RY_CORE_ASSERT(false);
+			Invalidate(nullptr);
+		}
+		
+	}
+
+	
+
+	OpenGLTexture::OpenGLTexture(const TextureSpecification& spec, std::vector<unsigned char>&& data)
+		: m_Specification(spec)
+		, m_Width(spec.Width)
+		, m_Height(spec.Height)
+		, m_Data(std::move(data))
+	{
+		uint32_t bpp = Utils::ImageCahnels(m_Specification.Format);
+		RY_CORE_ASSERT(m_Data.size() != 0 && m_Width * m_Height * bpp == m_Data.size());
+		Application::Get().SubmiteToMainThreedQueue([this]() {
+			Invalidate();
+			InitAsync();
+		});
 	}
 
 	OpenGLTexture::~OpenGLTexture()
 	{
 		RY_PROFILE_FUNCTION();
 		FreeCurrentData();
-		glDeleteTextures(1, &m_RendererID);
+		if(m_RendererID)
+		{
+			glDeleteTextures(1, &m_RendererID);
+		}
 		
+	}
+
+	void OpenGLTexture::InitAsync()
+	{
+		RY_CORE_ASSERT(m_Data.size() != 0);
+		SetData(m_Data.data(), m_Data.size());
+		FreeCurrentData();
 	}
 
 	void OpenGLTexture::SetData(void* data, uint32_t size)
 	{
 		RY_PROFILE_FUNCTION();
-		uint32_t bpp = Utils::ImageFormatCahnelsCount(m_Specification.Format);
-		RY_CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entyer Texture!")
+		uint32_t bpp = Utils::ImageCahnels(m_Specification.Format);
+		RY_CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entyer Texture!");
 		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormate, GL_UNSIGNED_BYTE, data);
 		RY_CORE_INFO("OpenGLTexture::SetData Set Image Data");
 	}
@@ -444,7 +624,7 @@ namespace Rynex{
 	{
 		FreeCurrentData();
 
-		uint32_t bpp = Utils::ImageFormatCahnelsCount(m_Specification.Format);
+		uint32_t bpp = Utils::ImageCahnels(m_Specification.Format);
 		m_Data.resize(m_Width * m_Height * bpp);
 		glGetTextureImage(m_RendererID, 0, m_DataFormate, GL_UNSIGNED_BYTE, m_Data.size(), m_Data.data());
 		return m_Data;
@@ -455,6 +635,7 @@ namespace Rynex{
 		if (m_Data.size())
 		{
 			m_Data.clear();
+			m_Data.shrink_to_fit();
 		}
 	}
 
@@ -476,7 +657,7 @@ namespace Rynex{
 		m_Specification.Height = height;
 		m_Width = width;
 		m_Height = height;
-		Invalidate();
+		Invalidate(nullptr);
 	}
 
 	void OpenGLTexture::BindTex(uint32_t renderID, uint32_t slot)
@@ -486,29 +667,58 @@ namespace Rynex{
 
 	void OpenGLTexture::Invalidate(void* data)
 	{
+
+		TexFilter& filter = m_Specification.FilteringMode;
+		if (filter == TexFilter::Default && !m_Specification.GenerateMips)
+			filter = m_Specification.GenerateMips ? TexFilter::LinearMidmapLinear : TexFilter::Linear;
+
+		TexFrom& fromat = m_Specification.Format;
+		if(fromat == TexFrom::Default)
+			fromat = TexFrom::RGBA8;
+
+		TextureWrappingMode& warpT = m_Specification.WrappingSpec.T;
+		if (warpT == TexWarp::Default)
+			warpT = TexWarp::Repeate;
+
+		TextureWrappingMode& warpR = m_Specification.WrappingSpec.R;
+		if (warpR == TexWarp::Default)
+			warpR =  TexWarp::Repeate;
+
+		TextureWrappingMode& warpS = m_Specification.WrappingSpec.S;
+		if (warpS == TexWarp::Default)
+			warpS = TexWarp::Repeate;
+
 		if (m_RendererID)
 		{
 			glDeleteTextures(1, &m_RendererID);
+			m_RendererID = 0;
 		}
 
 		// Create Texure
 		if(Utils::CreateTexture(m_Specification, &m_RendererID, data))
 		{
-			m_DataFormate = Utils::ImageFormatToGLDataFormat(m_Specification.Format);
-			m_InternalFormate = Utils::ImageFormatToGLInternalFormat(m_Specification.Format);
-			Utils::CreateTextureFiltering(m_Specification, m_RendererID);
-			Utils::CreateTextureWrapping(m_Specification, m_RendererID);
-			RY_CORE_INFO("OpenGLTexture2D Texture Create Finished: {0}", m_RendererID);
+			m_DataFormate = Utils::FormatData(m_Specification.Format);
+			m_InternalFormate = Utils::InternalFormat(m_Specification.Format);
+			if (!(m_Specification.Samples > 1))
+			{	
+				Utils::TextureFiltering(m_Specification, m_RendererID);
+				Utils::TextureWrapping(m_Specification, m_RendererID);
+			
+			}
+			// RY_CORE_INFO("OpenGLTexture2D Texture Create Finished: {0}", m_RendererID);
+			// glBindTexture(Utils::TexTarget(m_Specification.Target, m_Specification.Samples > 1), 0);
+
 		}
 		else
 		{
-			RY_CORE_ERROR("OpenGLTexture2D Faild to Create Texture!");
+			RY_CORE_ASSERT(false,"OpenGLTexture2D Faild to Create Texture!");
 			glDeleteTextures(1, &m_RendererID);
 		}
-		FreeCurrentData();
 	}
 
+	
 
+#if 0
 	OpenGLTextureLinking::OpenGLTextureLinking(AssetHandle asseHandle, int index)
 		: m_AssetHandle(asseHandle)
 		, m_Index(index)
@@ -536,8 +746,8 @@ namespace Rynex{
 		case FramebufferTextureFormat::RED_INTEGER:
 			texSpec.Format = ImageFormat::RED_INTEGER;
 			break;
-		case FramebufferTextureFormat::DEPTH24STENCIL8:
-			texSpec.Format = ImageFormat::DEPTH24STENCIL8;
+		case FramebufferTextureFormat::Depth24Stencil8:
+			texSpec.Format = ImageFormat::Depth24Stencil8;
 			break;
 		default:
 			break;
@@ -607,4 +817,116 @@ namespace Rynex{
 	{
 		RY_CORE_ASSERT(false, "not Implemntet!");
 	}
+#endif
+
+#pragma endregion
+
+
+#pragma region FrameTextures
+
+#if 0
+	OpenGLFrameTexture::OpenGLFrameTexture( const TextureSpecification& specification)
+		: m_Specification(specification)
+		, m_Width(specification.Width)
+		, m_Height(specification.Height)
+	{
+
+		
+		
+	}
+
+	OpenGLFrameTexture::~OpenGLFrameTexture()
+	{
+		FreeCurrentData();
+		if(!m_RendererID)
+			glDeleteTextures(1, &m_RendererID);
+
+	}
+#endif
+	OpenGLFrameTexture::OpenGLFrameTexture(const TextureSpecification& specification)
+		: OpenGLTexture()
+	{
+		m_Specification = specification;
+		m_Width = m_Specification.Width;
+		m_Height = m_Specification.Height;
+
+	}
+
+	OpenGLFrameTexture::~OpenGLFrameTexture()
+	{
+	}
+
+	void OpenGLFrameTexture::Resize(uint32_t width, uint32_t height)
+	{
+		RY_CORE_ERROR("You Cant Resize a single Image From Frambuffer you need to Resize the Frambuffer and this Texture will Resize too!");
+	}
+
+	void OpenGLFrameTexture::Invalidate(const TextureSpecification& specification, uint32_t redererID)
+	{
+		m_Specification = specification;
+		m_Width = m_Specification.Width;
+		m_Height = m_Specification.Height;
+		Invalidate(redererID);
+	}
+
+	void OpenGLFrameTexture::Invalidate(uint32_t redererID)
+	{
+		m_RendererID = redererID;
+		bool multySample = m_Specification.Samples > 1;
+		m_DataFormate = Utils::FormatData(m_Specification.Format);
+		m_InternalFormate = Utils::InternalFormat(m_Specification.Format);
+		GLenum target = Utils::TexTarget(m_Specification.Target, multySample);
+
+
+		glBindTexture(target, m_RendererID);
+		RY_CORE_INFO("Resize TextureFrame to {0}, {1}", m_Width, m_Height);
+		switch (m_Specification.Target)
+		{
+		case TextureTarget::Texture2D:
+		{
+			Utils::CreateTexture2D(m_Specification, m_RendererID, nullptr);
+			//if(m_Specification.Format != TextureFormat::Depth24Stencil8 )
+			//	glTexImage2D(target, 0, m_InternalFormate, m_Width, m_Height, 0, m_DataFormate, GL_UNSIGNED_BYTE, nullptr);
+			//else
+			//	glTexStorage2D(GL_TEXTURE_2D, 1, m_InternalFormate, m_Width, m_Height);
+			break;
+		}
+		// case TextureTarget::Texture1D: 
+		// case TextureTarget::Texture3D:
+		// case TextureTarget::TextureRectAngle:
+		// case TextureTarget::TextureBuffer:
+		// case TextureTarget::TextureCubeMap:
+		// case TextureTarget::ImageTexture:
+		// case TextureTarget::FrameBufferTexture:
+		default:
+			break;
+		}
+			
+		if (!multySample)
+		{
+			// Utils::TextureFiltering(m_Specification, m_RendererID);
+			// Utils::TextureWrapping(m_Specification, m_RendererID);
+
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		}	
+	}
+
+	void OpenGLFrameTexture::Invalidate()
+	{
+		if (m_RendererID)
+		{
+			glDeleteTextures(1, &m_RendererID);
+			m_RendererID = 0;
+		}
+		glCreateTextures(Utils::TexTarget(m_Specification.Target, m_Specification.Samples > 1), 1, &m_RendererID);
+		if(m_RendererID)
+			Invalidate(m_RendererID);
+	}
+
+#pragma endregion
+	
 }

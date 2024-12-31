@@ -1,8 +1,10 @@
 #include <rypch.h>
+#include "Launcher/LauncherLayer.h"
 #include "EditorLayer.h"
 
 #include <Rynex/Core/Application.h>
 #include <Rynex/Core/EntryPoint.h>
+#include <Rynex/Project/Project.h>
 
 namespace Rynex {
 
@@ -12,12 +14,16 @@ namespace Rynex {
 		RynexEditor(const ApplicationSpecification& spec)
 			: Application(spec)
 		{
-			PushLayer(new EditorLayer());
+			if(spec.CommandLineArgs.Count > 1)
+				PushLayer(new EditorLayer());
+			else
+				PushLayer(new LauncherLayer());
 		}
 
 		~RynexEditor()
 		{
 		}
+		
 	};
 	
 	Application* CreateApplication(ApplicationCommandLineArgs args)
@@ -25,9 +31,7 @@ namespace Rynex {
 		ApplicationSpecification spec;
 		spec.Name = "Rynex-Editor";
 		spec.CommandLineArgs = args;
-#if RY_PATH_IN_LINE
-		Project::New()->SaveActive("SandboxTest.rproj");
-#endif
+		Project::New();
 		return new RynexEditor(spec);
 	}
 }

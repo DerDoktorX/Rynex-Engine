@@ -19,3 +19,9 @@
 [submodule "Rynex/vendor/assimp"]
 	path = Rynex/vendor/assimp
 	url = https://github.com/assimp/assimp
+[submodule "Rynex/vendor/msdf-atelas-gen"]
+	path = Rynex/vendor/msdf-atelas-gen
+	url = https://github.com/TheCherno/msdf-atlas-gen
+[submodule "Rynex/vendor/gtest"]
+	path = Rynex/vendor/gtest
+	url = https://github.com/google/googletest

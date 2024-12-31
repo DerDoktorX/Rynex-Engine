@@ -42,9 +42,10 @@ namespace Rynex {
 
 	void FrambufferWindow::OnImGuiRender()
 	{
-		if (!m_Open) return;
+		if (!m_Open) 
+			return;
 
-		if (ImGui::BeginPopupModal("Settings-FrameBuffer", NULL, ImGuiWindowFlags_MenuBar))
+		if (ImGui::BeginPopupModal("Settings-FrameBuffer", &m_Open, ImGuiWindowFlags_MenuBar))
 		{
 			ImVec2 windowSize = ImGui::GetWindowSize();
 			{
@@ -89,7 +90,7 @@ namespace Rynex {
 					"None",
 					"RGBA8",
 					"RED_INTEGER",
-					"DEPTH24STENCIL8",
+					"Depth24Stencil8",
 				};
 				uint32_t textureFormatLength = 4;
 				char* textureWarpingChar[] = {
@@ -152,14 +153,14 @@ namespace Rynex {
 							{
 								if (ImGui::MenuItem(textureFormatChar[i]))
 								{
-									framTexSpec.TextureFormat = (FramebufferTextureFormat)i;
+									framTexSpec.TextureFormat = (TextureFormat)i;
 									ImGui::CloseCurrentPopup();
 								}
 							}
 							ImGui::EndCombo();
 
 						}
-						auto& warping = framTexSpec.TextureWrapping;
+						TextureWrappingSpecification& warping = framTexSpec.TextureWrapping;
 						ImGui::Columns(3, "##Texture Atachments", true);
 						float columWithe = windowSize.y / (texWarpingDimenLength + 1);
 
@@ -206,7 +207,7 @@ namespace Rynex {
 				{
 					FramebufferTextureSpecification ftspec = FramebufferTextureSpecification();
 					ftspec.TextureFiltering = TextureFilteringMode::Nearest;
-					ftspec.TextureFormat = FramebufferTextureFormat::RGBA8;
+					ftspec.TextureFormat = TextureFormat::RGBA8;
 					ftspec.TextureWrapping.S = TextureWrappingMode::ClampEdge;
 					ftspec.TextureWrapping.T = TextureWrappingMode::ClampEdge;
 					ftspec.TextureWrapping.R = TextureWrappingMode::ClampEdge;
@@ -241,8 +242,10 @@ namespace Rynex {
 					metadata.FilePath = m_Path;
 					i++;
 				}
+#if RY_EDITOR_ASSETMANGER_THREADE
+#else
 				m_AssetManger->CreateAsset(metadata.FilePath, (Ref<Asset>)frambuffer, metadata);
-
+#endif
 				if (FrambufferSerializer::Serilze(metadata.FilePath, frambuffer))
 					ImGui::CloseCurrentPopup();
 				OnClose();

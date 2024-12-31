@@ -101,7 +101,7 @@ namespace Rynex {
 		}
 		if (indexBuffer)
 		{
-			std::vector<unsigned char> data = indexBuffer->GetBufferData();
+			std::vector<uint32_t> data = indexBuffer->GetBufferData();
 			fout.write(reinterpret_cast<const char*>(data.data()), data.size());
 			indexBuffer->FreeBufferData();
 		}

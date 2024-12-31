@@ -1,8 +1,7 @@
 #include "rypch.h"
 #include "ProjectSerialiazer.h"
-
-#include "Rynex/Renderer/API/Buffer.h"
 #include "Rynex/Project/Project.h"
+
 
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
@@ -37,9 +36,18 @@ namespace Rynex {
 			{
 				out << YAML::BeginMap;// Project
 				out << YAML::Key << "Name" << YAML::Value << config.Name;
-				out << YAML::Key << "StartScene" << YAML::Value << config.StartScene.string();
+				out << YAML::Key << "StartScene" << YAML::Value << config.StartScene.lexically_normal().string();
+				if(config.AssetRegistryPath != "")
+					out << YAML::Key << "AssetRegistryPath" << YAML::Value << config.AssetRegistryPath.string();
 				out << YAML::Key << "AssetDirectory" << YAML::Value << config.AssetDirectory.string();
-				out << YAML::Key << "ScriptModulePath" << YAML::Value << config.ScriptModulePath.string();
+				if (config.AssetRegistryPath != "")
+					out << YAML::Key << "ScriptCorePath" << YAML::Value << config.ScriptCorePath.string();
+				out << YAML::Key << "ScriptAppPath" << YAML::Value << config.ScriptAppPath.string();
+				if(config.LastScene!="")
+					out << YAML::Key << "LastScene" << YAML::Value << config.LastScene.string();
+				out << YAML::Key << "CreateDate" << YAML::Value << config.CreateDate.c_str();
+				out << YAML::Key << "LastOpenDate" << YAML::Value << config.LastOpenDate.c_str();
+				out << YAML::Key << "ProjectPath" << YAML::Value << config.ProjectPath.string();
 				out << YAML::EndMap; // Project
 			}
 			out << YAML::EndMap; // Root
@@ -75,7 +83,14 @@ namespace Rynex {
 		config.AssetDirectory = projectNode["AssetDirectory"].as<std::string>();
 		if (projectNode["AssetRegistryPath"])
 			config.AssetRegistryPath = projectNode["AssetRegistryPath"].as<std::string>();
-		config.ScriptModulePath = projectNode["ScriptModulePath"].as<std::string>();
+		config.ScriptAppPath = projectNode["ScriptAppPath"].as<std::string>();
+		if (projectNode["ScriptCorePath"])
+			config.ScriptCorePath = projectNode["ScriptCorePath"].as<std::string>();
+		config.ProjectPath = projectNode["ProjectPath"].as<std::string>();
+		config.LastOpenDate = projectNode["LastOpenDate"].as<std::string>();
+		if (projectNode["LastScene"])
+			config.LastScene = projectNode["LastScene"].as<std::string>();
+		config.ProjectRady = true;
 		return true;
 	}
 

@@ -4,16 +4,27 @@
 #include "Rynex/Renderer/Camera/EditorCamera.h"
 #include "Rynex/Renderer/API/Texture.h"
 #include "Rynex/Scene/Components.h"
+#include <Rynex/Renderer/Text/Font.h>
 
 namespace Rynex {
+	struct TextParams
+	{
+		glm::vec4 Color{ 1.0f };
+		float Kerning = 0.0f;
+		float LineSpacing = 0.0f;
+	};
+
 	class RYNEX_API Renderer2D
 	{
 	public:
 		
-
-		static void InitEditor();
 		static void Init();
+		static void InitEditor();
+
 		static void Shutdown();
+		static void ShutdownEditor();
+		
+		
 
 		static void BeginSceneQuade(const EditorCamera& camera);
 		static void BeginSceneQuade(const OrthograficCamera& camera);	//TODO: Remove 
@@ -25,6 +36,9 @@ namespace Rynex {
 		static void DrawQuad(const glm::mat4& tranform, const glm::vec4& color, int entityID = -2);
 		static void DrawQuad(const glm::mat4& tranform, const Ref<Texture> texture, int entityID = -2);
 
+		static void DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const TextParams& textParams, int entityID);
+		static void DrawString( const glm::mat4& transform, const TextComponent& textC, int entityID);
+		static void DrawParticle(const glm::mat4& tranform, const glm::vec3& position, const glm::vec4& color, float size, float rotation, const Ref<Texture>& texture, int entityID);
 
 
 		static void BeginSceneIcon(const Camera& camera, const glm::mat4& transform, const glm::uvec2& viewPortSize);

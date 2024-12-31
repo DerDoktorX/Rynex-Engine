@@ -5,6 +5,7 @@
 #include <Rynex/Core/Input.h>
 #include <Rynex/Project/Project.h>
 #include <Rynex/Asset/Base/AssetManager.h>
+// #include <Rynex/Asset/EditorAssetManegerThreade.h>
 #include <Rynex/Utils/PlatformUtils.h>
 #include <Rynex/Math/Math.h>
 
@@ -20,6 +21,7 @@
 #include <Rynex/Renderer/Rendering/Renderer2D.h>
 #include <Rynex/Renderer/Rendering/Renderer3D.h>
 
+
 #include <Rynex/Asset/Import/ShaderImporter.h>
 #include <Rynex/Renderer/Objects/Model.h>
 
@@ -29,36 +31,334 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <Rynex/Renderer/Text/Font.h>
+
 
 
 namespace Rynex {
 
 #define RY_EDITOR_TEST_ENITITY 0
 #define RY_ENABLE_VIEWPORT 1
+#define TEST_SHADER_OUTPUT 0
 
-    extern const std::filesystem::path g_AssetsPath;
+
+#if TEST_SHADER_OUTPUT
+
+    namespace ShaderSim {
+         
+        using namespace glm;
+
+        struct InPut_FS
+        {
+            vec3 Position;	// 12
+            vec3 Normal;	// 24
+            vec2 Coords;	// 32
+        };
+
+        struct DrirectionLigthData_FS
+        {
+            vec4 Color;
+            vec3 Position;
+            float Intensitie;
+        };
+
+        struct PointLigthData_FS
+        {
+            vec3 Color;
+            float Distence;
+            vec3 Position;
+            float Intensitie;
+        };
+
+        struct SpotLigthData_FS
+        {
+            vec3 Color;
+            float Intensitie;
+            vec3 Position;
+            float Distence;
+            vec3 Direction;
+            float Inner;
+            float Outer;
+        };
+
+
+        struct CameraData_FS
+        {
+            mat4 ViewProjectionMatrix;	// 16
+            mat4 ViewMatrix;			// 32
+            mat4 ProjectionMatrix;		// 48
+            vec3 CamerPosition;			// 60
+            int Empty;					// 64
+        };
+
+        struct ModelData_FS
+        {
+            vec3 Color;
+            float Alpha;
+            float Emission;
+            float Matalness;
+            float Roughness;
+            float Shinines;
+            float Specular;
+
+            int EntityID;
+            ivec2 Empty;
+            mat4 ModelMatrix;
+        };
+
+        struct AmbientLigth_FS
+        {
+            vec3 Color;
+            float Intensitie;
+        };
+
+        struct DrirectionLigth_FS
+        {
+            int Aktive;
+            ivec3 Empty;
+            DrirectionLigthData_FS Direction[8];
+        };
+
+        struct PointLigth_FS
+        {
+            int Aktive;
+            ivec3 Empty;
+            PointLigthData_FS Point[32];
+        };
+
+        struct SpotLigth_FS
+        {
+            int Aktive;
+            ivec3 Empty;
+            SpotLigthData_FS Spot[32];
+        };
+
+        static CameraData_FS Camera = {
+            {
+                {1.39734, 0.00f, 0.00f, 0.00f},
+                { 0.00f, 3.73205f, 0.00f, 0.00f },
+                { 0.00f, 0.00f, -1.0002f, 9.80198f },
+                { 0.00f, 0.00f, -1.00f, 10.00f }
+            },
+            {
+                { 1.00f, 0.00f, 0.00f, 0.00f},
+                { 0.00f, 1.00f, 0.00f, 0.00f},
+                { 0.00f, 0.00f, 1.00f, -10.00f },
+                { 0.00f, 0.00f, 0.00f, 1.00f }
+            },
+            {
+                { 1.39734, 0.00f, 0.00f, 0.00f},
+                { 0.00f, 3.73205f, 0.00f, 0.00f},
+                { 0.00f, 0.00f, -1.0002f, -0.20002f },
+                { 0.00f, 0.00f, -1.00f, 0.00f }
+            },
+            {
+                 0.00f, 0.00f, -10.00f
+            },
+            -1
+        };
+
+        static ModelData_FS Model = {
+            {
+                1.00f, 0.00f, 1.00f
+            },
+            1.0f,
+            0.1f,
+            0.2f,
+            0.3f,
+            0.4f,
+            0.5f,
+            -1,
+            {-2, -3},
+            {
+                { 1.00f, 0.00f, 0.00f, 0.00f },
+                { 0.00f, 1.00f, 0.00f, 0.00f },
+                { 0.00f, 0.00f, 1.00f, 0.00f },
+                { 0.00f, 0.00f, 0.00f, 1.00f }
+            }
+        };
+
+        static AmbientLigth_FS AmbientL = {
+            {
+                1.00f, 1.00f, 1.00f
+            },
+            0.1f
+           
+        };
+
+        static DrirectionLigth_FS DrirectionelL = {
+            1,
+            {-1.0f,-2.0f,-3.0f},
+            {
+                {
+                    { 1.00f, 1.00f, 1.00f, -13.00f },
+                    { 3.00f, 3.10f, 0.00f },
+                    1.00
+                }
+            }
+
+        };
+
+        // output
+        static vec4 Color; 
+
+        static InPut_FS vData = {
+            {0.00f,0.00f, -1.00 },
+            {0.0f, 0.0f, -1.0f },
+            {0.0f,0.0f}
+        };
+
+        static const float PI = 3.14159265359f;
+
+        static float distrbutionGXX(float NdotH, float roughness)
+        {
+            float a = roughness * roughness;
+            float a2 = a * a;
+            float demom = NdotH * NdotH * (a2 - 1.0f);
+            demom = PI * demom * demom;
+            return a2 / std::max(demom, 0.00000001f);
+        }
+
+        static float geomtrySmith(float NdotV, float NdotL, float roughness)
+        {
+            float r = roughness - 1.0f;
+            float k = (r * r) / 8.0f;
+            float ggx1 = NdotV * (NdotV * (1.0f - k) + k);
+            float ggx2 = NdotL * (NdotL * (1.0f - k) + k);
+            return ggx1 * ggx2;
+        }
+
+        static vec3 frenselSchlick(float HdotV, vec3 baseReflectivity)
+        {
+            return baseReflectivity + ( vec3( 1.0f) - baseReflectivity) * vec3( pow( 1.0f - HdotV, 5.0f ));
+        }
+
+        static vec3 drirectionelLigthing(vec3 N, vec3 V, vec3 baseReflectivity, float metalic, vec3 albedo)
+        {
+            float roughness = Model.Roughness;
+            vec3 result = vec3(0.0f);
+            int Aktive = DrirectionelL.Aktive;
+            vec3 worldPostion = vData.Position;
+            
+            RY_CORE_INFO("roughness: {}", roughness);
+            RY_CORE_INFO("result: {}", glm::to_string(result));
+            RY_CORE_INFO("Aktive: {}", Aktive);
+            RY_CORE_INFO("worldPostion: {}", glm::to_string(worldPostion));
+
+            for (int i = 0; i < Aktive; i++)
+            {
+                DrirectionLigthData_FS ligthData = DrirectionelL.Direction[i];
+
+                vec3 ligtheOffset = ligthData.Position - worldPostion;
+                vec3 L = normalize(ligtheOffset);
+                vec3 H = normalize(V + L);
+                float distence = length(ligtheOffset);
+                float attenuation = 1.0f / (distence * distence);
+                vec3 radiance = vec3( ligthData.Color ) * attenuation;
+
+                float NdotV = max( dot(N, V) , 0.0000001f);
+                float NdotL = max( dot(N, L) , 0.0000001f);
+                float HdotV = max( dot(H, V) , 0.0f);
+                float NdotH = max( dot(N, H) , 0.0f);
+
+                float D = distrbutionGXX(NdotH, roughness);
+                float G = geomtrySmith(NdotV, NdotL, roughness);
+                vec3 F = frenselSchlick(HdotV, baseReflectivity);
+                RY_CORE_INFO("D: {}", D);
+                RY_CORE_INFO("G: {}", G);
+                RY_CORE_INFO("F: {}", glm::to_string(F));
+                vec3 specular = D * G * F;
+                specular /= 4.0f * NdotV * NdotL;
+
+                vec3 kD = vec3(1.0f) - F;
+                kD *= 1.0f - metalic;
+                // result += ( kD * albedo / PI + specular ) * radiance * NdotL;
+                result += (kD * albedo / PI + specular) * radiance * NdotL;
+            }
+            return result;
+        }
+       
+
+        static vec3 ambientLigthing(vec3 albedo)
+        {
+            return (AmbientL.Color * AmbientL.Intensitie) * albedo;
+        }
+
+        static vec3 tonemapping(vec3 color)
+        {
+            return color / (color + vec3( 1.0f ));
+        }
+       
+        static vec3 gamarCorrect(vec3 color)
+        {
+            return pow(color, vec3(1.0f / 2.2f));
+        }
+
+        static vec3 Ligth()
+        {
+            vec3 N = normalize(vData.Normal);
+            vec3 V = normalize(Camera.CamerPosition - vData.Position);
+            vec3 albedo = Model.Color;
+            float metalic = Model.Matalness;
+            vec3 baseReflectivity = mix(vec3(0.04f), albedo, metalic);
+            vec3 Lo = vec3(0.0f);
+
+            RY_CORE_INFO("N: {}", glm::to_string(N));
+            RY_CORE_INFO("V: {}", glm::to_string(V));
+            RY_CORE_INFO("albedo: {}", glm::to_string(albedo));
+            RY_CORE_INFO("metalic: {}", metalic);
+            RY_CORE_INFO("baseReflectivity: {}", glm::to_string(baseReflectivity));
+            RY_CORE_INFO("Lo: {}", glm::to_string(Lo));
+
+            Lo += drirectionelLigthing(N, V, baseReflectivity, metalic, albedo);
+            RY_CORE_INFO("Lo: {} after drirectionelLigthing", glm::to_string(Lo));
+            Lo += ambientLigthing(albedo);
+            RY_CORE_INFO("Lo: {} after ambientLigthing", glm::to_string(Lo));
+
+            return Lo;
+        }
+
+        static void main_FS()
+        {
+            vec3 color = vec3(0.0f);
+            color += Ligth();
+            RY_CORE_INFO("color after Ligth {}", glm::to_string(color));
+            color = tonemapping(color);
+            RY_CORE_INFO("color after tonning {}", glm::to_string(color));
+            color = gamarCorrect(color);
+            RY_CORE_INFO("color after gamma {}", glm::to_string(color));
+            Color = vec4(color, Model.Alpha);
+            RY_CORE_INFO("output color {}", glm::to_string(Color));
+        }
+    }
+
+#endif
 
     EditorLayer::EditorLayer()
         : Layer("Rynex-Editor")
         , m_CameraController((1280.0f / 720.0f), true)
+        , m_ProjectPannel("Project")
+        , m_Content_BPannel()
+        , m_MenuBarPannel()
+        , m_RendererPannel("Renderer")
+        
     {
     }
 
-
     void EditorLayer::OnAttach()
     {
-        RY_CORE_INFO("EditorLayer::OnAttach Start!");
-        RY_PROFILE_FUNCTION();
+#if TEST_SHADER_OUTPUT
+
+           ShaderSim::main_FS();
+
+#endif
         
 
+        RY_CORE_INFO("EditorLayer::OnAttach Start!");
+        RY_PROFILE_FUNCTION();
+
         m_AktiveScene = CreateRef<Scene>();
-        m_Scene_HPanel.SetContext(m_AktiveScene);
-
-        //m_Content_BPannel = Project::GetActive();
-
         m_EditorScene = CreateRef<Scene>();
-        m_AktiveScene = m_EditorScene;
-
 
         auto cLA = Application::Get().GetSpecification().CommandLineArgs;
         if (cLA.Count > 1)
@@ -68,28 +368,34 @@ namespace Rynex {
         }
         else
         {
-            //if(!OpenProject())
-                //Application::Get().Close();
+#if 1
+            // Project::CreatNewPorject();
+            if(!OpenProject())
+                Application::Get().Close();
+#else
             RY_CORE_INFO("Open a Project!");
             OpenProject("Sandbox.rproj");
-
+#endif
         }
-        
+
+        Renderer::InitEditor();
+
+        m_Scene_HPanel.SetContext(m_AktiveScene);
+
         m_Content_BPannel.OnAtache();
        
         m_EditorCamera = CreateRef<EditorCamera>(30.0f, 1.778f, 0.1, 1000.0f);
 
-        m_Project = Project::GetActive();
-        m_AssetManger = m_Project->GetEditorAssetManger(); 
-        
-        Renderer::InitEditor();
+
+
+#if 0
         FramebufferSpecification fbSpec, fbSpec2;
         fbSpec.Attachments =
         {
             FramebufferTextureFormat::RGBA8,
             FramebufferTextureFormat::RGBA8,
             FramebufferTextureFormat::RED_INTEGER,
-            FramebufferTextureFormat::DEPTH24STENCIL8
+            FramebufferTextureFormat::Depth24Stencil8
         };
         fbSpec.Width = 1280;
         fbSpec.Height = 720;
@@ -97,28 +403,24 @@ namespace Rynex {
         fbSpec2.Attachments =
         {
             FramebufferTextureFormat::RGBA8,
-            FramebufferTextureFormat::DEPTH24STENCIL8
+            FramebufferTextureFormat::Depth24Stencil8
         };
         fbSpec2.Width = 1280;
         fbSpec2.Height = 720;
         m_SelectedFramebuffer = Framebuffer::Create(fbSpec2);
         m_CallFace = CallFace::None;
 
-        m_Filtering = AssetManager::GetAsset<Shader>("Assets/shaders/Compute.glsl");
+        m_Filtering = AssetManager::GetAsset<Shader>("../Rynex-Editor/Editor-Assets/shaders/Compute.glsl");
         m_FinaleImage = Texture::Create({
             ImageFormat::RGBA8, TextureTarget::Texture2D,
             1280, 720,
             TextureFilteringMode::Nearest,
         });
+#endif
 
 #if RY_ENABLE_VIEWPORT
-        m_ViewPortPannel.push_back( CreateRef<ViewPortPannel>());
-        for(auto& viewportpannel: m_ViewPortPannel)
-        {
-            viewportpannel->OnAttache("Main ViewPort", this);
-        }
-       
-
+        m_ViewPortPannel = ViewPortPannel();
+        m_ViewPortPannel.OnAttache("Main ViewPort", this);
 #endif
 
 #if RY_EDITOR_TEST_ENITITY
@@ -165,8 +467,8 @@ namespace Rynex {
                 entiy.AddComponent<MaterialComponent>();
                 auto& material = entiy.GetComponent<MaterialComponent>();
 #if RY_PATH_IN_LINE
-                //material.Shader = AssetManager::GetAsset<Shader>("Assets/shaders/3DTestTess.glsl");
-                material.Shader = AssetManager::GetAsset<Shader>("Assets/shaders/3DLigthe.glsl");
+                //material.Shader = AssetManager::GetAsset<Shader>("../Rynex-Editor/Editor-Assets/shaders/3DTestTess.glsl");
+                material.Shader = AssetManager::GetAsset<Shader>("../Rynex-Editor/Editor-Assets/shaders/3DLigthe.glsl");
                 material.UniformLayoute.clear();
                
                 UniformElement ellement;
@@ -353,7 +655,7 @@ namespace Rynex {
             {
                 entiy.AddComponent<MeshComponent>();
                 MeshComponent& meshC = entiy.GetComponent<MeshComponent>();
-                //CreateRef<Model>("Assets/Models/Cube.gltf");
+                //CreateRef<Model>("../Rynex-Editor/Editor-Assets/Models/Cube.gltf");
 
             }
 #endif
@@ -410,7 +712,7 @@ namespace Rynex {
 
             AssetMetadata metadata;
             metadata.Type = testTextPip1->GetType();
-            metadata.FilePath = "Assets/CheckeBordNearest.rytex2d";
+            metadata.FilePath = "../Rynex-Editor/Editor-Assets/CheckeBordNearest.rytex2d";
             m_AssetManger->CreateAsset(metadata.FilePath, (Ref<Asset>)testTextPip1, metadata);
             uint32_t size = 99 * 99;
             uint32_t imageData[99 * 99];
@@ -435,7 +737,7 @@ namespace Rynex {
 
             AssetMetadata metadata;
             metadata.Type = testTextPip2->GetType();
-            metadata.FilePath = "Assets/CheckeBordLinear.rytex2d";
+            metadata.FilePath = "../Rynex-Editor/Editor-Assets/CheckeBordLinear.rytex2d";
             m_AssetManger->CreateAsset(metadata.FilePath, (Ref<Asset>)testTextPip2, metadata);
             uint32_t size = 7 * 7;
             uint32_t imageData[7 * 7];
@@ -493,8 +795,10 @@ namespace Rynex {
         }
 #endif
 #endif
+        
         m_RendererPannel.OnAttache(this);
         m_MenuBarPannel.OnAttache(this);
+        m_ProjectPannel.OnAttache(this);
         RY_CORE_INFO("EditorLayer::Sucese Finished!");
     }
 
@@ -503,20 +807,15 @@ namespace Rynex {
         RY_CORE_WARN("OnDetach Aktiv!");
         RY_PROFILE_FUNCTION();
         
+       
+        Renderer::ShutdownEditor();
         Renderer::Shutdown();
-#if RY_SCRIPTING_HAZEL
-        ScriptEngine::Shutdown();
-#else
         ScriptingEngine::Shutdown();
-#endif
-
         Project::ShutDown();
-        
         m_RendererPannel.OnDetache();
-        for (auto& viewportpannel : m_ViewPortPannel)
-        {
-            viewportpannel->OnDetache();
-        }
+        m_MenuBarPannel.OnDetache();
+        m_ProjectPannel.OnDetache();
+        m_ViewPortPannel.OnDetache();
         RY_CORE_WARN("OnDetach Done!");
     }
 
@@ -524,40 +823,54 @@ namespace Rynex {
     {   
         m_PasTime += ts;
 
+        if (m_NextScene != nullptr)
+        {
+            if (m_SceneState != SceneState::Edit)
+            {
+                RY_CORE_ASSERT(m_SceneState == SceneState::Play || m_SceneState == SceneState::Simulate, "Error Futer Funktion: EditorLayer::OnSceneStop()");
+
+                if (m_SceneState == SceneState::Play)
+                    m_AktiveScene->OnRuntimStop();
+                else if (m_SceneState == SceneState::Simulate)
+                    m_AktiveScene->OnRuntimStop();
+
+                m_SceneState = SceneState::Edit;
+            }
+            Ref<Scene> newScene = Scene::Copy(m_NextScene);
+
+           
+            m_EditorScene = newScene;
+            m_AktiveScene = newScene;
+
+            m_Scene_HPanel.SetContext(m_AktiveScene);
+            m_EditorScenePath = Project::GetActive()->GetEditorAssetManger()->GetMetadata(m_NextScene->Handle).FilePath;
+            m_ViewPortPannel.SetNewAktiveSecen(m_AktiveScene);
+
+             m_NextScene = nullptr;
+        }
+
         Renderer2D::ResetQuadeStats();
+
         switch (m_SceneState)
         {
             case SceneState::Edit:
             { 
 
                 m_AktiveScene->OnUpdateEditor(ts);   
-                for (auto& viewportpannel : m_ViewPortPannel)
-                {
-                    viewportpannel->OnRenderEditor(ts);
-                }
-                
+                m_ViewPortPannel.OnRenderEditor(ts);
                 break;
             }
             case SceneState::Simulate:
             {
                 m_EditorCamera->OnUpdate(ts);
                 m_AktiveScene->OnUpdateSimulation(ts);
-                
-                for (auto& viewportpannel : m_ViewPortPannel)
-                {
-                    viewportpannel->OnRenderSimultion();;
-                }
-
+                m_ViewPortPannel.OnRenderSimultion();;
                 break;
             }
             case SceneState::Play:
             {
                 m_AktiveScene->OnUpdateRuntime(ts);
-                for (auto& viewportpannel : m_ViewPortPannel)
-                {
-                    viewportpannel->OnRenderRuntime(0);
-                }
-
+                m_ViewPortPannel.OnRenderRuntime(0);
                 break;
             }
         }
@@ -565,22 +878,17 @@ namespace Rynex {
         ////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////
         m_RendererPannel.OnUpdate(ts);
-        for (auto& viewportpannel : m_ViewPortPannel)
-        {
-            viewportpannel->OnUpdate();
-        }
-
-        
+        m_ViewPortPannel.OnUpdate();
     }
+
+#pragma region Events
 
     void EditorLayer::OnEvent(Event& e)
     {
         m_RendererPannel.OnEvent(e);
-       
-        for (auto& viewportpannel : m_ViewPortPannel)
-        {
-            viewportpannel->OnEventCamera(e);
-        }
+        m_MenuBarPannel.OnEvent(e);
+        m_ProjectPannel.OnEvent(e);
+        m_ViewPortPannel.OnEventCamera(e);
 
         EventDispatcher dispatcher(e);
         dispatcher.Dispatch<KeyPressedEvent>(RY_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
@@ -621,9 +929,12 @@ namespace Rynex {
         }
         case Key::S:
         {
-            if (control)
-                SaveSceneAs();
+            
 
+            if (control && shift)
+                SaveSceneAs();
+            else if (control)
+                SaveCurentScene();
             break;
         }
 
@@ -660,12 +971,14 @@ namespace Rynex {
 
     bool EditorLayer::OnMousePressed(MouseButtenPressedEvent& e)
     {
-        for (auto& viewportpannel : m_ViewPortPannel)
-        {
-            viewportpannel->OnMousPressed(e);
-        }
-        return false;
+        m_ViewPortPannel.OnMousPressed(e);
+        return true;
     }
+
+#pragma endregion
+
+
+#pragma region OpenPannel
 
     void EditorLayer::OpenRenderPannel()
     {
@@ -682,15 +995,24 @@ namespace Rynex {
         m_Content_BPannel.OpenRegestriyPannel();
     }
 
-    void EditorLayer::OpenSceneHierachy()
+    void EditorLayer::OpenSceneHierachyPannel()
     {
         m_Scene_HPanel.OpenSceneHierachy();
     }
 
-    void EditorLayer::OpenProperties()
+    void EditorLayer::OpenPropertiesPannel()
     {
         m_Scene_HPanel.OpenProperties();
     }
+
+    void EditorLayer::OpenProjectPannel()
+    {
+        m_ProjectPannel.OpenWindow();
+    }
+
+#pragma endregion
+
+#pragma region ProjectFile
 
     void EditorLayer::NewProject()
     {
@@ -714,27 +1036,42 @@ namespace Rynex {
 #if RY_SCRIPTING_HAZEL
             ScriptEngine::Init();
 #else
-            ScriptingEngine::Init();
+            if(!ScriptingEngine::IsInit())
+                ScriptingEngine::Init(true);
+            
+
 #endif
+            m_Project = Project::GetActive();
+            m_AssetManger = m_Project->GetEditorAssetManger();
+            Renderer::Init();
             std::filesystem::path startScene = Project::GetActive()->GetConfig().StartScene;
             if (startScene.string() != "")
-                OpenScene(startScene);
+            {
+                OpenScene(m_AssetManger->GetAssetHandle(startScene));
+                // OpenScene(startScene);
+            }
+            
             m_Content_BPannel = ContentBrowserPannel();
+            
         }
     }
 
     void EditorLayer::SaveProject()
     {
+        if(m_Project && m_Project->GetConfig().ProjectRady)
+        {
+            m_Project->SaveActive(m_Project->GetConfig().ProjectPath / (m_Project->GetConfig().Name + ".rproj"));
+        }
     }
 
+#pragma endregion
+
+#pragma region SceneFile
 
     void EditorLayer::NewScene()
     {
         m_AktiveScene = CreateRef<Scene>(); 
-        for (auto& viewPort : m_ViewPortPannel)
-        {
-            viewPort->SetNewAktiveSecen(m_AktiveScene);
-        }
+        m_ViewPortPannel.SetNewAktiveSecen(m_AktiveScene);
         m_AktiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
         m_Scene_HPanel.SetContext(m_AktiveScene);
        
@@ -749,20 +1086,16 @@ namespace Rynex {
         if (!filepath.empty())
         {
             OpenScene(filepath);
+
         }
     }
 
     void EditorLayer::OpenScene(const std::filesystem::path& path)
     {  
         m_AktiveScene = CreateRef<Scene>();
-
-        for (auto& viewPort : m_ViewPortPannel)
-        {
-            viewPort->SetNewAktiveSecen(m_AktiveScene);
-
-        }
+        m_ViewPortPannel.SetNewAktiveSecen(m_AktiveScene);
         SceneSerializer serialzer(m_AktiveScene);     
-        serialzer.Deserialize(path.string());  
+        serialzer.Deserialize(path.string(), false);  
 
         
         m_Scene_HPanel.SetContext(m_AktiveScene);
@@ -773,6 +1106,11 @@ namespace Rynex {
     {
         RY_CORE_ASSERT(handle, "Error: EditorLayer::OpenScene(AssetHandle handle)");
 
+#if RY_EDITOR_ASSETMANGER_THREADE ? 1 : 0
+        
+        AssetManager::GetAssetAsync<Scene>(handle, &m_NextScene);
+
+#else
         if (m_SceneState != SceneState::Edit)
         {
             RY_CORE_ASSERT(m_SceneState == SceneState::Play || m_SceneState == SceneState::Simulate, "Error Futer Funktion: EditorLayer::OnSceneStop()");
@@ -783,28 +1121,22 @@ namespace Rynex {
                 m_AktiveScene->OnRuntimStop();
 
             m_SceneState = SceneState::Edit;
-
-            m_AktiveScene = m_EditorScene;
-
-            m_Scene_HPanel.SetContext(m_AktiveScene);
-            
-
         }
 
         Ref<Scene> readOnlyScene = AssetManager::GetAsset<Scene>(handle);
         Ref<Scene> newScene = Scene::Copy(readOnlyScene);
-
         m_EditorScene = newScene;
-        m_Scene_HPanel.SetContext(m_EditorScene);
-
         m_AktiveScene = m_EditorScene;
+        
+        m_Scene_HPanel.SetContext(m_EditorScene);
         m_EditorScenePath = Project::GetActive()->GetEditorAssetManger()->GetMetadata(handle).FilePath;    
+        m_ViewPortPannel.SetNewAktiveSecen(m_AktiveScene);
+#endif
 
-        for (auto& viewPort : m_ViewPortPannel)
-        {
-            viewPort->SetNewAktiveSecen(m_AktiveScene);
-        }
+    }
 
+    void EditorLayer::OpenSceneAsync(AssetHandle handle)
+    {
     }
 
     void EditorLayer::SaveSceneAs()
@@ -818,10 +1150,27 @@ namespace Rynex {
         }
     }
 
-    
-    /////////////////////////////////////////////////////////////////
-    //// ImGui //////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////
+    void EditorLayer::SaveCurentScene()
+    {
+        AssetHandle handle = m_AktiveScene->Handle;
+        if (m_AssetManger->IsAssetHandleValid(handle))
+        {
+#if RY_EDITOR_ASSETMANGER_THREADE
+            const AssetMetadata metadata = m_AssetManger->GetMetadata(handle);
+#else
+            const AssetMetadata& metadata = m_AssetManger->GetMetadataConst(handle);
+#endif
+            SceneSerializer serialzer(m_AktiveScene);
+            serialzer.Serialize(metadata.FilePath.string());
+        }
+        else
+        {
+            SaveSceneAs();
+        }
+    }
+
+#pragma endregion
+
     
     void EditorLayer::OnImGuiRender()
     {
@@ -860,7 +1209,7 @@ namespace Rynex {
                 window_flags |= ImGuiWindowFlags_NoBackground;
 
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-            ImGui::Begin("Ryenex-Eitor-Gui", &dokingSpaceOpen, window_flags);
+            ImGui::Begin("Ryenex-Editor-Gui", &dokingSpaceOpen, window_flags);
             ImGui::PopStyleVar();
 
             if (opt_fullscreen)
@@ -884,26 +1233,29 @@ namespace Rynex {
             }
             if(sceneEnabled)    ImGuiPannels();
             if(settingsEnabled) ImGuiSettings(renderPannnel);
+#if RY_VIEW_PORT_FUNKTION   
             if(viewPortEnabled) 
             {
                 ImGuiViewPort();
             }
-           
+        
             else
             {
-                bool blockEvents = false;
-                for (auto& viewportpannel : m_ViewPortPannel)
-                {
-                    blockEvents = viewportpannel->OnImGuiRender() || blockEvents;
-                }
-                ViewPortPannel::SetEventBlocker(!blockEvents);
-                
+
+                ViewPortPannel::SetEventBlocker(!m_ViewPortPannel.OnImGuiRender());
+
             }
+#else
+            if (!viewPortEnabled)
+            {
+                ViewPortPannel::SetEventBlocker(!m_ViewPortPannel.OnImGuiRender());
+            }
+#endif
             if (!renderPannnel)
             {
                 m_RendererPannel.OnImGuiRender();
             }
-            
+            m_ProjectPannel.OnImGuiRender();
 
             ImGui::End();
         }
@@ -911,11 +1263,14 @@ namespace Rynex {
         {   
             if(sceneEnabled)    ImGuiPannels();
             if(settingsEnabled) ImGuiSettings(renderPannnel);
+#if RY_VIEW_PORT_FUNKTION
             if(viewPortEnabled) ImGuiViewPort();
+#endif
             if(!renderPannnel)
             {
                 m_RendererPannel.OnImGuiRender();
             }
+           
            
 
             ImGui::End();
@@ -927,64 +1282,6 @@ namespace Rynex {
     int* EditorLayer::GetPtrGizmoType()
     {
         return &m_GizmoType;
-    }
-
-
-
-    void EditorLayer::ImGuiViewPort()
-    {
-        
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0 ,0 });
-        ImGui::Begin("Viewport");
-        // GetMousePos
-        ImVec2 viewportOffset = ImGui::GetCursorPos();
-
-        // View Port   Hoverd + Focuse -> block Events
-        m_ViewPortFocused = ImGui::IsWindowFocused();
-        m_ViewPortHoverd = ImGui::IsWindowHovered();
-        Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewPortFocused && !m_ViewPortHoverd);
-        // ViewPort get Size + Resize Image + SetImage in ViewPort
-        ImVec2 viewportPannelSize = ImGui::GetContentRegionAvail();
-        ImGuiViewPortResize(viewportPannelSize);
-#if 0
-        uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID(0);
-#else
-        uint32_t textureID = m_FinaleImage->GetRenderID();
-#endif
-        //uint32_t textureID = m_Framebuffer->GetDeathAttachmentRendererID();
-        ImGui::Image(reinterpret_cast<void*>(textureID),  viewportPannelSize, ImVec2(0,1), ImVec2(1,0)); 
-
-        // Drag and drop conten Broser
-        ImGuiContentBrowserViewPort();
-
-        // Set New ViewPort for Debuging or secen other stuffe
-        ImGuiSecundaryViewPort(m_Framebuffer, 1, viewportPannelSize.x, viewportPannelSize.y);
-       
-        // Get View port AABB In Mointore Scren Space / Not App Scren Space!
-        ImGuiSetMausPosInViewPort(viewportOffset);
-       
-        // Gizmos
-        ImGizmoInViewPort();
-
-        ImGui::End();
-        ImGui::PopStyleVar();
-    }
-
-   
-
-    void EditorLayer::ImGuiSecundaryViewPort(const Ref<Framebuffer>& framebuffer, uint32_t id, float width , float height)
-    {
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0 ,0 });
-        ImGui::Begin("Secundary Viewport", nullptr, ImGuiWindowFlags_DockNodeHost  );
-
-        uint32_t textureID = framebuffer->GetColorAttachmentRendererID(id);
-        ImVec2 size = ImGui::GetWindowSize();
-        size.y = size.x / ((float)width / height);
-        ImGui::Image((ImTextureID)textureID, size, ImVec2(0, 1), ImVec2(1, 0));
-        ImGui::SetWindowSize(size);
-      
-        ImGui::End();
-        ImGui::PopStyleVar();
     }
 
     void EditorLayer::ImGuiSettings(bool renderPannnel)
@@ -1104,6 +1401,62 @@ namespace Rynex {
     {
         m_Scene_HPanel.OnImGuiRender();
         m_Content_BPannel.OnImGuiRender();
+    }
+
+#if RY_VIEW_PORT_FUNKTION 
+    
+    void EditorLayer::ImGuiViewPort()
+    {
+        
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0 ,0 });
+        ImGui::Begin("Viewport");
+        // GetMousePos
+        ImVec2 viewportOffset = ImGui::GetCursorPos();
+
+        // View Port   Hoverd + Focuse -> block Events
+        m_ViewPortFocused = ImGui::IsWindowFocused();
+        m_ViewPortHoverd = ImGui::IsWindowHovered();
+        Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewPortFocused && !m_ViewPortHoverd);
+        // ViewPort get Size + Resize Image + SetImage in ViewPort
+        ImVec2 viewportPannelSize = ImGui::GetContentRegionAvail();
+        ImGuiViewPortResize(viewportPannelSize);
+#if 0
+        uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID(0);
+#else
+        uint32_t textureID = m_FinaleImage->GetRenderID();
+#endif
+        //uint32_t textureID = m_Framebuffer->GetDeathAttachmentRendererID();
+        ImGui::Image(reinterpret_cast<void*>(textureID),  viewportPannelSize, ImVec2(0,1), ImVec2(1,0)); 
+
+        // Drag and drop conten Broser
+        ImGuiContentBrowserViewPort();
+
+        // Set New ViewPort for Debuging or secen other stuffe
+        ImGuiSecundaryViewPort(m_Framebuffer, 1, viewportPannelSize.x, viewportPannelSize.y);
+       
+        // Get View port AABB In Mointore Scren Space / Not App Scren Space!
+        ImGuiSetMausPosInViewPort(viewportOffset);
+       
+        // Gizmos
+        ImGizmoInViewPort();
+
+        ImGui::End();
+        ImGui::PopStyleVar();
+    }
+
+    void EditorLayer::ImGuiSecundaryViewPort(const Ref<Framebuffer>& framebuffer, uint32_t id, float width , float height)
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0 ,0 });
+        ImGui::Begin("Secundary Viewport", nullptr, ImGuiWindowFlags_DockNodeHost  );
+
+        uint32_t textureID = framebuffer->GetColorAttachmentRendererID(id);
+        ImVec2 size = ImGui::GetWindowSize();
+        size.y = size.x / ((float)width / height);
+        ImGui::Image((ImTextureID)textureID, size, ImVec2(0, 1), ImVec2(1, 0));
+        ImGui::SetWindowSize(size);
+      
+        ImGui::End();
+        ImGui::PopStyleVar();
     }
 
     void EditorLayer::ImGuiContentBrowserViewPort()
@@ -1300,8 +1653,7 @@ namespace Rynex {
             m_AktiveScene->OnViewportResize(size.x, size.y);
         }
     }
-
-
+#endif
 
     //--- Top Taskbar -------------
 
@@ -1373,7 +1725,6 @@ namespace Rynex {
             ImGui::EndMenu();
         }
     }
-
 
 
     void EditorLayer::ImGuiEdit()

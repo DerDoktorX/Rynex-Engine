@@ -939,7 +939,7 @@ namespace Rynex {
 			"RGBA8",
 			"RGB32F",
 			"RED_INTEGER",
-			"DEPTH24STENCIL8"
+			"Depth24Stencil8"
 		};
 		std::string wrappingChar[] = {
 			"None",
@@ -1001,20 +1001,21 @@ namespace Rynex {
 		fout << out.c_str();
 		fout << "\n--START DATA BINRY--\n";
 		fout.write(reinterpret_cast<const char*>(dataVec.data()), dataVec.size());
+		fout.close();
 		return true;
 	}
 
 	Ref<Texture> Texture2DSerialiazer::Deserlize(const std::filesystem::path& filepath)
 	{
 	
-		std::map<std::string, ImageFormat> fromatMap = {
-			{ "None",				ImageFormat::None},
-			{ "R8",					ImageFormat::R8 },
-			{ "RGB8",				ImageFormat::RGB8 },
-			{ "RGBA8",				ImageFormat::RGBA8 },
-			{ "RGB32F",				ImageFormat::RGB32F },
-			{ "RED_INTEGER",		ImageFormat::RED_INTEGER },
-			{ "DEPTH24STENCIL8",	ImageFormat::DEPTH24STENCIL8 }
+		std::map<std::string, TextureFormat> fromatMap = {
+			{ "None",				TextureFormat::None},
+			{ "R8",					TextureFormat::R8 },
+			{ "RGB8",				TextureFormat::RGB8 },
+			{ "RGBA8",				TextureFormat::RGBA8 },
+			{ "RGB32F",				TextureFormat::RGB32F },
+			{ "RED_INTEGER",		TextureFormat::RED_INTEGER },
+			{ "Depth24Stencil8",	TextureFormat::Depth24Stencil8 }
 		};
 
 		std::map<std::string, TextureWrappingMode> wrappingMap = {

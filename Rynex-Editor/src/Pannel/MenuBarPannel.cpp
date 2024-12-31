@@ -79,10 +79,10 @@ namespace Rynex {
 		{
 			if (ImGui::MenuItem("Create Project", NULL, false))
 				m_EditorLayer->NewProject();
-
+#if 0
 			if (ImGui::MenuItem("Open Project", "Crtl+O"))
 				m_EditorLayer->OpenProject();
-
+#endif
 			if (ImGui::MenuItem("Save Project...", "Crtl+S"))
 				m_EditorLayer->SaveProject();
 
@@ -145,9 +145,11 @@ namespace Rynex {
 			if (ImGui::MenuItem("Regestriy-Pannel"))
 				m_EditorLayer->OpenRegestriyPannel();
 			if (ImGui::MenuItem("Scene-Hierachy"))
-				m_EditorLayer->OpenSceneHierachy();
+				m_EditorLayer->OpenSceneHierachyPannel();
 			if (ImGui::MenuItem("Properties"))
-				m_EditorLayer->OpenProperties();
+				m_EditorLayer->OpenPropertiesPannel();
+			if (ImGui::MenuItem("Project"))
+				m_EditorLayer->OpenProjectPannel();
 			Utils::ExiteButten();
 			ImGui::EndMenu();
 		}

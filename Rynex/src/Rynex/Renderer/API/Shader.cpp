@@ -3,6 +3,8 @@
 
 #include "Rynex/Renderer/Rendering/Renderer.h"
 #include "Platform/OpenGL/OpenGLShader.h"
+#include "Rynex/Asset/Base/AssetManager.h"
+
 
 namespace Rynex {
 	
@@ -27,6 +29,30 @@ namespace Rynex {
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
 	}
+
+	Ref<Shader> Shader::CreateAsync(std::string&& source)
+	{
+		switch (Renderer::GetAPI())
+		{
+			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Cuurently not supportet"); return nullptr;
+			case RendererAPI::API::OpenGL:	return std::make_shared<OpenGLShader>(std::move(source));
+		}
+		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
+		return nullptr;
+	}
+
+	Ref<Shader> Shader::Default()
+	{
+		if(Renderer::IsInit())
+			return AssetManager::GetAsset<Shader>("../Rynex-Editor/Editor-Assets/shaders/Default_Rynex-Editor_Shader.glsl");
+		return nullptr;
+	}
+
+	void Shader::Shutdown()
+	{
+	}
+
+	
 	
 
 	////////////////////////////////////////////////////////////////////////////

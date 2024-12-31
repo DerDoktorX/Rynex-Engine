@@ -59,11 +59,12 @@ namespace Rynex {
 	class RYNEX_API ScriptingEngine
 	{
 	public:
-		static void Init();
+		static void Init(bool editor = false);
 		static void Shutdown();
+		static bool IsInit();
 
 		static bool LoadAssambly(const std::filesystem::path& filepath);
-		static bool LoadAppAssambly(const std::filesystem::path& filepath);
+		static bool LoadAppAssambly(const std::filesystem::path& filepath, bool fileWatcherEnable = false);
 		static void OnRuntimeStart(Scene* scene);
 		static void OnRuntimeStop();
 
@@ -75,8 +76,8 @@ namespace Rynex {
 		static uint32_t GetClassLength();
 
 		static bool ClassExists(const std::string& fullClassName);
-		static void OnCreatEntity(Entity entity);
-		static void OnUpdateEntity(Entity entity, float ts);
+		static bool OnCreatEntity(Entity entity);
+		static bool OnUpdateEntity(Entity entity, float ts);
 		static void OnDrawEntity(Entity entity);
 		static void OnDestroyEntity(Entity entity);
 		static Scene* GetSceneContext();

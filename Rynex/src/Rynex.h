@@ -6,17 +6,20 @@
 #include "Rynex/Core/Application.h"
 #include "Rynex/Core/Layer.h"
 #include "Rynex/Core/Log.h"
-#include "Rynex/Asset/Base/Buffer.h"	// TODO: find a way to move "Buffer.h" in -> "Rynex/Core/..."
+#include "Rynex/Core/BufferData.h"
 #include "Rynex/Core/Assert.h"
 
 #include "Rynex/Core/TimeStep.h"
-#include "Rynex/Utils/PlatformUtils.h"
+
 
 #include "Rynex/Core/Input.h"
 #include "Rynex/Core/KeyCodes.h"
 #include "Rynex/Core/MouseCodes.h"
 
 #include "Rynex/ImGui/ImGuiLayer.h"
+
+// Platform header
+#include "Rynex/Utils/PlatformUtils.h"
 
 //----- AssetManger ---------------------
 #include "Rynex/Asset/Base/Asset.h"
@@ -32,7 +35,7 @@
 
 #include "Rynex/Asset/RuntimeAssetManager.h"
 #include "Rynex/Asset/EditorAssetManager.h"
-
+// #include "Rynex/Asset/EditorAssetManegerThreade.h"
 
 
 //------ entity -------------------------
@@ -47,6 +50,7 @@
 #include "Rynex/Renderer/Rendering/Renderer3D.h"
 #include "Rynex/Renderer/RenderCommand.h"
 
+#include "Rynex/Renderer/Text/Font.h"
 #include "Rynex/Renderer/Objects/Model.h"
 #include "Rynex/Renderer/Objects/Mesh.h"
 #include "Rynex/Renderer/Objects/Geomtrys.h"
@@ -58,7 +62,7 @@
 #include "Rynex/Renderer/API/Framebuffer.h"
 
 #include "Rynex/Renderer/Camera/OrthograficCamera.h"
-#include "Rynex/Core/CamerController.h"
+#include "Rynex/Renderer/Camera/CamerController.h"
 //---------------------------------------
 
 //-----EnryPoint-------------------------

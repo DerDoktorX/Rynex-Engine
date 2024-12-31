@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Rynex/Renderer/API/VertexArray.h"
-#include <glm/glm.hpp>
+
 
 namespace Rynex {
 
@@ -42,9 +42,10 @@ namespace Rynex {
 
 		virtual void SetClearColor(const glm::vec4& color) = 0;
 		virtual void Clear() = 0;
+		virtual void ClearDepth() = 0;
 
 		virtual void DrawIndexedMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
-		virtual void DrawBatcheingIndexedMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
+		virtual void DrawIndexedMeshInstecing(uint32_t instecing, const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 
 		virtual void DrawIndexedPoints(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 

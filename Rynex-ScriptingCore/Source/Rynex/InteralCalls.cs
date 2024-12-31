@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 
@@ -55,11 +56,6 @@ namespace Rynex
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void TransformComponent_SetScale(ulong uuid, ref Vector3 prameter);
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void TransformComponent_GetChange(ulong uuid, out bool prameter);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void TransformComponent_SetChange(ulong uuid, ref bool prameter);
 
         #endregion
 
@@ -96,7 +92,7 @@ namespace Rynex
 
         #region TagComponent
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void TagComponent_SetTag(ulong uuid, ref string tag);
+        internal extern static void TagComponent_SetTag(ulong uuid, string tag);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void TagComponent_GetTag(ulong uuid, out string tag);
@@ -117,6 +113,7 @@ namespace Rynex
         #endregion
 
         #region CameraComponent
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void CameraComponent_SetPrimary(ulong uuid, ref bool primary);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -126,19 +123,76 @@ namespace Rynex
         internal extern static void CameraComponent_SetFixedAspectRotaion(ulong uuid, ref bool fixedAspectRotaion);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void CameraComponent_GetFixedAspectRotaion(ulong uuid, out bool fixedAspectRotaion);
+
+        #region SceneCamer
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void CameraComponent_Camera_SetViewPortSize(ulong uuid, uint withe, uint heigth);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void CameraComponent_Camera_SetOrthoGrafic(ulong uuid, float sizen, float nearClip, float farClip);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void CameraComponent_Camera_SetPerspectiv(ulong uuid, float verticleFow, float nearClip, float farClip);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void CameraComponent_Camera_SetOrthograficSize(ulong uuid, float size);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void CameraComponent_Camera_SetOrthograficNearClipe(ulong uuid, float size);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void CameraComponent_Camera_SetOrthograficFarClipe(ulong uuid, float size);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float CameraComponent_Camera_GetOrthographicSize(ulong uuid);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float CameraComponent_Camera_GetOrthographicNearClipe(ulong uuid);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float CameraComponent_Camera_GetOrthographicFarClipe(ulong uuid);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void CameraComponent_Camera_SetPerspectivVerticleFOV(ulong uuid, float verticleVow);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void CameraComponent_Camera_SetPerspectivNearClipe(ulong uuid, float nearClip);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void CameraComponent_Camera_SetPerspectivFarClipe(ulong uuid, float farClipe);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float CameraComponent_Camera_GetPerspectivVerticleFOV(ulong uuid);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float CameraComponent_Camera_GetPerspectivNearClipe(ulong uuid);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float CameraComponent_Camera_GetPerspectivFarClipe(ulong uuid);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static SceneCamera.ProjectionType CameraComponent_Camera_GetProjectionType(ulong uuid);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void CameraComponent_Camera_SetProjectionType(ulong uuid, SceneCamera.ProjectionType type);
+
         #endregion
+
+        #region Camera
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static Matrix4x4 CameraComponent_Camera_GetProjektion(ulong uuid);
+
+#if false
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void CameraComponent_Camera_SetProjektion(ulong uuid, ref Matrix4x4 matrix);
+#endif
+
+#endregion
+
+#endregion
 
         #region ScriptComponent
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void ScriptComponent_SetName(ulong uuid, ref string name);
+        internal extern static void ScriptComponent_SetName(ulong uuid, string name);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void ScriptComponent_GetName(ulong uuid, out string name);
 
         #endregion
 
-        #region MaterialComponent
+#region MaterialComponent
 
+#if false
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void MaterialComponent_SetShader(ulong uuid, ref ulong handle);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -148,19 +202,20 @@ namespace Rynex
         internal extern static void MaterialComponent_SetColor(ulong uuid, ref Vector3 color);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void MaterialComponent_GetColor(ulong uuid, out Vector3 color);
+#endif
 
-        #endregion
+#endregion
 
         #region Matrix4x4Component
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Matrix4x4Component_SetMatrix4x4(ulong uuid, ref Matrix4x4 matrix);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Matrix4x4Component_GetMatrix4x4(ulong uuid, out Matrix4x4 matrix);
+        internal extern static Matrix4x4 Matrix4x4Component_GetMatrix4x4(ulong uuid);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Matrix4x4Component_SetGlobleMatrix4x4(ulong uuid, ref Matrix4x4 matrix);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Matrix4x4Component_GetGlobleMatrix4x4(ulong uuid, out Matrix4x4 matrix);
+        internal extern static Matrix4x4 Matrix4x4Component_GetGlobleMatrix4x4(ulong uuid);
 
         #endregion
 
@@ -176,9 +231,14 @@ namespace Rynex
         #region MeshComponent
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void MeshComponent_SetModelR(ulong uuid, ref ulong handle);
+        internal extern static void MeshComponent_SetModelR(ulong uuid, ulong handle);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void MeshComponent_GetModelR(ulong uuid, out ulong handle);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void MeshComponent_SetMeshMode(ulong uuid, MeshMode meshMode);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static MeshMode MeshComponent_GetMeshMode(ulong uuid);
 
         #endregion
 
@@ -190,7 +250,7 @@ namespace Rynex
         internal extern static void AmbientLigthComponent_GetColor(ulong uuid, out Vector3 color);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void AmbientLigthComponent_SeIntensitie(ulong uuid, ref float intensitie);
+        internal extern static void AmbientLigthComponent_SetIntensitie(ulong uuid, ref float intensitie);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void AmbientLigthComponent_GetIntensitie(ulong uuid, out float intensitie);
 
@@ -218,7 +278,7 @@ namespace Rynex
         internal extern static void PointLigthComponent_GetColor(ulong uuid, out Vector3 color);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void PointLigthComponent_SeIntensitie(ulong uuid, ref float intensitie);
+        internal extern static void PointLigthComponent_SetIntensitie(ulong uuid, ref float intensitie);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void PointLigthComponent_GetIntensitie(ulong uuid, out float intensitie);
 
@@ -237,7 +297,7 @@ namespace Rynex
         internal extern static void SpotLigthComponent_GetColor(ulong uuid, out Vector3 color);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void SpotLigthComponent_SeIntensitie(ulong uuid, ref float intensitie);
+        internal extern static void SpotLigthComponent_SetIntensitie(ulong uuid, ref float intensitie);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SpotLigthComponent_GetIntensitie(ulong uuid, out float intensitie);
 
@@ -263,7 +323,6 @@ namespace Rynex
 
         #region PostProcessingComponent
         #endregion
-
 
 
         #region TextureClass
@@ -378,7 +437,7 @@ namespace Rynex
 
         #endregion
 
-        # region VertexArrayClass
+        #region VertexArrayClass
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void VertexArray_Create(out ulong handle);
@@ -416,12 +475,12 @@ namespace Rynex
         #region FramebufferClass
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Framebuffer_Create_Spec(out ulong handle, IntPtr attachments, uint size, uint width, uint height, uint Samples, bool SwapChainTarget);
+        internal extern static void Framebuffer_Create_Spec(out ulong handle, IntPtr attachments, uint size, uint width, uint height, bool SwapChainTarget);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Framebuffer_Destroy(ulong handle);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Framebuffer_GetFramebufferSpecification(ulong handle, out uint size, out uint width, out uint height, out uint Samples, out bool SwapChainTarget);
+        internal extern static void Framebuffer_GetFramebufferSpecification(ulong handle, out uint size, out uint width, out uint height, out bool SwapChainTarget);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Framebuffer_GetFramebufferTextureSpecification(ulong handle, uint index, out FramebufferTextureSpecification attachment);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -438,26 +497,41 @@ namespace Rynex
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void AssetManger_GetAsset_Path(string path, AssetType type, out ulong handle);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void AssetManger_GetAsset_Handle(ulong handle, AssetType type);
+        internal extern static void AssetManger_GetAsset_Handle(ulong handle, AssetType type, out ulong outhandle);
 
         #endregion
-
+        
         #region Model
-#if false
+#if true
+        
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Model_Create(out ulong handle);
-#endif
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Model_Destroy(ulong handle);
+#endif
+#endregion
+
+        #region AplicationClass
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static Vector2 Application_GetWindowSize();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static Vector2 Application_GetMousePixelPosition();
 
         #endregion
-
 
         #region Event
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Input_IsKeyDown(KeyCode keycode);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Input_IsMouseOnViewPort();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Input_IsWindowResize();
 
         #endregion
     }

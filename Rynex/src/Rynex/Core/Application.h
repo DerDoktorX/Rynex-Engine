@@ -7,6 +7,7 @@
 #include "Rynex/Core/TimeStep.h"
 
 #include "Rynex/ImGui/ImGuiLayer.h"
+#include <Rynex/Renderer/API/ThreadContext.h>
 
 int main(int argc, char** argv);
 
@@ -26,7 +27,7 @@ namespace Rynex {
 
 	struct ApplicationSpecification
 	{
-		std::string Name = "Hazel Application";
+		std::string Name = "Rynex Application";
 		std::string WorkingDirectory;
 		ApplicationCommandLineArgs CommandLineArgs;
 	};
@@ -42,6 +43,7 @@ namespace Rynex {
 		{}
 	};
 
+
 	class RYNEX_API Application
 	{
 	public:
@@ -52,9 +54,11 @@ namespace Rynex {
 
 		void OnEvent(Event& event);
 
+
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* layer);
 
+		void PopLayer(Layer* layer);
 		void Close();
 
 		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
@@ -62,13 +66,15 @@ namespace Rynex {
 		inline static Application& Get() { return *s_Instance; }
 		inline Window& GetWindow() { return *m_Window; }
 
-		ApplicationSpecification GetSpecification() { return m_Specification; }
+		// inline Layer* GetLayer(int index = 0) { return m_LayerStack[index]; }
+		ApplicationSpecification& GetSpecification() { return m_Specification; }
 
 		// Treads!
 		void SubmiteToMainThreedQueue(const std::function<void()>& func);
-		void SubmiteToMainThreedQueueAssetFileWatcher(const std::function<void()>& func);
 		void ExecuteMainThreedQueue();
-		void ExecuteMainThreedQueueAssetFileWatcher();
+
+		
+		
 	private:
 		void Run();
 
@@ -82,11 +88,10 @@ namespace Rynex {
 		bool m_Mineized = false;
 		LayerStack m_LayerStack;
 		float m_LastFrameTime = 0.0f;
-
+		const uint32_t m_MaxMainThread = 10;
 		std::vector<std::function<void()>> m_MainThreedQueue;
-		std::vector<std::function<void()>> m_MainThreedQueueAssetFileWatcher;
+		std::vector<std::function<void()>> m_MainThreedQueueWaiting;
 		std::mutex m_MainThreedQueueMutex;
-		std::mutex m_MainThreedQueueMutexAssetFileWatcher;
 
 		ApplicationSpecification m_Specification;
 	private:

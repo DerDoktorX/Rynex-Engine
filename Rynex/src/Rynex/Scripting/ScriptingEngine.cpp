@@ -14,7 +14,7 @@
 #include <FileWatch.h>
 #include <Rynex/Project/Project.h>
 
-#define RY_AKICE_CS 1
+
 namespace Rynex {
 
 
@@ -42,8 +42,6 @@ namespace Rynex {
 		std::unordered_map<UUID, Ref<ScriptInstance>> EntityInstances;
 		
 		Scope<filewatch::FileWatch<std::string>> AppAssemblyFileWatcher;
-		bool AssemblyRelodingPennding = false;
-
 		bool AsseblyReloading = false;
 #ifdef RY_DEBUG
 		bool EnableDebugging = true;
@@ -54,10 +52,6 @@ namespace Rynex {
 
 	static ScriptingEngineData* s_Data = nullptr;
 
-	///////////////////////////////////////////////////////////////////////
-	///// Utils ///////////////////////////////////////////////////////////
-	///////////////////////////////////////////////////////////////////////
-	// Checke Equel
 	namespace Utils {
 
 		static char* ReadBytes(const std::filesystem::path& filepath, uint32_t* outSize)
@@ -88,7 +82,7 @@ namespace Rynex {
 			return buffer;
 		}
 
-		static MonoAssembly* LoadMonoAssembly(const std::filesystem::path& assemblyPath)
+		static MonoAssembly* LoadMonoAssembly(const std::filesystem::path& assemblyPath, bool loadePDP = false)
 		{
 			uint32_t fileSize = 0;
 			char* fileData = ReadBytes(assemblyPath, &fileSize);
@@ -103,13 +97,36 @@ namespace Rynex {
 				// Log some error message using the errorMessage data
 				return nullptr;
 			}
+			
+			if (loadePDP)
+			{
+				std::filesystem::path pdbPath = assemblyPath;
+				pdbPath.replace_extension(".pdb");
+
+				if (std::filesystem::exists(pdbPath))
+				{
+					RY_CORE_WARN("Load Scripting PDP from '{}', Debug anable", pdbPath.string().c_str());
+					uint32_t fileSizePDB = 0;
+					char* fileDataPDB = ReadBytes(pdbPath, &fileSizePDB);
+
+					mono_debug_open_image_from_memory(image, (const mono_byte*)fileDataPDB, fileSizePDB);
+					
+					delete[] fileDataPDB;
+				}
+				else
+				{
+					RY_CORE_ERROR("Scripting Debug File '{}' don't Exists", pdbPath.string().c_str());
+				}
+			}
+
+
 			std::string string = assemblyPath.string();
 			MonoAssembly* assembly = mono_assembly_load_from_full(image, string.c_str(), &status, 0);
 			mono_image_close(image);
 
 			// Don't forget to free the file data
 			delete[] fileData;
-
+			
 			return assembly;
 		}
 		
@@ -141,7 +158,7 @@ namespace Rynex {
 
 #pragma region ScriptingEngine_Public
 
-	void ScriptingEngine::Init()
+	void ScriptingEngine::Init(bool editor)
 	{
 		RY_CORE_INFO("ScriptingEngine::Init Start!");
 		RY_PROFILE_FUNCTION();
@@ -170,8 +187,22 @@ namespace Rynex {
 		}
 
 #else
-		LoadAssambly(Project::GetActiveAssetProjectScriptingCoreDirektory());
-		LoadAppAssambly(Project::GetActiveAssetScriptingDirektory());
+		RY_CORE_INFO("Load Assambly from Path: '{0}'", Project::GetActiveProjectScriptingCoreDirektory().string().c_str());
+		std::filesystem::path corePath = Project::GetActiveProjectScriptingCoreDirektory().generic_string();
+		bool status = LoadAssambly(corePath);
+		if (!status)
+		{
+			RY_CORE_ERROR("[ScriptEngine] Could not load Rynex-ScriptCore assembly.");
+			return;
+		}
+		RY_CORE_INFO("Load AppAssambly from Path: '{0}'", Project::GetActiveScriptingAppDirektory().string().c_str());
+		std::filesystem::path appPath = Project::GetActiveScriptingAppDirektory().generic_string();
+		status = LoadAppAssambly(appPath, editor);
+		if (!status)
+		{
+			RY_CORE_ERROR("[ScriptEngine] Could not load APP assembly.");
+			return;
+		}
 #endif
 		LoadAssemblyClasses();
 		
@@ -194,6 +225,11 @@ namespace Rynex {
 		RY_CORE_INFO("ScriptingEngine::Shutdown! Sucess");
 	}
 
+	bool ScriptingEngine::IsInit()
+	{
+		return s_Data != nullptr;
+	}
+
 	bool ScriptingEngine::LoadAssambly(const std::filesystem::path& filepath)
 	{
 		// Create an App Domain
@@ -203,7 +239,7 @@ namespace Rynex {
 
 		// Maby move this
 		s_Data->CoreAssemblyFilepath = filepath;
-		s_Data->CoreAssembly = Utils::LoadMonoAssembly(filepath);
+		s_Data->CoreAssembly = Utils::LoadMonoAssembly(filepath, s_Data->EnableDebugging);
 		if (s_Data->CoreAssembly == nullptr)
 			return false;
 
@@ -214,37 +250,43 @@ namespace Rynex {
 
 	static void OnAppAssemblyFileSystemEvent(const std::string& path, const filewatch::Event change_type)
 	{
-		RY_CORE_INFO("FileWatcher: {0}\n> {1}",(int)change_type , path.c_str());
-		if (s_Data->AssemblyRelodingPennding && change_type == filewatch::Event::modified)
+		RY_CORE_INFO("FileWatcher Scripting: {0}\n> {1}",(int)change_type , path.c_str());
+		if (change_type == filewatch::Event::modified)
 		{
 			
-			using namespace std::chrono_literals;
-			std::this_thread::sleep_for(500ms);
+			// using namespace std::chrono_literals;
+			// std::this_thread::sleep_for(500);
 
-			RY_CORE_INFO("Thread Execute!");
+			
 			Application::Get().SubmiteToMainThreedQueue([]() 
 			{ 
+				RY_CORE_INFO("Thread Scripting Execute!");
 				s_Data->AppAssemblyFileWatcher.reset();
-				ScriptingEngine::ReloadAssambly(); 
-				
+				ScriptingEngine::ReloadAssambly();
 			});
-		}
-		else if (!s_Data->AssemblyRelodingPennding && change_type == filewatch::Event::modified)
-		{
-			s_Data->AssemblyRelodingPennding = true;
+			RY_CORE_INFO("Submit Scripting Execute! 1");
 		}
 
 
 	}
 
 
-	bool ScriptingEngine::LoadAppAssambly(const std::filesystem::path& filepath)
+	bool ScriptingEngine::LoadAppAssambly(const std::filesystem::path& filepath, bool fileWatcherEnable)
 	{
 		// Create an App Domain
 		s_Data->AppAssemblyFilepath = filepath;
-		s_Data->AppAssembly = Utils::LoadMonoAssembly(filepath);
+		if(fileWatcherEnable)
+		{
+			s_Data->AppAssemblyFileWatcher = CreateScope<filewatch::FileWatch<std::string>>(filepath.string(), OnAppAssemblyFileSystemEvent);
+			s_Data->AsseblyReloading = true;
+		}
+		s_Data->AppAssembly = Utils::LoadMonoAssembly(filepath, s_Data->EnableDebugging);
+
 		if (s_Data->AppAssembly == nullptr)
+		{
+			RY_CORE_FATAL("No AppAssembly Cound Loade");
 			return false;
+		}
 
 		s_Data->AppAssemblyImage = mono_assembly_get_image(s_Data->AppAssembly);
 
@@ -252,9 +294,7 @@ namespace Rynex {
 		Utils::PrintAssemblyTypes(s_Data->AppAssembly);
 #endif
 
-		s_Data->AppAssemblyFileWatcher = CreateScope<filewatch::FileWatch<std::string>>(filepath.string(), OnAppAssemblyFileSystemEvent);
-		s_Data->AsseblyReloading = true;
-		s_Data->AssemblyRelodingPennding = false;
+		
 		return true;
 	}
 
@@ -272,17 +312,47 @@ namespace Rynex {
 
 	void ScriptingEngine::ReloadAssambly()
 	{
-		mono_domain_set(mono_get_root_domain(), false);
+		try
+		{
+			Scene* scene = ScriptingEngine::GetSceneContext();
+			if (scene != nullptr)
+				ScriptingEngine::OnRuntimeStop();
+
+			mono_domain_set(mono_get_root_domain(), false);
+
+			//mono_domain_free(s_Data->AppDomain, true);
+			mono_domain_unload(s_Data->AppDomain);
+
+			LoadAssambly(s_Data->CoreAssemblyFilepath);
+			if (s_Data->AppAssemblyFilepath != "")
+				LoadAppAssambly(s_Data->AppAssemblyFilepath);
+			else
+			{
+				RY_CORE_INFO("Load AppAssambly from Path: '{0}'", Project::GetActiveScriptingAppDirektory().string().c_str());
+				std::filesystem::path appPath = Project::GetActiveScriptingAppDirektory().generic_string();
+				bool status = LoadAppAssambly(appPath);
+				if (!status)
+					return;
+			}
+			LoadAssemblyClasses();
+			ScriptGlue::RegisterComponents();
+
+			s_Data->EntityClass = ScriptClass("Rynex", "Entity", true);
+
+			if (scene != nullptr)
+				ScriptingEngine::OnRuntimeStart(scene);
 		
-		//mono_domain_free(s_Data->AppDomain, true);
-		mono_domain_unload(s_Data->AppDomain);
-
-		LoadAssambly(s_Data->CoreAssemblyFilepath);
-		LoadAppAssambly(s_Data->AppAssemblyFilepath);
-		LoadAssemblyClasses();
-		ScriptGlue::RegisterComponents();
-
-		s_Data->EntityClass = ScriptClass("Rynex", "Entity", true);
+		}
+		catch (const std::exception_ptr e)
+		{
+			RY_CORE_ERROR("This Exaption was an std::exception_ptr, mabey the ptr is duing the Reloding Deleat, if you wan't Reloding C# Scripts, do it maby if Runtime is off");
+			RY_CORE_ASSERT(false);
+		}
+		catch (const std::exception e)
+		{
+			RY_CORE_ERROR("Error On Realonding Scripts, Maby because off Aktive Runtime and multy threading Scene* Ptr delete! Exaption {}", e.what());
+			RY_CORE_ASSERT(false);
+		}
 		
 	}
 
@@ -315,12 +385,13 @@ namespace Rynex {
 		return s_Data->EntityClasses.find(fullClassName) != s_Data->EntityClasses.end();
 	}
 
-	void ScriptingEngine::OnCreatEntity(Entity entity)
+	bool ScriptingEngine::OnCreatEntity(Entity entity)
 	{
 		const auto& sc = entity.GetComponent<ScriptComponent>();
-		if (ScriptingEngine::ClassExists(sc.Name))
+		UUID entityID = entity.GetUUID();
+		if (ScriptingEngine::ClassExists(sc.Name)&& s_Data->EntityInstances.find(entityID) == s_Data->EntityInstances.end())
 		{
-			UUID entityID = entity.GetUUID();
+			
 
 			auto& clases = s_Data->EntityClasses; 
 			Ref<ScriptInstance> instance = CreateRef<ScriptInstance>(s_Data->EntityClasses[sc.Name], entity);
@@ -328,23 +399,34 @@ namespace Rynex {
 			s_Data->EntityInstances[entityID] = instance;
 			
 			instance->InvokeCreate();
+			RY_CORE_INFO("Entity Sucesfull Add!");
+			return true;
 		}
+		else
+		{
+			RY_CORE_WARN("Try to init a Script but faild!");
+			return sc.Name == "None";
+		}
+	
 	}
 
-	void ScriptingEngine::OnUpdateEntity(Entity entity, float ts)
+	bool ScriptingEngine::OnUpdateEntity(Entity entity, float ts)
 	{
 		UUID entityID = entity.GetUUID();
 		
-		RY_CORE_ASSERT(s_Data->EntityInstances.find(entityID) != s_Data->EntityInstances.end(), "Error: OnUpdateEntity()");
+
 
 		if (s_Data->EntityInstances.find(entityID) != s_Data->EntityInstances.end())
 		{
 			Ref<ScriptInstance> instance = s_Data->EntityInstances[entityID];
 			instance->InvokeOnUpdate(ts);
+			return true;
 		}
 		else
 		{
-			RY_CORE_ERROR("Could not find ScriptInstance for entity {0}", (int)entityID);
+			ScriptingEngine::OnCreatEntity(entity);
+			
+			return false;
 		}
 	}
 
@@ -368,7 +450,7 @@ namespace Rynex {
 	{
 		UUID entityID = entity.GetUUID();
 
-		RY_CORE_ASSERT(s_Data->EntityInstances.find(entityID) != s_Data->EntityInstances.end(), "Error: OnUpdateEntity()");
+		
 
 		if (s_Data->EntityInstances.find(entityID) != s_Data->EntityInstances.end())
 		{
@@ -419,7 +501,9 @@ namespace Rynex {
 		s_Data->RootDomain = rootDomain;
 
 		if (s_Data->EnableDebugging)
+		{
 			mono_debug_domain_create(s_Data->RootDomain);
+		}
 
 		mono_thread_set_main(mono_thread_current());
 	}
@@ -611,6 +695,7 @@ namespace Rynex {
 		if (m_OnDrawMethod)
 			m_ScriptClass->InvokeMethode(m_OnDrawMethod, m_Instance);
 	}
+
 	void ScriptInstance::InvokeOnDestroy()
 	{
 		if (m_OnDestroyMethod)

@@ -16,8 +16,8 @@ namespace Rynex
 
 
         RED_INTEGER,
-        DEPTH24STENCIL8,
-        Depth = DEPTH24STENCIL8,
+        Depth24Stencil8,
+        Depth = Depth24Stencil8,
     };
 
     public enum TextureTarget
@@ -187,8 +187,8 @@ namespace Rynex
         }
         public static Texture GetAsset(ulong handle)
         {
-            InternalCalls.AssetManger_GetAsset_Handle(handle, AssetType.Texture);
-            return new Texture(handle);
+            InternalCalls.AssetManger_GetAsset_Handle(handle, AssetType.Texture, out ulong outHandle);
+            return new Texture(outHandle);
         }
 
         public TextureSpecification GetSpecification()

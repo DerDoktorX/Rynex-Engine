@@ -16,6 +16,7 @@
 
 #define USE_HASCOMPONET_FUNC_CS 1
 
+#define ENABLE_MATERIL_COMPONET 0 // TODO: ReWhrite Materil CS API
 
 namespace Rynex {
 
@@ -177,57 +178,51 @@ namespace Rynex {
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
 		RY_CORE_ASSERT(entity.HasComponent<TransformComponent>());
-		*outTranslation = entity.GetComponent<TransformComponent>().Transaltion;
+		TransformComponent& trasformC = entity.GetComponent<TransformComponent>();
+		*outTranslation = trasformC.Transaltion;
+		
 	}
 
 	static void TransformComponent_SetTranslation(UUID entityID, glm::vec3* inTranslation)
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
 		RY_CORE_ASSERT(entity.HasComponent<TransformComponent>());
-		entity.GetComponent<TransformComponent>().Transaltion = *inTranslation;
+		TransformComponent& trasformC = entity.GetComponent<TransformComponent>();
+		trasformC.Transaltion = *inTranslation;
 	}
 
 	static void TransformComponent_GetRotation(UUID entityID, glm::vec3* outTranslation)
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
 		RY_CORE_ASSERT(entity.HasComponent<TransformComponent>());
-		*outTranslation = entity.GetComponent<TransformComponent>().Rotation;
+		TransformComponent& trasformC = entity.GetComponent<TransformComponent>();
+		*outTranslation = trasformC.Rotation;
 	}
 
 	static void TransformComponent_SetRotation(UUID entityID, glm::vec3* inTranslation)
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
 		RY_CORE_ASSERT(entity.HasComponent<TransformComponent>());
-		entity.GetComponent<TransformComponent>().Rotation = *inTranslation;
+		TransformComponent& trasformC = entity.GetComponent<TransformComponent>();
+		trasformC.Rotation = *inTranslation;
 	}
 
 	static void TransformComponent_GetScale(UUID entityID, glm::vec3* outTranslation)
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
 		RY_CORE_ASSERT(entity.HasComponent<TransformComponent>());
-		*outTranslation = entity.GetComponent<TransformComponent>().Scale;
+		TransformComponent& trasformC = entity.GetComponent<TransformComponent>();
+		*outTranslation = trasformC.Scale;
 	}
 
 	static void TransformComponent_SetScale(UUID entityID, glm::vec3* inTranslation)
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
 		RY_CORE_ASSERT(entity.HasComponent<TransformComponent>());
-		entity.GetComponent<TransformComponent>().Scale = *inTranslation;
+		TransformComponent& trasformC = entity.GetComponent<TransformComponent>();
+		trasformC.Scale = *inTranslation;
 	}
 
-	static void TransformComponent_GetChange(UUID entityID, bool* outTranslation)
-	{
-		Entity entity = Utils::GetFromSceneEntity(entityID);
-		RY_CORE_ASSERT(entity.HasComponent<TransformComponent>());
-		*outTranslation = entity.GetComponent<TransformComponent>().Change;
-	}
-
-	static void TransformComponent_SetChange(UUID entityID, bool* inTranslation)
-	{
-		Entity entity = Utils::GetFromSceneEntity(entityID);
-		RY_CORE_ASSERT(entity.HasComponent<TransformComponent>());
-		entity.GetComponent<TransformComponent>().Change = *inTranslation;
-	}
 
 #pragma endregion
 
@@ -416,7 +411,13 @@ namespace Rynex {
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
 		RY_CORE_ASSERT(entity.HasComponent<SpriteRendererComponent>());
-		*handle = entity.GetComponent<SpriteRendererComponent>().Texture->Handle;
+#if RY_DISABLE_WEAK_PTR
+		if (Ref<Texture> tex = entity.GetComponent<SpriteRendererComponent>().Texture)
+			*handle = tex->Handle;
+#else
+		if(Ref<Texture> tex = entity.GetComponent<SpriteRendererComponent>().Texture.lock())
+			*handle = tex->Handle;
+#endif
 	}
 
 #pragma endregion
@@ -451,6 +452,153 @@ namespace Rynex {
 		*fixedAspectRotaion = entity.GetComponent<CameraComponent>().FixedAspectRotaion;
 	}
 
+#pragma region SceneCamer
+
+	static void CameraComponent_Camera_SetViewPortSize(UUID entityID, uint32_t withe, uint32_t heigth)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		entity.GetComponent<CameraComponent>().Camera.SetViewPortSize(withe, heigth);
+	}
+
+	static void CameraComponent_Camera_SetOrthoGrafic(UUID entityID, float sizen, float nearClip, float farClip)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		entity.GetComponent<CameraComponent>().Camera.SetOrthoGrafic(sizen, nearClip, farClip);
+	}
+
+	static void CameraComponent_Camera_SetPerspectiv(UUID entityID, float verticleFow, float nearClip, float farClip)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		entity.GetComponent<CameraComponent>().Camera.SetOrthoGrafic(verticleFow, nearClip, farClip);
+	}
+
+	static void CameraComponent_Camera_SetOrthograficSize(UUID entityID, float size)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		entity.GetComponent<CameraComponent>().Camera.SetOrthograficSize(size);
+	}
+
+	static void CameraComponent_Camera_SetOrthograficNearClipe(UUID entityID, float size)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		entity.GetComponent<CameraComponent>().Camera.SetOrthograficNearClipe(size);
+	}
+
+	static void CameraComponent_Camera_SetOrthograficFarClipe(UUID entityID, float size)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		entity.GetComponent<CameraComponent>().Camera.SetOrthograficFarClipe(size);
+	}
+
+
+	static float CameraComponent_Camera_GetOrthographicSize(UUID entityID)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		return entity.GetComponent<CameraComponent>().Camera.GetOrthographicSize();
+	}
+
+	static float CameraComponent_Camera_GetOrthographicNearClipe(UUID entityID)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		return entity.GetComponent<CameraComponent>().Camera.GetOrthographicNearClipe();
+	}
+
+	static float CameraComponent_Camera_GetOrthographicFarClipe(UUID entityID)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		return entity.GetComponent<CameraComponent>().Camera.GetOrthographicFarClipe();
+	}
+
+
+	static void CameraComponent_Camera_SetPerspectivVerticleFOV(UUID entityID, float verticleVow)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		entity.GetComponent<CameraComponent>().Camera.SetPerspectivVerticleFOV(verticleVow);
+	}
+
+	static void CameraComponent_Camera_SetPerspectivNearClipe(UUID entityID, float nearClip)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		entity.GetComponent<CameraComponent>().Camera.SetPerspectivNearClipe(nearClip);
+	}
+
+	static void CameraComponent_SetPerspectivFarClipe(UUID entityID, float farClipe)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		entity.GetComponent<CameraComponent>().Camera.SetPerspectivFarClipe(farClipe);
+	}
+
+
+	static float CameraComponent_Camera_GetPerspectivVerticleFOV(UUID entityID)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		return entity.GetComponent<CameraComponent>().Camera.GetPerspectivVerticleFOV();
+	}
+
+	static float CameraComponent_Camera_GetPerspectivNearClipe(UUID entityID)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		return entity.GetComponent<CameraComponent>().Camera.GetPerspectivNearClipe();
+	}
+
+	static float CameraComponent_Camera_GetPerspectivFarClipe(UUID entityID)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		return entity.GetComponent<CameraComponent>().Camera.GetPerspectivFarClipe();
+	}
+
+
+	static SceneCamera::ProjectionType CameraComponent_Camera_GetProjectionType(UUID entityID)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		return entity.GetComponent<CameraComponent>().Camera.GetProjectionType();
+	}
+
+	static void CameraComponent_Camera_SetProjectionType(UUID entityID, SceneCamera::ProjectionType type)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		entity.GetComponent<CameraComponent>().Camera.SetProjectionType(type);
+	}
+
+#pragma endregion
+
+#pragma region Camera
+
+	static glm::mat4 CameraComponent_Camera_GetProjektion(UUID entityID)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		return entity.GetComponent<CameraComponent>().Camera.GetProjektion();
+	}
+
+#if 0
+	static void CameraComponent_Camera_GetProjektion(UUID entityID, glm::mat4* matrix)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
+		entity.GetComponent<CameraComponent>().Camera = Camera(*matrix);
+	}
+#endif // TODO: Decide if we expose that
+
+#pragma endregion
+
 #pragma endregion
 
 #pragma region ScriptComponent
@@ -477,19 +625,19 @@ namespace Rynex {
 #pragma endregion
 
 #pragma region MaterialComponent
-
+#if ENABLE_MATERIL_COMPONET
 	static void MaterialComponent_SetShader(UUID entityID, AssetHandle* handle)
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
 		RY_CORE_ASSERT(entity.HasComponent<MaterialComponent>());
-		entity.GetComponent<MaterialComponent>().Shader = AssetManager::GetAsset<Shader>(*handle);
+		entity.GetComponent<MaterialComponent>().Materiel->SetShader(AssetManager::GetAsset<Shader>(*handle));
 	}
 
 	static void MaterialComponent_GetShader(UUID entityID, AssetHandle* handle)
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
 		RY_CORE_ASSERT(entity.HasComponent<MaterialComponent>());
-		*handle = entity.GetComponent<MaterialComponent>().Shader->Handle;
+		*handle = entity.GetComponent<MaterialComponent>().Materiel->GetShader()->Handle;
 	}
 	
 	static void MaterialComponent_SetColor(UUID entityID, glm::vec3* color)
@@ -505,7 +653,7 @@ namespace Rynex {
 		RY_CORE_ASSERT(entity.HasComponent<MaterialComponent>());
 		*color = entity.GetComponent<MaterialComponent>().Color;
 	}
-
+#endif
 #pragma endregion
 
 #pragma region Matrix4x4Component
@@ -517,11 +665,11 @@ namespace Rynex {
 		entity.GetComponent<Matrix4x4Component>().Matrix4x4 = *matrix;
 	}
 
-	static void Matrix4x4Component_GetMatrix4x4(UUID entityID, glm::mat4* matrix)
+	static glm::mat4 Matrix4x4Component_GetMatrix4x4(UUID entityID)
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
 		RY_CORE_ASSERT(entity.HasComponent<Matrix4x4Component>());
-		*matrix = entity.GetComponent<Matrix4x4Component>().Matrix4x4;
+		return entity.GetComponent<Matrix4x4Component>().Matrix4x4;
 	}
 
 	static void Matrix4x4Component_SetGlobleMatrix4x4(UUID entityID, glm::mat4* matrix)
@@ -531,11 +679,11 @@ namespace Rynex {
 		entity.GetComponent<Matrix4x4Component>().GlobleMatrix4x4 = *matrix;
 	}
 
-	static void Matrix4x4Component_GetGlobleMatrix4x4(UUID entityID, glm::mat4* matrix)
+	static glm::mat4 Matrix4x4Component_GetGlobleMatrix4x4(UUID entityID)
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
 		RY_CORE_ASSERT(entity.HasComponent<Matrix4x4Component>());
-		*matrix = entity.GetComponent<Matrix4x4Component>().GlobleMatrix4x4;
+		return entity.GetComponent<Matrix4x4Component>().GlobleMatrix4x4;
 	}
 
 #pragma endregion
@@ -560,21 +708,126 @@ namespace Rynex {
 
 #pragma region MeshComponent
 
-	static void MeshComponent_SetModelR(UUID entityID, AssetHandle* handle)
+	static void MeshComponent_SetModelR(UUID entityID, AssetHandle handle)
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
-		RY_CORE_ASSERT(entity.HasComponent<FrameBufferComponent>());
-		entity.GetComponent<MeshComponent>().ModelR = AssetManager::GetAsset<Model>(*handle);
+		RY_CORE_ASSERT(entity.HasComponent<MeshComponent>());
+		entity.GetComponent<MeshComponent>().ModelR = AssetManager::GetAsset<Model>(handle);
 	}
 
 	static void MeshComponent_GetModelR(UUID entityID, AssetHandle* handle)
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
-		RY_CORE_ASSERT(entity.HasComponent<FrameBufferComponent>());
+		RY_CORE_ASSERT(entity.HasComponent<MeshComponent>());
 		*handle = entity.GetComponent<MeshComponent>().ModelR->Handle;
 	}
 
+	static void MeshComponent_SetMeshMode(UUID entityID, MeshMode meshMode)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<MeshComponent>());
+		MeshComponent& mesh = entity.GetComponent<MeshComponent>();
+		if (mesh.MeshModeE != meshMode && mesh.ModelR)
+		{
+			if (mesh.MeshModeE == MeshMode::Dynamic)
+			{
+				entity.DestroyEntityChildrens();
+
+			}
+
+			switch (meshMode)
+			{
+				case MeshMode::None:
+			{
+				if (entity.HasComponent<StaticMeshComponent>())
+					entity.RemoveComponent<StaticMeshComponent>();
+				break;
+			}
+				case MeshMode::Statitic:
+			{
+				if (!entity.HasComponent<StaticMeshComponent>())
+					entity.AddComponent<StaticMeshComponent>();
+				StaticMeshComponent& staticMesh = entity.GetComponent<StaticMeshComponent>();
+				staticMesh.ModelR = mesh.ModelR;
+				Matrix4x4Component& parentMat4C = entity.GetComponent<Matrix4x4Component>();
+
+				auto& modelData = mesh.ModelR->GetRootDatas();
+				staticMesh.LocaleMeshMatrix.reserve(modelData.size());
+
+				for (auto& meshData : modelData)
+				{
+					staticMesh.LocaleMeshMatrix.emplace_back(meshData.NodeMatrix);
+					staticMesh.GlobleMeshMatrix.emplace_back(parentMat4C.GlobleMatrix4x4 * meshData.NodeMatrix);
+				}
+
+				break;
+			}
+				case MeshMode::Dynamic:
+				{
+					if (!entity.HasComponent<Matrix4x4Component>())
+						entity.AddComponent<Matrix4x4Component>();
+					Matrix4x4Component& parentMat4C = entity.GetComponent<Matrix4x4Component>();
+
+					if (!entity.HasComponent<RealtionShipComponent>())
+						entity.AddComponent<RealtionShipComponent>();
+					if (!entity.HasComponent<MaterialComponent>())
+						entity.AddComponent<MaterialComponent>();
+					MaterialComponent& materialCParent = entity.GetComponent<MaterialComponent>();
+
+					std::vector<MeshRootData> rootDatas = mesh.ModelR->GetRootDatas();
+					std::vector<Ref<Mesh>> meshes = mesh.ModelR->GetMeshes();
+					uint32_t size = rootDatas.size() == meshes.size() ? meshes.size() : 0;
+					for (uint32_t i = 0; i < size; i++)
+					{
+						MeshRootData& rootData = rootDatas[i];
+						Ref<Mesh>& mesh = meshes[i];
+						Entity childeEntity = entity.AddChildrenEntity(rootData.NodeName);
+
+						childeEntity.AddComponent<DynamicMeshComponent>();
+						childeEntity.AddComponent<MaterialComponent>();
+
+						if (!childeEntity.HasComponent<Matrix4x4Component>())
+							childeEntity.AddComponent<Matrix4x4Component>();
+						Matrix4x4Component& childMat4C = childeEntity.GetComponent<Matrix4x4Component>();
+						childMat4C.Matrix4x4 = rootData.NodeMatrix;
+						childMat4C.GlobleMatrix4x4 = parentMat4C.Matrix4x4 * rootData.NodeMatrix;
+
+						if (!childeEntity.HasComponent<TransformComponent>())
+							childeEntity.AddComponent<TransformComponent>();
+						TransformComponent& transformC = childeEntity.GetComponent<TransformComponent>();
+						transformC.SetTransform(childMat4C.Matrix4x4);
+
+						if (!childeEntity.HasComponent<DynamicMeshComponent>())
+							childeEntity.AddComponent<DynamicMeshComponent>();
+						DynamicMeshComponent& dynamicMeshC = childeEntity.GetComponent<DynamicMeshComponent>();
+						dynamicMeshC.MeshR = mesh;
+
+						if (!childeEntity.HasComponent<MaterialComponent>())
+							childeEntity.AddComponent<MaterialComponent>();
+
+
+					}
+					break;
+				}
+				default:
+				{
+					RY_CORE_ASSERT(false);
+					break;
+				}
+			}
+		}
+		mesh.MeshModeE = meshMode;
+	}
+
+	static MeshMode MeshComponent_GetMeshMode(UUID entityID)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<MeshComponent>());
+		return entity.GetComponent<MeshComponent>().MeshModeE;
+	}
+
 #pragma endregion
+
 
 #pragma region AmbientLigthComponent
 
@@ -592,7 +845,7 @@ namespace Rynex {
 		*color = entity.GetComponent<AmbientLigthComponent>().Color;
 	}
 
-	static void AmbientLigthComponent_SeIntensitie(UUID entityID, float* intensitie)
+	static void AmbientLigthComponent_SetIntensitie(UUID entityID, float* intensitie)
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
 		RY_CORE_ASSERT(entity.HasComponent<AmbientLigthComponent>());
@@ -747,14 +1000,83 @@ namespace Rynex {
 
 #pragma endregion
 
+#pragma region TextComponent
+
+	static void TextComponent_SetString(UUID entityID, MonoString* textM)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<TextComponent>());
+		TextComponent& tecxtC = entity.GetComponent<TextComponent>();
+		std::string name = Utils::MonoStringToString(textM);
+		tecxtC.TextString = name;
+
+	}
+
+	static void TextComponent_GetString(UUID entityID, MonoString* textM)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<TextComponent>());
+		TextComponent& tecxtC = entity.GetComponent<TextComponent>();
+		textM = mono_string_new_wrapper(tecxtC.TextString.c_str());
+	}
+
+	static void TextComponent_SetColor(UUID entityID, glm::vec4* color)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<TextComponent>());
+		TextComponent& tecxtC = entity.GetComponent<TextComponent>();
+		tecxtC.Color = *color;
+	}
+
+	static void TextComponent_GetColor(UUID entityID, glm::vec4* color)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<TextComponent>());
+		TextComponent& tecxtC = entity.GetComponent<TextComponent>();
+		*color = tecxtC.Color;
+	}
+
+	static void TextComponent_SetLineSpacing(UUID entityID, float lineSpacing)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<TextComponent>());
+		TextComponent& tecxtC = entity.GetComponent<TextComponent>();
+		tecxtC.LineSpacing = lineSpacing;
+	}
+
+	static void TextComponent_GetLineSpacing(UUID entityID, float* lineSpacing)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<TextComponent>());
+		TextComponent& tecxtC = entity.GetComponent<TextComponent>();
+		*lineSpacing = tecxtC.LineSpacing;
+	}
+		
+	static void TextComponent_SetKerning(UUID entityID, float kerning)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<TextComponent>());
+		TextComponent& tecxtC = entity.GetComponent<TextComponent>();
+		tecxtC.Kerning = kerning;
+	}
+
+	static void TextComponent_GetKerning(UUID entityID, float* kerning)
+	{
+		Entity entity = Utils::GetFromSceneEntity(entityID);
+		RY_CORE_ASSERT(entity.HasComponent<TextComponent>());
+		TextComponent& tecxtC = entity.GetComponent<TextComponent>();
+		*kerning = tecxtC.Kerning;
+	}
+
 #pragma endregion
 
+#pragma endregion
 
 
 #pragma region ScriptClassAPI
 
 #pragma region TextureClass
-
+#if 0
 	static void Texture_Create_Withe_Heigth(AssetHandle* handle, uint32_t withe, uint32_t height)
 	{
 		Ref<Texture> texture = Texture::Create(withe, height);
@@ -763,6 +1085,7 @@ namespace Rynex {
 		RY_CORE_ASSERT(AssetManager::GetAsset<Texture>(texture->Handle) == texture, "Texture_Create_Spec Created Texture is not the same like in the Regestry!");
 		RY_CORE_INFO("Texture Create form C# id = {0}", (uint32_t)*handle);
 	}
+#endif
 
 	static void Texture_Create_Spec_Data_ByteSize(AssetHandle* handle, TextureSpecification* spec, void* data, uint32_t size)
 	{
@@ -1243,16 +1566,26 @@ namespace Rynex {
 		return entity;
 	}
 
+	static void Scene_SetBackGround(glm::vec4* backGround)
+	{
+		Scene* scene = ScriptingEngine::GetSceneContext();
+		scene->SetBackgroundColor(*backGround);
+	}
+
 #pragma endregion
 
 #pragma region FramebufferClass
 
-	static void Framebuffer_Create_Spec(AssetHandle* handle, FramebufferTextureSpecification* attachments, uint32_t size, uint32_t width, uint32_t height, uint32_t samples, bool swapChainTarget)
+	static void Framebuffer_Create_Spec(AssetHandle* handle, FramebufferTextureSpecification* attachments, uint32_t size, uint32_t width, uint32_t height, bool swapChainTarget)
 	{
 		std::vector<FramebufferTextureSpecification> fBspec(size);
-		FramebufferTextureSpecification* fBspecData = fBspec.data();
-		*fBspecData = *attachments;
-		Ref<Framebuffer> framebuffer = Framebuffer::Create({ fBspec, width, height, swapChainTarget });
+		std::memcpy(attachments, fBspec.data(), size * sizeof(FramebufferTextureSpecification));
+		FramebufferSpecification spec;
+		spec.Attachments.Attachments = fBspec;
+		spec.SwapChainTarget = swapChainTarget;
+		spec.Width = width;
+		spec.Height = height;
+		Ref<Framebuffer> framebuffer = Framebuffer::Create(spec);
 		framebuffer->Handle = AssetHandle();
 		framebuffer->Handle = *handle = AssetManager::CreatLocaleAsset<Framebuffer>(framebuffer);
 		RY_CORE_ASSERT(AssetManager::GetAsset<Framebuffer>(framebuffer->Handle) == framebuffer, "Framebuffer_Create_Spec Created Framebuffer is not the same like in the Regestry!");
@@ -1265,7 +1598,7 @@ namespace Rynex {
 		RY_CORE_ASSERT(!AssetManager::GetAsset<Framebuffer>(handle), "Texture_Destroy Texture is there, it shoud by Destroyt!");
 	}
 
-	static void Framebuffer_GetFramebufferSpecification(AssetHandle handle, uint32_t* size, uint32_t* width, uint32_t* height, uint32_t* samples, bool* swapChainTarget)
+	static void Framebuffer_GetFramebufferSpecification(AssetHandle handle, uint32_t* size, uint32_t* width, uint32_t* height,  bool* swapChainTarget)
 	{
 		Ref<Framebuffer> frambuffer = AssetManager::GetAsset<Framebuffer>(handle);
 		RY_CORE_ASSERT(frambuffer, "Framebuffer is nullptr!");
@@ -1273,7 +1606,7 @@ namespace Rynex {
 		*size = spec.Attachments.Attachments.size();
 		*width = spec.Width;
 		*height = spec.Height;
-		*samples = spec.Samples;
+		
 		*swapChainTarget = spec.SwapChainTarget;
 	}
 
@@ -1314,7 +1647,7 @@ namespace Rynex {
 
 	static void AssetManger_GetAsset_Path(MonoString* pathM, AssetType type, AssetHandle* handle)
 	{
-		char* path = mono_string_to_utf8(pathM);
+		std::string path = Utils::MonoStringToString(pathM);
 		switch (type)
 		{
 		case AssetType::None:
@@ -1386,58 +1719,68 @@ namespace Rynex {
 			break;
 		}
 		default:
+			RY_CORE_ASSERT(false);
 			break;
 		}
-		mono_free(path);
+		RY_CORE_ASSERT(*handle != 0);
 	}
 
-	static void AssetManger_GetAsset_Handle(AssetHandle handle, AssetType type)
+	static void AssetManger_GetAsset_Handle(AssetHandle handle, AssetType type, AssetHandle* outhandle)
 	{
 		switch (type)
 		{
 		case AssetType::None:
 		{
+			*outhandle = AssetHandle(0);
 			break;
 		}
 		case  AssetType::Scene:
 		{
 			Ref<Scene> asset = AssetManager::GetAsset<Scene>(handle);
+			*outhandle = asset->Handle;
 			break;
 		}
 		case  AssetType::Shader:
 		{
 			Ref<Shader> asset = AssetManager::GetAsset<Shader>(handle);
+			*outhandle = asset->Handle;
 			break;
 		}
 		case  AssetType::Texture:
 		{
 			Ref<Texture> asset = AssetManager::GetAsset<Texture>(handle);
+			*outhandle = asset->Handle;
 			break;
-	}
+		}
 		case  AssetType::Framebuffer:
 		{
 			Ref<Framebuffer> asset = AssetManager::GetAsset<Framebuffer>(handle);
+			*outhandle = asset->Handle;
 			break;
 		}
 		case  AssetType::VertexBuffer:
 		{
 			Ref<VertexBuffer> asset = AssetManager::GetAsset<VertexBuffer>(handle);
+			*outhandle = asset->Handle;
 			break;
 		}
 		case  AssetType::IndexBuffer:
 		{
 			Ref<IndexBuffer> asset = AssetManager::GetAsset<IndexBuffer>(handle);
+			*outhandle = asset->Handle;
 			break;
 		}
 		case AssetType::StorageBuffer:
 		{
 			RY_CORE_WARN("StorageBuffer is not many times teste or used befor!");
 			Ref<StorageBuffer> asset = AssetManager::GetAsset<StorageBuffer>(handle);
+			*outhandle = asset->Handle;
 			break;
 		}
 		case  AssetType::VertexArray:
 		{
 			Ref<VertexArray> asset = AssetManager::GetAsset<VertexArray>(handle);
+			*outhandle = asset->Handle;
 			break;
 		}
 #if 0
@@ -1451,15 +1794,39 @@ namespace Rynex {
 		case AssetType::Model:
 		{
 			Ref<Model> asset = AssetManager::GetAsset<Model>(handle);
+			*outhandle = asset->Handle;
 			break;
 		}
 		default:
-			RY_CORE_ASSERT(false, ("Not Defined or seported Asset type '{0}'", (int)type));
+			RY_CORE_ASSERT(false);
 			break;
 		}
+		RY_CORE_ASSERT(*outhandle != 0);
+
 	}
 
 #pragma endregion
+
+#pragma region ModelClass
+
+	static void Model_Create(AssetHandle* handle, TextureSpecification* spec)
+	{
+
+		Ref<Texture> texture = Texture::Create(*spec);
+		texture->Handle = AssetHandle();
+		texture->Handle = *handle = AssetManager::CreatLocaleAsset<Texture>(texture);
+		RY_CORE_ASSERT(AssetManager::GetAsset<Texture>(texture->Handle) == texture, "Texture_Create_Spec Created Texture is not the same like in the Regestry!");
+		RY_CORE_INFO("Texture Create form C# id = {0}", (uint32_t)*handle);
+	}
+
+	static void Model_Destroy(AssetHandle handle)
+	{
+		AssetManager::DeleteLocaleAsset(handle);
+		RY_CORE_ASSERT(!AssetManager::GetAsset<Texture>(handle), "Texture_Destroy Texture is there, it shoud by Destroyt!");
+	}
+
+#pragma endregion
+
 
 
 #pragma region Event
@@ -1469,7 +1836,43 @@ namespace Rynex {
 		return Input::IsKeyPressed(keycode);
 	}
 
+	static bool Input_IsMouseOnViewPort()
+	{
+		Scene* scene = ScriptingEngine::GetSceneContext();
+		return scene->IsViewPortHovered();
+	}
+
+	static bool Input_IsWindowResize()
+	{
+		Scene* scene = ScriptingEngine::GetSceneContext();
+		return scene->IsWindowResize();
+	}
+
+	static UUID Input_GetEntityID_From_MainScreen(uint32_t x, uint32_t y)
+	{
+		Scene* scene = ScriptingEngine::GetSceneContext();
+		return scene->IsWindowResize();
+	}
+
 #pragma endregion
+
+
+#pragma region AplicationClass
+
+	static glm::vec2 Application_GetWindowSize()
+	{
+		Scene* scene = ScriptingEngine::GetSceneContext();
+		return scene->GetViewPortSize();
+	}
+
+	static glm::vec2 Application_GetMousePixelPosition()
+	{
+		Scene* scene = ScriptingEngine::GetSceneContext();
+		return scene->GetMousPixelPos();
+	}
+
+#pragma endregion
+
 
 #pragma endregion	
 
@@ -1551,7 +1954,6 @@ namespace Rynex {
 #pragma endregion
 
 
-
 #pragma region TransformComponent
 
 		RY_ADD_INTERNAL_CALL(TransformComponent_GetTranslation);
@@ -1560,8 +1962,7 @@ namespace Rynex {
 		RY_ADD_INTERNAL_CALL(TransformComponent_SetRotation);
 		RY_ADD_INTERNAL_CALL(TransformComponent_GetScale);
 		RY_ADD_INTERNAL_CALL(TransformComponent_SetScale);
-		RY_ADD_INTERNAL_CALL(TransformComponent_GetChange);
-		RY_ADD_INTERNAL_CALL(TransformComponent_SetChange);
+
 
 #pragma endregion
 
@@ -1601,6 +2002,32 @@ namespace Rynex {
 		RY_ADD_INTERNAL_CALL(CameraComponent_SetFixedAspectRotaion);
 		RY_ADD_INTERNAL_CALL(CameraComponent_GetFixedAspectRotaion);
 
+#pragma region SceneCamer
+
+		RY_ADD_INTERNAL_CALL(CameraComponent_Camera_SetViewPortSize);
+		RY_ADD_INTERNAL_CALL(CameraComponent_Camera_SetOrthoGrafic);
+		RY_ADD_INTERNAL_CALL(CameraComponent_Camera_SetPerspectiv);
+		RY_ADD_INTERNAL_CALL(CameraComponent_Camera_SetOrthograficSize);
+		RY_ADD_INTERNAL_CALL(CameraComponent_Camera_SetOrthograficNearClipe);
+		RY_ADD_INTERNAL_CALL(CameraComponent_Camera_SetOrthograficFarClipe);
+
+		RY_ADD_INTERNAL_CALL(CameraComponent_Camera_GetOrthographicSize);
+		RY_ADD_INTERNAL_CALL(CameraComponent_Camera_GetOrthographicNearClipe);
+		RY_ADD_INTERNAL_CALL(CameraComponent_Camera_GetOrthographicNearClipe);
+
+		RY_ADD_INTERNAL_CALL(CameraComponent_Camera_SetPerspectivVerticleFOV);
+		RY_ADD_INTERNAL_CALL(CameraComponent_Camera_SetPerspectivNearClipe);
+		RY_ADD_INTERNAL_CALL(CameraComponent_Camera_GetPerspectivFarClipe);
+
+		RY_ADD_INTERNAL_CALL(CameraComponent_Camera_GetPerspectivVerticleFOV);
+		RY_ADD_INTERNAL_CALL(CameraComponent_Camera_GetPerspectivNearClipe);
+		RY_ADD_INTERNAL_CALL(CameraComponent_Camera_GetPerspectivFarClipe);
+
+		RY_ADD_INTERNAL_CALL(CameraComponent_Camera_GetProjectionType);
+		RY_ADD_INTERNAL_CALL(CameraComponent_Camera_SetProjectionType);
+
+#pragma endregion
+
 #pragma endregion
 
 #pragma region ScriptComponent
@@ -1611,12 +2038,12 @@ namespace Rynex {
 #pragma endregion
 
 #pragma region MaterialComponent
-
+#if ENABLE_MATERIL_COMPONET
 		RY_ADD_INTERNAL_CALL(MaterialComponent_SetColor);
 		RY_ADD_INTERNAL_CALL(MaterialComponent_GetColor);
 		RY_ADD_INTERNAL_CALL(MaterialComponent_SetShader);
 		RY_ADD_INTERNAL_CALL(MaterialComponent_GetShader);
-
+#endif
 #pragma endregion
 
 #pragma region Matrix4x4Component
@@ -1639,6 +2066,8 @@ namespace Rynex {
 
 		RY_ADD_INTERNAL_CALL(MeshComponent_SetModelR);
 		RY_ADD_INTERNAL_CALL(MeshComponent_GetModelR);
+		RY_ADD_INTERNAL_CALL(MeshComponent_SetMeshMode);
+		RY_ADD_INTERNAL_CALL(MeshComponent_GetModelR);
 
 #pragma endregion
 
@@ -1646,7 +2075,7 @@ namespace Rynex {
 
 		RY_ADD_INTERNAL_CALL(AmbientLigthComponent_SetColor);
 		RY_ADD_INTERNAL_CALL(AmbientLigthComponent_GetColor);
-		RY_ADD_INTERNAL_CALL(AmbientLigthComponent_SeIntensitie);
+		RY_ADD_INTERNAL_CALL(AmbientLigthComponent_SetIntensitie);
 		RY_ADD_INTERNAL_CALL(AmbientLigthComponent_GeIntensitie);
 
 #pragma endregion
@@ -1685,9 +2114,23 @@ namespace Rynex {
 
 #pragma endregion
 
+#pragma region TextComponent
+
+		RY_ADD_INTERNAL_CALL(TextComponent_SetString);
+		RY_ADD_INTERNAL_CALL(TextComponent_GetString);
+		RY_ADD_INTERNAL_CALL(TextComponent_SetColor);
+		RY_ADD_INTERNAL_CALL(TextComponent_GetColor);
+		RY_ADD_INTERNAL_CALL(TextComponent_SetKerning);
+		RY_ADD_INTERNAL_CALL(TextComponent_GetKerning);
+		RY_ADD_INTERNAL_CALL(TextComponent_SetLineSpacing);
+		RY_ADD_INTERNAL_CALL(TextComponent_GetLineSpacing);
+
+#pragma endregion
+
+
 #pragma region TextureClass
 
-		RY_ADD_INTERNAL_CALL(Texture_Create_Withe_Heigth);
+		// RY_ADD_INTERNAL_CALL(Texture_Create_Withe_Heigth);
 		RY_ADD_INTERNAL_CALL(Texture_Create_Spec);
 		RY_ADD_INTERNAL_CALL(Texture_Create_Spec_Data_ByteSize);
 		RY_ADD_INTERNAL_CALL(Texture_Destroy);
@@ -1784,10 +2227,19 @@ namespace Rynex {
 
 #pragma endregion
 
+#pragma region ApplicationClass
+
+		RY_ADD_INTERNAL_CALL(Application_GetMousePixelPosition);
+		RY_ADD_INTERNAL_CALL(Application_GetWindowSize);
+
+#pragma endregion
+
 
 #pragma region Event
 
 		RY_ADD_INTERNAL_CALL(Input_IsKeyDown);
+		RY_ADD_INTERNAL_CALL(Input_IsMouseOnViewPort);
+		RY_ADD_INTERNAL_CALL(Input_IsWindowResize);
 
 #pragma endregion
 

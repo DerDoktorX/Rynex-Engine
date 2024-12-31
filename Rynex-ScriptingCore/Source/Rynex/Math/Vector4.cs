@@ -23,8 +23,36 @@
         {
             return new Vector4(vector.X * scalar, vector.Y * scalar, vector.Z * scalar, vector.W * scalar);
         }
+        public static Vector4 operator /(Vector4 vector, float scalar)
+        {
+            return new Vector4(vector.X / scalar, vector.Y / scalar, vector.Z / scalar, vector.W / scalar);
+        }
+        public static Vector4 operator +(Vector4 vector, float scalar)
+        {
+            return new Vector4(vector.X + scalar, vector.Y + scalar, vector.Z + scalar, vector.W + scalar);
+        }
+        public static Vector4 operator -(Vector4 vector, float scalar)
+        {
+            return new Vector4(vector.X - scalar, vector.Y - scalar, vector.Z - scalar, vector.W - scalar);
+        }
 
 
+        public static Vector4 operator *(float scalar, Vector4 vector)
+        {
+            return new Vector4(scalar*vector.X , scalar*vector.Y , scalar*vector.Z  , scalar*vector.W);
+        }
+        public static Vector4 operator /(float scalar, Vector4 vector)
+        {
+            return new Vector4( scalar/vector.X,  scalar / vector.Y,  scalar/vector.Z, scalar /vector.W);
+        }
+        public static Vector4 operator +(float scalar, Vector4 vector)
+        {
+            return new Vector4(scalar+vector.X , scalar + vector.Y, scalar+vector.Z , scalar + vector.W);
+        }
+        public static Vector4 operator -(float scalar, Vector4 vector)
+        {
+            return new Vector4(scalar - vector.X, scalar - vector.Y, scalar - vector.Z, scalar - vector.W);
+        }
 
         // Vector4 <-> Vector4 operations
         // Set

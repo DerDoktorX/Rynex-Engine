@@ -93,7 +93,7 @@ namespace Rynex {
 			FramebufferTextureSpecification framSpec;
 			for (const auto& attachmentNode : attachmentsNode)
 			{
-				framSpec.TextureFormat = (FramebufferTextureFormat)attachmentNode["TextureFormat"].as<int>();
+				framSpec.TextureFormat = (TextureFormat)attachmentNode["TextureFormat"].as<int>();
 
 				auto textureWrappingNode = attachmentNode["TextureWrapping"];
 				framSpec.TextureWrapping.R = (TextureWrappingMode)textureWrappingNode["R"].as<int>();

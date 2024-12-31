@@ -1,5 +1,6 @@
 ﻿using System;
 
+
 namespace Rynex
 {
     public class Shader : Asset
@@ -40,6 +41,17 @@ namespace Rynex
         public void Destroy()
         {
             InternalCalls.Shader_Destroy(Handle.UUID);
+        }
+
+        public static Shader GetAsset(string path)
+        {
+            InternalCalls.AssetManger_GetAsset_Path(path, AssetType.Shader, out ulong handle);
+            return new Shader(handle);
+        }
+        public static Shader GetAsset(ulong handle)
+        {
+            InternalCalls.AssetManger_GetAsset_Handle(handle, AssetType.Shader, out ulong outHandle);
+            return new Shader(outHandle);
         }
 
         public void ReganrateShader(string source)

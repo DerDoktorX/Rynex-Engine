@@ -4,20 +4,20 @@
 
 #include "Rynex/Renderer/Rendering/Renderer.h"
 #include "Platform/OpenGL/OpenGLBuffer.h"
-#include "Rynex/Core/Assert.h"
+
 
 namespace Rynex {
 
 
 	Ref<VertexBuffer> VertexBuffer::Create(uint32_t byteSize)
 	{
+		
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!") return nullptr;
-		case RendererAPI::API::OpenGL: return  CreateRef<OpenGLVertexBuffer>(byteSize);
+		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!"); return nullptr;
+		case RendererAPI::API::OpenGL: return CreateRef<OpenGLVertexBuffer>(byteSize);
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
-		return nullptr;
 		return nullptr;
 	}
 
@@ -25,7 +25,7 @@ namespace Rynex {
 	{
 		switch (Renderer::GetAPI())
 		{
-			case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!") return nullptr;
+		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!"); return nullptr;
 			case RendererAPI::API::OpenGL: return  CreateRef<OpenGLVertexBuffer>(vextices, byteSize);
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
@@ -36,20 +36,61 @@ namespace Rynex {
 	{
 		switch (Renderer::GetAPI())
 		{
-			case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!") return nullptr;
+		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!"); return nullptr;
 			case RendererAPI::API::OpenGL: return  CreateRef<OpenGLVertexBuffer>(vertices, byteSize, usage);
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
 	}
 
+	Ref<VertexBuffer> VertexBuffer::Create(const void* vertices, uint32_t byteSize, BufferDataUsage usage, const BufferLayout& layout)
+	{
+		switch (Renderer::GetAPI())
+		{
+		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL: return  CreateRef<OpenGLVertexBuffer>(vertices, byteSize, usage, layout);
+		}
+		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
+		return nullptr;
+	}
+
+	Ref<VertexBuffer> VertexBuffer::CreateAsync(std::vector<unsigned char>&& data, uint32_t byteSize, BufferDataUsage usage, const BufferLayout& layout)
+	{
+		
+		switch (Renderer::GetAPI())
+		{
+		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL: return CreateRef<OpenGLVertexBuffer>(std::move(data), byteSize, usage, layout);
+		}
+		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
+		return nullptr;
+	}
+
+	Ref<VertexBuffer> VertexBuffer::Default()
+	{
+		static Ref<VertexBuffer> DefaultVertexBuffer;
+		if (!DefaultVertexBuffer)
+		{
+			float vertecies[] = {
+				-1.0f, -1.0f, 
+				 1.0f,  1.0f, 
+				 1.0f, -1.0f
+			};
+			DefaultVertexBuffer = Create(
+				vertecies, sizeof(float) * 6, 
+				BufferDataUsage::StaticDraw, {
+					{ShaderDataType::Float2,	"a_Postion"}
+				});
+		} 
+		return DefaultVertexBuffer;
+	}
 
 	Ref<IndexBuffer> IndexBuffer::Create(const uint32_t* indices, uint32_t count, BufferDataUsage usage)
 	{
 		switch (Renderer::GetAPI())
 		{
-			case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!") return nullptr;
-			case RendererAPI::API::OpenGL: return  CreateRef<OpenGLIndexBuffer>(indices, count, usage);
+		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL: return CreateRef<OpenGLIndexBuffer>(indices, count, usage);
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
@@ -59,12 +100,25 @@ namespace Rynex {
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!") return nullptr;
-		case RendererAPI::API::OpenGL: return  CreateRef<OpenGLIndexBuffer>(indices, count, usage);
+		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL: return  CreateRef<OpenGLIndexBuffer>(indices, count, usage);
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
 	}
+
+	Ref<IndexBuffer> IndexBuffer::CreateAsync(std::vector<uint32_t>&& data, uint32_t size,  BufferDataUsage usage)
+	{
+		switch (Renderer::GetAPI())
+		{
+		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!"); return nullptr;
+		case RendererAPI::API::OpenGL: return  CreateRef<OpenGLIndexBuffer>(std::move(data), size, usage);
+		}
+		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
+		return nullptr;
+	}
+
+
 
 	struct DataBuffer
 	{
@@ -73,6 +127,7 @@ namespace Rynex {
 
 		std::map<ShaderDataType, std::string> ShaderDataTypeString;
 		std::map<ShaderResourceType, std::string> ShaderResourceTypeString;
+
 	};
 
 	static DataBuffer s_Data;
@@ -157,14 +212,22 @@ namespace Rynex {
 
 	ShaderDataType BufferAPI::GetShaderDataTypeFromString(const std::string& type)
 	{
-		RY_CORE_ASSERT(s_Data.StringShaderDataType.find(type) != s_Data.StringShaderDataType.end(), ("Critle Error: This '{0}' string, is not a defined Type!", type.c_str()));
-		return s_Data.StringShaderDataType[type];
+		
+		if (s_Data.StringShaderDataType.find(type) != s_Data.StringShaderDataType.end())
+		{
+			RY_CORE_ASSERT(s_Data.StringShaderDataType.find(type) != s_Data.StringShaderDataType.end(), "Critle Error: This {type} string, is not a defined Type!");
+			return s_Data.StringShaderDataType[type];
+		}
+		return ShaderDataType::None;
 	};
 
 	std::string BufferAPI::GetStringFromShaderData(ShaderDataType type)
 	{
+		
 		return s_Data.ShaderDataTypeString[type];
+		
 	}
+
 	std::map<ShaderDataType, std::string>& BufferAPI::GetShaderDataStringMap()
 	{
 		return s_Data.ShaderDataTypeString;
@@ -203,8 +266,8 @@ namespace Rynex {
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!") return nullptr;
-		case RendererAPI::API::OpenGL: return  CreateRef<OpenGLStorageBuffer>(data,byteSize, type);
+		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL: return  CreateRef<OpenGLStorageBuffer>(data,byteSize, type);
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
@@ -214,8 +277,8 @@ namespace Rynex {
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!") return nullptr;
-		case RendererAPI::API::OpenGL: return CreateRef<OpenGLUniformBuffer>(byteSize, binding);
+		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL: return CreateRef<OpenGLUniformBuffer>(byteSize, binding);
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
@@ -225,8 +288,8 @@ namespace Rynex {
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!") return nullptr;
-		case RendererAPI::API::OpenGL: return CreateRef<OpenGLUniformBuffer>(data, byteSize, binding);
+		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL: return CreateRef<OpenGLUniformBuffer>(data, byteSize, binding);
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
@@ -236,11 +299,36 @@ namespace Rynex {
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!") return nullptr;
-		case RendererAPI::API::OpenGL: return CreateRef<OpenGLUniformBuffer>(data, byteSize, layout, binding);
+		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL: return CreateRef<OpenGLUniformBuffer>(data, byteSize, layout, binding);
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
 	}
+
+	Ref<UniformBuffer> UniformBuffer::Create(const void* data, uint32_t byteSize, const BufferLayout& layout, BufferDataUsage usage, uint32_t binding)
+	{
+		switch (Renderer::GetAPI())
+		{
+		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL: return CreateRef<OpenGLUniformBuffer>(data, byteSize, layout, usage, binding);
+		}
+		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
+		return nullptr;
+	}
+
+	Ref<UniformBuffer> UniformBuffer::CreateAsync(std::vector<unsigned char>&& data, const BufferLayout& layout, BufferDataUsage usage,  uint32_t binding)
+	{
+		switch (Renderer::GetAPI())
+		{
+		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!"); return nullptr;
+			case RendererAPI::API::OpenGL: return CreateRef<OpenGLUniformBuffer>(std::move(data), layout, usage, binding);
+		}
+		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
+		return nullptr;
+	}
+
+	
+	
 
 }

@@ -1,5 +1,10 @@
 Project:
   Name: SandboxProject
-  StartScene: "scenes/Example.rynexscene"
-  AssetDirectory: "Assets"
-  ScriptModulePath: ""
+  StartScene: ""
+  AssetDirectory: Assets
+  AssetRegistryPath: AssetRegistry.ryr
+  ScriptAppPath: SandboxProject/Assets/Scripts/Binaries/Sanbox.dll
+  ScriptCorePath: SandboxProject/Assets/Scripts/Binaries/Rynex-ScriptingCore.dll
+  CreateDate: "%d.%m.%Y %H:%M:%S"
+  LastOpenDate: "%d.%m.%Y %H:%M:%S"
+  ProjectPath: ""

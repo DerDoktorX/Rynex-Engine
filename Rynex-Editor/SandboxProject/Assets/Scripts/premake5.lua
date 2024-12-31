@@ -34,6 +34,8 @@ project "Sanbox"
 	files
 	{
 		"Source/**.cs",
+		--"Assets/Scripts/**.cs",
+		--"Assets/**.cs",
 		"Properties/**.cs"
 	}
 

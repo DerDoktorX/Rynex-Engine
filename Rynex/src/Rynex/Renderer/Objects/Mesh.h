@@ -2,8 +2,16 @@
 #include "Rynex/Asset/Base/Asset.h"
 #include "Rynex/Renderer/API/Shader.h"
 #include "Rynex/Renderer/API/Texture.h"
+#include "Rynex/Renderer/Materials/Material.h"
 
 namespace Rynex {
+
+	enum class MeshMode
+	{
+		None = 0,
+		Statitic,
+		Dynamic
+	};
 
 	struct MeshVertex
 	{
@@ -40,12 +48,17 @@ namespace Rynex {
 	{
 		Ref<Texture> TextureResur;
 		std::string Type;
-		std::string Path;
+		std::filesystem::path Path;
 
 		MeshTexture() = default;
 		MeshTexture(const MeshTexture&) = default;
 
-		MeshTexture(Ref<Texture> texture, const std::string& type, const std::string& path)
+		MeshTexture(const std::string& type, const std::filesystem::path& path)
+			: TextureResur(nullptr), Type(type), Path(path)
+		{
+		}
+
+		MeshTexture(Ref<Texture> texture, const std::string& type, const std::filesystem::path& path)
 			: TextureResur(texture), Type(type), Path(path)
 		{  }
 	};
@@ -54,7 +67,8 @@ namespace Rynex {
 	{
 	public:
 		Mesh() = default;
-		Mesh(std::vector<MeshVertex>& meshVertex, std::vector<unsigned int>& meshIndex, std::vector<MeshTexture>& meshTexures);
+		Mesh(std::vector<MeshVertex>&& meshVertex, std::vector<unsigned int>&& meshIndex, std::vector<MeshTexture>&& meshTexures, bool async = false);
+		Mesh(std::vector<MeshVertex>&& meshVertex, std::vector<unsigned int>&& meshIndex, std::vector<MeshTexture>&& meshTexures, const Ref<Material>& material, bool async = false);
 		Mesh(Mesh&&) = default;
 		~Mesh();
 
@@ -62,18 +76,54 @@ namespace Rynex {
 		const MeshTexture& GetTexture(uint32_t index) const { return m_Textures[index]; }
 		const std::vector<MeshTexture>& GetTextures() const { return m_Textures; }
 
+
+		void SetMateriel(const Ref<Material>& materiel) { m_Material = materiel; }
+		const Ref<Material>& GetMateriel() const { return m_Material; }
+		
+
+		void InitAsync();
 		virtual AssetType GetType() const
 		{
 			return AssetType::Mesh;
 		}
 
 		void OnDraw(const Ref<Shader>& shader);
-	private:
-		void Create();
 
+		bool IsRady()
+		{
+			return m_VertexArray && m_VertexBuffer && m_IndexBuffer && m_Material->IsRady();
+		}
 	private:
-		Ref<VertexArray> m_VertexArray;
+		Ref<VertexArray> m_VertexArray; 
+		Ref<VertexBuffer> m_VertexBuffer;
+		Ref<IndexBuffer> m_IndexBuffer;
+		Ref<Material> m_Material;
 		std::vector<MeshTexture> m_Textures;
 	};
 }
 
+#if 0
+namespace std {
+
+	template<>
+	struct hash<Rynex::Ref<Rynex::Mesh>>
+	{
+		std::size_t operator()(const Rynex::Ref<Rynex::Mesh>& mesh) const
+		{
+			return (std::size_t)mesh.get();
+		}
+	};
+
+	template<>
+	struct hash<Rynex::Weak<Rynex::Mesh>>
+	{
+		std::size_t operator()(const Rynex::Weak<Rynex::Mesh>& mesh) const
+		{
+			if (Rynex::Ref<Rynex::Mesh> meshRef = mesh.lock())
+				return (std::size_t)meshRef.get();
+			return 0;
+		}
+	};
+
+}
+#endif

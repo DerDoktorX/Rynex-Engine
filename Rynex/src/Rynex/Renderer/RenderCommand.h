@@ -63,19 +63,26 @@ namespace Rynex {
 			s_RendererAPI->SetFace(callFace);
 		}
 
+		// This clears color and death
 		inline static void Clear()
 		{
 			s_RendererAPI->Clear();
+		}
+
+		// This clears only death
+		inline static void ClearDepth()
+		{
+			s_RendererAPI->ClearDepth();
 		}
 
 		inline static void DrawIndexedMesh(const Ref<VertexArray>& vertexArray, uint32_t indexcount = 0)
 		{
 			s_RendererAPI->DrawIndexedMesh(vertexArray, indexcount);
 		};
-
-		inline static void DrawBatcheingIndexedMesh(const Ref<VertexArray>& vertexArray, uint32_t indexcount = 0)
+		
+		inline static void DrawIndexedMeshInstecing(uint32_t instecing, const Ref<VertexArray>& vertexArray, uint32_t indexcount = 0)
 		{
-			s_RendererAPI->DrawBatcheingIndexedMesh(vertexArray, indexcount);
+			s_RendererAPI->DrawIndexedMeshInstecing(instecing, vertexArray, indexcount);
 		};
 
 		inline static void DrawStripsMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)

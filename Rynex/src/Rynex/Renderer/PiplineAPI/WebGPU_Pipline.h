@@ -1,5 +1,5 @@
 #pragma once
-
+#if RY_ENABLE_WEBGPU_PILINE
 namespace Rynex {
 
 	using ColorWriteFlags = int;
@@ -382,5 +382,5 @@ namespace Rynex {
 	};
 
 }
-
+#endif
 

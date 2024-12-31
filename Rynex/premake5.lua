@@ -23,6 +23,8 @@ project "Rynex"
 		"vendor/glm/glm/**.inl",
 		"vendor/ImGuizmo/ImGuizmo.h",
 		"vendor/ImGuizmo/ImGuizmo.cpp",
+
+		"vendor/magic_enum/**.hpp",
 		--"vendor/filewatch/**.h",
 		--"vendor/filewatch/**.cpp",
 		
@@ -52,6 +54,7 @@ project "Rynex"
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.filewatch}",
+		"%{IncludeDir.magic_enum}",
 		"%{IncludeDir.assimp}",
 		 --"%{IncludeDir.assimp}",
 			--"%{IncludeDir._config}",
@@ -60,6 +63,9 @@ project "Rynex"
 		-- Runtime Visuelle configs
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.ImGuizmo}",
+
+		"%{IncludeDir.msdfgen}",
+		"%{IncludeDir.msdf_atlas_gen}"
 	}
 
 	links
@@ -72,6 +78,7 @@ project "Rynex"
 		"yaml-cpp",			-- Files
 		"ImGui", 			-- Runtime Visuelle configs
 		--"%{Library.assimp}"	-- Runtime C# Scripts Reloade
+		"msdf-atlas-gen"
 	}
 	
 	filter "files:vendor/ImGuizmo/**.cpp"

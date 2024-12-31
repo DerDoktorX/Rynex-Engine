@@ -2,9 +2,14 @@
 bin/
 bin-int/
 
+
+
+
 # Nor realvent
 IGUI/
 RederDocs/
+# Test Form Project not longer part / Its only basic App.cpp, Layer.h, Layer.cpp,
+Rynex-Test/
 
 # Liberays
 Rynex/vendor/spdlog/
@@ -14,11 +19,14 @@ Rynex/vendor/imgui/
 Rynex/vendor/ImGuizmo/
 Profile/
 
+
+
 # Files
 *.bat
 *.rdc
 *.cap
 *.json
+
 # from Hazel
 
 # Binaries

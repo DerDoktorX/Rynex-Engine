@@ -1,12 +1,6 @@
 #pragma once
-
 #include "Rynex/Renderer/API/Shader.h"
 #include "Rynex/Asset/Base/Asset.h"
-
-#include <glm/glm.hpp>
-
-typedef unsigned int GLenum;
-
 
 namespace Rynex {
 
@@ -20,6 +14,7 @@ namespace Rynex {
 		OpenGLShader() = default;
 #endif // TODO: after test dealating!
 
+		OpenGLShader(std::string&& source);
 		OpenGLShader(const std::string& source, const std::string& name);
 		OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
 		virtual ~OpenGLShader();
@@ -28,6 +23,9 @@ namespace Rynex {
 
 		virtual void Bind() const override;
 		virtual void UnBind() const override;
+
+		virtual void InitAsync() override;
+
 
 		virtual void AddShader(const std::string& shader, Type shaderType) override;
 		virtual void SetPatcheVertecies(uint32_t count) override;
@@ -68,10 +66,11 @@ namespace Rynex {
 		virtual void SetMat4(const std::string& name, const glm::mat4& value) override;
 		virtual void SetMat4Array(const std::string& name, float* value, uint32_t count) override;
 
+		virtual std::map<std::string, std::string>& GetUniformLayoute() override { return m_sUniformLayoute; }
 
-		virtual std::map<std::string, std::string>& GetUniformLayoute() override { return m_sUniformLayoute; };
+		virtual const std::map<Type, std::string>& GetShaderMap() const override { return m_ShaderMap; }
 
-		virtual const std::string& GetName() const override { return m_Name;  };
+		virtual const std::string& GetName() const override { return m_Name;  }
 
 		virtual bool operator==(const Shader& other)const override
 		{
@@ -79,8 +78,8 @@ namespace Rynex {
 		};
 
 	private:
-		std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);
-		void Compile(std::unordered_map<GLenum, std::string>& shaderSources);
+		std::unordered_map<uint32_t, std::string> PreProcess(const std::string& source);
+		void Compile(std::unordered_map<uint32_t, std::string>& shaderSources);
 
 		void UploadUniformUint(const std::string& name, uint32_t value);
 		void UploadUniformUint(const std::string& name, void* value);
@@ -159,8 +158,10 @@ namespace Rynex {
 
 	
 	private:
-		uint32_t m_RendererID;
-		std::string m_Name;
+		uint32_t m_RendererID = 0;
+		std::string m_Name = "";
+		std::string m_Source = "";
+		std::map<Type, std::string> m_ShaderMap;
 		std::map<std::string, std::string> m_sUniformLayoute;
 		BufferLayout m_BufferLayout;
 		int m_ShaderType = 0;

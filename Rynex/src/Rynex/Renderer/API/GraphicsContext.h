@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include "Rynex/Asset/Base/Asset.h"
 
 #include "Rynex/Renderer/RendererAPI.h"

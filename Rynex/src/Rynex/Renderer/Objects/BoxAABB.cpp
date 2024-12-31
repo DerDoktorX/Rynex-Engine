@@ -43,7 +43,7 @@ namespace Rynex {
 		const std::vector<unsigned char>& data = vertexBuffer->GetBufferData();
 		uint32_t size = data.size(), stride = layoute.GetStride();
 		bool finde = false;
-		for (auto& element : layoute)
+		for (const BufferElement& element : layoute)
 		{
 			if (postionElement == element)
 			{

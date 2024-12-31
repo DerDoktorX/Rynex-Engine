@@ -1,32 +1,47 @@
 #pragma once
-#include "Rynex/Asset/Base/Asset.h"
+#include <Rynex/Asset/Base/Asset.h>
 
-#include "Rynex/Renderer/RendererAPI.h"
-#include "Rynex/Asset/Base/Buffer.h"
+#include <Rynex/Renderer/RendererAPI.h>
+
 
 namespace Rynex {
 	
-
-	enum class RYNEX_API ImageFormat
+	enum class TextureFormat
 	{
 		None = 0,
+		Default = 1,
+
 		R8,
 		RG8,
 		RGB8,
 		RGBA8,
+
+		RGB16F,
+		RGBA16F,
 
 		RGB32F,
 		RGBA32F,
 
 
 		RED_INTEGER,
-		DEPTH24STENCIL8,
-		Depth = DEPTH24STENCIL8,
+
+		DepthComp,
+		DepthComp16,
+		DepthComp24,
+		DepthComp32,
+		DepthComp32F,
+
+		Depth24Stencil8,
+		Depth32FStencil8,
+		
+		
 	};
 
-	enum class RYNEX_API TextureTarget
+	enum class TextureTarget
 	{
-		Nono = 0,
+		None = 0,
+		Default = 1,
+
 		Texture1D, Texture2D, Texture3D,
 		TextureRectAngle, 
 		TextureBuffer,
@@ -36,16 +51,22 @@ namespace Rynex {
 		FrameBufferTexture
 	};
 
-	enum class RYNEX_API TextureFilteringMode
+	enum class TextureFilteringMode
 	{
 		None = 0,
+		Default = 1,
+
 		Linear,
 		Nearest,
+		LinearMidmapLinear,
+		LinearMidmapNearest,
 	};
 
-	enum class RYNEX_API TextureWrappingMode
+	enum class TextureWrappingMode
 	{
 		None = 0,
+		Default = 1,
+
 		Repeate,
 		MirrorRepeate,
 		ClampEdge,
@@ -56,27 +77,23 @@ namespace Rynex {
 	enum class Acces
 	{
 		None = 0,
+		Default = 1,
+
 		Read,
 		Write,
 		ReadWrite
 	};
 
-	struct RYNEX_API TextureWrappingSpecification
+	using TexFrom = TextureFormat;
+	using TexWarp = TextureWrappingMode;
+	using TexFilter = TextureFilteringMode;
+	using TexTar = TextureTarget;
+
+	struct TextureWrappingSpecification
 	{
-		TextureWrappingMode S = TextureWrappingMode::None;
-		TextureWrappingMode T = TextureWrappingMode::None;
-		TextureWrappingMode R = TextureWrappingMode::None;
-
-		TextureWrappingSpecification() = default;
-
-		TextureWrappingSpecification(TextureWrappingMode s, TextureWrappingMode t, TextureWrappingMode r)
-			: S(s), T(t), R(r) {}
-
-		TextureWrappingSpecification(TextureWrappingMode s, TextureWrappingMode t)
-			: S(s), T(t) {}
-
-		TextureWrappingSpecification(TextureWrappingMode s)
-			: S(s) {}
+		TextureWrappingMode S = TextureWrappingMode::Default;
+		TextureWrappingMode T = TextureWrappingMode::Default;
+		TextureWrappingMode R = TextureWrappingMode::Default;
 
 		TextureWrappingMode operator[](int index) const
 		{
@@ -85,77 +102,60 @@ namespace Rynex {
 				case 0:	return S;
 				case 1:	return T;
 				case 2:	return R;
-				default: return TextureWrappingMode::None;
+				default: 
+					RY_CORE_ASSERT(false);
+					return TextureWrappingMode::Default;
 			}
-			
 		}
 
 		TextureWrappingMode& operator[](int index)
 		{
 			switch (index)
 			{
-				case 0:	return S;
-				case 1:	return T;
-				case 2:	return R;
+			case 0:	return S;
+			case 1:	return T;
+			case 2:	return R;
+			default: 
+				RY_CORE_ASSERT(false);
+				return T;
 			}
-			
 		}
 
-		bool operator ==(TextureWrappingSpecification textureWrappingSpecification)
+		bool operator ==(TextureWrappingSpecification textureWrappingSpecification) const
 		{
-			return (textureWrappingSpecification.S == S) && (textureWrappingSpecification.T == T) && (textureWrappingSpecification.R == R);
+			return (textureWrappingSpecification.R == R) && (textureWrappingSpecification.S == S) && (textureWrappingSpecification.T == T);
 		}
 
 	};
 
-	struct RYNEX_API TextureSpecification
+	struct TextureSpecification
 	{
-		uint32_t Width = 1, Height = 1;
-		ImageFormat Format = ImageFormat::RGBA8;
+		uint32_t Width, Height;
+		TextureTarget Target = TextureTarget::Texture2D;
+		TextureFormat Format = TextureFormat::RGBA8;
 		uint32_t Samples = 1;
+		TextureFilteringMode FilteringMode = TextureFilteringMode::Nearest;
+		TextureWrappingSpecification WrappingSpec = {
+			TextureWrappingMode::Repeate,
+			TextureWrappingMode::Repeate,
+			// TextureWrappingMode::Repeate
+		};
 		bool GenerateMips = true;
-		TextureWrappingSpecification WrappingSpec = TextureWrappingSpecification();
-		TextureFilteringMode FilteringMode = TextureFilteringMode::None;
-		TextureTarget Target = TextureTarget::Nono;
-
-		TextureSpecification() = default;
-
-		TextureSpecification(ImageFormat image, TextureTarget target)
-			: Format(image), Target(target) {}
-
-		TextureSpecification(ImageFormat image, TextureTarget target, uint32_t width, uint32_t height)
-			: Format(image), Target(target), Width(width), Height(height){}
-
-		TextureSpecification(ImageFormat image, TextureTarget target, uint32_t width, uint32_t height, TextureFilteringMode filteringMode)
-			: Format(image), Target(target), Width(width), Height(height), FilteringMode(filteringMode) {}
-
-		TextureSpecification(ImageFormat image, TextureTarget target, uint32_t width, uint32_t height, TextureWrappingSpecification wrappingSpec, TextureFilteringMode filteringMode)
-			: Format(image), Target(target), Width(width), Height(height), WrappingSpec(wrappingSpec), FilteringMode(filteringMode) {}
-
-		TextureSpecification(ImageFormat image, TextureTarget target, uint32_t width, uint32_t height, TextureWrappingSpecification wrappingSpec, TextureFilteringMode filteringMode, uint32_t sample)
-			: Format(image), Target(target), Width(width), Height(height), WrappingSpec(wrappingSpec), FilteringMode(filteringMode), Samples(sample) {}
-
-		TextureSpecification(ImageFormat image, TextureTarget target, uint32_t width, uint32_t height, TextureWrappingSpecification wrappingSpec, TextureFilteringMode filteringMode, uint32_t sample, bool generateMips)
-			: Format(image), Target(target), Width(width), Height(height), WrappingSpec(wrappingSpec), FilteringMode(filteringMode), GenerateMips(generateMips), Samples(sample) {}
-
-		TextureSpecification(ImageFormat image, TextureTarget target, uint32_t width, uint32_t height, TextureFilteringMode filteringMode, uint32_t sample)
-			: Format(image), Target(target), Width(width), Height(height), FilteringMode(filteringMode), Samples(sample) {}
-
-		TextureSpecification(ImageFormat image, TextureTarget target, uint32_t width, uint32_t height, TextureFilteringMode filteringMode, uint32_t sample, bool generateMips)
-			: Format(image), Target(target), Width(width), Height(height), FilteringMode(filteringMode), GenerateMips(generateMips), Samples(sample) {}
-
 	};
 
-	struct RYNEX_API FramebufferTextureSpecification;
+	struct FramebufferTextureSpecification;
 
 	class RYNEX_API Texture : public Asset
 	{
 	public:
-		static Ref<Texture> CreateFrame(AssetHandle assetHandle, int index);
-		static Ref<Texture> Create(uint32_t withe, uint32_t height);
-		static Ref<Texture> Create(const std::string& path);
+		// static Ref<Texture> CreateFrame(AssetHandle assetHandle, int index);
+		// static Ref<Texture> Create(uint32_t withe, uint32_t height);
+		// static Ref<Texture> Create(const std::string& path);
 		static Ref<Texture> Create(TextureSpecification spec, void* data, uint32_t size);
+		static Ref<Texture> CreateAsync(TextureSpecification spec, std::vector<unsigned char>&& data);
 		static Ref<Texture> Create(TextureSpecification spec);
+		static Ref<Texture> Default();
+		static void Shutdown();
 		virtual ~Texture() = default;
 
 		virtual const TextureSpecification& GetSpecification() const = 0;
@@ -164,6 +164,8 @@ namespace Rynex {
 		virtual uint32_t GetHeight() const = 0;
 		virtual uint32_t GetRenderID() const = 0;
 
+
+		virtual void InitAsync() = 0;
 		virtual void SetData(void* data, uint32_t size) = 0;
 		virtual void FreeCurrentData() = 0;
 		virtual const std::vector<unsigned char> GetCurrentRenderData() = 0;
@@ -181,7 +183,5 @@ namespace Rynex {
 		static AssetType GetStaticType() { return AssetType::Texture; }
 		AssetType GetType() const { return GetStaticType(); }
 	};
-
-
 	
 }

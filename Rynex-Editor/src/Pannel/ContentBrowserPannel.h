@@ -5,6 +5,7 @@
 #include <Rynex/Renderer/API/Texture.h>
 #include <Rynex/Project/Project.h>
 
+
 #include <FileWatch.h>
 
 
@@ -68,8 +69,10 @@ namespace Rynex {
 		void OpenRegestriyPannel();
 
 		static void AssetFileWatcher();
+#if RY_EDITOR_ASSETMANGER_THREADE-1
 		static void SetAssetRegestriy(const std::filesystem::path& curentPath, Ref<EditorAssetManager>& assetManager);
-		
+#endif
+
 	private:
 		void BrowserPannel();
 		void AssetPannel();
@@ -86,13 +89,18 @@ namespace Rynex {
 		void NewMenue();
 		void NewAsset();
 		void NewFile();
+
 		void DelateListeAsset(DealteAsset dealeteAsset);
 		void DelateAsset();
 
-		void DelateListeFolder(std::filesystem::path& folderPath);
+		void DelateListeFolder(const std::filesystem::path& folderPath);
 		void DelateFolder();
 
 		static void InitAssetFileWatcher();
+		
+		void OnloadeAssetsList();
+		void OnLoadeAsset(AssetHandle handle);
+
 	private:
 		Ref<Project> m_Project;
 		Ref<FrambufferWindow> m_FrambufferWindow;
@@ -114,10 +122,21 @@ namespace Rynex {
 		SettingsPopUpWindow m_OppenWindow = SettingsPopUpWindow::None;
 		
 		// AssetDirectory m_AssetDirectorys;
+#if RY_EDITOR_ASSETMANGER_THREADE
+		Ref<EditorAssetManegerThreade> m_AssetManger;
+#else
 		Ref<EditorAssetManager> m_AssetManger;
+#endif
 		CreateFrambuffer m_CreateFrambuffer = CreateFrambuffer();
 		std::vector<DealteAsset> m_DealeteAssetList;
+		std::vector<AssetHandle> m_OnLoadeAsset;
 		std::vector<std::filesystem::path> m_DealeteFolderList;
+#if RY_EDITOR_ASSETMANGER_THREADE
+		RegisterItemesThreade m_RegisterItemes;
+		ContentBrowserItemesThreade m_FileItemes;
+#else
+		ContentBrowserItemes m_FileItemes;
+#endif
 	};				   
 }					   
 

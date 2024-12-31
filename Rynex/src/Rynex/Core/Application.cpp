@@ -13,10 +13,6 @@
 
 #endif // TODO: Remeber what was that! then decide and Dealet?
 
-
-
-
-
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
 namespace Rynex {
@@ -37,7 +33,6 @@ namespace Rynex {
 
 		m_Window = Window::Create(WindowProps(m_Specification.Name));
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
-		//m_Window->SetVSync(false);
 
 		m_ImGuiLayer = new ImGuiLayer();
 		RY_CORE_MEMORY_ALICATION("m_ImGuiLayer", "Application::Application", ImGuiLayer);
@@ -58,7 +53,7 @@ namespace Rynex {
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowCloseEvent));
 		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));
 
-		//RY_CORE_TRACE("{0}", e.ToString());
+		// RY_CORE_TRACE("{0}", e.ToString());
 
 		for ( std::vector<Rynex::Layer*>::iterator it = m_LayerStack.end(); it != m_LayerStack.begin(); )
 		{
@@ -81,17 +76,23 @@ namespace Rynex {
 		layer->OnAttach();
 	}
 	
+	void Application::PopLayer(Layer* rlayer)
+	{
+		
+		rlayer->OnDetach();
+		m_LayerStack.PopLayer(rlayer);
+	}
+
 	void Application::Close()
 	{
 		m_Running = false;
 	}
 
 
+
 	void Application::Run()
 	{
 		RY_CORE_INFO("Application::Run Starte!");
-		//m_Camera.SetPostione({ 0.5f, 0.5f, 0.0f });
-		//m_Camera.SetRotation(45.0f);
 		while (m_Running) 
 		{	
 			RY_PROFILE_SCOPE("Main UpdateLoop");
@@ -99,12 +100,8 @@ namespace Rynex {
 			TimeStep timestep((float)time - m_LastFrameTime, time);
 			m_LastFrameTime = (float)time;
 
-#if RY_KONSOLE_FPS
-			RY_CORE_INFO("FPS: {0}", 1/timestep);
-#endif
 			// Thread!
 			ExecuteMainThreedQueue();
-			ExecuteMainThreedQueueAssetFileWatcher();
 
 			if (!m_Mineized) 
 			{
@@ -157,20 +154,24 @@ namespace Rynex {
 	//// Thread ///////////////////////////////////////
 	///////////////////////////////////////////////////
 	
+	
+
 	void Application::SubmiteToMainThreedQueue(const std::function<void()>& func)
 	{
 		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
+#if RY_MAX_MAIN_THREAD_QUEUE_PER_FRAME
+		if(m_MainThreedQueue.size() < m_MaxMainThread)
+
+			m_MainThreedQueue.emplace_back(func);
+		else
+		{
+			m_MainThreedQueueWaiting.emplace_back(func);
+		}
+#else
 		m_MainThreedQueue.emplace_back(func);
+#endif
 	}
 
-#if 1
-	void Application::SubmiteToMainThreedQueueAssetFileWatcher(const std::function<void()>& func)
-	{
-		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutexAssetFileWatcher);
-		//AssetFileWatcherThreadData data(func, path);
-		m_MainThreedQueueAssetFileWatcher.emplace_back(func);
-	}
-#endif
 
 	void Application::ExecuteMainThreedQueue()
 	{
@@ -180,29 +181,40 @@ namespace Rynex {
 			std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
 			copy = m_MainThreedQueue;
 			m_MainThreedQueue.clear();
+#if RY_MAX_MAIN_THREAD_QUEUE_PER_FRAME
+			 if(m_MainThreedQueueWaiting.size() > 0)
+			 {
+			 	uint32_t i = 0;
+			 	std::vector<std::function<void()>>::iterator itFunc = m_MainThreedQueueWaiting.begin();
+			 	std::vector<std::function<void()>>::iterator itend = m_MainThreedQueueWaiting.end();
+			 	std::vector<std::function<void()>>::const_iterator itBegin = itFunc;
+			 	for (; itFunc != itend; ++itFunc, i++)
+			 	{
+			 		std::function<void()>& func = *itFunc;
+			 		if (i >= m_MaxMainThread)
+			 			break;
+			 
+			 		m_MainThreedQueue.emplace_back(func);
+			 
+			 	}
+			 
+			 	m_MainThreedQueueWaiting.erase(itBegin, itFunc);
+			 }
+#endif
 		}
 
 
-		for (auto& func : copy)
+		for (std::function<void()>& func : copy)
 			func();
 #else
 		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
 
-		for (auto& func : m_MainThreedQueue)
+		for (std::function<void()>& func : m_MainThreedQueue)
 			func();
 
 		m_MainThreedQueue.clear();
 #endif		
 	}
 
-	void Application::ExecuteMainThreedQueueAssetFileWatcher()
-	{
-		RY_PROFILE_FUNCTION();
-		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutexAssetFileWatcher);
-
-		for (auto& func : m_MainThreedQueueAssetFileWatcher)
-			func();
-
-		m_MainThreedQueueAssetFileWatcher.clear();
-	}
+	
 }

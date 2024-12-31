@@ -5,7 +5,7 @@
 #include <Rynex/Scene/Entity.h>
 
 #include <imgui/imgui.h>
-
+#include <future>
 
 namespace Rynex {
 
@@ -56,7 +56,7 @@ namespace Rynex {
 		Ref<Scene> m_Context;
 		std::vector<DealeatEntitiy> m_EntityDelete;
 		Entity	m_SelectionContext;
-
+		std::vector<std::future<void>>	m_WorkingThread;
 		ImGuiID m_ScriptEditID;
 		bool m_CheckErrors = false;
 

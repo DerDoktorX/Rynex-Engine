@@ -8,6 +8,7 @@
 #include <Rynex/Asset/Base/AssetManager.h>
 #include <Rynex/Renderer/Rendering/Renderer2D.h>
 #include <Rynex/Renderer/Rendering/Renderer3D.h>
+#include <Rynex/Renderer/Materials/ShaderMaterial.h>
 
 #include <imgui/imgui.h>
 #include <ImGuizmo.h>
@@ -15,6 +16,9 @@
 
 namespace Rynex {
 #define RY_MULTY_VIEWPORTS 1
+
+#pragma region ViewPortPannel
+
     ViewPortPannel::ViewPortPannel()
         : m_SceneState(SceneState::Edit)
     {
@@ -31,32 +35,50 @@ namespace Rynex {
         m_Camera = CreateRef<EditorCamera>(30.0f, 1.778f, 0.1, 1000.0f);
        
         FramebufferSpecification fbSpec, fbSpec2;
-        fbSpec.Attachments =
-        {
-            FramebufferTextureFormat::RGBA8,
-            //FramebufferTextureFormat::RGBA8,
-            FramebufferTextureFormat::RED_INTEGER,
-            FramebufferTextureFormat::DEPTH24STENCIL8
+        fbSpec.Attachments = {
+            {
+                TexFrom::RGBA32F, 1,
+                { TexWarp::ClampEdge,  TexWarp::ClampEdge, TexWarp::ClampEdge, },
+                TexFilter::Nearest
+            },
+            {
+                TexFrom::RED_INTEGER, 1,
+                { TexWarp::ClampEdge,  TexWarp::ClampEdge, TexWarp::ClampEdge, },
+                TexFilter::Nearest
+            },
+            {
+                TexFrom::Depth24Stencil8, 1,
+                { TexWarp::ClampEdge,  TexWarp::ClampEdge, TexWarp::ClampEdge, },
+                TexFilter::Nearest
+            }
         };
         fbSpec.Width = 1280;
         fbSpec.Height = 720;
         m_Framebuffer = Framebuffer::Create(fbSpec);
-        fbSpec2.Attachments =
-        {
-            FramebufferTextureFormat::RGBA8,
-            FramebufferTextureFormat::DEPTH24STENCIL8
+        fbSpec2.Attachments = {
+            {
+                TexFrom::RGBA32F, 1,
+                { TexWarp::ClampEdge,  TexWarp::ClampEdge, TexWarp::ClampEdge, },
+                TexFilter::Nearest
+            },
+            { 
+                TexFrom::Depth24Stencil8, 1,
+                { TexWarp::ClampEdge,  TexWarp::ClampEdge, TexWarp::ClampEdge, },
+                TexFilter::Nearest
+            }
         };
         fbSpec2.Width = 1280;
         fbSpec2.Height = 720;
+
         m_SelectedFramebuffer = Framebuffer::Create(fbSpec2);
         //m_CallFace = CallFace::None;
 
-        m_Filtering = AssetManager::GetAsset<Shader>("Assets/shaders/Compute.glsl");
+        m_Filtering = AssetManager::GetAsset<Shader>("../Rynex-Editor/Editor-Assets/shaders/Compute.glsl");
 
         m_Image = Texture::Create({
-            ImageFormat::RGBA8, TextureTarget::Texture2D,
             1280, 720,
-            TextureFilteringMode::Nearest,
+            TexTar::Texture2D, TexFrom::RGBA32F,
+            1, TexFilter::Nearest
         });
         m_AktiveScene = m_EditorLayer->GetAktivScene();
         m_GizmoType = m_EditorLayer->GetPtrGizmoType();
@@ -64,20 +86,46 @@ namespace Rynex {
         {
             m_ViewPorts.push_back(CreateRef<ViewPort>());
            // m_ViewPorts.push_back(CreateRef<ViewPort>());
-            int index = 0;
-            for (auto& viewPort : m_ViewPorts)
-            {
-                viewPort->OnAttache(m_Framebuffer, m_SelectedFramebuffer, m_Camera, m_Filtering, m_EditorLayer, &m_SceneState, this, &m_HoveredEntity, index, 0, m_WindowName + " Attachment: " + std::to_string(index));
-                index++;
-            }
+           
+           
+            m_ViewPorts[0]->OnAttache(m_Framebuffer,
+                m_SelectedFramebuffer, 
+                m_Camera, 
+                m_Filtering, 
+                m_EditorLayer, 
+                &m_SceneState, 
+                this, 
+                &m_HoveredEntity, 
+                0, 
+                0, 
+                m_WindowName + " Attachment: " + std::to_string(0)
+            );
+             
+            // m_ViewPorts[1]->OnAttache(m_Framebuffer,
+            //     m_SelectedFramebuffer,
+            //     m_Camera,
+            //     m_Filtering,
+            //     m_EditorLayer,
+            //     &m_SceneState,
+            //     this,
+            //     &m_HoveredEntity,
+            //     0,
+            //     0,
+            //     m_WindowName + " Attachment: " + std::to_string(1)
+            // );
+            
         }
-        m_MaterialC.AlgorithmFlags = Renderer::A_Buffer | Renderer::Death_Buffer | Renderer::CallFace_Back;
-        m_MaterialC.Color = { 1.0f,1.0f,1.0f };
-        m_MaterialC.Shader = AssetManager::GetAsset<Shader>("Assets/shaders/ViewPort-Shader.glsl");
-        m_MaterialC.UniformLayoute.reserve(3);
-        m_MaterialC.UniformLayoute.emplace_back("u_ViewProj", ShaderDataType::Float4x4, ShaderResourceType::MainCameraViewProjectionMatrix);
-        m_MaterialC.UniformLayoute.emplace_back("u_Model", ShaderDataType::Float4x4, ShaderResourceType::LocalModel);
-        m_MaterialC.UniformLayoute.emplace_back("u_Color", ShaderDataType::Float3, ShaderResourceType::LocalColor);
+        ShaderMaterialDefaultNames names(
+            { SDT::Float3,   "u_Color"},
+            { SDT::Float,    "u_Alpha"},
+            { SDT::Float4x4, "u_ModelMatrix" }
+        );
+
+        m_MaterialC.Materiel = Material::CreateShader(names );
+        m_MaterialC.Materiel->SetFlage(Renderer::A_Buffer | Renderer::Death_Buffer | Renderer::CallFace_Back);
+        m_MaterialC.Materiel->SetColor( { 1.0f,1.0f,1.0f });
+        m_MaterialC.Materiel->SetShader(AssetManager::GetAsset<Shader>("../Rynex-Editor/Editor-Assets/shaders/ViewPort-Shader.glsl"));
+
     }
 
     void ViewPortPannel::OnUpdate()
@@ -147,7 +195,10 @@ namespace Rynex {
         }
         m_WindowHoverd = isSomeHoverd;
         m_WindowFocused = isSomeFocuse;
-        return m_WindowHoverd && (!isGizmoFocuse);
+        bool result = m_WindowHoverd && (!isGizmoFocuse);
+        m_AktiveScene->SetHoverViewPort(result);
+
+        return result;
 
 
     }
@@ -223,11 +274,15 @@ namespace Rynex {
     void ViewPortPannel::RenderSelectedEntity()
     {
         Entity slelcted = m_EditorLayer->GetSelectedEntity();
-        if (!slelcted)
-            return;
+       
         m_SelectedFramebuffer->Bind();
         RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-        RenderCommand::Clear();
+        RenderCommand::Clear(); 
+        if (!slelcted)
+        {
+            m_SelectedFramebuffer->Unbind();
+            return;
+        }
         Camera& mainCamera = (Camera)m_Camera->GetProjektion();
         glm::mat4 viewMatrix = m_Camera->GetViewMatrix();
         if ((slelcted != Entity() || slelcted != 0) && slelcted.HasComponent<Matrix4x4Component>())
@@ -236,7 +291,7 @@ namespace Rynex {
             if (slelcted.HasComponent<SpriteRendererComponent>())
             {
                 Renderer2D::BeginSceneQuade(mainCamera, viewMatrix);
-                SpriteRendererComponent spriteC = slelcted.GetComponent<SpriteRendererComponent>();
+                SpriteRendererComponent& spriteC = slelcted.GetComponent<SpriteRendererComponent>();
                 Renderer2D::DrawSprite(mat4C.GlobleMatrix4x4, spriteC, slelcted.GetEntityHandle());
                 Renderer2D::EndSceneQuade();
             }
@@ -262,7 +317,7 @@ namespace Rynex {
 
                 if ( staticMeshC.ModelR != nullptr)
                 {
-                    Renderer3D::DrawModdel(m_MaterialC, mat4C.GlobleMatrix4x4, staticMeshC, slelcted.GetEntityHandle());
+                    Renderer3D::DrawModdel(mat4C.GlobleMatrix4x4, staticMeshC, slelcted.GetEntityHandle());
                 }
                 Renderer3D::EndScene();
             }
@@ -275,7 +330,7 @@ namespace Rynex {
                 {
                     if ( dynamicMeshC.MeshR != nullptr)
                     {
-                        Renderer3D::DrawModdel(m_MaterialC, mat4C.GlobleMatrix4x4, dynamicMeshC, slelcted.GetEntityHandle());
+                        Renderer3D::DrawModdel( mat4C.GlobleMatrix4x4, dynamicMeshC, slelcted.GetEntityHandle());
                         
                     }
                 }
@@ -285,6 +340,11 @@ namespace Rynex {
 
         m_SelectedFramebuffer->Unbind();
     }
+
+#pragma endregion
+
+
+#pragma region ViewPort
 
     ViewPort::ViewPort()
     {
@@ -310,10 +370,14 @@ namespace Rynex {
         m_AktiveScene = m_EditorLayer->GetAktivScene();
         m_GizmoType = m_EditorLayer->GetPtrGizmoType();
         m_Image = Texture::Create({
-            ImageFormat::RGBA8, TextureTarget::Texture2D,
             1280, 720,
-            TextureFilteringMode::Nearest,
+            TextureTarget::Texture2D,
+            TextureFormat::RGBA32F,
+            1,
+            TextureFilteringMode::Nearest
         });
+
+        
     }
 
     void ViewPort::OnDetache()
@@ -372,9 +436,12 @@ namespace Rynex {
             textureID = m_Image->GetRenderID();
             break;
         }
-
-
-        //uint32_t textureID = m_Framebuffer->GetDeathAttachmentRendererID();
+        // Renderer3D::Statistics stats = Renderer3D::GetStats();
+        // if(stats.ShadowsTex->at(0) != nullptr)
+        //    textureID = stats.ShadowsTex->at(0)->GetRenderID();
+        // textureID = m_SelectedFramebuffer->GetDeathAttachmentRendererID();
+        // 
+        // textureID = m_Framebuffer->GetDeathAttachmentRendererID();
         ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ viewportPannelSize.x, viewportPannelSize.y }, ImVec2(0, 1), ImVec2(1, 0));
 
         // Drag and drop conten Broser
@@ -390,6 +457,21 @@ namespace Rynex {
 
         ImGui::End();
         ImGui::PopStyleVar();
+
+        if(Ref<Texture> tex = m_ShadowMap.lock())
+        {
+            ImGui::Begin("Shadow-Map");
+            uint32_t textureID = tex->GetRenderID();
+            ImVec2 sizeTes = { (float)tex->GetWidth(), (float)tex->GetHeight() };
+            ImGui::Image(reinterpret_cast<void*>(textureID), sizeTes, ImVec2(0, 1), ImVec2(1, 0));
+            ImGui::End();
+        }
+        else
+        {
+            Renderer3D::Statistics stats = Renderer3D::GetStats();
+            if (stats.ShadowsTex->at(0) != nullptr)
+                m_ShadowMap = stats.ShadowsTex->at(0);
+        }
         return (m_WindowFocused && m_WindowHoverd);
     }
 
@@ -429,7 +511,10 @@ namespace Rynex {
 
     void ViewPort::WindowResize(const glm::vec2& windowSize)
     {
-        if (m_WindowSize != windowSize)
+        bool result = m_WindowSize != windowSize;
+        m_AktiveScene->SetWindowResize(result);
+
+        if (result)
         {
             m_Framebuffer->Resize(windowSize.x, windowSize.y);
             m_SelectedFramebuffer->Resize(windowSize.x, windowSize.y);
@@ -446,7 +531,7 @@ namespace Rynex {
         if (ImGui::BeginDragDropTarget())
         {
 
-            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(GetAssetTypeDragAndDropName(AssetType::Scene).c_str()))
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(Asset::GetAssetTypeDragAndDropName(AssetType::Scene).c_str()))
             {
                 AssetHandle handle = *(AssetHandle*)payload->Data;
                 OpenScene(handle);
@@ -630,6 +715,7 @@ namespace Rynex {
             if (mauseX >= 0 && mauseY >= 0 && mauseX < (int)viewPortSize.x && mauseY < (int)viewPortSize.y)
             {
                 m_Framebuffer->Bind();
+                m_AktiveScene->SetMousPixelPos({ mauseX, mauseY });
                 int pixeldata = m_Framebuffer->ReadPixel(1, mauseX, mauseY);
 #if 0
                 if (pixeldata <= -1  || m_AktiveScene->GetEntityCount() < pixeldata)
@@ -648,4 +734,5 @@ namespace Rynex {
         }
     }
 
+#pragma endregion
 }

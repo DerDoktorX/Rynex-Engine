@@ -4,6 +4,7 @@
 #include "Rynex/Core/TimeStep.h"
 
 namespace Rynex{
+
 	class RYNEX_API Layer
 	{
 	public:

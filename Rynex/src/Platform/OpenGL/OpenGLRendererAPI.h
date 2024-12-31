@@ -22,9 +22,10 @@ namespace Rynex {
 		virtual void AktivePolyGunMode(bool active = true) override;
 
 		virtual void Clear() override;
+		virtual void ClearDepth() override;
 
 		virtual void DrawIndexedMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
-		virtual void DrawBatcheingIndexedMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
+		virtual void DrawIndexedMeshInstecing(uint32_t instecing, const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) override;
 
 		virtual void DrawStripsMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)override;
 

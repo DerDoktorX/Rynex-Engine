@@ -36,10 +36,14 @@ namespace Rynex {
     Model::Model(std::vector<Ref<Mesh>>& meshes, std::vector<MeshRootData>& meshRootDatas)
         : m_Meshes(meshes), m_MeshRootDatas(meshRootDatas)
     {
+        std::lock_guard<std::mutex> lock(m_Accese);
     }
+
+   
 
     void Model::Draw(const Ref<Shader>& shader)
     {
+        std::lock_guard<std::mutex> lock(m_Accese);
         for (auto& mesh : m_Meshes)
             mesh->OnDraw(shader);
     }
@@ -62,7 +66,7 @@ namespace Rynex {
     Ref<Mesh> Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
     {
         std::vector<MeshVertex>     vertices;
-        std::vector<unsigned int>   indices;
+        std::vector<uint32_t>       indices;
         std::vector<MeshTexture>    texures;
 
 
@@ -110,7 +114,7 @@ namespace Rynex {
         std::vector<MeshTexture> heigthMaps = LoadMaterialTextures(materials, aiTextureType_AMBIENT, "u_Texture_Heigth");
         texures.insert(texures.end(), heigthMaps.begin(), heigthMaps.end());
 
-        return CreateRef<Mesh>(vertices, indices, texures);
+        return CreateRef<Mesh>(std::move(vertices), std::move(indices), std::move(texures));
     }
 
     std::vector<MeshTexture> Model::LoadMaterialTextures(aiMaterial* material, aiTextureType type, const std::string& typeName)

@@ -17,6 +17,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <Rynex/Renderer/Text/Font.h>
 
 
 namespace Rynex {
@@ -79,14 +80,32 @@ namespace Rynex {
 	struct SpriteRendererComponent
 	{
 		glm::vec4 Color{ 1.0f, 0.0f, 1.0f, 1.0f };
+#if RY_DISABLE_WEAK_PTR
 		Ref<Texture> Texture;
-
+#else
+		Weak<Texture> Texture;
+#endif
 		bool RenderSingle = false;
 
 		SpriteRendererComponent() = default;
 		SpriteRendererComponent(const SpriteRendererComponent&) = default;
 		SpriteRendererComponent(const glm::vec4 color)
 			: Color(color) {}
+
+	};
+
+
+	struct TextComponent
+	{
+		
+		std::string TextString = "";
+		Ref<Font> FontAsset = Font::GetDefault();
+		glm::vec4 Color{ 1.0f };
+		float Kerning = 0.0f;
+		float LineSpacing = 0.0f;
+
+		TextComponent() = default;
+		TextComponent(const TextComponent&) = default;
 
 	};
 
@@ -144,53 +163,64 @@ namespace Rynex {
 
 	struct MaterialComponent
 	{
+#if 0
 		Ref<Shader> Shader = nullptr;
+#if 0
 		Ref<Texture> Texture = nullptr;
 
 		std::vector<UniformElement> UniformLayoute;
+#else
+		Ref<UniformBuffer> UniformBuffer;
+#endif
 		glm::vec3 Color{ 1.0f, 0.0f, 1.0f };
 		int AlgorithmFlags = Renderer::CallFace_Back | Renderer::Death_Buffer | Renderer::A_Buffer | Renderer::Ligths; // 
-	
+#else
+		Ref<Material> Materiel = nullptr;
+#endif
 		MaterialComponent() = default;
 		MaterialComponent(const MaterialComponent&) = default;
 	};
 
 	struct Matrix4x4Component
 	{
-		glm::mat<4, 4, float> Matrix4x4 = glm::mat<4, 4, float>(1.0); //Locale Matrix
-		glm::mat<4, 4, float> GlobleMatrix4x4 = glm::mat<4, 4, float>(1.0);
+		glm::mat4 Matrix4x4 = glm::mat4(1.0); // Locale Matrix
+		glm::mat4 GlobleMatrix4x4 = glm::mat4(1.0);
 	};
 
 	struct Matrix3x3Component
 	{
-		glm::mat<3, 3, float> Matrix3x3;
+		glm::mat3 Matrix3x3;
 	};
 
 	struct FrameBufferComponent
 	{
 		Ref<Framebuffer> FrameBuffer = nullptr;
-		FramebufferSpecification FramebufferSpecification;
+		
 
-		glm::vec<3, float> ClearColor;
+		glm::vec3 ClearColor;
 		FrameBufferImageSize FramebufferSize;
 		
 
 		FrameBufferComponent() = default;
 		FrameBufferComponent(const FrameBufferComponent&) = default;
 		FrameBufferComponent(Ref<Framebuffer> frameBuffer)
-			: FrameBuffer(frameBuffer) {}
+			: FrameBuffer(frameBuffer)
+			, ClearColor({ 0.0,0.0,0.0 })
+			, FramebufferSize(FrameBufferImageSize::StaticSize)
+		{ 
+		}
 	};
 
 	struct MeshComponent
 	{
 		Ref<Model> ModelR = nullptr;
-
+		MeshMode MeshModeE = MeshMode::None;
 
 		MeshComponent() = default;
 		MeshComponent(const MeshComponent&) = default;
 
-		MeshComponent(Ref<Model> modelR)
-			: ModelR(modelR) {  }
+		MeshComponent(Ref<Model> modelR, MeshMode meshModeE)
+			: ModelR(modelR), MeshModeE(meshModeE) {  }
 	};
 
 	struct StaticMeshComponent
@@ -232,16 +262,8 @@ namespace Rynex {
 		MainViewPortComponent(const MainViewPortComponent&) = default;
 	};
 
-	struct MaterialTransperent : MaterialComponent
-	{
-		float Trasperent = 1.0f;
 
-		MaterialTransperent() = default;
-		MaterialTransperent(const MaterialTransperent&) = default;
-	};
-
-
-	// TOOD: make a Ligth compoent System
+	
 	struct AmbientLigthComponent
 	{
 		glm::vec3 Color = { 1.0f, 1.0f, 1.0f };
@@ -255,6 +277,12 @@ namespace Rynex {
 	{
 		glm::vec3 Color = { 1.0f, 1.0f, 1.0f };
 		float Intensitie = 0.1f;
+		Camera Projection = glm::ortho(
+			-300.0f, 300.0f, 
+			-300.0f, 300.0f, 
+			10.0f, 500.0f
+		);
+		Ref<Framebuffer> ShadowFrameBuffer = nullptr;
 
 		DrirektionleLigthComponent() = default;
 		DrirektionleLigthComponent(const DrirektionleLigthComponent&) = default;
@@ -264,8 +292,10 @@ namespace Rynex {
 	struct PointLigthComponent
 	{
 		glm::vec3 Color = { 1.0f, 1.0f, 1.0f };
-		float Distence = 10.0f;
-		float Intensitie = 10.0f;
+		float Distence = 0.0f;
+		float Intensitie = 1.0f;
+		glm::mat4 Projection;
+		Ref<Framebuffer> ShadowFrameBuffer = nullptr;
 
 		PointLigthComponent() = default;
 		PointLigthComponent(const PointLigthComponent&) = default;
@@ -274,12 +304,15 @@ namespace Rynex {
 	struct SpotLigthComponent
 	{
 		glm::vec3 Color = { 1.0f, 1.0f, 1.0f };
-		float Distence = 10.0f;
-		float Intensitie = 10.0f;
+		float Distence = 1.0f;
+		float Intensitie = 1.0;
 
 		float Inner = 0.9f;
 		float Outer = 0.1f;
 
+		glm::mat4 Projection;
+
+		Ref<Framebuffer> ShadowFrameBuffer = nullptr;
 		SpotLigthComponent() = default;
 		SpotLigthComponent(const SpotLigthComponent&) = default;
 	};
@@ -287,9 +320,13 @@ namespace Rynex {
 	// TOOD: make a Partikel Component System
 	struct ParticelComponente
 	{
-		glm::vec3 Force = { 0.0f, 1.0f, 0.0f };
-		glm::vec3 Randome = { 0.0f, 1.0f, 0.0f };
-		uint32_t Count = 0;
+
+		glm::vec3 SpawnPositon;
+		glm::vec3 SpawnPositonRndOffset;
+		float MaxLifeTime;
+		
+		uint32_t Count = 1;
+		
 	};
 
 	struct PostProcessingComponent
@@ -344,7 +381,7 @@ namespace Rynex {
 	using AllComponents =
 		ComponentGroup<TransformComponent, SpriteRendererComponent,
 		/*CircleRendererComponent,*/ CameraComponent, ScriptComponent,
-		MaterialComponent, MaterialTransperent,
+		MaterialComponent,
 		GeomtryComponent,
 		Matrix3x3Component, Matrix4x4Component,
 		FrameBufferComponent, MainViewPortComponent, RealtionShipComponent,

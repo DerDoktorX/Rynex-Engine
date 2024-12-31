@@ -7,7 +7,7 @@
 #include "Rynex/Events/ApplicationEvent.h"
 
 #include "Platform/OpenGL/OpenGLContext.h"
-
+#include "Platform/OpenGL/OpenGLThreadContext.h"
 //#include <glad/glad.h>
 
 
@@ -22,10 +22,13 @@ namespace Rynex {
 		RY_CORE_ERROR("GLFW Error ({0}): {1} ", error, discription);
 	}
 
+	
+
 	Scope<Window> Window::Create(const WindowProps& props)
 	{
 		return CreateScope<WindowsWindow>(props);
 	}
+
 
 	WindowsWindow::WindowsWindow(const WindowProps& props)
 	{
@@ -34,6 +37,13 @@ namespace Rynex {
 
 	WindowsWindow::~WindowsWindow()
 	{
+	}
+
+	Ref<ThreadContext> WindowsWindow::CreateThreadeContext()
+	{
+		Ref<ThreadContext> threadContext = CreateRef<OpenGLThreadContext>();
+		threadContext->Create(this);
+		return threadContext;
 	}
 
 	void WindowsWindow::Init(const WindowProps& props)
@@ -53,6 +63,9 @@ namespace Rynex {
 			glfwSetErrorCallback(GLFWErrorCallBack);
 			s_GEFWInitialzed = true;
 		}
+		
+
+		
 #ifdef RY_DEBUG
 		m_Data.Title += { " Debug Mode" };
 #elif RY_DIST
@@ -68,6 +81,7 @@ namespace Rynex {
 
 		
 		glfwSetWindowUserPointer(m_Window, &m_Data);
+		
 #ifdef RY_DEBUG
 		SetVSync(true);
 		RY_CORE_WARN("(SetVSync) is Executed -> true!");
@@ -76,6 +90,54 @@ namespace Rynex {
 		RY_CORE_INFO("(SetVSync) is Executed -> false!");
 #endif
 		// Set GLFW callbackes
+		glfwSetCursorEnterCallback(m_Window, [](GLFWwindow* window, int entered)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				
+				if (data.Hovered = entered == GLFW_TRUE)
+				{
+					WindowCurserEnterEvent event;
+					data.EventCallback(event);
+				}
+				else if (data.Hovered = !(entered == GLFW_FALSE))
+				{
+					WindowCurserLeaveEvent event;
+					data.EventCallback(event);
+				}
+
+			});
+
+		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* window, int xPos, int yPos)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				data.PosX = xPos;
+				data.PosY = yPos;
+				
+				WindowMovedEvent event(xPos, yPos);
+#if RY_CONSOLE_WINDOW_POSTION
+				RY_CORE_WARN("Window Postion(x: {0}, y: {1})", xPos, yPos);
+#endif
+
+				data.EventCallback(event);
+
+			});
+
+		glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* window, int focused)
+			{
+				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
+				if(data.Focuse = focused == GLFW_TRUE)
+				{
+					WindowFocuseEvent event;
+					data.EventCallback(event);
+				}
+				else if(data.Focuse = !(focused == GLFW_FALSE))
+				{
+					WindowLostFocuseEvent event;
+					data.EventCallback(event);
+				}
+				
+			});
 
 		
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int widthe, int height) 
@@ -85,7 +147,9 @@ namespace Rynex {
 				data.Height = height;
 
 				WindowResizeEvent event(widthe, height);
-				RY_CORE_WARN("{0}, {1}", widthe, height);
+#if RY_CONSOLE_WINDOW_SIZE
+				RY_CORE_WARN("Window Size( x: {0}, y: {1})", widthe, height);
+#endif
 				data.EventCallback(event);
 			});
 
@@ -164,9 +228,12 @@ namespace Rynex {
 			{
 				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 				MouseMoveEvent event((float)xPos, (float)yPos);
+				data.MousePosX = (float)xPos;
+				data.MousePosY = (float)yPos;
+#if RY_CONSOLE_MOUSE_POSTION
+				RY_CORE_WARN("Mouse Postion(x: {0}, y: {1})", xPos, yPos);
+#endif
 				data.EventCallback(event);
-
-
 			});
 		
 		RY_CORE_INFO("WindowsWindow::Init Succese!");
@@ -193,6 +260,11 @@ namespace Rynex {
 			glfwSwapInterval(0);
 		
 		m_Data.VSync = enabled;
+	}
+
+	bool WindowsWindow::IsFocused() const
+	{
+		return m_Data.Focuse;
 	}
 
 	bool WindowsWindow::IsVSync() const

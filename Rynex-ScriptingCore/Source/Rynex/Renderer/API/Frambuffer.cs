@@ -13,10 +13,10 @@ namespace Rynex
         RED_INTEGER,
 
         // Depth/stencil
-        DEPTH24STENCIL8,
+        Depth24Stencil8,
 
         // Defaults
-        Depth = DEPTH24STENCIL8
+        Depth = Depth24Stencil8
     }
 
     public enum FrameBufferImageSize
@@ -33,15 +33,17 @@ namespace Rynex
         public FramebufferTextureFormat TextureFormat;
         public TextureWrappingSpecification TextureWrapping;
         public TextureFilteringMode TextureFiltering;
-
+        public uint Samples;
         public FramebufferTextureSpecification(
             FramebufferTextureFormat format = FramebufferTextureFormat.None,
             TextureWrappingSpecification wrapping = new TextureWrappingSpecification(),
-            TextureFilteringMode filtering = TextureFilteringMode.None)
+            TextureFilteringMode filtering = TextureFilteringMode.None,
+            uint samples = 1)
         {
             TextureFormat = format;
             TextureWrapping = wrapping;
             TextureFiltering = filtering;
+            Samples = samples;
         }
     }
 
@@ -64,20 +66,18 @@ namespace Rynex
         public uint Width;
         public uint Height;
         public FramebufferAttachmentSpecification Attachments;
-        public uint Samples;
         public bool SwapChainTarget;
 
         public FramebufferSpecification(
             FramebufferAttachmentSpecification attachments = new FramebufferAttachmentSpecification(),
             uint width = 0,
             uint height = 0,
-            uint sample = 1,
+
             bool swapChainTarget = false)
         {
             Attachments = attachments;
             Width = width;
             Height = height;
-            Samples = sample;
             SwapChainTarget = swapChainTarget;
         }
 
@@ -91,7 +91,6 @@ namespace Rynex
             Attachments = new FramebufferAttachmentSpecification(attachments);
             Width = width;
             Height = height;
-            Samples = sample;
             SwapChainTarget = swapChainTarget;
         }
 
@@ -113,7 +112,7 @@ namespace Rynex
             {
                 fixed (FramebufferTextureSpecification* attachmentsPtr = attachments)
                 {
-                    InternalCalls.Framebuffer_Create_Spec(out ulong uuid, (IntPtr)attachmentsPtr, size, spec.Width, spec.Height, spec.Samples, spec.SwapChainTarget);
+                    InternalCalls.Framebuffer_Create_Spec(out ulong uuid, (IntPtr)attachmentsPtr, size, spec.Width, spec.Height, spec.SwapChainTarget);
                     Handle = new AssetHandle(uuid);
                 }
             }
@@ -122,7 +121,6 @@ namespace Rynex
         public Framebuffer(FramebufferTextureSpecification[] attachments,
             uint width = 0,
             uint height = 0,
-            uint samples = 1,
             bool swapChainTarget = false)
         {
             uint size = (uint)attachments.Length;
@@ -130,7 +128,7 @@ namespace Rynex
             {
                 fixed (FramebufferTextureSpecification* attachmentsPtr = attachments)
                 {
-                    InternalCalls.Framebuffer_Create_Spec(out ulong uuid, (IntPtr)attachmentsPtr, size, width, height, samples, swapChainTarget);
+                    InternalCalls.Framebuffer_Create_Spec(out ulong uuid, (IntPtr)attachmentsPtr, size, width, height, swapChainTarget);
                     Handle = new AssetHandle(uuid);
                 }
             }
@@ -152,15 +150,15 @@ namespace Rynex
         }
         public static Framebuffer GetAsset(ulong handle)
         {
-            InternalCalls.AssetManger_GetAsset_Handle(handle, AssetType.Framebuffer);
-            return new Framebuffer(handle);
+            InternalCalls.AssetManger_GetAsset_Handle(handle, AssetType.Framebuffer, out ulong outHandle);
+            return new Framebuffer(outHandle);
         }
 
         public FramebufferSpecification GetFramebufferSpecification()
         {
             
            
-            InternalCalls.Framebuffer_GetFramebufferSpecification(Handle.UUID, out uint size, out uint width, out uint height, out uint samples, out bool swapChainTarget);
+            InternalCalls.Framebuffer_GetFramebufferSpecification(Handle.UUID, out uint size, out uint width, out uint height, out bool swapChainTarget);
             
             FramebufferTextureSpecification[] attachments = new FramebufferTextureSpecification[size];
             for (uint i = 0; i < size; i++)
@@ -168,7 +166,7 @@ namespace Rynex
                 InternalCalls.Framebuffer_GetFramebufferTextureSpecification(Handle.UUID, i, out attachments[i]);
             }
             FramebufferSpecification spec = new FramebufferSpecification(
-                new FramebufferAttachmentSpecification(attachments), width, height, samples, swapChainTarget);
+                new FramebufferAttachmentSpecification(attachments), width, height, swapChainTarget);
             return spec;
         }
 

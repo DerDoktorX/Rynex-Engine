@@ -17,14 +17,14 @@ namespace Rynex {
 		Framebuffer,
 		VertexBuffer, IndexBuffer, StorageBuffer, UniformBuffer,
 		VertexArray, StorageArray,
-		Mesh, Model
+		Mesh, Model,
+		MeshSource, MeshStatic, MeshDynamic,
+		Script, 
+		TextFont,
+		Material, ShaderMaterial, BasicMaterial, DeferredMaterial, PhysicalMaterial, PhongMaterial
 	};
 
-	std::string_view AssetTypeToString(AssetType type);
-	AssetType AssetTypeFromString(std::string_view assetType);
-	AssetType GetAssetTypeFromFilePath(const std::filesystem::path& filePath);
-	std::string GetAssetTypeDragAndDropName(AssetType type);
-	std::string GetAssetTypeMoveAssetInfosName(AssetType type);
+	
 
 	class Asset
 	{
@@ -36,7 +36,12 @@ namespace Rynex {
 		void Validate() { m_Valid = true; };
 		bool IsValid() const{ return m_Valid; };
 		virtual AssetType GetType() const = 0;
-		
+
+		static std::string_view AssetTypeToString(AssetType type);
+		static AssetType AssetTypeFromString(std::string_view assetType);
+		static AssetType GetAssetTypeFromFilePath(const std::filesystem::path& filePath);
+		static std::string GetAssetTypeDragAndDropName(AssetType type);
+		static std::string GetAssetTypeMoveAssetInfosName(AssetType type);
 	};
 
 }

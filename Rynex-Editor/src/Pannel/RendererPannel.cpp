@@ -15,7 +15,8 @@ namespace Rynex {
 	RendererPannel::RendererPannel(const std::string& name)
 		: m_Name(name)
 		, m_RendererMode(
-			Renderer::CallFace_Back 
+			// Renderer::CallFace_Back 
+			Renderer::CallFace_None
 			| Renderer::Death_Buffer 
 			| Renderer::A_Buffer
 		)
@@ -76,7 +77,7 @@ namespace Rynex {
 			bool wireFrame = BIT_EQUAL(m_RendererMode, Renderer::WireFrame),
 				a_Buffer = BIT_EQUAL(m_RendererMode, Renderer::A_Buffer),
 				death_Buffer = BIT_EQUAL(m_RendererMode, Renderer::Death_Buffer),
-				callFace_Nono = BIT_EQUAL(m_RendererMode,Renderer::CallFace_Nono),
+				callFace_Nono = BIT_EQUAL(m_RendererMode,Renderer::CallFace_None),
 				callFace_Front = BIT_EQUAL(m_RendererMode, Renderer::CallFace_Front),
 				callFace_Back  = BIT_EQUAL(m_RendererMode, Renderer::CallFace_Back ),
 				callFace_FrontBack = BIT_EQUAL(m_RendererMode,Renderer::CallFace_FrontBack);
@@ -97,28 +98,28 @@ namespace Rynex {
 
 			if (ImGui::RadioButton("None", callFace_Nono))
 			{
-				m_RendererMode = BIT_SET_ON(1, Renderer::CallFace_Nono	   , m_RendererMode);
+				m_RendererMode = BIT_SET_ON(1, Renderer::CallFace_None	   , m_RendererMode);
 				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Front	   , m_RendererMode);
 				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Back	   , m_RendererMode);
 				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_FrontBack, m_RendererMode);
 			}
 			if (ImGui::RadioButton("Front", callFace_Front))
 			{
-				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Nono, m_RendererMode);
+				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_None, m_RendererMode);
 				m_RendererMode = BIT_SET_ON(1, Renderer::CallFace_Front, m_RendererMode);
 				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Back, m_RendererMode);
 				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_FrontBack, m_RendererMode);
 			}
 			if (ImGui::RadioButton("Back", callFace_Back))
 			{
-				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Nono, m_RendererMode);
+				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_None, m_RendererMode);
 				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Front, m_RendererMode);
 				m_RendererMode = BIT_SET_ON(1, Renderer::CallFace_Back, m_RendererMode);
 				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_FrontBack, m_RendererMode);
 			}
 			if (ImGui::RadioButton("Front Back", callFace_FrontBack))
 			{
-				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Nono, m_RendererMode);
+				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_None, m_RendererMode);
 				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Front, m_RendererMode);
 				m_RendererMode = BIT_SET_ON(0, Renderer::CallFace_Back, m_RendererMode);
 				m_RendererMode = BIT_SET_ON(1, Renderer::CallFace_FrontBack, m_RendererMode);

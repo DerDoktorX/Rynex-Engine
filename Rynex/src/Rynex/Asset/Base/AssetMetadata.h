@@ -15,6 +15,8 @@ namespace Rynex {
 		NotLoaded,		// Not Needed
 	};
 
+	
+
 	struct AssetMetadata
 	{
 		AssetType Type = AssetType::None;
@@ -22,14 +24,13 @@ namespace Rynex {
 		AssetState State = AssetState::None;
 		std::string Name = std::string("Unkowne");				//FilenameDefault
 		std::filesystem::file_time_type LoadingTime;
-		bool Aktive = false;
-		bool Interale = false;
-
-		operator bool() const { return Type != AssetType::None && Aktive; }
+		std::vector<AssetHandle> ChildrenAssets;
+		int Flags = 0;
+		
 
 		AssetMetadata() = default;
-
 		AssetMetadata(const AssetMetadata&) = default;
+	
 
 		AssetMetadata(const AssetMetadata& metadat, AssetState state)
 		{
@@ -38,12 +39,103 @@ namespace Rynex {
 			Name = metadat.Name;
 			LoadingTime = metadat.LoadingTime;
 			SetState(state);
+		}	
+
+		void SetChildeHandleMaxIndex(uint32_t maxIndex)
+		{
+			ChildrenAssets.reserve(maxIndex);
 		}
+
+		void AddChildeHandle(const AssetHandle handle)
+		{
+			ChildrenAssets.emplace_back(handle);
+		}
+
+		const AssetHandle GetChildeHandle(uint32_t index) const
+		{
+			return ChildrenAssets[index];
+		}
+		
 
 		void SetState(AssetState state) 
 		{
 			State = state;
 		}
+		
+
+		void SetActive(bool v)
+		{
+			if (v)
+				Flags |= BIT(0);
+			else
+				Flags &= ~BIT(0);
+		}
+		bool GetActive() const
+		{
+			return BIT_EQUAL(Flags, BIT(0));
+		}
+
+		void SetIntern(bool v)
+		{
+			if (v)
+				Flags |= BIT(1);
+			else
+				Flags &= ~BIT(1);
+		}
+		bool GetIntern() const
+		{
+			return BIT_EQUAL(Flags, BIT(1));
+		}
+
+		void SetDisc(bool v)
+		{
+			if (v)
+				Flags |= BIT(2);
+			else
+				Flags &= ~BIT(2);
+		}
+		bool GetDisc() const
+		{
+			return BIT_EQUAL(Flags, BIT(2));
+		}
+		
+		void SetParent(bool v)
+		{
+			if (v)
+				Flags |= BIT(3);
+			else
+				Flags &= ~BIT(3);
+		}
+		bool GetParent() const
+		{
+			return BIT_EQUAL(Flags, BIT(3));
+		}
+
+		void SetChildren(bool v)
+		{
+			if (v)
+				Flags |= BIT(4);
+			else
+				Flags &= ~BIT(4);
+		}
+		bool GetChildren() const
+		{
+			return BIT_EQUAL(Flags, BIT(4));
+		}
+
+		void SetScript(bool v)
+		{
+			if (v)
+				Flags |= BIT(5);
+			else
+				Flags &= ~BIT(5);
+		}
+		bool GetScript() const
+		{
+			return BIT_EQUAL(Flags, BIT(5));
+		}
+
+		operator bool() const { return Type != AssetType::None && GetActive(); }
 
 		
 	};

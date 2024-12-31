@@ -7,6 +7,9 @@
 #include <stb_image.h>
 
 namespace Rynex {
+	static Ref<Texture> s_DefaultTexture = nullptr;
+
+#if 0
 	Ref<Texture> Texture::Create(uint32_t withe, uint32_t height)
 	{
 		switch (Renderer::GetAPI())
@@ -18,13 +21,24 @@ namespace Rynex {
 		return nullptr;
 		return Ref<Texture>();
 	}
-
+#endif
 	Ref<Texture> Texture::Create(TextureSpecification spec, void* data, uint32_t size)
 	{
 		switch (Renderer::GetAPI())
 		{
 			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Curently not supportet"); return nullptr;
 			case RendererAPI::API::OpenGL:	return CreateRef<OpenGLTexture>(spec, data, size);
+		}
+		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
+		return nullptr;
+	}
+
+	Ref<Texture> Texture::CreateAsync(TextureSpecification spec, std::vector<unsigned char>&& data)
+	{
+		switch (Renderer::GetAPI())
+		{
+			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Curently not supportet"); return nullptr;
+			case RendererAPI::API::OpenGL:	return CreateRef<OpenGLTexture>(spec, std::move(data));
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
@@ -41,6 +55,25 @@ namespace Rynex {
 		return nullptr;
 	}
 
+	Ref<Texture> Texture::Default()
+	{
+
+		
+		if (!s_DefaultTexture && Renderer::IsInit())
+		{
+			s_DefaultTexture = Create({ 1,1,TextureTarget::Texture2D });
+			uint32_t whitheTexData = 0xffffffff;
+			s_DefaultTexture->SetData(&whitheTexData, sizeof(uint32_t));
+		}
+		return s_DefaultTexture;
+	}
+
+	void Texture::Shutdown()
+	{
+		s_DefaultTexture.reset();
+	}
+
+#if 0
 	Ref<Texture> Texture::Create(const std::string& path)
 	{
 		RY_CORE_ERROR("Not allowd Funktion(AssetManger)!: Texture::Create");
@@ -62,6 +95,7 @@ namespace Rynex {
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
 	}
+#endif
 
 	void Texture::BindTex(uint32_t renderID, uint32_t slot)
 	{
@@ -74,15 +108,6 @@ namespace Rynex {
 	}
 
 
-	Ref<Texture> Texture::CreateFrame(AssetHandle assetHandle, int index)
-	{
-		switch (Renderer::GetAPI())
-		{
-			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Curently not supportet"); return nullptr;
-			case RendererAPI::API::OpenGL:	return CreateRef<OpenGLTextureLinking>(assetHandle, index);
-		}
-		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
-		return nullptr;
-	}
+	
 
 }

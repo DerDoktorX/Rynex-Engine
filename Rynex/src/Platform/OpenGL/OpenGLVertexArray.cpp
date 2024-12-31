@@ -1,6 +1,7 @@
 #include "rypch.h"
 #include "OpenGLVertexArray.h"
 
+
 #include <glad/glad.h>
 
 namespace Rynex {
@@ -30,7 +31,7 @@ namespace Rynex {
 			//case ShaderDataType::Uint3x3:		return 4;
 			//case ShaderDataType::Uint4x4:		return 4;
 			//case ShaderDataType::UintArray	return 4;
-			case ShaderDataType::Bool:			return GL_BOOL;
+			//case ShaderDataType::Bool:		return GL_BOOL;
 			//case ShaderDataType::Struct:		return 4;
 		}
 	}
@@ -83,6 +84,8 @@ namespace Rynex {
 		return m_Primitv;
 	}
 
+	
+
 	void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
 	{
 		RY_PROFILE_FUNCTION();
@@ -125,6 +128,7 @@ namespace Rynex {
 				index++;
 				break;
 			}
+#if 0
 			case ShaderDataType::Bool:
 			{
 				glEnableVertexAttribArray(index);
@@ -136,6 +140,7 @@ namespace Rynex {
 				index++;
 				break;
 			}
+#endif
 			}
 
 			

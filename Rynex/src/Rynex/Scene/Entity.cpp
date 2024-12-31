@@ -122,7 +122,7 @@ namespace Rynex {
 			Entity childeEntity = m_Scene->GetEntitiyByUUID(nextChilde);
 			RealtionShipComponent& childeRealtionshipC = childeEntity.GetComponent<RealtionShipComponent>();
 			RY_CORE_ASSERT(childeRealtionshipC.ParentID == GetUUID(), "is not SameParent!");
-
+			childeEntity.UpdateMatrix();
 			UUID first = childeRealtionshipC.FirstID;
 			if (first)
 			{

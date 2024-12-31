@@ -1,5 +1,5 @@
 #pragma once
-#include "Rynex/Core/CoreConfig.h"
+#include "Rynex/Core/Config.h"
 
 #include <memory>
 
@@ -53,11 +53,11 @@
 			// #define RYNEX_API
 		#else
 			#define RYNEX_API __declspec(dllimport)
-			// #define RYNEX_API
+			// RYNEX_API
 		#endif
-	#else
+	#else //  DYNAMIC LINKING
 		#define RYNEX_API
-	#endif // RY_DYNAMIC_LINK
+	#endif // STATIC LINKING
 #endif
 
 // Bit Operation
@@ -81,8 +81,54 @@
 #define RY_EXPAND_MOAKRO(x) x
 #define RY_STRINGIFY_MOAKRO(x) #x
 
+#define PRINT_BG_WHITE "\033[7m"
+#define PRINT_BG_BLACK "\033[40m"
+#define PRINT_BG_RED "\033[41m"
+#define PRINT_BG_GREEN "\033[42m"
+#define PRINT_BG_YALOW "\033[43m"
+#define PRINT_BG_BLUE "\033[44m"
+#define PRINT_BG_PURPL "\033[45m"
+#define PRINT_BG_CYNE "\033[46m"
+#define PRINT_BG_GRAY "\033[47m"
+
+#define PRINT_TX_WHITE "\033[0m"
+#define PRINT_TX_BLACK "\033[30m"
+#define PRINT_TX_RED "\033[0;31m"
+#define PRINT_TX_GREEN "\033[0;32m"
+#define PRINT_TX_YALOW "\033[0;33m"
+#define PRINT_TX_BLUE "\033[0;34m"
+#define PRINT_TX_PURPL "\033[0;35m"
+#define PRINT_TX_CYNE "\033[0;36m"
+#define PRINT_TX_GRAY "\033[0;37m"
+
+#define PRINT_BRIGTH_TX_DARK_GRAY "\033[90m"
+#define PRINT_BRIGTH_TX_RED "\033[91m"
+#define PRINT_BRIGTH_TX_GREEN "\033[02m"
+#define PRINT_BRIGTH_TX_YALOW "\033[93m"
+#define PRINT_BRIGTH_TX_BLUE "\033[94m"
+#define PRINT_BRIGTH_TX_PURPL "\033[95m"
+#define PRINT_BRIGTH_TX_CYNE "\033[96m"
+#define PRINT_BRIGTH_TX_GRAY "\033[97m"
+
+
+#define PRINT_BRIGTH_BG_DARK_GRAY "\033[101m"
+#define PRINT_BRIGTH_BG_RED "\033[101m"
+#define PRINT_BRIGTH_BG_GREEN "\033[102m"
+#define PRINT_BRIGTH_BG_YALOW "\033[103m"
+#define PRINT_BRIGTH_BG_BLUE "\033[104m"
+#define PRINT_BRIGTH_BG_PURPL "\033[105m"
+#define PRINT_BRIGTH_BG_CYNE "\033[106m"
+#define PRINT_BRIGTH_BG_GRAY "\033[107m"
+
+#define PRINT_REST "\033[0m\033[40m"
+
+
+#include "Rynex/Core/Log.h"
+#include "Rynex/Core/Assert.h"
 
 // Globle Short Defines
+#if RY_STD_PTR_IMPL
+
 namespace Rynex {
 
 	template<typename T>
@@ -104,7 +150,40 @@ namespace Rynex {
 		return std::make_shared<T>(std::forward<Args>(args)...);
 	}
 
-}
+	// template<typename T>
+	// static T GetEnumFormString(std::string_view e);
+	// {
+	// 	std::optional<T> type = magic_enum::enum_cast<T>(e, magic_enum::case_insensitive);
+	// 	if (type.has_value())
+	// 		return type.value();
+	// 	return T::None;
+	// }
 
-#include "Rynex/Core/Log.h"
-#include "Rynex/Core/Assert.h"
+	// template<typename T>
+	// static std::string_view GetStringFromEnum(T e);
+	// {
+	// 	return magic_enum::enum_name(e);
+	// }
+#if RY_DISABLE_WEAK_PTR-1
+
+	template<typename T>
+	using Weak = std::weak_ptr<T>;
+
+	
+
+#endif
+
+}
+#else
+
+#include "Rynex/Ptr/Ref.h"
+#include "Rynex/Ptr/Scope.h"
+
+#if RY_DISABLE_WEAK_PTR-1
+
+#include "Rynex/Ptr/Weak.h"
+
+#endif
+
+#endif
+

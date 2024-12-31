@@ -1,7 +1,6 @@
 #include "rypch.h"
 #include "TextureImporter.h"
 
-#include "Rynex/Asset/Base/Buffer.h"
 #include "Rynex/Asset/Base/AssetManager.h"
 #include "Rynex/Serializers/TextureSerialiazer.h"
 
@@ -11,12 +10,12 @@ namespace Rynex{
 
 
 
-	Ref<Texture> TextureImporter::ImportTexture(AssetHandle handle, const AssetMetadata& metadata)
+	Ref<Texture> TextureImporter::ImportTexture(AssetHandle handle, const AssetMetadata& metadata, bool async)
 	{
-		return LoadTexture(metadata.FilePath);
+		return LoadTexture((Project::GetActiveProjectDirectory()/metadata.FilePath), async);
 	}
 
-	Ref<Texture> TextureImporter::LoadTexture(const std::filesystem::path& path)
+	Ref<Texture> TextureImporter::LoadTexture(const std::filesystem::path& path, bool async)
 	{
 		if (path.extension() == ".png" || path.extension() == ".jpeg" || path.extension() == ".jpg")
 		{
@@ -39,34 +38,45 @@ namespace Rynex{
 			spec.FilteringMode = TextureFilteringMode::Linear;
 			spec.WrappingSpec = {
 				TextureWrappingMode::Repeate,
-				TextureWrappingMode::Repeate
+				TextureWrappingMode::Repeate,
 			};
-			//data.Size = (uint64_t)width * height * channels;
+
 			switch (channels)
 			{
-			case 1:
+				case 1:
+				{
+					spec.Format = TextureFormat::R8;
+					break;
+				}
+				case 2:
+				{
+					spec.Format = TextureFormat::RG8;
+					break;
+				}
+				case 3:
+				{
+					spec.Format = TextureFormat::RGB8;
+					break;
+				}
+				case 4:
+				{
+					spec.Format = TextureFormat::RGBA8;
+					break;
+				}
+			}
+			Ref<Texture> texture;
+			if(async)
 			{
-				spec.Format = ImageFormat::R8;
-				break;
+				
+				uint32_t size = width * height * channels;
+				std::vector<unsigned char> vData(size);
+				std::memcpy(vData.data(), data, size);
+				texture = Texture::CreateAsync(spec, std::move(vData));
 			}
-			case 2:
+			else
 			{
-				spec.Format = ImageFormat::RG8;
-				break;
+				texture = Texture::Create(spec, data, width * height * channels);
 			}
-			case 3:
-			{
-				spec.Format = ImageFormat::RGB8;
-				break;
-			}
-			case 4:
-			{
-				spec.Format = ImageFormat::RGBA8;
-				break;
-			}
-			}
-
-			Ref<Texture> texture = Texture::Create(spec, data, width * height * channels);
 			stbi_image_free(data);
 			return texture;
 		}
@@ -82,7 +92,7 @@ namespace Rynex{
 		return nullptr;
 	}
 
-	void TextureImporter::ReLoadeTexture(AssetHandle handle, const std::filesystem::path& path)
+	void TextureImporter::ReLoadeTexture(AssetHandle handle, const std::filesystem::path& path, bool async)
 	{
 #if 1
 		if (path.extension() == ".png" || path.extension() == ".jpeg")
@@ -90,7 +100,7 @@ namespace Rynex{
 			RY_CORE_WARN("In Dev Funktion: ReLoadeTexture2D!");
 			int width, height, channels;
 			stbi_set_flip_vertically_on_load(1);
-			std::string strPath = path.string();
+			std::string strPath = (Project::GetActiveProjectDirectory() /path).string();
 			stbi_uc* data = stbi_load(strPath.c_str(), &width, &height, &channels, 0);
 
 			if (data == nullptr)
@@ -107,7 +117,7 @@ namespace Rynex{
 		else if (path.extension() == ".rytex2d")
 		{
 			RY_CORE_ASSERT(false, "ERROR: TextureImporter::LoadTexture! '.rytex2d' is not rady");
-			Texture2DSerialiazer::Deserlize(path);
+			Texture2DSerialiazer::Deserlize(Project::GetActiveProjectDirectory()/path);
 		}
 		else
 		{

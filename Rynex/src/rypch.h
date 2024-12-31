@@ -14,6 +14,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <filesystem>
+#include <regex>
+#include <optional>
 
 #include "Rynex/Core/Base.h"
 #include "Rynex/Core/Log.h"

@@ -6,8 +6,8 @@ namespace Rynex {
 	class VertexArrayImporter
 	{
 	public:
-		static Ref<VertexArray> ImportVertexArray(AssetHandle handle, const AssetMetadata& metadata);
-		static Ref<VertexArray> LoadVertexArry(const std::filesystem::path& path);
-		static void ReLoadeVertexArray(AssetHandle handle, const std::filesystem::path& path);
+		static Ref<VertexArray> ImportVertexArray(AssetHandle handle, const AssetMetadata& metadata, bool async = false);
+		static Ref<VertexArray> LoadVertexArry(const std::filesystem::path& path, bool async = false);
+		static void ReLoadeVertexArray(AssetHandle handle, const std::filesystem::path& path, bool async = false);
 	};
 }

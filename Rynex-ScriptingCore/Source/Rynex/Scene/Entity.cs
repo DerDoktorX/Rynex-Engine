@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.Contracts;
 
 namespace Rynex
 {
@@ -9,29 +10,25 @@ namespace Rynex
         internal Entity(ulong id)
         {
             ID = id;
-            // Console.WriteLine($"Create Entity! -> Constructor {id}!");
+            Console.WriteLine($"Create Entity! -> Constructor {ID}!");
+            if(!HasComponent<TransformComponent>())
+                AddComponent<TransformComponent>();
+            Transform = GetComponent<TransformComponent>();
+            if (!HasComponent<Matrix4x4Component>())
+                AddComponent<Matrix4x4Component>();
+            Matrix = GetComponent<Matrix4x4Component>();
+
         }
         ~Entity()
         {
-            // Console.WriteLine("Destroy Entity! -> Destructor!");
+            Console.WriteLine($"Destroy Entity! -> Destructor {ID}!");
             OnDestroy();
         }
 
         public readonly ulong ID;
 
-        public Vector3 Translation
-        {
-            get
-            {
-                InternalCalls.TransformComponent_GetTranslation(ID, out Vector3 result);
-                return result;
-            }
-
-            set
-            {
-                InternalCalls.TransformComponent_SetTranslation(ID, ref value);
-            }
-        }
+        public TransformComponent Transform;
+        public Matrix4x4Component Matrix;
 
 
         public bool HasComponent<T>() where T: Component, new()

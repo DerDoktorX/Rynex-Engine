@@ -3,6 +3,7 @@
 #ifdef RY_PLATFORM_WINDOWS
 
 	extern Rynex::Application* Rynex::CreateApplication(ApplicationCommandLineArgs spec);
+
 #if 0
 	
 
@@ -11,6 +12,7 @@
 	static uint64_t s_Remains = 0;
 	static uint64_t s_RemainsSize = 0;
 	static std::mutex s_MemoryMutex;
+
 	static void PrintMemoryUsage()
 	{
 		std::scoped_lock<std::mutex> lock(s_MemoryMutex);
@@ -37,10 +39,6 @@
 
 #endif
 
-
-	
-
-
 	int main(int argc, char** argv)
 	{
 		printf("Rynex Engin\n");
@@ -49,8 +47,16 @@
 		
 		RY_PROFILE_BEGIN_SESSION("Startup", "Profile/RynexPrifile-Startup.json");
 		RY_CORE_INFO("Initlatione Log!");
-		
-		auto app = Rynex::CreateApplication({ argc, argv });
+#if RY_ENABLE_DEFAULT_PROJECT
+		if (1==argc)
+		{
+			argv[1] = RY_DEFAULT_PROJECT_PATH;
+			argc = 2;
+		}
+		Rynex::Application* app = Rynex::CreateApplication({ argc, argv });
+#else
+		Rynex::Application* app = Rynex::CreateApplication({ argc, argv });
+#endif
 		RY_INFO("Initlatione Log!");
 
 		RY_PROFILE_END_SESSION();

@@ -93,17 +93,17 @@ namespace Rynex {
 		for (uint32_t i = 0; i < s_Data.MaxIconTextureSlots; i++)
 			s_Data.IconSamplers[i] = i;
 
-		 s_Data.IconShader = AssetManager::GetAsset<Shader>("Assets/shaders/IconTexture.glsl");
+		 s_Data.IconShader = AssetManager::GetAsset<Shader>("../Rynex-Editor/Editor-Assets/shaders/IconTexture.glsl");
 		 s_Data.IconShader->Bind();
 		 s_Data.IconShader->SetIntArray("u_Textures", s_Data.IconSamplers, s_Data.MaxIconTextureSlots);
 
 
-		 s_Data.LigthPointIcon = TextureImporter::LoadTexture("Resources/Icons/ViewPort/PointLigtheIcon.png");
-		 s_Data.LigthSpotIcon = TextureImporter::LoadTexture("Resources/Icons/ViewPort/SpotLigthIcon.png");
-		 s_Data.LigthDirctionelIcon = TextureImporter::LoadTexture("Resources/Icons/ViewPort/DirectionelLigtheIcon.png");
-		 s_Data.CameraIcon = TextureImporter::LoadTexture("Resources/Icons/ViewPort/KameraIcon.png");
+		 s_Data.LigthPointIcon = TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ViewPort/PointLigtheIcon.png", true);
+		 s_Data.LigthSpotIcon = TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ViewPort/SpotLigthIcon.png", true);
+		 s_Data.LigthDirctionelIcon = TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ViewPort/DirectionelLigtheIcon.png", true);
+		 s_Data.CameraIcon = TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ViewPort/KameraIcon.png", true);
 
-		s_Data.IconWhitheTexture = Texture::Create(1, 1);
+		 s_Data.IconWhitheTexture = Texture::Default();
 		uint32_t whitheTexData = 0xffffffff;
 		s_Data.IconWhitheTexture->SetData(&whitheTexData, sizeof(uint32_t));
 
