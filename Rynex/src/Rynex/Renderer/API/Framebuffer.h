@@ -136,7 +136,7 @@ namespace Rynex {
 		virtual const uint32_t GetAttachmentTexturesSize() const = 0;
 
 		virtual const Ref<Texture>& GetDepthTexture() const = 0;
-		
+		virtual void InitAsync() = 0;
 
 		virtual void Resize(uint32_t withe, uint32_t heigth) = 0;
 		virtual int ReadPixel(uint32_t attachmentsIndex, int x, int y) = 0;

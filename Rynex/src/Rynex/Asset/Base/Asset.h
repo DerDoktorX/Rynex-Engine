@@ -28,8 +28,6 @@ namespace Rynex {
 
 	class Asset
 	{
-	private:
-		bool m_Valid = false;
 	public:
 		AssetHandle Handle;
 		void Invalidate() { m_Valid = false; };
@@ -37,11 +35,17 @@ namespace Rynex {
 		bool IsValid() const{ return m_Valid; };
 		virtual AssetType GetType() const = 0;
 
+
 		static std::string_view AssetTypeToString(AssetType type);
 		static AssetType AssetTypeFromString(std::string_view assetType);
 		static AssetType GetAssetTypeFromFilePath(const std::filesystem::path& filePath);
 		static std::string GetAssetTypeDragAndDropName(AssetType type);
 		static std::string GetAssetTypeMoveAssetInfosName(AssetType type);
+
+		static bool CurrentOnMainThread();
+	private:
+		static std::thread::id m_MainThreadId;
+		bool m_Valid = false;
 	};
 
 }

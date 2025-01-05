@@ -95,4 +95,9 @@ namespace Rynex {
 #endif
 
 	}
+
+	bool OpenGLThreadContext::IsActive()
+	{
+		return glfwGetCurrentContext() != nullptr && Asset::CurrentOnMainThread();
+	}
 }

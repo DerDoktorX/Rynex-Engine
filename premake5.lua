@@ -112,6 +112,7 @@ include "Rynex"
 include "Rynex-Editor"
 -- include "Rynex-Test"
 include "Sandbox"
+include "Rynex-Sanboxe-Fetures"
 --group ""
 
 group "Core"	

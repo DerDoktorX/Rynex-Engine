@@ -223,6 +223,114 @@ namespace Rynex {
 			return changes;
 		}
 
+		static bool DrawVec4ControlerR(const std::string& label, glm::vec4& values, glm::vec4& resetValue, float columeWith = 80.0f)
+		{
+			bool changes = false;
+			ImGuiIO& io = ImGui::GetIO();
+			ImFont* boldFont = io.Fonts->Fonts[0];
+
+			ImGui::PushID(label.c_str());
+			ImGui::Columns(2, label.c_str(), false);
+			ImGui::SetColumnWidth(0, columeWith);
+			ImGui::Text(label.c_str());
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip(BufferAPI::GetStringFromShaderData(ShaderDataType::Float4).c_str());
+			ImGui::NextColumn();
+
+			ImGui::PushMultiItemsWidths(4, ImGui::CalcItemWidth());
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0.0f , 0.0f });
+
+			float lineHeigth = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+			ImVec2 butenSize = { lineHeigth + 3.0f, lineHeigth };
+
+
+
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
+			ImGui::PushFont(boldFont);
+			if (ImGui::Button("X", butenSize))
+			{
+				values.x = resetValue.x;
+				changes = true;
+			}
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip("Reset Value %.1f", resetValue.x);
+			ImGui::PopFont();
+			ImGui::PopStyleColor(3);
+
+			ImGui::SameLine();
+			changes = ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
+			ImGui::PopItemWidth();
+			ImGui::SameLine();
+
+
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
+			ImGui::PushFont(boldFont);
+			if (ImGui::Button("Y", butenSize))
+			{
+				values.y = resetValue.y;
+				changes = true;
+			}
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip("Reset Value %.1f", resetValue.y);
+			ImGui::PopFont();
+			ImGui::PopStyleColor(3);
+
+			ImGui::SameLine();
+			changes = ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
+			ImGui::PopItemWidth();
+			ImGui::SameLine();
+
+
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
+			ImGui::PushFont(boldFont);
+			if (ImGui::Button("Z", butenSize))
+			{
+				values.z = resetValue.z;
+				changes = true;
+			}
+
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip("Reset Value %.1f", resetValue.z);
+			ImGui::PopFont();
+			ImGui::PopStyleColor(3);
+
+			ImGui::SameLine();
+			changes = ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
+			ImGui::PopItemWidth();
+			ImGui::SameLine();
+
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.85f, 0.8f, 1.0f });
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.8f, 0.95f, 0.9f, 1.0f });
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.7f, 0.85f, 0.8f, 1.0f });
+			ImGui::PushFont(boldFont);
+			if (ImGui::Button("W", butenSize))
+			{
+				values.z = resetValue.w;
+				changes = true;
+			}
+			if (ImGui::IsItemHovered())
+				ImGui::SetTooltip("Reset Value %.1ff", resetValue.w);
+			ImGui::PopFont();
+			ImGui::PopStyleColor(3);
+
+			ImGui::SameLine();
+			changes = ImGui::DragFloat("##W", &values.z, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
+			ImGui::PopItemWidth();
+			ImGui::SameLine();
+
+			ImGui::PopStyleVar();
+
+			ImGui::Columns(1);
+			ImGui::PopID();
+			return changes;
+		}
+
 		static bool DrawVec3Controler(const std::string& label, glm::vec3& values, float resetValue = 0.0f, float columeWith = 80.0f)
 		{
 			bool changes = false;
@@ -1463,7 +1571,7 @@ namespace Rynex {
 				{
 					ImGui::OpenPopup("Loade-Mesh");
 					AssetHandle handle = *(AssetHandle*)payload->Data;
-					
+					component.ModelR = nullptr;
 					AssetManager::GetAssetAsync<Model>(*(AssetHandle*)payload->Data, &component.ModelR);
 					
 				}
@@ -1612,10 +1720,40 @@ namespace Rynex {
 			});
 
 		// Drirektionle-Ligth
-		Utils::DrawComponent<DrirektionleLigthComponent>("Drirektionle-Ligth", entity, [](DrirektionleLigthComponent& component)
+		Utils::DrawComponent<DrirektionleLigthComponent>("Drirektionle-Ligth", entity, [&](DrirektionleLigthComponent& component)
 			{
 				ImGui::ColorEdit3("Color: ", glm::value_ptr(component.Color));
 				ImGui::DragFloat("Intensitie: ", &component.Intensitie, 0.01f, -1.0f, 10.0f, "%.2f");
+				
+				
+				
+				if(entity.HasComponent<Matrix4x4Component>() && entity.HasComponent<TransformComponent>())
+				{
+					Matrix4x4Component& mat4C = entity.GetComponent<Matrix4x4Component>();
+
+					float sizeOrth = component.CameraLigth.GetOrthographicSize();
+					if (ImGui::DragFloat("Size", &sizeOrth))
+						component.CameraLigth.SetOrthograficSize(sizeOrth);
+
+					float nearOrth = component.CameraLigth.GetOrthographicNearClipe();
+					if (ImGui::DragFloat("Near", &nearOrth))
+						component.CameraLigth.SetOrthograficNearClipe(nearOrth);
+
+					float farOrth = component.CameraLigth.GetOrthographicFarClipe();
+					if (ImGui::DragFloat("Far", &farOrth))
+						component.CameraLigth.SetOrthograficFarClipe(farOrth);
+
+					if (component.ShadowFrameBuffer)
+					{
+						 glm::ivec2 size = component.ShadowFrameBuffer->GetFrambufferSize();
+						 if(ImGui::DragInt2("size", glm::value_ptr(size), 1.0,0, 0, "%i"))
+						 {
+							 component.ShadowFrameBuffer->Resize(size.x, size.y);
+							 component.CameraLigth.SetViewPortSize(size.x, size.y);
+						 }
+					}
+				}
+
 			});
 
 		// Point-Ligth

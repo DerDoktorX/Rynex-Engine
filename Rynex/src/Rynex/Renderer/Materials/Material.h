@@ -1,10 +1,10 @@
 #pragma once
-#include <Rynex/Renderer/API/Shader.h>
-
+#include "Rynex/Renderer/API/Shader.h"
 
 namespace Rynex {
 	
 	struct ShaderMaterialDefaultNames;
+	struct CameraData;
 
 	class Material : public Asset
 	{
@@ -28,8 +28,8 @@ namespace Rynex {
 		virtual void SetMatrix(const glm::mat4& matrix) = 0;
 		virtual const glm::mat4& GetMatrix() const;
 
-		virtual void BindShadow() = 0;
-		virtual void Bind(int* entityIDs, uint32_t size = 1) = 0;
+		virtual void BindShadow(CameraData& ligthCam) = 0;
+		virtual void Bind(int* entityIDs, uint32_t size, CameraData& camera, CameraData& ligthCam) = 0;
 		virtual void UnBind() = 0;
 		virtual bool IsRady();
 		virtual void InitAsync() = 0;

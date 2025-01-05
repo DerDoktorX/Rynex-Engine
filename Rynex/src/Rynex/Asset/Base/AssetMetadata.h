@@ -23,7 +23,7 @@ namespace Rynex {
 		std::filesystem::path FilePath = "Not knowing Path";
 		AssetState State = AssetState::None;
 		std::string Name = std::string("Unkowne");				//FilenameDefault
-		std::filesystem::file_time_type LoadingTime;
+		std::chrono::time_point<std::chrono::steady_clock> LoadingInTime = std::chrono::time_point<std::chrono::steady_clock>::min();
 		std::vector<AssetHandle> ChildrenAssets;
 		int Flags = 0;
 		
@@ -37,7 +37,7 @@ namespace Rynex {
 			Type = metadat.Type;
 			FilePath = metadat.FilePath;
 			Name = metadat.Name;
-			LoadingTime = metadat.LoadingTime;
+			LoadingInTime = metadat.LoadingInTime;
 			SetState(state);
 		}	
 

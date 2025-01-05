@@ -4,6 +4,7 @@
 #include <Platform/OpenGL/OpenGLFramebuffer.h>
 #include <Rynex/Renderer/API/Framebuffer.h>
 #include <Rynex/Core/Application.h>
+#include <Platform/OpenGL/OpenGLThreadContext.h>
 
 #include <glad/glad.h>
 
@@ -428,7 +429,10 @@ namespace Rynex{
 		, m_Width(specification.Width)
 		, m_Height(specification.Height)
 	{
-		Invalidate(nullptr);
+		
+			Invalidate(nullptr);
+	
+
 	}
 
 	
@@ -565,15 +569,20 @@ namespace Rynex{
 		, m_Width(spec.Width)
 		, m_Height(spec.Height)
 	{
-		if(size == m_Width * m_Height * Utils::ImageCahnels(m_Specification.Format))
+
+		m_Data.resize(size);
+		std::memcpy(m_Data.data(), data, m_Data.size());
+		
+		if (m_Data.size() == m_Width * m_Height * Utils::ImageCahnels(m_Specification.Format))
 		{
-			Invalidate(data);
+			Invalidate(m_Data.data());
 		}
 		else
 		{
 			RY_CORE_ASSERT(false);
 			Invalidate(nullptr);
 		}
+	
 		
 	}
 
@@ -587,10 +596,7 @@ namespace Rynex{
 	{
 		uint32_t bpp = Utils::ImageCahnels(m_Specification.Format);
 		RY_CORE_ASSERT(m_Data.size() != 0 && m_Width * m_Height * bpp == m_Data.size());
-		Application::Get().SubmiteToMainThreedQueue([this]() {
-			Invalidate();
-			InitAsync();
-		});
+		Invalidate(m_Data.data());
 	}
 
 	OpenGLTexture::~OpenGLTexture()
@@ -606,9 +612,7 @@ namespace Rynex{
 
 	void OpenGLTexture::InitAsync()
 	{
-		RY_CORE_ASSERT(m_Data.size() != 0);
-		SetData(m_Data.data(), m_Data.size());
-		FreeCurrentData();
+		
 	}
 
 	void OpenGLTexture::SetData(void* data, uint32_t size)
@@ -667,52 +671,60 @@ namespace Rynex{
 
 	void OpenGLTexture::Invalidate(void* data)
 	{
-
-		TexFilter& filter = m_Specification.FilteringMode;
-		if (filter == TexFilter::Default && !m_Specification.GenerateMips)
-			filter = m_Specification.GenerateMips ? TexFilter::LinearMidmapLinear : TexFilter::Linear;
-
-		TexFrom& fromat = m_Specification.Format;
-		if(fromat == TexFrom::Default)
-			fromat = TexFrom::RGBA8;
-
-		TextureWrappingMode& warpT = m_Specification.WrappingSpec.T;
-		if (warpT == TexWarp::Default)
-			warpT = TexWarp::Repeate;
-
-		TextureWrappingMode& warpR = m_Specification.WrappingSpec.R;
-		if (warpR == TexWarp::Default)
-			warpR =  TexWarp::Repeate;
-
-		TextureWrappingMode& warpS = m_Specification.WrappingSpec.S;
-		if (warpS == TexWarp::Default)
-			warpS = TexWarp::Repeate;
-
-		if (m_RendererID)
+		if (OpenGLThreadContext::IsActive())
 		{
-			glDeleteTextures(1, &m_RendererID);
-			m_RendererID = 0;
-		}
+			TexFilter& filter = m_Specification.FilteringMode;
+			if (filter == TexFilter::Default && !m_Specification.GenerateMips)
+				filter = m_Specification.GenerateMips ? TexFilter::LinearMidmapLinear : TexFilter::Linear;
 
-		// Create Texure
-		if(Utils::CreateTexture(m_Specification, &m_RendererID, data))
-		{
-			m_DataFormate = Utils::FormatData(m_Specification.Format);
-			m_InternalFormate = Utils::InternalFormat(m_Specification.Format);
-			if (!(m_Specification.Samples > 1))
-			{	
-				Utils::TextureFiltering(m_Specification, m_RendererID);
-				Utils::TextureWrapping(m_Specification, m_RendererID);
-			
+			TexFrom& fromat = m_Specification.Format;
+			if (fromat == TexFrom::Default)
+				fromat = TexFrom::RGBA8;
+
+			TextureWrappingMode& warpT = m_Specification.WrappingSpec.T;
+			if (warpT == TexWarp::Default)
+				warpT = TexWarp::Repeate;
+
+			TextureWrappingMode& warpR = m_Specification.WrappingSpec.R;
+			if (warpR == TexWarp::Default)
+				warpR = TexWarp::Repeate;
+
+			TextureWrappingMode& warpS = m_Specification.WrappingSpec.S;
+			if (warpS == TexWarp::Default)
+				warpS = TexWarp::Repeate;
+
+			if (m_RendererID)
+			{
+				glDeleteTextures(1, &m_RendererID);
+				m_RendererID = 0;
 			}
-			// RY_CORE_INFO("OpenGLTexture2D Texture Create Finished: {0}", m_RendererID);
-			// glBindTexture(Utils::TexTarget(m_Specification.Target, m_Specification.Samples > 1), 0);
 
+			// Create Texure
+			if (Utils::CreateTexture(m_Specification, &m_RendererID, data))
+			{
+				m_DataFormate = Utils::FormatData(m_Specification.Format);
+				m_InternalFormate = Utils::InternalFormat(m_Specification.Format);
+				if (!(m_Specification.Samples > 1))
+				{
+					Utils::TextureFiltering(m_Specification, m_RendererID);
+					Utils::TextureWrapping(m_Specification, m_RendererID);
+
+				}
+				// RY_CORE_INFO("OpenGLTexture2D Texture Create Finished: {0}", m_RendererID);
+				// glBindTexture(Utils::TexTarget(m_Specification.Target, m_Specification.Samples > 1), 0);
+
+			}
+			else
+			{
+				RY_CORE_ASSERT(false, "OpenGLTexture2D Faild to Create Texture!");
+				glDeleteTextures(1, &m_RendererID);
+			}
 		}
 		else
 		{
-			RY_CORE_ASSERT(false,"OpenGLTexture2D Faild to Create Texture!");
-			glDeleteTextures(1, &m_RendererID);
+			Application::Get().SubmiteToMainThreedQueue([this, data]() {
+				Invalidate(data);
+				});
 		}
 	}
 
@@ -871,6 +883,8 @@ namespace Rynex{
 
 	void OpenGLFrameTexture::Invalidate(uint32_t redererID)
 	{
+		RY_CORE_ASSERT(OpenGLThreadContext::IsActive());
+
 		m_RendererID = redererID;
 		bool multySample = m_Specification.Samples > 1;
 		m_DataFormate = Utils::FormatData(m_Specification.Format);
@@ -904,14 +918,14 @@ namespace Rynex{
 			
 		if (!multySample)
 		{
-			// Utils::TextureFiltering(m_Specification, m_RendererID);
-			// Utils::TextureWrapping(m_Specification, m_RendererID);
+			Utils::TextureFiltering(m_Specification, m_RendererID);
+			Utils::TextureWrapping(m_Specification, m_RendererID);
 
-			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			// glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			// glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			// glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+			// glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			// glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		}	
 	}
 

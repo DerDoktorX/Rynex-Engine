@@ -277,14 +277,14 @@ namespace Rynex {
 	{
 		glm::vec3 Color = { 1.0f, 1.0f, 1.0f };
 		float Intensitie = 0.1f;
-		Camera Projection = glm::ortho(
-			-300.0f, 300.0f, 
-			-300.0f, 300.0f, 
-			10.0f, 500.0f
-		);
+		SceneCamera CameraLigth;
 		Ref<Framebuffer> ShadowFrameBuffer = nullptr;
 
-		DrirektionleLigthComponent() = default;
+		DrirektionleLigthComponent()
+		{
+			CameraLigth.SetViewPortSize(2048, 2048);
+			CameraLigth.SetOrthoGrafic(15, 1, 15);
+		};
 		DrirektionleLigthComponent(const DrirektionleLigthComponent&) = default;
 
 	};

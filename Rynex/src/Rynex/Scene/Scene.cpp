@@ -127,9 +127,7 @@ namespace Rynex {
 
 	Entity Scene::CreateEntityWitheUUID(UUID uuid, const std::string& name, int index)
 	{
-		Entity entity = index == -1 ?
-			Entity(m_Registery.create(), this) :
-			Entity(m_Registery.create((entt::entity)index), this);
+		Entity entity = index == -1 ? Entity(m_Registery.create(), this) : Entity(m_Registery.create((entt::entity)index), this);
 
 		entity.AddComponent<IDComponent>(uuid);
 		entity.AddComponent<TransformComponent>();
@@ -461,9 +459,6 @@ namespace Rynex {
 
 	
 
-	
-
-
 	// 
 	void Scene::SetLigthsRuntime(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D)
 	{
@@ -510,9 +505,6 @@ namespace Rynex {
 	}
 
 	
-
-	
-
 	void Scene::SetLigthsEditor(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D, Camera& camera, const glm::mat4& viewMatrix, const glm::uvec2& viewPortSize)
 	{
 		EnttAmbientLView& ambientView = enttViewLigths.AmbientLCV;
@@ -527,7 +519,7 @@ namespace Rynex {
 		for (EnttEntity directionelE : directionelView)
 		{
 			auto& [matrixC, directionelC] = directionelView.get<Matrix4x4Component, DrirektionleLigthComponent>(directionelE);
-			
+			// glm::mat4 matrix = glm::lookAt(glm::vec3(matrixC.GlobleMatrix4x4[3]), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 			Renderer3D::SetLigthUniform(directionelC, matrixC.GlobleMatrix4x4, directionCount);
 			directionCount++;
 			Renderer2D::DrawLigthDirctionelIcon(matrixC.GlobleMatrix4x4, (int)directionelE);
@@ -535,17 +527,17 @@ namespace Rynex {
 			if (!frambuffer)
 			{
 				FramebufferSpecification spec = {
-					1024, 1024,
+					512, 512,
 					{
 						{
 							TextureFormat::DepthComp24,
 							1,
 							{
-								TextureWrappingMode::None,
-								TextureWrappingMode::None,
-								TextureWrappingMode::None,
+								TextureWrappingMode::ClampEdge,
+								TextureWrappingMode::ClampEdge,
+								TextureWrappingMode::ClampEdge,
 							},
-							TextureFilteringMode::Nearest
+							TextureFilteringMode::Linear
 						}
 					},
 					1, 
@@ -553,7 +545,9 @@ namespace Rynex {
 				};
 				frambuffer = Framebuffer::Create(spec);
 			}
-			RenderScene3DShadows(directionelC.Projection, glm::inverse(matrixC.GlobleMatrix4x4), enttView3D, frambuffer, ligthIndex);
+
+			
+			RenderScene3DShadows(directionelC.CameraLigth, matrixC.GlobleMatrix4x4, enttView3D, frambuffer, ligthIndex);
 			ligthIndex++;
 
 		}
@@ -597,7 +591,9 @@ namespace Rynex {
 		RY_PROFILE_SCOPE("Scene Shadow Draw 3D");
 		EnttRender3DEditeView& enttRender3DEditeView = enttView3D.EditeCV;
 		frambuffer->Bind();
-		RenderCommand::ClearDepth();
+		RenderCommand::SetClearColor({0.f,0.f,0.f,1.f});
+		RenderCommand::Clear();
+		
 		int flagmode = RenderCommand::GetMode();
 		RenderCommand::SetMode(Renderer::Mode::CallFace_Back | Renderer::Mode::Death_Buffer);
 		Renderer3D::BeginSceneShadow(camera, transform);

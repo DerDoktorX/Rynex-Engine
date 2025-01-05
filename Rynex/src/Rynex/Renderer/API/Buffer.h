@@ -162,6 +162,15 @@ namespace Rynex {
 			m_Elements.push_back(ellements);
 			CaculateOffsetAndStride();
 		}
+
+		void Clear()
+		{
+			m_Elements.clear();
+			m_Stride = 0;
+			m_Length = 0;
+			m_BufferCount = 0;
+		}
+
 	private:
 		void CaculateOffsetAndStride() 
 		{
@@ -280,7 +289,7 @@ namespace Rynex {
 
 		virtual void Bind(uint32_t slot = 0) const = 0;
 		virtual void UnBind() const = 0;
-
+		virtual void InitAsync() = 0;
 		virtual void SetData(const void* data, uint32_t byteSize) = 0;
 
 		static AssetType GetStaticType() { return AssetType::StorageBuffer; }
@@ -300,7 +309,9 @@ namespace Rynex {
 		virtual void SetData(const void* data, uint32_t byteSize) = 0;
 		virtual void SetData(const void* data, uint32_t offset, uint32_t byteSize) = 0;
 		virtual void SetLocelData(const BufferElement& ellement, const void* data, uint32_t byteSize) = 0;
-		
+
+		virtual void InitAsync() = 0;
+
 		virtual uint32_t GetByteSize() = 0;
 		virtual void SetOnDelete(std::function<void()> onDelete) = 0;
 
@@ -310,7 +321,6 @@ namespace Rynex {
 		static Ref<UniformBuffer> Create(const void* data, uint32_t byteSize, const BufferLayout& layout, BufferDataUsage usage, uint32_t binding);
 		static Ref<UniformBuffer> CreateAsync(std::vector<unsigned char>&& data, const BufferLayout& layout, BufferDataUsage usage, uint32_t binding);
 		// virtual const RendererAPI::API GetRendererAPI() const = 0;
-		virtual void InitAsync() = 0;
 
 		virtual const std::vector<unsigned char>& GetBufferData() = 0;
 		virtual void FreeBufferData() = 0;

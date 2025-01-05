@@ -216,8 +216,8 @@ namespace Rynex {
 		void DeleteLocaleAssetAsync(AssetHandle handle);
 
 		void ScaneDirectory(const std::filesystem::path& path);
-		void ReLoadeAsset(AssetHandle handle);
-		void ReLoadeAsset(const std::filesystem::path& path);
+		void ReLoadeAsset(AssetHandle handle, bool async);
+		void ReLoadeAsset(const std::filesystem::path& path, bool async);
 
 		bool IsCurentAssetState(const std::filesystem::path& showPath) const;
 		ContentBrowserItemesThreade GetCurentAssetInformation(const std::filesystem::path& showPath);
@@ -239,7 +239,7 @@ namespace Rynex {
 		void UnLoadeFileAsset(const AssetHandle handle);
 	private:
 
-		bool ExexuteEvent(AssetHandle handle) const;
+		bool ExexuteEvent(AssetHandle handle);
 		inline bool IsFileAssetExist(const std::filesystem::path& path)
 		{
 			std::filesystem::path pathExist = path;

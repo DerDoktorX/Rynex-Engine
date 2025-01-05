@@ -20,6 +20,15 @@ namespace Rynex {
 		{};
     };
 
+	struct CameraData
+	{
+		glm::mat4 ViewProjectionMatrix;
+		glm::mat4 ViewMatrix;
+		glm::mat4 ProjectionMatrix;
+		glm::vec3 CamerPosition;
+		int Empty = -1;
+	};
+
 	class RYNEX_API Renderer3D
 	{
 	public:

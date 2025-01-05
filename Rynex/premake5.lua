@@ -113,6 +113,7 @@ project "Rynex"
 	
 	filter "configurations:Debug"
 		defines "RY_DEBUG"
+		-- defines "RY_DEV"
 	-- For Compile Rynex in .dll |
 	--							 V
 		--buildoptions "/MDd"
@@ -139,6 +140,7 @@ project "Rynex"
 
 	filter "configurations:Release"
 		defines "RY_REALSE"
+		-- defines "RY_DEV"
 	-- For Compile Rynex in .dll |
 	--							 V	
 		--buildoptions "/MD"

@@ -1,6 +1,9 @@
 #include "rypch.h"
 #include "OpenGLShader.h"
 
+#include "Rynex/Core/Application.h"
+#include <Platform/OpenGL/OpenGLThreadContext.h>
+
 #define GL_ARB_separate_shader_objects
 #include <fstream>
 
@@ -287,38 +290,130 @@ namespace Rynex {
 	OpenGLShader::OpenGLShader(std::string&& source)
 		: m_Source(std::move(source))
 	{
-		Application::Get().SubmiteToMainThreedQueue([this]() {
+		m_ShaderSources = PreProcess(m_Source);
+		if (OpenGLThreadContext::IsActive())
+		{
 			InitAsync();
-		});
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				InitAsync();
+				});
+		}
 	}
 
 	OpenGLShader::OpenGLShader(const std::string& source, const std::string& name)
 		: m_Name(name), m_Source(source)
 	{
-		std::unordered_map<uint32_t, std::string> shaderSources = PreProcess(m_Source);
-		Compile(shaderSources);
+		m_ShaderSources = PreProcess(m_Source);
+		if (OpenGLThreadContext::IsActive())
+		{
+			InitAsync();
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				InitAsync();
+				});
+		}
 		
 	}
 
 	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
 		: m_Name(name)
 	{
-		std::unordered_map<GLenum, std::string> sources;
-		sources[GL_VERTEX_SHADER] = vertexSrc;
-		sources[GL_FRAGMENT_SHADER] = fragmentSrc;
-		Compile(sources);
+
+		m_ShaderSources[GL_VERTEX_SHADER] = vertexSrc;
+		m_ShaderSources[GL_FRAGMENT_SHADER] = fragmentSrc;
+		if (OpenGLThreadContext::IsActive())
+		{
+			InitAsync();
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				InitAsync();
+				});
+		}
 	}
 
 	OpenGLShader::~OpenGLShader()
 	{
-		glDeleteProgram(m_RendererID);
+		if(m_RendererID)
+			glDeleteProgram(m_RendererID);
 	}
 
 	void OpenGLShader::ReganrateShader(const std::string& source)
 	{
-		glDeleteProgram(m_RendererID);
-		auto shaderSources = PreProcess(source);
-		Compile(shaderSources);
+		if(m_Source == source)
+			m_Source = source;
+
+		
+		
+		if (OpenGLThreadContext::IsActive())
+		{
+			m_ShaderMap.clear();
+			m_sUniformLayoute.clear();
+			m_ShaderType = 0;
+			m_ShaderSources = PreProcess(m_Source);
+			if (m_RendererID)
+			{
+				glDeleteProgram(m_RendererID);
+				m_RendererID = 0;
+			}
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				m_ShaderMap.clear();
+				m_sUniformLayoute.clear();
+				m_ShaderType = 0;
+				m_ShaderSources = PreProcess(m_Source);
+					if (m_RendererID)
+					{
+						glDeleteProgram(m_RendererID);
+						m_RendererID = 0;
+					}
+					Compile(m_ShaderSources);
+				});
+		}
+	}
+
+	void OpenGLShader::ReganrateShader(std::string&& source)
+	{
+		m_Source = "";
+		m_Source = std::move(source);
+
+		if (OpenGLThreadContext::IsActive())
+		{
+			m_ShaderMap.clear();
+			m_sUniformLayoute.clear();
+			m_ShaderType = 0;
+			m_ShaderSources = PreProcess(m_Source);
+			if (m_RendererID)
+			{
+				glDeleteProgram(m_RendererID);
+				m_RendererID = 0;
+			}
+			Compile(m_ShaderSources);
+		}
+		else
+		{
+			if(m_Source != "")
+				Application::Get().SubmiteToMainThreedQueue([this]() {
+					m_ShaderMap.clear();
+					m_sUniformLayoute.clear();
+					m_ShaderType = 0;
+					m_ShaderSources = PreProcess(m_Source);
+					if (m_RendererID)
+					{
+						glDeleteProgram(m_RendererID);
+						m_RendererID = 0;
+					}
+					Compile(m_ShaderSources);
+				});
+		}
 	}
 
 	void OpenGLShader::Bind() const
@@ -333,8 +428,8 @@ namespace Rynex {
 
 	void OpenGLShader::InitAsync()
 	{
-		auto shaderSources = PreProcess(m_Source);
-		Compile(shaderSources);
+		
+		Compile(m_ShaderSources);
 		m_Source.clear();
 		m_Source.shrink_to_fit();
 	}
@@ -481,7 +576,7 @@ namespace Rynex {
 	void OpenGLShader::Compile(std::unordered_map<GLenum, std::string>& shadersSources)
 	{
 
-		GLint program = glCreateProgram();
+		m_RendererID = glCreateProgram();
 		RY_CORE_ASSERT(shadersSources.size() <= 4, "only 4 Shaders for now!");
 		std::array<GLenum, 4> glShaderIDs;
 		
@@ -495,19 +590,19 @@ namespace Rynex {
 			
 			GLint shader = Utils::CreateShader(sourceCstr, type, shaderLineOffset);
 			shaderLineOffset += Utils::GetLineCount(sourceCstr);
-			glAttachShader(program, shader);
+			glAttachShader(m_RendererID, shader);
 			glShaderIDs[glShaderIndex++]=shader;
 			
 		}
 
-		m_RendererID = program;
-		glLinkProgram(program);
+
+		glLinkProgram(m_RendererID);
 
 		
-		Utils::CheckProgrammLinking(program, glShaderIDs);
+		Utils::CheckProgrammLinking(m_RendererID, glShaderIDs);
 
 		for (auto& id : glShaderIDs)
-			glDetachShader(program, id);
+			glDetachShader(m_RendererID, id);
 
 	}
 

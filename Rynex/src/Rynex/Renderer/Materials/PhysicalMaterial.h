@@ -36,12 +36,12 @@ namespace Rynex {
 
         virtual void SetMatrix(const glm::mat4& matrix) override;
         virtual void SetShadowTextures(const std::array<Ref<Texture>, 72>& shadowsTex, uint32_t size) override;
-        virtual void BindShadow() override;
+        virtual void BindShadow(CameraData& ligthCam) override;
 
         virtual void SetFlage(int flage) override;
         virtual int GetFlage() override;
 
-        virtual void Bind(int* entityIDs, uint32_t size = 1) override;
+        virtual void Bind(int* entityIDs, uint32_t size, CameraData& camera, CameraData& ligthCam) override;
         virtual void UnBind() override;
 
         virtual void InitAsync() override;

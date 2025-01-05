@@ -20,6 +20,7 @@
 #include <Rynex/Renderer/Rendering/Renderer.h>
 #include <Rynex/Renderer/Rendering/Renderer2D.h>
 #include <Rynex/Renderer/Rendering/Renderer3D.h>
+#include <Rynex/Renderer/Materials/BasicMaterial.h>
 
 
 #include <Rynex/Asset/Import/ShaderImporter.h>
@@ -37,7 +38,7 @@
 
 namespace Rynex {
 
-#define RY_EDITOR_TEST_ENITITY 0
+#define RY_EDITOR_TEST_ENITITY 1
 #define RY_ENABLE_VIEWPORT 1
 #define TEST_SHADER_OUTPUT 0
 
@@ -341,8 +342,9 @@ namespace Rynex {
         , m_Content_BPannel()
         , m_MenuBarPannel()
         , m_RendererPannel("Renderer")
-        
     {
+        // glm::mat4 scaleMat4Test = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+        // glm::mat4 tranltionsMat4Test = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
     }
 
     void EditorLayer::OnAttach()
@@ -353,7 +355,6 @@ namespace Rynex {
 
 #endif
         
-
         RY_CORE_INFO("EditorLayer::OnAttach Start!");
         RY_PROFILE_FUNCTION();
 
@@ -361,6 +362,7 @@ namespace Rynex {
         m_EditorScene = CreateRef<Scene>();
 
         auto cLA = Application::Get().GetSpecification().CommandLineArgs;
+        
         if (cLA.Count > 1)
         {
             auto projFilePath = cLA[1];
@@ -437,7 +439,7 @@ namespace Rynex {
         }
 #endif
         RY_CORE_INFO("Init Test Hard Coded Enttiy");
-#if 1
+#if 0
         {
             m_AktiveScene->CreateEntityWitheUUID(UUID(8976786), "3D_RendererTestEntity");
             auto& entiy = m_AktiveScene->GetEntitiyByUUID(8976786);
@@ -790,9 +792,97 @@ namespace Rynex {
             if (!ambinet.HasComponent<AmbientLigthComponent>())
                 ambinet.AddComponent<AmbientLigthComponent>();
             AmbientLigthComponent& ambienTC = ambinet.GetComponent<AmbientLigthComponent>();
-            ambienTC.Color = { 1.0,0.1,0.1 };
-            ambienTC.Intensitie = 1.0;
+            ambienTC.Color = { 0.0,0.0,0.0 };
+            ambienTC.Intensitie = 0.0;
         }
+
+        {
+            Entity directionE = m_AktiveScene->CreateEntity("DrirektionleLigth");
+            if (!directionE.HasComponent<DrirektionleLigthComponent>())
+                directionE.AddComponent<DrirektionleLigthComponent>();
+            DrirektionleLigthComponent& directionC = directionE.GetComponent<DrirektionleLigthComponent>();
+            directionC.Color = { 1.0,1.0,1.0 };
+            directionC.Intensitie = 1.0;
+            directionC.ShadowFrameBuffer = Framebuffer::Create({
+                512, 512,
+                    {
+                        {
+                            TextureFormat::DepthComp24,
+                            1,
+                            {
+                                TextureWrappingMode::ClampEdge,
+                                TextureWrappingMode::ClampEdge,
+                                TextureWrappingMode::None,
+                            },
+                            TextureFilteringMode::Nearest
+                        }
+                    },
+                    1,
+                    false
+            });
+
+
+            if (!directionE.HasComponent<Matrix4x4Component>())
+                directionE.AddComponent<Matrix4x4Component>();
+            Matrix4x4Component& mat4C = directionE.GetComponent<Matrix4x4Component>();
+            glm::mat4 ligthView = glm::lookAt(1.0f * glm::vec3(50.0f, 00.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0, 1.0f, 0.0f));
+            mat4C.GlobleMatrix4x4 = ligthView;
+            mat4C.Matrix4x4 = ligthView;
+
+            if (!directionE.HasComponent<TransformComponent>())
+                directionE.AddComponent<TransformComponent>();
+            TransformComponent& tranC = directionE.GetComponent<TransformComponent>();
+            tranC.SetTransform(ligthView);
+
+            directionE.UpdateMatrix();
+        }
+#if 1
+
+        {
+            Entity modelE = m_AktiveScene->CreateEntity("Sreene");
+            if (!modelE.HasComponent<MeshComponent>())
+                modelE.AddComponent<MeshComponent>();
+            MeshComponent& modelC = modelE.GetComponent<MeshComponent>();
+
+            if (!modelE.HasComponent<StaticMeshComponent>())
+                modelE.AddComponent<StaticMeshComponent>();
+            StaticMeshComponent& modelStaicC = modelE.GetComponent<StaticMeshComponent>();
+            std::vector<MeshTexture> meshTex;
+            std::vector<uint32_t> meshIndex;
+            {
+                meshIndex.reserve(3);
+                meshIndex.emplace_back(0);
+                meshIndex.emplace_back(1);
+                meshIndex.emplace_back(2);
+
+                meshIndex.emplace_back(0);
+                meshIndex.emplace_back(2);
+                meshIndex.emplace_back(3);
+            }
+            
+         
+            std::vector<MeshVertex> meshVertex;
+            {
+                meshVertex.reserve(4);
+                meshVertex.emplace_back(MeshVertex(glm::vec3(-1.0f,  1.0f,  0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
+                meshVertex.emplace_back(MeshVertex(glm::vec3(-1.0f, -1.0f,  0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)));
+                meshVertex.emplace_back(MeshVertex(glm::vec3 (1.0f, -1.0f,  0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)));
+                meshVertex.emplace_back(MeshVertex(glm::vec3( 1.0f,  1.0f,  0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)));
+            }
+            std::vector<Ref<Mesh>> mesh;
+            std::vector<MeshRootData> meshRootData;
+            meshRootData.reserve(1);
+            meshRootData.emplace_back(MeshRootData(glm::mat4(1.0f), std::string("Sreene")));
+            
+            mesh.push_back(CreateRef<Mesh>(std::move(meshVertex), std::move(meshIndex), std::move(meshTex), false));
+
+     
+            modelStaicC.UseAlleMeshes = true;
+            modelStaicC.ModelR = CreateRef<Model>(mesh, meshRootData);
+            modelC.ModelR = modelStaicC.ModelR;
+           
+        }
+#endif
 #endif
 #endif
         
@@ -846,7 +936,7 @@ namespace Rynex {
             m_EditorScenePath = Project::GetActive()->GetEditorAssetManger()->GetMetadata(m_NextScene->Handle).FilePath;
             m_ViewPortPannel.SetNewAktiveSecen(m_AktiveScene);
 
-             m_NextScene = nullptr;
+            m_NextScene = nullptr;
         }
 
         Renderer2D::ResetQuadeStats();

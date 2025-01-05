@@ -1,53 +1,47 @@
 #type Vertex
-#version 450 core
+#version 460 core
 
-layout(location = 0) in int a_Vertex;
+layout(location = 0) in vec2 a_Vertex;
 
 layout(location = 0) out vec2 v_TexCoord;
 
-#define BIT(x) (1 << x)
-#define BIT_AND(x, y) (x & y)
-#define BIT_NUM_EQUAL(x, y) BIT_AND(BIT(x), y)
+uniform float u_Depth;
 
 void main()
 {
 	
-	gl_Position = vec4(0.0, 0.0, 0.5, 1.0);
+	gl_Position = vec4(a_Vertex.xy, u_Depth, 1.0);
 	int bitIndex = 0;
 	v_TexCoord = vec2(0.0);
-	if(bool(BIT_NUM_EQUAL(bitIndex, a_Vertex )))
+	switch(gl_DrawID)
 	{
-		v_TexCoord.x = 1.0;
-		gl_Position.x =  1.0;
+		case 0:
+			v_TexCoord = vec2(0.0, 0.0);
+			break;
+		case 1:
+			v_TexCoord = vec2(1.0, 0.0);
+			break;
+		case 2:
+			v_TexCoord = vec2(0.0, 1.0);
+			break;
+		case 3:
+			v_TexCoord = vec2(1.0, 1.0);
+			break;
+		default:
+			break;
 	}
-	else
-	{
-		v_TexCoord.x = 0.0;
-		gl_Position.x = -1.0;
-	}
-	bitIndex = 1;
-	if(  bool( BIT_NUM_EQUAL(bitIndex, a_Vertex) )  )
-	{
-		v_TexCoord.y = 1.0;
-		gl_Position.y = 1.0;
-	}
-	else
-	{
-		v_TexCoord.y =  0.0;
-		gl_Position.y = -1.0;
-	}
+
 	
 }
 
 #type Fragment
-#version 450 core
+#version 460 core
 
 layout(location = 0) out vec4 color;
 
 layout(location = 0) in vec2 v_TexCoord;
 
-uniform sampler2D u_Texture;
-
+layout(binding = 0) uniform sampler u_Texture;
 
 void main()
 {

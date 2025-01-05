@@ -5,6 +5,7 @@
 namespace Rynex {
 
 #define RY_TRANSFORM_TYPE_STRING(x) #x
+    std::thread::id Asset::m_MainThreadId = std::this_thread::get_id();
 
     std::string_view Asset::AssetTypeToString(AssetType type)
     {
@@ -138,6 +139,11 @@ namespace Rynex {
         }
         RY_CORE_ASSERT(false, "Error: Unkowne AssetType");
         return "ASSET_BROWSER_ITEM";
+    }
+
+    bool Asset::CurrentOnMainThread()
+    {
+        return std::this_thread::get_id() == m_MainThreadId;
     }
 
 }

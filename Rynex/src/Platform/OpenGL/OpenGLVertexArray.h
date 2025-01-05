@@ -26,7 +26,7 @@ namespace Rynex{
 		virtual const Ref<IndexBuffer>& GetIndexBuffers() const { return m_IndexBuffer; }
 
 		virtual const char* GetPrimitvChar() const override;
-
+		virtual void InitAsync() override;
 
 	private:
 		uint32_t m_RendererID = 0;

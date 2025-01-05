@@ -17,6 +17,8 @@ namespace Rynex {
 		virtual const RendererAPI::API GetRendererAPI() const override;
 		virtual void Create(Window* parent) override;
 
+		static bool IsActive();
+
 	private:
 		GLFWwindow* m_ThreadHandle;
 		std::chrono::time_point<std::chrono::steady_clock> m_BeginPoint;

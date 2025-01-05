@@ -23,7 +23,7 @@ namespace Rynex {
 		MeshVertex() = default;
 		MeshVertex(const MeshVertex&) = default;
 
-		MeshVertex(glm::vec3 postion, glm::vec3 normale, glm::vec2 texCorrds)
+		MeshVertex(const glm::vec3& postion, const glm::vec3& normale, const glm::vec2& texCorrds)
 			: Postion(postion), Normale(normale), TexCorrds(texCorrds)
 		{ }
 
@@ -31,15 +31,15 @@ namespace Rynex {
 
 	struct MeshRootData
 	{
-		glm::mat<4, 4, float> NodeMatrix;
+		glm::mat4 NodeMatrix;
 		std::string NodeName;
 		MeshRootData() = default;
 		MeshRootData(const MeshRootData&) = default;
 
-		MeshRootData(glm::mat<4, 4, float> nodeMatrix)
+		MeshRootData(glm::mat4 nodeMatrix)
 			: NodeMatrix(nodeMatrix)
 		{ }
-		MeshRootData(glm::mat<4, 4, float> nodeMatrix, std::string& nodeName)
+		MeshRootData(glm::mat4 nodeMatrix, std::string& nodeName)
 			: NodeMatrix(nodeMatrix), NodeName(nodeName)
 		{ }
 	};

@@ -81,6 +81,7 @@ namespace Rynex {
 
 		virtual void Bind(uint32_t slot = 0) const override;
 		virtual void UnBind() const override;
+		virtual void InitAsync() override;
 
 		virtual void SetData(const void* data, uint32_t byteSize) override;
 
@@ -89,6 +90,7 @@ namespace Rynex {
 		BufferLayout m_Layout;
 		uint32_t m_ByteSize;
 		Type m_PolicieType;
+		std::vector<unsigned char> m_Data;
 	};
 
 	class OpenGLUniformBuffer : public UniformBuffer

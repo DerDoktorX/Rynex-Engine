@@ -80,7 +80,7 @@ namespace Rynex {
 		m_UniformBuffer.reset();
 	}
 
-	void PhysicalMaterial::Bind(int* entityID, uint32_t size)
+	void PhysicalMaterial::Bind(int* entityID, uint32_t size, CameraData& camera, CameraData& ligthCam)
 	{
 		m_BufferData->EntityID = *entityID;
 		m_UniformBuffer->SetLocelData({ ShaderDataType::Int, "EntityID" }, &m_BufferData->EntityID, sizeof(m_BufferData->EntityID));
@@ -193,7 +193,7 @@ namespace Rynex {
 		RY_CORE_ASSERT(false);
 	}
 
-	void PhysicalMaterial::BindShadow()
+	void PhysicalMaterial::BindShadow(CameraData& ligthCam)
 	{
 		RY_CORE_ASSERT(false);
 	}

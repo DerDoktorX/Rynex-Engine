@@ -6,7 +6,7 @@ namespace Rynex {
 	class RYNEX_API OrthograficCamera
 	{
 	public:
-		OrthograficCamera(float left, float rigth, float bottom, float top/*, float near = 1.0f, float far = -1.0f*/);
+		OrthograficCamera(float left, float rigth, float bottom, float top, float nearPlane = 1.0f, float farPlane = -1.0f);
 
 
 		

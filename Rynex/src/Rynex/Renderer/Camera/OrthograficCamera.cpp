@@ -6,8 +6,8 @@
 
 namespace Rynex {
 
-	OrthograficCamera::OrthograficCamera(float left, float rigth, float bottom, float top)
-		: m_ProjectionMatrix(glm::ortho(left, rigth, bottom, top, -1.0f, 1.0f)), m_ViewMatrix(1.0f)
+	OrthograficCamera::OrthograficCamera(float left, float rigth, float bottom, float top, float nearPlane, float farPlane)
+		: m_ProjectionMatrix(glm::ortho(left, rigth, bottom, top, nearPlane, farPlane)), m_ViewMatrix(1.0f)
 	{
 		RY_PROFILE_FUNCTION();
 		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;

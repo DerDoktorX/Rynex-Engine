@@ -11,7 +11,7 @@
 
 
 #define RY_TEST_ENITY 0
-#define RY_ENABLE_GUI 0
+#define RY_ENABLE_GUI 1
 Sandbox2D::Sandbox2D()
 	: Layer("Sanbox2D")
 	, m_CameraController((1280.0f / 720.0f), true)
@@ -93,19 +93,22 @@ void Sandbox2D::OnAttach()
 	
 
 	// 0001 1011  0000 0000
-	int vertecies[4] = {
-		0, BIT(0), BIT(1), BIT(0) | BIT(1)
+	float vertecies[] = {
+		0.75f,  0.75f,
+		1.00f,  0.75f,
+		0.75f,  1.00f,
+		1.00f,  1.00f,
 	};
 
-	Rynex::Ref<Rynex::VertexBuffer> vertexBuffer = Rynex::VertexBuffer::Create(&vertecies, sizeof(int)*4, Rynex::BufferDataUsage::StaticDraw );
+	Rynex::Ref<Rynex::VertexBuffer> vertexBuffer = Rynex::VertexBuffer::Create(&vertecies, sizeof(float)*8, Rynex::BufferDataUsage::StaticDraw );
 	vertexBuffer->SetLayout({
-		{Rynex::ShaderDataType::Int, "a_Vertex"},
+		{Rynex::ShaderDataType::Float2, "a_Vertex"},
 	});
 	
 	uint32_t inidcies[] = {
-		0,1,2,3
+		0u, 1u, 2u, 3u
 	};
-	Rynex::Ref<Rynex::IndexBuffer> indexBuffer = Rynex::IndexBuffer::Create(inidcies, sizeof(uint32_t), Rynex::BufferDataUsage::StaticDraw);
+	Rynex::Ref<Rynex::IndexBuffer> indexBuffer = Rynex::IndexBuffer::Create(inidcies, 4, Rynex::BufferDataUsage::StaticDraw);
 	m_FullScreenQuade = Rynex::VertexArray::Create();
 	m_FullScreenQuade->AddVertexBuffer(vertexBuffer);
 	m_FullScreenQuade->SetIndexBuffer(indexBuffer);
@@ -304,7 +307,6 @@ void Sandbox2D::OnImGuiRender()
 	}
 #else
 
-	
 
 	
 #if 0
@@ -347,6 +349,9 @@ void Sandbox2D::OnImGuiRender()
 	m_FullScreenShader->UnBind();
 	m_FullScreenQuade->UnBind();
 
+	ImGui::Begin("test");
+	ImGui::Text("Hi");
+	ImGui::End();
 #endif
 }
 

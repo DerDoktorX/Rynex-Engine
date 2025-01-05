@@ -20,6 +20,7 @@ namespace Rynex {
 		virtual ~OpenGLShader();
 
 		virtual void ReganrateShader(const std::string& source) override;
+		virtual void ReganrateShader(std::string&& source) override;
 
 		virtual void Bind() const override;
 		virtual void UnBind() const override;
@@ -163,6 +164,7 @@ namespace Rynex {
 		std::string m_Source = "";
 		std::map<Type, std::string> m_ShaderMap;
 		std::map<std::string, std::string> m_sUniformLayoute;
+		std::unordered_map<uint32_t, std::string> m_ShaderSources;
 		BufferLayout m_BufferLayout;
 		int m_ShaderType = 0;
 

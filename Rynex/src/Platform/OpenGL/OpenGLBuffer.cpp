@@ -2,6 +2,7 @@
 #include "OpenGLBuffer.h"
 
 #include "Rynex/Core/Application.h"
+#include <Platform/OpenGL/OpenGLThreadContext.h>
 
 #include <glad/glad.h>
 
@@ -9,7 +10,7 @@ namespace Rynex {
 	
 	namespace Utils {
 
-		GLenum static GetBufferDataUsage(BufferDataUsage usage)
+		static GLenum GetBufferDataUsage(BufferDataUsage usage)
 		{
 
 			switch (usage)
@@ -45,11 +46,17 @@ namespace Rynex {
 		, m_Target(GL_ARRAY_BUFFER)
 		, m_Usage(BufferDataUsage::None)
 	{
-		
-		RY_PROFILE_FUNCTION();
-		glCreateBuffers(1, &m_RendererID);
-		glBindBuffer(m_Target, m_RendererID);
-		glBufferData(m_Target, size, nullptr, Utils::GetBufferDataUsage(m_Usage));
+		m_Data.resize(m_Size);
+		if(OpenGLThreadContext::IsActive())
+		{
+			InitAsync();
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				InitAsync();
+			});
+		}
 
 	}
 
@@ -58,11 +65,19 @@ namespace Rynex {
 		, m_Size(size)
 		, m_Target(GL_ARRAY_BUFFER)
 	{
-		RY_PROFILE_FUNCTION();
-		// glCreateBuffers(1, &m_RendererID);
-		glGenBuffers(1, &m_RendererID);
-		glBindBuffer(m_Target, m_RendererID);
-		glBufferData(m_Target, size, vertices, Utils::GetBufferDataUsage(m_Usage));
+		m_Data.resize(m_Size);
+		std::memcpy(m_Data.data(), vertices, m_Size);
+		if (OpenGLThreadContext::IsActive())
+		{
+			InitAsync();
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				InitAsync();
+			});
+		}
+		
 
 	}
 
@@ -74,11 +89,20 @@ namespace Rynex {
 		, m_Target(GL_ARRAY_BUFFER)
 		, m_Layout(layout)
 	{
-		RY_PROFILE_FUNCTION();
-		glCreateBuffers(1, &m_RendererID);
-		glGenBuffers(1, &m_RendererID);
-		glBindBuffer(m_Target, m_RendererID);
-		glBufferData(m_Target, size, vertices, Utils::GetBufferDataUsage(m_Usage));
+		m_Data.resize(m_Size);
+		std::memcpy(m_Data.data(), vertices, m_Size);
+		if (OpenGLThreadContext::IsActive())
+		{
+			glGenBuffers(1, &m_RendererID);
+			glBindBuffer(m_Target, m_RendererID);
+			glBufferData(m_Target, size, vertices, Utils::GetBufferDataUsage(m_Usage));
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				InitAsync();
+			});
+		}
 
 	}
 
@@ -90,11 +114,18 @@ namespace Rynex {
 		, m_Data(std::move(data))
 		
 	{
-		
+
 		RY_CORE_ASSERT(m_Data.size() == m_Size);
-		Application::Get().SubmiteToMainThreedQueue([this]() {
+		if(OpenGLThreadContext::IsActive())
+		{
 			InitAsync();
-		});
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				InitAsync();
+			});
+		}
 	}
 
 	
@@ -104,10 +135,18 @@ namespace Rynex {
 		, m_Target(GL_ARRAY_BUFFER)
 		, m_Usage(BufferDataUsage::None)
 	{
-		RY_PROFILE_FUNCTION();
-		glCreateBuffers(1, &m_RendererID);
-		glBindBuffer(m_Target, m_RendererID);
-		glBufferData(m_Target, size, vertices, Utils::GetBufferDataUsage(m_Usage));
+		m_Data.resize(m_Size);
+		std::memcpy(m_Data.data(), vertices, m_Size);
+		if (OpenGLThreadContext::IsActive())
+		{
+			InitAsync();
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				InitAsync();
+			});
+		}
 	}
 
 	
@@ -120,7 +159,6 @@ namespace Rynex {
 	void OpenGLVertexBuffer::Bind() const
 	{
 		glBindBuffer(m_Target, m_RendererID);
-
 	}
 
 	void OpenGLVertexBuffer::UnBind() const
@@ -130,6 +168,7 @@ namespace Rynex {
 
 	void OpenGLVertexBuffer::InitAsync()
 	{
+		RY_PROFILE_FUNCTION("Init OpenGL Vertex-Buffer");
 		RY_CORE_ASSERT(m_Size != 0 && m_Data.size() != 0);
 		if(m_RendererID)
 			glDeleteBuffers(1, &m_RendererID);
@@ -141,21 +180,24 @@ namespace Rynex {
 
 	void OpenGLVertexBuffer::SetData(const void* data, uint32_t byteSize)
 	{
-		if(m_RendererID)
-
+		RY_CORE_ASSERT(m_RendererID && OpenGLThreadContext::IsActive());
+		
 		m_Size = byteSize;
-		RY_PROFILE_FUNCTION();
+		m_Data.resize(m_Size);
+		std::memcpy(m_Data.data(), data, m_Size);
+
 		glBindBuffer(m_Target, m_RendererID);
-		glBufferSubData(m_Target, 0, byteSize, data);
+		glBufferSubData(m_Target, 0, m_Data.size(), m_Data.data());
 	}
 
 	const std::vector<unsigned char>& OpenGLVertexBuffer::GetBufferData()
 	{
-		FreeBufferData();
-		Bind();
-		m_Data.resize(m_Size);
-		glGetBufferSubData(m_Target, 0, m_Data.size(), m_Data.data());
+		RY_CORE_ASSERT(m_RendererID && OpenGLThreadContext::IsActive());
+		if (m_Data.size() == 0)
+			m_Data.resize(m_Size);
 
+		glBindBuffer(m_Target, m_RendererID);
+		glGetBufferSubData(m_Target, 0, m_Data.size(), m_Data.data());
 		return m_Data;
 	}
 
@@ -184,10 +226,21 @@ namespace Rynex {
 		, m_Target(GL_ELEMENT_ARRAY_BUFFER)
 		, m_EllementByte(sizeof(uint32_t))
 	{
-		glCreateBuffers(1, &m_RendererID);
-		glBindBuffer(m_Target, m_RendererID);
-		glBufferData(m_Target, m_Count * m_EllementByte, indices, Utils::GetBufferDataUsage(m_Usage));
-		RY_CORE_ASSERT(m_RendererID != 0);
+		uint32_t size = m_Count * m_EllementByte;
+		m_Data.resize(size);
+		std::memcpy(m_Data.data(), indices, size);
+		
+		RY_CORE_ASSERT(m_Count != 0 && m_EllementByte != 0 && m_Data.size() != 0);
+		if (OpenGLThreadContext::IsActive())
+		{
+			InitAsync();
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+					InitAsync();
+				});
+		}
 	}
 
 	OpenGLIndexBuffer::OpenGLIndexBuffer(const uint16_t* indices, uint32_t count, BufferDataUsage usage)
@@ -196,9 +249,21 @@ namespace Rynex {
 		, m_Target(GL_ELEMENT_ARRAY_BUFFER)
 		, m_EllementByte(sizeof(uint16_t))
 	{
-		glCreateBuffers(1, &m_RendererID);
-		glBindBuffer(m_Target, m_RendererID);
-		glBufferData(m_Target, m_Count * m_EllementByte, indices, Utils::GetBufferDataUsage(m_Usage));
+		uint32_t size = m_Count * m_EllementByte;
+		m_Data.resize(size);
+		std::memcpy(m_Data.data(), indices, size);
+		
+		RY_CORE_ASSERT(m_Count != 0 && m_EllementByte != 0 && m_Data.size() != 0);
+		if (OpenGLThreadContext::IsActive())
+		{
+			InitAsync();
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				InitAsync();
+				});
+		}
 	}
 
 	OpenGLIndexBuffer::OpenGLIndexBuffer(std::vector<uint32_t>&& data, uint32_t count, BufferDataUsage usage)
@@ -209,17 +274,24 @@ namespace Rynex {
 		, m_Data(std::move(data))
 	{
 		RY_CORE_ASSERT(m_Count != 0 && m_EllementByte != 0 && m_Data.size() != 0);
-
-		Application::Get().SubmiteToMainThreedQueue([this]() {
+		if (OpenGLThreadContext::IsActive())
+		{
 			InitAsync();
-		});
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				InitAsync();
+				});
+		}
 	}
 
 	
 
 	OpenGLIndexBuffer::~OpenGLIndexBuffer()
 	{
-		glDeleteBuffers(1, &m_RendererID);
+		if(m_RendererID)
+			glDeleteBuffers(1, &m_RendererID);
 	}
 
 	void OpenGLIndexBuffer::InitAsync()
@@ -239,31 +311,49 @@ namespace Rynex {
 
 	void OpenGLIndexBuffer::SetData(const uint32_t* indices, uint32_t count)
 	{ 
-		RY_PROFILE_FUNCTION();
 		m_EllementByte = sizeof(uint32_t);
-		
 		m_Count = count;
-		glCreateBuffers(1, &m_RendererID);
+		uint32_t size = m_Count * m_EllementByte;
+		RY_CORE_ASSERT(m_Count != 0 && m_EllementByte != 0 && m_Data.size() != 0);
+
+		m_Data.resize(size);
+		std::memcpy(m_Data.data(), indices, size);
+
+		if(m_RendererID)
+			glCreateBuffers(1, &m_RendererID);
+
 		glBindBuffer(m_Target, m_RendererID);
-		glBufferData(m_Target, m_Count * m_EllementByte, indices, Utils::GetBufferDataUsage(m_Usage));
+		glBufferData(m_Target, m_Data.size(), m_Data.data(), Utils::GetBufferDataUsage(m_Usage));
 	}
 
 	void OpenGLIndexBuffer::SetData(const uint16_t* indices, uint32_t count)
 	{
 		m_EllementByte = sizeof(uint16_t);
 		m_Count = count;
-		glCreateBuffers(1, &m_RendererID);
+		uint32_t size = m_Count * m_EllementByte;
+		RY_CORE_ASSERT(m_Count != 0 && m_EllementByte != 0 && m_Data.size() != 0);
+
+		m_Data.resize(size);
+		std::memcpy(m_Data.data(), indices, size);
+
+		if (m_RendererID)
+			glCreateBuffers(1, &m_RendererID);
+
 		glBindBuffer(m_Target, m_RendererID);
-		glBufferData(m_Target, m_Count * m_EllementByte, indices, Utils::GetBufferDataUsage(m_Usage));
+		glBufferData(m_Target, m_Data.size(), m_Data.data(), Utils::GetBufferDataUsage(m_Usage));
 	}
 
 	const std::vector<uint32_t> OpenGLIndexBuffer::GetBufferData()
 	{
+		RY_CORE_ASSERT(m_RendererID && OpenGLThreadContext::IsActive() && m_EllementByte == sizeof(uint32_t));
+		uint32_t size = m_Count * m_EllementByte;
+		if (m_Data.size() == 0 )
+			m_Data.resize(size);
 
-		FreeBufferData();
-		m_Data.resize(m_Count * m_EllementByte);
-		Bind();
+		glBindBuffer(m_Target, m_RendererID);
 		glGetBufferSubData(m_Target, 0, m_Data.size(), m_Data.data());
+		
+		// glGetBufferSubData(m_Target, 0, m_Data.size(), m_Data.data());
 
 		return m_Data;
 	}
@@ -279,7 +369,6 @@ namespace Rynex {
 
 	void OpenGLIndexBuffer::Bind() const
 	{
-
 		glBindBuffer(m_Target, m_RendererID);
 	}
 
@@ -295,26 +384,47 @@ namespace Rynex {
 
 	OpenGLStorageBuffer::OpenGLStorageBuffer(uint32_t byteSize, Type type)
 		: m_PolicieType(type)
+		, m_ByteSize(byteSize)
 	{
-		RY_PROFILE_FUNCTION();
-		glCreateBuffers(1, &m_RendererID);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_RendererID);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, byteSize, nullptr, Utils::GetPoliciyType(m_PolicieType));
+		
+		m_Data.resize(m_ByteSize);
+
+		RY_CORE_ASSERT(m_ByteSize != 0  && m_Data.size() != 0);
+		if (OpenGLThreadContext::IsActive())
+		{
+			InitAsync();
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				InitAsync();
+			});
+		}
 	}
 
 	OpenGLStorageBuffer::OpenGLStorageBuffer(void* data, uint32_t byteSize, Type type)
 		: m_PolicieType(type)
+		, m_ByteSize(byteSize)
 	{
-		glCreateBuffers(1, &m_RendererID);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_RendererID);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, byteSize, data, Utils::GetPoliciyType(m_PolicieType));
+		m_Data.resize(m_ByteSize);
+		std::memcpy(m_Data.data(), data, m_Data.size());
+		RY_CORE_ASSERT(m_ByteSize != 0 && m_Data.size() != 0);
+		if (OpenGLThreadContext::IsActive())
+		{
+			InitAsync();
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				InitAsync();
+			});
+		}
 	}
 
 	void OpenGLStorageBuffer::Bind(uint32_t slot) const
 	{
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_RendererID);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot,m_RendererID);
-		
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, m_RendererID);
 	}
 
 	void OpenGLStorageBuffer::UnBind() const
@@ -322,10 +432,25 @@ namespace Rynex {
 		glBindBuffer(0, m_RendererID);
 	}
 
+	void OpenGLStorageBuffer::InitAsync()
+	{
+		glCreateBuffers(1, &m_RendererID);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_RendererID);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, m_Data.size(), m_Data.data(), Utils::GetPoliciyType(m_PolicieType));
+	}
+
 	void OpenGLStorageBuffer::SetData(const void* data, uint32_t byteSize)
 	{
+		if(byteSize != m_ByteSize)
+		{
+			m_ByteSize = byteSize;
+			m_Data.resize(m_ByteSize);
+		}
+		std::memcpy(m_Data.data(), data, m_Data.size());
+		RY_CORE_ASSERT(m_ByteSize != 0 && m_Data.size() != 0);
+
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_RendererID);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, byteSize, data, Utils::GetPoliciyType(m_PolicieType));
+		glBufferData(GL_SHADER_STORAGE_BUFFER, m_Data.size(), m_Data.data(), Utils::GetPoliciyType(m_PolicieType));
 	}
 
 #pragma endregion
@@ -343,29 +468,40 @@ namespace Rynex {
 		, m_RendererID(0)
 		, m_Size(data.size())
 	{
-		
 		RY_CORE_ASSERT(m_Size % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
-		Application::Get().SubmiteToMainThreedQueue([this]() {
+
+		if (OpenGLThreadContext::IsActive())
+		{
 			InitAsync();
-		});
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				InitAsync();
+				});
+		}
 	}
 
 	OpenGLUniformBuffer::OpenGLUniformBuffer(uint32_t byteSize, uint32_t binding)
 		: m_Binding(binding)
 		, m_Size(byteSize)
 		, m_Target(GL_UNIFORM_BUFFER)
-		, m_Data(m_Size)
 		, m_Usage(BufferDataUsage::DynamicDraw)
 	{
-		RY_CORE_ASSERT(m_Size < Utils::GetMaxUniforms(), "to large!");
+		
 		RY_CORE_ASSERT(m_Size % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
-		CheckLayout();
 		
-		glCreateBuffers(1, &m_RendererID);
-		
-		
-		
-		glNamedBufferData(m_RendererID, m_Size, nullptr, Utils::GetBufferDataUsage(m_Usage));
+		m_Data.resize(m_Size);
+		if (OpenGLThreadContext::IsActive())
+		{
+			InitAsync();
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				InitAsync();
+				});
+		}
 	}
 
 	OpenGLUniformBuffer::OpenGLUniformBuffer(const void* data, uint32_t byteSize, uint32_t binding)
@@ -381,9 +517,16 @@ namespace Rynex {
 		CheckLayout();
 		
 		std::memcpy(m_Data.data(), data, byteSize);
-		glCreateBuffers(1, &m_RendererID);
-		
-		glNamedBufferData(m_RendererID, m_Size, m_Data.data(), Utils::GetBufferDataUsage(m_Usage));
+		if (OpenGLThreadContext::IsActive())
+		{
+			InitAsync();
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				InitAsync();
+				});
+		}
 		
 	}
 
@@ -395,14 +538,19 @@ namespace Rynex {
 		, m_Usage(BufferDataUsage::DynamicDraw)
 		, m_Layout(layout)
 	{
-		RY_CORE_ASSERT(m_Size < Utils::GetMaxUniforms(), "to large!");
 		RY_CORE_ASSERT(m_Size % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
 		
-		CheckLayout();
-		std::memcpy(m_Data.data(), data, byteSize);
-		glCreateBuffers(1, &m_RendererID);
-
-		glNamedBufferData(m_RendererID, m_Size, m_Data.data(), Utils::GetBufferDataUsage(m_Usage));
+		std::memcpy(m_Data.data(), data, m_Data.size());
+		if (OpenGLThreadContext::IsActive())
+		{
+			InitAsync();
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				InitAsync();
+				});
+		}
 	}
 
 	OpenGLUniformBuffer::OpenGLUniformBuffer(const void* data, uint32_t byteSize, const BufferLayout& layout, BufferDataUsage usage, uint32_t binding)
@@ -413,10 +561,17 @@ namespace Rynex {
 		, m_Usage(usage)
 	{
 		RY_CORE_ASSERT(m_Size % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
-		CheckLayout();
 		std::memcpy(m_Data.data(), data, byteSize);
-		glCreateBuffers(1, &m_RendererID);
-		glNamedBufferData(m_RendererID, m_Size, m_Data.data(), Utils::GetBufferDataUsage(m_Usage));
+		if (OpenGLThreadContext::IsActive())
+		{
+			InitAsync();
+		}
+		else
+		{
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				InitAsync();
+				});
+		}
 	}
 
 	OpenGLUniformBuffer::~OpenGLUniformBuffer()

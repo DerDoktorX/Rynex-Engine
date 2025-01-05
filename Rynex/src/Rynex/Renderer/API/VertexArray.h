@@ -28,6 +28,7 @@ namespace Rynex {
 
 		virtual void SetPrimitv(Primitv primitv) = 0;
 		virtual Primitv GetPrimitv() = 0;
+		virtual void InitAsync() = 0;
 
 		virtual const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const = 0;
 		virtual const Ref<IndexBuffer>& GetIndexBuffers() const = 0;

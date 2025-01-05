@@ -22,6 +22,7 @@ namespace Rynex {
 		virtual const uint32_t GetAttachmentTexturesSize() const override;
 
 		virtual const Ref<Texture>& GetDepthTexture() const override { return m_DepthAttachmentTex; };
+		virtual void InitAsync() override;
 
 		virtual void Resize(uint32_t width, uint32_t height) override;
 		virtual int ReadPixel(uint32_t index, int x, int y) override;

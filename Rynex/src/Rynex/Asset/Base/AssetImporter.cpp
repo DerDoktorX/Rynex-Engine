@@ -63,7 +63,7 @@ namespace Rynex {
 #endif
 	void AssetImporter::ReLoadeAsset(AssetHandle handle, const AssetMetadata& metadata, bool async)
 	{
-		s_AssetsReloadeFuncs.at(metadata.Type)(handle, metadata.FilePath, async);
+		s_AssetsReloadeFuncs.at(metadata.Type)(handle, metadata.FilePath.generic_string(), async);
 	}
 
 	

@@ -55,6 +55,7 @@ namespace Rynex{
 		static void Shutdown();
 
 		virtual void ReganrateShader(const std::string& source) = 0;
+		virtual void ReganrateShader(std::string&& source) = 0;
 
 		virtual void Bind() const = 0;
 		virtual void UnBind() const = 0;

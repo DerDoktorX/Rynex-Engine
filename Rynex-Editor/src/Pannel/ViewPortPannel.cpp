@@ -16,6 +16,7 @@
 
 namespace Rynex {
 #define RY_MULTY_VIEWPORTS 1
+#define RY_RENDERER_SHOADOWS_SECOUNDARY 1
 
 #pragma region ViewPortPannel
 
@@ -433,8 +434,10 @@ namespace Rynex {
             break;
         }
         default:
+        {
             textureID = m_Image->GetRenderID();
             break;
+        }
         }
         // Renderer3D::Statistics stats = Renderer3D::GetStats();
         // if(stats.ShadowsTex->at(0) != nullptr)
@@ -457,7 +460,7 @@ namespace Rynex {
 
         ImGui::End();
         ImGui::PopStyleVar();
-
+#if RY_RENDERER_SHOADOWS_SECOUNDARY
         if(Ref<Texture> tex = m_ShadowMap.lock())
         {
             ImGui::Begin("Shadow-Map");
@@ -472,6 +475,7 @@ namespace Rynex {
             if (stats.ShadowsTex->at(0) != nullptr)
                 m_ShadowMap = stats.ShadowsTex->at(0);
         }
+#endif
         return (m_WindowFocused && m_WindowHoverd);
     }
 

@@ -280,7 +280,7 @@ namespace Rynex {
         return model;
     }
 
-#if RY_EDITOR_ASSETMANGER_THREADE ? 0 : 0
+#if RY_EDITOR_ASSETMANGER_THREADE ? 0 : 0 
     
     Ref<Model> ModelImporter::ImportModelAsync(AssetHandle handle, const AssetMetadata& metadata)
     {
