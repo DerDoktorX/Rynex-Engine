@@ -10,8 +10,10 @@ namespace Rynex {
 
 	Entity Entity::AddChildrenEntity(const std::string& name)
 	{
+#if RY_REALTION_SCHIP_ID_COMP
 		UUID idParent = GetComponent<RealtionShipComponent>().FirstID;
 		Entity childe = m_Scene->CreateEntity(name);
+
 		RealtionShipComponent& childeRealtionshipC = childe.GetComponent<RealtionShipComponent>();
 		RealtionShipComponent& parentRealtionshipC = GetComponent<RealtionShipComponent>();
 		if (!idParent)
@@ -35,6 +37,11 @@ namespace Rynex {
 			childeRealtionshipC.ParentID = GetUUID();
 
 		}
+#elif RY_REALTION_SCHIP_ARRAY_COMP
+		RealtionShipComponent& rlsC = GetComponent<RealtionShipComponent>();
+
+#endif
+
 		return childe;
 	}
 
@@ -42,6 +49,7 @@ namespace Rynex {
 	// Destroy not From Scene Regestriy only prepar childrens
 	void Entity::DestroyEntity()
 	{
+#if RY_REALTION_SCHIP_ID_COMP
 		RealtionShipComponent& parentRealtionshipC = GetComponent<RealtionShipComponent>();
 		UUID nextChilde = parentRealtionshipC.FirstID;
 		UUID newParentEnitity = parentRealtionshipC.ParentID;
@@ -74,10 +82,18 @@ namespace Rynex {
 				enitytPrente.GetComponent<RealtionShipComponent>().FirstID = nextCilde;
 			}
 		}
+#elif RY_REALTION_SCHIP_ARRAY_COMP
+		RealtionShipComponent& rlsC = GetComponent<RealtionShipComponent>();
+		for ( : rlsC.)
+		{
+
+		}
+#endif
 	}
 
 	void Entity::DestroyEntityChildrens()
 	{
+#if RY_REALTION_SCHIP_ID_COMP
 		RealtionShipComponent& parentRealtionshipC = GetComponent<RealtionShipComponent>();
 		UUID nextChilde = parentRealtionshipC.FirstID;
 		while (nextChilde)
@@ -95,28 +111,50 @@ namespace Rynex {
 			nextChilde = childeRealtionshipC.NextID;
 			m_Scene->DestroyEntity(childeEntity);
 		}
+#elif RY_REALTION_SCHIP_ARRAY_COMP
+		RealtionShipComponent& rlsC = GetComponent<RealtionShipComponent>();
+#endif
+
 	}
 
 	void Entity::UpdateMatrix()
 	{
+#if RY_REALTION_SCHIP_ID_COMP
+
 		TransformComponent& entityTransformC = GetComponent<TransformComponent>();
-		Matrix4x4Component& entityMatrix4x4C = GetComponent<Matrix4x4Component>();
+		ModelMatrixComponent& entityMatrix4x4C = GetComponent<ModelMatrixComponent>();
 		RealtionShipComponent& parentRealtionshipC = GetComponent<RealtionShipComponent>();
 		UUID nextChilde = parentRealtionshipC.FirstID;
 
-		entityMatrix4x4C.Matrix4x4 = entityTransformC.GetTransform();
+		entityMatrix4x4C.Locale = entityTransformC.GetTransform();
 		UUID parentEnitity = parentRealtionshipC.ParentID;
 		if(parentEnitity)
 		{
 			Entity parent = m_Scene->GetEntitiyByUUID(parentEnitity);
-			glm::mat4& parentMat =  parent.GetComponent<Matrix4x4Component>().GlobleMatrix4x4;
-			entityMatrix4x4C.GlobleMatrix4x4 = parentMat * entityMatrix4x4C.Matrix4x4;
+			glm::mat4& parentMat =  parent.GetComponent<ModelMatrixComponent>().Globle;
+			entityMatrix4x4C.Globle = parentMat * entityMatrix4x4C.Locale;
 		}
 		else
 		{
-			entityMatrix4x4C.GlobleMatrix4x4 = entityMatrix4x4C.Matrix4x4;
+			entityMatrix4x4C.Globle = entityMatrix4x4C.Locale;
 		}
 
+		if (HasComponent<ViewMatrixComponent>())
+		{
+			ViewMatrixComponent& view = GetComponent<ViewMatrixComponent>();
+			view.Locale = glm::inverse(entityMatrix4x4C.Locale);
+			view.Globle = glm::inverse(entityMatrix4x4C.Globle);
+		}
+		if (HasComponent<StaticMeshComponent>())
+		{
+			StaticMeshComponent& staticMesh = GetComponent<StaticMeshComponent>();
+			std::vector<glm::mat4>& globels = staticMesh.GlobleMeshMatrix;
+			std::vector<glm::mat4>& locale = staticMesh.LocaleMeshMatrix;
+			for (uint32_t i = 0, length = globels.size(); i < length; i++)
+			{
+				globels[i] = entityMatrix4x4C.Globle * locale[i];
+			}
+		}
 		while (nextChilde)
 		{
 			Entity childeEntity = m_Scene->GetEntitiyByUUID(nextChilde);
@@ -131,6 +169,9 @@ namespace Rynex {
 			}
 			nextChilde = childeRealtionshipC.NextID;
 		}
+#elif RY_REALTION_SCHIP_ARRAY_COMP
+		RealtionShipComponent& rlsC = GetComponent<RealtionShipComponent>();
+#endif
 	}
 
 }

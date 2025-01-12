@@ -656,34 +656,35 @@ namespace Rynex {
 #endif
 #pragma endregion
 
-#pragma region Matrix4x4Component
+#pragma region 
 
-	static void Matrix4x4Component_SetMatrix4x4(UUID entityID, glm::mat4* matrix)
+
+	static void ModelMatrixComponent_SetMatrix4x4(UUID entityID, glm::mat4* matrix)
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
-		RY_CORE_ASSERT(entity.HasComponent<Matrix4x4Component>());
-		entity.GetComponent<Matrix4x4Component>().Matrix4x4 = *matrix;
+		RY_CORE_ASSERT(entity.HasComponent<ModelMatrixComponent>());
+		entity.GetComponent<ModelMatrixComponent>().Locale = *matrix;
 	}
 
-	static glm::mat4 Matrix4x4Component_GetMatrix4x4(UUID entityID)
+	static glm::mat4 ModelMatrixComponent_GetMatrix4x4(UUID entityID)
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
-		RY_CORE_ASSERT(entity.HasComponent<Matrix4x4Component>());
-		return entity.GetComponent<Matrix4x4Component>().Matrix4x4;
+		RY_CORE_ASSERT(entity.HasComponent<ModelMatrixComponent>());
+		return entity.GetComponent<ModelMatrixComponent>().Locale;
 	}
 
-	static void Matrix4x4Component_SetGlobleMatrix4x4(UUID entityID, glm::mat4* matrix)
+	static void ModelMatrixComponent_SetGlobleMatrix4x4(UUID entityID, glm::mat4* matrix)
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
-		RY_CORE_ASSERT(entity.HasComponent<Matrix4x4Component>());
-		entity.GetComponent<Matrix4x4Component>().GlobleMatrix4x4 = *matrix;
+		RY_CORE_ASSERT(entity.HasComponent<ModelMatrixComponent>());
+		entity.GetComponent<ModelMatrixComponent>().Globle = *matrix;
 	}
 
-	static glm::mat4 Matrix4x4Component_GetGlobleMatrix4x4(UUID entityID)
+	static glm::mat4 ModelMatrixComponent_GetGlobleMatrix4x4(UUID entityID)
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
-		RY_CORE_ASSERT(entity.HasComponent<Matrix4x4Component>());
-		return entity.GetComponent<Matrix4x4Component>().GlobleMatrix4x4;
+		RY_CORE_ASSERT(entity.HasComponent<ModelMatrixComponent>());
+		return entity.GetComponent<ModelMatrixComponent>().Globle;
 	}
 
 #pragma endregion
@@ -749,7 +750,7 @@ namespace Rynex {
 					entity.AddComponent<StaticMeshComponent>();
 				StaticMeshComponent& staticMesh = entity.GetComponent<StaticMeshComponent>();
 				staticMesh.ModelR = mesh.ModelR;
-				Matrix4x4Component& parentMat4C = entity.GetComponent<Matrix4x4Component>();
+				ModelMatrixComponent& parentMat4C = entity.GetComponent<ModelMatrixComponent>();
 
 				auto& modelData = mesh.ModelR->GetRootDatas();
 				staticMesh.LocaleMeshMatrix.reserve(modelData.size());
@@ -757,16 +758,16 @@ namespace Rynex {
 				for (auto& meshData : modelData)
 				{
 					staticMesh.LocaleMeshMatrix.emplace_back(meshData.NodeMatrix);
-					staticMesh.GlobleMeshMatrix.emplace_back(parentMat4C.GlobleMatrix4x4 * meshData.NodeMatrix);
+					staticMesh.GlobleMeshMatrix.emplace_back(parentMat4C.Globle * meshData.NodeMatrix);
 				}
 
 				break;
 			}
 				case MeshMode::Dynamic:
 				{
-					if (!entity.HasComponent<Matrix4x4Component>())
-						entity.AddComponent<Matrix4x4Component>();
-					Matrix4x4Component& parentMat4C = entity.GetComponent<Matrix4x4Component>();
+					if (!entity.HasComponent<ModelMatrixComponent>())
+						entity.AddComponent<ModelMatrixComponent>();
+					ModelMatrixComponent& parentMat4C = entity.GetComponent<ModelMatrixComponent>();
 
 					if (!entity.HasComponent<RealtionShipComponent>())
 						entity.AddComponent<RealtionShipComponent>();
@@ -786,16 +787,16 @@ namespace Rynex {
 						childeEntity.AddComponent<DynamicMeshComponent>();
 						childeEntity.AddComponent<MaterialComponent>();
 
-						if (!childeEntity.HasComponent<Matrix4x4Component>())
-							childeEntity.AddComponent<Matrix4x4Component>();
-						Matrix4x4Component& childMat4C = childeEntity.GetComponent<Matrix4x4Component>();
-						childMat4C.Matrix4x4 = rootData.NodeMatrix;
-						childMat4C.GlobleMatrix4x4 = parentMat4C.Matrix4x4 * rootData.NodeMatrix;
+						if (!childeEntity.HasComponent<ModelMatrixComponent>())
+							childeEntity.AddComponent<ModelMatrixComponent>();
+						ModelMatrixComponent& childMat4C = childeEntity.GetComponent<ModelMatrixComponent>();
+						childMat4C.Locale = rootData.NodeMatrix;
+						childMat4C.Globle = parentMat4C.Locale * rootData.NodeMatrix;
 
 						if (!childeEntity.HasComponent<TransformComponent>())
 							childeEntity.AddComponent<TransformComponent>();
 						TransformComponent& transformC = childeEntity.GetComponent<TransformComponent>();
-						transformC.SetTransform(childMat4C.Matrix4x4);
+						transformC.SetTransform(childMat4C.Locale);
 
 						if (!childeEntity.HasComponent<DynamicMeshComponent>())
 							childeEntity.AddComponent<DynamicMeshComponent>();
@@ -2046,12 +2047,12 @@ namespace Rynex {
 #endif
 #pragma endregion
 
-#pragma region Matrix4x4Component
+#pragma region ModelMatrixComponent
 
-		RY_ADD_INTERNAL_CALL(Matrix4x4Component_SetMatrix4x4);
-		RY_ADD_INTERNAL_CALL(Matrix4x4Component_GetMatrix4x4);
-		RY_ADD_INTERNAL_CALL(Matrix4x4Component_SetGlobleMatrix4x4);
-		RY_ADD_INTERNAL_CALL(Matrix4x4Component_GetGlobleMatrix4x4);
+		RY_ADD_INTERNAL_CALL(ModelMatrixComponent_SetMatrix4x4);
+		RY_ADD_INTERNAL_CALL(ModelMatrixComponent_GetMatrix4x4);
+		RY_ADD_INTERNAL_CALL(ModelMatrixComponent_SetGlobleMatrix4x4);
+		RY_ADD_INTERNAL_CALL(ModelMatrixComponent_GetGlobleMatrix4x4);
 
 #pragma endregion
 

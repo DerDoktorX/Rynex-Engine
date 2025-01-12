@@ -12,9 +12,10 @@
 
 namespace Rynex {
 
+#pragma region PrototypenComponents
+
 	class Entity;
 
-	struct TransformComponent;
 	struct CameraComponent;
 	struct SpriteRendererComponent;
 	struct MaterialComponent;
@@ -24,33 +25,40 @@ namespace Rynex {
 	struct StaticMeshComponent;
 	struct DynamicMeshComponent;
 	struct RealtionShipComponent;
-	struct Matrix4x4Component;
+	
 	struct AmbientLigthComponent;
 	struct DrirektionleLigthComponent;
 	struct PointLigthComponent;
 	struct SpotLigthComponent;
 	struct ParticelComponente;
 	struct TextComponent;
+	struct ViewMatrixComponent;
 
-	using EnttRender2DView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, SpriteRendererComponent>;
-	using EnttRenderTextView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, TextComponent>;
-	using EnttRender3DEditeView = entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, MaterialComponent, GeomtryComponent>;
-	using EnttRender3DDynamicModelView = entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, DynamicMeshComponent>;
-	using EnttRender3DStaticModelView = entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, StaticMeshComponent>;
 
-	using EnttFrameBufferView	= entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, FrameBufferComponent, CameraComponent>;
-	using EnttCameraView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, CameraComponent>;
-	using EnttPartikelView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, ParticelComponente>;
+	struct TransformComponent;
+	struct ModelMatrixComponent;
+
+	using EnttRender2DView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, SpriteRendererComponent>;
+	using EnttRenderTextView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, TextComponent>;
+	using EnttRender3DEditeView = entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, MaterialComponent, GeomtryComponent>;
+	using EnttRender3DDynamicModelView = entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, DynamicMeshComponent>;
+	using EnttRender3DStaticModelView = entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, StaticMeshComponent>;
+
+	using EnttFrameBufferView	= entt::basic_view<enum entt::entity, entt::exclude_t<>, ViewMatrixComponent, ModelMatrixComponent, FrameBufferComponent, CameraComponent>;
+	using EnttCameraView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, ViewMatrixComponent, ModelMatrixComponent, CameraComponent>;
+	using EnttPartikelView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, ParticelComponente>;
 	
 	// Ligthts
 	using EnttAmbientLView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, AmbientLigthComponent>;
-	using EnttDrirektionLeLView = entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, DrirektionleLigthComponent>;
-	using EnttPointLView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, PointLigthComponent>;
-	using EnttSpotLView			= entt::basic_view<enum entt::entity, entt::exclude_t<>, Matrix4x4Component, SpotLigthComponent>;
+	using EnttDrirektionLeLView = entt::basic_view<enum entt::entity, entt::exclude_t<>, ViewMatrixComponent, ModelMatrixComponent, DrirektionleLigthComponent>;
+	using EnttPointLView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, PointLigthComponent>;
+	using EnttSpotLView			= entt::basic_view<enum entt::entity, entt::exclude_t<>, ViewMatrixComponent, ModelMatrixComponent, SpotLigthComponent>;
 
 	using EnttScriptView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, ScriptComponent>;
 	using EnttEntity			= entt::entity;
-	
+
+#pragma endregion
+
 
 	struct EnttViewLigths
 	{
@@ -94,7 +102,6 @@ namespace Rynex {
 		void OnRuntimStop();
 
 		void DestroyEntity(Entity entity);
-		//entt::registry& Reg() { return m_Registery; }
 
 		void OnUpdateEditor(TimeStep ts);
 		void OnRenderEditor(const Ref<Framebuffer>& framebuffer, const Ref<EditorCamera>& editorCamera);
@@ -124,19 +131,18 @@ namespace Rynex {
 
 		uint32_t GetEntityCount() const { return (uint32_t)m_Registery.size(); }
 
-		// void SetRenderFramBuffer(const std::string& viewPortName, const Ref<Framebuffer>& framebuffer) { m_RenderFrambuffer[viewPortName] = framebuffer; }
-
-		// void SetPaused(bool paused) { m_IsPaused = paused; }
-
-		// void Step(int frames = 1);
-
 		template<typename... Components>
 		auto GetAllEntitiesWith()
 		{
 			return m_Registry.view<Components...>();
 		}
 
-		void RenderSingleEntity(Camera& camera, const glm::mat4& viewMatrix, const glm::vec4& backGroundColor);
+		void RenderSingleEntityLikeDefault(Entity entity, Camera& camera, const glm::mat4& viewMatrix, const glm::vec4& backGroundColor);
+		void RenderSingleEntityLikeDefault(Entity entity, Entity Camera, const glm::vec4& backGroundColor);
+
+
+		// This Funktion Renderer on the Frambuffer and use Chep Shaders for edge Ditection
+		void RenderSingleEntityEdgeDitection(Entity entity, Camera& camera, const glm::mat4& viewMatrix, const glm::vec4& backGroundColor, const Ref<Framebuffer> frameBuffer);
 
 	private:
 		template<typename T>
@@ -148,9 +154,7 @@ namespace Rynex {
 		void SetLigthsRuntime(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D);
 		void SetLigthsEditor(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D, Camera& camera, const glm::mat4& viewMatrix, const glm::uvec2& viewPortSize);
 
-		void RenderScene3DShadows(Camera& camera, glm::mat4& transform, EnttView3D& enttView3D, Ref<Framebuffer>& frambuffer, int ligthIndex);
-
-		
+		void RenderScene3DShadows(glm::mat4& transform, EnttView3D& enttView3D, int ligthIndex);
 
 		void EditorFilterSreene();
 		void ClearAll();

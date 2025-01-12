@@ -139,7 +139,8 @@ void Sandbox2D::OnAttach()
 
 		if (!cameraE.HasComponent<Rynex::TransformComponent>())
 			cameraE.AddComponent<Rynex::TransformComponent>();
-		Rynex::Matrix4x4Component& matrix4C = cameraE.GetComponent<Rynex::Matrix4x4Component>();
+		Rynex::
+			& matrix4C = cameraE.GetComponent<Rynex::ModelMatrixComponent>();
 		matrix4C.Matrix4x4 = transformC.GetTransform();
 		matrix4C.GlobleMatrix4x4 = transformC.GetTransform();
 	}
@@ -161,7 +162,7 @@ void Sandbox2D::OnAttach()
 
 		if (!entityE.HasComponent<Rynex::TransformComponent>())
 			entityE.AddComponent<Rynex::TransformComponent>();
-		Rynex::Matrix4x4Component& matrix4C = entityE.GetComponent<Rynex::Matrix4x4Component>();
+		Rynex::ModelMatrixComponent& matrix4C = entityE.GetComponent<Rynex::ModelMatrixComponent>();
 		matrix4C.Matrix4x4 = transformC.GetTransform();
 		matrix4C.GlobleMatrix4x4 = transformC.GetTransform();
 	}
@@ -178,7 +179,7 @@ void Sandbox2D::OnAttach()
 		
 		if (!entityE.HasComponent<Rynex::TransformComponent>())
 			entityE.AddComponent<Rynex::TransformComponent>();
-		Rynex::Matrix4x4Component& matrix4C = entityE.GetComponent<Rynex::Matrix4x4Component>();
+		Rynex::ModelMatrixComponent& matrix4C = entityE.GetComponent<Rynex::ModelMatrixComponent>();
 		matrix4C.Matrix4x4 = transformC.GetTransform();
 		matrix4C.GlobleMatrix4x4 = transformC.GetTransform();
 	}
@@ -196,7 +197,7 @@ void Sandbox2D::OnAttach()
 
 		if (!entityE.HasComponent<Rynex::TransformComponent>())
 			entityE.AddComponent<Rynex::TransformComponent>();
-		Rynex::Matrix4x4Component& matrix4C = entityE.GetComponent<Rynex::Matrix4x4Component>();
+		Rynex::ModelMatrixComponent& matrix4C = entityE.GetComponent<Rynex::ModelMatrixComponent>();
 		matrix4C.Matrix4x4 = transformC.GetTransform();
 		matrix4C.GlobleMatrix4x4 = transformC.GetTransform();
 	}
@@ -219,7 +220,7 @@ void Sandbox2D::OnAttach()
 
 			if (!entityE.HasComponent<Rynex::TransformComponent>())
 				entityE.AddComponent<Rynex::TransformComponent>();
-			Rynex::Matrix4x4Component& matrix4C = entityE.GetComponent<Rynex::Matrix4x4Component>();
+			Rynex::ModelMatrixComponent& matrix4C = entityE.GetComponent<Rynex::ModelMatrixComponent>();
 			matrix4C.Matrix4x4 = transformC.GetTransform();
 			matrix4C.GlobleMatrix4x4 = transformC.GetTransform();
 

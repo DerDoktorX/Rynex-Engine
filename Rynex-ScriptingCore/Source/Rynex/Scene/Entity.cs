@@ -14,9 +14,11 @@ namespace Rynex
             if(!HasComponent<TransformComponent>())
                 AddComponent<TransformComponent>();
             Transform = GetComponent<TransformComponent>();
-            if (!HasComponent<Matrix4x4Component>())
-                AddComponent<Matrix4x4Component>();
-            Matrix = GetComponent<Matrix4x4Component>();
+            if (!HasComponent<ModelMatrixComponent>())
+                AddComponent<ModelMatrixComponent>();
+            Matrix = GetComponent<ModelMatrixComponent>();
+
+
 
         }
         ~Entity()
@@ -28,7 +30,7 @@ namespace Rynex
         public readonly ulong ID;
 
         public TransformComponent Transform;
-        public Matrix4x4Component Matrix;
+        public ModelMatrixComponent Matrix;
 
 
         public bool HasComponent<T>() where T: Component, new()

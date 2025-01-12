@@ -11,10 +11,10 @@
 
 namespace Rynex {
 
+#pragma region Uniform_Ligths_Structs
 
     struct AmbientData
     {
-        
         float Color[3] = {-1,-2,-3};
         float Intensitie= -4;
         AmbientData() = default;
@@ -27,129 +27,27 @@ namespace Rynex {
         }
     };
 
-    struct DrirectionLigtheData
-    { 
-        // glm::mat4 ShadowMatrixProjection = {
-        //     1,0,0,0,
-        //     0,1,0,0,
-        //     0,0,1,0,
-        //     0,0,0,1
-        // };
-        // glm::mat4 ShadowMatrixView = {
-        //    1,0,0,0,
-        //    0,1,0,0,
-        //    0,0,1,0,
-        //    0,0,0,1
-        // };
-        float Color[4] = {-10,-11,-12,-13 };
-        glm::vec3 Dirction = { -14, -15, -16 };
-        float Intensitie = -17;
-       
-        DrirectionLigtheData() = default;
-        DrirectionLigtheData(glm::vec3& color, float intensitie, const glm::vec3& dir, const glm::mat4& view, const glm::mat4& projection)
-        {
-            Color[0] = color.x;
-            Color[1] = color.y;
-            Color[2] = color.z;
-
-            Dirction = dir;
-            Intensitie = intensitie;
-            // ShadowMatrixView = view;
-            // ShadowMatrixProjection = projection;
-        }
-    };
-
-
     struct DrirectionData
     {
         int Aktive[4] = { 0, - 1, -2, -3 };
-
-        // int Aktive =  0 ;
-
-        // int Aktive[3] = { 0, -1, -2 };
-
-        // float CameraPositionGlobel[3] = { -1, -2, -3 };
-
-        DrirectionLigtheData Drirecion[8];
-
-        DrirectionData() = default;
-        DrirectionData(int aktive,const glm::vec3& camerPos)
-           // : Aktive(aktive)
-        {
-            Aktive[0] = aktive;
-            // CameraPositionGlobel[0] = camerPos.x;
-            // CameraPositionGlobel[1] = camerPos.y;
-            // CameraPositionGlobel[2] = camerPos.z;
-        }
-    };
-
-    struct PointLigtheData
-    {
-        float Color[3] = { -10,-11,-12 };
-        float Distence = -13;
-        float Postion[3] = { -14,-15,-16 };
-        float Intensitie =  -17;
-        
-
-        PointLigtheData() = default;
-        PointLigtheData(glm::vec3& color, glm::vec3& postion, float intensitie, float distence)
-        {
-            Color[0] = color.x;
-            Color[1] = color.y;
-            Color[2] = color.z;
-
-            Postion[0] = postion.x;
-            Postion[1] = postion.y;
-            Postion[2] = postion.z;
-
-            Intensitie = intensitie;
-            Distence = distence;
-        }
+        Ligths::DrirectionLigtheData Drirecion[8];
     };
 
     struct PointData
     {
         int Aktive[4] = { 0,-2,-3,-4 };
-        PointLigtheData Point[32];
-    };
-
-    struct SpotLigtheData
-    {
-        float Color[3] = { -10,-11,-12 };
-        float Intensitie = -13;
-        float Postion[3] = { -14,-15,-16 };
-        float Distence = -17;
-        float Direction[3] = { -18,-19,-20 };
-        float Inner = -21;
-        float Outer = -22;
-        float Empty[3] = { -23, -24,-25 };
-
-        SpotLigtheData() = default;
-        SpotLigtheData(const glm::vec3& color, const  glm::vec3& postion, const glm::vec3& direction,  float intensitie, float distence, float inner, float outer)
-            : Intensitie(intensitie), Distence(distence), Inner(inner), Outer(outer) 
-        {
-            Color[0] = color.x;
-            Color[1] = color.y;
-            Color[2] = color.z;
-
-            Postion[0] = postion.x;
-            Postion[1] = postion.y;
-            Postion[2] = postion.z;
-
-            Direction[0] = direction.x;
-            Direction[1] = direction.y;
-            Direction[2] = direction.z;
-        }
-    };
-
+        Ligths::PointLigtheData Point[32];
+    }; 
+    
     struct SpotData
     {
         int Aktive[4] = { 0,-1,-2,-3 };
-        SpotLigtheData Spot[32];
+        Ligths::SpotLigtheData Spot[32];
     };
 
-    
+#pragma endregion
 
+    
     struct RendererData
     {
         Camera Camera;
@@ -157,7 +55,7 @@ namespace Rynex {
         CameraData LigthDirtCam;
         int RenderChacheAktive = 0;
         int RenderDefaultAktive = 0;
-        int RendererDefaultModeFlags;
+        int RendererDefaultModeFlags = 0;
         
         Ref<Shader> Default3DShader = nullptr;
         Ref<Texture> WhiteTexture = nullptr;
@@ -193,14 +91,12 @@ namespace Rynex {
 #if RY_INSTECING
         HashPtrTable InstenceMesh;
 #endif
-        // Max Ligths: 8 directionel + 32 Pointligths + 32 Spotligths
-        std::array<Ref<Texture>, 72> ShadowTextures;
-        uint32_t MaxShadowsLigthsCount = 0;
+        Ref<Framebuffer> ShadowFramebuffer;
+        Ref<Texture> ShadowTexture;
+
 
         Renderer3D::Statistics Stats;
     };
-
-
 
     static RendererData s_Data;
 
@@ -241,7 +137,7 @@ namespace Rynex {
                 5, 1
             };
             
-            Ref<IndexBuffer> indexBuffer = IndexBuffer::Create(incies, 24 * sizeof(uint32_t), BufferDataUsage::StaticDraw);
+            Ref<IndexBuffer> indexBuffer = IndexBuffer::Create(incies, 24, BufferDataUsage::StaticDraw);
             s_Data.BoxAABBVertexArray->AddVertexBuffer(s_Data.BoxAABBVertexBuffer);
             s_Data.BoxAABBVertexArray->SetIndexBuffer(indexBuffer);
             s_Data.BoxAABBVertexArray->SetPrimitv(VertexArray::Primitv::Line);
@@ -331,8 +227,8 @@ namespace Rynex {
         
         {
             // Get Shadow maps and counter in Stats for posible Displaying
-            s_Data.Stats.MaxShadowsLigthsCount = &s_Data.MaxShadowsLigthsCount;
-            s_Data.Stats.ShadowsTex = &s_Data.ShadowTextures;
+
+            s_Data.Stats.ShadowsTex = s_Data.ShadowTexture;
         }
     }
 
@@ -347,8 +243,7 @@ namespace Rynex {
         s_Data.Default3DShader.reset();
         s_Data.DirectionelLigthBuffer.reset();
         s_Data.PointLigthBuffer.reset();
-        for (auto& tex : s_Data.ShadowTextures)
-            tex.reset();
+       
         s_Data.SpotLigthBuffer.reset();
         s_Data.WhiteTexture.reset();
     }
@@ -360,7 +255,7 @@ namespace Rynex {
     {
         if (ambientActive !=  1 || ambient == nullptr)
         {
-            AmbientData ambientData(glm::vec3(0.0,0.0,0.0), 0.0f);
+            AmbientData ambientData(glm::vec3(0.0f, 0.0f, 0.0f), 0.0f);
             s_Data.BufferAmbientData = ambientData;
             s_Data.AmbientLigthBuffer->SetData(&s_Data.BufferAmbientData, 0, sizeof(AmbientData));
         }
@@ -372,16 +267,16 @@ namespace Rynex {
         }
             
         s_Data.BufferDrirectionData.Aktive[0] = directionActive;
-        s_Data.DirectionelLigthBuffer->SetData(&s_Data.BufferDrirectionData, 0, sizeof(int) * 4 + sizeof(DrirectionLigtheData) * directionActive);
+        s_Data.DirectionelLigthBuffer->SetData(&s_Data.BufferDrirectionData, 0, sizeof(int) * 4 + sizeof(Ligths::DrirectionLigtheData) * directionActive);
         // s_Data.BufferDrirectionData.CameraPositionGlobel[0] = s_Data.CameraPos.x;
         // s_Data.BufferDrirectionData.CameraPositionGlobel[1] = s_Data.CameraPos.y;
         // s_Data.BufferDrirectionData.CameraPositionGlobel[2] = s_Data.CameraPos.z;
 
         s_Data.BufferSpotData.Aktive[0] = spotActive;
-        s_Data.SpotLigthBuffer->SetData(&s_Data.BufferSpotData, 0, sizeof(int) * 4 + sizeof(SpotLigtheData) * spotActive);
+        s_Data.SpotLigthBuffer->SetData(&s_Data.BufferSpotData, 0, sizeof(int) * 4 + sizeof(Ligths::SpotLigtheData) * spotActive);
 
         s_Data.BufferPointData.Aktive[0] = pointActive;
-        s_Data.PointLigthBuffer->SetData(&s_Data.BufferPointData, 0, sizeof(int) * 4 + sizeof(PointLigtheData) * pointActive);
+        s_Data.PointLigthBuffer->SetData(&s_Data.BufferPointData, 0, sizeof(int) * 4 + sizeof(Ligths::PointLigtheData) * pointActive);
 
         
     }
@@ -390,7 +285,7 @@ namespace Rynex {
     {
         if (index < 8)
         {
-            DrirectionLigtheData drirectionLigtheData(drirektion.Color, drirektion.Intensitie, glm::vec3(matrix[3]),  drirektion.CameraLigth.GetProjektion(),  matrix);
+            Ligths::DrirectionLigtheData drirectionLigtheData(drirektion.Color, drirektion.Intensitie,  matrix);
             s_Data.BufferDrirectionData.Drirecion[index] = drirectionLigtheData;
         }
     }
@@ -399,13 +294,8 @@ namespace Rynex {
     {
         if (index < 32)
         {
-            glm::vec3 skew = {};
-            glm::vec4 perspectiv = {};
-            glm::qua qaurt = glm::quat(glm::vec3());
-            glm::vec3 postion = {};
-            glm::vec3 scale = {};
-            glm::decompose(matrix, scale, qaurt, postion, skew, perspectiv);
-            SpotLigtheData spotLigtheData(spot.Color, glm::vec3(matrix[3]), glm::eulerAngles(qaurt), spot.Intensitie, spot.Distence, spot.Inner, spot.Distence);
+          
+            Ligths::SpotLigtheData spotLigtheData(spot.Color, glm::vec3(matrix[3]), -glm::vec3(matrix[2]), spot.Intensitie, spot.Distence, spot.Inner, spot.Distence);
             s_Data.BufferSpotData.Aktive[0]++;
             s_Data.BufferSpotData.Spot[index] = spotLigtheData;
         }
@@ -415,7 +305,7 @@ namespace Rynex {
     {
         if (index < 32)
         {
-            PointLigtheData pointLigtheData(point.Color, glm::vec3(matrix[3]), point.Intensitie, point.Distence);
+            Ligths::PointLigtheData pointLigtheData(point.Color, glm::vec3(matrix[3]), point.Intensitie, point.Distence);
             s_Data.BufferPointData.Point[index] = pointLigtheData;
         }
     }
@@ -428,7 +318,14 @@ namespace Rynex {
         s_Data.PointLigthBuffer->Bind(5);
     }
 
-
+    glm::mat4 Renderer3D::CalculateShadowDirectionelMatrix(const glm::mat4& view, const glm::vec3& min, const glm::vec3& max)
+    {
+       
+       glm::mat4 ProjectionMatrix = glm::ortho(
+           min.x, max.x, min.y, max.y, -min.z , -max.z
+       );
+       return ProjectionMatrix * view;
+    }
    
 #pragma endregion
 
@@ -436,13 +333,9 @@ namespace Rynex {
 
     void Renderer3D::BeginFrame()
     {   
-        for (auto& tex : s_Data.ShadowTextures)
-            tex = nullptr;
-        s_Data.MaxShadowsLigthsCount = 0;
+      
         s_Data.InstencCountAABB = 0;
     }
-
-   
 
     void Renderer3D::EndFrame()
     {
@@ -451,28 +344,26 @@ namespace Rynex {
 
 #pragma endregion
 
-    
-
-   
+      
 
 
 #pragma region SceneShadows
 
-    void Renderer3D::BeginSceneShadow(const Camera& camera, const glm::mat4& transform)
+    void Renderer3D::BeginSceneShadow(const glm::mat4& transform)
     {
         
         s_Data.LigthDirtCam.ViewMatrix = transform;
-        s_Data.LigthDirtCam.ViewProjectionMatrix = transform * camera.GetProjektion();
-        s_Data.LigthDirtCam.ProjectionMatrix = camera.GetProjektion();
+        s_Data.LigthDirtCam.ViewProjectionMatrix = transform; // * camera.GetProjektion();
+        // s_Data.LigthDirtCam.ProjectionMatrix = camera.GetProjektion();
 
         // s_Data.CameraViewProjBuffer->SetData(&s_Data.LigthDirtCam, sizeof(CameraData));
         // s_Data.CameraViewProjBuffer->Bind(0);
+       
     }
 
-    void Renderer3D::EndSceneShadow(const Ref<Texture>& deathTextur, int index)
+    void Renderer3D::EndSceneShadow(int index)
     {
-        s_Data.ShadowTextures[index] = deathTextur;
-        s_Data.MaxShadowsLigthsCount++;
+        
     }
 
     void Renderer3D::DrawModdelMeshShadow(const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, int entityID)
@@ -494,8 +385,6 @@ namespace Rynex {
 
         RenderCommand::DrawIndexedMesh(vertexArray);
         s_Data.Stats.DrawCalls++;
-        vertexArray->UnBind();
-        shader->UnBind();
     }
 
     void Renderer3D::DrawModdelShadow(glm::mat4& modelMatrix, const StaticMeshComponent& model, int entityID)
@@ -522,9 +411,8 @@ namespace Rynex {
         s_Data.RendererDefaultModeFlags = Renderer::GetMode();
 
         s_Data.CameraViewProjBuffer->SetData(&s_Data.CameraDataMat4, sizeof(CameraData));
-        s_Data.CameraViewProjBuffer->Bind();
-        if(s_Data.ShadowTextures[0])
-            s_Data.ShadowTextures[0]->Bind(7);
+        s_Data.CameraViewProjBuffer->Bind(0);
+
     }
 
     void Renderer3D::BeginScene(const Camera& camera, const glm::mat4& transformCamera)
@@ -541,9 +429,8 @@ namespace Rynex {
         s_Data.RendererDefaultModeFlags = Renderer::GetMode();
 
         s_Data.CameraViewProjBuffer->SetData( &s_Data.CameraDataMat4, sizeof(CameraData));
-        s_Data.CameraViewProjBuffer->Bind();
-        if(s_Data.ShadowTextures[0])
-            s_Data.ShadowTextures[0]->Bind(7);
+        s_Data.CameraViewProjBuffer->Bind(0);
+
     }
 
 
@@ -625,22 +512,56 @@ namespace Rynex {
     
     void Renderer3D::DrawModdel( glm::mat4& modelMatrix, const StaticMeshComponent& model, int entityID)
     {
-
+#if 0
+        const std::vector<Ref<Mesh>>& meshes = model.ModelR->GetMeshes();
+        const std::vector<glm::mat4>& globels = model.GlobleMeshMatrix;
+        for (uint32_t i = 0, length = globels.size(); i < length; i++)
+        {
+            if (meshes[i]->IsRady())
+                Renderer3D::DrawModdelMesh(globels[i], meshes[i], entityID);
+        }
+#endif
         const std::vector<Ref<Mesh>>& meshes = model.ModelR->GetMeshes();
         for (const Ref<Mesh>& mesh : meshes)
         {
 #if RY_INSTECING
-           
+
             MeshInstences& meshInst = s_Data.InstenceMesh.GetItem(mesh);
             meshInst.Mesh = mesh;
             meshInst.EntityIDs.emplace_back(entityID);
             meshInst.ModelMatrix.emplace_back(modelMatrix);
 #else
-            if(mesh->IsRady())
-                DrawModdelMesh( modelMatrix, mesh, entityID);
+            if (mesh->IsRady())
+                DrawModdelMesh(modelMatrix, mesh, entityID);
 #endif
         }
+
     }
+
+    void Renderer3D::DrawModdelSeclection(const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, const Ref<Material>& materiel, int entityID)
+    {
+        if (!mesh->IsRady())
+            return;
+
+     
+        const Ref<Shader>& shader = materiel->GetShader();
+        const Ref<VertexArray>& vertexArray = mesh->GetVertexArray();
+        if (shader == nullptr || materiel == nullptr)
+        {
+            RY_CORE_FATAL("Some Shader don't exist!");
+            return;
+        }
+        materiel->SetMatrix(modelMatrix);
+        materiel->Bind(&entityID, 1, s_Data.CameraDataMat4, s_Data.LigthDirtCam);
+
+
+        RenderCommand::DrawIndexedMesh(vertexArray);
+        s_Data.Stats.DrawCalls++;
+        vertexArray->UnBind();
+        shader->UnBind();
+    }
+
+  
 
     void Renderer3D::DrawMesh(const Ref<VertexArray>& vertexArray)
     {
@@ -801,7 +722,7 @@ namespace Rynex {
         const Ref<VertexArray>& vertexArray = mesh->GetVertexArray();
         // const std::vector<MeshTexture>& textures = mesh->GetTextures();
         
-        if (shader == nullptr || material == nullptr)
+        if (shader == nullptr || material == nullptr )
         {
             RY_CORE_FATAL("Some Shader don't exist!");
             return;
@@ -895,7 +816,10 @@ namespace Rynex {
 #else
         material->SetMatrix(modelMatrix);
         material->Bind(&entityID, 1, s_Data.CameraDataMat4, s_Data.LigthDirtCam);
-        //s_Data.ShadowTextures[0]->Bind(0);
+        
+        if (s_Data.ShadowTexture)
+            s_Data.ShadowTexture->Bind(0);
+            
 #endif
         RenderCommand::DrawIndexedMesh(vertexArray);
         s_Data.Stats.DrawCalls++;
@@ -934,7 +858,25 @@ namespace Rynex {
 
     }
 
+    void Renderer3D::DrawLineBoxAABB(const std::array<glm::vec4, 8>& aabb, const glm::mat4& matrix, const glm::vec3& position, int entityID)
+    {
+        s_Data.BoxAABBShader->Bind();
+        s_Data.BoxAABBShader->SetMat4("u_ViewProj", s_Data.CameraDataMat4.ViewProjectionMatrix);
+        s_Data.BoxAABBShader->SetMat4("u_Model", matrix);
+        s_Data.BoxAABBShader->SetFloat3("u_GloblePostion", position);
+        s_Data.BoxAABBShader->SetInt("u_EntityID", entityID);
+        std::array<glm::vec3, 8> aabbvec3;
+        for (uint32_t i = 0; i < 8; i++)
+            aabbvec3.at(i) = aabb[i];
 
+        std::memcpy(aabbvec3.data(), s_Data.BoxAABB, 8 * sizeof(glm::vec3));
+
+        s_Data.BoxAABBVertexBuffer->SetData(s_Data.BoxAABB, sizeof(s_Data.BoxAABB));
+        DrawLine(s_Data.BoxAABBVertexArray);
+        s_Data.BoxAABBVertexArray->UnBind();
+        s_Data.BoxAABBShader->UnBind();
+
+    }
 
     void Renderer3D::AktivePolyGunMode(bool active)
     {
@@ -952,7 +894,6 @@ namespace Rynex {
     }
 
    
-
     void Renderer3D::ResetStats()
     {
         s_Data.Stats.DrawTime.clear();

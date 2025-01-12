@@ -188,7 +188,7 @@ namespace Rynex {
 		bool deathFound = false;
 		
 		uint32_t withe = m_Specification.Width, height = m_Specification.Height;
-		
+		m_Size = { withe , height };
 	
 		
 		for (FramebufferTextureSpecification& attachment : m_Specification.Attachments)
@@ -240,8 +240,8 @@ namespace Rynex {
 	{
 		if(m_RendererID)
 		{
-			glCreateFramebuffers(1, &m_RendererID);
-			m_RendererID = 0;
+			glDeleteFramebuffers(1,&m_RendererID);
+			
 		}
 
 		for (Ref<OpenGLFrameTexture>tex : m_ColorAttachments)
@@ -319,7 +319,7 @@ namespace Rynex {
 	{
 		if(OpenGLThreadContext::IsActive())
 		{
-			uint32_t withe = m_Specification.Width, height = m_Specification.Height;
+			uint32_t withe = m_Size.x, height = m_Size.y;
 			if (m_RendererID)
 			{
 				glDeleteFramebuffers(1, &m_RendererID);
@@ -459,15 +459,16 @@ namespace Rynex {
 			RY_CORE_WARN("Faild Resize frambueffer to {0}, {1}", width, height);
 			return;
 		}
-		m_Specification.Width = width;
-		m_Specification.Height = height;
-		RY_CORE_TRACE("Resize frambueffer to {0}, {1}", width, height);
+		m_Size = { width , height };
+		m_Specification.Width = m_Size.x;
+		m_Specification.Height = m_Size.y;
+		RY_CORE_TRACE("Resize frambueffer to {0}, {1}", m_Size.x, m_Size.y);
 		Invalidate();
 	}
 
 	int OpenGLFramebuffer::ReadPixel(uint32_t attachmentsIndex, int x, int y)
 	{
-		RY_CORE_ASSERT(attachmentsIndex < m_ColorAttachments.size(), "Error OpenGLFramebuffer::ReadPixxel!");
+		RY_CORE_ASSERT(attachmentsIndex < m_ColorAttachments.size() && x <= m_Size.x && y <= m_Size.y, "Error OpenGLFramebuffer::ReadPixxel!");
 		glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentsIndex);
 		int pixeldata;
 		glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixeldata);
@@ -477,7 +478,7 @@ namespace Rynex {
 
 	const glm::uvec2& OpenGLFramebuffer::GetFrambufferSize()
 	{
-		return { m_Specification.Width, m_Specification.Height };
+		return m_Size;
 	}
 
 }

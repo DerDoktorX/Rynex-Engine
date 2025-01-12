@@ -6,6 +6,8 @@
 
 namespace Rynex {
 
+	class Mesh;
+
 	enum class MeshMode
 	{
 		None = 0,
@@ -22,9 +24,14 @@ namespace Rynex {
 
 		MeshVertex() = default;
 		MeshVertex(const MeshVertex&) = default;
+		MeshVertex(MeshVertex&&) = default;
 
 		MeshVertex(const glm::vec3& postion, const glm::vec3& normale, const glm::vec2& texCorrds)
 			: Postion(postion), Normale(normale), TexCorrds(texCorrds)
+		{ }
+
+		MeshVertex(glm::vec3&& postion, glm::vec3&& normale, glm::vec2&& texCorrds)
+			: Postion(std::move(postion)), Normale(std::move(normale)), TexCorrds(std::move(texCorrds))
 		{ }
 
 	};
@@ -32,15 +39,26 @@ namespace Rynex {
 	struct MeshRootData
 	{
 		glm::mat4 NodeMatrix;
-		std::string NodeName;
+		std::string NodeName = "Default-Name";
+		std::vector<Ref<Mesh>> Meshes;
+
 		MeshRootData() = default;
 		MeshRootData(const MeshRootData&) = default;
+		MeshRootData(MeshRootData&&) = default;
 
-		MeshRootData(glm::mat4 nodeMatrix)
+		MeshRootData(const glm::mat4& nodeMatrix)
 			: NodeMatrix(nodeMatrix)
 		{ }
-		MeshRootData(glm::mat4 nodeMatrix, std::string& nodeName)
+		MeshRootData(const glm::mat4& nodeMatrix, std::string& nodeName)
 			: NodeMatrix(nodeMatrix), NodeName(nodeName)
+		{ }
+
+		MeshRootData(const glm::mat4& nodeMatrix, const std::string& nodeName, const std::vector<Ref<Mesh>>& meshes)
+			: NodeMatrix(nodeMatrix), NodeName(nodeName), Meshes(meshes)
+		{ }
+
+		MeshRootData(const glm::mat4&& nodeMatrix, const std::string& nodeName, std::vector<Ref<Mesh>>&& meshes)
+			: NodeMatrix(nodeMatrix), NodeName(nodeName), Meshes(std::move(meshes))
 		{ }
 	};
 

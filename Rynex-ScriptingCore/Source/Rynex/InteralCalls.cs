@@ -206,16 +206,16 @@ namespace Rynex
 
 #endregion
 
-        #region Matrix4x4Component
+        #region ModelMatrixComponent
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Matrix4x4Component_SetMatrix4x4(ulong uuid, ref Matrix4x4 matrix);
+        internal extern static void ModelMatrixComponent_SetMatrix4x4(ulong uuid, ref Matrix4x4 matrix);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static Matrix4x4 Matrix4x4Component_GetMatrix4x4(ulong uuid);
+        internal extern static Matrix4x4 ModelMatrixComponent_GetMatrix4x4(ulong uuid);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Matrix4x4Component_SetGlobleMatrix4x4(ulong uuid, ref Matrix4x4 matrix);
+        internal extern static void ModelMatrixComponent_SetGlobleMatrix4x4(ulong uuid, ref Matrix4x4 matrix);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static Matrix4x4 Matrix4x4Component_GetGlobleMatrix4x4(ulong uuid);
+        internal extern static Matrix4x4 ModelMatrixComponent_GetGlobleMatrix4x4(ulong uuid);
 
         #endregion
 

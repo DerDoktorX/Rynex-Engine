@@ -66,6 +66,29 @@ namespace Rynex {
         }
 #endif
 
+#if 0
+        static Ref<Material> ProcessMaterial(aiMaterial* material, const aiScene* scene, const std::filesystem::path& directory)
+        {
+            std::vector<MeshTexture> texures;
+            aiString name = material->GetName();
+            std::string strName(name.data, name.length);
+            
+            uint32_t size = material->mNumProperties;
+            aiMaterialProperty* properties = material->mProperties;
+            for (uint32_t i = 0; i < size; i++)
+            {
+
+            }
+
+            LoadMaterialTextures(texures, material, aiTextureType_DIFFUSE, "u_Texture_Diffuse", directory, false);
+            LoadMaterialTextures(texures, material, aiTextureType_SPECULAR, "u_Texture_Speculare", directory, false);
+            LoadMaterialTextures(texures, material, aiTextureType_HEIGHT, "u_Texture_Normale", directory, false);
+            LoadMaterialTextures(texures, material, aiTextureType_AMBIENT, "u_Texture_Heigth", directory, false);
+
+            return Material::CreateImport(std::move(strName), std::move(texures));
+        }
+#endif
+
         static void LoadMaterialTextures(std::vector<MeshTexture>& textures ,aiMaterial* material, aiTextureType type, const std::string& typeName, const std::filesystem::path& directory, bool async = false)
         {
             
@@ -93,24 +116,31 @@ namespace Rynex {
             bool hasNormals = mesh->mNormals != nullptr;
             bool hasTexCorrds = mesh->HasTextureCoords(0);
             uint32_t size = mesh->mNumVertices;
+            aiVector3D* vertecies = mesh->mVertices;
+            aiVector3D* normales = mesh->mNormals;
+            aiVector3D* coordes = mesh->mTextureCoords[0];
+            
+
             vertices.reserve(size);
             for (uint32_t i = 0; i < size; i++)
             {
                 vertices.emplace_back(
-                   SetVec3(true, mesh->mVertices, i),
-                   SetVec3(hasNormals, mesh->mNormals, i),
-                   SetCoords(hasTexCorrds, mesh->mTextureCoords[0], i));
+                   SetVec3(true, vertecies, i),
+                   SetVec3(hasNormals, normales, i),
+                   SetCoords(hasTexCorrds, coordes, i));
             }
             size = mesh->mNumFaces;
             indices.reserve(size);
             for (uint32_t i = 0; i < size; i++)
             {
                 aiFace face = mesh->mFaces[i];
+
                 for (uint32_t j = 0; j < face.mNumIndices; j++)
                     indices.emplace_back(face.mIndices[j]);
             }
            
             aiMaterial* materials = scene->mMaterials[mesh->mMaterialIndex];
+           
             LoadMaterialTextures(texures, materials, aiTextureType_DIFFUSE, "u_Texture_Diffuse", directory, async);
             LoadMaterialTextures(texures, materials, aiTextureType_SPECULAR, "u_Texture_Speculare", directory, async);
             LoadMaterialTextures(texures, materials, aiTextureType_HEIGHT, "u_Texture_Normale", directory, async);
@@ -194,9 +224,12 @@ namespace Rynex {
 
         static void ProcessNode(aiNode* node, const aiScene* scene, std::vector<MeshRootData>& meshRootDatas, std::vector<Ref<Mesh>>& meshes, const std::filesystem::path& directory, bool async = false)
         {
+            
+            
+
             uint32_t size = node->mNumMeshes;
-
-
+            std::vector<Ref<Mesh>> meshesNode;
+            meshesNode.reserve(size);
 #if 0
             uint32_t cpuCorse = std::thread::hardware_concurrency();
             std::vector<uint32_t> m_MeshSize(size);
@@ -218,17 +251,22 @@ namespace Rynex {
             for (uint32_t i = 0; i < size; i++)
             {
                 aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-                aiMatrix4x4 matrix = node->mTransformation;
-                aiString name = node->mName;
-                std::string strName(name.data, name.length);
-                meshRootDatas.emplace_back((
+                Ref<Mesh> meshRef = meshes.emplace_back(ProcessMesh(mesh, scene, directory, async));
+                meshesNode.emplace_back(meshRef);
+                
+                
+            }
+            
+            aiString name = node->mName;
+            std::string strName(name.data, name.length);
+            aiMatrix4x4 matrix = node->mTransformation;
+            
+            meshRootDatas.emplace_back(glm::mat4{
                     matrix.a1, matrix.a2, matrix.a3, matrix.a4,
                     matrix.b1, matrix.b2, matrix.b3, matrix.b4,
-                    matrix.c1, matrix.c2, matrix.c3, matrix.c4
-                    ), strName);
-                
-                meshes.emplace_back(ProcessMesh(mesh, scene, directory, async));
-            }
+                    matrix.c1, matrix.c2, matrix.c3, matrix.c4,
+                    matrix.d1, matrix.d2, matrix.d3, matrix.d4
+                }, strName, std::move(meshesNode));
 #endif
 
             for (uint32_t i = 0; i < node->mNumChildren; i++)
@@ -237,6 +275,19 @@ namespace Rynex {
             }
         }
 
+#if 0
+        static Ref<Material>&& ProcessMaterielData(aiMaterial* material);
+
+        static Ref<Mesh>&& ProcessMeshData(aiMesh* mesh);
+
+        static void ProcessData(const aiScene* scene, const std::filesystem::path& directory, std::vector<Ref<Mesh>>& meshes, std::vector<Ref<Material>>& materiels, std::vector<Ref<MeshRootData>>& nodes)
+        {
+            for ()
+            {
+
+            }
+        }
+#endif
     }
 
     Ref<Model> ModelImporter::ImportModel(AssetHandle handle, const AssetMetadata& metadata, bool async)

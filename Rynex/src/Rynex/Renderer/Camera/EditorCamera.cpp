@@ -22,6 +22,8 @@ namespace Rynex {
 	{
 		m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
 		m_Projektion = glm::perspective(glm::radians(m_FOV), m_AspectRatio, m_NearClip, m_FarClip);
+		UpdateCenter();
+		UpdateAABB();
 	}
 
 	void EditorCamera::UpdateView()
@@ -32,6 +34,31 @@ namespace Rynex {
 		glm::quat orientation = GetOrientation();
 		m_ViewMatrix = glm::translate(glm::mat4(1.0f), m_Position) * glm::toMat4(orientation);
 		m_ViewMatrix = glm::inverse(m_ViewMatrix);
+		UpdateCenter();
+		UpdateAABB();
+	}
+
+	void EditorCamera::UpdateCenter()
+	{
+		m_Center = glm::vec3(0.0f, 0.0f, -(m_NearClip + m_FarClip) * 0.5);
+		
+	}
+
+	void EditorCamera::UpdateAABB()
+	{
+		glm::mat4 iVM = glm::inverse(m_Projektion);
+		m_ViewFustrum = {
+			iVM * glm::vec4(-1.0f, -1.0f, -1.0f, 1.0f),
+			iVM * glm::vec4(-1.0f,  1.0f, -1.0f, 1.0f),
+			iVM * glm::vec4( 1.0f, -1.0f, -1.0f, 1.0f),
+			iVM * glm::vec4( 1.0f,  1.0f, -1.0f, 1.0f),
+
+			iVM * glm::vec4(-1.0f, -1.0f, 1.0f, 1.0f),
+			iVM * glm::vec4(-1.0f,  1.0f, 1.0f, 1.0f),
+			iVM * glm::vec4( 1.0f, -1.0f, 1.0f, 1.0f),
+			iVM * glm::vec4( 1.0f,  1.0f, 1.0f, 1.0f),
+		};
+
 	}
 
 	void EditorCamera::FreeCameraUpdate()
@@ -152,5 +179,7 @@ namespace Rynex {
 	{
 		return glm::quat(glm::vec3(-m_Pitch, -m_Yaw, 0.0f));
 	}
+
+	
 
 }

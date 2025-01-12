@@ -20,6 +20,9 @@ namespace Rynex {
 	{
 		FramebufferTextureSpecification() = default;
 
+		// FramebufferTextureSpecification(FramebufferTextureSpecification&&) = default;
+		FramebufferTextureSpecification(const FramebufferTextureSpecification&) = default;
+
 		FramebufferTextureSpecification(TextureFormat format)
 			: TextureFormat(format) {}
 

@@ -3,6 +3,30 @@
 #include "RendererAPI.h"
 
 namespace Rynex {
+#if 0
+	class Shader;
+	class VertexArray;
+	class Texture;
+	class UniformBuffer;
+
+	struct DrawRendererArgs
+	{
+		Ref<Shader> Shader;
+		Ref<VertexArray> VertexArray;
+		std::vector<Ref<Texture>> Textures;
+		std::vector<Ref<UniformBuffer>> UniformBuffers;
+
+		DrawRendererArgs() = default;
+		DrawRendererArgs(Ref<Shader>& shader, Ref<VertexArray>& vertexArray, std::initializer_list<Ref<UniformBuffer>> uniformBuffers, std::initializer_list<Ref<Texture>> textures)
+			: Shader(shader)
+			, VertexArray(vertexArray)
+			, UniformBuffers(uniformBuffers)
+			, Textures(textures)
+		{
+
+		}
+	};
+#endif
 	class RYNEX_API RenderCommand
 	{
 	public:

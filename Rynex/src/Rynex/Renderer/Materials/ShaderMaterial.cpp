@@ -14,7 +14,8 @@ namespace Rynex {
     ShaderMaterial::~ShaderMaterial()
     {
         m_Shader.reset();
-        m_Uniform.reset();
+        if(m_Uniform)
+            m_Uniform.reset();
     }
 
     void ShaderMaterial::SetColor(const glm::vec3& color)
@@ -51,7 +52,8 @@ namespace Rynex {
 
     void ShaderMaterial::SetMatrix(const glm::mat4& matrix)
     {
-        SetDefaultName(m_Names.ModelMatrix, glm::value_ptr(matrix));
+        glm::mat4 mat = matrix;
+        SetDefaultName(m_Names.ModelMatrix, &mat);
     }
 
     void ShaderMaterial::SetShadowTextures(const std::array<Ref<Texture>, 72>& shadowsTex, uint32_t size)
@@ -66,9 +68,9 @@ namespace Rynex {
 
     void ShaderMaterial::Bind(int* entityIDs, uint32_t size, CameraData& camera, CameraData& ligthCam)
     {
-        
         m_Shader->Bind();
-        m_Uniform->Bind();
+        m_Uniform->Bind(1);
+
     }
 
     void ShaderMaterial::UnBind()
@@ -94,6 +96,11 @@ namespace Rynex {
     const Ref<UniformBuffer>& ShaderMaterial::GetUniformBuffer() const
     {
         return m_Uniform;
+    }
+
+    bool ShaderMaterial::IsRady()
+    {
+        return m_Shader && m_Uniform;
     }
 
 

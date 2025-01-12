@@ -61,6 +61,7 @@ void main()
 
     vec3 p = ligthView_Postion.xyz / ligthView_Postion.w;
     p = p * 0.5 + 0.5;
+    // p = ( p + 1.0f ) / 2.0f;
     float multyplyer = textureProj(ShadowMap, ligthView_Postion);
     float shadow = p.z -bias > multyplyer  ? 1.0 : 0.0;
     Color.xyz *= shadow;

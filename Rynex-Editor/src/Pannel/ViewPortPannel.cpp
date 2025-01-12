@@ -117,16 +117,20 @@ namespace Rynex {
             
         }
         ShaderMaterialDefaultNames names(
-            { SDT::Float3,   "u_Color"},
-            { SDT::Float,    "u_Alpha"},
-            { SDT::Float4x4, "u_ModelMatrix" }
+            { SDT::Float3,   "Color"},
+            { SDT::Float,    "Alpha"},
+            { SDT::Float4x4, "ModelMatrix" }
         );
 
         m_MaterialC.Materiel = Material::CreateShader(names );
+        m_MaterialC.Materiel->SetUniformBuffer(UniformBuffer::Create(
+            nullptr, 
+            sizeof(glm::mat4),  {
+                { SDT::Float4x4,   "ModelMatrix"},
+            }, 1));
         m_MaterialC.Materiel->SetFlage(Renderer::A_Buffer | Renderer::Death_Buffer | Renderer::CallFace_Back);
         m_MaterialC.Materiel->SetColor( { 1.0f,1.0f,1.0f });
         m_MaterialC.Materiel->SetShader(AssetManager::GetAsset<Shader>("../Rynex-Editor/Editor-Assets/shaders/ViewPort-Shader.glsl"));
-
     }
 
     void ViewPortPannel::OnUpdate()
@@ -277,61 +281,109 @@ namespace Rynex {
         Entity slelcted = m_EditorLayer->GetSelectedEntity();
        
         m_SelectedFramebuffer->Bind();
-        RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
         RenderCommand::Clear(); 
+        RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+        
         if (!slelcted)
         {
             m_SelectedFramebuffer->Unbind();
             return;
         }
+
         Camera& mainCamera = (Camera)m_Camera->GetProjektion();
         glm::mat4 viewMatrix = m_Camera->GetViewMatrix();
-        if ((slelcted != Entity() || slelcted != 0) && slelcted.HasComponent<Matrix4x4Component>())
+
+        if ((slelcted != Entity() || slelcted != 0) && slelcted.HasComponent<ModelMatrixComponent>())
         {
-            Matrix4x4Component mat4C = slelcted.GetComponent<Matrix4x4Component>();
+            ModelMatrixComponent& mat4C = slelcted.GetComponent<ModelMatrixComponent>();
             if (slelcted.HasComponent<SpriteRendererComponent>())
             {
                 Renderer2D::BeginSceneQuade(mainCamera, viewMatrix);
                 SpriteRendererComponent& spriteC = slelcted.GetComponent<SpriteRendererComponent>();
-                Renderer2D::DrawSprite(mat4C.GlobleMatrix4x4, spriteC, slelcted.GetEntityHandle());
+                Renderer2D::DrawSprite(mat4C.Globle, spriteC, slelcted.GetEntityHandle());
                 Renderer2D::EndSceneQuade();
             }
+
+            if (slelcted.HasComponent<CameraComponent>())
+            {
+                Renderer2D::BeginSceneIcon(mainCamera, viewMatrix, m_SelectedFramebuffer->GetFrambufferSize());
+                Renderer2D::DrawCameraIcon(mat4C.Globle, slelcted.GetEntityHandle());
+                Renderer2D::EndSceneIcon();
+            }
+            if (slelcted.HasComponent<Rynex::DrirektionleLigthComponent>())
+            {
+                Renderer2D::BeginSceneIcon(mainCamera, viewMatrix, m_SelectedFramebuffer->GetFrambufferSize());
+                Renderer2D::DrawLigthDirctionelIcon(mat4C.Globle, slelcted.GetEntityHandle());
+                Renderer2D::EndSceneIcon();
+            }
+            if (slelcted.HasComponent<Rynex::SpotLigthComponent>())
+            {
+                Renderer2D::BeginSceneIcon(mainCamera, viewMatrix, m_SelectedFramebuffer->GetFrambufferSize());
+                Renderer2D::DrawLigthSpotIcon(mat4C.Globle, slelcted.GetEntityHandle());
+                Renderer2D::EndSceneIcon();
+            }
+            if (slelcted.HasComponent<Rynex::PointLigthComponent>())
+            {
+                Renderer2D::BeginSceneIcon(mainCamera, viewMatrix, m_SelectedFramebuffer->GetFrambufferSize());
+                Renderer2D::DrawLigthPointIcon(mat4C.Globle, slelcted.GetEntityHandle());
+                Renderer2D::EndSceneIcon();
+            }
+#if 0
             else  if (slelcted.HasComponent<GeomtryComponent>() )
             {
                 Renderer3D::BeginScene(mainCamera, viewMatrix);
-                GeomtryComponent geomtryC = slelcted.GetComponent<GeomtryComponent>();
 
                 if (geomtryC.Geometry != nullptr)
                 {
                     
-                    Renderer3D::BeforDrawEntity(m_MaterialC, mat4C.GlobleMatrix4x4, slelcted.GetEntityHandle());
+                    Renderer3D::BeforDrawEntity(m_MaterialC, mat4C.Globle, slelcted.GetEntityHandle());
                     Renderer3D::DrawObjectRender3D(geomtryC.Geometry);
                     Renderer3D::AfterDrawEntity(m_MaterialC);
                 }
                 Renderer3D::EndScene();
             }
-            else  if (slelcted.HasComponent<StaticMeshComponent>() )
+#endif
+           if (slelcted.HasComponent<StaticMeshComponent>() )
             {
                 Renderer3D::BeginScene(mainCamera, viewMatrix);
-                StaticMeshComponent staticMeshC = slelcted.GetComponent<StaticMeshComponent>();
+                StaticMeshComponent& staticMeshC = slelcted.GetComponent<StaticMeshComponent>();
                 
 
                 if ( staticMeshC.ModelR != nullptr)
                 {
-                    Renderer3D::DrawModdel(mat4C.GlobleMatrix4x4, staticMeshC, slelcted.GetEntityHandle());
+
+                    const std::vector<Ref<Mesh>>& meshes = staticMeshC.ModelR->GetMeshes();
+#if 0
+                    const std::vector<glm::mat4>& globels = staticMeshC.GlobleMeshMatrix;
+                    for (uint32_t i = 0, length = globels.size(); i < length; i++)
+                    {
+                        Renderer3D::DrawModdelSeclection(globels[i], meshes[i], m_MaterialC.Materiel, slelcted.GetEntityHandle());
+                    }
+#elif 0
+                    for (const Ref<Mesh>& mesh : meshes)
+                    {
+                        Renderer3D::DrawModdel(mat4C.Globle, staticMeshC, slelcted.GetEntityHandle());
+                    }
+#else
+                    for(const Ref<Mesh>& mesh : meshes)
+                    {
+                        Renderer3D::DrawModdelSeclection(mat4C.Globle, mesh, m_MaterialC.Materiel, slelcted.GetEntityHandle());
+                    }
+#endif
                 }
                 Renderer3D::EndScene();
             }
-            else  if (slelcted.HasComponent<DynamicMeshComponent>())
-            {
-                DynamicMeshComponent dynamicMeshC = slelcted.GetComponent<DynamicMeshComponent>();
+           if (slelcted.HasComponent<DynamicMeshComponent>())
+           {
+                DynamicMeshComponent& dynamicMeshC = slelcted.GetComponent<DynamicMeshComponent>();
                 UUID parent = slelcted.GetComponent<RealtionShipComponent>().ParentID;
                 Renderer3D::BeginScene(mainCamera, viewMatrix);
                 if (parent)
                 {
                     if ( dynamicMeshC.MeshR != nullptr)
                     {
-                        Renderer3D::DrawModdel( mat4C.GlobleMatrix4x4, dynamicMeshC, slelcted.GetEntityHandle());
+                        m_MaterialC.Materiel->SetMatrix(mat4C.Globle);
+                        Renderer3D::DrawModdelSeclection( mat4C.Globle, dynamicMeshC.MeshR, m_MaterialC.Materiel,slelcted.GetEntityHandle());
                         
                     }
                 }
@@ -460,22 +512,19 @@ namespace Rynex {
 
         ImGui::End();
         ImGui::PopStyleVar();
-#if RY_RENDERER_SHOADOWS_SECOUNDARY
-        if(Ref<Texture> tex = m_ShadowMap.lock())
+
+        
+        Renderer3D::Statistics stats = Renderer3D::GetStats();
+        if (stats.ShadowsTex != nullptr)
         {
-            ImGui::Begin("Shadow-Map");
-            uint32_t textureID = tex->GetRenderID();
-            ImVec2 sizeTes = { (float)tex->GetWidth(), (float)tex->GetHeight() };
-            ImGui::Image(reinterpret_cast<void*>(textureID), sizeTes, ImVec2(0, 1), ImVec2(1, 0));
+            ImGui::Begin("Shadow Map");
+            uint32_t shadowID = stats.ShadowsTex->GetRenderID(); 
+            
+            ImGui::Image(reinterpret_cast<void*>(shadowID), ImVec2{ (float)stats.ShadowsTex->GetWidth(), (float)stats.ShadowsTex->GetHeight() }, ImVec2(0, 1), ImVec2(1, 0));
+
             ImGui::End();
         }
-        else
-        {
-            Renderer3D::Statistics stats = Renderer3D::GetStats();
-            if (stats.ShadowsTex->at(0) != nullptr)
-                m_ShadowMap = stats.ShadowsTex->at(0);
-        }
-#endif
+
         return (m_WindowFocused && m_WindowHoverd);
     }
 
@@ -583,7 +632,7 @@ namespace Rynex {
                 auto camerEntt = m_AktiveScene->GetEntityPrimaryCamera();
                 const auto& camera = camerEntt.GetComponent<CameraComponent>().Camera;
                 const glm::mat4& camerProj = camera.GetProjektion();
-                camerView = glm::inverse(camerEntt.GetComponent<Matrix4x4Component>().GlobleMatrix4x4);
+                camerView = glm::inverse(camerEntt.GetComponent<ModelMatrixComponent>().Globle);
                 break;
             }
             default:
@@ -618,17 +667,17 @@ namespace Rynex {
                 tc.Rotation += dealteRotation;
                 tc.Scale = scale;
 
-                Matrix4x4Component& selecE_Mat4 = selectedEntity.GetComponent<Matrix4x4Component>();
-                selecE_Mat4.Matrix4x4 = tc.GetTransform();
+                ModelMatrixComponent& selecE_Mat4 = selectedEntity.GetComponent<ModelMatrixComponent>();
+                selecE_Mat4.Locale = tc.GetTransform();
                 UUID parent = selectedEntity.GetComponent<RealtionShipComponent>().ParentID;
                 if(parent)
                 {
                     Entity parentE = m_AktiveScene->GetEntitiyByUUID(parent);
-                    selecE_Mat4.GlobleMatrix4x4 = parentE.GetComponent<Matrix4x4Component>().GlobleMatrix4x4 * selecE_Mat4.Matrix4x4;
+                    selecE_Mat4.Globle = parentE.GetComponent<ModelMatrixComponent>().Globle * selecE_Mat4.Locale;
                 }
                 else 
                 {
-                    selecE_Mat4.GlobleMatrix4x4 = selecE_Mat4.Matrix4x4;
+                    selecE_Mat4.Globle = selecE_Mat4.Locale;
                 }
                 
             }

@@ -21,6 +21,9 @@
 
 
 namespace Rynex {
+#define RY_REALTION_SCHIP_ID_COMP 1
+#define RY_REALTION_SCHIP_ARRAY_COMP 0
+#pragma region Identfing_Componts
 
 	struct IDComponent
 	{
@@ -41,6 +44,9 @@ namespace Rynex {
 		TagComponent(const std::string tag)
 			: Tag(tag) {}
 	};
+
+#pragma endregion
+
 
 	struct TransformComponent
 	{
@@ -114,7 +120,7 @@ namespace Rynex {
 		SceneCamera Camera;
 		bool Primary = true;
 		bool FixedAspectRotaion = false;
-
+		bool ViewFustrum = false;
 		CameraComponent() = default;
 		CameraComponent(const CameraComponent&) = default;
 
@@ -152,6 +158,7 @@ namespace Rynex {
 
 	};
 
+#if 1
 	struct GeomtryComponent
 	{
 		Ref<VertexArray> Geometry = nullptr;
@@ -163,34 +170,72 @@ namespace Rynex {
 
 	struct MaterialComponent
 	{
-#if 0
-		Ref<Shader> Shader = nullptr;
-#if 0
-		Ref<Texture> Texture = nullptr;
-
-		std::vector<UniformElement> UniformLayoute;
-#else
-		Ref<UniformBuffer> UniformBuffer;
-#endif
-		glm::vec3 Color{ 1.0f, 0.0f, 1.0f };
-		int AlgorithmFlags = Renderer::CallFace_Back | Renderer::Death_Buffer | Renderer::A_Buffer | Renderer::Ligths; // 
-#else
 		Ref<Material> Materiel = nullptr;
-#endif
 		MaterialComponent() = default;
 		MaterialComponent(const MaterialComponent&) = default;
 	};
+#endif
 
-	struct Matrix4x4Component
+#pragma region Matrix_Compents
+
+	// Model Matrix: used by nearly every 3d Object, Ligths and Cameras.
+	struct ModelMatrixComponent
 	{
-		glm::mat4 Matrix4x4 = glm::mat4(1.0); // Locale Matrix
-		glm::mat4 GlobleMatrix4x4 = glm::mat4(1.0);
+		glm::mat4 Locale = glm::mat4(1.0);
+		glm::mat4 Globle = glm::mat4(1.0);
+
+		ModelMatrixComponent() = default;
+		ModelMatrixComponent(const ModelMatrixComponent&) = default;
 	};
+	
+	// View Matrix: often used by Cameras and Matrix for rendering, but also often using Model Matrix,
+	// this Matrix is the glm::inverse version from Model Matrix.
+	struct ViewMatrixComponent
+	{
+		glm::mat4 Locale = glm::mat4(1.0);
+		glm::mat4 Globle = glm::mat4(1.0);
+
+		ViewMatrixComponent() = default;
+		ViewMatrixComponent(const ViewMatrixComponent&) = default;
+
+		inline glm::mat4 ModelViewProjection(const glm::mat4& model, const glm::mat4& projetion) const
+		{
+			return projetion * Globle * model;
+		}
+
+		inline glm::mat4 ViewProjection( const glm::mat4& projetion) const
+		{
+			return projetion * Globle;
+		}
+
+		// transforms from From Canonicel View Volume to Globelspace Usfuell like debuging your camera from a nother camera
+		inline glm::mat4 GlobleCameraSpace(const glm::mat4& projetion) const
+		{
+			return glm::inverse(projetion * Globle);
+		}
+
+		void CalculteGlobelShadowViewMatrix(const glm::vec3& center, const glm::vec3& direction)
+		{
+			glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+			Globle = glm::lookAt(center + direction, center, up);
+		}
+
+		void CalculteLocaleShadowViewMatrix(const glm::vec3& center, const glm::vec3& direction)
+		{
+			glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+			Locale = glm::lookAt(center + direction, center, up);
+		}
+	};
+
+
 
 	struct Matrix3x3Component
 	{
-		glm::mat3 Matrix3x3;
+		glm::mat3 Matrix;
 	};
+
+
+#pragma endregion
 
 	struct FrameBufferComponent
 	{
@@ -211,6 +256,8 @@ namespace Rynex {
 		}
 	};
 
+#pragma region Mesh
+
 	struct MeshComponent
 	{
 		Ref<Model> ModelR = nullptr;
@@ -228,7 +275,10 @@ namespace Rynex {
 		Ref<Model> ModelR = nullptr;
 		std::vector<glm::mat4> GlobleMeshMatrix;
 		std::vector<glm::mat4> LocaleMeshMatrix;
+		std::vector<Ref<Mesh>> Meshes;
+		std::vector<Ref<Material>> Materiels;
 		bool UseAlleMeshes = true;
+
 		StaticMeshComponent() = default;
 		StaticMeshComponent(const StaticMeshComponent&) = default;
 
@@ -242,27 +292,22 @@ namespace Rynex {
 	struct DynamicMeshComponent
 	{
 		Ref<Mesh> MeshR = nullptr;
+		Ref<Material> Materiel = nullptr;
+
 		DynamicMeshComponent() = default;
 		DynamicMeshComponent(const DynamicMeshComponent&) = default;
 
 		DynamicMeshComponent(Ref<Model> modelR, int meshIndex = 0)
 			: MeshR(modelR->GetMesh(meshIndex))
-		{
-		}
+		{ }
 
 	};
 
-	struct MainViewPortComponent
-	{
-		Ref<SceneCamera> Camera;
-		Ref<EditorCamera> EditorCamera;
-		Ref<Framebuffer> FrameBuffer;
-
-		MainViewPortComponent() = default;
-		MainViewPortComponent(const MainViewPortComponent&) = default;
-	};
+#pragma endregion
 
 
+
+#pragma region LigthsComponts
 	
 	struct AmbientLigthComponent
 	{
@@ -277,14 +322,7 @@ namespace Rynex {
 	{
 		glm::vec3 Color = { 1.0f, 1.0f, 1.0f };
 		float Intensitie = 0.1f;
-		SceneCamera CameraLigth;
-		Ref<Framebuffer> ShadowFrameBuffer = nullptr;
 
-		DrirektionleLigthComponent()
-		{
-			CameraLigth.SetViewPortSize(2048, 2048);
-			CameraLigth.SetOrthoGrafic(15, 1, 15);
-		};
 		DrirektionleLigthComponent(const DrirektionleLigthComponent&) = default;
 
 	};
@@ -316,6 +354,8 @@ namespace Rynex {
 		SpotLigthComponent() = default;
 		SpotLigthComponent(const SpotLigthComponent&) = default;
 	};
+
+#pragma endregion
 
 	// TOOD: make a Partikel Component System
 	struct ParticelComponente
@@ -349,29 +389,29 @@ namespace Rynex {
 		}
 	};
 
+#if RY_REALTION_SCHIP_ID_COMP
 	struct RealtionShipComponent
 	{
-#if 0
-		int Previus = -1;
-		int First = -1;
-		int Next = -1;
-		int Parent = -1;
-#else
 		UUID PreviusID = 0;
 		UUID FirstID = 0;
 		UUID NextID = 0;
 		UUID ParentID = 0;
-#endif
 		RealtionShipComponent() = default;
 		RealtionShipComponent(const RealtionShipComponent&) = default;
-#if 0
-		RealtionShipComponent(int previus, int parent = -1, int next = -1, int first = -1)
-			: Previus(previus), Parent(parent), Next(next), First(first) {}
-#else
 		RealtionShipComponent(UUID previusID, UUID parentID = 0, UUID nextID = 0, UUID firstID = 0)
 			: PreviusID(previusID), ParentID(parentID), NextID(nextID), FirstID(firstID) {}
-#endif
 	};
+#elif RY_REALTION_SCHIP_ARRAY_COMP
+	struct RealtionShipsComponent
+	{
+		int Parent = -1;
+		std::vector<int> Childrens;
+
+		RealtionShipsComponent() = default;
+		RealtionShipsComponent(const RealtionShipsComponent&) = default;
+	};
+#endif
+
 
 	template<typename... Component>
 	struct ComponentGroup
@@ -383,8 +423,13 @@ namespace Rynex {
 		/*CircleRendererComponent,*/ CameraComponent, ScriptComponent,
 		MaterialComponent,
 		GeomtryComponent,
-		Matrix3x3Component, Matrix4x4Component,
-		FrameBufferComponent, MainViewPortComponent, RealtionShipComponent,
+		Matrix3x3Component, ModelMatrixComponent, ViewMatrixComponent,
+		FrameBufferComponent,
+#if RY_REALTION_SCHIP_ID_COMP
+		RealtionShipComponent,
+#elif RY_REALTION_SCHIP_ARRAY_COMP
+		RealtionShipsComponent,
+#endif
 		MeshComponent, StaticMeshComponent, DynamicMeshComponent,
 		NativeSripteComponent,
 		AmbientLigthComponent, DrirektionleLigthComponent, PointLigthComponent, SpotLigthComponent,

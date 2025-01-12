@@ -42,6 +42,7 @@ namespace Rynex {
 	private:
 		uint32_t m_RendererID = 0;
 		FramebufferSpecification m_Specification;
+		glm::uvec2 m_Size;
 		Ref<OpenGLFrameTexture> m_DepthAttachment = nullptr;
 		std::vector<Ref<OpenGLFrameTexture>> m_ColorAttachments;
 		std::vector<Ref<OpenGLFrameTexture>> m_ColorAttachmentsMultySamples;

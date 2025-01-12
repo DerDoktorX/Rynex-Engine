@@ -5,6 +5,7 @@ namespace Rynex {
 	
 	struct ShaderMaterialDefaultNames;
 	struct CameraData;
+	struct MeshTexture;
 
 	class Material : public Asset
 	{
@@ -44,6 +45,8 @@ namespace Rynex {
 		// static AssetType GetStaticType() { return AssetType::Material; }
 		// virtual AssetType GetType() const = 0;
 	
+		static Ref<Material> CreateImport(std::string&& name, std::vector<MeshTexture>&& textures) { return nullptr; };
+
 		static Ref<Material> CreateBasic(const std::vector<std::filesystem::path>& paths);
 		static Ref<Material> CreateDefeard();
 		static Ref<Material> CreateShader(ShaderMaterialDefaultNames& names);

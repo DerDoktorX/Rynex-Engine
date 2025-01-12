@@ -37,6 +37,15 @@ namespace Rynex {
 		SetBoxAABB(vertexBuffer, postionElement);
 	}
 
+	BoxAABB::BoxAABB(std::array<glm::vec3, 8>& points)
+		: m_Max(RY_MIN_FLOAT, RY_MIN_FLOAT, RY_MIN_FLOAT)
+		, m_Min(RY_MAX_FLOAT, RY_MAX_FLOAT, RY_MAX_FLOAT)
+	{
+		SetBoxAABB(points);
+	}
+
+	
+
 	void BoxAABB::SetBoxAABB(const Ref<VertexBuffer>& vertexBuffer, BufferElement& postionElement)
 	{
 		const BufferLayout& layoute = vertexBuffer->GetLayout();
@@ -61,6 +70,21 @@ namespace Rynex {
 		}
 		
 		RY_CORE_INFO("Succesfull Create AABB Box! Min({0}, {1}, {2})  Max({3}, {4}, {5})", m_Min.x, m_Min.y, m_Min.z, m_Max.x, m_Max.y, m_Max.z);
+	}
+
+	void BoxAABB::SetBoxAABB(std::array<glm::vec3, 8>& points)
+	{
+		if (RY_MIN_FLOAT != m_Max.x)
+		{
+			m_Max = glm::vec3(RY_MIN_FLOAT, RY_MIN_FLOAT, RY_MIN_FLOAT);
+			m_Min = glm::vec3(RY_MAX_FLOAT, RY_MAX_FLOAT, RY_MAX_FLOAT);
+		}
+		for (auto& point : points)
+		{
+			Utils::CheckAndSetAABB(&m_Min.x, &m_Max.x, point.x);
+			Utils::CheckAndSetAABB(&m_Min.y, &m_Max.y, point.y);
+			Utils::CheckAndSetAABB(&m_Min.z, &m_Max.z, point.z);
+		}
 	}
 
 	void BoxAABB::CalculatMinMax(const std::vector<unsigned char>& data, uint32_t offset, BufferElement element)

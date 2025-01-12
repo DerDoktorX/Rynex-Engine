@@ -48,7 +48,7 @@ namespace Rynex {
 		void EcexuterDeleteing();
 
 		template<typename T>
-		void DisplayAddComponentEntry(const std::string& name);
+		bool DisplayAddComponentEntry(const std::string& name);
 		
 		void CheckEnttiyForError(Entity& entity);
 

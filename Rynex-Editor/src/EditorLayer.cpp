@@ -803,6 +803,7 @@ namespace Rynex {
             DrirektionleLigthComponent& directionC = directionE.GetComponent<DrirektionleLigthComponent>();
             directionC.Color = { 1.0,1.0,1.0 };
             directionC.Intensitie = 1.0;
+#if 0
             directionC.ShadowFrameBuffer = Framebuffer::Create({
                 512, 512,
                     {
@@ -820,14 +821,15 @@ namespace Rynex {
                     1,
                     false
             });
+#endif
 
 
-            if (!directionE.HasComponent<Matrix4x4Component>())
-                directionE.AddComponent<Matrix4x4Component>();
-            Matrix4x4Component& mat4C = directionE.GetComponent<Matrix4x4Component>();
+            if (!directionE.HasComponent<ModelMatrixComponent>())
+                directionE.AddComponent<ModelMatrixComponent>();
+            ModelMatrixComponent& mat4C = directionE.GetComponent<ModelMatrixComponent>();
             glm::mat4 ligthView = glm::lookAt(1.0f * glm::vec3(50.0f, 00.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0, 1.0f, 0.0f));
-            mat4C.GlobleMatrix4x4 = ligthView;
-            mat4C.Matrix4x4 = ligthView;
+            mat4C.Globle = ligthView;
+            mat4C.Locale = ligthView;
 
             if (!directionE.HasComponent<TransformComponent>())
                 directionE.AddComponent<TransformComponent>();
@@ -1261,7 +1263,6 @@ namespace Rynex {
 
 #pragma endregion
 
-    
     void EditorLayer::OnImGuiRender()
     {
         static bool dokingEnabled   = true;
@@ -1346,7 +1347,6 @@ namespace Rynex {
                 m_RendererPannel.OnImGuiRender();
             }
             m_ProjectPannel.OnImGuiRender();
-
             ImGui::End();
         }
         else
@@ -1486,6 +1486,8 @@ namespace Rynex {
         ImGui::Text("Vertex : %d", stats.GetTotalVertexCount());
         ImGui::Text("Indexs : %d", stats.GetTotalIndexCount());
     }
+
+   
 
     void EditorLayer::ImGuiPannels()
     {
@@ -1815,7 +1817,6 @@ namespace Rynex {
             ImGui::EndMenu();
         }
     }
-
 
     void EditorLayer::ImGuiEdit()
     { 

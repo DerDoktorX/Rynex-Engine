@@ -7,9 +7,71 @@
 
 namespace Rynex {
 
+	namespace Ligths {
 
-    struct MeshInstences
-    {
+		struct PointLigtheData
+		{
+			glm::vec3 Color = { -10.0f,-11.0f,-12.0f };
+			float Distence = -13.0f;
+			glm::vec3 Postion = { -14.0f,-15.0f,-16.0f };
+			float Intensitie = -17.0f;
+
+
+			PointLigtheData() = default;
+			PointLigtheData(glm::vec3& color, glm::vec3& postion, float intensitie, float distence) 
+				: Color(color)
+				, Postion(postion)
+				, Intensitie(intensitie)
+				, Distence(distence) { }
+		};
+
+		struct DrirectionLigtheData
+		{
+			glm::mat4 ShadowMatrix = {
+			   1.0f, 0.0f, 0.0f, 0.0f,
+			   0.0f, 1.0f, 0.0f, 0.0f,
+			   0.0f, 0.0f, 1.0f, 0.0f,
+			   0.0f, 0.0f, 0.0f, 1.0f
+			};
+			glm::vec4 Color = { -10.0f,-11.0f,-12.0f,-13.0f };
+			glm::vec3 Dirction = { -14.0f, -15.0f, -16.0f };
+			float Intensitie = -17.0f;
+
+			DrirectionLigtheData() = default;
+
+			DrirectionLigtheData(const glm::vec3& color, float intensitie, const glm::mat4& view)
+				: Color(glm::vec4(color, -13.0f))
+				, Dirction(-glm::vec3(view[3]))
+				, Intensitie(intensitie)
+			{ }
+		};
+
+		struct SpotLigtheData
+		{
+			glm::vec3 Color = { -10.0f,-11.0f,-12.0f };
+			float Intensitie = -13.0f;
+			glm::vec3 Postion = { -14.0f,-15.0f,-16.0f };
+			float Distence = -17.0f;
+			glm::vec3 Direction = { -18.0f,-19.0f,-20.0f };
+			float Inner = -21.0f;
+			float Outer = -22.0f;
+			glm::vec3 Empty = { -23.0f, -24.0f,-25.0f };
+
+			SpotLigtheData() = default;
+			SpotLigtheData(const glm::vec3& color, const  glm::vec3& postion, const glm::vec3& direction, float intensitie, float distence, float inner, float outer)
+				: Color(color)
+				, Intensitie(intensitie)
+				, Distence(distence)
+				, Inner(inner)
+				, Outer(outer)
+				, Postion(postion)
+				, Direction(direction)
+			{ }
+		};
+	}
+	
+	struct MeshInstences
+	{
 		Ref<Mesh> Mesh;
 		std::vector<glm::mat4> ModelMatrix;
 		std::vector<int> EntityIDs;
@@ -17,8 +79,9 @@ namespace Rynex {
 			: Mesh()
 			, ModelMatrix(std::vector<glm::mat4>())
 			, EntityIDs(std::vector<int>())
-		{};
-    };
+		{
+		};
+	};
 
 	struct CameraData
 	{
@@ -41,7 +104,7 @@ namespace Rynex {
 		static void SetLigthUniform(SpotLigthComponent& spot, const glm::mat4& matrix, int index);
 		static void SetLigthUniform(PointLigthComponent& point, const glm::mat4& matrix, int index);
 		static void SetShadowsUniform();
-
+		static glm::mat4 CalculateShadowDirectionelMatrix(const glm::mat4& view, const glm::vec3& min, const glm::vec3& max);
 
 		static void BeginFrame();
 		static void EndFrame();
@@ -49,8 +112,8 @@ namespace Rynex {
 		static void BeginScene(const Ref<EditorCamera>& camera);
 		static void BeginScene(const Camera& camera, const glm::mat4& transform);
 
-		static void BeginSceneShadow(const Camera& camera, const glm::mat4& transform);
-		static void EndSceneShadow(const Ref<Texture>& deathTextur, int index);
+		static void BeginSceneShadow(const glm::mat4& transform);
+		static void EndSceneShadow(int index);
 		static void DrawModdelMeshShadow(const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, int entityID);
 		static void DrawModdelShadow(glm::mat4& modelMatrix, const StaticMeshComponent& model, int entityID);
 
@@ -63,9 +126,11 @@ namespace Rynex {
 		static void SetMaterial(const MaterialComponent& material, const glm::mat4& modelMatrix, int entityID);
 		static void DrawModdel(glm::mat4& modelMatrix, const DynamicMeshComponent& model, int entityID);
 		static void DrawModdel(glm::mat4& modelMatrix, const StaticMeshComponent& model, int entityID);
+		static void DrawModdelSeclection(const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, const Ref<Material>& materiel, int entityID);
 		static void DrawModdelMesh(const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, int entityID);
 		static void DrawModdelMesh(const Ref<Mesh>& mesh, std::vector<glm::mat4>& modelMatricies, std::vector<int>& entityIDs);
 		static void DrawLineBoxAABB(const BoxAABB& aabb, const glm::mat4& modelMatrix, int entityID);
+		static void DrawLineBoxAABB(const std::array<glm::vec4, 8>& viewFustrum, const glm::mat4& matrix, const glm::vec3& position, int entityID);
 
 
 		static void AktivePolyGunMode(bool active = true);
@@ -140,7 +205,7 @@ namespace Rynex {
 
 			// uint32_t GetTotalVertexCount() const { return QuadCount * 4; }
 			// uint32_t GetTotalIndexCount() const { return QuadCount * 6; }
-			std::array<Ref<Texture>, 72>* ShadowsTex;
+			Ref<Texture> ShadowsTex;
 			uint32_t* MaxShadowsLigthsCount;
 		};
 

@@ -143,18 +143,18 @@ namespace Rynex
         }
     }
 
-    public class Matrix4x4Component : Component
+    public class ModelMatrixComponent : Component
     {
         public Matrix4x4 Matrix4x4
         {
             get
             {
-                return InternalCalls.Matrix4x4Component_GetMatrix4x4(Entity.ID);
+                return InternalCalls.ModelMatrixComponent_GetMatrix4x4(Entity.ID);
             }
 
             set
             {
-                InternalCalls.Matrix4x4Component_SetMatrix4x4(Entity.ID, ref value);
+                InternalCalls.ModelMatrixComponent_SetMatrix4x4(Entity.ID, ref value);
             }
         }
 
@@ -163,12 +163,12 @@ namespace Rynex
             get
             {
                
-                return InternalCalls.Matrix4x4Component_GetMatrix4x4(Entity.ID);;
+                return InternalCalls.ModelMatrixComponent_GetMatrix4x4(Entity.ID);;
             }
 
             set
             {
-                InternalCalls.Matrix4x4Component_SetMatrix4x4(Entity.ID, ref value);
+                InternalCalls.ModelMatrixComponent_SetMatrix4x4(Entity.ID, ref value);
             }
         }
     }

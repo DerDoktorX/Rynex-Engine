@@ -18,6 +18,7 @@
 
 
 namespace YAML {
+
 	Emitter& operator<<(Emitter& out, const std::string_view& v)
 	{
 		out << std::string(v.data(), v.size());
@@ -756,7 +757,7 @@ namespace Rynex {
 		GeomtryComponent GeomtryComponent;
 		MaterialComponent MaterialComponent;
 		RealtionShipComponent RealtionShipComponent;
-		Matrix4x4Component Matrix4x4Component;
+		ModelMatrixComponent ModelMatrixComponent;
 		StaticMeshComponent StaticMeshComponent;
 		DynamicMeshComponent DynamicMeshComponent;
 	};
@@ -766,7 +767,8 @@ namespace Rynex {
 		uint32_t EntitiySize;
 		std::vector<EntitySerialData> Enitity;
 	};
-
+namespace Utils
+{
 	static void SerializerDynamicData(YAML::Emitter& out, const std::string& name, ShaderDataType type, const std::vector<unsigned char>& data)
 	{
 		switch (type)
@@ -999,6 +1001,7 @@ namespace Rynex {
 		uint32_t index = 0;
 		const std::vector<BufferElement>& elements = layout.GetElements();
 		uint32_t elementsSize = elements.size();
+
 		for (YAML::detail::iterator_value& element : node)
 		{
 
@@ -1068,9 +1071,9 @@ namespace Rynex {
 			index++;
 		}
 	}
-
+	
 	template< typename T>
-	bool DeserializeAssetFormate(YAML::Node& nodeE, Ref<T>* entityC, bool async)
+	static bool DeserializeAssetFormate(YAML::Node& nodeE, Ref<T>* entityC, bool async)
 	{
 		if (nodeE)
 		{
@@ -1096,14 +1099,15 @@ namespace Rynex {
 		}
 		return false;
 	}
+}
+
+	
 
 
 	SceneSerializer::SceneSerializer(const Ref<Scene>& scene)
 		: m_Scene(scene)
 	{
 	}
-
-
 
 
 	static void SerializerEntity(YAML::Emitter& out, Entity entity, const Ref<Scene>& scene)
@@ -1191,7 +1195,7 @@ namespace Rynex {
 #else
 			if (Ref<Texture> tex = sc.Texture.lock())
 			{
-				SerializerAssetFormate(out, "Texture", tex->Handle);
+				Utils::SerializerAssetFormate(out, "Texture", tex->Handle);
 			}
 #endif
 			out << YAML::EndMap;
@@ -1228,7 +1232,7 @@ namespace Rynex {
 						}
 						out << YAML::EndSeq;
 						const std::vector<unsigned char>& buferData = buffer->GetBufferData();
-						SerializerDynamicDataLayout(out, "BuferData", layout, buferData);
+						Utils::SerializerDynamicDataLayout(out, "BuferData", layout, buferData);
 						out << YAML::EndMap;
 					}
 					out << YAML::EndSeq;
@@ -1257,6 +1261,7 @@ namespace Rynex {
 			}
 			out << YAML::EndMap;
 		}
+
 #if 0
 		if (entity.HasComponent<MaterialComponent>())
 		{
@@ -1313,13 +1318,23 @@ namespace Rynex {
 			out << YAML::EndMap;
 		}
 
-		if (entity.HasComponent<Matrix4x4Component>())
+		if (entity.HasComponent<ModelMatrixComponent>())
 		{
-			out << YAML::Key << "Matrix4x4Component";
+			out << YAML::Key << "ModelMatrixComponent";
 			out << YAML::BeginMap;
-			Matrix4x4Component& m4c = entity.GetComponent<Matrix4x4Component>();
-			out << YAML::Key << "Matrix4x4" << YAML::Value << m4c.Matrix4x4;
-			out << YAML::Key << "GlobleMatrix4x4" << YAML::Value << m4c.GlobleMatrix4x4;
+			ModelMatrixComponent& modelMatC = entity.GetComponent<ModelMatrixComponent>();
+			out << YAML::Key << "Locale" << YAML::Value << modelMatC.Locale;
+			out << YAML::Key << "Globle" << YAML::Value << modelMatC.Globle;
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<ViewMatrixComponent>())
+		{
+			out << YAML::Key << "ViewMatrixComponent";
+			out << YAML::BeginMap;
+			ViewMatrixComponent& viewMatC = entity.GetComponent<ViewMatrixComponent>();
+			out << YAML::Key << "Locale" << YAML::Value << viewMatC.Locale;
+			out << YAML::Key << "Globle" << YAML::Value << viewMatC.Globle;
 			out << YAML::EndMap;
 		}
 
@@ -1330,7 +1345,7 @@ namespace Rynex {
 			MeshComponent& meshC = entity.GetComponent<MeshComponent>();
 			if (meshC.ModelR)
 			{
-				SerializerAssetFormate(out, "Model", meshC.ModelR->Handle);
+				Utils::SerializerAssetFormate(out, "Model", meshC.ModelR->Handle);
 			}
 			out << YAML::EndMap;
 		}
@@ -1342,7 +1357,7 @@ namespace Rynex {
 			StaticMeshComponent& meshS_C = entity.GetComponent<StaticMeshComponent>();
 			if (meshS_C.ModelR)
 			{
-				SerializerAssetFormate(out, "Model-S", meshS_C.ModelR->Handle);
+				Utils::SerializerAssetFormate(out, "Model-S", meshS_C.ModelR->Handle);
 			}
 			out << YAML::EndMap;
 		}
@@ -1406,9 +1421,9 @@ namespace Rynex {
 			out << YAML::BeginMap;
 			DrirektionleLigthComponent& drirektionleC = entity.GetComponent<DrirektionleLigthComponent>();
 
-
 			out << YAML::Key << "Color" << YAML::Value << drirektionleC.Color;
 			out << YAML::Key << "Intensitie" << YAML::Value << drirektionleC.Intensitie;
+
 			out << YAML::EndMap;
 		}
 
@@ -1436,6 +1451,55 @@ namespace Rynex {
 			out << YAML::Key << "Inner" << YAML::Value << spotC.Inner;
 			out << YAML::Key << "Outer" << YAML::Value << spotC.Outer;
 			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<FrameBufferComponent>())
+		{
+			out << YAML::Key << "FrameBufferComponent";
+			{
+				out << YAML::BeginMap;
+				FrameBufferComponent& frameC = entity.GetComponent<FrameBufferComponent>();
+
+				out << YAML::Key << "Framebuffer" << YAML::Value;
+				{
+					out << YAML::BeginMap;
+					const FramebufferSpecification& spec = frameC.FrameBuffer->GetFramebufferSpecification();
+					out << YAML::Key << "Width" << YAML::Value << spec.Width;
+					out << YAML::Key << "Height" << YAML::Value << spec.Height;
+
+					{
+						out << YAML::Key << "Attachments";
+						out << YAML::BeginSeq;
+						for (const FramebufferTextureSpecification& framTexSpec : spec.Attachments.Attachments)
+						{
+							// out << YAML::Key << "TextureAssetHandle" << YAML::Value << AssetHandle();
+							out << YAML::BeginMap;
+							out << YAML::Key << "TextureFormat" << YAML::Value << (int)framTexSpec.TextureFormat;
+							out << YAML::Key << "TextureWrapping" << YAML::Value;
+							out << YAML::BeginMap;
+							{
+								out << YAML::Key << "R" << YAML::Value << (int)framTexSpec.TextureWrapping.R;
+								out << YAML::Key << "T" << YAML::Value << (int)framTexSpec.TextureWrapping.T;
+								out << YAML::Key << "S" << YAML::Value << (int)framTexSpec.TextureWrapping.S;
+							}
+							out << YAML::EndMap;
+							out << YAML::Key << "TextureFiltering" << YAML::Value << (int)framTexSpec.TextureFiltering;
+							out << YAML::Key << "Samples" << YAML::Value << framTexSpec.Samples;
+							out << YAML::EndMap;
+						}
+						out << YAML::EndSeq;
+					}
+					out << YAML::Key << "Samples" << YAML::Value << spec.Samples;
+					out << YAML::Key << "SwapChainTarget" << YAML::Value << spec.SwapChainTarget;
+					out << YAML::EndMap;
+				}
+
+				out << YAML::Key << "ClearColor" << YAML::Value << frameC.ClearColor;
+				out << YAML::Key << "FramebufferSize" << YAML::Value << (int)frameC.FramebufferSize;
+				
+
+				out << YAML::EndMap;
+			}
 		}
 
 		out << YAML::EndMap;
@@ -1526,7 +1590,7 @@ namespace Rynex {
 #else
 			if (Ref<Texture> tex = sc.Texture.lock())
 			{
-				SerializerAssetFormate(out, "Texture", tex->Handle);
+				Utils::SerializerAssetFormate(out, "Texture", tex->Handle);
 			}
 #endif
 			out << YAML::EndMap;
@@ -1563,7 +1627,7 @@ namespace Rynex {
 						}
 						out << YAML::EndSeq;
 						const std::vector<unsigned char>& buferData = buffer->GetBufferData();
-						SerializerDynamicDataLayout(out, "BuferData", layout, buferData);
+						Utils::SerializerDynamicDataLayout(out, "BuferData", layout, buferData);
 						out << YAML::EndMap;
 					}
 					out << YAML::EndSeq;
@@ -1650,13 +1714,23 @@ namespace Rynex {
 			out << YAML::EndMap;
 		}
 
-		if (entity.HasComponent<Matrix4x4Component>())
+		if (entity.HasComponent<ModelMatrixComponent>())
 		{
-			out << YAML::Key << "Matrix4x4Component";
+			out << YAML::Key << "ModelMatrixComponent";
 			out << YAML::BeginMap;
-			Matrix4x4Component& m4c = entity.GetComponent<Matrix4x4Component>();
-			out << YAML::Key << "Matrix4x4" << YAML::Value << m4c.Matrix4x4;
-			out << YAML::Key << "GlobleMatrix4x4" << YAML::Value << m4c.GlobleMatrix4x4;
+			ModelMatrixComponent& modelMatC = entity.GetComponent<ModelMatrixComponent>();
+			out << YAML::Key << "Locale" << YAML::Value << modelMatC.Locale;
+			out << YAML::Key << "Globle" << YAML::Value << modelMatC.Globle;
+			out << YAML::EndMap;
+		}
+
+		if (entity.HasComponent<ViewMatrixComponent>())
+		{
+			out << YAML::Key << "ViewMatrixComponent";
+			out << YAML::BeginMap;
+			ViewMatrixComponent& viewMatC = entity.GetComponent<ViewMatrixComponent>();
+			out << YAML::Key << "Locale" << YAML::Value << viewMatC.Locale;
+			out << YAML::Key << "Globle" << YAML::Value << viewMatC.Globle;
 			out << YAML::EndMap;
 		}
 
@@ -1667,7 +1741,7 @@ namespace Rynex {
 			MeshComponent& meshC = entity.GetComponent<MeshComponent>();
 			if (meshC.ModelR)
 			{
-				SerializerAssetFormate(out, "Model", meshC.ModelR->Handle);
+				Utils::SerializerAssetFormate(out, "Model", meshC.ModelR->Handle);
 			}
 			out << YAML::EndMap;
 		}
@@ -1679,7 +1753,7 @@ namespace Rynex {
 			StaticMeshComponent& meshS_C = entity.GetComponent<StaticMeshComponent>();
 			if (meshS_C.ModelR)
 			{
-				SerializerAssetFormate(out, "Model-S", meshS_C.ModelR->Handle);
+				Utils::SerializerAssetFormate(out, "Model-S", meshS_C.ModelR->Handle);
 			}
 			out << YAML::EndMap;
 		}
@@ -1778,6 +1852,7 @@ namespace Rynex {
 		out << YAML::EndMap;
 	}
 
+
 	void SceneSerializer::Serialize(const std::string& filepath)
 	{
 		RY_CORE_WARN("Begin Serialize a Scene from '{}'", filepath.c_str());
@@ -1799,6 +1874,12 @@ namespace Rynex {
 
 		std::ofstream fout(filepath);
 		fout << out.c_str();
+
+		m_Scene->m_Registery.each([&](auto entityID)
+		{
+			Entity entity{ entityID, m_Scene.get() };
+			entity.UpdateMatrix();
+		});
 		RY_CORE_INFO("Ende Scene Serializetation");
 	}
 
@@ -1973,7 +2054,7 @@ namespace Rynex {
 						}
 						BufferLayout bufferLayout(bufferElements);
 						std::vector<unsigned char> data;
-						DeserializeDynamicDataLayout(vertexBuffer["BuferData"], bufferLayout, data);
+						Utils::DeserializeDynamicDataLayout(vertexBuffer["BuferData"], bufferLayout, data);
 						if (async)
 						{
 							RY_CORE_ASSERT(false);
@@ -2044,11 +2125,31 @@ namespace Rynex {
 #endif
 
 
-				if (YAML::Node matrix4x4Component = entity["Matrix4x4Component"])
+				if (YAML::Node modelMatrixComponentN = entity["ModelMatrixComponent"])
 				{
-					Matrix4x4Component& m4c = deserializedEntity.GetComponent<Matrix4x4Component>();
-					m4c.Matrix4x4 = matrix4x4Component["Matrix4x4"].as<glm::mat4>();
-					m4c.GlobleMatrix4x4 = matrix4x4Component["GlobleMatrix4x4"].as<glm::mat4>();
+					if(!deserializedEntity.HasComponent<ModelMatrixComponent>())
+						deserializedEntity.AddComponent<ModelMatrixComponent>();
+					ModelMatrixComponent& m4c = deserializedEntity.GetComponent<ModelMatrixComponent>();
+					if(modelMatrixComponentN["Matrix4x4"])
+					{
+						m4c.Locale = modelMatrixComponentN["Matrix4x4"].as<glm::mat4>();
+						m4c.Globle = modelMatrixComponentN["GlobleMatrix4x4"].as<glm::mat4>();
+						RY_CORE_WARN("Old ModelMatrixComponent Name Confention");
+					}
+					if (modelMatrixComponentN["Locale"])
+					{
+						m4c.Locale = modelMatrixComponentN["Locale"].as<glm::mat4>();
+						m4c.Globle = modelMatrixComponentN["Globle"].as<glm::mat4>();
+					}
+				}
+
+				if (YAML::Node viewMatrixComponentN = entity["ViewMatrixComponent"])
+				{
+					if (!deserializedEntity.HasComponent<ViewMatrixComponent>())
+						deserializedEntity.AddComponent<ViewMatrixComponent>();
+					ViewMatrixComponent& viewMatC = deserializedEntity.GetComponent<ViewMatrixComponent>();
+					viewMatC.Locale = viewMatrixComponentN["Locale"].as<glm::mat4>();
+					viewMatC.Globle = viewMatrixComponentN["Globle"].as<glm::mat4>();
 				}
 
 				YAML::Node meshComponent = entity["MeshComponent"];
@@ -2088,7 +2189,7 @@ namespace Rynex {
 					}
 					else
 					{
-						assetHandleError = DeserializeAssetFormate<Model>(meshComponent["Model"], &mc.ModelR, false) || assetHandleError;
+						assetHandleError = Utils::DeserializeAssetFormate<Model>(meshComponent["Model"], &mc.ModelR, false) || assetHandleError;
 					}
 				}
 
@@ -2130,7 +2231,7 @@ namespace Rynex {
 					}
 					else
 					{
-						assetHandleError = DeserializeAssetFormate<Model>(meshComponent["Model"], &smc.ModelR, false) || assetHandleError;
+						assetHandleError = Utils::DeserializeAssetFormate<Model>(meshComponent["Model"], &smc.ModelR, false) || assetHandleError;
 					}
 #if 0
 					assetHandleError = DeserializeAssetFormate<Model>(meshComponent["Model"], &smc.ModelR, false) || assetHandleError;
@@ -2177,7 +2278,7 @@ namespace Rynex {
 					else
 					{
 						Ref<Model> model = nullptr;
-						assetHandleError = DeserializeAssetFormate<Model>(modelN, &model, false) || assetHandleError;// TODO: Make single Mesh Loding Posible!
+						assetHandleError = Utils::DeserializeAssetFormate<Model>(modelN, &model, false) || assetHandleError;// TODO: Make single Mesh Loding Posible!
 						dmc.MeshR = model->GetMesh(index);
 					}
 					
@@ -2231,6 +2332,37 @@ namespace Rynex {
 					spotLigthC.Inner = spotLigthComponent["Inner"].as<float>();
 					spotLigthC.Outer = spotLigthComponent["Outer"].as<float>();
 				}
+
+				if (YAML::Node frameBufferComponent = entity["FrameBufferComponent"])
+				{
+					FrameBufferComponent& frameC = deserializedEntity.AddComponent<FrameBufferComponent>();
+					if (YAML::Node frameBuffer = frameBufferComponent["FrameBuffer"])
+					{
+						FramebufferSpecification frame;
+						frame.Height = frameBuffer["Height"].as<uint32_t>();
+						frame.Width = frameBuffer["Width"].as<uint32_t>();
+						uint32_t size = frameBuffer["Attachments"].size();
+						frame.Attachments.Attachments.reserve(size);
+						for (YAML::Node& attchment : frameBuffer["Attachments"] )
+						{
+							YAML::Node warp = attchment["TextureWrapping"];
+
+							frame.Attachments.Attachments.emplace_back(FramebufferTextureSpecification(
+								(TexFrom)attchment["TextureFormat"].as<int>(),
+								attchment["Samples"].as<uint32_t>(),
+								{
+									(TexWarp)warp["S"].as<int>(),
+									(TexWarp)warp["T"].as<int>(),
+									(TexWarp)warp["R"].as<int>()
+								},
+								(TexFilter)attchment["TextureFiltering"].as<int>()
+							));
+						}
+						frameC.FrameBuffer = Framebuffer::Create(frame);
+					}
+					frameC.ClearColor = frameBufferComponent["ClearColor"].as<glm::vec3>();
+					frameC.FramebufferSize = (FrameBufferImageSize)frameBufferComponent["FramebufferSize"].as<int>();
+				}
 #endif
 			}
 
@@ -2246,8 +2378,6 @@ namespace Rynex {
 		RY_CORE_INFO("Ende Scene Deserializetion");
 		return true;
 	}
-
-	
 
 	bool SceneSerializer::DeserializeRuntime(const std::string& filepath)
 	{

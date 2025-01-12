@@ -41,6 +41,17 @@ namespace Rynex {
 
    
 
+    std::vector<MeshRenderData>&& Model::GetMeshRenderData()
+    {
+        RY_CORE_ASSERT(false);
+        std::vector<MeshRenderData> meshRenderData;
+        for (auto& mesh : m_Meshes)
+        {
+
+        }
+        return std::move(meshRenderData);
+    }
+
     void Model::Draw(const Ref<Shader>& shader)
     {
         std::lock_guard<std::mutex> lock(m_Accese);

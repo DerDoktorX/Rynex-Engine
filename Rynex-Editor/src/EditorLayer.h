@@ -100,7 +100,6 @@ namespace Rynex{
 		void ImGuiSettings(bool renderPannnel);
 		void ImGuiPlayButten();
 		void ImGuiRenderInfo();
-
 		void ImGuiPannels();
 		
 

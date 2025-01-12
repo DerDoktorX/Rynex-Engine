@@ -11,6 +11,33 @@ enum aiTextureType;
 
 namespace Rynex {
 
+	struct MeshRenderData
+	{
+		Ref<Mesh> MeshR = nullptr;
+		glm::mat4 LocaleMatrix = glm::mat4(1.0);
+		glm::mat4 GlobleMatrix = glm::mat4(1.0);
+		Ref<Material> Materiel = nullptr;
+
+		MeshRenderData() = default;
+		MeshRenderData(const MeshRenderData&) = default;
+
+		MeshRenderData(Ref<Mesh> mesh, const glm::mat4& matrix)
+			: MeshR(mesh), LocaleMatrix(matrix), GlobleMatrix(matrix)
+		{ }
+
+		void UpdateMatrix(glm::mat4 parentMat4)
+		{
+			GlobleMatrix = LocaleMatrix * parentMat4;
+		}
+	};
+
+	struct NodeData
+	{
+		std::vector<Ref<Mesh>> Meshes;
+		Ref<Material> Materiel;
+		glm::mat4 Matrix;
+		std::string Name;
+	};
 
 	class Model : public Asset
 	{
@@ -33,6 +60,8 @@ namespace Rynex {
 
 		void SetMeshes(std::vector<Ref<Mesh>>& meshes) { std::lock_guard<std::mutex> lock(m_Accese); m_Meshes.clear(); m_Meshes = meshes; }
 		void PushMesh(Ref<Mesh>& mesh) { std::lock_guard<std::mutex> lock(m_Accese); m_Meshes.push_back(mesh); }
+
+		std::vector<MeshRenderData>&& GetMeshRenderData();
 
 		void Draw(const Ref<Shader>& shader);
 	private:

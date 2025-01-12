@@ -46,6 +46,7 @@ namespace Rynex {
 
 		virtual void SetUniformValue(const BufferElement& element, void* data) override;
 		virtual const Ref<UniformBuffer>& GetUniformBuffer() const  override;
+		virtual bool IsRady() override;
 
 		void SetUniforme(ShaderMaterialDefaultNames names);
 		const ShaderMaterialDefaultNames& GetUniforme() const;

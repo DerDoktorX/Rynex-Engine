@@ -515,8 +515,8 @@ namespace Rynex {
 		RY_CORE_ASSERT(m_Size % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
 		
 		CheckLayout();
-		
-		std::memcpy(m_Data.data(), data, byteSize);
+		if (data)
+			std::memcpy(m_Data.data(), data, byteSize);
 		if (OpenGLThreadContext::IsActive())
 		{
 			InitAsync();
@@ -539,8 +539,8 @@ namespace Rynex {
 		, m_Layout(layout)
 	{
 		RY_CORE_ASSERT(m_Size % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
-		
-		std::memcpy(m_Data.data(), data, m_Data.size());
+		if(data)
+			std::memcpy(m_Data.data(), data, m_Data.size());
 		if (OpenGLThreadContext::IsActive())
 		{
 			InitAsync();
@@ -617,7 +617,7 @@ namespace Rynex {
 	{
 		RY_CORE_ASSERT(m_Size == byteSize);
 		std::memcpy(m_Data.data(), data, m_Size);
-		glNamedBufferData(m_RendererID, byteSize, data, Utils::GetBufferDataUsage(m_Usage));
+		glNamedBufferSubData(m_RendererID, 0, m_Size, m_Data.data());
 		m_ChangeOffset = 0;
 		m_ChangeSize = 0;
 	}
@@ -632,7 +632,7 @@ namespace Rynex {
 		else
 		{
 			std::memcpy(m_Data.data() + offset, data, byteSize);
-			glNamedBufferSubData(m_RendererID, offset, byteSize, m_Data.data());
+			glNamedBufferSubData(m_RendererID, offset, m_Data.size(), m_Data.data());
 		}
 	}
 
