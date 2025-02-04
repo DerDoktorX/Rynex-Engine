@@ -25,3 +25,6 @@
 [submodule "Rynex/vendor/gtest"]
 	path = Rynex/vendor/gtest
 	url = https://github.com/google/googletest
+[submodule "Rynex-Test/vendor/gtest"]
+	path = Rynex-Test/vendor/gtest
+	url = https://github.com/google/googletest

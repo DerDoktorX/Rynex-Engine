@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 
 namespace Rynex
 {
-  
+
     public struct Vector3
     {
         public float X, Y, Z;

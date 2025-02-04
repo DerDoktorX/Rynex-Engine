@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 
 
@@ -23,7 +22,7 @@ namespace Rynex
         #region Entity
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool Entity_HasComponent(ulong entityID, Type componentType );
+        internal extern static bool Entity_HasComponent(ulong entityID, Type componentType);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Entity_AddComponent(ulong entityID, Type componentType);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -177,9 +176,9 @@ namespace Rynex
         internal extern static void CameraComponent_Camera_SetProjektion(ulong uuid, ref Matrix4x4 matrix);
 #endif
 
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
         #region ScriptComponent
 
@@ -190,7 +189,7 @@ namespace Rynex
 
         #endregion
 
-#region MaterialComponent
+        #region MaterialComponent
 
 #if false
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -204,7 +203,7 @@ namespace Rynex
         internal extern static void MaterialComponent_GetColor(ulong uuid, out Vector3 color);
 #endif
 
-#endregion
+        #endregion
 
         #region ModelMatrixComponent
 
@@ -335,7 +334,7 @@ namespace Rynex
         internal extern static void Texture_Create_Spec_Data_ByteSize(out ulong handle, ref TextureSpecification spec, IntPtr data, uint byteSize);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Texture_Destroy(ulong handle);
-        
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Texture_GetSpecification(ulong handle, out TextureSpecification spec);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -468,7 +467,7 @@ namespace Rynex
         internal extern static bool Scene_GetEntityByName(string entityName, out ulong handle);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Scene_GetEntityByEntityID(ulong handle);
-        
+
 
         #endregion
 
@@ -500,17 +499,17 @@ namespace Rynex
         internal extern static void AssetManger_GetAsset_Handle(ulong handle, AssetType type, out ulong outhandle);
 
         #endregion
-        
+
         #region Model
 #if true
-        
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Model_Create(out ulong handle);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Model_Destroy(ulong handle);
 #endif
-#endregion
+        #endregion
 
         #region AplicationClass
 

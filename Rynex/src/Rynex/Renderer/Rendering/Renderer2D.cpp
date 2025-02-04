@@ -15,6 +15,7 @@
 #define RY_DISABLE_PARTICLE 0
 namespace Rynex {
 
+
 	// TODO: Add TailingFactor for texture
 	struct IconVertex
 	{
@@ -84,7 +85,7 @@ namespace Rynex {
 		std::array<Weak<Texture>, MaxTextureSlots> TextureSlots;
 		uint32_t TextureSlotsIndex = 1;
 		
-
+		bool Aktiv = false;
 		Renderer2D::Statistics Stats;
 	};
 
@@ -109,7 +110,7 @@ namespace Rynex {
 
 		std::array<Ref<Texture>, MaxTextureSlots> TextureSlots;
 		uint32_t TextureSlotsIndex = 1;
-
+		bool Aktiv = false;
 
 		Renderer2D::Statistics Stats;
 	};
@@ -118,9 +119,9 @@ namespace Rynex {
 	static Ref<Renderer2DStorage<QuadVertex, 500, 32>> s_DatatQauds;
 	static Ref<Renderer2DStorage<TextVertex, 500, 8>> s_DatatText;
 
-#if RY_DISABLE_PARTICLE
+
+
 	static Ref<Renderer2DStorage<ParticleVertex, 1000, 8>> s_DatatParticle;
-#endif
 
 	static Renderer2DScene s_DatatScene;
 
@@ -130,7 +131,6 @@ namespace Rynex {
 
 #pragma region IconInit
 		s_DatatIcons = CreateRef<RendererIconsStorage<IconVertex, 16, 8>>();
-
 		s_DatatIcons->VertexArray = VertexArray::Create();
 
 
@@ -185,7 +185,6 @@ namespace Rynex {
 		s_DatatIcons->TextureSlots[3] = TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ViewPort/DirectionelLigtheIcon.png", false);
 		s_DatatIcons->TextureSlots[4] = TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ViewPort/CameraIcon.png", false);
 #pragma endregion
-
 	}
 
 	void Renderer2D::Init()
@@ -203,7 +202,6 @@ namespace Rynex {
 		s_DatatScene.VertexPos[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
 
 #pragma endregion
-
 		s_DatatQauds = CreateRef<Renderer2DStorage<QuadVertex, 500, 32>>();
 
 #pragma region QuadeInit
@@ -264,8 +262,8 @@ namespace Rynex {
 		s_DatatQauds->TextureSlots[0] = s_DatatScene.WhitheTexture;
 
 #pragma endregion
-
-		s_DatatText = CreateRef<Renderer2DStorage<TextVertex, 500, 8>>();
+	s_DatatText = CreateRef<Renderer2DStorage<TextVertex, 500, 8>>();
+		
 
 #pragma region TextInit
 
@@ -375,7 +373,6 @@ namespace Rynex {
 
 #endif
 #pragma endregion
-
 	}
 
 	void Renderer2D::Shutdown()
@@ -433,6 +430,7 @@ namespace Rynex {
 
 	void Renderer2D::BeginSceneQuade(const EditorCamera& camera)
 	{
+		RY_CORE_ASSERT(!s_DatatQauds->Aktiv && !s_DatatText->Aktiv);
 		RY_PROFILE_FUNCTION();
 		s_DatatScene.ViewPorj = camera.GetViewProjection();
 
@@ -447,6 +445,7 @@ namespace Rynex {
 
 	void Renderer2D::BeginSceneQuade(const OrthograficCamera& camera)
 	{
+		RY_CORE_ASSERT(!s_DatatQauds->Aktiv && !s_DatatText->Aktiv);
 		RY_PROFILE_FUNCTION();
 		
 		s_DatatScene.ViewPorj = camera.GetViewProjectionMatrix();
@@ -462,7 +461,7 @@ namespace Rynex {
 
 	void Renderer2D::BeginSceneQuade(const Camera& camera, const glm::mat4& transform)
 	{
-		RY_PROFILE_FUNCTION();
+		RY_CORE_ASSERT(!s_DatatQauds->Aktiv && !s_DatatText->Aktiv);
 		s_DatatScene.Porj = camera.GetProjektion();
 		s_DatatScene.View = transform;
 		s_DatatScene.ViewPorj = s_DatatScene.Porj * s_DatatScene.View;
@@ -475,12 +474,17 @@ namespace Rynex {
 		s_DatatText->IndexCount = 0;
 		s_DatatText->VertexBufferPtr = s_DatatText->VertexBufferBase;
 		s_DatatText->TextureSlotsIndex = 0;
+		s_DatatQauds->Aktiv = true;
+		s_DatatText->Aktiv = true;
 	}
 
 
 	void Renderer2D::EndSceneQuade()
 	{
 		FlushQuade();
+		RY_CORE_ASSERT(s_DatatQauds->Aktiv && s_DatatText->Aktiv);
+		s_DatatQauds->Aktiv = false;
+		s_DatatText->Aktiv = false;
 	}
 
 	void Renderer2D::FlushQuade()
@@ -686,6 +690,8 @@ namespace Rynex {
 		s_DatatQauds->TextureSlotsIndex = 1;
 	}
 
+
+
 	void Renderer2D::ResetQuadeStats()
 	{
 		uint32_t chach = s_DatatQauds->Stats.ChachSize;
@@ -701,7 +707,6 @@ namespace Rynex {
 	{
 		return s_DatatQauds->Stats;
 	}
-
 #pragma endregion
 
 #pragma region Particle
@@ -844,7 +849,7 @@ namespace Rynex {
 		}
 	}
 
-	void Renderer2D::DrawString(const glm::mat4& transform, const TextComponent& textC, int entityID)
+	void Renderer2D::DrawStringCom(const glm::mat4& transform, const TextComponent& textC, int entityID)
 	{
 		DrawString(textC.TextString, textC.FontAsset, transform, {textC.Color, textC.Kerning, textC.LineSpacing }, entityID);
 	}
@@ -856,6 +861,7 @@ namespace Rynex {
 
 	void Renderer2D::BeginSceneIcon(const Camera& camera, const glm::mat4& transform, const glm::uvec2& viewPortSize)
 	{
+		RY_CORE_ASSERT(!s_DatatIcons->Aktiv);
 		RY_PROFILE_FUNCTION();
 		s_DatatScene.Porj = camera.GetProjektion();
 		s_DatatScene.View = transform;
@@ -865,11 +871,16 @@ namespace Rynex {
 		s_DatatIcons->IndexCount = 0;
 		s_DatatIcons->VertexBufferPtr = s_DatatIcons->VertexBufferBase;
 		s_DatatIcons->TextureSlotsIndex = 1;
+
+		s_DatatIcons->Aktiv = true;
+
 	}
 
 	void Renderer2D::EndSceneIcon()
 	{
+		RY_CORE_ASSERT(s_DatatIcons->Aktiv);
 		FlushIcon();
+		s_DatatIcons->Aktiv = false;
 	}
 
 	void Renderer2D::FlushIcon()

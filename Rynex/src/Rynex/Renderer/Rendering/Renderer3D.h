@@ -9,6 +9,8 @@ namespace Rynex {
 
 	namespace Ligths {
 
+		
+
 		struct PointLigtheData
 		{
 			glm::vec3 Color = { -10.0f,-11.0f,-12.0f };
@@ -33,32 +35,58 @@ namespace Rynex {
 			   0.0f, 0.0f, 1.0f, 0.0f,
 			   0.0f, 0.0f, 0.0f, 1.0f
 			};
-			glm::vec4 Color = { -10.0f,-11.0f,-12.0f,-13.0f };
+			glm::vec4 ShadowMapPos = { -1.0f, -2.0f,-3.0f, -4.0f };
+
+			glm::vec3 Color = { -10.0f,-11.0f,-12.0f };
+			float Intensitie = -13.0f;
+
 			glm::vec3 Dirction = { -14.0f, -15.0f, -16.0f };
-			float Intensitie = -17.0f;
+			float ShadowMapSize = -17.0f;
 
 			DrirectionLigtheData() = default;
 
-			DrirectionLigtheData(const glm::vec3& color, float intensitie, const glm::mat4& view)
-				: Color(glm::vec4(color, -13.0f))
+			DrirectionLigtheData(const glm::vec3& color, float intensitie, const glm::mat4& view, const glm::mat4& viewProjetionShadow, uint32_t texSize)
+				: Color(color)
 				, Dirction(-glm::vec3(view[3]))
 				, Intensitie(intensitie)
-			{ }
+				, ShadowMapSize((float)texSize)
+				// , ShadowMatrix(viewProjetionShadow)
+			{ 
+#if 1
+				glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+				
+				// Verschiebung: Schiebt den Bereich nach unten links
+				glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+				
+				ShadowMatrix = translate * scale * viewProjetionShadow;
+#endif
+			}
 		};
 
 		struct SpotLigtheData
 		{
+			glm::mat4 ShadowMatrix = {
+			   1.0f, 0.0f, 0.0f, 0.0f,
+			   0.0f, 1.0f, 0.0f, 0.0f,
+			   0.0f, 0.0f, 1.0f, 0.0f,
+			   0.0f, 0.0f, 0.0f, 1.0f
+			};
+			glm::vec4 ShadowMapPos = { -1.0f, -2.0f,-3.0f, -4.0f };
+
 			glm::vec3 Color = { -10.0f,-11.0f,-12.0f };
 			float Intensitie = -13.0f;
+
 			glm::vec3 Postion = { -14.0f,-15.0f,-16.0f };
 			float Distence = -17.0f;
+
 			glm::vec3 Direction = { -18.0f,-19.0f,-20.0f };
 			float Inner = -21.0f;
+
 			float Outer = -22.0f;
 			glm::vec3 Empty = { -23.0f, -24.0f,-25.0f };
 
 			SpotLigtheData() = default;
-			SpotLigtheData(const glm::vec3& color, const  glm::vec3& postion, const glm::vec3& direction, float intensitie, float distence, float inner, float outer)
+			SpotLigtheData(const glm::vec3& color, const glm::vec3& postion, const glm::vec3& direction, float intensitie, float distence, float inner, float outer, const glm::mat4& viewProjetionShadow)
 				: Color(color)
 				, Intensitie(intensitie)
 				, Distence(distence)
@@ -66,13 +94,27 @@ namespace Rynex {
 				, Outer(outer)
 				, Postion(postion)
 				, Direction(direction)
-			{ }
+				
+				// , ShadowMatrix(viewProjetionShadow)
+			{ 
+			
+				glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+
+				// Verschiebung: Schiebt den Bereich nach unten links
+				glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+
+				ShadowMatrix = translate * scale * viewProjetionShadow;
+			}
 		};
+		
+
+		
 	}
 	
 	struct MeshInstences
 	{
 		Ref<Mesh> Mesh;
+		Ref<Material> Material;
 		std::vector<glm::mat4> ModelMatrix;
 		std::vector<int> EntityIDs;
 		MeshInstences()
@@ -88,63 +130,99 @@ namespace Rynex {
 		glm::mat4 ViewProjectionMatrix;
 		glm::mat4 ViewMatrix;
 		glm::mat4 ProjectionMatrix;
-		glm::vec3 CamerPosition;
+		glm::vec3 Position;
 		int Empty = -1;
 	};
+
+
+	using RenderFunc = std::function<void(const glm::mat4&, const Ref<Mesh>&, const Ref<Material>&, int)>;
 
 	class RYNEX_API Renderer3D
 	{
 	public:
 		static void Init();
 		static void Shutdown();
-		static void BindDefault3DShader(const Ref<Texture>& bindeTexure, const glm::mat4& modelMatrix, int entityID = 0, const glm::vec3& objectColor = { 1.0f, 0.0f,1.0f });
 
-		static void SetLigthUniform(AmbientLigthComponent* ambient, int ambientActiv, int directionActiv, int spotActiv, int pointActiv);
-		static void SetLigthUniform(DrirektionleLigthComponent& drirection, const glm::mat4& matrix, int index);
-		static void SetLigthUniform(SpotLigthComponent& spot, const glm::mat4& matrix, int index);
-		static void SetLigthUniform(PointLigthComponent& point, const glm::mat4& matrix, int index);
-		static void SetShadowsUniform();
+
+		
 		static glm::mat4 CalculateShadowDirectionelMatrix(const glm::mat4& view, const glm::vec3& min, const glm::vec3& max);
 
+		static void SetLigthUniform(AmbientLigthComponent* ambient);
+		static void SetLigthUniform(DrirektionleLigthComponent& drirection, const glm::mat4& matrix, const glm::mat4& viewProjetionShadow);
+		static void SetLigthUniform(SpotLigthComponent& spot, const glm::mat4& matrix, const glm::mat4& viewProjetionShadow);
+		static void SetLigthUniform(PointLigthComponent& point, const glm::mat4& matrix);
+		static void SetShadowsUniform();
+		
 		static void BeginFrame();
 		static void EndFrame();
 
-		static void BeginScene(const Ref<EditorCamera>& camera);
 		static void BeginScene(const Camera& camera, const glm::mat4& transform);
-
-		static void BeginSceneShadow(const glm::mat4& transform);
-		static void EndSceneShadow(int index);
-		static void DrawModdelMeshShadow(const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, int entityID);
-		static void DrawModdelShadow(glm::mat4& modelMatrix, const StaticMeshComponent& model, int entityID);
-
-		static void DrawObjectRender3D(const Ref<VertexArray>& vertexArray);
 		static void EndScene();
+
+		static void AddShadowMapSpotlLigth(const glm::mat4& viewProjtion);
+		static void AddShadowMapDirectionelLigth(const glm::mat4& viewProjtion);
+		static void BeginSceneShadow();
+		static void EndSceneShadow();
+		
+#if 0
+		static void BeginScene();
+		static void BeginScene(const Ref<EditorCamera>& camera);
+		static void SetRenderCamera(const Camera& camera, const glm::mat4& transform, const glm::vec4& centerViewFustrum);
+		static void DrawModdelMeshShadow(const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, int entityID);
+
+		static void BindDefault3DShader(const Ref<Texture>& bindeTexure, const glm::mat4& modelMatrix, int entityID = 0, const glm::vec3& objectColor = { 1.0f, 0.0f,1.0f });
+		static void DrawModdelMeshShadow(const glm::mat4& modelMatrix, const DynamicMeshComponent& model, int entityID);
+		static void DrawModdelShadow(const glm::mat4& modelMatrix, const std::vector<NodeData>& nodeData, int entityID);
+		static void DrawModdelShadow(const glm::mat4& modelMatrix, const std::vector<NodeData>& nodeData, int entityID);
+		static void DrawModdelShadow(const glm::mat4& modelMatrix, const std::vector<Ref<Mesh>>& models, int entityID);
 
 		static void BeforDrawEntity(const MaterialComponent& material, const glm::mat4& model, int entityID);
 		static void AfterDrawEntity(const MaterialComponent& material);
 
 		static void SetMaterial(const MaterialComponent& material, const glm::mat4& modelMatrix, int entityID);
-		static void DrawModdel(glm::mat4& modelMatrix, const DynamicMeshComponent& model, int entityID);
-		static void DrawModdel(glm::mat4& modelMatrix, const StaticMeshComponent& model, int entityID);
-		static void DrawModdelSeclection(const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, const Ref<Material>& materiel, int entityID);
 		static void DrawModdelMesh(const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, int entityID);
 		static void DrawModdelMesh(const Ref<Mesh>& mesh, std::vector<glm::mat4>& modelMatricies, std::vector<int>& entityIDs);
+#endif
+
+		// Render Component Function
+
+		static void RenderComponet(const glm::mat4& modelMatrix, const DynamicMeshComponent& model, int entityID, RenderFunc func);
+		static void RenderComponet(const glm::mat4& modelMatrix, const StaticMeshComponent& model, int entityID, RenderFunc func);
+
+		static void SubmitComponet(const glm::mat4& modelMatrix, const DynamicMeshComponent& model, int entityID, RenderFunc func);
+		static void SubmitComponet(const glm::mat4& modelMatrix, const StaticMeshComponent& model, int entityID, RenderFunc func);
+
+		static void RenderComponet(const glm::mat4& modelMatrix, const DynamicMeshComponent& model, const Ref<Material>& materiel, int entityID, RenderFunc func);
+		static void RenderComponet(const glm::mat4& modelMatrix, const StaticMeshComponent& model, const Ref<Material>& materiel, int entityID, RenderFunc func);
+		
+
+		static void DrawMesh3D(const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, const Ref<Material>& materiel, int entityID);
+		static void DrawMeshFrambuffer(const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, const Ref<Material>& materiel, int entityID);
+		static void DrawMeshMeshShadow(const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, const Ref<Material>& materiel, int entityID);
+		static void SubmiteDrawMeshMeshShadow(const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, const Ref<Material>& materiel, int entityID);
+
+
+		
 		static void DrawLineBoxAABB(const BoxAABB& aabb, const glm::mat4& modelMatrix, int entityID);
 		static void DrawLineBoxAABB(const std::array<glm::vec4, 8>& viewFustrum, const glm::mat4& matrix, const glm::vec3& position, int entityID);
 
 
-		static void AktivePolyGunMode(bool active = true);
-		static void SetDethTest(bool active = true);
-		static void SetFace(CallFace callFace = CallFace::None);
-
+		static void DrawObjectRender3D(const Ref<VertexArray>& vertexArray);
 		static void DrawMesh(const Ref<VertexArray>& vertexArray);
 		static void DrawMeshStrips(const Ref<VertexArray>& vertexArray);
 		static void DrawLine(const Ref<VertexArray>& vertexArray);
 		static void DrawLineLoop(const Ref<VertexArray>& vertexArray);
 		static void DrawPoints(const Ref<VertexArray>& vertexArray);
 		static void DrawPatches(const Ref<VertexArray>& vertexArray);
-
+		// Not Implemntet
 		static void DrawError();
+		
+
+				
+
+		static void AktivePolyGunMode(bool active = true);
+		static void SetDethTest(bool active = true);
+		static void SetFace(CallFace callFace = CallFace::None);
 
 		struct StatisticsShader
 		{
@@ -212,5 +290,6 @@ namespace Rynex {
 		static void ResetStats();
 		static Statistics GetStats();
 	};
+
 }
 

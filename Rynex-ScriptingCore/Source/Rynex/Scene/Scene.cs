@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Rynex;
-
-namespace Rynex
+﻿namespace Rynex
 {
     // Curent Scene
     public static class CurentScene
@@ -27,11 +20,11 @@ namespace Rynex
 
         public static Entity GetEntityByEntityID(ulong entityID)
         {
-            if(InternalCalls.Scene_GetEntityByEntityID(entityID))
+            if (InternalCalls.Scene_GetEntityByEntityID(entityID))
                 return new Entity(entityID);
             return null;
         }
     }
 
-    
+
 }

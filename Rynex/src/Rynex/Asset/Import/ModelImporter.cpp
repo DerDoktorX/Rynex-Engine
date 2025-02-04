@@ -19,6 +19,7 @@ namespace Rynex {
     {
         std::filesystem::path CurentFilePathExtention = "";
     };
+
     static Data s_Data = Data();
 
 
@@ -88,6 +89,195 @@ namespace Rynex {
             return Material::CreateImport(std::move(strName), std::move(texures));
         }
 #endif
+        static void LoadeMaterielTexture(aiMaterial* material, aiTextureType type, std::vector<std::filesystem::path>& textures, const std::filesystem::path& directory)
+        {
+            uint32_t size = material->GetTextureCount(type);
+            RY_CORE_ASSERT(size != 0 || size != 1);
+            for (uint32_t i = 0; i < size; i++)
+            {
+                aiString fileNameString;
+                material->GetTexture(type, i, &fileNameString);
+                textures.push_back(directory / fileNameString.C_Str());
+            }
+        }
+
+        static Ref<Material> LoadeMaterial(aiMaterial* materiel, const std::filesystem::path& directory)
+        {
+            std::vector<std::filesystem::path> texturesMatieral;
+
+            LoadeMaterielTexture(materiel, aiTextureType_DIFFUSE, texturesMatieral, directory);
+            // LoadeMaterielTexture(materiel, aiTextureType_EMISSIVE, texturesMatieral, directory);
+            LoadeMaterielTexture(materiel, aiTextureType_SPECULAR, texturesMatieral, directory);
+            // LoadeMaterielTexture(materiel, aiTextureType_HEIGHT, texturesMatieral, directory);
+
+            return Material::CreateBasic(texturesMatieral);
+        }
+
+        static std::vector<Ref<Material>>&& LoadeAllMateriels(const aiScene* scene, const std::filesystem::path& directory)
+        {
+            
+            uint32_t size = scene->mNumMaterials;
+            aiMaterial** aiMaterialPtr = scene->mMaterials;
+            aiMesh** aiMeshPtr = scene->mMeshes;
+            std::vector<Ref<Material>> materials;
+            materials.reserve(size);
+
+            for (uint32_t i = 0; i < size; i++)
+            {
+                materials.emplace_back(LoadeMaterial(aiMaterialPtr[i], directory));
+            }
+            return std::move(materials);
+        }
+
+        static std::vector<Ref<Texture>>&& LoadeTextures(const aiScene* scene, const std::filesystem::path& directory)
+        {
+            std::vector<Ref<Texture>> textures;
+            uint32_t size = scene->mNumTextures;
+            aiTexture** aiTextureslPtr = scene->mTextures;
+            for (uint32_t i = 0; i < size; i++)
+            {
+                aiTexture* aiTexture = aiTextureslPtr[i];
+                aiString str = aiTexture->mFilename;
+                textures.emplace_back(AssetManager::GetAsset<Texture>( directory / str.C_Str() ));
+            }
+            return std::move(textures);
+        }
+
+
+        static Ref<Mesh> LoadeMeshes(aiMesh* mesh, Ref<Material> materiel)
+        {
+
+            std::vector<MeshVertex>     vertices;
+            std::vector<unsigned int>   indices;
+
+            
+            bool hasNormals = mesh->mNormals != nullptr;
+            bool hasTexCorrds = mesh->HasTextureCoords(0);
+            uint32_t size = mesh->mNumVertices;
+            aiVector3D* vertecies = mesh->mVertices;
+            aiVector3D* normales = mesh->mNormals;
+            aiVector3D* coordes = mesh->mTextureCoords[0];
+
+
+            vertices.reserve(size);
+            for (uint32_t i = 0; i < size; i++)
+            {
+                vertices.emplace_back(
+                    SetVec3(true, vertecies, i),
+                    SetVec3(hasNormals, normales, i),
+                    SetCoords(hasTexCorrds, coordes, i));
+            }
+            size = mesh->mNumFaces;
+            indices.reserve(size);
+            for (uint32_t i = 0; i < size; i++)
+            {
+                aiFace face = mesh->mFaces[i];
+
+                for (uint32_t j = 0; j < face.mNumIndices; j++)
+                    indices.emplace_back(face.mIndices[j]);
+            }
+            return CreateRef<Mesh>(std::move(vertices), std::move(indices), materiel);
+        }
+
+
+       
+
+        static void LoadeAllMeshes(const aiScene* scene, std::vector<Ref<Mesh>>& mehes, const std::filesystem::path& directory)
+        {
+          
+            std::vector<Ref<Material>> materieles;
+
+            aiMesh** aiMeshPtr = scene->mMeshes;
+            aiMaterial** aiMaterialPtr = scene->mMaterials;
+            uint32_t sizeMesh = scene->mNumMeshes;
+            uint32_t sizeMaterial = scene->mNumMaterials;
+            mehes.reserve(sizeMesh);
+            materieles.resize(sizeMaterial);
+
+            for (uint32_t i = 0; i < sizeMesh; i++)
+            {
+                uint32_t materielIndex = aiMeshPtr[i]->mMaterialIndex;
+                if (materieles.at(materielIndex) == nullptr)
+                {
+                    materieles[materielIndex] = LoadeMaterial(aiMaterialPtr[materielIndex], directory);
+                }
+
+                mehes.emplace_back(LoadeMeshes(aiMeshPtr[i], materieles.at(materielIndex)));
+            }
+            materieles.clear();
+            materieles.shrink_to_fit();
+
+
+           
+        }
+
+        static void LoadeNodeHierachy(aiNode* node, const std::vector<Ref<Mesh>>& meshes, std::vector<NodeData>& nodeData, int indexCurent, int indexParent)
+        {
+            
+
+            
+            int index = indexCurent;
+            
+
+            NodeData nodeCurentData;
+            nodeCurentData.Name = node->mName.C_Str();
+            nodeCurentData.Parent = indexParent;
+
+            uint32_t sizeMesh = node->mNumMeshes;
+            nodeCurentData.Meshes.reserve(sizeMesh);
+
+            aiMatrix4x4 aiM4x4 = node->mTransformation;
+            nodeCurentData.Matrix = glm::mat4(
+                aiM4x4.a1, aiM4x4.a2, aiM4x4.a3, aiM4x4.a4,
+                aiM4x4.b1, aiM4x4.b2, aiM4x4.b3, aiM4x4.b4,
+                aiM4x4.c1, aiM4x4.c2, aiM4x4.c3, aiM4x4.c4,
+                aiM4x4.d1, aiM4x4.d2, aiM4x4.d3, aiM4x4.d4
+            );
+            
+            for (uint32_t i = 0; i < sizeMesh; i++)
+            {
+                int indexMesh = node->mMeshes[i];
+                nodeCurentData.Meshes.emplace_back(meshes.at(indexMesh));
+            }
+
+
+            uint32_t sizeChildren = node->mNumChildren;
+            nodeCurentData.Children.reserve(sizeChildren);
+
+
+            for (uint32_t i = 0; i < sizeChildren; i++)
+            {
+                index++;
+                LoadeNodeHierachy(node->mChildren[i], meshes, nodeData, index, indexCurent);
+                nodeCurentData.Children.emplace_back(index);
+            }
+            
+            nodeData.push_back(nodeCurentData);
+
+        }
+
+        static void LoadeObject(const aiScene* scene, const std::filesystem::path& directory, std::vector<NodeData>& nodeData)
+        {
+            // std::vector<Ref<Material>> materiels = LoadeAllMateriels(scene, directory);
+            std::vector<Ref<Mesh>> meshes;
+            LoadeAllMeshes(scene, meshes, directory);
+
+            
+
+            aiNode* aiNodeEntry = scene->mRootNode;
+            
+            
+
+            LoadeNodeHierachy(aiNodeEntry, meshes, nodeData, 0, -1);
+
+            // materiels.clear();
+            // materiels.shrink_to_fit();
+
+            meshes.clear();
+            meshes.shrink_to_fit();
+
+            
+        }
 
         static void LoadMaterialTextures(std::vector<MeshTexture>& textures ,aiMaterial* material, aiTextureType type, const std::string& typeName, const std::filesystem::path& directory, bool async = false)
         {
@@ -319,11 +509,16 @@ namespace Rynex {
             return nullptr;
         }
         
-
+#if RY_MODEL_NODE
+        std::vector<NodeData>  nodeData;
+        Utils::LoadeObject(scene, path.parent_path(), nodeData);
+        Ref<Model> model = CreateRef<Model>(std::move(nodeData));
+#else
         std::vector<Ref<Mesh>> meshes;
         std::vector<MeshRootData> meshRootDatas;
         Utils::ProcessNode(scene->mRootNode, scene, meshRootDatas, meshes, path.parent_path(), async);
         Ref<Model> model = CreateRef<Model>(meshes, meshRootDatas);
+#endif
         endeTimePoint = std::chrono::high_resolution_clock::now();
         int64_t pastTime = std::chrono::time_point_cast<std::chrono::microseconds>(endeTimePoint).time_since_epoch().count()
             - std::chrono::time_point_cast<std::chrono::microseconds>(startTimePoint).time_since_epoch().count();

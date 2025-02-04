@@ -38,7 +38,7 @@
 
 namespace Rynex {
 
-#define RY_EDITOR_TEST_ENITITY 1
+#define RY_EDITOR_TEST_ENITITY 0
 #define RY_ENABLE_VIEWPORT 1
 #define TEST_SHADER_OUTPUT 0
 
@@ -871,6 +871,17 @@ namespace Rynex {
                 meshVertex.emplace_back(MeshVertex(glm::vec3 (1.0f, -1.0f,  0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)));
                 meshVertex.emplace_back(MeshVertex(glm::vec3( 1.0f,  1.0f,  0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)));
             }
+#if RY_MODEL_NODE
+            std::vector<Ref<Mesh>> mesh;
+
+            mesh.push_back(CreateRef<Mesh>(std::move(meshVertex), std::move(meshIndex), std::move(meshTex), false));
+            std::vector<NodeData> nodeRoot;
+            nodeRoot.reserve(1);
+            NodeData nodeData = { mesh, glm::mat4(1.0f), "Sreene", std::vector<int>(), -1 };
+            nodeRoot.emplace_back(nodeData);
+#else
+            modelStaicC.UseAlleMeshes = true;
+
             std::vector<Ref<Mesh>> mesh;
             std::vector<MeshRootData> meshRootData;
             meshRootData.reserve(1);
@@ -878,11 +889,11 @@ namespace Rynex {
             
             mesh.push_back(CreateRef<Mesh>(std::move(meshVertex), std::move(meshIndex), std::move(meshTex), false));
 
-     
+
             modelStaicC.UseAlleMeshes = true;
             modelStaicC.ModelR = CreateRef<Model>(mesh, meshRootData);
             modelC.ModelR = modelStaicC.ModelR;
-           
+#endif
         }
 #endif
 #endif
@@ -991,7 +1002,7 @@ namespace Rynex {
     {
         if (e.GetRepeatCount() > 0)
             return false;
-
+        bool alt = Input::IsKeyPressed(Key::LeftAlt) || Input::IsKeyPressed(Key::RightAlt);
         bool control = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
         bool shift = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
         int key = e.GetKeyCode();
@@ -1032,24 +1043,25 @@ namespace Rynex {
 
         //Gizmos
         case Key::Q:
-            m_GizmoType = -1;
+            if (control)
+                m_GizmoType = -1;
             break;
         
         case Key::W:
-            //if (control)
+            if (control)
                 m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
             //else
 
             break;
         
         case Key::E:
-            //if (control)
+            if (control)
                 m_GizmoType = ImGuizmo::OPERATION::ROTATE;
             //else
 
             break;
         case Key::R:
-            //if (control)
+            if (control)
                 m_GizmoType = ImGuizmo::OPERATION::SCALE;
             //else
 
@@ -1448,7 +1460,7 @@ namespace Rynex {
 
     void EditorLayer::ImGuiRenderInfo()
     { 
-        
+#if RY_OLD_RENDER_SYSTEM
          
         ImGui::Text("Renderer:");
 
@@ -1485,6 +1497,8 @@ namespace Rynex {
         ImGui::Text("Quad   : %d", stats.QuadCount);
         ImGui::Text("Vertex : %d", stats.GetTotalVertexCount());
         ImGui::Text("Indexs : %d", stats.GetTotalIndexCount());
+#else
+#endif
     }
 
    

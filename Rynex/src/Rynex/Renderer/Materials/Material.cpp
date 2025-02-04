@@ -11,6 +11,8 @@ namespace Rynex {
 
 	
 
+	
+
 	Ref<Material> Material::CreateBasic(const std::vector<std::filesystem::path>& paths)
 	{
 	
@@ -68,6 +70,12 @@ namespace Rynex {
 	const glm::mat4& Material::GetMatrix() const
 	{
 		return glm::mat4(1.0f);
+	}
+
+	void Material::BindFrameBuffer(uint32_t index, int* entityIDs, uint32_t size)
+	{
+		int entityID = entityIDs == nullptr ? -2 : 0;
+		Bind(&entityID, size == 0 ? 1 : size);
 	}
 
 	

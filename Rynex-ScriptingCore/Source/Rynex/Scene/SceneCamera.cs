@@ -22,7 +22,7 @@ namespace Rynex
         }
         public void SetPerspectiv(float verticleFow, float nearClip, float farClip)
         {
-            InternalCalls.CameraComponent_Camera_SetPerspectiv(Entity.ID, verticleFow, nearClip,farClip);
+            InternalCalls.CameraComponent_Camera_SetPerspectiv(Entity.ID, verticleFow, nearClip, farClip);
         }
         public void SetOrthograficSize(float size)
         {

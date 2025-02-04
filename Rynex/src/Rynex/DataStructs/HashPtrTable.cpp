@@ -3,7 +3,7 @@
 
 #pragma once
 namespace Rynex {
-
+#if RY_OLD_RENDER_SYSTEM
 	HashPtrTable::HashPtrTable()
 		: m_UseSize(0)
 		, m_Count(0)
@@ -165,6 +165,7 @@ namespace Rynex {
 		}
 	}
 
-	
+#else
+#endif
 
 }

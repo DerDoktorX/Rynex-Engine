@@ -12,6 +12,7 @@
 #define RY_CONSOLE_WINDOW_SIZE 0
 #define RY_CONSOLE_WINDOW_POSTION 0
 #define RY_DEV
+
 // #define CODE_DISABLE
 // #define NOT_FIXED
 
@@ -35,14 +36,16 @@
 	#define RY_INSTECING 0
 	#define RY_ENABLE_GRIFIC_API_ERROR_MASGES 1 // Callback Funktion
 	#define RY_ENABLE_GRIFIC_API_WARN_MASGES 0 // Callback Funktion
-	
+
+	#define RY_OLD_RENDER_SYSTEM 1
+	#define RY_OLD_RENDER_FUNTION_SCENE_SYSTEM 1
 	#define RY_ENABLE_DEFAULT_PROJECT 1
 	#define RY_DEFAULT_PROJECT_PATH "D:\\dev\\Rynex-Test-Projects\\Test-Project-System\\Test-Project-System.rproj"
 	// 
 
 
 	#if RY_DISABLE_CODE_TODO
-
+		#define RY_RENDERER_API_INDEIPENDENT 0
 		#define RY_STD_PTR_IMPL 1
 		#define RY_TODO_APPLICATION_REMABER 1
 		#define RY_TODO_APPLICATION_MULTI_THREAD 1

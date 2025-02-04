@@ -33,6 +33,14 @@ namespace Rynex {
 
     }
 
+    
+#if RY_MODEL_NODE
+    Model::Model(std::vector<NodeData>&& nodeData)
+        : m_RootNode(std::move(nodeData))
+    {
+
+    }
+#else
     Model::Model(std::vector<Ref<Mesh>>& meshes, std::vector<MeshRootData>& meshRootDatas)
         : m_Meshes(meshes), m_MeshRootDatas(meshRootDatas)
     {
@@ -51,13 +59,18 @@ namespace Rynex {
         }
         return std::move(meshRenderData);
     }
-
+#if RY_OLD_RENDER_SYSTEM
     void Model::Draw(const Ref<Shader>& shader)
     {
+
         std::lock_guard<std::mutex> lock(m_Accese);
         for (auto& mesh : m_Meshes)
             mesh->OnDraw(shader);
+
     }
+#else
+#endif
+
 
     void Model::ProcessNode(aiNode* node, const aiScene* scene)
     {
@@ -157,5 +170,5 @@ namespace Rynex {
         //Ref<Texture> texture = AssetManager::GetAsset<Texture>(m_Directory / toFile);
         return Ref<Texture>();
     }
-
+#endif
 }

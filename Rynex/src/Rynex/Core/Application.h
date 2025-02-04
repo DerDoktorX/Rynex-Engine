@@ -71,6 +71,8 @@ namespace Rynex {
 
 		// Treads!
 		void SubmiteToMainThreedQueue(const std::function<void()>& func);
+		void SubmiteToMainThreedQueueCreateObject(const std::function<void()>& func);
+		void SubmiteToMainThreedQueueDestroyObject(const std::function<void()>& func);
 		void ExecuteMainThreedQueue();
 
 		
@@ -89,8 +91,11 @@ namespace Rynex {
 		LayerStack m_LayerStack;
 		float m_LastFrameTime = 0.0f;
 		const uint32_t m_MaxMainThread = 10;
+
 		std::vector<std::function<void()>> m_MainThreedQueue;
 		std::vector<std::function<void()>> m_MainThreedQueueWaiting;
+		std::vector<std::function<void()>> m_MainThreedQueueWaitingCreateObject;
+		std::vector<std::function<void()>> m_MainThreedQueueWaitingDestroyObject;
 		std::mutex m_MainThreedQueueMutex;
 
 		ApplicationSpecification m_Specification;

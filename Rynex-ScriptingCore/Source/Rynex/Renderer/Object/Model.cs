@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Rynex;
 
 namespace Rynex
 {
     public enum MeshMode
     {
-        None= 0,
+        None = 0,
         Statitic,
         Dynamic
     }
@@ -32,7 +27,7 @@ namespace Rynex
             InternalCalls.Model_Destroy(Handle.UUID);
 
         }
-        #endif
+#endif
 
         public static Model GetAsset(string path)
         {

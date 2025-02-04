@@ -6,6 +6,8 @@
 
 #include <glad/glad.h>
 
+#include <future>
+
 namespace Rynex {
 	
 	namespace Utils {
@@ -152,8 +154,31 @@ namespace Rynex {
 	
 	OpenGLVertexBuffer::~OpenGLVertexBuffer()
 	{
-		glDeleteBuffers(1, &m_RendererID);
-		FreeBufferData();
+		if (OpenGLThreadContext::IsActive() && m_RendererID != 0)
+		{
+			glDeleteBuffers(1, &m_RendererID);
+			FreeBufferData();
+		}
+		else
+		{
+
+
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				glDeleteBuffers(1, &m_RendererID);
+				FreeBufferData();
+				m_RendererID = 0;
+
+				});
+
+
+			while (m_RendererID != 0)
+			{
+				using namespace std::chrono_literals;
+				std::this_thread::sleep_for(500ms);
+			}
+
+		}
+		
 	}
 
 	void OpenGLVertexBuffer::Bind() const
@@ -436,7 +461,7 @@ namespace Rynex {
 	{
 		glCreateBuffers(1, &m_RendererID);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_RendererID);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, m_Data.size(), m_Data.data(), Utils::GetPoliciyType(m_PolicieType));
+		glBufferData(GL_SHADER_STORAGE_BUFFER, m_Data.size(), m_Data.data(), GL_DYNAMIC_DRAW);
 	}
 
 	void OpenGLStorageBuffer::SetData(const void* data, uint32_t byteSize)
@@ -450,7 +475,7 @@ namespace Rynex {
 		RY_CORE_ASSERT(m_ByteSize != 0 && m_Data.size() != 0);
 
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_RendererID);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, m_Data.size(), m_Data.data(), Utils::GetPoliciyType(m_PolicieType));
+		glBufferData(GL_SHADER_STORAGE_BUFFER, m_Data.size(), m_Data.data(), GL_DYNAMIC_DRAW);
 	}
 
 #pragma endregion
@@ -576,11 +601,38 @@ namespace Rynex {
 
 	OpenGLUniformBuffer::~OpenGLUniformBuffer()
 	{
-		if(m_OnDelete)
-			m_OnDelete();
+		if(OpenGLThreadContext::IsActive() )
+		{
+			if (m_OnDelete)
+				m_OnDelete();
 
-		glDeleteBuffers(1, &m_RendererID);
-		m_Data.clear();
+			if (m_RendererID)
+				glDeleteBuffers(1, &m_RendererID);
+			m_Data.clear();
+		}
+		else
+		{
+			
+			
+			Application::Get().SubmiteToMainThreedQueue([this]() {
+				if (m_OnDelete)
+					m_OnDelete();
+
+				if (m_RendererID)
+					glDeleteBuffers(1, &m_RendererID);
+				m_Data.clear();
+				m_RendererID = 0;
+				
+			});
+			
+
+			while (m_RendererID != 0)
+			{
+				using namespace std::chrono_literals;
+				std::this_thread::sleep_for(500ms);
+			}
+		
+		}
 	}	
 	
 	void OpenGLUniformBuffer::SetOnDelete(std::function<void()> onDelete)
@@ -601,7 +653,7 @@ namespace Rynex {
 	{
 
 #if 1
-		if (m_ChangeSize != 0)
+		if (m_RendererID && m_ChangeSize != 0)
 		{
 			
 			glNamedBufferSubData(m_RendererID, m_ChangeOffset, m_ChangeSize, m_Data.data());
@@ -627,12 +679,12 @@ namespace Rynex {
 		if ((offset + byteSize) > m_Size)
 		{
 			RY_CORE_ASSERT(false);
-			
 		}
 		else
 		{
 			std::memcpy(m_Data.data() + offset, data, byteSize);
-			glNamedBufferSubData(m_RendererID, offset, m_Data.size(), m_Data.data());
+			glNamedBufferSubData(m_RendererID, offset, byteSize, m_Data.data()+ offset);
+			
 		}
 	}
 

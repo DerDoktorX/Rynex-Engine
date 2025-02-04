@@ -40,7 +40,7 @@ namespace Rynex {
 
 	void EditorCamera::UpdateCenter()
 	{
-		m_Center = glm::vec3(0.0f, 0.0f, -(m_NearClip + m_FarClip) * 0.5);
+		m_Center = glm::vec4(0.0f, 0.0f, -(m_NearClip + m_FarClip) * 0.5, 1.f);
 		
 	}
 

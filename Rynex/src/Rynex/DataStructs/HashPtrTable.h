@@ -3,7 +3,7 @@
 #include <Rynex/Renderer/Rendering/Renderer3D.h>
 
 namespace Rynex {
-
+#if RY_OLD_RENDER_SYSTEM
 	class HashPtrTable
 	{
 	public:
@@ -40,5 +40,7 @@ namespace Rynex {
 		std::vector<std::array<std::pair<uint16_t, uint32_t>, s_ListSizeMax>>	m_Table;
 		std::array<MeshInstences, 255> m_Values;
 	};
+#else
+#endif
 }
 

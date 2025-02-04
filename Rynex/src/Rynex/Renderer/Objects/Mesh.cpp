@@ -9,6 +9,31 @@
 
 namespace Rynex {
 
+    Mesh::Mesh(std::vector<MeshVertex>&& meshVertex, std::vector<unsigned int>&& meshIndex, const Ref<Material>& material)
+        : m_Material(material)
+    {
+        std::vector<MeshVertex> meshvertex = std::move(meshVertex);
+
+        std::vector<unsigned char> meshVertexData;
+        meshVertexData.reserve(meshvertex.size() * sizeof(MeshVertex));
+        meshVertexData.insert(
+            meshVertexData.end(),
+            reinterpret_cast<unsigned char*>(meshvertex.data()),
+            reinterpret_cast<unsigned char*>(meshvertex.data() + meshvertex.size()));
+
+        m_VertexBuffer = VertexBuffer::CreateAsync(std::move(meshVertexData), meshvertex.size() * sizeof(MeshVertex), BufferDataUsage::StaticDraw, {
+                {ShaderDataType::Float3, "a_Postion"},
+                {ShaderDataType::Float2, "a_UV"},
+                {ShaderDataType::Float3, "a_Normals"},
+            });
+        m_IndexBuffer = IndexBuffer::CreateAsync(std::move(meshIndex), meshIndex.size(), BufferDataUsage::StaticDraw);
+
+         
+        Application::Get().SubmiteToMainThreedQueue([this]() {
+            InitAsync();
+        });
+    }
+
     Mesh::Mesh(std::vector<MeshVertex>&& meshVertex, std::vector<uint32_t>&& meshIndex, std::vector<MeshTexture>&& meshTexures, bool async)
         : m_Textures(std::move(meshTexures))
         , m_VertexArray(nullptr)
@@ -98,7 +123,7 @@ namespace Rynex {
        
 
     }
-
+#if RY_OLD_RENDER_SYSTEM
     void Mesh::OnDraw(const Ref<Shader>& shader)
     {
         unsigned int diffuseNr = 1;
@@ -123,6 +148,8 @@ namespace Rynex {
         m_VertexArray->Bind();
         Renderer3D::DrawMesh(m_VertexArray);
     }
+#else
+#endif
 
    
 }

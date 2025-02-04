@@ -24,7 +24,7 @@ namespace Rynex {
 		static void Shutdown();
 		static void ShutdownEditor();
 		
-		
+
 
 		static void BeginSceneQuade(const EditorCamera& camera);
 		static void BeginSceneQuade(const OrthograficCamera& camera);	//TODO: Remove 
@@ -37,7 +37,7 @@ namespace Rynex {
 		static void DrawQuad(const glm::mat4& tranform, const Ref<Texture> texture, int entityID = -2);
 
 		static void DrawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const TextParams& textParams, int entityID);
-		static void DrawString( const glm::mat4& transform, const TextComponent& textC, int entityID);
+		static void DrawStringCom( const glm::mat4& transform, const TextComponent& textC, int entityID);
 		static void DrawParticle(const glm::mat4& tranform, const glm::vec3& position, const glm::vec4& color, float size, float rotation, const Ref<Texture>& texture, int entityID);
 
 
@@ -50,6 +50,8 @@ namespace Rynex {
 		static void DrawLigthDirctionelIcon(const glm::mat4& tranform,  int entityID = -2);
 		static void DrawCameraIcon(const glm::mat4& tranform, int entityID = -2);
 		static void DrawIcon(const glm::mat4& tranform, int index = 0, int entityID = -2);
+
+
 
 		struct Statistics
 		{
@@ -69,7 +71,9 @@ namespace Rynex {
 	private:
 		static void StartNewBatchQuade();
 		static void StartNewBatchIcon();
+
 	};
+
 }
 
 

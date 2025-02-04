@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rynex
+﻿namespace Rynex
 {
     public class VertexArray : Asset
     {

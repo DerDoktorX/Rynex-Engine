@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Reflection;
-using Rynex;
-using System.Numerics;
 
 namespace Rynex
 {
@@ -17,7 +14,7 @@ namespace Rynex
         {
             get
             {
-                
+
                 InternalCalls.TransformComponent_GetTranslation(Entity.ID, out Vector3 translation);
                 return translation;
             }
@@ -162,8 +159,8 @@ namespace Rynex
         {
             get
             {
-               
-                return InternalCalls.ModelMatrixComponent_GetMatrix4x4(Entity.ID);;
+
+                return InternalCalls.ModelMatrixComponent_GetMatrix4x4(Entity.ID); ;
             }
 
             set
@@ -218,7 +215,7 @@ namespace Rynex
 
             set
             {
-               InternalCalls.MeshComponent_SetMeshMode(Entity.ID, value);
+                InternalCalls.MeshComponent_SetMeshMode(Entity.ID, value);
             }
         }
     }
@@ -288,7 +285,7 @@ namespace Rynex
 
             set
             {
-               
+
                 InternalCalls.CameraComponent_SetPrimary(Entity.ID, ref value);
             }
         }
@@ -345,7 +342,7 @@ namespace Rynex
     }
 
     public class AmbientLigthComponent : Component
-    { 
+    {
         public Vector3 Color
         {
             get
@@ -354,7 +351,7 @@ namespace Rynex
                 return color;
             }
 
-            set 
+            set
             {
                 InternalCalls.AmbientLigthComponent_SetColor(Entity.ID, ref value);
             }

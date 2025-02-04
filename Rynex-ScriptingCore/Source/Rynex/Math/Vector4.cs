@@ -39,15 +39,15 @@
 
         public static Vector4 operator *(float scalar, Vector4 vector)
         {
-            return new Vector4(scalar*vector.X , scalar*vector.Y , scalar*vector.Z  , scalar*vector.W);
+            return new Vector4(scalar * vector.X, scalar * vector.Y, scalar * vector.Z, scalar * vector.W);
         }
         public static Vector4 operator /(float scalar, Vector4 vector)
         {
-            return new Vector4( scalar/vector.X,  scalar / vector.Y,  scalar/vector.Z, scalar /vector.W);
+            return new Vector4(scalar / vector.X, scalar / vector.Y, scalar / vector.Z, scalar / vector.W);
         }
         public static Vector4 operator +(float scalar, Vector4 vector)
         {
-            return new Vector4(scalar+vector.X , scalar + vector.Y, scalar+vector.Z , scalar + vector.W);
+            return new Vector4(scalar + vector.X, scalar + vector.Y, scalar + vector.Z, scalar + vector.W);
         }
         public static Vector4 operator -(float scalar, Vector4 vector)
         {

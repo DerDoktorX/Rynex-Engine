@@ -62,6 +62,8 @@ namespace Rynex {
 		{ }
 	};
 
+	
+
 	struct MeshTexture
 	{
 		Ref<Texture> TextureResur;
@@ -84,10 +86,12 @@ namespace Rynex {
 	class Mesh : public Asset
 	{
 	public:
-		Mesh() = default;
+
+		Mesh(std::vector<MeshVertex>&& meshVertex, std::vector<unsigned int>&& meshIndex, const Ref<Material>& material);
 		Mesh(std::vector<MeshVertex>&& meshVertex, std::vector<unsigned int>&& meshIndex, std::vector<MeshTexture>&& meshTexures, bool async = false);
 		Mesh(std::vector<MeshVertex>&& meshVertex, std::vector<unsigned int>&& meshIndex, std::vector<MeshTexture>&& meshTexures, const Ref<Material>& material, bool async = false);
 		Mesh(Mesh&&) = default;
+		Mesh(const Mesh&) = default;
 		~Mesh();
 
 		const Ref<VertexArray>& GetVertexArray() const { return m_VertexArray; }

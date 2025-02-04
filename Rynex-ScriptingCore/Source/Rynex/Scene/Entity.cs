@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.Contracts;
 
 namespace Rynex
 {
@@ -11,7 +10,7 @@ namespace Rynex
         {
             ID = id;
             Console.WriteLine($"Create Entity! -> Constructor {ID}!");
-            if(!HasComponent<TransformComponent>())
+            if (!HasComponent<TransformComponent>())
                 AddComponent<TransformComponent>();
             Transform = GetComponent<TransformComponent>();
             if (!HasComponent<ModelMatrixComponent>())
@@ -33,7 +32,7 @@ namespace Rynex
         public ModelMatrixComponent Matrix;
 
 
-        public bool HasComponent<T>() where T: Component, new()
+        public bool HasComponent<T>() where T : Component, new()
         {
             Type componentType = typeof(T);
             Console.WriteLine($"C# -> Entity_HasComponent =  ( ID: {ID},  Component: {componentType} )");
@@ -44,7 +43,7 @@ namespace Rynex
         public T GetComponent<T>() where T : Component, new()
         {
 
-            if(!HasComponent<T>())
+            if (!HasComponent<T>())
                 return null;
             T component = new T();
             component.Entity = this;
@@ -57,7 +56,7 @@ namespace Rynex
             {
                 InternalCalls.Entity_AddComponent(ID, typeof(T));
                 return true;
-            } 
+            }
             return false;
         }
 

@@ -172,6 +172,18 @@ namespace Rynex {
 #endif
 	}
 
+	void Application::SubmiteToMainThreedQueueCreateObject(const std::function<void()>& func)
+	{
+		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
+		m_MainThreedQueueWaitingCreateObject.emplace_back(func);
+	}
+
+	void Application::SubmiteToMainThreedQueueDestroyObject(const std::function<void()>& func)
+	{
+		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
+		m_MainThreedQueueWaitingCreateObject.emplace_back(func);
+	}
+
 
 	void Application::ExecuteMainThreedQueue()
 	{
@@ -182,9 +194,45 @@ namespace Rynex {
 			copy = m_MainThreedQueue;
 			m_MainThreedQueue.clear();
 #if RY_MAX_MAIN_THREAD_QUEUE_PER_FRAME
-			 if(m_MainThreedQueueWaiting.size() > 0)
+			uint32_t i = 0;
+			if (m_MainThreedQueueWaitingCreateObject.size() > 0)
+			{
+				
+				std::vector<std::function<void()>>::iterator itFunc = m_MainThreedQueueWaitingCreateObject.begin();
+				std::vector<std::function<void()>>::iterator itend = m_MainThreedQueueWaitingCreateObject.end();
+				std::vector<std::function<void()>>::const_iterator itBegin = itFunc;
+				for (; itFunc != itend; ++itFunc, i++)
+				{
+					std::function<void()>& func = *itFunc;
+					if (i >= m_MaxMainThread)
+						break;
+
+					m_MainThreedQueue.emplace_back(func);
+
+				}
+
+				m_MainThreedQueueWaitingCreateObject.erase(itBegin, itFunc);
+			}
+
+			if (m_MainThreedQueueWaitingDestroyObject.size() > 0 && i >= m_MaxMainThread)
+			{
+				std::vector<std::function<void()>>::iterator itFunc = m_MainThreedQueueWaitingDestroyObject.begin();
+				std::vector<std::function<void()>>::iterator itend = m_MainThreedQueueWaitingDestroyObject.end();
+				std::vector<std::function<void()>>::const_iterator itBegin = itFunc;
+				for (; itFunc != itend; ++itFunc, i++)
+				{
+					std::function<void()>& func = *itFunc;
+					if (i >= m_MaxMainThread)
+						break;
+
+					m_MainThreedQueue.emplace_back(func);
+
+				}
+			}
+
+
+			 if(m_MainThreedQueueWaiting.size() > 0&& i >= m_MaxMainThread)
 			 {
-			 	uint32_t i = 0;
 			 	std::vector<std::function<void()>>::iterator itFunc = m_MainThreedQueueWaiting.begin();
 			 	std::vector<std::function<void()>>::iterator itend = m_MainThreedQueueWaiting.end();
 			 	std::vector<std::function<void()>>::const_iterator itBegin = itFunc;

@@ -956,8 +956,8 @@ namespace Rynex {
 				!m_SelectionContext.HasComponent<PointLigthComponent>() &&
 				!m_SelectionContext.HasComponent<SpotLigthComponent>())
 			{
-				if(DisplayAddComponentEntry<DrirektionleLigthComponent>("Drirektionle-Ligth"))
-					m_SelectionContext.AddComponent<ViewMatrixComponent>();
+				DisplayAddComponentEntry<DrirektionleLigthComponent>("Drirektionle-Ligth");
+					
 			}
 
 			if (!m_SelectionContext.HasComponent<AmbientLigthComponent>() &&
@@ -968,8 +968,8 @@ namespace Rynex {
 			if (!m_SelectionContext.HasComponent<AmbientLigthComponent>() &&
 				!m_SelectionContext.HasComponent<PointLigthComponent>() &&
 				!m_SelectionContext.HasComponent<DrirektionleLigthComponent>())
-				if (DisplayAddComponentEntry<SpotLigthComponent>("Spot-Ligth"))
-					m_SelectionContext.AddComponent<ViewMatrixComponent>();
+				DisplayAddComponentEntry<SpotLigthComponent>("Spot-Ligth");
+
 			DisplayAddComponentEntry<TextComponent>("Text");
 			DisplayAddComponentEntry<ViewMatrixComponent>("View");
 			ImGui::EndPopup();
@@ -1343,7 +1343,22 @@ namespace Rynex {
 					StaticMeshComponent& staticMesh = entity.GetComponent<StaticMeshComponent>();
 					staticMesh.ModelR = model;
 					ModelMatrixComponent& parentMat4C = entity.GetComponent<ModelMatrixComponent>();
+#if RY_MODEL_NODE
+					const auto& modelData = model->GetNodes();
+					staticMesh.Meshes.reserve(modelData.size());
 
+					for (auto& node : modelData)
+					{
+						for (auto& meshNode : node.Meshes)
+						{
+							staticMesh.Meshes.emplace_back(MeshStatic{
+								parentMat4C.Globle * node.Matrix,
+								node.Matrix,
+								meshNode,
+								nullptr });
+						}
+					}
+#else
 					const std::vector<MeshRootData>& modelData = model->GetRootDatas();
 					staticMesh.LocaleMeshMatrix.reserve(modelData.size());
 					
@@ -1352,6 +1367,7 @@ namespace Rynex {
 						staticMesh.LocaleMeshMatrix.emplace_back(meshData.NodeMatrix);
 						staticMesh.GlobleMeshMatrix.emplace_back(parentMat4C.Globle * meshData.NodeMatrix);
 					}
+#endif
 				}
 
 				if (ImGui::MenuItem("Dynamic-Mesh"))
@@ -1379,10 +1395,48 @@ namespace Rynex {
 					if (!entity.HasComponent<MaterialComponent>())
 						entity.AddComponent<MaterialComponent>();
 					MaterialComponent& materialCParent = entity.GetComponent<MaterialComponent>();
+#if RY_MODEL_NODE
+					const auto& nodeRootData = model->GetNodes();
+					uint32_t size = nodeRootData.size();
+					for (const auto& node : nodeRootData)
+					{
+						
+#if RY_ENABLE_UTILS_REALTION_SHIP_COMP
+						Entity childeEntity = Utils::AddChilrenToEntity(entity, m_Context, rootData.NodeName);
+#else
+						Entity childeEntity = entity.AddChildrenEntity(node.Name);
+#endif
 
+						childeEntity.AddComponent<DynamicMeshComponent>();
+						childeEntity.AddComponent<MaterialComponent>();
+
+						if (!childeEntity.HasComponent<ModelMatrixComponent>())
+							childeEntity.AddComponent<ModelMatrixComponent>();
+						ModelMatrixComponent& childMat4C = childeEntity.GetComponent<ModelMatrixComponent>();
+						childMat4C.Locale = node.Matrix;
+						childMat4C.Globle = parentMat4C.Locale * node.Matrix;
+
+						if (!childeEntity.HasComponent<TransformComponent>())
+							childeEntity.AddComponent<TransformComponent>();
+						TransformComponent& transformC = childeEntity.GetComponent<TransformComponent>();
+						transformC.SetTransform(childMat4C.Locale);
+
+						if (!childeEntity.HasComponent<DynamicMeshComponent>())
+							childeEntity.AddComponent<DynamicMeshComponent>();
+						DynamicMeshComponent& dynamicMeshC = childeEntity.GetComponent<DynamicMeshComponent>();
+						dynamicMeshC.MeshD.reserve(node.Meshes.size());
+						for(const auto& mesh: node.Meshes)
+						{
+							dynamicMeshC.MeshD.emplace_back(mesh);
+						}
+
+						if (!childeEntity.HasComponent<MaterialComponent>())
+							childeEntity.AddComponent<MaterialComponent>();
+#else
 					std::vector<MeshRootData> rootDatas = model->GetRootDatas();
 					std::vector<Ref<Mesh>> meshes = model->GetMeshes();
 					uint32_t size = rootDatas.size() == meshes.size() ? meshes.size() : 0;
+
 					for (uint32_t i = 0; i < size; i++)
 					{
 						MeshRootData& rootData = rootDatas[i];
@@ -1415,7 +1469,7 @@ namespace Rynex {
 						if (!childeEntity.HasComponent<MaterialComponent>())
 							childeEntity.AddComponent<MaterialComponent>();
 
-						
+#endif
 					}
 					entity.UpdateMatrix();
 				}
@@ -1449,8 +1503,19 @@ namespace Rynex {
 					if (entity.HasComponent<StaticMeshComponent>())
 					{
 						StaticMeshComponent& staticMeshCom = entity.GetComponent<StaticMeshComponent>();
+						ImGui::Text("Nodes:");
+#if RY_MODEL_NODE
+						const auto& noodsRootData = staticMeshCom.ModelR->GetNodes();
+						for (const auto& node : noodsRootData)
+						{
+							ImGui::Text("\t", node.Name);
+							
+						}
+						
+#else
 						Ref<Material> materiel = staticMeshCom.ModelR->GetMesh(0)->GetMateriel();
 						Utils::Materiel<Material>(materiel);
+#endif
 					}
 				}
 				

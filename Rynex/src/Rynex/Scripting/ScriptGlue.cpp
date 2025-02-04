@@ -751,7 +751,22 @@ namespace Rynex {
 				StaticMeshComponent& staticMesh = entity.GetComponent<StaticMeshComponent>();
 				staticMesh.ModelR = mesh.ModelR;
 				ModelMatrixComponent& parentMat4C = entity.GetComponent<ModelMatrixComponent>();
+#if RY_MODEL_NODE
+				auto& modelData = mesh.ModelR->GetNodes();
+				staticMesh.Meshes.reserve(modelData.size());
+				for (auto& node : modelData)
+				{
+					for (auto& meshNode : node.Meshes)
+					{
+						staticMesh.Meshes.emplace_back(MeshStatic{
+							parentMat4C.Globle * node.Matrix,
+							node.Matrix,
+							meshNode,
+							nullptr});
+					}
+				}
 
+#else
 				auto& modelData = mesh.ModelR->GetRootDatas();
 				staticMesh.LocaleMeshMatrix.reserve(modelData.size());
 
@@ -761,6 +776,7 @@ namespace Rynex {
 					staticMesh.GlobleMeshMatrix.emplace_back(parentMat4C.Globle * meshData.NodeMatrix);
 				}
 
+#endif
 				break;
 			}
 				case MeshMode::Dynamic:
@@ -775,9 +791,50 @@ namespace Rynex {
 						entity.AddComponent<MaterialComponent>();
 					MaterialComponent& materialCParent = entity.GetComponent<MaterialComponent>();
 
+#if RY_MODEL_NODE
+					auto& nodeRoot = mesh.ModelR->GetNodes();
+
+
+					for (const auto& node : nodeRoot)
+					{
+						const std::vector<Ref<Mesh>>& mesh = node.Meshes;
+						Entity childeEntity = entity.AddChildrenEntity(node.Name);
+
+						childeEntity.AddComponent<DynamicMeshComponent>();
+						childeEntity.AddComponent<MaterialComponent>();
+
+						if (!childeEntity.HasComponent<ModelMatrixComponent>())
+							childeEntity.AddComponent<ModelMatrixComponent>();
+						ModelMatrixComponent& childMat4C = childeEntity.GetComponent<ModelMatrixComponent>();
+						childMat4C.Locale = node.Matrix;
+						childMat4C.Globle = parentMat4C.Locale * node.Matrix;
+
+						if (!childeEntity.HasComponent<TransformComponent>())
+							childeEntity.AddComponent<TransformComponent>();
+						TransformComponent& transformC = childeEntity.GetComponent<TransformComponent>();
+						transformC.SetTransform(childMat4C.Locale);
+
+						if (!childeEntity.HasComponent<DynamicMeshComponent>())
+							childeEntity.AddComponent<DynamicMeshComponent>();
+						DynamicMeshComponent& dynamicMeshC = childeEntity.GetComponent<DynamicMeshComponent>();
+
+						dynamicMeshC.MeshD.clear();
+						dynamicMeshC.MeshD.reserve(mesh.size());
+						for (const auto& meshDC : mesh)
+						{
+							dynamicMeshC.MeshD.emplace_back(meshDC);
+						}
+						
+
+						if (!childeEntity.HasComponent<MaterialComponent>())
+							childeEntity.AddComponent<MaterialComponent>();
+					}
+
+#else
 					std::vector<MeshRootData> rootDatas = mesh.ModelR->GetRootDatas();
 					std::vector<Ref<Mesh>> meshes = mesh.ModelR->GetMeshes();
 					uint32_t size = rootDatas.size() == meshes.size() ? meshes.size() : 0;
+
 					for (uint32_t i = 0; i < size; i++)
 					{
 						MeshRootData& rootData = rootDatas[i];
@@ -808,6 +865,7 @@ namespace Rynex {
 
 
 					}
+#endif
 					break;
 				}
 				default:
@@ -1905,6 +1963,7 @@ namespace Rynex {
 		([&]()
 			{
 				std::string_view typeName = typeid(Component).name();
+				
 				size_t pos = typeName.find_last_of(':');
 				std::string_view structName = typeName.substr(pos + 1);
 				std::string managedTypename = fmt::format("Rynex.{}", structName);

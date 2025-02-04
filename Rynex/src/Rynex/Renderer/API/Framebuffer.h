@@ -145,7 +145,7 @@ namespace Rynex {
 		virtual int ReadPixel(uint32_t attachmentsIndex, int x, int y) = 0;
 		virtual const glm::uvec2& GetFrambufferSize() = 0;
 
-		virtual void Bind() = 0;
+		virtual void Bind(float width = 0.0f, float height = 0.0f, float x = 0.0f, float y = 0.0f) = 0;
 		virtual void Unbind() = 0;
 
 		virtual void BindColorAttachment(uint32_t index = 0, uint32_t slot = 0) const = 0;

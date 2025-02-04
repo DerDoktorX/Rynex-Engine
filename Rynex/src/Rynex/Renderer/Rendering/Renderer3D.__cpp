@@ -12,512 +12,6 @@
 
 namespace Rynex {
 
-#if 1
-
-    namespace Utils {
-
-        struct TextureAtlas
-        {
-            glm::vec4* UniformST_CoordPtr = nullptr;
-            float* ShadowMapSizePtr = nullptr;
-            
-
-            
-            TextureAtlas(const TextureAtlas&) = default;
-            TextureAtlas(TextureAtlas&&) = default;
-            TextureAtlas(glm::vec4* uniformST_CoordPtr, float* shadowMapSizePtr)
-                : UniformST_CoordPtr(uniformST_CoordPtr),
-                ShadowMapSizePtr(shadowMapSizePtr) { }
-        };
-
-        struct AtlasTexture
-        {
-            glm::ivec2 Size = { 0, 0 };
-        }; 
-        
-        
-        struct point
-        {
-            int x, y;
-        };
-
-        struct box
-        {
-            point topleft;
-            point bottomright;
-        };
-
-
-
-
-
-        inline static std::vector<box> allocate_texture_atlas(point const& atlas_size, std::vector<int> const& texture_sizes)
-        {
-            RY_PROFILE_SCOPE("Other Implementaion Atlas Texture");
-            // we have to separately sort the indices so that the i-th region
-            // of the output corresponds to the i-th texture size of the input
-            std::vector<int> sorted(texture_sizes.size());
-            for (int i = 0; i < sorted.size(); ++i)
-                sorted[i] = i;
-
-            // sort in descending order
-            // std::sort(sorted.begin(), sorted.end(), [&](int i, int j) {
-            //     return texture_sizes[i] > texture_sizes[j];
-            //     });
-
-            std::vector<point> ladder;
-
-            point pen{ 0, 0 };
-
-            std::vector<box> result;
-            result.resize(texture_sizes.size());
-
-            for (int i : sorted)
-            {
-                int const size = texture_sizes[i];
-
-                // allocate a texture region
-                result[i] = { {pen.x, pen.y}, {pen.x + size, pen.y + size} };
-
-                // shift the pen to the right
-                pen.x += size;
-
-                // update the ladder
-                if (!ladder.empty() && ladder.back().y == pen.y + size)
-                    ladder.back().x = pen.x;
-                else
-                    ladder.push_back({ pen.x, pen.y + size });
-
-                if (pen.x == atlas_size.x)
-                {
-                    // the pen hit the right edge of the atlas
-                    ladder.pop_back();
-
-                    pen.y += size;
-                    if (!ladder.empty())
-                        pen.x = ladder.back().x;
-                    else
-                        pen.x = 0;
-                }
-            }
-
-            return result;
-        }
-       
-#if 0 
-        struct AtelesTexture
-        {
-            int Pixel = 0;
-            int Count = 0;
-            int OneRow = 0;
-            int OneColume = 0;
-            int TexCount = 0;
-
-        };
-        struct TextureAtles
-        {
-            glm::ivec2 TexPos = { 0, 0 };
-            glm::ivec2 TexSize = { 0, 0 };
-
-            glm::ivec2 PixelPos = { 0, 0 };
-            glm::ivec2 PixelSize = { 0, 0 };
-
-
-            glm::vec2 st_CoordPos = { 0.0f, 0.0f };
-            float st_CoordSize = 0.0f;
-        };
-       
-
-
-
-
-        inline static uint32_t CalceQuadePixelSize(uint32_t count, uint32_t size)
-        { 
-            return count * size * size;
-        }
-
-        inline static glm::uvec2 CaluceQuadeCount(uint32_t textureCount)
-        {
-            int columns = std::ceil(std::sqrt(textureCount));
-            int rows = std::ceil(static_cast<double>(textureCount) / columns);
-            return glm::uvec2(columns, rows);
-        }
-
-       
-
-        inline static void OrgenizeTexturePlace(uint32_t index, uint32_t colume, uint32_t rows ,uint32_t size, glm::vec4* texPos)
-        {
-            glm::uvec2 posIndex = {
-                    (index % colume),
-                    (index / colume)
-            };
-            float stdCoordOffsetX =  posIndex.y * size;
-            float stdCoordOffsetY =  posIndex.x * size;
-            float stdCoordStepPosX = colume;
-            float stdCoordStepPosY = rows;
-
-            
-
-
-            *texPos = { 
-                stdCoordOffsetX, stdCoordOffsetY,
-                stdCoordStepPosX, stdCoordStepPosY
-            };
-        }
-
-        inline static glm::uvec4 Calculate(uint32_t pixxelSum, uint32_t count, uint32_t pixel, uint32_t countSmalestTex)
-        {
-            glm::uvec2 sizeCount = CaluceQuadeCount(countSmalestTex);
-            glm::uvec2 sizePixxel = sizeCount * pixel;
-            uint32_t pixxelAtelesTex = sizePixxel.x * sizePixxel.y;
-            int32_t rest = pixxelAtelesTex - pixxelSum;
-
-
-
-
-            RY_CORE_ASSERT(pixxelAtelesTex >= pixxelSum );
-
-
-            return pixxelAtelesTex >= pixxelSum ? glm::uvec4{ sizeCount.x, sizeCount.y, sizePixxel.x, sizePixxel.y } : glm::uvec4{ 0u, 0u, 0u, 0u };
-        }
-
-        inline static void CalulateTextures(uint32_t& row, uint32_t& colume, glm::uvec2& sizePixxel, uint32_t pixxel, uint32_t count, uint32_t sizeOffset)
-        {
-            uint32_t textures = 0;
-            uint32_t dimaensionSize = std::sqrt(sizeOffset), 
-                textureComume , textureRow;
-            float texturedimaensionSize = 1.0f / dimaensionSize;
-            bool state = textures < count;
-            uint32_t minTexureSize = (sizePixxel.x / colume);
-            while (state)
-            {
-                textureComume = colume * static_cast<float>(texturedimaensionSize);
-                textureRow = row * static_cast<float>(texturedimaensionSize);
-                textures = textureComume * textureRow;
-                state = textures < count;
-                if (state)
-                {
-                    colume++;
-                    row--;
-                    sizePixxel.x = minTexureSize * colume;
-                }
-            }
-        
-           
-        }
-
-        inline static void CalulateTex(uint32_t row, uint32_t colume, const glm::uvec2& sizeCount, std::vector<uint32_t>& offsetRow , uint32_t pixxel, uint32_t count, uint32_t sizeOffset)
-        {
-            float texSizeDiemension = 1.0f /  sizeOffset;
-            uint32_t columeTex = colume * texSizeDiemension;
-            uint32_t rowTex = row * texSizeDiemension;
-            for (uint32_t iTex = 0; iTex < count; iTex++)
-            {
-                uint32_t x = (iTex % (columeTex));
-                uint32_t y = (static_cast<float>(iTex) / rowTex) ;
-                uint32_t sizeAvible = 0;
-                RY_CORE_ASSERT(y * sizeOffset < sizeCount.y, "Some Miss Calultion!");
-
-                for (uint32_t iCoume = y; iCoume < (sizeOffset * y); iCoume++)
-                {
-                    RY_CORE_ASSERT((offsetRow[iCoume] * x) < sizeCount.x, "Some Miss Calultion!");
-                    if ((offsetRow[iCoume] * x) < sizeCount.x)
-                        sizeAvible++;
-                    else
-                        break;
-                }
-
-                if (sizeAvible < y)
-                {
-                    RY_CORE_ASSERT(false);
-                }
-
-                for (uint32_t iCoume = y; iCoume < (sizeOffset + y); iCoume++)
-                {
-                    offsetRow[iCoume] += x;
-                    RY_CORE_ASSERT(offsetRow[iCoume] < sizeCount.x, "Some Miss Calultion!")
-                }
-
-
-            }
-        }
-
-
-
-        inline static void OrgenizeTexturePlace()
-        {
-
-            
-
-
-            uint32_t count2048 = 5;
-            uint32_t count1024 = 7;
-            uint32_t count512 = 10;
-
-            uint32_t pixel2048 = CalceQuadePixelSize(count2048, 2048);      //  51.200
-            uint32_t pixel1028 = CalceQuadePixelSize(count1024, 1024);      //  50.176
-            uint32_t pixel512 = CalceQuadePixelSize(count512, 512);         //  51.200
-
-            uint32_t pixxelSum = pixel2048 + pixel1028 + pixel512;          // 152.576
-
-            if (pixxelSum == 0)
-                return;
-            glm::uvec4 result;
-
-            if (pixel512 != 0)
-                result = Calculate(pixxelSum, count512, 512, count512 + (4 * count1024) + (4 * 4 * count2048));
-            else if (pixel1028 != 0)
-                result = Calculate(pixxelSum, count1024, 1024,  count1024 + (4 * count2048));
-            else if (pixel2048 != 0)
-                result = Calculate(pixxelSum, count2048, 2048, count2048);
-            else
-                return;
-
-            glm::uvec2 sizeCount = { result.x, result.y };
-            glm::uvec2 sizePixxel = { result.z, result.w };
-            uint32_t row = sizeCount.x;
-            uint32_t colume = sizeCount.x;
-            glm::uvec2 offsetPixxelPos = { 0.0f, 0.0f };
-
-
-
-
-
-            
-
-            
-            CalulateTextures(row, colume, sizePixxel, 2048u, count2048, 16u);
-            std::vector<uint32_t> rowOffset;
-            rowOffset.resize(row);uint32_t beginNotEmpty = 0;
-            uint32_t endeNotEmpty = row;
-            sizeCount.x = row;
-            sizeCount.y = colume;
-
-            CalulateTex(row, colume, sizeCount, rowOffset, 2048u, count2048, 4u);
-
-            for(auto& offset : rowOffset)
-                RY_CORE_INFO("Empty Space {}", sizeCount.x - offset);
-#if 0
-            for (uint32_t i = 0; i < count2048;i+= 16)
-            {
-                glm::uvec2 posIndex = {
-                    (i % colume),
-                    (i / colume) 
-                };
-                
-                float xOffset = offsetPixxelPos.x / sizePixxel.x;
-                if (xOffset < 1.0f)
-                {
-                    offsetPixxelPos.x = 0;
-                    offsetPixxelPos.y += 2048u;
-                }
-                RY_CORE_ASSERT(offsetPixxelPos.x <= sizePixxel.x && offsetPixxelPos.y <= sizePixxel.y);
-                RY_CORE_INFO("2048px Texture: {0}, colume: {1}, row: {2} \t Position Pixxel {0, }", i, colume, row);
-                
-                offsetPixxelPos.x += 2048u;
-            }
-#endif
-            
-               
-
-                
-        }
-#endif
-
-        inline static glm::ivec2 CalulateAtlesSizeTexSpace(const glm::dvec2& quadeSamlestdTexSpaceSize, int countLargestTexture, int offsetLargestTextureSpaceDimension)
-        {
-            double trasledValue = 1.0 / static_cast<double>(offsetLargestTextureSpaceDimension);
-            glm::ivec2 quadeLargestTexSpaceSize;
-            glm::dvec2 quadeSamlestdTexutureSpaceSize = glm::ceil(quadeSamlestdTexSpaceSize);
-            int countLargestTex;
-            RY_CORE_ASSERT(!isinf(trasledValue));
-            do {
-                
-                quadeLargestTexSpaceSize = {
-                    quadeSamlestdTexutureSpaceSize.x / static_cast<double>(offsetLargestTextureSpaceDimension),
-                    quadeSamlestdTexutureSpaceSize.y / static_cast<double>(offsetLargestTextureSpaceDimension)
-                };
-                countLargestTex = quadeLargestTexSpaceSize.x * quadeLargestTexSpaceSize.y;
-
-
-                if(countLargestTex < countLargestTexture)
-                {
-                    quadeSamlestdTexutureSpaceSize.x++;
-                    quadeSamlestdTexutureSpaceSize.y = quadeSamlestdTexutureSpaceSize.y > offsetLargestTextureSpaceDimension ? quadeSamlestdTexutureSpaceSize.y-1 : quadeSamlestdTexutureSpaceSize.y;
-                }
-                else
-                {
-                    break;
-                }
-            } 
-            while (true);
-
-            return quadeSamlestdTexutureSpaceSize;
-        }
-
-        inline static glm::dvec2 CalculateAtlesQuadeTexSpace(double textureCount)
-        {
-            // double x = std::ceil(std::sqrt(textureCount));
-            // double y = std::ceil(textureCount / x);
-            double x = std::sqrt(textureCount);
-            double y = textureCount / x;
-            return glm::dvec2(x, y);
-        }
-
-        inline static glm::ivec2 CalculateAtlesSizeTexSpace(int countTotaleSmalesTextureSpace, int countLargestTexture, int offsetLargestTextureSpaceDimension)
-        {
-            glm::dvec2 quadeTexSpaceSize = CalculateAtlesQuadeTexSpace(countTotaleSmalesTextureSpace);
-            glm::ivec2 result = CalulateAtlesSizeTexSpace(quadeTexSpaceSize, countLargestTexture, offsetLargestTextureSpaceDimension);
-            return result;
-        }
-
-        inline static void CalculateTextureAtles(glm::vec4* texUniformPtr, const glm::vec2& stepSize_ST_Coord, const glm::ivec2& textureSpacePostion, const glm::ivec2& textureSpaceSize)
-        {
-            float step_ST_CoordX = static_cast<float>(textureSpacePostion.x) / textureSpaceSize.x;
-            float step_ST_CoordY = static_cast<float>(textureSpacePostion.y) / textureSpaceSize.y;
-            glm::vec2 offset_ST_Coord = { step_ST_CoordX, step_ST_CoordY };
-
-            *texUniformPtr = glm::vec4(stepSize_ST_Coord, offset_ST_Coord);
-        }
-
-        inline static void OffsetAdding(glm::ivec2& offsetPositon, int offsetSmalestTextureSpaceDimension, const glm::ivec2& lastOffsetPositon, const glm::ivec2& lastOffsetPositon2, int lastOffsetEffectY, int lastOffsetEffectY2 , const AtlasTexture& atlasTexture)
-        {
-            offsetPositon.x += offsetSmalestTextureSpaceDimension;
-            
-            RY_CORE_ASSERT(offsetPositon.x <= atlasTexture.Size.x);
-            if (offsetPositon.x == atlasTexture.Size.x)
-            {
-                offsetPositon.y += offsetSmalestTextureSpaceDimension;
-                if (lastOffsetPositon.x != 0 && lastOffsetEffectY >= offsetPositon.y)
-                    offsetPositon.x = lastOffsetPositon.x;
-                else if(lastOffsetPositon2.x != 0 && lastOffsetEffectY2 >= offsetPositon.y)
-                    offsetPositon.x = lastOffsetPositon2.x;
-                else
-                    offsetPositon.x = 0;
-            }
-        }
-
-        inline static void OffsetAdding(glm::ivec2& offsetPositon, int offsetSmalestTextureSpaceDimension, const AtlasTexture& atlasTexture)
-        {
-            offsetPositon.x += offsetSmalestTextureSpaceDimension;
-
-            RY_CORE_ASSERT(offsetPositon.x <= atlasTexture.Size.x);
-            if (offsetPositon.x == atlasTexture.Size.x)
-            {
-                offsetPositon.y += offsetSmalestTextureSpaceDimension;
-                offsetPositon.x = 0;
-            }
-        }
-
-        inline static void OffsetAdding(glm::ivec2& offsetPositon, int offsetSmalestTextureSpaceDimension, const glm::ivec2& lastOffsetPositon, int lastOffsetEffectY, const AtlasTexture& atlasTexture)
-        {
-            offsetPositon.x += offsetSmalestTextureSpaceDimension;
-
-            RY_CORE_ASSERT(offsetPositon.x <= atlasTexture.Size.x);
-            if (offsetPositon.x == atlasTexture.Size.x)
-            {
-                offsetPositon.y += offsetSmalestTextureSpaceDimension;
-                offsetPositon.x = 0;
-            }
-        }
-
-        inline static glm::ivec2 CalulateAtlesTexture(std::vector<glm::vec4*>& texturesAtlasUniforms,  const AtlasTexture& atlasTexture, const glm::ivec2& lastOffsetPositon, const glm::ivec2& lastOffsetPositon2, int offsetSmalestTextureSpaceDimension)
-        {
-            int countTexture = texturesAtlasUniforms.size();
-            glm::ivec2 offsetPositon = lastOffsetPositon;
-            int lastTexOffsetSize = (offsetSmalestTextureSpaceDimension % 4) * 2;
-            int lastTexOffsetSize2 = lastTexOffsetSize != 0 ? (offsetSmalestTextureSpaceDimension % 8) * 2 : 0;
-
-            int lastOffsetEffectY = lastOffsetPositon.y + lastTexOffsetSize;
-            int lastOffsetEffectY2 = lastOffsetPositon2.y + lastTexOffsetSize2;
-
-            int pixxelSizeX = 512 * atlasTexture.Size.x;
-            int pixxelSizeY = 512 * atlasTexture.Size.y;
-
-            float stepSize_ST_CoordX = 1.0 / atlasTexture.Size.x;
-            float stepSize_ST_CoordY = 1.0 / atlasTexture.Size.y;
-
-            glm::vec2 stepSize_ST_Coord = { stepSize_ST_CoordX, stepSize_ST_CoordY };
-            glm::ivec2 pixxelSize = { pixxelSizeX, pixxelSizeY };
-
-
-            for (glm::vec4* texUnifromPtr : texturesAtlasUniforms)
-            {
-                
-                // int pixxelOffsetX = 512 * offsetPositon.x;
-                // int pixxelOffsetY = 512 * offsetPositon.y;
-                // 
-                // float offset_ST_CoordX = pixxelOffsetX / stepSize_ST_CoordX;
-                // float offset_ST_CoordY = pixxelOffsetY / stepSize_ST_CoordY;
-                // *texUnifromPtr = glm::vec4(stepSize_ST_CoordX, stepSize_ST_CoordY,offset_ST_CoordX, pixxelOffsetY);
-                glm::ivec2 offset = {0,0};
-                CalculateTextureAtles(texUnifromPtr, stepSize_ST_Coord, offsetPositon, atlasTexture.Size);
-                OffsetAdding(offsetPositon, offsetSmalestTextureSpaceDimension, lastOffsetPositon, lastOffsetPositon2, lastOffsetEffectY, lastOffsetEffectY2, atlasTexture);
-#if 0                 
-                 RY_CORE_INFO("Tex Pos: {}, {} Size: {}", texAtlas.Position.x, texAtlas.Position.y, texAtlas.Size);
-                 TextureAtlas& texAtlas = texturesAtlas.emplace_back(offsetPositon, offsetSmalestTextureSpaceDimension);
-#endif
-            }
-
-            return offsetPositon;
-        }
-
-        
-#if 0 
-        static void OrgenizeTexturePlace()
-        {
-            
-            AtlasTexture atlasTexture;
-
-            uint32_t count2048 = 5;
-            uint32_t count1024 = 8;
-            uint32_t count512 = 11;
-
-           
-
-            
-
-
-
-            RY_PROFILE_SCOPE("My Implementaion Atlas Texture");
-
-
-
-
-            atlasTexture.Size = CalculateAtlesSizeTexSpace(count512 + (count1024 * 4) + (count2048 * 4 * 4), count2048 ? count2048 : count1024 ? count1024 : count512, 4);
-
-            std::vector<TextureAtlas> texturesAtlas;
-            texturesAtlas.reserve(count512 + count1024 + count2048);
-            
-            // RY_CORE_INFO("Atlas Texture Size: {}, {}", atlasTexture.Size.x, atlasTexture.Size.y);
-            glm::ivec2 offset0 = CalulateAtlesTexture(uniformTexures2048, texturesAtlas, atlasTexture,{0,0}, { 0,0 },count2048, 4);
-            glm::ivec2 offset1 = CalulateAtlesTexture(uniformTexures1024, texturesAtlas, atlasTexture, offset0, { 0,0 }, count1024, 2);
-            glm::ivec2 offset2 = CalulateAtlesTexture(uniformTexures512, texturesAtlas, atlasTexture, offset0, offset1,count512, 1);
-        }
-#endif
-
-        static void AtelesTextureImplentionFunktion()
-        {
-#if 0
-           
-
-            OrgenizeTexturePlace();
-#else 
-            RY_PROFILE_SCOPE("Test Implementaion Atlas Texture");
-            std::initializer_list<int> texSize = {
-                2048, 2048, 2048, 2048, 2048,
-                1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024,
-                512,  512,   512,  512,  512,  512,  512,  512, 512, 512, 512,
-            };
-            // std::vector<box> textures = allocate_texture_atlas({ 6144, 0 }, texSize);
-
-            // OrgenizeTexturePlace();
-#endif
-        }
-    }
-
-#endif
-
 #pragma region Uniform_Ligths_Structs
 
     struct AmbientData
@@ -588,46 +82,7 @@ namespace Rynex {
         int entityID;
     };
 
-    struct LigtheShadow
-    {
-        glm::mat4 ViewProjectionMatrixLigth[8];
-        int ShadowCameraID[4];
-    };
 
-    struct SubmitSingleDrawCallData 
-    {
-        glm::mat4 Matrix = glm::mat4(1.0f);
-        Ref<Mesh> MeshR = nullptr;
-        Ref<Material> Materiel = nullptr;
-        int EntityID = -1;
-
-        SubmitSingleDrawCallData() = default;
-        SubmitSingleDrawCallData(const SubmitSingleDrawCallData&) = default;
-        SubmitSingleDrawCallData(SubmitSingleDrawCallData&&) = default;
-    };
-
-    struct SubmitSingleDrawCall
-    {
-        RenderFunc Func;
-        SubmitSingleDrawCallData Data;
-        SubmitSingleDrawCall() = default;
-       
-
-
-        SubmitSingleDrawCall(RenderFunc func, const SubmitSingleDrawCallData& Data)
-            : Func(func), Data(Data)
-        {
-        }
-
-        SubmitSingleDrawCall(RenderFunc func, SubmitSingleDrawCallData&& Data)
-            : Func(func), Data(std::move(Data)) 
-        { 
-        }
-        
-
-    };
-
-   
 
     struct RendererData
     {
@@ -657,7 +112,7 @@ namespace Rynex {
         PointData BufferPointData;
         SpotData BufferSpotData;
 
-        Ref<UniformBuffer> ShadowsViewMatriciesBuffer = nullptr;
+        Ref<UniformBuffer> ShadowsMatriciesBuffer = nullptr;
         const uint32_t MaxLigthDrirection = 8;
         const uint32_t MaxLigthSpot = 32;
         const uint32_t MaxLigthPoint = 32;
@@ -668,32 +123,18 @@ namespace Rynex {
         uint32_t CountLigthPoint = 0;
         uint32_t CountLigthAmbient = 0;
 
-        std::vector<glm::vec4*> ShadowMapTexture2048;
-        std::vector<glm::vec4*> ShadowMapTexture1024;
-        std::vector<glm::vec4*> ShadowMapTexture512;
-        std::vector<glm::vec4*> ShadowMapTexture256;
-
-
-        const uint32_t ShadowTextureSize = 512;
-        const uint32_t MaxShadowDrirection = 8;
+        
+        const uint32_t MaxShadowDrirection = 1;
         const uint32_t MaxShadowSpot = 0;
         const uint32_t MaxShadowPoint = 0;
-        const uint32_t MaxShadowTexturesSize = MaxShadowDrirection + MaxShadowSpot + MaxShadowPoint;
-        const uint32_t MaxShadowTexturesByteSize = MaxShadowTexturesSize * sizeof(glm::mat4);
-
-
 
         uint32_t CountShadowDrirection = 0;
         uint32_t CountShadowSpot = 0;
         uint32_t CountShadowPoint = 0;
 
-        Ref<StorageBuffer> LigtheViewProjtionMatriciesBuffer = nullptr;
-        Ref<StorageBuffer> ShadowMatriciesBuffer = nullptr;
+        std::array<glm::mat4, 8> ShadowsMatricies;
 
-
-        LigtheShadow ShadowsMatricies;
         Ref<UniformBuffer> CameraViewProjBuffer = nullptr;
-        Ref<Shader> ComputeTranslationTextureSpace = nullptr;
 
         // AABB
         Ref<Shader> BoxAABBShader = nullptr;
@@ -710,7 +151,7 @@ namespace Rynex {
             glm::vec3( 1.0f,  1.0f, -1.0f),
             glm::vec3(-1.0f,  1.0f, -1.0f),
         };
-        
+        Ref<StorageBuffer> BoxAABBStorageBuffer;
         uint32_t InstencCountAABB = 0;
 #if RY_INSTECING
         HashPtrTable InstenceMesh;
@@ -723,9 +164,6 @@ namespace Rynex {
 
         Renderer3D::Statistics Stats;
 
-        std::vector<std::function<void()>> RenderFunktions;
-        std::vector<SubmitSingleDrawCall> SubmiteRenderFunktions;
-
         std::vector<RenderMesh> RenderMeshSceneData;
         std::vector<RenderAABBBox> RenderAABBBoxSceneData;
 
@@ -734,16 +172,6 @@ namespace Rynex {
     };
 
     static RendererData s_Data;
-
-#define PRIMARY_USE_SHADOWMAP_MIN_SIZE      128
-#define PRIMARY_USE_SHADOWMAP_SIZE          2048
-
-#define PRIMARY_USE_SHADOWMAP_VALUE         (PRIMARY_USE_SHADOWMAP_SIZE / PRIMARY_USE_SHADOWMAP_MIN_SIZE)
-
-#define PRIMARY_USE_SHADOWMAP_INTERALE(size) RY_COMBINE_MOAKRO(s_Data.ShadowMapTexture,size)
-#define PRIMARY_USE_SHADOWMAP               PRIMARY_USE_SHADOWMAP_INTERALE(PRIMARY_USE_SHADOWMAP_SIZE)
-#define PRIMARY_USE_SHADOWMAP_QUADE_VALUE   (PRIMARY_USE_SHADOWMAP_VALUE * PRIMARY_USE_SHADOWMAP_VALUE)
-
 
     // Layout binding slots
     // 0:  !!! Not Up to date !!!  Camera(ViewProjectionMatrix, ViewMatrix, ProjectionMatrix, CamerPosition)
@@ -754,39 +182,13 @@ namespace Rynex {
     // 4:  !!! Not Up to date !!!  PointLigth(Aktive, (Color, Distence, Position, Intensitie)[32])
     // 5:  !!! Not Up to date !!!  SpotLigthe(Aktive, (Color, Intensitie, Position, Distence, Direction, Inner, Outer)[32])
     
-
-
     void Renderer3D::Init()
     {
 #if RY_OLD_RENDER_SYSTEM
         RY_PROFILE_FUNCTION();
         RY_CORE_INFO("Renderer3D::Init");
-        s_Data.RenderFunktions.reserve(100);
-        s_Data.SubmiteRenderFunktions.reserve(100);
+
         s_Data.Default3DShader = AssetManager::GetAsset<Shader>("../Rynex-Editor/Editor-Assets/shaders/Default_Rynex-Editor_Shader.glsl");
-
-#if 0
-        {
-            s_Data.ComputeTranslationTextureSpace = AssetManager::GetAsset<Shader>("D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Shaders/Comput-LVP-In-ShadowMatrix.glsl");
-
-            glm::mat4 viewProjtionMatririx = glm::mat4(1.0f);
-            glm::ivec4 sizeData = { 1, -1, -2, -3 };
-            s_Data.LigtheViewProjtionMatriciesBuffer = StorageBuffer::Create(&viewProjtionMatririx,sizeof(glm::mat4), StorageBuffer::Type::Dynamic);
-            s_Data.ShadowMatriciesBuffer = StorageBuffer::Create(sizeof(glm::mat4), StorageBuffer::Type::Dynamic);
-            Ref<UniformBuffer> sizeBuffer = UniformBuffer::Create(&sizeData, sizeof(glm::mat4), 2);
-            sizeBuffer->Bind(2);
-            s_Data.LigtheViewProjtionMatriciesBuffer->Bind(0);
-            s_Data.ShadowMatriciesBuffer->Bind(1);
-            s_Data.ComputeTranslationTextureSpace->Bind();
-            RenderCommand::DispatcheCompute({ 1ul, 1ul, 1ul });
-            s_Data.ComputeTranslationTextureSpace->UnBind();
-            
-        }
-#elif 1
-        Utils::AtelesTextureImplentionFunktion();
-        
-#endif // TODO: Implement Compute Matrix Shadow In The Shadow Pipline
-        
         {
             s_Data.BoxAABBShader = AssetManager::GetAsset<Shader>("../Rynex-Editor/Editor-Assets/shaders/BoxAABB.glsl");
             s_Data.BoxAABBVertexArray = VertexArray::Create();
@@ -831,15 +233,12 @@ namespace Rynex {
 
         {
             std::vector<BufferElement> element;
-            uint32_t count = sizeof(s_Data.ShadowsMatricies.ViewProjectionMatrixLigth) / sizeof(glm::mat4);
-            element.resize(count + 1 );
-            for (uint32_t i = 0; i < count; i++)
+            element.resize(s_Data.MaxShadowDrirection );
+            for (uint32_t i = 0; i < s_Data.MaxShadowDrirection; i++)
                 element.emplace_back(ShaderDataType::Float4x4, "ViewProjectionMatrix", i);
 
-            element.emplace_back(ShaderDataType::Int4, "ShadowCameraID");
 
-            
-            s_Data.ShadowsViewMatriciesBuffer = UniformBuffer::Create(&s_Data.ShadowsMatricies, sizeof(s_Data.ShadowsMatricies), element, 0);
+            s_Data.ShadowsMatriciesBuffer = UniformBuffer::Create(&s_Data.CameraDataMat4, sizeof(s_Data.ShadowsMatricies), element, 0);
         }
 
         {
@@ -856,15 +255,9 @@ namespace Rynex {
             element.emplace_back(ShaderDataType::Int4, "Aktiv");
             for (uint32_t i = 1; i < 9; i++)
             {
-                element.emplace_back(ShaderDataType::Float4x4, "ShadowMatrix", i);
-
-                element.emplace_back(ShaderDataType::Float4, "ShadowMapPos", i);
-
-                element.emplace_back(ShaderDataType::Float3, "Color", i);
-                element.emplace_back(ShaderDataType::Float, "Intensitie", i);
-
+                element.emplace_back(ShaderDataType::Float4, "Color", i);
                 element.emplace_back(ShaderDataType::Float3, "Dirction", i);
-                element.emplace_back(ShaderDataType::Float, "ShadowMapSize", i);
+                element.emplace_back(ShaderDataType::Float, "Intensitie", i);
             }
 
 
@@ -894,22 +287,14 @@ namespace Rynex {
             element.emplace_back(ShaderDataType::Int4, "Aktiv");
             for (uint32_t i = 1; i < 33; i++)
             {
-                element.emplace_back(ShaderDataType::Float4x4, "ShadowMatrix", i);
-
-                element.emplace_back(ShaderDataType::Float4, "ShadowMapPos", i);
-
                 element.emplace_back(ShaderDataType::Float3, "Color", i);
+
                 element.emplace_back(ShaderDataType::Float, "Intensitie", i);
-
-                
-                element.emplace_back(ShaderDataType::Float3, "Postion", i);
                 element.emplace_back(ShaderDataType::Float, "Distence", i);
-
-                element.emplace_back(ShaderDataType::Float3, "Direction", i);
+                element.emplace_back(ShaderDataType::Float3, "Postion", i);
                 element.emplace_back(ShaderDataType::Float, "Inner", i);
-
                 element.emplace_back(ShaderDataType::Float, "Outer", i);
-                element.emplace_back(ShaderDataType::Float3, "Empty", i);
+                element.emplace_back(ShaderDataType::Float2, "Empty", i);
             }
 
             s_Data.SpotLigthBuffer = UniformBuffer::Create(&s_Data.BufferSpotData, sizeof(SpotData), element, 5);
@@ -917,7 +302,7 @@ namespace Rynex {
 
         {
             s_Data.ShadowFramebuffer = Framebuffer::Create({
-                PRIMARY_USE_SHADOWMAP_MIN_SIZE, PRIMARY_USE_SHADOWMAP_MIN_SIZE,
+                512, 512,
                 {
                     { TexFrom::DepthComp24, 1, { TexWarp::ClampEdge, TexWarp::ClampEdge, TexWarp::ClampEdge }, TexFilter::Linear }
                 }
@@ -969,6 +354,7 @@ namespace Rynex {
 
     }
 
+
 #pragma region UniformLigths
 
     void Renderer3D::SetLigthUniform(AmbientLigthComponent* ambient)
@@ -998,17 +384,18 @@ namespace Rynex {
     {
         if (s_Data.CountLigthDrirection < s_Data.MaxLigthDrirection)
         {
-            Ligths::DrirectionLigtheData drirectionLigtheData(drirektion.Color, drirektion.Intensitie, matrix, viewProjetionShadow, s_Data.ShadowTextureSize   );
+            Ligths::DrirectionLigtheData drirectionLigtheData(drirektion.Color, drirektion.Intensitie, matrix, viewProjetionShadow);
+           
             s_Data.BufferDrirectionData.Drirecion[s_Data.CountLigthDrirection] = drirectionLigtheData;
             s_Data.CountLigthDrirection++;
         }
     }
 
-    void Renderer3D::SetLigthUniform(SpotLigthComponent& spot, const glm::mat4& matrix, const glm::mat4& viewProjetionShadow)
+    void Renderer3D::SetLigthUniform(SpotLigthComponent& spot, const glm::mat4& matrix)
     {
         if (s_Data.CountLigthSpot < s_Data.MaxLigthSpot)
         {
-            Ligths::SpotLigtheData spotLigtheData(spot.Color, glm::vec3(matrix[3]), glm::vec3(matrix[2]), spot.Intensitie, spot.Distence, spot.Inner, spot.Distence, viewProjetionShadow);
+            Ligths::SpotLigtheData spotLigtheData(spot.Color, glm::vec3(matrix[3]), -glm::vec3(matrix[2]), spot.Intensitie, spot.Distence, spot.Inner, spot.Distence);
             s_Data.BufferSpotData.Spot[s_Data.CountLigthSpot] = spotLigtheData;
             s_Data.CountLigthSpot++;
         }
@@ -1042,11 +429,6 @@ namespace Rynex {
         s_Data.DirectionelLigthBuffer->Bind(3);
         s_Data.SpotLigthBuffer->Bind(4);
         s_Data.PointLigthBuffer->Bind(5);
-
-        s_Data.ShadowMapTexture2048.clear();
-        s_Data.ShadowMapTexture1024.clear();
-        s_Data.ShadowMapTexture512.clear();
-        s_Data.ShadowMapTexture256.clear();
     }
 
     glm::mat4 Renderer3D::CalculateShadowDirectionelMatrix(const glm::mat4& view, const glm::vec3& min, const glm::vec3& max)
@@ -1098,51 +480,6 @@ namespace Rynex {
         }
     }
 
-    void Renderer3D::SubmitComponet(const glm::mat4& modelMatrix, const DynamicMeshComponent& model, int entityID, RenderFunc func)
-    {
-        for (const MeshDynamic& meshNode : model.MeshD)
-        {
-            const Ref<Mesh>& mesh = meshNode.MeshR;
-            const Ref<Material>& materiel = meshNode.Materiel ? meshNode.Materiel : mesh->GetMateriel();
-            
-            s_Data.RenderFunktions.emplace_back([useFunction = func, useMateriel = materiel, useMesh = mesh, mat4 = modelMatrix, enttID = entityID]() {
-                useFunction(mat4, useMesh, useMateriel, enttID);
-            });
-            // RenderFunc check = SubmiteDrawMeshMeshShadow;
-            // if (func.target_type() == check.target_type())
-            // {
-            //     materiel->SetMatrix(modelMatrix);
-            // }
-            // s_Data.SubmiteRenderFunktions.emplace_back(func, SubmitSingleDrawCallData{ modelMatrix, mesh, materiel, entityID });
-        }
-    }
-
-    void Renderer3D::SubmitComponet(const glm::mat4& modelMatrix, const StaticMeshComponent& model, int entityID, RenderFunc func)
-    {
-        const auto& nodeRoods = model.ModelR->GetNodes();
-        for (const auto& node : nodeRoods)
-        {
-            for (const Ref<Mesh>& mesh : node.Meshes)
-            {
-                
-                const Ref<Material>& materiel = mesh->GetMateriel();
-
-                glm::mat4 matrix = modelMatrix * node.Matrix;
-                s_Data.RenderFunktions.emplace_back([useFunction = func, useMateriel = materiel, useMesh = mesh, mat4 = matrix, enttID = entityID]() {
-                    useFunction(mat4, useMesh, useMateriel, enttID);
-                });
-
-
-                // RenderFunc check = SubmiteDrawMeshMeshShadow;
-                // if (func.target_type() == check.target_type())
-                // {
-                //     materiel->SetMatrix(modelMatrix);
-                // }
-                // s_Data.SubmiteRenderFunktions.emplace_back(func, SubmitSingleDrawCallData{ modelMatrix, mesh, materiel, entityID });
-            }
-        }
-    }
-
     void Renderer3D::RenderComponet(const glm::mat4& modelMatrix, const DynamicMeshComponent& model, const Ref<Material>& materiel, int entityID, RenderFunc func)
     {
         for (auto& mesh : model.MeshD)
@@ -1171,135 +508,22 @@ namespace Rynex {
     void Renderer3D::BeginSceneShadow()
     {
         // s_Data.RenderChacheAktive = RenderCommand::GetMode();
-        
-        
-        // RenderCommand::SetMode( Renderer::Mode::Death_Buffer | Renderer::Mode::CallFace_Back | Renderer::Mode::A_Buffer );
-
-
-    }
-    
-
-    
-    void Renderer3D::EndSceneShadow()
-    {
-        
-#if 1
-        uint32_t count = s_Data.ShadowMapTexture2048.size()
-            + s_Data.ShadowMapTexture1024.size()
-            + s_Data.ShadowMapTexture512.size()
-            + s_Data.ShadowMapTexture256.size();
-
-        if (count == 0)
-            return;
-
-        Utils::AtlasTexture atlasTexture;
-        atlasTexture.Size = Utils::CalculateAtlesSizeTexSpace(
-            PRIMARY_USE_SHADOWMAP.size() * PRIMARY_USE_SHADOWMAP_QUADE_VALUE, 
-            PRIMARY_USE_SHADOWMAP.size(), 
-            PRIMARY_USE_SHADOWMAP_VALUE);
-
-        glm::ivec2 sizeAtlesTexturePixxel = atlasTexture.Size * PRIMARY_USE_SHADOWMAP_MIN_SIZE;
-
-        const glm::uvec2& sizeTex = s_Data.ShadowFramebuffer->GetFrambufferSize();
-        glm::ivec2 sizeiTex = sizeTex;
-        if (sizeiTex != sizeAtlesTexturePixxel)
-        {
-            s_Data.ShadowFramebuffer->Resize(sizeAtlesTexturePixxel.x, sizeAtlesTexturePixxel.y);
-        }
-        
-
-
-
-        glm::ivec2 atlasTextureSize = atlasTexture.Size;
-        glm::ivec2 atlasTexturePixxelSize = atlasTexture.Size * PRIMARY_USE_SHADOWMAP_MIN_SIZE;
-        glm::dvec2 countTexture = atlasTexturePixxelSize / PRIMARY_USE_SHADOWMAP_SIZE;
-        glm::vec2 stepSize_ST_Coord = 1.0 / countTexture;
-        glm::ivec2 offsetTextures = { 0,0 };
-        int index = 0;
-
-        s_Data.ShadowFramebuffer->Bind();
-        RenderCommand::ClearDepth();        
-        
-        s_Data.ShadowsViewMatriciesBuffer->SetData(&s_Data.ShadowsMatricies, 0, sizeof(s_Data.ShadowsMatricies));
-        s_Data.ShadowsViewMatriciesBuffer->Bind(8);
-        for (glm::vec4* texPtr : PRIMARY_USE_SHADOWMAP)
-        {
-            Utils::CalculateTextureAtles(texPtr, stepSize_ST_Coord, offsetTextures, atlasTexture.Size);
-            s_Data.ShadowsViewMatriciesBuffer->SetData(&index, sizeof(s_Data.ShadowsMatricies.ViewProjectionMatrixLigth), sizeof(int));
-            s_Data.ShadowsViewMatriciesBuffer->Bind(8);
-            
-            RenderCommand::SetViewPort(offsetTextures.x * PRIMARY_USE_SHADOWMAP_MIN_SIZE, offsetTextures.y * PRIMARY_USE_SHADOWMAP_MIN_SIZE, PRIMARY_USE_SHADOWMAP_SIZE, PRIMARY_USE_SHADOWMAP_SIZE);
-            for (const auto& func : s_Data.RenderFunktions)
-            {
-                func();
-            }
-            Utils::OffsetAdding(offsetTextures, PRIMARY_USE_SHADOWMAP_VALUE, atlasTexture);
-            index++;
-        }
-#else
-        uint32_t count = s_Data.CountShadowDrirection
-            + s_Data.CountShadowSpot
-            + s_Data.CountShadowPoint;
-
-
-        if (count == 0)
-            return;
-
-        const glm::uvec2& sizeTex = s_Data.ShadowFramebuffer->GetFrambufferSize();
-        uint32_t shadowSize = s_Data.ShadowTextureSize;
-        uint32_t caleCount = (sizeTex.x/ shadowSize);
-        if (caleCount != count)
-        {
-            s_Data.ShadowFramebuffer->Resize(shadowSize * count, shadowSize);
-        }
-
+        // glm::uvec2 size = s_Data.ShadowFramebuffer->GetFrambufferSize();
+        // s_Data.ShadowFramebuffer->Bind(size.x/2, size.y/2, 0.0f, size.y / 2);
         s_Data.ShadowFramebuffer->Bind();
         RenderCommand::ClearDepth();
+        // RenderCommand::SetMode( Renderer::Mode::Death_Buffer | Renderer::Mode::CallFace_Back | Renderer::Mode::A_Buffer );
+        s_Data.ShadowsMatriciesBuffer->SetData(&s_Data.ShadowsMatricies, 0, sizeof(glm::mat4) * s_Data.MaxLigthDrirection);
+        s_Data.ShadowsMatriciesBuffer->Bind(0);
 
-        s_Data.ShadowsViewMatriciesBuffer->SetData(&s_Data.ShadowsMatricies, 0, sizeof(s_Data.ShadowsMatricies));
-        s_Data.ShadowsViewMatriciesBuffer->Bind(8);
+    }
 
-        for (int i = 0; i < count; i++)
-        {
-            RenderCommand::SetViewPort(i * shadowSize, 0, shadowSize, shadowSize);
-            
-            s_Data.ShadowsViewMatriciesBuffer->SetData(&i, sizeof(s_Data.ShadowsMatricies.ViewProjectionMatrixLigth), sizeof(int));
-            s_Data.ShadowsViewMatriciesBuffer->Bind(8);
-
-            for (const auto& func : s_Data.RenderFunktions)
-            {
-                func();
-            }
-
-        }
-#endif
-
-        s_Data.RenderFunktions.clear();
-
+    void Renderer3D::EndSceneShadow()
+    {
         s_Data.ShadowFramebuffer->Unbind();
         s_Data.CameraViewProjBuffer->Bind(0);
         s_Data.ShadowTexture->Bind(7);
-
-        s_Data.CountShadowDrirection = 0;
-        s_Data.CountShadowPoint = 0;
-        s_Data.CountShadowSpot = 0;
-
-        s_Data.ShadowMapTexture2048.clear();
-        s_Data.ShadowMapTexture1024.clear();
-        s_Data.ShadowMapTexture512.clear();
-        s_Data.ShadowMapTexture256.clear();
-    }
-
-    void Renderer3D::AddShadowMapSpotlLigth(const glm::mat4& viewProjtion)
-    {
-        if (s_Data.CountShadowSpot >= s_Data.MaxShadowSpot)
-            return;
-
-        glm::vec4* shadowMapUniformDataPtr = &s_Data.BufferSpotData.Spot[s_Data.CountLigthSpot].ShadowMapPos;
-        PRIMARY_USE_SHADOWMAP.emplace_back(shadowMapUniformDataPtr);
-
-        s_Data.ShadowsMatricies.ViewProjectionMatrixLigth[s_Data.CountShadowSpot] = viewProjtion;
-        s_Data.CountShadowSpot++;
+        // RenderCommand::SetMode(s_Data.RenderChacheAktive);
     }
 
     void Renderer3D::AddShadowMapDirectionelLigth(const glm::mat4& viewProjtion)
@@ -1307,9 +531,8 @@ namespace Rynex {
         if (s_Data.CountShadowDrirection >= s_Data.MaxLigthDrirection)
             return;
 
-        glm::vec4* shadowMapUniformDataPtr = &s_Data.BufferDrirectionData.Drirecion[s_Data.CountLigthDrirection].ShadowMapPos;
-        PRIMARY_USE_SHADOWMAP.emplace_back(shadowMapUniformDataPtr);
-        s_Data.ShadowsMatricies.ViewProjectionMatrixLigth[s_Data.CountShadowDrirection] = viewProjtion;
+
+        s_Data.ShadowsMatricies[s_Data.CountShadowDrirection] = viewProjtion;
         s_Data.CountShadowDrirection++;
     }
 
@@ -1354,7 +577,7 @@ namespace Rynex {
             std::chrono::time_point_cast<std::chrono::microseconds>(s_Data.Stats.EndTimePoint).time_since_epoch().count()
             - std::chrono::time_point_cast<std::chrono::microseconds>(s_Data.Stats.StartTimePoint).time_since_epoch().count()
         );
-        s_Data.RenderFunktions.clear();
+
         s_Data.CountLigthDrirection = 0;
         s_Data.CountLigthSpot = 0;
         s_Data.CountLigthPoint = 0;
@@ -1386,6 +609,7 @@ namespace Rynex {
         materiel->Bind(&entityID, 1);
         
         DrawObjectRender3D(vertexArray);
+        s_Data.Stats.DrawCalls++;
 
         vertexArray->UnBind();
         materiel->UnBind();
@@ -1401,6 +625,7 @@ namespace Rynex {
         materiel->BindFrameBuffer(s_Data.FrameBufferLayoutIndex, &entityID, 1);
 
         DrawObjectRender3D(vertexArray);
+        s_Data.Stats.DrawCalls++;
 
         vertexArray->UnBind();
         materiel->UnBind();
@@ -1415,19 +640,7 @@ namespace Rynex {
         materiel->BindShadow();
 
         DrawObjectRender3D(vertexArray);
-
-        vertexArray->UnBind();
-        materiel->UnBind();
-    }
-
-    void Renderer3D::SubmiteDrawMeshMeshShadow(const glm::mat4& modelMatrix, const Ref<Mesh>& mesh, const Ref<Material>& materiel, int entityID)
-    {
-        if (!mesh->IsRady() || !materiel->IsRady())
-            return;
-        const Ref<VertexArray> vertexArray = mesh->GetVertexArray();
-        materiel->BindShadow();
-
-        DrawObjectRender3D(vertexArray);
+        s_Data.Stats.DrawCalls++;
 
         vertexArray->UnBind();
         materiel->UnBind();
@@ -2048,8 +1261,6 @@ namespace Rynex {
     }
 #pragma endregion
 
-
-   
 
     void Renderer3D::AktivePolyGunMode(bool active)
     {

@@ -7,6 +7,8 @@ namespace Rynex {
 	struct CameraData;
 	struct MeshTexture;
 
+	
+
 	class Material : public Asset
 	{
 	public:
@@ -29,8 +31,10 @@ namespace Rynex {
 		virtual void SetMatrix(const glm::mat4& matrix) = 0;
 		virtual const glm::mat4& GetMatrix() const;
 
-		virtual void BindShadow(CameraData& ligthCam) = 0;
-		virtual void Bind(int* entityIDs, uint32_t size, CameraData& camera, CameraData& ligthCam) = 0;
+
+		virtual void BindShadow() = 0;
+		virtual void BindFrameBuffer(uint32_t index, int* entityIDs = nullptr, uint32_t size = 0);
+		virtual void Bind(int* entityIDs, uint32_t size) = 0;
 		virtual void UnBind() = 0;
 		virtual bool IsRady();
 		virtual void InitAsync() = 0;
@@ -47,6 +51,7 @@ namespace Rynex {
 	
 		static Ref<Material> CreateImport(std::string&& name, std::vector<MeshTexture>&& textures) { return nullptr; };
 
+		// static Ref<Material> CreateBasic(std::vector<Ref<Texture>>&& textures);
 		static Ref<Material> CreateBasic(const std::vector<std::filesystem::path>& paths);
 		static Ref<Material> CreateDefeard();
 		static Ref<Material> CreateShader(ShaderMaterialDefaultNames& names);

@@ -1,8 +1,4 @@
-﻿
-
-using System.Runtime.CompilerServices;
-
-namespace Rynex
+﻿namespace Rynex
 {
     public struct Matrix4x4
     {
@@ -10,7 +6,7 @@ namespace Rynex
 
         public Matrix4x4(float[,] values = null)
         {
-            m_Elements = 16 == values.Length ? values : new float[4,4];
+            m_Elements = 16 == values.Length ? values : new float[4, 4];
         }
 
         public float this[int r, int c]
@@ -21,13 +17,13 @@ namespace Rynex
 
         public Vector4 this[int r]
         {
-            get => new Vector4(m_Elements[r,0], m_Elements[r,1], m_Elements[r, 2] , m_Elements[r, 3]);
+            get => new Vector4(m_Elements[r, 0], m_Elements[r, 1], m_Elements[r, 2], m_Elements[r, 3]);
 
-            set 
+            set
             {
                 m_Elements[r, 0] = value.X;
                 m_Elements[r, 1] = value.Y;
-                m_Elements[r, 2] = value.Z; 
+                m_Elements[r, 2] = value.Z;
                 m_Elements[r, 3] = value.W;
             }
         }

@@ -61,12 +61,12 @@ namespace Rynex {
         RY_CORE_ASSERT(false);
     }
 
-    void ShaderMaterial::BindShadow(CameraData& ligthCam)
+    void ShaderMaterial::BindShadow()
     {
         RY_CORE_ASSERT(false);
     }
 
-    void ShaderMaterial::Bind(int* entityIDs, uint32_t size, CameraData& camera, CameraData& ligthCam)
+    void ShaderMaterial::Bind(int* entityIDs, uint32_t size)
     {
         m_Shader->Bind();
         m_Uniform->Bind(1);

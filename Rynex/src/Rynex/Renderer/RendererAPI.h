@@ -63,7 +63,11 @@ namespace Rynex {
 		virtual void DrawError() = 0;
 
 		inline static API GetAPI() { return s_API; }
+#if RY_RENDERER_API_INDEIPENDENT
 
+		virtual void DrawIndexed(const Ref<Shader>& shader) = 0;
+
+#endif
 	private:
 		static API s_API;
 	};

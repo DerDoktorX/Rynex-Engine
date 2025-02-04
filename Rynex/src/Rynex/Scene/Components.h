@@ -228,6 +228,43 @@ namespace Rynex {
 	};
 
 
+	struct ProjtionViewMatrixComponent
+	{
+		glm::mat4 Locale = glm::mat4(1.0);
+		glm::mat4 Globle = glm::mat4(1.0);
+
+		ProjtionViewMatrixComponent() = default;
+		ProjtionViewMatrixComponent(const ProjtionViewMatrixComponent&) = default;
+	};
+
+	struct InverseProjtionViewMatrixComponent
+	{
+		glm::mat4 Locale = glm::mat4(1.0);
+		glm::mat4 Globle = glm::mat4(1.0);
+
+		InverseProjtionViewMatrixComponent() = default;
+		InverseProjtionViewMatrixComponent(const InverseProjtionViewMatrixComponent&) = default;
+	};
+
+
+	struct WorldViewFustrumComponent
+	{
+		std::array<glm::vec4, 8> ViewFustrum;
+
+		WorldViewFustrumComponent() = default;
+		WorldViewFustrumComponent(const WorldViewFustrumComponent&) = default;
+	};
+
+	struct AABBBoxComponent
+	{
+		BoxAABB Local;
+		BoxAABB Globel;
+
+		AABBBoxComponent() = default;
+		AABBBoxComponent(const AABBBoxComponent&) = default;
+	};
+
+	
 
 	struct Matrix3x3Component
 	{
@@ -241,7 +278,7 @@ namespace Rynex {
 	{
 		Ref<Framebuffer> FrameBuffer = nullptr;
 		
-
+		uint32_t FrameBufferLayoutIndex = 0;
 		glm::vec3 ClearColor;
 		FrameBufferImageSize FramebufferSize;
 		
@@ -270,15 +307,28 @@ namespace Rynex {
 			: ModelR(modelR), MeshModeE(meshModeE) {  }
 	};
 
+	struct MeshStatic
+	{
+		glm::mat4 Locale;
+		glm::mat4 Globle;
+		
+		Ref<Mesh> MeshR;
+		Ref<Material> Materiel;
+	};
+
 	struct StaticMeshComponent
 	{
 		Ref<Model> ModelR = nullptr;
+		// TODO: Replace all 4 seprate vector, withe a MeshStatic vector!
+#if RY_MODEL_NODE
+		std::vector<MeshStatic> Meshes;
+#else
 		std::vector<glm::mat4> GlobleMeshMatrix;
 		std::vector<glm::mat4> LocaleMeshMatrix;
 		std::vector<Ref<Mesh>> Meshes;
 		std::vector<Ref<Material>> Materiels;
 		bool UseAlleMeshes = true;
-
+#endif
 		StaticMeshComponent() = default;
 		StaticMeshComponent(const StaticMeshComponent&) = default;
 
@@ -289,17 +339,47 @@ namespace Rynex {
 
 	};
 
+	struct MeshDynamic
+	{
+		Ref<Mesh> MeshR;
+		Ref<Material> Materiel;
+
+		MeshDynamic(const Ref<Mesh>& mesh)
+			: MeshR(mesh), Materiel(nullptr){ }
+	};
+
 	struct DynamicMeshComponent
 	{
+#if RY_MODEL_NODE
+		std::vector<MeshDynamic> MeshD;
+#else
 		Ref<Mesh> MeshR = nullptr;
 		Ref<Material> Materiel = nullptr;
+#endif
+		
 
 		DynamicMeshComponent() = default;
-		DynamicMeshComponent(const DynamicMeshComponent&) = default;
+#if RY_MODEL_NODE
+		DynamicMeshComponent(const DynamicMeshComponent& dMC)
+			: MeshD(dMC.MeshD) {}
 
+		DynamicMeshComponent(Ref<Model> modelR, int meshIndex = 0)
+		{
+			auto& nodeRoots = modelR->GetNodes();
+			auto& node = nodeRoots[meshIndex];
+			MeshD.reserve(node.Meshes.size());
+			for (auto& mesh : node.Meshes)
+			{
+				MeshD.emplace_back(mesh);
+			}
+		}
+#else
+		DynamicMeshComponent(const DynamicMeshComponent&) = default;
 		DynamicMeshComponent(Ref<Model> modelR, int meshIndex = 0)
 			: MeshR(modelR->GetMesh(meshIndex))
 		{ }
+#endif
+		
 
 	};
 

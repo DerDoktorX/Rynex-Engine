@@ -1367,6 +1367,27 @@ namespace Utils
 			out << YAML::Key << "DynamicMeshComponent";
 			out << YAML::BeginMap;
 			DynamicMeshComponent& meshD_C = entity.GetComponent<DynamicMeshComponent>();
+#if RY_MODEL_NODE
+			if (meshD_C.MeshD.size()>0)
+			{
+				RealtionShipComponent& rSc = entity.GetComponent<RealtionShipComponent>();
+				Entity parent = scene->GetEntitiyByUUID(rSc.ParentID);
+				MeshComponent& meshDP_C = parent.GetComponent<MeshComponent>();
+				uint32_t index = 0;
+				for (const auto& nodeP : meshDP_C.ModelR->GetNodes())
+				{
+					if ( nodeP.Meshes[0] == meshD_C.MeshD[0].MeshR)
+						break;
+					index++;
+				}
+				out << YAML::Key << "Model-D";
+				out << YAML::BeginMap;
+				out << YAML::Key << "Handle" << YAML::Value << meshDP_C.ModelR->Handle;
+				out << YAML::Key << "Path" << YAML::Value << editorAssetManger->GetMetadata(meshDP_C.ModelR->Handle).FilePath.string();
+				out << YAML::Key << "Index" << YAML::Value << index;
+				out << YAML::EndMap;
+			}
+#else
 			if (meshD_C.MeshR)
 			{
 				RealtionShipComponent& rSc = entity.GetComponent<RealtionShipComponent>();
@@ -1386,6 +1407,7 @@ namespace Utils
 				out << YAML::Key << "Index" << YAML::Value << index;
 				out << YAML::EndMap;
 			}
+#endif
 			out << YAML::EndMap;
 		}
 
@@ -1763,6 +1785,27 @@ namespace Utils
 			out << YAML::Key << "DynamicMeshComponent";
 			out << YAML::BeginMap;
 			DynamicMeshComponent& meshD_C = entity.GetComponent<DynamicMeshComponent>();
+#if RY_MODEL_NODE
+			if (meshD_C.MeshD.size() > 0 && meshD_C.MeshD[0].MeshR)
+			{
+				RealtionShipComponent& rSc = entity.GetComponent<RealtionShipComponent>();
+				Entity parent = scene->GetEntitiyByUUID(rSc.ParentID);
+				MeshComponent& meshDP_C = parent.GetComponent<MeshComponent>();
+				uint32_t index = 0;
+				for (const auto& nodeP : meshDP_C.ModelR->GetNodes())
+				{
+					if (nodeP.Meshes[0] == meshD_C.MeshD[0].MeshR)
+						break;
+					index++;
+				}
+				out << YAML::Key << "Model-D";
+				out << YAML::BeginMap;
+				out << YAML::Key << "Handle" << YAML::Value << meshDP_C.ModelR->Handle;
+				out << YAML::Key << "Path" << YAML::Value << editorAssetManger->GetMetadata(meshDP_C.ModelR->Handle).FilePath.string();
+				out << YAML::Key << "Index" << YAML::Value << index;
+				out << YAML::EndMap;
+			}
+#else
 			if (meshD_C.MeshR)
 			{
 				RealtionShipComponent& rSc = entity.GetComponent<RealtionShipComponent>();
@@ -1782,6 +1825,7 @@ namespace Utils
 				out << YAML::Key << "Index" << YAML::Value << index;
 				out << YAML::EndMap;
 			}
+#endif
 			out << YAML::EndMap;
 		}
 
@@ -2251,6 +2295,35 @@ namespace Utils
 					{
 						std::string path = modelN["Path"].as<std::string>();
 						AssetHandle handle = modelN["Handle"].as<uint64_t>();
+
+#if RY_MODEL_NODE
+						Ref<Asset> asset = Project::GetActive()->GetAssetManger()->GetAsset(handle, true);
+						Ref<Model> model = nullptr;
+						
+						model = std::static_pointer_cast<Model>(asset);
+						const auto& node = model->GetNodes()[index];
+						dmc.MeshD.reserve(node.Meshes.size());
+						for (auto& mesh : node.Meshes)
+						{
+							dmc.MeshD.emplace_back(mesh);
+						}
+						
+					}
+					else
+					{
+						Ref<Model> model = nullptr;
+						assetHandleError = Utils::DeserializeAssetFormate<Model>(modelN, &model, false) || assetHandleError;// TODO: Make single Mesh Loding Posible!
+						const auto& nodesRoot = model->GetNodes();
+						const auto& node = nodesRoot[index];
+
+						dmc.MeshD.reserve(node.Meshes.size());
+						for (auto& mesh : node.Meshes)
+						{
+							dmc.MeshD.emplace_back(mesh);
+						}
+					}
+#else
+
 #if 0
 						dmc.MeshR = nullptr;
 						threadProceses.emplace_back([](uint32_t indexlem, std::string pathlem, AssetHandle handlelem, Ref<Mesh>* meshlem) {
@@ -2267,12 +2340,14 @@ namespace Utils
 							*meshlem = mesh;
 							}, index, modelN["Path"].as<std::string>(), modelN["Handle"].as<uint64_t>(), &dmc.MeshR);
 #else
+
 						Ref<Asset> asset = Project::GetActive()->GetAssetManger()->GetAsset(handle, true);
 						Ref<Model> model = nullptr;
 						dmc.MeshR = nullptr;
 						model = std::static_pointer_cast<Model>(asset);
 						const Ref<Mesh> mesh = model->GetMesh(index);
 						dmc.MeshR = model->GetMesh(index);
+
 #endif
 					}
 					else
@@ -2281,7 +2356,8 @@ namespace Utils
 						assetHandleError = Utils::DeserializeAssetFormate<Model>(modelN, &model, false) || assetHandleError;// TODO: Make single Mesh Loding Posible!
 						dmc.MeshR = model->GetMesh(index);
 					}
-					
+
+#endif
 					
 					
 				}

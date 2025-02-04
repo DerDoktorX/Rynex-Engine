@@ -197,7 +197,7 @@ namespace Rynex
                     );
             }
         }
-       
+
         public BufferLayout GetLayout()
         {
             InternalCalls.VertexBuffer_GetElementFromLayout(Handle.UUID,

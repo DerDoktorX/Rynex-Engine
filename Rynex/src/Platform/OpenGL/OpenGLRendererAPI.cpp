@@ -217,6 +217,13 @@ namespace Rynex {
 		glDrawElements(GL_TRIANGLE_STRIP, count, GL_UNSIGNED_SHORT, nullptr);
 	}
 
+#if RY_RENDERER_API_INDEIPENDENT
+	void OpenGLRendererAPI::DrawIndexed(const Ref<Shader>& shader)
+	{
+
+	}
+#endif
+
 	void OpenGLRendererAPI::ModeEnable(int bitCount)
 	{
 		switch (bitCount)

@@ -77,7 +77,7 @@
 // For Events
 #define RY_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
-#define COMBINE(x,y) x##y
+#define RY_COMBINE_MOAKRO(x,y) x##y
 #define RY_EXPAND_MOAKRO(x) x
 #define RY_STRINGIFY_MOAKRO(x) #x
 

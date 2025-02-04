@@ -31,6 +31,7 @@
 namespace Rynex {
 
 	namespace Utils {
+
 		template<typename... Component>
 		static void CopyComponent(entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttMap)
 		{
@@ -67,6 +68,31 @@ namespace Rynex {
 		static void CopyComponentIfExists(ComponentGroup<Component...>, Entity dst, Entity src)
 		{
 			CopyComponentIfExists<Component...>(dst, src);
+		}
+
+
+		inline static glm::mat4 CalculateDirectionShadowMapsCamera(const glm::mat4& ligthModelMatrix, const glm::vec3& cameraViewFustrumCenter, const std::array<glm::vec4, 8>& cameraFustemWorld)
+		{
+			glm::mat4 viewLigth = SceneCamera::GetShadowViewMatrix(cameraViewFustrumCenter, ligthModelMatrix[3]);
+			auto [min, max] = SceneCamera::GetMinMaxViewFustrumInSpace(viewLigth, cameraFustemWorld);
+
+			glm::mat4 ViewProjetionLigth = Renderer3D::CalculateShadowDirectionelMatrix(viewLigth, min, max);
+			return ViewProjetionLigth;
+		}
+
+		inline static glm::mat4 CalculateDirectionShadowMapsCamera(const glm::mat4& modelMatrix, float size, float nearClip, float farClip)
+		{
+			return glm::ortho(-size, size, -size, size, nearClip, farClip) * glm::inverse(modelMatrix);
+		}
+
+		inline static glm::mat4 CalculateDirectionShadowMapsCamera(const glm::mat4& modelMatrix)
+		{
+			return glm::ortho(-15.0f, 15.0f, -15.0f, 15.0f, 0.0f, 50.0f) * glm::lookAt(glm::vec3(modelMatrix[3]), glm::vec3(0.f, 0.f, 0.f) , glm::vec3(0.f,1.f,0.f));
+		}
+
+		inline static glm::mat4 CalculateSpotShadowMapsCamera(const glm::mat4& modelMatrix)
+		{
+			return glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 50.0f) * glm::inverse(modelMatrix);
 		}
 	}
 
@@ -204,7 +230,6 @@ namespace Rynex {
 		return (m_EntityMapTag.find(tag) != m_EntityMapTag.end());
 	}
 
-
 #pragma endregion
 
 
@@ -253,6 +278,7 @@ namespace Rynex {
 
 	void Scene::OnUpdateRuntime(TimeStep ts)
 	{
+		RY_PROFILE_SCOPE("Scene-OnUpdateRuntime");
 		auto scriptView = m_Registery.view<ScriptComponent>();
 
 		m_Registery.view<NativeSripteComponent>().each([=](auto entity, auto& nsc)
@@ -277,8 +303,9 @@ namespace Rynex {
 
 	void Scene::OnRenderRuntime(const Ref<Framebuffer>& framebuffer, int camera)
 	{
+		RY_PROFILE_SCOPE("Scene-OnRenderRuntime");
 		Renderer3D::BeginFrame();
-		EnttCameraView cameraView = m_Registery.view<ViewMatrixComponent, ModelMatrixComponent, CameraComponent>();
+		EnttCameraView cameraView = m_Registery.view<ModelMatrixComponent, CameraComponent>();
 		EnttView3D enttView3D = {
 			m_Registery.view<ModelMatrixComponent, DynamicMeshComponent>(),
 			m_Registery.view<ModelMatrixComponent, StaticMeshComponent>(),
@@ -286,45 +313,61 @@ namespace Rynex {
 		};
 		EnttViewLigths enttViewLigths = {
 			m_Registery.view<AmbientLigthComponent>(),
-			m_Registery.view<ViewMatrixComponent, ModelMatrixComponent, DrirektionleLigthComponent>(),
+			m_Registery.view<ModelMatrixComponent, DrirektionleLigthComponent>(),
 			m_Registery.view<ModelMatrixComponent, PointLigthComponent>(),
-			m_Registery.view<ViewMatrixComponent, ModelMatrixComponent, SpotLigthComponent>()
+			m_Registery.view<ModelMatrixComponent, SpotLigthComponent>()
 		};
-		SetLigthsRuntime(enttViewLigths, enttView3D);
+		
 		EnttView2D enttView2D = { m_Registery.view<ModelMatrixComponent, SpriteRendererComponent>(),
 			m_Registery.view<ModelMatrixComponent, TextComponent>()
 		};
 		m_RedererDefaultModeFlags = Renderer::GetMode();
 		RenderFrambuffers(enttView3D, enttView2D, cameraView);
 
-		Camera* mainCamera = nullptr;
+		SceneCamera* mainCamera = nullptr;
 		glm::mat4* mainTransform = nullptr;
+		std::array<glm::vec4, 8> fustemWorldCamera;
+		glm::vec4 centerCamerViewFustrum;
+		glm::mat4 view;
+
 		int count = 0;
 		for (EnttEntity camerE : cameraView)
 		{
-			auto& [viewC, modelC, cameraC] = cameraView.get<ViewMatrixComponent, ModelMatrixComponent, CameraComponent>(camerE);
+			auto& [modelC, cameraC] = cameraView.get<ModelMatrixComponent, CameraComponent>(camerE);
 			if (cameraC.Primary)
 			{
 				if (count == camera)
 				{
-
+					view = glm::inverse(modelC.Globle);
+					fustemWorldCamera = cameraC.Camera.GetViewFustrumWorld(view);
 					mainCamera = &cameraC.Camera;
-					mainTransform = &viewC.Globle;
+					
+					centerCamerViewFustrum = cameraC.Camera.GetWorldCameraCenter(view);
+					mainTransform = &modelC.Globle;
+
 					break;
 				}
 				count++;
 			}
 		}
 
-		if (mainCamera && mainTransform)
+		if (mainCamera && mainTransform )
 		{
 			
+			
+			
+			// Renderer3D::SetRenderCamera(*mainCamera, view, centerCamerViewFustrum);
+			SetLigthsRuntime(enttViewLigths, enttView3D, *mainCamera, view, glm::vec3(centerCamerViewFustrum));
+
+			Render3DSceneShadowScene(enttView3D);
+			Renderer3D::SetShadowsUniform();
+
 			framebuffer->Bind();
 			RenderCommand::SetClearColor(m_BackGround);
 			RenderCommand::Clear();
 			framebuffer->ClearAttachment(1, -1);
-			RenderScene3D(*mainCamera, *mainTransform, enttView3D);
-			RenderScene2D(*mainCamera, *mainTransform, enttView2D);
+			Render3DSceneViewPortScene(*mainCamera, view, enttView3D);
+			RenderScene2D(*mainCamera, view, enttView2D);
 			framebuffer->Unbind();
 		}
 		else
@@ -336,49 +379,58 @@ namespace Rynex {
 			framebuffer->Unbind();
 		}
 		Renderer3D::EndFrame();
+
 	}
 
-	void Scene::SetLigthsRuntime(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D)
+	void Scene::SetLigthsRuntime(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D, Camera& camera, const glm::mat4& viewMatrix, const glm::vec3& viewCenter)
 	{
+		RY_PROFILE_SCOPE("Scene-SetLigthsRuntime");
 		EnttAmbientLView& ambientView = enttViewLigths.AmbientLCV;
 		EnttDrirektionLeLView& directionelView = enttViewLigths.DrirektionLCV;
 		EnttPointLView& pointView = enttViewLigths.PointLCV;
 		EnttSpotLView& spotView = enttViewLigths.SpotLCV;
 
-		int directionCount = 0;
+		const glm::mat4& projetionCamera = camera.GetProjektion();
+		glm::mat4 viewProjetionCamera = projetionCamera * viewMatrix;
+		glm::mat4 inverseViewProjetionCamera = glm::inverse(viewProjetionCamera);
+
+		// std::array<glm::vec4, 8> fustemWorldCamera = SceneCamera::GetInverseViewProjetionFustrumWorld(inverseViewProjetionCamera);
+		// std::array<glm::vec4, 8> fustemWorldCamera = SceneCamera::GetViewProjetionFustrumWorld(glm::ortho(-256,256,-256,256,0, 20));
+		// std::array<glm::vec4, 8> fustemWorldCamera = SceneCamera::GetViewProjetionFustrumWorld(glm::ortho(-126.f, 126.f, -126.f, 126.f, 0.f, 10.f) * glm::inverse(glm::translate(glm::mat4(1.0f), glm::vec3(3.f, 5.f, 4.f))));
+		
 		for (EnttEntity directionelE : directionelView)
 		{
-			auto& [viewC, modelC, directionelC] = directionelView.get<ViewMatrixComponent, ModelMatrixComponent, DrirektionleLigthComponent>(directionelE);
-			Renderer3D::SetLigthUniform(directionelC, modelC.Globle, directionCount);
-
-			directionCount++;
+			auto& [ modelC, directionelC] = directionelView.get<ModelMatrixComponent, DrirektionleLigthComponent>(directionelE);
+			
+			// glm::mat4 viewProjtion = Utils::CalculateShadowMapsCamera(modelC.Globle, viewCenter, fustemWorldCamera);
+			// glm::mat4 viewProjtion = Utils::CalculateShadowMapsCamera(modelC.Globle, {0.0f, 0.0f, 0.0f}, fustemWorldCamera);
+			glm::mat4 viewProjtion = Utils::CalculateDirectionShadowMapsCamera(modelC.Globle);
+			Renderer3D::AddShadowMapDirectionelLigth(viewProjtion);
+			Renderer3D::SetLigthUniform(directionelC, modelC.Globle, viewProjtion);
 		}
 
-		int pointCount = 0;
 		for (EnttEntity pointE : pointView)
 		{
 			auto& [matrixC, pointC] = pointView.get<ModelMatrixComponent, PointLigthComponent>(pointE);
-			Renderer3D::SetLigthUniform(pointC, matrixC.Globle, pointCount);
-			pointCount++;
+			Renderer3D::SetLigthUniform(pointC, matrixC.Globle);
 		}
 
-		int spotCount = 0;
 		for (EnttEntity spotE : spotView)
 		{
-			auto& [viewC, modelC, spotC] = spotView.get<ViewMatrixComponent, ModelMatrixComponent, SpotLigthComponent>(spotE);
-			Renderer3D::SetLigthUniform(spotC, modelC.Globle, spotCount);
-			spotCount++;
+			auto& [ modelC, spotC] = spotView.get<ModelMatrixComponent, SpotLigthComponent>(spotE);
+			glm::mat4 viewProjetion = Utils::CalculateSpotShadowMapsCamera(modelC.Globle);
+			
+			Renderer3D::SetLigthUniform(spotC, modelC.Globle, viewProjetion);
 		}
 
-		int ambientCount = 0;
 		AmbientLigthComponent* useAmbientC = nullptr;
 		for (EnttEntity ambientE : ambientView)
 		{
 			useAmbientC = &ambientView.get<AmbientLigthComponent>(ambientE);
-			ambientCount++;
+
 			break;
 		}
-		Renderer3D::SetLigthUniform(useAmbientC, ambientCount, directionCount, spotCount, pointCount);
+		Renderer3D::SetLigthUniform(useAmbientC);
 
 	}
 
@@ -388,6 +440,7 @@ namespace Rynex {
 
 	void Scene::OnUpdateEditor(TimeStep ts)
 	{
+		RY_PROFILE_SCOPE("Scene-OnUpdateEditor");
 #if RY_SCRIPTING_HAZEL
 		// ScriptEngine::ReloadAssembly();
 		// ScriptEngine::OnRuntimeStart(this);
@@ -417,69 +470,81 @@ namespace Rynex {
 
 	void Scene::OnRenderEditor(const Ref<Framebuffer>& framebuffer, const Ref<EditorCamera>& editorCamera)
 	{
-		Renderer3D::BeginFrame();
-		EnttCameraView cameraView = m_Registery.view<ViewMatrixComponent, ModelMatrixComponent, CameraComponent>();
-
+	
+		RY_PROFILE_SCOPE("Scene-OnRenderEditor");
+		EnttCameraView cameraView = m_Registery.view<ModelMatrixComponent, CameraComponent>();
 		EnttView3D enttView3D = {
 			m_Registery.view<ModelMatrixComponent, DynamicMeshComponent>(),
 			m_Registery.view<ModelMatrixComponent, StaticMeshComponent>(),
 			m_Registery.view<ModelMatrixComponent, MaterialComponent, GeomtryComponent>()
-	};
-		EnttViewLigths enttViewLigths = {
-			m_Registery.view<AmbientLigthComponent>(),
-			m_Registery.view<ViewMatrixComponent, ModelMatrixComponent, DrirektionleLigthComponent>(),
-			m_Registery.view<ModelMatrixComponent, PointLigthComponent>(),
-			m_Registery.view<ViewMatrixComponent, ModelMatrixComponent, SpotLigthComponent>()
 		};
-		Camera& mainCamera = (Camera)editorCamera->GetProjektion();
-		glm::mat4 viewMatrix = editorCamera->GetViewMatrix();
 		EnttView2D enttView2D = {
 			m_Registery.view<ModelMatrixComponent, SpriteRendererComponent>(),
 			m_Registery.view<ModelMatrixComponent, TextComponent>()
 		};
+		EnttViewLigths enttViewLigths = {
+			m_Registery.view<AmbientLigthComponent>(),
+			m_Registery.view<ModelMatrixComponent, DrirektionleLigthComponent>(),
+			m_Registery.view<ModelMatrixComponent, PointLigthComponent>(),
+			m_Registery.view<ModelMatrixComponent, SpotLigthComponent>()
+		};
+		Camera& mainCamera = (Camera)editorCamera->GetProjektion();
+		glm::mat4 viewMatrix = editorCamera->GetViewMatrix();
+		glm::vec3 worldPostionCenterView = editorCamera->GetWorldPostionCenterView();
+		
 
-		RenderFrambuffers(enttView3D, enttView2D, cameraView);	
-
+		m_RedererDefaultModeFlags = Renderer::GetMode();
 		const glm::uvec2& size = framebuffer->GetFrambufferSize();
-		SetLigthsEditor(enttViewLigths, enttView3D, mainCamera, viewMatrix, size);
-	
+
+		Renderer3D::BeginFrame();
+		RenderFrambuffers(enttView3D, enttView2D, cameraView);
+		Renderer::SetMode(m_RedererDefaultModeFlags);
+
+		SetLigthsEditor(enttViewLigths, enttView3D, mainCamera, viewMatrix, worldPostionCenterView, size);
+
+		Render3DSceneShadowScene(enttView3D);
+		Renderer3D::SetShadowsUniform();
+
+		Renderer::SetMode(m_RedererDefaultModeFlags);
 		framebuffer->Bind();
 		RenderCommand::SetClearColor(m_BackGround);
 		RenderCommand::Clear();
 		framebuffer->ClearAttachment(1, -1);
-		m_RedererDefaultModeFlags = Renderer::GetMode(); 
+		
 		
 		for (EnttEntity camerE : cameraView)
 		{
-			auto& [viewC, modelC, camerC] = cameraView.get<ViewMatrixComponent, ModelMatrixComponent, CameraComponent>(camerE);
+			auto& [ modelC, camerC] = cameraView.get<ModelMatrixComponent, CameraComponent>(camerE);
 			Renderer2D::DrawCameraIcon(modelC.Globle, (int)camerE);
-			glm::mat4 viewCamera = viewC.Globle;
+			glm::mat4 viewCamera = glm::inverse(modelC.Globle);
 			if (camerC.ViewFustrum)
 			{
-				
-				std::array<glm::vec4, 8> fustemWorldCamera = camerC.Camera.GetViewFustrumWorld(viewCamera);
+				// std::array<glm::vec4, 8> fustemWorldCamera = camerC.Camera.GetViewFustrumWorld(viewCamera);
+				// std::array<glm::vec4, 8> fustemWorldCamera = SceneCamera::GetViewProjetionFustrumWorld(glm::ortho(-126.f, 126.f, -126.f, 126.f, 0.f, 10.f) * glm::inverse(glm::translate(glm::mat4(1.0f), glm::vec3(3.f, 5.f, 4.f))));
 				glm::mat4 viewProjetionCamera = (camerC.Camera.GetProjektion() * viewCamera);
 				glm::mat4 inverseViewProjetionCamera = glm::inverse(viewProjetionCamera);
 				glm::vec3 centerCamerViewFustrum = camerC.Camera.GetWorldCameraCenter(viewCamera);
 
 				for (EnttEntity dirLigth : enttViewLigths.DrirektionLCV)
 				{
-					auto& [viewC, ligthModelC, ligthDirectionC] = enttViewLigths.DrirektionLCV.get<ViewMatrixComponent, ModelMatrixComponent, DrirektionleLigthComponent>(dirLigth);
+					auto& [ligthModelC, ligthDirectionC] = enttViewLigths.DrirektionLCV.get<ModelMatrixComponent, DrirektionleLigthComponent>(dirLigth);
 					
-					glm::mat4 viewLigth = SceneCamera::GetShadowViewMatrix(centerCamerViewFustrum, ligthModelC.Globle[3]);
-					auto[min, max] = SceneCamera::GetMinMaxViewFustrumInSpace(viewLigth, fustemWorldCamera);
-					
-					glm::mat4 ViewProjetionLigth = Renderer3D::CalculateShadowDirectionelMatrix(viewLigth, min, max);
-					glm::mat4 inverseViewProjetionLigth = glm::inverse(ViewProjetionLigth);
+				
+					// glm::mat4 viewProjetionLigth = Utils::CalculateShadowMapsCamera(ligthModelC.Globle, centerCamerViewFustrum, fustemWorldCamera);
+					// glm::mat4 viewProjetionLigth = CalculateShadowMapsCamera(modelC.Globle, { 0.0f, 0.0f, 0.0f }, fustemWorldCamera);
+					glm::mat4 viewProjetionLigth = Utils::CalculateDirectionShadowMapsCamera(ligthModelC.Globle);
+					glm::mat4 inverseViewProjetionLigth = glm::inverse(viewProjetionLigth);
 					Renderer3D::DrawLineBoxAABB(SceneCamera::GetViewFustrum(), inverseViewProjetionLigth, glm::vec3(ligthModelC.Globle[3]), (int)dirLigth);
-
 				}
 				Renderer3D::DrawLineBoxAABB(SceneCamera::GetViewFustrum(), inverseViewProjetionCamera, glm::vec3(modelC.Globle[3]), (int)camerE);
 			}
 		}
-		RenderScene3D(mainCamera, viewMatrix, enttView3D);
+
+		Render3DSceneViewPortScene(mainCamera, viewMatrix, enttView3D);
 		RenderScene2D(mainCamera, viewMatrix, enttView2D);
+		
 		Renderer2D::EndSceneIcon();
+		
 		framebuffer->Unbind();
 		Renderer3D::EndFrame();
 	}
@@ -489,8 +554,9 @@ namespace Rynex {
 
 	}
 
-	void Scene::SetLigthsEditor(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D, Camera& camera, const glm::mat4& viewMatrix, const glm::uvec2& viewPortSize)
+	void Scene::SetLigthsEditor(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D, Camera& camera, const glm::mat4& viewMatrix, const glm::vec3& viewCenter, const glm::uvec2& viewPortSize)
 	{
+		RY_PROFILE_SCOPE("Scene-SetLigthsEditor");
 		EnttAmbientLView& ambientView = enttViewLigths.AmbientLCV;
 		EnttDrirektionLeLView& directionelView = enttViewLigths.DrirektionLCV;
 		EnttPointLView& pointView = enttViewLigths.PointLCV;
@@ -498,56 +564,62 @@ namespace Rynex {
 
 		int ligthIndex = 0;
 		int directionCount = 0;
-
+		const glm::mat4& projetionCamera = camera.GetProjektion();
+		glm::mat4 viewProjetionCamera = projetionCamera * viewMatrix;
+		glm::mat4 inverseViewProjetionCamera = glm::inverse(viewProjetionCamera);
+		
+		// std::array<glm::vec4, 8> fustemWorldCamera = SceneCamera::GetInverseViewProjetionFustrumWorld(inverseViewProjetionCamera);
+		// std::array<glm::vec4, 8> fustemWorldCamera = SceneCamera::GetViewProjetionFustrumWorld(glm::ortho(-256, 256, -256, 256, 0, 20));
+		// std::array<glm::vec4, 8> fustemWorldCamera = SceneCamera::GetViewProjetionFustrumWorld(glm::ortho(-126.f, 126.f, -126.f, 126.f, 0.f, 10.f) * glm::inverse(glm::translate(glm::mat4(1.0f), glm::vec3(3.f, 5.f, 4.f))));
 		Renderer2D::BeginSceneIcon(camera, viewMatrix, viewPortSize);
+		
 		for (EnttEntity directionelE : directionelView)
 		{
-			auto& [viewC, modelC, directionelC] = directionelView.get<ViewMatrixComponent, ModelMatrixComponent, DrirektionleLigthComponent>(directionelE);
+			auto& [ modelC, directionelC] = directionelView.get< ModelMatrixComponent, DrirektionleLigthComponent>(directionelE);
 			// glm::mat4 matrix = glm::lookAt(glm::vec3(matrixC.GlobleMatrix4x4[3]), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-			Renderer3D::SetLigthUniform(directionelC, modelC.Globle, directionCount);
-			directionCount++;
-			Renderer2D::DrawLigthDirctionelIcon(modelC.Globle, (int)directionelE);
-
 			
-			// RenderScene3DShadows(matrixC.Globle, enttView3D, ligthIndex);
-			ligthIndex++;
+			// glm::mat4 viewProjtion = Utils::CalculateShadowMapsCamera(modelC.Globle, viewCenter, fustemWorldCamera);
+			// glm::mat4 viewProjtion = CalculateShadowMapsCamera(modelC.Globle, { 0.0f, 0.0f, 0.0f }, fustemWorldCamera);
+			glm::mat4 viewProjtion = Utils::CalculateDirectionShadowMapsCamera(modelC.Globle);
+			Renderer3D::AddShadowMapDirectionelLigth(viewProjtion);
+			Renderer3D::SetLigthUniform(directionelC, modelC.Globle, viewProjtion);
+			Renderer2D::DrawLigthDirctionelIcon(modelC.Globle, (int)directionelE);
 
 		}
 
-		int pointCount = 0;
+		
+
 		for (EnttEntity pointE : pointView)
 		{
 			auto& [matrixC, pointC] = pointView.get<ModelMatrixComponent, PointLigthComponent>(pointE);
 			
-			Renderer3D::SetLigthUniform(pointC, matrixC.Globle, pointCount);
-			pointCount++;
+			Renderer3D::SetLigthUniform(pointC, matrixC.Globle);
 			Renderer2D::DrawLigthPointIcon(matrixC.Globle, (int)pointE);
-			ligthIndex++;
+
 		}
 
-		int spotCount = 0;
 		for (EnttEntity spotE : spotView)
 		{
-			auto& [viewC, modelC, spotC] = spotView.get<ViewMatrixComponent, ModelMatrixComponent, SpotLigthComponent>(spotE);
-			
-			Renderer3D::SetLigthUniform(spotC, modelC.Globle, spotCount);
-			spotCount++;
+			auto& [ modelC, spotC] = spotView.get<ModelMatrixComponent, SpotLigthComponent>(spotE);
+			// glm::mat4 viewProjtion = Utils::CalculateShadowMapsCamera(modelC.Globle);
+		
+			glm::mat4 viewProjetion = Utils::CalculateSpotShadowMapsCamera(modelC.Globle);
+			Renderer3D::SetLigthUniform(spotC, modelC.Globle, viewProjetion);
 			Renderer2D::DrawLigthSpotIcon(modelC.Globle, (int)spotE);
-			ligthIndex++;
 		}
 		
-		int ambientCount = 0;
 		AmbientLigthComponent* useAmbientC = nullptr;
 		for (EnttEntity ambientE : ambientView)
 		{
 			useAmbientC = &ambientView.get<AmbientLigthComponent>(ambientE);
-			ambientCount++;
 			break;
 		}
-		Renderer3D::SetLigthUniform(useAmbientC, ambientCount, directionCount, spotCount, pointCount);
-		Renderer3D::SetShadowsUniform();
-	}
 
+		Renderer3D::SetLigthUniform(useAmbientC);
+		
+
+
+	}
 
 #pragma endregion
 
@@ -687,11 +759,40 @@ namespace Rynex {
 	}
 #endif
 
+	void Scene::Render3DSceneViewPortScene(Camera& camera, glm::mat4& viewMatrix, EnttView3D& enttView3D)
+	{
+		RY_PROFILE_SCOPE("Scene-Render3DSceneViewPortScene");
+		Renderer3D::BeginScene(camera, viewMatrix);
+		RenderScene3DDraw(enttView3D, Renderer3D::DrawMesh3D);
+		Renderer3D::EndScene();
+	}
+
+
+	// TODO: Frambuffer Render System
+	void Scene::Render3DSceneFrambufferScene(Camera& camera, glm::mat4& viewMatrix, EnttView3D& enttView3D, uint32_t framebufferIndex)
+	{
+		RY_PROFILE_SCOPE("Frambuffers");
+		RY_CORE_ASSERT(false, "need Finael Plane");
+		// Need otherFunktion
+		Renderer3D::BeginScene(camera, viewMatrix);
+		RenderScene3DDraw(enttView3D, Renderer3D::DrawMeshFrambuffer);
+		Renderer3D::EndScene();
+	}
+
+	void Scene::Render3DSceneShadowScene(EnttView3D& enttView3D)
+	{
+		RY_PROFILE_SCOPE("Scene-Render3DSceneShadowScene");
+		Renderer3D::BeginSceneShadow();
+		RenderScene3DSubmit(enttView3D, Renderer3D::DrawMeshMeshShadow);
+		Renderer3D::EndSceneShadow();
+	}
+
 	void Scene::RenderScene2D(Camera& camera, glm::mat4& viewMatrix, EnttView2D& enttView2D)
 	{
 		EnttRender2DView& enttRender2DView = enttView2D.Renderer2DCV;
 		EnttRenderTextView& enttRenderTextView = enttView2D.RendererTextCV;
 		RY_PROFILE_SCOPE("Scene Draw 2D");
+
 		Renderer2D::BeginSceneQuade(camera, viewMatrix);
 		for (EnttEntity render2dE : enttRender2DView)
 		{
@@ -701,99 +802,136 @@ namespace Rynex {
 		for (EnttEntity render2dE : enttRenderTextView)
 		{
 			auto& [transformC, textC] = enttRenderTextView.get< ModelMatrixComponent, TextComponent>(render2dE);
-			Renderer2D::DrawString(transformC.Globle, textC, (int)render2dE);
+			Renderer2D::DrawStringCom(transformC.Globle, textC, (int)render2dE);
 		}
 		Renderer2D::EndSceneQuade();
 	}
 	
-	void Scene::RenderScene3D(Camera& camera, glm::mat4& viewMatrix, EnttView3D& enttView3D)
+	
+
+	void Scene::RenderScene3DDraw(EnttView3D& enttView3D, RenderFunc func)
 	{
+
 		RY_PROFILE_SCOPE("Scene Draw 3D");
-		EnttRender3DEditeView& enttRender3DEditeView = enttView3D.EditeCV;
-		Renderer3D::BeginScene(camera, viewMatrix);
-
-		for (EnttEntity render3dE : enttRender3DEditeView)
-		{
-			auto& [tranformC, materialC, geomtryC] = enttRender3DEditeView.get<ModelMatrixComponent, MaterialComponent, GeomtryComponent>(render3dE);
-			Ref<VertexArray> vertexArray = geomtryC.Geometry;
-			if (vertexArray == nullptr)
-				continue;
-			Renderer3D::BeforDrawEntity(materialC, tranformC.Globle, (int)render3dE);
-			Renderer3D::DrawObjectRender3D(vertexArray);
-			Renderer3D::AfterDrawEntity(materialC);
-		}
-
+		
 		EnttRender3DStaticModelView& enttRender3DStaticModelView = enttView3D.StaticCV;
-
 		for (EnttEntity render3dE : enttRender3DStaticModelView)
 		{
-			auto& [tranformC,  geomtryC] = enttRender3DStaticModelView.get<ModelMatrixComponent, StaticMeshComponent>(render3dE);
+			auto& [tranformC, staticMeshC] = enttRender3DStaticModelView.get<ModelMatrixComponent, StaticMeshComponent>(render3dE);
 
-			if (geomtryC.ModelR == nullptr)
+			if (staticMeshC.ModelR == nullptr)
 				continue;
-			Renderer3D::DrawModdel( tranformC.Globle, geomtryC, (int)render3dE);
-		}
-		EnttRender3DDynamicModelView& enttRender3DDynamicModelView = enttView3D.DynamicModelCV;
 
+			Renderer3D::RenderComponet( tranformC.Globle, staticMeshC, (int)render3dE, func);
+		}
+
+
+		EnttRender3DDynamicModelView& enttRender3DDynamicModelView = enttView3D.DynamicModelCV;
 		for (EnttEntity render3dE : enttRender3DDynamicModelView)
 		{
-			auto& [tranformC, geomtryC] = enttRender3DDynamicModelView.get<ModelMatrixComponent,  DynamicMeshComponent>(render3dE);
-			if (geomtryC.MeshR == nullptr)
+			auto& [tranformC, dynamicMeshC] = enttRender3DDynamicModelView.get<ModelMatrixComponent,  DynamicMeshComponent>(render3dE);
+			if (dynamicMeshC.MeshD.size() == 0)
 				continue;
-			// Renderer3D::DrawLineBoxAABB(geomtryC.MeshR->GetVertexArray()->GetBoxAABB(), tranformC.GlobleMatrix4x4, (int)render3dE);
-			Renderer3D::DrawModdel( tranformC.Globle, geomtryC, (int)render3dE);
 
+			Renderer3D::RenderComponet( tranformC.Globle, dynamicMeshC, (int)render3dE, func);
 		}
-		Renderer3D::EndScene();
+		
+
+	}
+#if 1
+	void Scene::RenderScene3DSubmit(EnttView3D& enttView3D, RenderFunc func)
+	{
+		RY_PROFILE_SCOPE("Scene Submit 3D");
+
+		EnttRender3DStaticModelView& enttRender3DStaticModelView = enttView3D.StaticCV;
+		for (EnttEntity render3dE : enttRender3DStaticModelView)
+		{
+			auto& [tranformC, staticMeshC] = enttRender3DStaticModelView.get<ModelMatrixComponent, StaticMeshComponent>(render3dE);
+
+			if (staticMeshC.ModelR == nullptr)
+				continue;
+
+			Renderer3D::SubmitComponet(tranformC.Globle, staticMeshC, (int)render3dE, func);
+		}
+
+
+		EnttRender3DDynamicModelView& enttRender3DDynamicModelView = enttView3D.DynamicModelCV;
+		for (EnttEntity render3dE : enttRender3DDynamicModelView)
+		{
+			auto& [tranformC, dynamicMeshC] = enttRender3DDynamicModelView.get<ModelMatrixComponent, DynamicMeshComponent>(render3dE);
+			if (dynamicMeshC.MeshD.size() == 0)
+				continue;
+
+			Renderer3D::SubmitComponet(tranformC.Globle, dynamicMeshC, (int)render3dE, func);
+		}
+
+	}
+#endif
+
+	
+#if 0
+	void Scene::SubmiteScene2D(EnttView2D& enttView2D)
+	{
+		RY_PROFILE_SCOPE("Scene 2D - Submit");
+
+		EnttRender2DView& enttRender2DView = enttView2D.Renderer2DCV;
+		EnttRenderTextView& enttRenderTextView = enttView2D.RendererTextCV;
+		for (EnttEntity render2dE : enttRender2DView)
+		{
+			auto& [transformC, spriteC] = enttRender2DView.get< ModelMatrixComponent, SpriteRendererComponent>(render2dE);
+			Renderer2D::DrawSprite(transformC.Globle, spriteC, (int)render2dE);
+		}
+
+
+		for (EnttEntity render2dE : enttRenderTextView)
+		{
+			auto& [transformC, textC] = enttRenderTextView.get< ModelMatrixComponent, TextComponent>(render2dE);
+			Renderer2D::DrawStringCom(transformC.Globle, textC, (int)render2dE);
+		}
+		Renderer2D::EndSceneQuade();
+
+	}
+
+	void Scene::SubmiteScene3D(EnttView3D& enttView3D)
+	{
+
+	}
+
+	void Scene::SubmiteLigthsEditor(EnttViewLigths& enttViewLigths)
+	{
 
 	}
 	
+	void Scene::RenderScene(Camera& camera, glm::mat4& transform, const Ref<Framebuffer>& frameBuffer)
+	{
+	}
+#endif
+
+
 	void Scene::RenderFrambuffers( EnttView3D& enttView3D, EnttView2D& enttView2D, EnttCameraView& enttCameraView)
 	{
-		EnttFrameBufferView frambufferView = m_Registery.view<ViewMatrixComponent, ModelMatrixComponent, FrameBufferComponent, CameraComponent>();
+#if RY_OLD_RENDER_SYSTEM
+		RY_PROFILE_SCOPE("Scene-RenderFrambuffers");
+		EnttFrameBufferView frambufferView = m_Registery.view<ModelMatrixComponent, CameraComponent, FrameBufferComponent>();
 		for (EnttEntity frameE : frambufferView)
 		{
-			auto& [viewC, modelC, frambufferC, camerC] = frambufferView.get<ViewMatrixComponent, ModelMatrixComponent, FrameBufferComponent, CameraComponent>(frameE);
+			auto& [modelC, camerC, frambufferC] = frambufferView.get<ModelMatrixComponent, CameraComponent, FrameBufferComponent>(frameE);
 			if (frambufferC.FrameBuffer)
 			{
 				frambufferC.FrameBuffer->Bind();
 				RenderCommand::SetClearColor(m_BackGround);
 				RenderCommand::Clear();
-				RenderScene3D(camerC.Camera, viewC.Globle, enttView3D);
-				RenderScene2D(camerC.Camera, viewC.Globle, enttView2D);
+				glm::mat4 view = glm::inverse(modelC.Globle);
+				Render3DSceneFrambufferScene(camerC.Camera, view, enttView3D, frambufferC.FrameBufferLayoutIndex);
+				RenderScene2D(camerC.Camera, view, enttView2D);
 				frambufferC.FrameBuffer->Unbind();
+
+				
 			}
 			
 		}
-	}
-
-	void Scene::RenderScene3DShadows(glm::mat4& transform, EnttView3D& enttView3D, int ligthIndex)
-	{
-		RY_PROFILE_SCOPE("Scene Shadow Draw 3D");
-		EnttRender3DEditeView& enttRender3DEditeView = enttView3D.EditeCV;
-
-		RenderCommand::SetClearColor({0.f,0.f,0.f,1.f});
-		RenderCommand::Clear();
-		
-		int flagmode = RenderCommand::GetMode();
-		RenderCommand::SetMode(Renderer::Mode::CallFace_None | Renderer::Mode::Death_Buffer);
-		Renderer3D::BeginSceneShadow(transform);
-
-
-		EnttRender3DStaticModelView& enttRender3DStaticModelView = enttView3D.StaticCV;
-
-		for (EnttEntity render3dE : enttRender3DStaticModelView)
-		{
-			auto& [tranformC, geomtryC] = enttRender3DStaticModelView.get<ModelMatrixComponent, StaticMeshComponent>(render3dE);
-
-			if (geomtryC.ModelR == nullptr)
-				continue;
-			Renderer3D::DrawModdelShadow(tranformC.Globle, geomtryC, (int)render3dE);
-		}
-
-		Renderer3D::EndSceneShadow(ligthIndex);
-
-		RenderCommand::SetMode(flagmode);
+#else
+#endif
 	}
 
 
@@ -845,6 +983,8 @@ namespace Rynex {
 		component.Camera.SetViewPortSize(m_ViewPortWithe, m_ViewPortHeigth);
 		if (!entity.HasComponent<ViewMatrixComponent>())
 			entity.AddComponent<ViewMatrixComponent>();
+		if (!entity.HasComponent<WorldViewFustrumComponent>())
+			entity.AddComponent<WorldViewFustrumComponent>();
 	}
 
 	template<>
@@ -895,6 +1035,14 @@ namespace Rynex {
 	template<>
 	void Scene::OnComponentAdded<ViewMatrixComponent>(Entity entity, ViewMatrixComponent& component)
 	{
+		// if (!entity.HasComponent<ProjtionViewMatrixComponent>())
+		// 	entity.AddComponent<ProjtionViewMatrixComponent>();
+		// 
+		// if (!entity.HasComponent<InverseProjtionViewMatrixComponent>())
+		// 	entity.AddComponent<InverseProjtionViewMatrixComponent>();
+		// 
+		// if (!entity.HasComponent<ProjtionViewMatrixComponent>())
+		//	entity.AddComponent<ProjtionViewMatrixComponent>();
 	}
 
 	template<>
@@ -939,6 +1087,7 @@ namespace Rynex {
 	{
 		if (!entity.HasComponent<ViewMatrixComponent>())
 			entity.AddComponent<ViewMatrixComponent>();
+		
 	}
 
 	template<>
@@ -948,6 +1097,21 @@ namespace Rynex {
 
 	template<>
 	void Scene::OnComponentAdded<TextComponent>(Entity enitity, TextComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<WorldViewFustrumComponent>(Entity enitity, WorldViewFustrumComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<InverseProjtionViewMatrixComponent>(Entity enitity, InverseProjtionViewMatrixComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<ProjtionViewMatrixComponent>(Entity enitity, ProjtionViewMatrixComponent& component)
 	{
 	}
 

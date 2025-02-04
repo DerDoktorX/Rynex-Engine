@@ -44,7 +44,11 @@ namespace Rynex {
 
 		virtual void DrawError() override;
 
+#if RY_RENDERER_API_INDEIPENDENT
 
+		virtual void DrawIndexed(const Ref<Shader>& shader) override;
+
+#endif
 		void ModeEnable(int bitCount);
 		void ModeDisenable(int bitCount);
 	public:

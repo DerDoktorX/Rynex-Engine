@@ -63,11 +63,16 @@ namespace Rynex{
 		glm::vec4 GetWorldCameraCenterMin(const glm::mat4& view, float min) const;
 
 		static const std::array<glm::vec4, 8>& GetViewFustrum() { return m_ViewFustrum; }
-		std::array<glm::vec4, 8> GetViewFustrumWorld(glm::mat4& view)const;
+		std::array<glm::vec4, 8> GetViewFustrumWorld(const glm::mat4& view)const;
+
+		static std::array<glm::vec4, 8> GetViewFustrumWorld(const glm::mat4& view, const glm::mat4& projetion);
+		static std::array<glm::vec4, 8> GetViewProjetionFustrumWorld(const glm::mat4& viewProjetion);
+		static std::array<glm::vec4, 8> GetInverseViewProjetionFustrumWorld(const glm::mat4& inverseViewProjetion);
 
 		static std::pair<glm::vec3, glm::vec3> GetMinMaxViewFustrumInSpace(const glm::mat4& spaceMatrix);
 		static std::pair<glm::vec3, glm::vec3> GetMinMaxViewFustrumInSpace(const glm::mat4& spaceMatrix, const std::array<glm::vec4, 8>& trasformtViewFustrum);
 		static glm::mat4 GetShadowViewMatrix(const glm::vec3& center, const glm::vec3& direction);
+		
 	private:
 		void RecalulateProjection();
 	private:

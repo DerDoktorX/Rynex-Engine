@@ -9,7 +9,10 @@
 
 namespace Rynex {
 #define DEFAULT_PATH_BASIC_MATERIAL 0 ? "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Shaders/Fetures/Cube3DShadow.glsl" : "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Shaders/3DLigthe.glsl"//  "../Rynex-Editor/Editor-Assets/shaders/3DLShadowSimple.glsl"
-#define DEFAULT_PATH_SHADOW_SHADER 1 ? "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Shaders/3DShadowShaderMap.glsl" : "../Rynex-Editor/Editor-Assets/shaders/3DShadowShader.glsl"
+#define DEFAULT_PATH_SHADOW_SHADER 1 ? 0 ? "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Shaders/3DShadowShaderMap.glsl": "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Shaders/3DShadowShaderMapInstenc.glsl" : "../Rynex-Editor/Editor-Assets/shaders/3DShadowShader.glsl"
+
+	
+	
 
 	BasicMaterial::BasicMaterial(const std::vector<std::filesystem::path>& paths)
 		: m_BufferData(nullptr)
@@ -41,7 +44,6 @@ namespace Rynex {
 			
 			{ ShaderDataType::Int ,"EntityID" },
 			{ ShaderDataType::Int ,"UseShader" },
-			
 		};
 		
 		
@@ -68,10 +70,12 @@ namespace Rynex {
 		m_Shader = AssetManager::GetAsset<Shader>(DEFAULT_PATH_BASIC_MATERIAL);
 		
 		
-		
 
 		m_ShadowShader = AssetManager::GetAsset<Shader>(DEFAULT_PATH_SHADOW_SHADER);
 		m_BufferData = (UniformDataBasic*)m_UniformBuffer->GetBufferData().data();
+
+		
+
 		m_UniformBuffer->SetOnDelete([this]() {
 			m_BufferData = nullptr;
 		});
@@ -158,12 +162,12 @@ namespace Rynex {
 		m_UniformBuffer.reset();
 	}
 
-	void BasicMaterial::Bind(int* entityIDs, uint32_t size, CameraData& camera,CameraData& ligthCam)
+	void BasicMaterial::Bind(int* entityIDs, uint32_t size)
 	{
 		m_BufferData->EntityID = *entityIDs;
 		m_UniformBuffer->SetLocelData({ ShaderDataType::Int, "EntityID" }, &m_BufferData->EntityID, sizeof(m_BufferData->EntityID) );
 		m_Shader->Bind();
-		m_UniformBuffer->Bind();
+		m_UniformBuffer->Bind(1);
 		if(m_DefuseMap)
 			m_DefuseMap->Bind(6);
 		if (m_Specular)
@@ -296,21 +300,10 @@ namespace Rynex {
 		RY_CORE_ASSERT(false);
 	}
 
-	void BasicMaterial::BindShadow(CameraData& ligthCam)
+	void BasicMaterial::BindShadow()
 	{
 		m_ShadowShader->Bind();
-		glm::mat4 modelMatrix = glm::mat4(
-			m_BufferData->ModelMatrix[0], m_BufferData->ModelMatrix[1], m_BufferData->ModelMatrix[2], m_BufferData->ModelMatrix[3],
-			m_BufferData->ModelMatrix[4], m_BufferData->ModelMatrix[5], m_BufferData->ModelMatrix[6], m_BufferData->ModelMatrix[7],
-			m_BufferData->ModelMatrix[8], m_BufferData->ModelMatrix[9], m_BufferData->ModelMatrix[10], m_BufferData->ModelMatrix[11],
-			m_BufferData->ModelMatrix[12], m_BufferData->ModelMatrix[13], m_BufferData->ModelMatrix[14], m_BufferData->ModelMatrix[15]
-		);
-		glm::mat4 mvpMatrix = ligthCam.ProjectionMatrix * ligthCam.ViewMatrix * modelMatrix;
-		m_ShadowShader->SetMat4("uModel", modelMatrix);
-
-
-		m_ShadowShader->SetMat4("uLigthview", ligthCam.ViewMatrix);
-		m_ShadowShader->SetMat4("uLigthProje", ligthCam.ProjectionMatrix);
+		m_UniformBuffer->Bind(1);
 	}
 
 	void BasicMaterial::SetFlage(int flage)

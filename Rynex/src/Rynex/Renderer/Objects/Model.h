@@ -8,7 +8,7 @@ struct aiMesh;
 struct aiMaterial;
 enum aiTextureType;
 
-
+#define RY_MODEL_NODE 1
 namespace Rynex {
 
 	struct MeshRenderData
@@ -34,16 +34,24 @@ namespace Rynex {
 	struct NodeData
 	{
 		std::vector<Ref<Mesh>> Meshes;
-		Ref<Material> Materiel;
 		glm::mat4 Matrix;
 		std::string Name;
+		std::vector<int> Children;
+		int Parent = -1;
+
+
 	};
 
 	class Model : public Asset
 	{
 	public:
 		Model(const std::string& path);
+#if RY_MODEL_NODE
+		Model(std::vector<NodeData>&& nodeData);
+#else
 		Model(std::vector<Ref<Mesh>>& meshes, std::vector<MeshRootData>& meshRootDatas);
+#endif
+		
 		Model() = default;
 		~Model() = default;
 
@@ -51,7 +59,9 @@ namespace Rynex {
 		{
 			return AssetType::Mesh;
 		}
-
+#if RY_MODEL_NODE
+		const std::vector<NodeData>& GetNodes() { std::lock_guard<std::mutex> lock(m_Accese); return m_RootNode; }
+#else
 		const std::vector<Ref<Mesh>>& GetMeshes() { std::lock_guard<std::mutex> lock(m_Accese); return m_Meshes; }
 		const Ref<Mesh>& GetMesh(uint32_t index) { std::lock_guard<std::mutex> lock(m_Accese); return m_Meshes[index]; }
 
@@ -64,6 +74,8 @@ namespace Rynex {
 		std::vector<MeshRenderData>&& GetMeshRenderData();
 
 		void Draw(const Ref<Shader>& shader);
+#endif
+
 	private:
 		void ProcessNode(aiNode* node, const aiScene* scene);
 		Ref<Mesh> ProcessMesh(aiMesh* node, const aiScene* scene);
@@ -72,8 +84,12 @@ namespace Rynex {
 
 
 	private:
+#if RY_MODEL_NODE
+		std::vector<NodeData> m_RootNode;
+#else
 		std::vector<Ref<Mesh>> m_Meshes;
 		std::vector<MeshRootData> m_MeshRootDatas;
+#endif
 		std::mutex m_Accese;
 	};
 

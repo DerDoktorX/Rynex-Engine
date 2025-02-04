@@ -80,7 +80,7 @@ namespace Rynex {
 			return glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 		}
 			
-		return view * glm::vec4(0.0f, 0.0f, -(nearPlane + farPlane) / 2.0f, 1.0f);
+		return view * glm::vec4(0.0f, 0.0f, -(nearPlane + farPlane ) / 2.0f, 1.0f);
 	}
 
 	glm::vec4 SceneCamera::GetWorldCameraCenterMax(const glm::mat4& view, float max) const
@@ -140,12 +140,33 @@ namespace Rynex {
 	}
 
 
-	std::array<glm::vec4, 8> SceneCamera::GetViewFustrumWorld(glm::mat4& view) const
+	std::array<glm::vec4, 8> SceneCamera::GetViewFustrumWorld(const glm::mat4& view) const
 	{
 		std::array<glm::vec4, 8> viewFustremWorld = m_ViewFustrum;
 		glm::mat4 VP = glm::inverse(m_Projektion * view);
 		for (auto& fust : viewFustremWorld)
 			fust = VP * fust;
+		return viewFustremWorld;
+	}
+
+	std::array<glm::vec4, 8> SceneCamera::GetViewFustrumWorld(const glm::mat4& view, const glm::mat4& projetion)
+	{
+		std::array<glm::vec4, 8> viewFustremWorld = m_ViewFustrum;
+		glm::mat4 iVP = glm::inverse(projetion * view);
+		return GetInverseViewProjetionFustrumWorld(iVP);
+	}
+
+	std::array<glm::vec4, 8> SceneCamera::GetViewProjetionFustrumWorld(const glm::mat4& viewProjetion)
+	{
+		glm::mat4 iVP = glm::inverse(viewProjetion);
+		return GetInverseViewProjetionFustrumWorld(iVP);
+	}
+
+	std::array<glm::vec4, 8> SceneCamera::GetInverseViewProjetionFustrumWorld(const glm::mat4& inverseViewProjetion)
+	{
+		std::array<glm::vec4, 8> viewFustremWorld = m_ViewFustrum;
+		for (auto& fust : viewFustremWorld)
+			fust = inverseViewProjetion * fust;
 		return viewFustremWorld;
 	}
 
@@ -180,7 +201,7 @@ namespace Rynex {
 	glm::mat4 SceneCamera::GetShadowViewMatrix(const glm::vec3& center, const glm::vec3& direction)
 	{
 		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-		return glm::lookAt(center + direction, center, up);
+		return glm::lookAt(center - direction, center, up);
 	}
 
 	void SceneCamera::RecalulateProjection()

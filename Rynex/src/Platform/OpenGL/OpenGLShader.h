@@ -4,7 +4,7 @@
 
 namespace Rynex {
 
-
+	
 
 	class OpenGLShader : public Shader
 	{
@@ -157,11 +157,12 @@ namespace Rynex {
 		void UploadUniformMat4Array(const std::string& name, float* matrix, uint32_t count);
 		void UploadUniformMat4Array(const std::string& name, void* value, uint32_t count);
 
-	
+		inline int32_t GetLocation(const std::string& name);
 	private:
 		uint32_t m_RendererID = 0;
 		std::string m_Name = "";
 		std::string m_Source = "";
+		std::unordered_map<std::string, int32_t> m_UnifromLocation;
 		std::map<Type, std::string> m_ShaderMap;
 		std::map<std::string, std::string> m_sUniformLayoute;
 		std::unordered_map<uint32_t, std::string> m_ShaderSources;

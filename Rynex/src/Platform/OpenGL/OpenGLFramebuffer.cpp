@@ -279,10 +279,10 @@ namespace Rynex {
 		return m_DepthAttachment->GetRenderID();
 	}
 
-	void OpenGLFramebuffer::Bind()
+	void OpenGLFramebuffer::Bind(float width, float height, float x , float y)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
-		glViewport(0, 0, m_Specification.Width, m_Specification.Height);
+		glViewport(x, y, width == 0.0f ? m_Specification.Width : width, height == 0.0f ? m_Specification.Height : height);
 	}
 
 	void OpenGLFramebuffer::Unbind()
@@ -323,6 +323,7 @@ namespace Rynex {
 			if (m_RendererID)
 			{
 				glDeleteFramebuffers(1, &m_RendererID);
+				m_RendererID = 0;
 			}
 
 			glCreateFramebuffers(1, &m_RendererID);

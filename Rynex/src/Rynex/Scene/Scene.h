@@ -4,9 +4,9 @@
 #include "Rynex/Core/UUID.h"
 #include "Rynex/Asset/Base/Asset.h"
 #include "Rynex/Renderer/Camera/EditorCamera.h"
-#include "Rynex/Asset/Base/Asset.h"
 #include "Rynex/Renderer/API/Framebuffer.h"
 #include "Rynex/Renderer/Objects/Model.h"
+
 
 #include <entt.hpp>
 
@@ -33,7 +33,9 @@ namespace Rynex {
 	struct ParticelComponente;
 	struct TextComponent;
 	struct ViewMatrixComponent;
-
+	struct ProjtionViewMatrixComponent;
+	struct InverseProjtionViewMatrixComponent;
+	struct WorldViewFustrumComponent;
 
 	struct TransformComponent;
 	struct ModelMatrixComponent;
@@ -44,19 +46,20 @@ namespace Rynex {
 	using EnttRender3DDynamicModelView = entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, DynamicMeshComponent>;
 	using EnttRender3DStaticModelView = entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, StaticMeshComponent>;
 
-	using EnttFrameBufferView	= entt::basic_view<enum entt::entity, entt::exclude_t<>, ViewMatrixComponent, ModelMatrixComponent, FrameBufferComponent, CameraComponent>;
-	using EnttCameraView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, ViewMatrixComponent, ModelMatrixComponent, CameraComponent>;
+	using EnttFrameBufferView	= entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, CameraComponent, FrameBufferComponent>;
+	using EnttCameraView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, CameraComponent>;
 	using EnttPartikelView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, ParticelComponente>;
 	
 	// Ligthts
 	using EnttAmbientLView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, AmbientLigthComponent>;
-	using EnttDrirektionLeLView = entt::basic_view<enum entt::entity, entt::exclude_t<>, ViewMatrixComponent, ModelMatrixComponent, DrirektionleLigthComponent>;
+	using EnttDrirektionLeLView = entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, DrirektionleLigthComponent>;
 	using EnttPointLView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, PointLigthComponent>;
-	using EnttSpotLView			= entt::basic_view<enum entt::entity, entt::exclude_t<>, ViewMatrixComponent, ModelMatrixComponent, SpotLigthComponent>;
+	using EnttSpotLView			= entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, SpotLigthComponent>;
 
 	using EnttScriptView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, ScriptComponent>;
 	using EnttEntity			= entt::entity;
 
+	using RenderFunc = std::function<void(const glm::mat4&, const Ref<Mesh>&, const Ref<Material>&, int)>;
 #pragma endregion
 
 
@@ -126,8 +129,8 @@ namespace Rynex {
 		void SetMousPixelPos(const glm::vec2& pos) { m_MausPixlePos = pos; }
 		void SetHoverViewPort(bool isHovered) { m_Hovered = isHovered; }
 		void SetWindowResize(bool isResized) { m_Resized = isResized; }
-		bool IsViewPortHovered() { return m_Hovered; }
-		bool IsWindowResize() { return m_Resized; }
+		bool IsViewPortHovered() const { return m_Hovered; }
+		bool IsWindowResize() const { return m_Resized; }
 
 		uint32_t GetEntityCount() const { return (uint32_t)m_Registery.size(); }
 
@@ -148,13 +151,29 @@ namespace Rynex {
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);		
 		
-		void RenderScene2D(Camera& camera, glm::mat4& transform, EnttView2D& enttView2D);
-		void RenderScene3D(Camera& camera, glm::mat4& transform, EnttView3D& enttView3D);
-		void RenderFrambuffers( EnttView3D& enttView3D, EnttView2D& enttView2D, EnttCameraView& enttCameraView);
-		void SetLigthsRuntime(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D);
-		void SetLigthsEditor(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D, Camera& camera, const glm::mat4& viewMatrix, const glm::uvec2& viewPortSize);
 
-		void RenderScene3DShadows(glm::mat4& transform, EnttView3D& enttView3D, int ligthIndex);
+		static void Render3DSceneViewPortScene(Camera& camera, glm::mat4& viewMatrix, EnttView3D& enttView3D);
+		void Render3DSceneFrambufferScene(Camera& camera, glm::mat4& viewMatrix, EnttView3D& enttView3D, uint32_t framebufferIndex);
+		static void Render3DSceneShadowScene(EnttView3D& enttView3D);
+
+		static void RenderScene3DDraw(EnttView3D& enttView3D, RenderFunc func);
+		static void RenderScene3DSubmit(EnttView3D& enttView3D, RenderFunc func);
+		static void RenderScene2D(Camera& camera, glm::mat4& viewMatrix, EnttView2D& enttView3D);
+		
+#if 0
+		void SubmiteScene2D(EnttView2D& enttView2D);
+		void SubmiteScene3D(EnttView3D& enttView3D);
+		void SubmiteLigthsRuntime(EnttViewLigths& enttViewLigths);
+		void SubmiteLigthsEditor(EnttViewLigths& enttViewLigths);
+		
+		static void RenderScene(Camera& camera, glm::mat4& transform, const Ref<Framebuffer>& frameBuffer);
+#endif
+
+		void RenderFrambuffers( EnttView3D& enttView3D, EnttView2D& enttView2D, EnttCameraView& enttCameraView);
+		static void SetLigthsRuntime(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D, Camera& camera, const glm::mat4& viewMatrix, const glm::vec3& viewCenter);
+		static void SetLigthsEditor(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D, Camera& camera, const glm::mat4& viewMatrix, const glm::vec3& viewCenter, const glm::uvec2& viewPortSize);
+
+		// void RenderScene3DShadows( EnttView3D& enttView3D);
 
 		void EditorFilterSreene();
 		void ClearAll();

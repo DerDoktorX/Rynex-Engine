@@ -71,7 +71,7 @@ namespace Rynex {
 	{
 		RenderCommand::SetViewPort(0,0, width,height);
 	}
-
+#if RY_OLD_RENDER_SYSTEM
 	void Renderer::BeginScene(OrthograficCamera& camera)
 	{
 		m_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
@@ -80,7 +80,53 @@ namespace Rynex {
 	void Renderer::EndScene()
 	{
 	}
+	
+	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform)
+	{
+		shader->Bind();
+		shader->SetMat4("u_ViewProjection", m_SceneData->ViewProjectionMatrix);
+		shader->SetMat4("u_Tranform", transform);
 
+		vertexArray->Bind();
+		RenderCommand::DrawIndexedMesh(vertexArray);
+	}
+#else
+
+	void Renderer::SetFrambuffer(const Ref<Framebuffer>& frambuffer)
+	{
+		m_SceneData->RenderPass.SetFrambuffer(frambuffer);
+
+	}
+
+	void Renderer::ClearDrawCallsPass()
+	{
+		m_SceneData->RenderPass.ClearDrawCallList();
+	}
+
+	
+
+	
+
+	template<typename Func, typename ...Args>
+	inline void Renderer::AddDrawCall(Func&& func, Args && ...args)
+	{
+		RY_CORE_ASSERT(indexPass < m_SceneData->RenderPass.size());
+		m_SceneData->RenderPass.AddDrawCall3D(func, args);
+	}
+
+
+
+	template<typename Func, typename... Args>
+	inline void Renderer::DrawObjects(Func&& func, Args&&... args)
+	{
+		m_SceneData->RenderPass.DrawObjects(func, args);
+	}
+
+
+
+	
+
+#endif
 	int Renderer::GetMode()
 	{
 		return RenderCommand::GetMode();
@@ -92,19 +138,13 @@ namespace Rynex {
 	}
 	
 
-	void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform)
-	{
-		shader->Bind();
-		shader->SetMat4("u_ViewProjection", m_SceneData->ViewProjectionMatrix);
-		shader->SetMat4("u_Tranform", transform);
-
-		vertexArray->Bind();
-		RenderCommand::DrawIndexedMesh(vertexArray);
-	}
+	
 
 	bool Renderer::IsInit()
 	{
 		return m_SceneData != nullptr;
 	}
+
+	
 
 }

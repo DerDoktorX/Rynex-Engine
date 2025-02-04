@@ -1,6 +1,6 @@
 ﻿namespace Rynex
 {
-    
+
 
     public struct Vector2
     {

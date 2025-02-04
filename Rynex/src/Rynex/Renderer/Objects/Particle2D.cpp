@@ -157,7 +157,10 @@ namespace Rynex {
 		for (std::vector<Particle2DData>::iterator it = m_Particle.begin(); it != particleListEnd; ++it)
 		{
 			Particle2DData& partikle = *it;
+#if RY_OLD_RENDER_SYSTEM
 			Renderer2D::DrawParticle(tranform, partikle.Position, partikle.CurrenteColor, partikle.Size, partikle.Rotation, m_Texture, entityID);
+#else
+#endif
 		}
 	}
 

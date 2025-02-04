@@ -204,8 +204,6 @@ namespace Rynex {
         m_AktiveScene->SetHoverViewPort(result);
 
         return result;
-
-
     }
 
     void ViewPortPannel::SetEventBlocker(bool blockEvents)
@@ -278,6 +276,7 @@ namespace Rynex {
 
     void ViewPortPannel::RenderSelectedEntity()
     {
+#if RY_OLD_RENDER_SYSTEM
         Entity slelcted = m_EditorLayer->GetSelectedEntity();
        
         m_SelectedFramebuffer->Bind();
@@ -351,7 +350,11 @@ namespace Rynex {
 
                 if ( staticMeshC.ModelR != nullptr)
                 {
+#if RY_MODEL_NODE
 
+                    Renderer3D::RenderComponet(mat4C.Globle, staticMeshC, m_MaterialC.Materiel, slelcted.GetEntityHandle(), Renderer3D::DrawMesh3D);
+
+#else
                     const std::vector<Ref<Mesh>>& meshes = staticMeshC.ModelR->GetMeshes();
 #if 0
                     const std::vector<glm::mat4>& globels = staticMeshC.GlobleMeshMatrix;
@@ -369,6 +372,10 @@ namespace Rynex {
                     {
                         Renderer3D::DrawModdelSeclection(mat4C.Globle, mesh, m_MaterialC.Materiel, slelcted.GetEntityHandle());
                     }
+
+#endif
+
+
 #endif
                 }
                 Renderer3D::EndScene();
@@ -378,20 +385,27 @@ namespace Rynex {
                 DynamicMeshComponent& dynamicMeshC = slelcted.GetComponent<DynamicMeshComponent>();
                 UUID parent = slelcted.GetComponent<RealtionShipComponent>().ParentID;
                 Renderer3D::BeginScene(mainCamera, viewMatrix);
-                if (parent)
-                {
+               
+               
+#if RY_MODEL_NODE
+                Renderer3D::RenderComponet(mat4C.Globle, dynamicMeshC, m_MaterialC.Materiel, slelcted.GetEntityHandle(), Renderer3D::DrawMesh3D);
+#else
                     if ( dynamicMeshC.MeshR != nullptr)
                     {
                         m_MaterialC.Materiel->SetMatrix(mat4C.Globle);
                         Renderer3D::DrawModdelSeclection( mat4C.Globle, dynamicMeshC.MeshR, m_MaterialC.Materiel,slelcted.GetEntityHandle());
                         
                     }
-                }
+#endif
+                
                 Renderer3D::EndScene();
             }
+
         }
 
         m_SelectedFramebuffer->Unbind();
+#else
+#endif
     }
 
 #pragma endregion
@@ -519,8 +533,8 @@ namespace Rynex {
         {
             ImGui::Begin("Shadow Map");
             uint32_t shadowID = stats.ShadowsTex->GetRenderID(); 
-            
-            ImGui::Image(reinterpret_cast<void*>(shadowID), ImVec2{ (float)stats.ShadowsTex->GetWidth(), (float)stats.ShadowsTex->GetHeight() }, ImVec2(0, 1), ImVec2(1, 0));
+            ImVec2 viewportPannelShadowSize = ImGui::GetContentRegionAvail();
+            ImGui::Image(reinterpret_cast<void*>(shadowID), ImVec2{ (stats.ShadowsTex->GetWidth() / stats.ShadowsTex->GetHeight()) * viewportPannelShadowSize.y,  viewportPannelShadowSize.y }, ImVec2(0, 1), ImVec2(1, 0));
 
             ImGui::End();
         }
@@ -643,7 +657,8 @@ namespace Rynex {
             }
             }
 
-            if (!selectedEntity.HasComponent<TransformComponent>()) return;
+            if (!selectedEntity.HasComponent<TransformComponent>()) 
+                return;
 
             auto& tc = selectedEntity.GetComponent<TransformComponent>();
             glm::mat4 transform = tc.GetTransform();
@@ -681,7 +696,9 @@ namespace Rynex {
                 }
                 
             }
+            
         }
+        
     }
 
     void ViewPort::RenderSelectedEntity()

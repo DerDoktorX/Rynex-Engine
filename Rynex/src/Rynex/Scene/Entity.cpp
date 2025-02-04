@@ -148,11 +148,10 @@ namespace Rynex {
 		if (HasComponent<StaticMeshComponent>())
 		{
 			StaticMeshComponent& staticMesh = GetComponent<StaticMeshComponent>();
-			std::vector<glm::mat4>& globels = staticMesh.GlobleMeshMatrix;
-			std::vector<glm::mat4>& locale = staticMesh.LocaleMeshMatrix;
-			for (uint32_t i = 0, length = globels.size(); i < length; i++)
+			
+			for (auto& mesh : staticMesh.Meshes)
 			{
-				globels[i] = entityMatrix4x4C.Globle * locale[i];
+				mesh.Globle = entityMatrix4x4C.Globle * mesh.Locale;
 			}
 		}
 		while (nextChilde)

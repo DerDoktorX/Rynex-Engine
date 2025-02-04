@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security.Policy;
 
 namespace Rynex
 {
@@ -49,14 +48,14 @@ namespace Rynex
 
     public struct FramebufferAttachmentSpecification
     {
-        
+
         public FramebufferTextureSpecification[] Attachments;
 
-     
+
 
         public FramebufferAttachmentSpecification(FramebufferTextureSpecification[] attachments)
-        { 
-            Attachments = attachments; 
+        {
+            Attachments = attachments;
         }
     }
 
@@ -137,7 +136,7 @@ namespace Rynex
         {
             Destroy();
         }
-       
+
         public void Destroy()
         {
             InternalCalls.Framebuffer_Destroy(Handle.UUID);
@@ -156,10 +155,10 @@ namespace Rynex
 
         public FramebufferSpecification GetFramebufferSpecification()
         {
-            
-           
+
+
             InternalCalls.Framebuffer_GetFramebufferSpecification(Handle.UUID, out uint size, out uint width, out uint height, out bool swapChainTarget);
-            
+
             FramebufferTextureSpecification[] attachments = new FramebufferTextureSpecification[size];
             for (uint i = 0; i < size; i++)
             {

@@ -28,7 +28,7 @@ namespace Rynex {
 		virtual int ReadPixel(uint32_t index, int x, int y) override;
 		virtual const glm::uvec2& GetFrambufferSize() override;
 
-		virtual void Bind() override;
+		virtual void Bind(float width = 0.0f, float height = 0.0f, float x = 0.0f, float y = 0.0f) override;
 		virtual void Unbind() override;
 
 		virtual void BindColorAttachment(uint32_t index = 0, uint32_t slot = 0) const override;
