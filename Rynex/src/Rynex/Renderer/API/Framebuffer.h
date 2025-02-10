@@ -24,20 +24,26 @@ namespace Rynex {
 		FramebufferTextureSpecification(const FramebufferTextureSpecification&) = default;
 
 		FramebufferTextureSpecification(TextureFormat format)
-			: TextureFormat(format) {}
+			: TextureFormat(format) { }
 
 		FramebufferTextureSpecification(TextureFormat format, uint32_t samples)
-			: TextureFormat(format), Samples(samples){}
+			: TextureFormat(format), Samples(samples) { }
 
 		FramebufferTextureSpecification(TextureFormat format, uint32_t samples, TextureWrappingSpecification wrapping)
-			: TextureFormat(format), Samples(samples), TextureWrapping(wrapping) {}
+			: TextureFormat(format), Samples(samples), TextureWrapping(wrapping) { }
 
+		FramebufferTextureSpecification(TextureFormat format, uint32_t samples, TextureFilteringMode filtering)
+			: TextureFormat(format), Samples(samples), TextureFiltering(filtering) { }
 
 		FramebufferTextureSpecification(TextureFormat format, uint32_t samples, TextureWrappingSpecification wrapping, TextureFilteringMode filtering)
-			: TextureFormat(format), Samples(samples), TextureWrapping(wrapping), TextureFiltering(filtering) {}
+			: TextureFormat(format), Samples(samples), TextureWrapping(wrapping), TextureFiltering(filtering) { }
+
+		FramebufferTextureSpecification(TextureFormat format, uint32_t samples, TextureWrappingSpecification wrapping, TextureFilteringMode filtering, TextureCompareModes compare)
+			: TextureFormat(format), Samples(samples), TextureWrapping(wrapping), TextureFiltering(filtering), Compare(compare) { }
 		
 
 		TextureFormat TextureFormat = TextureFormat::RGBA8;
+		
 		uint32_t Samples = 1;
 		TextureWrappingSpecification TextureWrapping = {
 			TextureWrappingMode::ClampEdge,
@@ -45,7 +51,7 @@ namespace Rynex {
 			TextureWrappingMode::ClampEdge
 		};
 		TextureFilteringMode TextureFiltering = TextureFilteringMode::Linear;
-
+		TextureCompareModes Compare = TextureCompareModes::None;
 		bool operator ==(FramebufferTextureSpecification& framebufferTextureSpecification)
 		{
 			return (framebufferTextureSpecification.TextureFormat == TextureFormat) && 

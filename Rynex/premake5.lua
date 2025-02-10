@@ -56,6 +56,7 @@ project "Rynex"
 		"%{IncludeDir.filewatch}",
 		"%{IncludeDir.magic_enum}",
 		"%{IncludeDir.assimp}",
+		
 		 --"%{IncludeDir.assimp}",
 			--"%{IncludeDir._config}",
 			--"%{IncludeDir.assimp_config}",

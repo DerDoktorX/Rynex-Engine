@@ -1,0 +1,159 @@
+Scene: Untiteld
+Entities:
+  - Entity: 8488709186981471615
+    TagComponent:
+      Tag: Yamato
+    TransformComponent:
+      Transaltion: [6.4993391, 0, 0]
+      Rotation: [-1.57079637, 0, 0]
+      Scale: [0.300000012, 0.299999982, 0.299999982]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [0.300000012, 0, 0, 0, 0, 1.78813924e-08, -0.299999952, 0, 0, 0.299999952, 1.78813924e-08, 0, 6.4993391, 0, 0, 1]
+      Globle: [0.300000012, 0, 0, 0, 0, 1.78813924e-08, -0.299999952, 0, 0, 0.299999952, 1.78813924e-08, 0, 6.4993391, 0, 0, 1]
+    MeshComponent:
+      Model:
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Handle: 1909654747024762369
+    StaticMeshComponent:
+      Model-S:
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Handle: 1909654747024762369
+  - Entity: 6934700488835536706
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Transaltion: [14.3000002, 11.3999996, 44.9000015]
+      Rotation: [-0.237364784, 0.143116996, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectivVerticleFOV: 0.471238881
+        PerspectivNearClipe: 0.00999999978
+        PerspectivFarClipe: 300
+        OrthographicSize: 100
+        OrthographicNearClipe: 0.00100000005
+        OrthographicFarClipe: 1000
+      Primary: true
+      FixedAspectRotaion: false
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [0.989776254, -1.86264515e-09, -0.142628938, 0, -0.0335380659, 0.971961021, -0.232738078, 0, 0.138629764, 0.235142112, 0.962023914, 0, 14.3000002, 11.3999996, 44.9000015, 1]
+      Globle: [0.989776254, -1.86264515e-09, -0.142628938, 0, -0.0335380659, 0.971961021, -0.232738078, 0, 0.138629764, 0.235142112, 0.962023914, 0, 14.3000002, 11.3999996, 44.9000015, 1]
+    ViewMatrixComponent:
+      Locale: [0.989776194, -0.0335380659, 0.138629749, -0, -3.72528985e-09, 0.971960902, 0.235142082, 0, -0.142628923, -0.232738048, 0.962023795, -0, -7.74975967, -0.150821075, -47.8578987, 1]
+      Globle: [0.989776194, -0.0335380659, 0.138629749, -0, -3.72528985e-09, 0.971960902, 0.235142082, 0, -0.142628923, -0.232738048, 0.962023795, -0, -7.74975967, -0.150821075, -47.8578987, 1]
+  - Entity: 14668069288910999674
+    TagComponent:
+      Tag: Ambient
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      Globle: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+    AmbientLigthComponent:
+      Color: [1, 1, 1]
+      Intensitie: 0.100000001
+  - Entity: 3056472762523855576
+    TagComponent:
+      Tag: Dirktionel
+    TransformComponent:
+      Transaltion: [-18.8788548, 20.0576115, 18.6360245]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -18.8788548, 20.0576115, 18.6360245, 1]
+      Globle: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -18.8788548, 20.0576115, 18.6360245, 1]
+    ViewMatrixComponent:
+      Locale: [1, -0, 0, -0, -0, 1, -0, 0, 0, -0, 1, -0, 18.8788548, -20.0576115, -18.6360245, 1]
+      Globle: [1, -0, 0, -0, -0, 1, -0, 0, 0, -0, 1, -0, 18.8788548, -20.0576115, -18.6360245, 1]
+    DrirektionleLigthComponent:
+      Color: [1, 1, 1]
+      Intensitie: 0.5
+  - Entity: 5455012069440129222
+    TagComponent:
+      Tag: point
+    TransformComponent:
+      Transaltion: [7.67423248, 5.23000002, 14.6942444]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 7.67423248, 5.23000002, 14.6942444, 1]
+      Globle: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 7.67423248, 5.23000002, 14.6942444, 1]
+    PointLigthComponent:
+      Color: [1, 1, 0]
+      Intensitie: 0.129999995
+      Distence: 0.0399999991
+  - Entity: 9602718723979563166
+    TagComponent:
+      Tag: Spot
+    TransformComponent:
+      Transaltion: [9.82999992, 10.1000004, 1.32000005]
+      Rotation: [-0.774926186, 2.58832335, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [-0.850811243, 0, -0.525471628, 0, -0.367653221, 0.714472651, 0.595281363, 0, 0.375435114, 0.699663401, -0.607881427, 0, 9.82999992, 10.1000004, 1.32000005, 1]
+      Globle: [-0.850811243, 0, -0.525471628, 0, -0.367653221, 0.714472651, 0.595281363, 0, 0.375435114, 0.699663401, -0.607881427, 0, 9.82999992, 10.1000004, 1.32000005, 1]
+    ViewMatrixComponent:
+      Locale: [-0.850811064, -0.367653191, 0.375435024, -0, -4.47034729e-08, 0.714472711, 0.699663222, 0, -0.525471509, 0.595281363, -0.607881248, -0, 9.05709553, -4.38791513, -9.9547224, 1]
+      Globle: [-0.850811064, -0.367653191, 0.375435024, -0, -4.47034729e-08, 0.714472711, 0.699663222, 0, -0.525471509, 0.595281363, -0.607881248, -0, 9.05709553, -4.38791513, -9.9547224, 1]
+    SpotLigthComponent:
+      Color: [1, 1, 1]
+      Intensitie: 1
+      Distence: 30
+      Inner: 0.959999979
+      Outer: 0.949999988
+  - Entity: 10496532666551607594
+    TagComponent:
+      Tag: Perlane
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [100, 1, 100]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [100, 0, 0, 0, 0, 1, 0, 0, 0, 0, 100, 0, 0, 0, 0, 1]
+      Globle: [100, 0, 0, 0, 0, 1, 0, 0, 0, 0, 100, 0, 0, 0, 0, 1]
+    MeshComponent:
+      Model:
+        Path: Assets/Models/Cube.gltf
+        Handle: 14190457037429147166
+    StaticMeshComponent:
+      Model-S:
+        Path: Assets/Models/Cube.gltf
+        Handle: 14190457037429147166

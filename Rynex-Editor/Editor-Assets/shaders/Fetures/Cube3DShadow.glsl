@@ -43,7 +43,7 @@ layout(location = 0) out vec4 Color;
 layout(location = 1) out int  EntityID;
 
 #define TEXTURE_SHADOW_SAMPLER 0
-
+#define TEXTURE_DEBUG_MODE_COORDS 0
 #if TEXTURE_SHADOW_SAMPLER
     layout(binding = 0) uniform sampler2DShadow ShadowMap; 
 #else
@@ -61,7 +61,6 @@ void main()
 
     vec3 p = ligthView_Postion.xyz / ligthView_Postion.w;
     p = p * 0.5 + 0.5;
-    // p = ( p + 1.0f ) / 2.0f;
     float multyplyer = textureProj(ShadowMap, ligthView_Postion);
     float shadow = p.z -bias > multyplyer  ? 1.0 : 0.0;
     Color.xyz *= shadow;
@@ -74,15 +73,27 @@ void main()
 
    vec3 p = ligthView_Postion.xyz / ligthView_Postion.w;
    p.xyz = p.xyz * 0.5 + 0.5;
+   // p.xyz = (p.xyz + 1.0) / 2.0;
    float multyplyer = texture(ShadowMap, p.xy).r;
-   float bias = 0.000009f;
-   float shadow = p.z - bias > multyplyer ? 1.0 : multyplyer -  p.z - bias ;
+   float bias = 0.009f;
+   float shadow = p.z - bias > multyplyer ? 1.0 : p.z-multyplyer;
    // Color.xyz *= multyplyer;
 
     // if(multyplyer > 0.0)
-    Color.xyz *= (1.0 - shadow);
-    //else
-    //    Color.xyz *= 1.0;
+    #if TEXTURE_DEBUG_MODE_COORDS
+    if(p.x < 1.0 && p.x > 0.0 && p.y < 1.0 && p.y > 0.0 )
+    {   
+        if(shadow > 0.1)
+            Color.xyz *= (1.0 - shadow);
+        else
+            Color.xy = p.xy;
+    }  
+    #else
+    
+    if(p.x <= 1.0 && p.x >= 0.0 && p.y <= 1.0 && p.y >= 0.0 )
+        Color.xyz *= (1.0 - shadow);
+
+    #endif  
 
 #endif
     

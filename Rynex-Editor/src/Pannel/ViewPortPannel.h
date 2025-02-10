@@ -108,6 +108,8 @@ namespace Rynex {
 		bool IsWindowHoverd() const { return m_WindowHoverd; }
 		bool IsGizmoHoverd() const { return m_ImGizmoHovered; }
 	private:
+
+		bool IsCurrentWindowMoving();
 		void CalculateMausePos(const glm::vec2& mausOffset);
 		void WindowResize(const glm::vec2& windowSize);
 		void DragAndDrop();
@@ -147,6 +149,7 @@ namespace Rynex {
 		bool						m_WindowFocused = false;
 		bool						m_WindowHoverd = false;
 		bool						m_ImGizmoHovered = false;
+		bool						m_WindowMoving = false;
 		std::string					m_WindowName = "";
 
 		

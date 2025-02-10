@@ -1,0 +1,93 @@
+Scene: Untiteld
+Entities:
+  - Entity: 8488709186981471615
+    TagComponent:
+      Tag: Yamato
+    TransformComponent:
+      Transaltion: [-9.98378754, 0, 0]
+      Rotation: [-1.57079637, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [0.5, 0, 0, 0, 0, 2.98023224e-08, -0.49999997, 0, 0, 0.49999997, 2.98023224e-08, 0, -9.98378754, 0, 0, 1]
+      Globle: [0.5, 0, 0, 0, 0, 2.98023224e-08, -0.49999997, 0, 0, 0.49999997, 2.98023224e-08, 0, -9.98378754, 0, 0, 1]
+    MeshComponent:
+      Model:
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Handle: 1909654747024762369
+    StaticMeshComponent:
+      Model-S:
+        Path: Assets/Models/Yamto-Model/scene.gltf
+        Handle: 1909654747024762369
+  - Entity: 6934700488835536706
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Transaltion: [-27.7999992, 12.5, 29.6000004]
+      Rotation: [-0.307177961, -0.776671529, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectivVerticleFOV: 0.453785598
+        PerspectivNearClipe: 0.00999999978
+        PerspectivFarClipe: 191
+        OrthographicSize: 35
+        OrthographicNearClipe: 89
+        OrthographicFarClipe: 165
+      Primary: true
+      FixedAspectRotaion: false
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [0.713250458, 7.4505806e-09, 0.700909257, 0, 0.211933851, 0.953190684, -0.21566546, 0, -0.668100119, 0.302369893, 0.679863691, 0, -27.7999992, 12.5, 29.6000004, 1]
+      Globle: [0.713250458, 7.4505806e-09, 0.700909257, 0, 0.211933851, 0.953190684, -0.21566546, 0, -0.668100119, 0.302369893, 0.679863691, 0, -27.7999992, 12.5, 29.6000004, 1]
+    ViewMatrixComponent:
+      Locale: [0.713250518, 0.211933851, -0.668100178, -0, -1.49011612e-08, 0.953190625, 0.302369893, 0, 0.700909257, -0.21566546, 0.679863691, -0, -0.918551743, 0.360575765, -42.4767761, 1]
+      Globle: [0.713250518, 0.211933851, -0.668100178, -0, -1.49011612e-08, 0.953190625, 0.302369893, 0, 0.700909257, -0.21566546, 0.679863691, -0, -0.918551743, 0.360575765, -42.4767761, 1]
+  - Entity: 14668069288910999674
+    TagComponent:
+      Tag: Ambient
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      Globle: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+    AmbientLigthComponent:
+      Color: [1, 1, 1]
+      Intensitie: 0.00999999978
+  - Entity: 3056472762523855576
+    TagComponent:
+      Tag: Dirktionel
+    TransformComponent:
+      Transaltion: [-30.454319, 27.3243904, 30.1392212]
+      Rotation: [0, 0.01048028, 0]
+      Scale: [0.999899805, 1, 0.999899805]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [0.999844909, 0, -0.0104790386, 0, 0, 1, 0, 0, 0.0104790386, 0, 0.999844909, 0, -30.454319, 27.3243904, 30.1392212, 1]
+      Globle: [0.999844909, 0, -0.0104790386, 0, 0, 1, 0, 0, 0.0104790386, 0, 0.999844909, 0, -30.454319, 27.3243904, 30.1392212, 1]
+    ViewMatrixComponent:
+      Locale: [0.999945164, -0, 0.0104717845, -0, -0, 1, -0, 0, -0.0104717845, -0, 0.999945164, -0, -0, 0, -0, 1]
+      Globle: [0.999945164, -0, 0.0104717845, -0, -0, 1, -0, 0, -0.0104717845, -0, 0.999945164, -0, -0, 0, -0, 1]
+    DrirektionleLigthComponent:
+      Color: [1, 1, 1]
+      Intensitie: 0.99000001

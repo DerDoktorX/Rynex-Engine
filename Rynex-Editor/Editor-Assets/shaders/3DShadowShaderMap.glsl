@@ -16,6 +16,8 @@ void main()
     mat4 lightSpaceMatrix = uLigthProje * (uLigthview); 
     mat4 mvpL = lightSpaceMatrix * uModel;
     gl_Position = mvpL * vec4( a_Postion , 1.0 );
+
+    
 }
 
 #type Fragment

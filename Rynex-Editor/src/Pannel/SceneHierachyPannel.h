@@ -34,8 +34,14 @@ namespace Rynex {
 		void OpenProperties();
 		
 		void OnImGuiRender();
-		Entity GetSelectedEntity() const { return m_SelectionContext; }
+		Entity GetSelectedEntity() const { 
+			if (m_SelectionContext)
+				return m_SelectionContext;
+			else
+				return Entity{};
+		}
 		void SetSelectedEntity(Entity entity) { m_SelectionContext = entity; }
+
 		void CreateEntity(const std::string& name, uint32_t entityNumber = 0);
 		
 		uint32_t GetEntityCount() const { return m_Context->GetEntityCount(); }
@@ -55,7 +61,7 @@ namespace Rynex {
 	private:
 		Ref<Scene> m_Context;
 		std::vector<DealeatEntitiy> m_EntityDelete;
-		Entity	m_SelectionContext;
+		Entity m_SelectionContext;
 		std::vector<std::future<void>>	m_WorkingThread;
 		ImGuiID m_ScriptEditID;
 		bool m_CheckErrors = false;

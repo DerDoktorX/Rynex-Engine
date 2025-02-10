@@ -4,7 +4,7 @@ namespace Rynex {
 
 	enum class RYNEX_API ResurceType
 	{
-		Nono = 0,
+		None = 0,
 		Texture, Texture2D,
 		Shader,
 		Value, Vector2, Vector3, Vector4, Matrix3x3, Matrix4x4,

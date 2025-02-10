@@ -35,10 +35,10 @@ namespace Rynex {
 		RecalulateProjection();
 	}
 
-	void SceneCamera::SetPerspectiv(float verticleFow, float nearClip, float farClip)
+	void SceneCamera::SetPerspectiv(float verticleFOV, float nearClip, float farClip)
 	{
 		m_ProjektionType = ProjectionType::Perspectiv;
-		m_PerspectivFOV = verticleFow;
+		m_PerspectivFOV = verticleFOV;
 		m_PerspectivNear = nearClip;
 		m_PerspectivFar = farClip;
 

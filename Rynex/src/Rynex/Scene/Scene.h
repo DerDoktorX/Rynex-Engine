@@ -121,16 +121,22 @@ namespace Rynex {
 		glm::uvec2 GetViewPortSize() { return { m_ViewPortWithe , m_ViewPortHeigth }; }
 		const glm::vec2& GetMousPixelPos() { return m_MausPixlePos; }
 
+		void SetSelectedEntity(Entity entity);
+
+		Entity GetSelectedEntity();
 		Entity GetEntitiyByUUID(UUID uuid);
 		Entity GetEntityByName(const std::string& tag);
 		Entity GetEntityPrimaryCamera();
+		
 
 		bool IsTagInScene(const std::string& tag);
 		void SetMousPixelPos(const glm::vec2& pos) { m_MausPixlePos = pos; }
 		void SetHoverViewPort(bool isHovered) { m_Hovered = isHovered; }
 		void SetWindowResize(bool isResized) { m_Resized = isResized; }
 		bool IsViewPortHovered() const { return m_Hovered; }
+
 		bool IsWindowResize() const { return m_Resized; }
+		bool IsCameraEntityViewFustrum();
 
 		uint32_t GetEntityCount() const { return (uint32_t)m_Registery.size(); }
 
@@ -170,8 +176,8 @@ namespace Rynex {
 #endif
 
 		void RenderFrambuffers( EnttView3D& enttView3D, EnttView2D& enttView2D, EnttCameraView& enttCameraView);
-		static void SetLigthsRuntime(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D, Camera& camera, const glm::mat4& viewMatrix, const glm::vec3& viewCenter);
-		static void SetLigthsEditor(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D, Camera& camera, const glm::mat4& viewMatrix, const glm::vec3& viewCenter, const glm::uvec2& viewPortSize);
+		void SetLigthsRuntime(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D, Camera& camera, const glm::mat4& viewMatrix, const glm::vec3& viewCenter);
+		void SetLigthsEditor(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D, Camera& camera, const glm::mat4& viewMatrix, const glm::vec3& viewCenter, const glm::uvec2& viewPortSize);
 
 		// void RenderScene3DShadows( EnttView3D& enttView3D);
 
@@ -184,6 +190,7 @@ namespace Rynex {
 		bool m_Hovered = false;
 		bool m_Resized = false;
 
+
 		bool m_IsRunning = false;
 		bool m_IsPaused = false;
 		int m_StepFrames = 0;
@@ -191,6 +198,8 @@ namespace Rynex {
 		// Ref<Framebuffer>	m_RendererFramebuffer;
 		int m_RedererDefaultModeFlags = 0;
 		//b2World* m_PhysicsWorld = nullptr;
+
+		entt::entity m_ViewPortSelected;
 
 		std::unordered_map<UUID, entt::entity> m_EntityMapID;
 		// std::map<std::string, Ref<Framebuffer>> m_RenderFrambuffer;

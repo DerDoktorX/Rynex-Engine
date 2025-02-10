@@ -33,7 +33,10 @@ layout(shared, binding = 1) uniform ModelData
 void main()
 {
 	vec4 worldPostion = Model.ModelMatrix * vec4( a_Postion , 1.0 );
-    gl_Position = Camera.ProjectionMatrix * (Camera.ViewMatrix) * (worldPostion);
+	vec4 projetedWorldPostion = (Camera.ProjectionMatrix * Camera.ViewMatrix * worldPostion);
+	vec4 screenPostion = vec4( projetedWorldPostion / projetedWorldPostion.w );
+	
+    gl_Position = screenPostion;
 }
 
 #type Fragment
@@ -41,6 +44,4 @@ void main()
 
 void main()
 {
-    
-	
 }

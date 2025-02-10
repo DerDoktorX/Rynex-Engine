@@ -1,0 +1,22 @@
+Scene: Untiteld
+Entities:
+  - Entity: 11605345862440519529
+    TagComponent:
+      Tag: Empty Entiy
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [1, 0, 1, 1]
+      Texture:
+        Path: D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Texture/ChernoLogo.png
+        Handle: 16519291898220451438
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      Globle: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]

@@ -173,5 +173,10 @@ namespace Rynex {
 #endif
 	}
 
+	const Scene const* Entity::GetScene() const
+	{	
+		return m_Scene;
+	}
+
 }
 

@@ -203,7 +203,8 @@ namespace Rynex {
 					attachment.TextureFormat,
 					attachment.Samples,
 					attachment.TextureFiltering,
-					attachment.TextureWrapping
+					attachment.TextureWrapping,
+					attachment.Compare
 				};
 				m_DepthAttachment = CreateRef<OpenGLFrameTexture>(spec);
 				m_DepthAttachmentTex = m_DepthAttachment;
@@ -218,7 +219,8 @@ namespace Rynex {
 					attachment.TextureFormat,
 					attachment.Samples,
 					attachment.TextureFiltering,
-					attachment.TextureWrapping
+					attachment.TextureWrapping,
+					attachment.Compare
 				};
 				
 				Ref<OpenGLFrameTexture> tex = CreateRef<OpenGLFrameTexture>( spec);
@@ -345,9 +347,11 @@ namespace Rynex {
 						withe, height,
 						attachment.Target,
 						attachment.Format,
+						
 						attachment.Samples,
 						attachment.FilteringMode,
-						attachment.WrappingSpec
+						attachment.WrappingSpec,
+						attachment.Compare,
 						}, id);
 					glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, targetTex, id, 0);
 					i++;
@@ -372,9 +376,11 @@ namespace Rynex {
 						withe, height,
 						attachment.Target,
 						attachment.Format,
+						
 						attachment.Samples,
 						attachment.FilteringMode,
-						attachment.WrappingSpec
+						attachment.WrappingSpec,
+						attachment.Compare
 						}, id);
 					glFramebufferTexture2D(GL_FRAMEBUFFER, Utils::AtchemtType(attachment.Format) + i, targetMultySamleTex, id, 0);
 					i++;
@@ -394,9 +400,11 @@ namespace Rynex {
 					withe, height,
 					attachment.Target,
 					attachment.Format,
+					
 					attachment.Samples,
 					attachment.FilteringMode,
-					attachment.WrappingSpec
+					attachment.WrappingSpec,
+					attachment.Compare
 					}, id);
 
 

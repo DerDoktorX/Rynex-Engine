@@ -1,0 +1,86 @@
+Scene: Untiteld
+Entities:
+  - Entity: 6579336522368390703
+    TagComponent:
+      Tag: Empty Childern Entiy
+    TransformComponent:
+      Transaltion: [-0.899999976, 0, 1.70000005]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 3118441644552840709
+    ModelMatrixComponent:
+      Locale: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -0.899999976, 0, 1.70000005, 1]
+      Globle: [0.899999976, 0, 0, 0, 0, 0.899999976, 0, 0, 0, 0, 0.899999976, 0, -0.809999943, 0, 1.52999997, 1]
+  - Entity: 2742813763717321731
+    TagComponent:
+      Tag: Entity
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    ScriptComponent:
+      ClassName: Sandbox.Player
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      Globle: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+  - Entity: 4582435539733203406
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Transaltion: [12, 8.69999981, 15]
+      Rotation: [-0.432841629, 0.649262488, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectivVerticleFOV: 0.785398185
+        PerspectivNearClipe: 0.00999999978
+        PerspectivFarClipe: 1000
+        OrthographicSize: 10
+        OrthographicNearClipe: 0.00100000005
+        OrthographicFarClipe: 1000
+      Primary: true
+      FixedAspectRotaion: false
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [0.796529889, 0, -0.604599118, 0, -0.253600359, 0.907777488, -0.334106088, 0, 0.548841476, 0.419452071, 0.723071933, 0, 12, 8.69999981, 15, 1]
+      Globle: [0.796529889, 0, -0.604599118, 0, -0.253600359, 0.907777488, -0.334106088, 0, 0.548841476, 0.419452071, 0.723071933, 0, 12, 8.69999981, 15, 1]
+    ViewMatrixComponent:
+      Locale: [0.796530008, -0.253600389, 0.548841536, -0, 2.98023259e-08, 0.907777607, 0.419452071, -0, -0.604599178, -0.334106147, 0.723071933, -0, -0.489371777, 0.157131776, -21.0814095, 1]
+      Globle: [0.796530008, -0.253600389, 0.548841536, -0, 2.98023259e-08, 0.907777607, 0.419452071, -0, -0.604599178, -0.334106147, 0.723071933, -0, -0.489371777, 0.157131776, -21.0814095, 1]
+  - Entity: 3118441644552840709
+    TagComponent:
+      Tag: Cube
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [0.899999976, 0.899999976, 0.899999976]
+    RealtionShipComponent:
+      Previus: 0
+      First: 6579336522368390703
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [0.899999976, 0, 0, 0, 0, 0.899999976, 0, 0, 0, 0, 0.899999976, 0, 0, 0, 0, 1]
+      Globle: [0.899999976, 0, 0, 0, 0, 0.899999976, 0, 0, 0, 0, 0.899999976, 0, 0, 0, 0, 1]
+    MeshComponent:
+      Model:
+        Path: Assets/Models/Cube.gltf
+        Handle: 14190457037429147166
+    StaticMeshComponent:
+      Model-S:
+        Path: Assets/Models/Cube.gltf
+        Handle: 14190457037429147166

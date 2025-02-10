@@ -57,7 +57,7 @@ namespace Rynex {
 			m_Scene->m_Registery.remove<T>(m_EntityHandle);
 		};
 
-		operator bool() { return m_EntityHandle != entt::null && m_Scene->m_Registery.valid(m_EntityHandle); };
+		operator bool() { return m_EntityHandle != entt::null && m_Scene != nullptr && m_Scene->m_Registery.alive() && m_Scene->m_Registery.valid(m_EntityHandle); };
 		operator entt::entity() const { return m_EntityHandle; }
 		operator uint32_t() const { return (uint32_t)m_EntityHandle; }
 
@@ -79,7 +79,12 @@ namespace Rynex {
 		State GetState() const { return m_State; }
 		void SetState(State state) { m_State = state; }
 		
-	
+		const Scene const* GetScene() const;
+
+		bool IsInSceneCameraEntityViewFustrum()
+		{
+			return m_Scene->IsCameraEntityViewFustrum(); 
+		}
 	private:
 		entt::entity m_EntityHandle{ entt::null };
 		Scene* m_Scene = nullptr;

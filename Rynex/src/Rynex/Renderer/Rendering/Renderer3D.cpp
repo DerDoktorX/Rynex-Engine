@@ -14,6 +14,11 @@ namespace Rynex {
 
 #if 1
 
+    struct LigthUniformPtr
+    {
+        glm::vec4* ShadowTexSizePtr;
+        glm::mat4* ShadowMatrixPtr;
+    };
     namespace Utils {
 
         struct TextureAtlas
@@ -371,13 +376,14 @@ namespace Rynex {
             return result;
         }
 
-        inline static void CalculateTextureAtles(glm::vec4* texUniformPtr, const glm::vec2& stepSize_ST_Coord, const glm::ivec2& textureSpacePostion, const glm::ivec2& textureSpaceSize)
+        inline static void CalculateTextureAtles(LigthUniformPtr& texUniformPtr, const glm::vec2& stepSize_ST_Coord, const glm::ivec2& textureSpacePostion, const glm::ivec2& textureSpaceSize)
         {
             float step_ST_CoordX = static_cast<float>(textureSpacePostion.x) / textureSpaceSize.x;
             float step_ST_CoordY = static_cast<float>(textureSpacePostion.y) / textureSpaceSize.y;
             glm::vec2 offset_ST_Coord = { step_ST_CoordX, step_ST_CoordY };
 
-            *texUniformPtr = glm::vec4(stepSize_ST_Coord, offset_ST_Coord);
+            *texUniformPtr.ShadowTexSizePtr = glm::vec4(stepSize_ST_Coord, offset_ST_Coord);
+
         }
 
         inline static void OffsetAdding(glm::ivec2& offsetPositon, int offsetSmalestTextureSpaceDimension, const glm::ivec2& lastOffsetPositon, const glm::ivec2& lastOffsetPositon2, int lastOffsetEffectY, int lastOffsetEffectY2 , const AtlasTexture& atlasTexture)
@@ -421,7 +427,7 @@ namespace Rynex {
             }
         }
 
-        inline static glm::ivec2 CalulateAtlesTexture(std::vector<glm::vec4*>& texturesAtlasUniforms,  const AtlasTexture& atlasTexture, const glm::ivec2& lastOffsetPositon, const glm::ivec2& lastOffsetPositon2, int offsetSmalestTextureSpaceDimension)
+        inline static glm::ivec2 CalulateAtlesTexture(std::vector<LigthUniformPtr>& texturesAtlasUniforms,  const AtlasTexture& atlasTexture, const glm::ivec2& lastOffsetPositon, const glm::ivec2& lastOffsetPositon2, int offsetSmalestTextureSpaceDimension)
         {
             int countTexture = texturesAtlasUniforms.size();
             glm::ivec2 offsetPositon = lastOffsetPositon;
@@ -441,7 +447,7 @@ namespace Rynex {
             glm::ivec2 pixxelSize = { pixxelSizeX, pixxelSizeY };
 
 
-            for (glm::vec4* texUnifromPtr : texturesAtlasUniforms)
+            for (LigthUniformPtr texUnifromPtr : texturesAtlasUniforms)
             {
                 
                 // int pixxelOffsetX = 512 * offsetPositon.x;
@@ -517,7 +523,7 @@ namespace Rynex {
     }
 
 #endif
-
+   
 #pragma region Uniform_Ligths_Structs
 
     struct AmbientData
@@ -668,15 +674,15 @@ namespace Rynex {
         uint32_t CountLigthPoint = 0;
         uint32_t CountLigthAmbient = 0;
 
-        std::vector<glm::vec4*> ShadowMapTexture2048;
-        std::vector<glm::vec4*> ShadowMapTexture1024;
-        std::vector<glm::vec4*> ShadowMapTexture512;
-        std::vector<glm::vec4*> ShadowMapTexture256;
+        std::vector<LigthUniformPtr> ShadowMapTexture2048;
+        std::vector<LigthUniformPtr> ShadowMapTexture1024;
+        std::vector<LigthUniformPtr> ShadowMapTexture512;
+        std::vector<LigthUniformPtr> ShadowMapTexture256;
 
 
         const uint32_t ShadowTextureSize = 512;
-        const uint32_t MaxShadowDrirection = 8;
-        const uint32_t MaxShadowSpot = 0;
+        const uint32_t MaxShadowDrirection = 4;
+        const uint32_t MaxShadowSpot = 4;
         const uint32_t MaxShadowPoint = 0;
         const uint32_t MaxShadowTexturesSize = MaxShadowDrirection + MaxShadowSpot + MaxShadowPoint;
         const uint32_t MaxShadowTexturesByteSize = MaxShadowTexturesSize * sizeof(glm::mat4);
@@ -686,6 +692,8 @@ namespace Rynex {
         uint32_t CountShadowDrirection = 0;
         uint32_t CountShadowSpot = 0;
         uint32_t CountShadowPoint = 0;
+
+        uint32_t CountShadowMaps = 0;
 
         Ref<StorageBuffer> LigtheViewProjtionMatriciesBuffer = nullptr;
         Ref<StorageBuffer> ShadowMatriciesBuffer = nullptr;
@@ -735,7 +743,7 @@ namespace Rynex {
 
     static RendererData s_Data;
 
-#define PRIMARY_USE_SHADOWMAP_MIN_SIZE      128
+#define PRIMARY_USE_SHADOWMAP_MIN_SIZE      512
 #define PRIMARY_USE_SHADOWMAP_SIZE          2048
 
 #define PRIMARY_USE_SHADOWMAP_VALUE         (PRIMARY_USE_SHADOWMAP_SIZE / PRIMARY_USE_SHADOWMAP_MIN_SIZE)
@@ -761,8 +769,8 @@ namespace Rynex {
 #if RY_OLD_RENDER_SYSTEM
         RY_PROFILE_FUNCTION();
         RY_CORE_INFO("Renderer3D::Init");
-        s_Data.RenderFunktions.reserve(100);
-        s_Data.SubmiteRenderFunktions.reserve(100);
+        s_Data.RenderFunktions.reserve(100ull);
+        s_Data.SubmiteRenderFunktions.reserve(100ull);
         s_Data.Default3DShader = AssetManager::GetAsset<Shader>("../Rynex-Editor/Editor-Assets/shaders/Default_Rynex-Editor_Shader.glsl");
 
 #if 0
@@ -831,8 +839,8 @@ namespace Rynex {
 
         {
             std::vector<BufferElement> element;
-            uint32_t count = sizeof(s_Data.ShadowsMatricies.ViewProjectionMatrixLigth) / sizeof(glm::mat4);
-            element.resize(count + 1 );
+            uint32_t count = s_Data.CountShadowMaps;
+            element.reserve(1ull + count);
             for (uint32_t i = 0; i < count; i++)
                 element.emplace_back(ShaderDataType::Float4x4, "ViewProjectionMatrix", i);
 
@@ -852,9 +860,9 @@ namespace Rynex {
 
         {
             std::vector<BufferElement> element;
-            element.resize((8 * 3) + 1);
+            element.reserve((8ull * 3ull) + 1ull);
             element.emplace_back(ShaderDataType::Int4, "Aktiv");
-            for (uint32_t i = 1; i < 9; i++)
+            for (uint32_t i = 0; i < 8; i++)
             {
                 element.emplace_back(ShaderDataType::Float4x4, "ShadowMatrix", i);
 
@@ -873,9 +881,9 @@ namespace Rynex {
 
         {
             std::vector<BufferElement> element;
-            element.resize((32 * 4) + 1);
+            element.reserve((32ull * 4ull) + 1ull);
             element.emplace_back(ShaderDataType::Int4, "Aktiv");
-            for (uint32_t i = 1; i < 33; i++)
+            for (uint32_t i = 0; i < 32; i++)
             {
                 element.emplace_back(ShaderDataType::Float3, "Color", i);
                 element.emplace_back(ShaderDataType::Float, "Distence", i);
@@ -889,10 +897,10 @@ namespace Rynex {
 
         {
             std::vector<BufferElement> element;
-            element.resize((32 * 6) + 1);
+            element.reserve((32ull * 6ull) + 1ull);
             // element.resize((32 * 6));
             element.emplace_back(ShaderDataType::Int4, "Aktiv");
-            for (uint32_t i = 1; i < 33; i++)
+            for (uint32_t i = 0; i < 32; i++)
             {
                 element.emplace_back(ShaderDataType::Float4x4, "ShadowMatrix", i);
 
@@ -919,7 +927,7 @@ namespace Rynex {
             s_Data.ShadowFramebuffer = Framebuffer::Create({
                 PRIMARY_USE_SHADOWMAP_MIN_SIZE, PRIMARY_USE_SHADOWMAP_MIN_SIZE,
                 {
-                    { TexFrom::DepthComp24, 1, { TexWarp::ClampEdge, TexWarp::ClampEdge, TexWarp::ClampEdge }, TexFilter::Linear }
+                    { TexFrom::DepthComp24, 1, { TexWarp::ClampEdge, TexWarp::ClampEdge, TexWarp::ClampEdge }, TexFilter::Linear, TexComp::Lequal }
                 }
             });
             s_Data.ShadowTexture = s_Data.ShadowFramebuffer->GetDepthTexture();
@@ -1008,7 +1016,7 @@ namespace Rynex {
     {
         if (s_Data.CountLigthSpot < s_Data.MaxLigthSpot)
         {
-            Ligths::SpotLigtheData spotLigtheData(spot.Color, glm::vec3(matrix[3]), glm::vec3(matrix[2]), spot.Intensitie, spot.Distence, spot.Inner, spot.Distence, viewProjetionShadow);
+            Ligths::SpotLigtheData spotLigtheData(spot.Color, glm::vec3(matrix[3]), glm::vec3(matrix[2]), spot.Intensitie, spot.Distence, spot.Inner, spot.Outer, viewProjetionShadow);
             s_Data.BufferSpotData.Spot[s_Data.CountLigthSpot] = spotLigtheData;
             s_Data.CountLigthSpot++;
         }
@@ -1016,7 +1024,7 @@ namespace Rynex {
 
     void Renderer3D::SetLigthUniform(PointLigthComponent& point, const glm::mat4& matrix)
     {
-        if (s_Data.CountLigthPoint < s_Data.MaxLigthPoint)
+        if (s_Data.CountLigthPoint < s_Data.MaxLigthPoint )
         {
             Ligths::PointLigtheData pointLigtheData(point.Color, glm::vec3(matrix[3]), point.Intensitie, point.Distence);
             s_Data.BufferPointData.Point[s_Data.CountLigthPoint] = pointLigtheData;
@@ -1184,10 +1192,7 @@ namespace Rynex {
     {
         
 #if 1
-        uint32_t count = s_Data.ShadowMapTexture2048.size()
-            + s_Data.ShadowMapTexture1024.size()
-            + s_Data.ShadowMapTexture512.size()
-            + s_Data.ShadowMapTexture256.size();
+        uint32_t count = s_Data.CountShadowMaps;
 
         if (count == 0)
             return;
@@ -1214,7 +1219,7 @@ namespace Rynex {
         glm::ivec2 atlasTexturePixxelSize = atlasTexture.Size * PRIMARY_USE_SHADOWMAP_MIN_SIZE;
         glm::dvec2 countTexture = atlasTexturePixxelSize / PRIMARY_USE_SHADOWMAP_SIZE;
         glm::vec2 stepSize_ST_Coord = 1.0 / countTexture;
-        glm::ivec2 offsetTextures = { 0,0 };
+        glm::ivec2 offsetTextures = { 0, 0 };
         int index = 0;
 
         s_Data.ShadowFramebuffer->Bind();
@@ -1222,7 +1227,8 @@ namespace Rynex {
         
         s_Data.ShadowsViewMatriciesBuffer->SetData(&s_Data.ShadowsMatricies, 0, sizeof(s_Data.ShadowsMatricies));
         s_Data.ShadowsViewMatriciesBuffer->Bind(8);
-        for (glm::vec4* texPtr : PRIMARY_USE_SHADOWMAP)
+        SpotData& spotData = s_Data.BufferSpotData;
+        for (LigthUniformPtr& texPtr : PRIMARY_USE_SHADOWMAP)
         {
             Utils::CalculateTextureAtles(texPtr, stepSize_ST_Coord, offsetTextures, atlasTexture.Size);
             s_Data.ShadowsViewMatriciesBuffer->SetData(&index, sizeof(s_Data.ShadowsMatricies.ViewProjectionMatrixLigth), sizeof(int));
@@ -1280,6 +1286,8 @@ namespace Rynex {
         s_Data.CameraViewProjBuffer->Bind(0);
         s_Data.ShadowTexture->Bind(7);
 
+        s_Data.CountShadowMaps = 0;
+
         s_Data.CountShadowDrirection = 0;
         s_Data.CountShadowPoint = 0;
         s_Data.CountShadowSpot = 0;
@@ -1292,25 +1300,34 @@ namespace Rynex {
 
     void Renderer3D::AddShadowMapSpotlLigth(const glm::mat4& viewProjtion)
     {
-        if (s_Data.CountShadowSpot >= s_Data.MaxShadowSpot)
+        if (s_Data.CountShadowSpot >= s_Data.MaxShadowSpot || s_Data.CountShadowMaps >= s_Data.MaxShadowTexturesSize)
             return;
+        uint32_t index = s_Data.CountLigthSpot;
+        glm::vec4* shadowMapUniformDataSizePtr = &s_Data.BufferSpotData.Spot[index].ShadowMapPos;
+        glm::mat4* shadowMapUniformDataMatrixPtr = &s_Data.BufferSpotData.Spot[index].ShadowMatrix;
+        
+        LigthUniformPtr ligthsUniformPtr = { shadowMapUniformDataSizePtr, shadowMapUniformDataMatrixPtr };
+        PRIMARY_USE_SHADOWMAP.emplace_back(ligthsUniformPtr);
 
-        glm::vec4* shadowMapUniformDataPtr = &s_Data.BufferSpotData.Spot[s_Data.CountLigthSpot].ShadowMapPos;
-        PRIMARY_USE_SHADOWMAP.emplace_back(shadowMapUniformDataPtr);
-
-        s_Data.ShadowsMatricies.ViewProjectionMatrixLigth[s_Data.CountShadowSpot] = viewProjtion;
+        s_Data.ShadowsMatricies.ViewProjectionMatrixLigth[s_Data.CountShadowMaps] = viewProjtion;
         s_Data.CountShadowSpot++;
+        s_Data.CountShadowMaps++;
     }
 
     void Renderer3D::AddShadowMapDirectionelLigth(const glm::mat4& viewProjtion)
     {
-        if (s_Data.CountShadowDrirection >= s_Data.MaxLigthDrirection)
+        if (s_Data.CountShadowDrirection >= s_Data.MaxLigthDrirection || s_Data.CountShadowMaps >= s_Data.MaxShadowTexturesSize)
             return;
 
-        glm::vec4* shadowMapUniformDataPtr = &s_Data.BufferDrirectionData.Drirecion[s_Data.CountLigthDrirection].ShadowMapPos;
-        PRIMARY_USE_SHADOWMAP.emplace_back(shadowMapUniformDataPtr);
-        s_Data.ShadowsMatricies.ViewProjectionMatrixLigth[s_Data.CountShadowDrirection] = viewProjtion;
+        glm::vec4* shadowMapUniformDataSizePtr = &s_Data.BufferDrirectionData.Drirecion[s_Data.CountShadowDrirection].ShadowMapPos;
+        glm::mat4* shadowMapUniformDataMatrixPtr = &s_Data.BufferDrirectionData.Drirecion[s_Data.CountShadowDrirection].ShadowMatrix;
+
+        LigthUniformPtr ligthsUniformPtr = { shadowMapUniformDataSizePtr, shadowMapUniformDataMatrixPtr };
+
+        PRIMARY_USE_SHADOWMAP.emplace_back(ligthsUniformPtr);
+        s_Data.ShadowsMatricies.ViewProjectionMatrixLigth[s_Data.CountShadowMaps] = viewProjtion;
         s_Data.CountShadowDrirection++;
+        s_Data.CountShadowMaps++;
     }
 
 #pragma endregion
@@ -1907,13 +1924,17 @@ namespace Rynex {
 
 #pragma region DebugeDrawFunktion
 
-    void Renderer3D::DrawLineBoxAABB(const BoxAABB& aabb, const glm::mat4& modelMatrix, int entityID)
+    void Renderer3D::DrawLineBoxAABB(const BoxAABB& aabb, const glm::mat4& modelMatrix, int entityID, const glm::vec3& color)
     {
         s_Data.BoxAABBShader->Bind();
         s_Data.BoxAABBShader->SetMat4("u_ViewProj", s_Data.CameraDataMat4.ViewProjectionMatrix);
-        s_Data.BoxAABBShader->SetMat4("u_Model", modelMatrix);
+        
+
         s_Data.BoxAABBShader->SetFloat3("u_GloblePostion", modelMatrix[3]);
+       
+        s_Data.BoxAABBShader->SetMat4("u_Model", modelMatrix);
         s_Data.BoxAABBShader->SetInt("u_EntityID", entityID);
+        s_Data.BoxAABBShader->SetFloat3("u_Color", color);
         const glm::vec3& min = aabb.GetMin();
         const glm::vec3& max = aabb.GetMax();
         s_Data.BoxAABB[0] = glm::vec3(min.x, min.y, max.z);
@@ -1933,12 +1954,14 @@ namespace Rynex {
 
     }
 
-    void Renderer3D::DrawLineBoxAABB(const std::array<glm::vec4, 8>& aabb, const glm::mat4& matrix, const glm::vec3& position, int entityID)
+    void Renderer3D::DrawLineBoxAABB(const std::array<glm::vec4, 8>& aabb, const glm::mat4& matrix, const glm::vec3& position, int entityID, const glm::vec3& color)
     {
         s_Data.BoxAABBShader->Bind();
         s_Data.BoxAABBShader->SetMat4("u_ViewProj", s_Data.CameraDataMat4.ViewProjectionMatrix);
         s_Data.BoxAABBShader->SetMat4("u_Model", matrix);
         s_Data.BoxAABBShader->SetFloat3("u_GloblePostion", position);
+        s_Data.BoxAABBShader->SetFloat3("u_Color", color);
+
         s_Data.BoxAABBShader->SetInt("u_EntityID", entityID);
         std::array<glm::vec3, 8> aabbvec3;
         for (uint32_t i = 0; i < 8; i++)

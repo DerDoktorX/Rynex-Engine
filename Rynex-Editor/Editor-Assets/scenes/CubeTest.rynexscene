@@ -1,0 +1,25 @@
+Scene: Untiteld
+Entities:
+  - Entity: 1298420555420276652
+    TagComponent:
+      Tag: Empty Entiy
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      Globle: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+    MeshComponent:
+      Model:
+        Path: D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Models/Cube.gltf
+        Handle: 11351194013970227777
+    StaticMeshComponent:
+      Model-S:
+        Path: D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Models/Cube.gltf
+        Handle: 11351194013970227777

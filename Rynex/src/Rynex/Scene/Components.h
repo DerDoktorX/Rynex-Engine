@@ -120,7 +120,7 @@ namespace Rynex {
 		SceneCamera Camera;
 		bool Primary = true;
 		bool FixedAspectRotaion = false;
-		bool ViewFustrum = false;
+		bool ViewFustrum = true;
 		CameraComponent() = default;
 		CameraComponent(const CameraComponent&) = default;
 
@@ -392,7 +392,7 @@ namespace Rynex {
 	struct AmbientLigthComponent
 	{
 		glm::vec3 Color = { 1.0f, 1.0f, 1.0f };
-		float Intensitie = 0.1f;
+		float Intensitie = 0.05f;
 
 		AmbientLigthComponent() = default;
 		AmbientLigthComponent(const AmbientLigthComponent&) = default;
@@ -401,7 +401,7 @@ namespace Rynex {
 	struct DrirektionleLigthComponent
 	{
 		glm::vec3 Color = { 1.0f, 1.0f, 1.0f };
-		float Intensitie = 0.1f;
+		float Intensitie = 0.5f;
 
 		DrirektionleLigthComponent(const DrirektionleLigthComponent&) = default;
 
@@ -410,10 +410,9 @@ namespace Rynex {
 	struct PointLigthComponent
 	{
 		glm::vec3 Color = { 1.0f, 1.0f, 1.0f };
-		float Distence = 0.0f;
-		float Intensitie = 1.0f;
-		glm::mat4 Projection;
-		Ref<Framebuffer> ShadowFrameBuffer = nullptr;
+		float Distence = 0.5f;
+		float Intensitie = 0.5f;
+
 
 		PointLigthComponent() = default;
 		PointLigthComponent(const PointLigthComponent&) = default;
@@ -422,15 +421,12 @@ namespace Rynex {
 	struct SpotLigthComponent
 	{
 		glm::vec3 Color = { 1.0f, 1.0f, 1.0f };
-		float Distence = 1.0f;
-		float Intensitie = 1.0;
+		float Distence = 50.0f;
+		float Intensitie = 0.5;
 
-		float Inner = 0.9f;
-		float Outer = 0.1f;
+		float Inner = 0.95f;
+		float Outer = 0.9f;
 
-		glm::mat4 Projection;
-
-		Ref<Framebuffer> ShadowFrameBuffer = nullptr;
 		SpotLigthComponent() = default;
 		SpotLigthComponent(const SpotLigthComponent&) = default;
 	};

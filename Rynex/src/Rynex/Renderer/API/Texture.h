@@ -62,6 +62,20 @@ namespace Rynex {
 		LinearMidmapNearest,
 	};
 
+	enum class TextureCompareModes 
+	{
+		None = 0,
+		Default = 1,
+
+		Lequal,
+		Always,
+		Gequal,
+		Less,
+		Greater,
+		Equal,
+		Never
+	};
+
 	enum class TextureWrappingMode
 	{
 		None = 0,
@@ -88,6 +102,8 @@ namespace Rynex {
 	using TexWarp = TextureWrappingMode;
 	using TexFilter = TextureFilteringMode;
 	using TexTar = TextureTarget;
+	using TexComp = TextureCompareModes;
+
 
 	struct TextureWrappingSpecification
 	{
@@ -133,6 +149,7 @@ namespace Rynex {
 		uint32_t Width, Height;
 		TextureTarget Target = TextureTarget::Texture2D;
 		TextureFormat Format = TextureFormat::RGBA8;
+		
 		uint32_t Samples = 1;
 		TextureFilteringMode FilteringMode = TextureFilteringMode::Nearest;
 		TextureWrappingSpecification WrappingSpec = {
@@ -140,7 +157,12 @@ namespace Rynex {
 			TextureWrappingMode::Repeate,
 			// TextureWrappingMode::Repeate
 		};
+		TextureCompareModes Compare = TextureCompareModes::None;
 		bool GenerateMips = true;
+		
+		
+
+		
 	};
 
 	struct FramebufferTextureSpecification;

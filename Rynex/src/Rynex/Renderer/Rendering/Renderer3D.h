@@ -83,7 +83,8 @@ namespace Rynex {
 			float Inner = -21.0f;
 
 			float Outer = -22.0f;
-			glm::vec3 Empty = { -23.0f, -24.0f,-25.0f };
+			glm::vec3 Empty = { -23.0f, -24.0f ,-25.0f };
+			glm::vec4 Empty2 = { -26.0f, -27.0f ,-28.0f, -29.0f };
 
 			SpotLigtheData() = default;
 			SpotLigtheData(const glm::vec3& color, const glm::vec3& postion, const glm::vec3& direction, float intensitie, float distence, float inner, float outer, const glm::mat4& viewProjetionShadow)
@@ -203,8 +204,8 @@ namespace Rynex {
 
 
 		
-		static void DrawLineBoxAABB(const BoxAABB& aabb, const glm::mat4& modelMatrix, int entityID);
-		static void DrawLineBoxAABB(const std::array<glm::vec4, 8>& viewFustrum, const glm::mat4& matrix, const glm::vec3& position, int entityID);
+		static void DrawLineBoxAABB(const BoxAABB& aabb, const glm::mat4& modelMatrix, int entityID, const glm::vec3& color = glm::vec3(1.0f, 0.0f, 0.0f));
+		static void DrawLineBoxAABB(const std::array<glm::vec4, 8>& viewFustrum, const glm::mat4& matrix, const glm::vec3& position, int entityID, const glm::vec3& color = glm::vec3(1.0f, 0.0f, 0.0f));
 
 
 		static void DrawObjectRender3D(const Ref<VertexArray>& vertexArray);

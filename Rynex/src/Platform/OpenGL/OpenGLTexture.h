@@ -68,7 +68,8 @@ namespace Rynex {
 	class OpenGLFrameTexture : public OpenGLTexture
 	{
 	public:
-		OpenGLFrameTexture( const TextureSpecification& specification);
+		OpenGLFrameTexture(const TextureSpecification& specification);
+		
 		virtual ~OpenGLFrameTexture();
 
 		virtual void Resize(uint32_t width, uint32_t height) override;

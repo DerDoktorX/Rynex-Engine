@@ -1,0 +1,116 @@
+Scene: Untiteld
+Entities:
+  - Entity: 10747745846710820364
+    TagComponent:
+      Tag: Dirktionel
+    TransformComponent:
+      Transaltion: [-1.70000005, 1.60000002, 0.800000012]
+      Rotation: [-0.382227093, -0.609119952, 0]
+      Scale: [10, 10, 10]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [8.20151806, 0, 5.72145939, 0, 2.1340344, 9.27836227, -3.0590663, 0, -5.30857801, 3.72987771, 7.60966587, 0, -1.70000005, 1.60000002, 0.800000012, 1]
+      Globle: [8.20151806, 0, 5.72145939, 0, 2.1340344, 9.27836227, -3.0590663, 0, -5.30857801, 3.72987771, 7.60966587, 0, -1.70000005, 1.60000002, 0.800000012, 1]
+    ViewMatrixComponent:
+      Locale: [0.0820151865, 0.0213403441, -0.0530857742, -0, 3.81469745e-09, 0.0927836373, 0.0372987799, -0, 0.0572145991, -0.0305906609, 0.0760966614, -0, 0.0936541334, -0.0877026916, -0.210801199, 1]
+      Globle: [0.0820151865, 0.0213403441, -0.0530857742, -0, 3.81469745e-09, 0.0927836373, 0.0372987799, -0, 0.0572145991, -0.0305906609, 0.0760966614, -0, 0.0936541334, -0.0877026916, -0.210801199, 1]
+    DrirektionleLigthComponent:
+      Color: [1, 1, 1]
+      Intensitie: 1
+  - Entity: 15543937080984278482
+    TagComponent:
+      Tag: Empty Entiy
+    TransformComponent:
+      Transaltion: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      Globle: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+    AmbientLigthComponent:
+      Color: [1, 1, 1]
+      Intensitie: 0.100000001
+  - Entity: 8488709186981471615
+    TagComponent:
+      Tag: Cube
+    TransformComponent:
+      Transaltion: [0, 1, 0]
+      Rotation: [2.17651177e-07, 0, 0]
+      Scale: [0.5, 0.5, 0.5]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [0.5, 0, 0, 0, 0, 0.5, 1.08825589e-07, 0, 0, -1.08825589e-07, 0.5, 0, 0, 1, 0, 1]
+      Globle: [0.5, 0, 0, 0, 0, 0.5, 1.08825589e-07, 0, 0, -1.08825589e-07, 0.5, 0, 0, 1, 0, 1]
+    MeshComponent:
+      Model:
+        Path: D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Models/Cube.gltf
+        Handle: 11351194013970227777
+    StaticMeshComponent:
+      Model-S:
+        Path: D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Models/Cube.gltf
+        Handle: 11351194013970227777
+  - Entity: 6934700488835536706
+    TagComponent:
+      Tag: Camera
+    TransformComponent:
+      Transaltion: [-7.19999981, 7.69999981, -6.69999981]
+      Rotation: [-0.612610519, -2.60403109, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 0
+        PerspectivVerticleFOV: 0.785398185
+        PerspectivNearClipe: 0.00999999978
+        PerspectivFarClipe: 73
+        OrthographicSize: 57
+        OrthographicNearClipe: 79
+        OrthographicFarClipe: 0
+      Primary: true
+      FixedAspectRotaion: false
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [-0.858959675, -1.49011612e-08, 0.512042999, 0, 0.294427395, 0.818149805, 0.493906289, 0, -0.418927848, 0.575005114, -0.702757597, 0, -7.19999981, 7.69999981, -6.69999981, 1]
+      Globle: [-0.858959675, -1.49011612e-08, 0.512042999, 0, 0.294427395, 0.818149805, 0.493906289, 0, -0.418927848, 0.575005114, -0.702757597, 0, -7.19999981, 7.69999981, -6.69999981, 1]
+    ViewMatrixComponent:
+      Locale: [-0.858959854, 0.294427395, -0.418927968, 0, -1.49011647e-08, 0.818149686, 0.575005174, 0, 0.512043118, 0.493906319, -0.702757895, -0, -2.75382185, -0.870703101, -12.1522989, 1]
+      Globle: [-0.858959854, 0.294427395, -0.418927968, 0, -1.49011647e-08, 0.818149686, 0.575005174, 0, 0.512043118, 0.493906319, -0.702757895, -0, -2.75382185, -0.870703101, -12.1522989, 1]
+  - Entity: 14668069288910999674
+    TagComponent:
+      Tag: Plane
+    TransformComponent:
+      Transaltion: [1, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [10, 0.00999999978, 10]
+    RealtionShipComponent:
+      Previus: 0
+      First: 0
+      Next: 0
+      Parent: 0
+    ModelMatrixComponent:
+      Locale: [10, 0, 0, 0, 0, 0.00999999978, 0, 0, 0, 0, 10, 0, 1, 0, 0, 1]
+      Globle: [10, 0, 0, 0, 0, 0.00999999978, 0, 0, 0, 0, 10, 0, 1, 0, 0, 1]
+    MeshComponent:
+      Model:
+        Path: D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Models/Cube.gltf
+        Handle: 11351194013970227777
+    StaticMeshComponent:
+      Model-S:
+        Path: D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Models/Cube.gltf
+        Handle: 11351194013970227777

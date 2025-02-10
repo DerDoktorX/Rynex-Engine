@@ -85,6 +85,8 @@ void main()
     vec3 colorLigth = vec3(ambient + diffuse + specular);
     vec3 result =  u_Color.rgb;
 
+
+
     vec4 texureColore = texture2D(u_Texture_Diffuse1, vec2(DataIn.uv));	
-    Color =  vec4(colorLigth * result, 1.0);
+    Color =  vec4(colorLigth *result, 1.0);
 }

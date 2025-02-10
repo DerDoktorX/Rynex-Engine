@@ -50,7 +50,7 @@ namespace Rynex {
             {
                 TexFrom::Depth24Stencil8, 1,
                 { TexWarp::ClampEdge,  TexWarp::ClampEdge, TexWarp::ClampEdge, },
-                TexFilter::Nearest
+                TexFilter::Nearest,
             }
         };
         fbSpec.Width = 1280;
@@ -294,38 +294,54 @@ namespace Rynex {
 
         if ((slelcted != Entity() || slelcted != 0) && slelcted.HasComponent<ModelMatrixComponent>())
         {
-            ModelMatrixComponent& mat4C = slelcted.GetComponent<ModelMatrixComponent>();
+            ModelMatrixComponent& modelC = slelcted.GetComponent<ModelMatrixComponent>();
             if (slelcted.HasComponent<SpriteRendererComponent>())
             {
                 Renderer2D::BeginSceneQuade(mainCamera, viewMatrix);
                 SpriteRendererComponent& spriteC = slelcted.GetComponent<SpriteRendererComponent>();
-                Renderer2D::DrawSprite(mat4C.Globle, spriteC, slelcted.GetEntityHandle());
+                Renderer2D::DrawSprite(modelC.Globle, spriteC, slelcted.GetEntityHandle());
                 Renderer2D::EndSceneQuade();
             }
 
             if (slelcted.HasComponent<CameraComponent>())
             {
                 Renderer2D::BeginSceneIcon(mainCamera, viewMatrix, m_SelectedFramebuffer->GetFrambufferSize());
-                Renderer2D::DrawCameraIcon(mat4C.Globle, slelcted.GetEntityHandle());
+                Renderer2D::DrawCameraIcon(modelC.Globle, slelcted.GetEntityHandle());
                 Renderer2D::EndSceneIcon();
+                CameraComponent& camerC = slelcted.GetComponent<CameraComponent>();
+               
+                
+
+                
             }
             if (slelcted.HasComponent<Rynex::DrirektionleLigthComponent>())
             {
                 Renderer2D::BeginSceneIcon(mainCamera, viewMatrix, m_SelectedFramebuffer->GetFrambufferSize());
-                Renderer2D::DrawLigthDirctionelIcon(mat4C.Globle, slelcted.GetEntityHandle());
+                Renderer2D::DrawLigthDirctionelIcon(modelC.Globle, slelcted.GetEntityHandle());
                 Renderer2D::EndSceneIcon();
+
+                
+                
+
             }
             if (slelcted.HasComponent<Rynex::SpotLigthComponent>())
             {
                 Renderer2D::BeginSceneIcon(mainCamera, viewMatrix, m_SelectedFramebuffer->GetFrambufferSize());
-                Renderer2D::DrawLigthSpotIcon(mat4C.Globle, slelcted.GetEntityHandle());
+                Renderer2D::DrawLigthSpotIcon(modelC.Globle, slelcted.GetEntityHandle());
                 Renderer2D::EndSceneIcon();
+
+
+
+               
             }
             if (slelcted.HasComponent<Rynex::PointLigthComponent>())
             {
                 Renderer2D::BeginSceneIcon(mainCamera, viewMatrix, m_SelectedFramebuffer->GetFrambufferSize());
-                Renderer2D::DrawLigthPointIcon(mat4C.Globle, slelcted.GetEntityHandle());
+                Renderer2D::DrawLigthPointIcon(modelC.Globle, slelcted.GetEntityHandle());
                 Renderer2D::EndSceneIcon();
+
+                
+                
             }
 #if 0
             else  if (slelcted.HasComponent<GeomtryComponent>() )
@@ -352,7 +368,7 @@ namespace Rynex {
                 {
 #if RY_MODEL_NODE
 
-                    Renderer3D::RenderComponet(mat4C.Globle, staticMeshC, m_MaterialC.Materiel, slelcted.GetEntityHandle(), Renderer3D::DrawMesh3D);
+                    Renderer3D::RenderComponet(modelC.Globle, staticMeshC, m_MaterialC.Materiel, slelcted.GetEntityHandle(), Renderer3D::DrawMesh3D);
 
 #else
                     const std::vector<Ref<Mesh>>& meshes = staticMeshC.ModelR->GetMeshes();
@@ -388,7 +404,7 @@ namespace Rynex {
                
                
 #if RY_MODEL_NODE
-                Renderer3D::RenderComponet(mat4C.Globle, dynamicMeshC, m_MaterialC.Materiel, slelcted.GetEntityHandle(), Renderer3D::DrawMesh3D);
+                Renderer3D::RenderComponet(modelC.Globle, dynamicMeshC, m_MaterialC.Materiel, slelcted.GetEntityHandle(), Renderer3D::DrawMesh3D);
 #else
                     if ( dynamicMeshC.MeshR != nullptr)
                     {
@@ -480,7 +496,7 @@ namespace Rynex {
         // ViewPort get Size + Resize Image + SetImage in ViewPort
         ImVec2 viewportPannelSize = ImGui::GetContentRegionAvail();
         WindowResize({ viewportPannelSize.x , viewportPannelSize.y });
-
+        m_WindowMoving = IsCurrentWindowMoving();
         uint32_t textureID = 0;
         switch (*m_SceneState)
         {
@@ -559,6 +575,15 @@ namespace Rynex {
         m_AktiveScene->OnViewportResize((uint32_t)m_WindowSize.x, (uint32_t)m_WindowSize.y);
     }
 
+
+    bool ViewPort::IsCurrentWindowMoving()
+    {
+        ImGuiWindow* window = ImGui::GetCurrentWindow();
+        if (!window)
+            return false;
+
+        return (window->MoveId == ImGui::GetActiveID());
+    }
 
     void ViewPort::CalculateMausePos(const glm::vec2& mausOffset)
     {
@@ -771,7 +796,7 @@ namespace Rynex {
     void ViewPort::HoveredEntity(const glm::vec2& mousePos)
     {
         m_MauseInViewPixelPos = { -0.0f, -0.0f };
-        if (m_WindowHoverd)
+        if (m_WindowHoverd && m_WindowFocused && !m_WindowMoving)
         {
             float mx = mousePos.x;
             float my = mousePos.y;

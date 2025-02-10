@@ -87,12 +87,64 @@ namespace Rynex {
 
 		inline static glm::mat4 CalculateDirectionShadowMapsCamera(const glm::mat4& modelMatrix)
 		{
-			return glm::ortho(-15.0f, 15.0f, -15.0f, 15.0f, 0.0f, 50.0f) * glm::lookAt(glm::vec3(modelMatrix[3]), glm::vec3(0.f, 0.f, 0.f) , glm::vec3(0.f,1.f,0.f));
+			
+
+			glm::mat4 porjetionOth = glm::ortho(-15.0f, 15.0f, -15.0f, 15.0f, 0.0f, 100.f);
+#if 0
+			glm::mat4 porjetionPer = glm::perspective(glm::radians(45.f), 3.0f / 4.0f, 0.1f, 100.f);
+			SceneCamera sceneCamera = SceneCamera();
+			sceneCamera.SetViewPortSize(2048.0f, 2048.0f);
+			sceneCamera.SetPerspectiv(glm::radians(90.0f), 0.1f, 100.f);
+			sceneCamera.SetOrthoGrafic(15.0f, 0.0f, 100.f);
+
+			glm::mat4 porjetionCamera = sceneCamera.GetProjektion();
+			
+
+			glm::mat4 viewIn = glm::inverse(modelMatrix);
+			
+#endif
+			glm::mat4 viewLo = glm::lookAt(glm::vec3(modelMatrix[3]), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
+			return porjetionOth * viewLo;
 		}
 
-		inline static glm::mat4 CalculateSpotShadowMapsCamera(const glm::mat4& modelMatrix)
+		inline static glm::mat4 CalculateSpotShadowMapsCamera(const glm::mat4& modelMatrix, float outer, float farClip)
 		{
-			return glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 50.0f) * glm::inverse(modelMatrix);
+			// float farClipL = 100.0f;
+			// glm::mat4 porjetionOth = glm::ortho(-15.0f, 15.0f, -15.0f, 15.0f, 0.0f, farClip);
+			glm::mat4 porjetionPer = glm::perspective(glm::radians(45.0f)  , 2048.0f / 2048.0f, 0.01f, farClip);
+#if 0
+			
+			SceneCamera sceneCamera = SceneCamera();
+			sceneCamera.SetProjectionType(SceneCamera::ProjectionType::Perspectiv);
+			sceneCamera.SetViewPortSize(2048.0f, 2048.0f);
+			sceneCamera.SetPerspectiv(glm::radians(45.0f), 1.f, farClipL);
+			
+			// sceneCamera.SetOrthoGrafic(15.0f, 0.0f, farClipL);
+			glm::mat4 porjetionCamera = sceneCamera.GetProjektion();
+
+			
+			glm::mat4 viewLo = glm::lookAt(glm::vec3(modelMatrix[3]), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
+#endif
+			glm::mat4 viewIn = glm::inverse(modelMatrix);
+			return porjetionPer * viewIn;
+		}
+
+		inline static glm::mat4 CalculateSpotShadowMapsCamera(const glm::mat4& modelMatrix, Entity& e)
+		{
+			
+			glm::mat4 porjetionView;
+			if(e.HasComponent<CameraComponent>())
+			{
+				CameraComponent& camerC = e.GetComponent<CameraComponent>();
+				const glm::mat4& porjetion = camerC.Camera.GetProjektion();
+				glm::mat4 viewIn = glm::inverse(modelMatrix);
+				porjetionView = porjetion * viewIn;
+			}
+			else
+			{
+				porjetionView = CalculateSpotShadowMapsCamera(modelMatrix, 0.0f, 0.0f);
+			}
+			return porjetionView;
 		}
 	}
 
@@ -187,8 +239,21 @@ namespace Rynex {
 		entity.DestroyEntity();
 		m_EntityMapID.erase(entity.GetUUID());
 		m_EntityMapTag.erase(entity.GetComponent<TagComponent>().Tag);
+		if (entity == Entity{ m_ViewPortSelected, this })
+			m_ViewPortSelected = entt::null;
 		m_Registery.destroy(entity);
+		
 		m_EntityLeangth--;
+	}
+
+	void Scene::SetSelectedEntity(Entity entity)
+	{
+		m_ViewPortSelected = (entt::entity)entity;
+	}
+
+	Entity Scene::GetSelectedEntity()
+	{
+		return Entity{ m_ViewPortSelected, this };
 	}
 
 	Entity Scene::GetEntitiyByUUID(UUID uuid)
@@ -228,6 +293,18 @@ namespace Rynex {
 	bool Scene::IsTagInScene(const std::string& tag)
 	{
 		return (m_EntityMapTag.find(tag) != m_EntityMapTag.end());
+	}
+
+	bool Scene::IsCameraEntityViewFustrum()
+	{
+		auto cameraView = m_Registery.view<CameraComponent>();
+		for (auto camerE : cameraView)
+		{
+			auto& camerC = cameraView.get<CameraComponent>(camerE);
+			if (camerC.ViewFustrum)
+				return true;
+		}
+		return false;
 	}
 
 #pragma endregion
@@ -407,6 +484,7 @@ namespace Rynex {
 			glm::mat4 viewProjtion = Utils::CalculateDirectionShadowMapsCamera(modelC.Globle);
 			Renderer3D::AddShadowMapDirectionelLigth(viewProjtion);
 			Renderer3D::SetLigthUniform(directionelC, modelC.Globle, viewProjtion);
+			
 		}
 
 		for (EnttEntity pointE : pointView)
@@ -418,9 +496,11 @@ namespace Rynex {
 		for (EnttEntity spotE : spotView)
 		{
 			auto& [ modelC, spotC] = spotView.get<ModelMatrixComponent, SpotLigthComponent>(spotE);
-			glm::mat4 viewProjetion = Utils::CalculateSpotShadowMapsCamera(modelC.Globle);
+			glm::mat4 viewProjtion = Utils::CalculateSpotShadowMapsCamera(modelC.Globle, spotC.Outer, spotC.Distence);
+			// glm::mat4 viewProjtion = Utils::CalculateDirectionShadowMapsCamera(modelC.Globle);
+			Renderer3D::AddShadowMapSpotlLigth(viewProjtion);
+			Renderer3D::SetLigthUniform(spotC, modelC.Globle, viewProjtion);
 			
-			Renderer3D::SetLigthUniform(spotC, modelC.Globle, viewProjetion);
 		}
 
 		AmbientLigthComponent* useAmbientC = nullptr;
@@ -534,9 +614,22 @@ namespace Rynex {
 					// glm::mat4 viewProjetionLigth = CalculateShadowMapsCamera(modelC.Globle, { 0.0f, 0.0f, 0.0f }, fustemWorldCamera);
 					glm::mat4 viewProjetionLigth = Utils::CalculateDirectionShadowMapsCamera(ligthModelC.Globle);
 					glm::mat4 inverseViewProjetionLigth = glm::inverse(viewProjetionLigth);
-					Renderer3D::DrawLineBoxAABB(SceneCamera::GetViewFustrum(), inverseViewProjetionLigth, glm::vec3(ligthModelC.Globle[3]), (int)dirLigth);
+					Renderer3D::DrawLineBoxAABB(SceneCamera::GetViewFustrum(), inverseViewProjetionLigth, glm::vec3(ligthModelC.Globle[3]), (int)dirLigth, Entity{ m_ViewPortSelected, this } == dirLigth ? glm::vec3(0.65f, 0.95f, 0.15f) : glm::vec3(0.85f, 0.25f, 0.15f));
 				}
-				Renderer3D::DrawLineBoxAABB(SceneCamera::GetViewFustrum(), inverseViewProjetionCamera, glm::vec3(modelC.Globle[3]), (int)camerE);
+
+				for (EnttEntity spotLigth : enttViewLigths.SpotLCV)
+				{
+					auto& [ligthModelC, ligthSpotC] = enttViewLigths.SpotLCV.get<ModelMatrixComponent, SpotLigthComponent>(spotLigth);
+
+
+					// glm::mat4 viewProjetionLigth = Utils::CalculateShadowMapsCamera(ligthModelC.Globle, centerCamerViewFustrum, fustemWorldCamera);
+					// glm::mat4 viewProjetionLigth = CalculateShadowMapsCamera(modelC.Globle, { 0.0f, 0.0f, 0.0f }, fustemWorldCamera);
+					glm::mat4 viewProjetionLigth = Utils::CalculateSpotShadowMapsCamera(ligthModelC.Globle, ligthSpotC.Outer, ligthSpotC.Distence);
+					// glm::mat4 viewProjetionLigth = Utils::CalculateSpotShadowMapsCamera(ligthModelC.Globle, Entity{ spotLigth, this });
+					glm::mat4 inverseViewProjetionLigth = glm::inverse(viewProjetionLigth);
+					Renderer3D::DrawLineBoxAABB(SceneCamera::GetViewFustrum(), inverseViewProjetionLigth, glm::vec3(ligthModelC.Globle[3]), (int)spotLigth, Entity{ m_ViewPortSelected, this } == spotLigth ? glm::vec3(0.65f, 0.95f, 0.15f) : glm::vec3(0.85f, 0.25f, 0.15f));
+				}
+				Renderer3D::DrawLineBoxAABB(SceneCamera::GetViewFustrum(), inverseViewProjetionCamera, glm::vec3(modelC.Globle[3]), (int)camerE, Entity { m_ViewPortSelected, this } == camerE ? glm::vec3(0.65f, 0.95f, 0.15f) : glm::vec3(0.85f, 0.25f, 0.15f));
 			}
 		}
 
@@ -584,7 +677,7 @@ namespace Rynex {
 			Renderer3D::AddShadowMapDirectionelLigth(viewProjtion);
 			Renderer3D::SetLigthUniform(directionelC, modelC.Globle, viewProjtion);
 			Renderer2D::DrawLigthDirctionelIcon(modelC.Globle, (int)directionelE);
-
+			
 		}
 
 		
@@ -603,9 +696,13 @@ namespace Rynex {
 			auto& [ modelC, spotC] = spotView.get<ModelMatrixComponent, SpotLigthComponent>(spotE);
 			// glm::mat4 viewProjtion = Utils::CalculateShadowMapsCamera(modelC.Globle);
 		
-			glm::mat4 viewProjetion = Utils::CalculateSpotShadowMapsCamera(modelC.Globle);
+			glm::mat4 viewProjetion = Utils::CalculateSpotShadowMapsCamera(modelC.Globle, spotC.Outer, spotC.Distence);
+			// glm::mat4 viewProjetion = Utils::CalculateSpotShadowMapsCamera(modelC.Globle, Entity{ spotE, this });
+			Renderer3D::AddShadowMapSpotlLigth(viewProjetion);
 			Renderer3D::SetLigthUniform(spotC, modelC.Globle, viewProjetion);
 			Renderer2D::DrawLigthSpotIcon(modelC.Globle, (int)spotE);
+			
+
 		}
 		
 		AmbientLigthComponent* useAmbientC = nullptr;

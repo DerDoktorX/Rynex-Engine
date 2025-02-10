@@ -14,6 +14,30 @@ namespace Rynex{
 
 	namespace Utils {
 
+		static GLenum CompareFunction(TextureCompareModes compareMode)
+		{
+
+
+			switch (compareMode)
+			{
+			
+
+			case TextureCompareModes::Lequal:	return GL_LEQUAL;
+			case TextureCompareModes::Always:	return GL_ALWAYS;
+			case TextureCompareModes::Gequal:	return GL_GEQUAL;
+			case TextureCompareModes::Less:		return GL_LESS;
+			case TextureCompareModes::Greater:	return GL_GREATER;
+			case TextureCompareModes::Equal:	return GL_EQUAL;
+			case TextureCompareModes::Never:	return GL_NEVER;
+
+			case TextureCompareModes::None:
+			case TextureCompareModes::Default:
+			default:
+				RY_CORE_ASSERT(false);
+				break;
+			}
+			return GL_NONE;
+		}
 
 		static GLenum FormatData(TextureFormat attachmentType)
 		{
@@ -221,8 +245,17 @@ namespace Rynex{
 		static void TextureFiltering(TextureSpecification spec, uint32_t renderID)
 		{
 			TextureFilteringMode filering = spec.FilteringMode;
+			TextureCompareModes compareModes = spec.Compare;
 			TextureTarget taget = spec.Target;
-			if (filering == TextureFilteringMode::None) return;
+			if(compareModes == TextureCompareModes::Lequal)
+			{
+				glTextureParameteri(renderID, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+				glTextureParameteri(renderID, GL_TEXTURE_COMPARE_FUNC, CompareFunction(compareModes));
+			}
+
+			if (filering == TextureFilteringMode::None) 
+				return;
+
 			for (int i = 0; i < 2; i++)
 			{
 				glTextureParameteri(renderID, FilteringDimensionality(i), FilteringMode(filering));
@@ -706,6 +739,7 @@ namespace Rynex{
 				m_InternalFormate = Utils::InternalFormat(m_Specification.Format);
 				if (!(m_Specification.Samples > 1))
 				{
+					
 					Utils::TextureFiltering(m_Specification, m_RendererID);
 					Utils::TextureWrapping(m_Specification, m_RendererID);
 
@@ -861,6 +895,7 @@ namespace Rynex{
 		m_Specification = specification;
 		m_Width = m_Specification.Width;
 		m_Height = m_Specification.Height;
+
 
 	}
 

@@ -929,8 +929,8 @@ namespace Rynex {
 		if (ImGui::BeginPopup("AddComponent"))
 		{
 			DisplayAddComponentEntry<ScriptComponent>("Script");
-			if(DisplayAddComponentEntry<CameraComponent>("Camera"))
-				m_SelectionContext.AddComponent<ViewMatrixComponent>();
+			DisplayAddComponentEntry<CameraComponent>("Camera");
+				
 			if(!m_SelectionContext.HasComponent<MaterialComponent>() && !m_SelectionContext.HasComponent<GeomtryComponent>())
 				DisplayAddComponentEntry<SpriteRendererComponent>("Sprite");
 

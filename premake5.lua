@@ -54,7 +54,7 @@ IncludeDir["msdfgen"] 	= "%{wks.location}/Rynex/vendor/msdf-atelas-gen/msdfgen"
 IncludeDir["msdf_atlas_gen"] 	= "%{wks.location}/Rynex/vendor/msdf-atelas-gen/msdf-atlas-gen"
 IncludeDir["freetype"] 	= "%{wks.location}/Rynex/vendor/msdf-atelas-gen/msdfgen/freetype/include"
 -- Test
-IncludeDir["gtest"] = "%{wks.location}/Rynex/vendor/gtest/"
+IncludeDir["gtest"] = "%{wks.location}/Rynex-Test/vendor/gtest/googletest/include"
 
 LibraryDir = {}
 Library = {}
@@ -110,7 +110,7 @@ group ""
 --group "MainWorking"
 include "Rynex"
 include "Rynex-Editor"
--- include "Rynex-Test"
+include "Rynex-Test"
 include "Sandbox"
 -- include "Rynex-Sanboxe-Fetures"
 --group ""

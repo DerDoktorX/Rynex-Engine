@@ -86,7 +86,7 @@ namespace Rynex {
 		virtual void SetData(const void* data, uint32_t byteSize) override;
 
 	private:
-		uint32_t m_RendererID;
+		uint32_t m_RendererID = 0;
 		BufferLayout m_Layout;
 		uint32_t m_ByteSize;
 		Type m_PolicieType;
