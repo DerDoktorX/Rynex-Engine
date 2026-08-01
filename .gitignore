@@ -18,9 +18,11 @@ Rynex/vendor/glm/
 Rynex/vendor/imgui/
 Rynex/vendor/ImGuizmo/
 Profile/
-
-
-
+ERRORS/
+binPreprozesSource/
+premake_Srcripts/
+RenderDoc/
+scripts/__pycache__
 # Files
 *.bat
 *.rdc
@@ -35,12 +37,15 @@ Intermediates/
 Resources/Binaries/
 SandboxProject/Assets/Scripts/Binaries
 SandboxProject/Assets/Scripts/Intermediates
+Rynex-ScriptingCore/bin
+Rynex-ScriptingCore/obj
 
 # Hazel files
 *.log
 
 
 # Visual Studio files and folder
+*.slnx
 *.sln
 *.vcxproj
 **.vcxproj.filters
