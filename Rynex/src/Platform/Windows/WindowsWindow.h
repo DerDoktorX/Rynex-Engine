@@ -16,33 +16,34 @@ namespace Rynex {
 		WindowsWindow(const WindowProps& props);
 		virtual ~WindowsWindow();
 
-		void OnUpdate() override;
+		virtual void OnUpdate() override;
+		virtual void OnSreenRefresh() override;
+		virtual unsigned int GetWidth() const override { return m_Data.Width; }
+		virtual unsigned int GetHeight() const override { return m_Data.Height; }
 
-		unsigned int GetWidth() const override { return m_Data.Width; }
-		unsigned int GetHeight() const override { return m_Data.Height; }
+		virtual unsigned int GetPosX() const override { return m_Data.PosX; }
+		virtual unsigned int GetPosY() const override { return m_Data.PosY; }
 
-		unsigned int GetPosX() const override { return m_Data.PosX; }
-		unsigned int GetPosY() const override { return m_Data.PosY; }
-
-		float GetMousePosX() const override { return m_Data.MousePosX; }
-		float GetMousePosY() const override { return m_Data.MousePosY; }
+		virtual float GetMousePosX() const override { return m_Data.MousePosX; }
+		virtual float GetMousePosY() const override { return m_Data.MousePosY; }
 
 		// Window attributes
-		inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
-		void SetVSync(bool enabled) override;
-		bool IsFocused() const override;
-		bool IsVSync() const override;
+		virtual inline void SetEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
+		virtual void SetVSync(bool enabled) override;
+		virtual bool IsFocused() const override;
+		virtual bool IsVSync() const override;
 
 		inline virtual void* GetNativeWindow() const override { return m_Window; }
 		virtual GraphicsContext* GetGraphicsContext() override { return m_Context.get(); }
 
 		virtual Ref<ThreadContext> CreateThreadeContext() override;
+		virtual int64_t GetRenderTime() const override { return m_UpdateScreeTime; }
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();
 	private:
 		GLFWwindow* m_Window;
-
+		int64_t m_UpdateScreeTime;
 		Ref<GraphicsContext> m_Context;
 		
 		struct WindowData

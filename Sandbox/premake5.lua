@@ -1,10 +1,27 @@
 project "Sandbox"
-    --location "Rynex"
-    --kind "SharedLib"
+
+	if BuildProjectConf == "Static" or BuildProjectConf == "Static2Lib"  then
+		-- staticruntime "off" -- orig
+		staticruntime "on" 
+		io.write("Sandbox.Conf::on\n")
+	end
+	if BuildProjectConf == "Static2" or BuildProjectConf == "StaticLib"then
+		staticruntime "off" -- orig
+		io.write("Sandbox.Conf::off\n")
+	end
+	if BuildProjectConf == "Dynamic" then
+	 	staticruntime "off"
+		io.write("Sandbox.Conf::off\n")
+	end
+	 
 	kind "ConsoleApp"
     language "C++"
 	cppdialect "C++17"
-	staticruntime "off"
+
+
+
+
+
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
@@ -23,8 +40,11 @@ project "Sandbox"
 		"%{wks.location}/Rynex/vendor/spdlog/include",
 		"%{wks.location}/Rynex/src",
 		"%{wks.location}/Rynex/vendor",
+		"%{IncludeDir.magic_enum}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
+		"%{IncludeDir.robin_hood_hashing}", -- has map
+
 	}
 
 	defines

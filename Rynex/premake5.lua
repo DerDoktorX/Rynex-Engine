@@ -1,14 +1,29 @@
 project "Rynex"
-    --location "Rynex"
-    --kind "SharedLib"
-	kind "StaticLib"
+
+	if BuildProjectConf == "Static" or BuildProjectConf == "Static2Lib"  then
+	   kind "StaticLib"
+	   -- staticruntime "off" -- orig
+	   staticruntime "on" 
+	   io.write("Rynex.Conf:StaticLib::on\n")
+	end
+	if BuildProjectConf == "Static2" or BuildProjectConf == "StaticLib" then
+		kind "StaticLib"
+		staticruntime "off" -- orig
+		io.write("Rynex.Conf:StaticLib::off\n")
+	end
+	if BuildProjectConf == "Dynamic" then
+	 	kind "SharedLib"
+		staticruntime "off"
+		io.write("Rynex.Conf:SharedLib::off\n")
+	end
+	
     language "C++"
 	cppdialect "C++17"
-	staticruntime "off"
+	
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
-
+	
 	pchheader "rypch.h"
 	pchsource "src/rypch.cpp"
 
@@ -25,9 +40,12 @@ project "Rynex"
 		"vendor/ImGuizmo/ImGuizmo.cpp",
 
 		"vendor/magic_enum/**.hpp",
-		--"vendor/filewatch/**.h",
-		--"vendor/filewatch/**.cpp",
-		
+		-- "vendor/filewatch/**.h",
+		-- "vendor/filewatch/**.cpp",
+
+		-- "vendor/impolt/*.h",
+		-- "vendor/impolt/*.cpp",
+
 	}
 
 	defines
@@ -44,6 +62,7 @@ project "Rynex"
 		"vendor/spdlog/include",	-- Logs
 
 		"%{IncludeDir.entt}",		-- Entity
+		"%{IncludeDir.robin_hood_hashing}", -- has map
 		"%{IncludeDir.mono}",		-- C#
 		-- Math
 		"%{IncludeDir.glm}",
@@ -56,7 +75,7 @@ project "Rynex"
 		"%{IncludeDir.filewatch}",
 		"%{IncludeDir.magic_enum}",
 		"%{IncludeDir.assimp}",
-		
+		"%{IncludeDir.meshoptimizer}",
 		 --"%{IncludeDir.assimp}",
 			--"%{IncludeDir._config}",
 			--"%{IncludeDir.assimp_config}",
@@ -64,9 +83,11 @@ project "Rynex"
 		-- Runtime Visuelle configs
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.ImGuizmo}",
-
+		"%{IncludeDir.ImPolt}",
+		
 		"%{IncludeDir.msdfgen}",
 		"%{IncludeDir.msdf_atlas_gen}"
+
 	}
 
 	links
@@ -74,28 +95,31 @@ project "Rynex"
 		-- Grafic API
 		"Glad",
 		"GLFW",
+		"meshoptimizer",
 		"opengl32.lib",	
 
 		"yaml-cpp",			-- Files
 		"ImGui", 			-- Runtime Visuelle configs
+		"ImPolt",
+
 		--"%{Library.assimp}"	-- Runtime C# Scripts Reloade
 		"msdf-atlas-gen"
 	}
 	
 	filter "files:vendor/ImGuizmo/**.cpp"
-	flags { "NoPCH" }
+	-- flags { "NoPCH" }
+		enablepch "off"
+		-- enablepch "on"
+
+	filter "files:vendor/impolt/*.cpp"
+	-- flags { "NoPCH" }
+		enablepch "off"
+		-- enablepch "on"
 
 	filter "system:windows"
 		systemversion "latest"
-		defines
-		{
-		-- For Compile Rynex in .dll |
-		--							 V
-			--"RY_PLATFORM_WINDOWS",
-			--"RY_BUILD_DLL",
-			--"GLFW_INCLUDE_NONE"
-		--							 ^
-		}
+		
+		
 		links
 		{
 			"%{Library.WinSock}",
@@ -105,11 +129,17 @@ project "Rynex"
 		}
 	-- For Compile Rynex in .dll |
 	--							 V
-		--postbuildcommands
-		--{
-		--	("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
-		--	("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Rynex-Editor")
-		--}
+		if BuildProjectConf == "Dynamic" then
+			defines
+			{
+				"RY_BUILD_DLL",
+			}
+			postbuildcommands
+			{
+				("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox"),
+				("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Rynex-Editor")
+			}
+		end
 	--							 ^
 	
 	filter "configurations:Debug"
@@ -129,15 +159,15 @@ project "Rynex"
 			"%{Library.mono_Debug}",
 			"%{Library.assimp_Debug}"
 		}
-		--editandcontinue "Off"
-		--buildoptions 
-		--{ 
-		--	"/Zi", "/fsanitize=address"
-		--}
-      	--linkoptions 
-		--{ 
-		--	"/fsanitize=address" 
-		--}
+		-- editandcontinue "Off"
+		-- buildoptions 
+		-- { 
+		-- 	"/Zi", "/fsanitize=address"
+		-- }
+      	-- linkoptions 
+		-- { 
+		-- 	"/fsanitize=address" 
+		-- }
 
 	filter "configurations:Release"
 		defines "RY_REALSE"
@@ -173,4 +203,8 @@ project "Rynex"
 			"%{Library.mono_Release}",
 			"%{Library.assimp_Release}"
 		}
+
+	-- filter "configurations:Preprocess_SourceFiles"
+	-- 	defines { "GENERATING_PREPROCESSED_OUTPUT" }
+  	-- 	buildoptions { "/P" }
 

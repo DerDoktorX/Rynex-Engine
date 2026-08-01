@@ -1,8 +1,8 @@
 #include "rypch.h"
 #include "VertexArray.h"
 
-#include "Rynex/Renderer/Rendering/Renderer.h"
-#include "Platform/OpenGL/OpenGLVertexArray.h"
+#include <Rynex/Renderer/Rendering/Renderer.h>
+#include <Platform/OpenGL/OpenGLVertexArray.h>
 
 namespace Rynex {
 	Ref<VertexArray> VertexArray::Create()

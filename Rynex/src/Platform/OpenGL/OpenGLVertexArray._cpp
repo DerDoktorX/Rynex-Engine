@@ -1,0 +1,701 @@
+#include "rypch.h"
+#include "OpenGLVertexArray.h"
+
+#include <Platform/OpenGL/OpenGLThreadContext.h>
+#include <Platform/OpenGL/OpenGLBuffer.h>
+#include <Rynex/Core/Application.h>
+
+
+#include <glad/glad.h>
+#include <Platform/OpenGL/OpenGLBase.h>
+
+namespace Rynex {
+#define RY_OPENGL_VERTEX_OLD 0
+#define RY_OPENGL_VAO_ABSTRACTION_DISABLE 0
+	namespace Utils{
+
+		static GLenum ShaderDaterTyToOpenGLBaseType(ShaderDataType type)
+		{
+			switch (type)
+			{
+				case ShaderDataType::Float:
+				case ShaderDataType::Float2:
+				case ShaderDataType::Float3:
+				case ShaderDataType::Float4:
+				case ShaderDataType::Float3x3:
+				case ShaderDataType::Float4x4:
+					return GL_FLOAT;
+					//caseShaderDataType::FloatArray:	return 4;
+				case ShaderDataType::Int:
+				case ShaderDataType::Int2:
+				case ShaderDataType::Int3:
+				case ShaderDataType::Int4:
+				case ShaderDataType::Int3x3:	
+				case ShaderDataType::Int4x4:	
+					return GL_INT;
+				//case ShaderDataType::IntArray:	return 4;
+				case ShaderDataType::Uint:
+				case ShaderDataType::Uint2:
+				case ShaderDataType::Uint3:
+				case ShaderDataType::Uint4:
+					return GL_UNSIGNED_INT;
+			}
+		}
+
+		static uint32_t PrimitvVertxCount( const VertexArray::Primitv& primitv, uint32_t vertexCount)
+		{
+			switch (primitv)
+			{
+			case VertexArray::Primitv::Traingle:		return vertexCount / 3u;
+			case VertexArray::Primitv::TraingleStrips:	return vertexCount - 2u;
+			case VertexArray::Primitv::TraingleFan:		return vertexCount - 2u;
+			case VertexArray::Primitv::Line:			return vertexCount / 2u;
+			case VertexArray::Primitv::LineLoop:		return vertexCount - 2u;
+			case VertexArray::Primitv::LineStrips:		return vertexCount - 2u;
+			case VertexArray::Primitv::Points:			return vertexCount;
+			case VertexArray::Primitv::Patches:			return vertexCount;
+			default: return 0u;
+			}
+		}
+#if RY_OPENGL_VAO_ABSTRACTION_DISABLE
+		static uint32_t VertexCount(const std::vector<Ref<VertexBuffer>>& vertexElements, const Ref<IndexBuffer>& index, const VertexArray::Primitv& primitv)
+#else
+		static uint32_t VertexCount(const std::vector<OpenGLVertexArray::VertexElements>& vertexElements, const Ref<IndexBuffer>& index, const VertexArray::Primitv& primitv)
+#endif
+		{
+			if (!vertexElements.empty() && index)
+			{
+				return PrimitvVertxCount(primitv, index->GetCount());
+			}
+			return 0;
+		}
+
+		static GLenum PrimtivGL(VertexArray::Primitv primtiv)
+		{
+			switch (primtiv)
+			{
+				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitv::Traingle, GL_TRIANGLES);
+				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitv::TraingleStrips, GL_TRIANGLE_STRIP);
+				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitv::TraingleFan, GL_TRIANGLE_FAN);
+				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitv::Line, GL_LINE);
+				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitv::LineLoop, GL_LINE);
+				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitv::LineStrips, GL_LINE_STRIP);
+				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitv::Points, GL_LINE_STRIP);
+				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitv::Patches, GL_PATCHES);
+				RY_INTERNLE_GET_OPENGL_MACRO_DEFAULT(VertexArray::Primitv);
+			}
+		}
+	}
+
+	uint32_t OpenGLVertexArray::s_LastBindVAO = 0u;
+
+	OpenGLVertexArray::OpenGLVertexArray()
+		: m_Primitv(VertexArray::Primitv::Traingle)
+		, m_PrimitvGL(GL_TRIANGLES)
+	{
+		RY_PROFILE_FUNCTION();
+
+		if (!OpenGLThreadContext::IsActive())
+		{
+#if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
+			Application::Get().SubmiteToMainThreedQueue(std::bind(&OpenGLVertexArray::InitAsync, this));
+#else
+			Application::Get().SubmiteToMainThreedQueueWait(std::bind(&OpenGLVertexArray::InitAsync, this));
+#endif			
+			return;
+		}
+		OpenGLVertexArray::InitAsync();
+
+		
+
+	}
+
+	OpenGLVertexArray::~OpenGLVertexArray()
+	{
+		RY_CORE_ASSERT(OpenGLThreadContext::IsActive());
+
+
+
+		if (m_RendererID)
+		{
+			glDeleteVertexArrays(1, &m_RendererID);
+			m_RendererID = 0;
+		}
+
+#if RY_OPENGL_VAO_ABSTRACTION_DISABLE
+		for (auto& vertexBuffer : m_VertexBuffers)
+		{
+			vertexBuffer.reset();
+			vertexBuffer = nullptr;
+		}
+#else
+		for (VertexElements& vertexElements : m_VertexElements)
+		{
+			vertexElements.Buffer.reset();
+			vertexElements.Buffer = nullptr;
+		}
+#endif
+		m_VertexElements.clear();
+
+		m_IndexBuffer.reset();
+		m_IndexBuffer = nullptr;
+
+		
+	}
+
+
+
+	void OpenGLVertexArray::Bind() const
+	{
+#if RY_OPENGL_BIND_RENDER_COMAND
+		OpenGLRenderCommand::BindVertexArray(m_RendererID);
+#else
+		if(s_LastBindVAO != m_RendererID)
+		{
+			glBindVertexArray(m_RendererID);
+			s_LastBindVAO = m_RendererID;
+		}
+#endif
+
+		// m_IndexBuffer->Bind();
+		// for (auto& indexBuffer : m_IndexBuffers)
+		// 	indexBuffer->UnBind();
+		// 
+		// for (auto& vertexBuffer : m_VertexBuffers)
+		// 	vertexBuffer->Bind();
+	}
+
+	void OpenGLVertexArray::UnBind() const
+	{
+		// m_IndexBuffer->UnBind();
+#if RY_OPENGL_BIND_RENDER_COMAND
+		OpenGLRenderCommand::BindVertexArray(0);	
+#else
+		if (s_LastBindVAO != 0)
+		{
+			glBindVertexArray(0);
+			s_LastBindVAO = m_RendererID;
+		}
+#endif
+		// for(auto& indexBuffer : m_IndexBuffers)
+		// 	indexBuffer->UnBind();
+		// 
+		// for (auto& vertexBuffer : m_VertexBuffers)
+		// 	vertexBuffer->UnBind();
+	}
+
+	void OpenGLVertexArray::SetPrimitv(Primitv primitv)
+	{
+		m_Primitv = primitv;
+		m_PrimitvGL = Utils::PrimtivGL(m_Primitv);
+	}
+
+	VertexArray::Primitv OpenGLVertexArray::GetPrimitv()
+	{
+		return m_Primitv;
+	}
+
+	void OpenGLVertexArray::ClearVertexBuffers()
+	{
+#if RY_OPENGL_VAO_ABSTRACTION_DISABLE
+		glBindVertexArray(m_RendererID);
+		uint32_t index = 0;
+		for (const auto& vertexBuffer : m_VertexBuffers)
+		{
+			vertexBuffer->Bind();
+			uint32_t size = vertexBuffer->GetLayout().GetLength();
+			for (uint32_t i = 0; i < size; i++)
+			{
+				glDisableVertexAttribArray(index);
+				index++;
+			}
+			vertexBuffer->UnBind();
+			
+		}
+		glBindVertexArray(0);
+		m_VertexBuffers.clear();
+#else
+		uint32_t index = 0;
+#if RY_OPENGL_VAO_ABSTRACTION_DISABLE
+		for (auto& vertexBuffer : m_VertexBuffers)
+		{
+			uint32_t size = vertexBuffer->GetLayout().GetLength();
+			for (uint32_t i = 0; i < size; i++)
+			{
+				glDisableVertexArrayAttrib(m_RendererID, index);
+				index++;
+			}
+		}
+#else
+		uint32_t i = 0;
+		for (VertexElements& vertexElements : m_VertexElements)
+		{
+			uint32_t size = vertexElements.UseLayout.GetLength();
+			glDisableVertexArrayAttrib(m_RendererID, i);
+			i++;
+		}
+#endif
+
+
+#if RY_OPENGL_VAO_ABSTRACTION_DISABLE
+		m_VertexBuffers.clear();
+#endif 
+		m_VertexElements.clear();
+#endif
+	}
+
+	
+
+	void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
+	{
+		const Ref<VertexBuffer>& vb = vertexBuffer;
+		const BufferLayout&	layoute = vb->GetLayout();
+		if (!OpenGLThreadContext::IsActive())
+		{
+#if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
+			Application::Get().SubmiteToMainThreedQueue(std::bind(&OpenGLVertexArray::AddVertexBufferToList, this, vb, layoute));
+#else
+			Application::Get().SubmiteToMainThreedQueueWait(std::bind(&OpenGLVertexArray::AddVertexBufferToList, this, vb, layoute));
+#endif			
+			return;
+		}
+		RY_CORE_ASSERT(0u != m_RendererID);
+#if RY_OPENGL_VAO_ABSTRACTION_DISABLE
+			const BufferLayout& layout = vertexBuffer->GetLayout();
+			const std::vector<BufferElement>& ellements = layout.GetElements();
+			uint32_t ellemntsCount = ellements.size();
+			uint32_t strideSize = layout.GetStride();
+
+			RY_CORE_ASSERT(0 != ellemntsCount, "Vertex Buffer Has no Layoute!");
+#if RY_OPENGL_VERTEX_OLD
+			glBindVertexArray(m_RendererID);
+			vertexBuffer->Bind();
+#else
+			uint32_t size = m_VertexBuffers.size();
+			Ref<OpenGLVertexBuffer> vertexBufferOpengGL = std::static_pointer_cast<OpenGLVertexBuffer>(vertexBuffer);
+			uint32_t vertexBufferRenderID = vertexBufferOpengGL->GetRenderID();
+			glVertexArrayVertexBuffer(m_RendererID, size, vertexBufferRenderID, 0, strideSize);
+#endif
+
+			uint32_t index = 0;
+			for (const Ref<VertexBuffer>& vbo : m_VertexBuffers)
+			{
+				index += vbo->GetLayout().GetLength();
+			}
+
+			for (const BufferElement& elements : layout)
+			{
+				switch (elements.Type)
+				{
+				case ShaderDataType::Float:
+				case ShaderDataType::Float2:
+				case ShaderDataType::Float3:
+				case ShaderDataType::Float4:
+				{
+#if RY_OPENGL_VERTEX_OLD
+					glEnableVertexAttribArray(index);
+
+					glVertexAttribPointer(index,
+						elements.GetCompontsCount(),
+						Utils::ShaderDaterTyToOpenGLBaseType(elements.Type),
+						elements.Normilized ? GL_TRUE : GL_FALSE,
+						vertexBuffer->GetLayout().GetStride(),
+						(const void*)elements.Offset);
+					
+#else
+					glEnableVertexArrayAttrib(m_RendererID, index);
+
+					GLenum glType = Utils::ShaderDaterTyToOpenGLBaseType(elements.Type);
+					GLint elmenCount = elements.GetCompontsCount();
+					GLboolean normalize = elements.Normilized ? GL_TRUE : GL_FALSE;
+					GLint realtivOffset = elements.Offset;
+
+					glVertexArrayAttribFormat(m_RendererID, index, elmenCount, glType, normalize, realtivOffset);
+					glVertexArrayAttribBinding(m_RendererID, index, 0);
+#endif
+					index++;
+					break;
+				}
+				case ShaderDataType::Int:
+				case ShaderDataType::Int2:
+				case ShaderDataType::Int3:
+				case ShaderDataType::Int4:
+				{
+#if RY_OPENGL_VERTEX_OLD
+					glEnableVertexAttribArray(index);
+
+					glVertexAttribPointer(index,
+						elements.GetCompontsCount(),
+						Utils::ShaderDaterTyToOpenGLBaseType(elements.Type),
+						elements.Normilized ? GL_TRUE : GL_FALSE,
+						vertexBuffer->GetLayout().GetStride(),
+						(const void*)elements.Offset);
+					
+#else
+					glEnableVertexArrayAttrib(m_RendererID, index);
+
+					GLenum glType = Utils::ShaderDaterTyToOpenGLBaseType(elements.Type);
+					GLint elmenCount = elements.GetCompontsCount();
+					GLboolean normalize = elements.Normilized ? GL_TRUE : GL_FALSE;
+					GLint realtivOffset = elements.Offset;
+
+					glVertexArrayAttribIFormat(m_RendererID, index, elmenCount, glType, realtivOffset);
+					glVertexArrayAttribBinding(m_RendererID, index, 0);
+#endif
+
+					index++;
+					break;
+				}
+				case ShaderDataType::Uint:
+				case ShaderDataType::Uint2:
+				case ShaderDataType::Uint3:
+				case ShaderDataType::Uint4:
+				{
+#if RY_OPENGL_VERTEX_OLD
+					glEnableVertexAttribArray(index);
+
+					glVertexAttribPointer(index,
+						elements.GetCompontsCount(),
+						Utils::ShaderDaterTyToOpenGLBaseType(elements.Type),
+						elements.Normilized ? GL_TRUE : GL_FALSE,
+						vertexBuffer->GetLayout().GetStride(),
+						(const void*)elements.Offset);
+
+#else
+					glEnableVertexArrayAttrib(m_RendererID, index);
+
+					GLenum glType = Utils::ShaderDaterTyToOpenGLBaseType(elements.Type);
+					GLint elmenCount = elements.GetCompontsCount();
+					GLboolean normalize = elements.Normilized ? GL_TRUE : GL_FALSE;
+					GLint realtivOffset = elements.Offset;
+
+					glVertexArrayAttribIFormat(m_RendererID, index, elmenCount, glType, realtivOffset);
+					glVertexArrayAttribBinding(m_RendererID, index, 0);
+#endif
+					index++;
+					break;
+				}
+#if 0
+				case ShaderDataType::Bool:
+				{
+					glEnableVertexAttribArray(index);
+					glVertexAttribIPointer(index,
+						elements.GetCompontsCount(),
+						ShaderDaterTyToOpenGLBaseType(elements.Type),
+						vertexBuffer->GetLayout().GetStride(),
+						(const void*)elements.Offset);
+					index++;
+					break;
+				}
+#endif
+				}
+
+
+			}
+
+			m_VertexBuffers.emplace_back(vertexBuffer);
+			m_RenderResterRiezer = Utils::VertexCount(m_VertexBuffers, m_DepthIAB, m_Primitv);
+#if RY_OPENGL_VERTEX_OLD
+			glBindVertexArray(0);
+#endif
+#else
+
+#endif
+		
+		
+	}
+
+	void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, const BufferLayout& layout)
+	{
+		const Ref<VertexBuffer>& vb = vertexBuffer;
+		const BufferLayout& layoute = vb->GetLayout();
+		if (!OpenGLThreadContext::IsActive())
+		{
+#if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
+			Application::Get().SubmiteToMainThreedQueue(std::bind(&OpenGLVertexArray::AddVertexBufferToList, this, vb, layoute));
+#else
+			Application::Get().SubmiteToMainThreedQueueWait(std::bind(&OpenGLVertexArray::AddVertexBufferToList, this, vb, layoute));
+#endif			
+			return;
+		}
+		RY_CORE_ASSERT(0u != m_RendererID);
+		AddVertexBufferToList(vb, layoute);
+		
+	}
+
+	void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
+	{
+		
+		if (!OpenGLThreadContext::IsActive())
+		{
+#if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
+			Application::Get().SubmiteToMainThreedQueue(std::bind(&OpenGLVertexArray::SetIndexBuffer, this, indexBuffer));
+#else
+			Application::Get().SubmiteToMainThreedQueueWait(std::bind(&OpenGLVertexArray::SetIndexBuffer, this, indexBuffer));
+#endif			
+			return;
+		}
+		RY_CORE_ASSERT(0u != m_RendererID);
+		
+
+		
+		m_IndexBuffer = indexBuffer;
+#if RY_OPENGL_VAO_ABSTRACTION_DISABLE
+		m_RenderResterRiezer = Utils::VertexCount(m_VertexBuffers, m_DepthIAB, m_Primitv);
+#else
+		m_RenderResterRiezer = Utils::VertexCount(m_VertexElements, m_IndexBuffer, m_Primitv);
+
+#endif
+
+#if RY_OPENGL_VERTEX_OLD
+		glBindVertexArray(m_RendererID);
+		m_DepthIAB->Bind();
+		glBindVertexArray(0);
+#else
+		Ref<OpenGLIndexBuffer> indexBufferOpengGL = std::static_pointer_cast<OpenGLIndexBuffer>(indexBuffer);
+		uint32_t indexBufferRenderID = indexBufferOpengGL->GetRenderID();
+		glVertexArrayElementBuffer(m_RendererID, indexBufferRenderID);
+
+#endif
+		
+	}
+
+	
+
+	
+
+	void OpenGLVertexArray::SetBoxAABB(BufferElement postionElement)
+	{
+		if (!OpenGLThreadContext::IsActive())
+		{
+#if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
+			Application::Get().SubmiteToMainThreedQueue(std::bind(&OpenGLVertexArray::SetBoxAABB, this, postionElement));
+#else
+			Application::Get().SubmiteToMainThreedQueueWait(std::bind(&OpenGLVertexArray::SetBoxAABB, this, postionElement));
+#endif
+			return;
+		}
+		RY_CORE_ASSERT(0u == m_RendererID);
+
+#if RY_OPENGL_VAO_ABSTRACTION_DISABLE
+		for (auto& buffer : m_VertexBuffers)
+		{
+			m_Box.SetBoxAABB(buffer, postionElement);
+		}
+#else
+		for (VertexElements& bufferEllements : m_VertexElements)
+		{
+			m_Box.SetBoxAABB(bufferEllements.Buffer, m_IndexBuffer, postionElement);
+		}
+#endif
+	}
+
+	
+
+
+	uint32_t OpenGLVertexArray::GetTringleCount() const
+	{
+		return m_RenderResterRiezer;
+	}
+
+	const char* OpenGLVertexArray::GetPrimitvChar() const
+	{
+		switch (m_Primitv)
+		{
+			case VertexArray::Primitv::Traingle:		return {"Traingle"};
+			case VertexArray::Primitv::TraingleStrips:	return {"TraingleStrips"};
+			case VertexArray::Primitv::TraingleFan:		return {"TraingleFan"};
+			case VertexArray::Primitv::Line:			return {"Line"};
+			case VertexArray::Primitv::LineLoop:		return {"LineLoop"};
+			case VertexArray::Primitv::LineStrips:		return {"LineStrips"};
+			case VertexArray::Primitv::Points:			return {"Points"};
+			default:
+				break;
+		}
+		RY_CORE_ASSERT(false, "Not known Type! OpenGLVertexArray::GetPrimitvChar()");
+
+		return nullptr;
+	}
+
+	void OpenGLVertexArray::InitAsync()
+	{
+#if RY_OPENGL_VERTEX_OLD
+		glGenVertexArrays(1, &m_RendererID);
+#else
+		glCreateVertexArrays(1, &m_RendererID);
+#endif
+
+	}
+
+	void OpenGLVertexArray::RegenerateOpenGLVertexBuffer(OpenGLVertexBuffer* bufferPtr)
+	{
+		for (const VertexElements& vElemt : m_VertexElements)
+		{
+			Ref<VertexBuffer> vab = vElemt.Buffer;
+			Ref<OpenGLVertexBuffer> vertexBufferOpenGL = std::static_pointer_cast<OpenGLVertexBuffer>(vab);
+
+			if (vertexBufferOpenGL.get() == bufferPtr)
+			{
+				Invalidate();
+				return;
+			}
+		}
+		RY_CORE_ASSERT(false, "VertexBuffer Not found!");
+	}
+
+	void OpenGLVertexArray::RegenerateOpenGLIndexBuffer(OpenGLIndexBuffer* bufferPtr)
+	{
+		Ref<OpenGLIndexBuffer> indexBufferOpenGL = std::static_pointer_cast<OpenGLIndexBuffer>(m_IndexBuffer);
+		if (indexBufferOpenGL.get() == bufferPtr)
+		{
+			Invalidate();
+			return;
+		}
+		RY_CORE_ASSERT(false, "VertexBuffer Not found!");
+	}
+
+	
+
+	void OpenGLVertexArray::AddVertexBufferToList(const Ref<VertexBuffer>& vb, const BufferLayout& layout)
+	{
+#if RY_OPENGL_VAO_ABSTRACTION_DISABLE
+		m_VertexBuffers.emplace_back(vb);
+#endif
+		m_VertexElements.emplace_back<VertexElements>(VertexElements{ layout, vb });
+
+		m_RenderResterRiezer = Utils::VertexCount(m_VertexElements, m_IndexBuffer, m_Primitv);
+		Invalidate();
+	}
+
+	void OpenGLVertexArray::Invalidate()
+	{
+		uint32_t bindIndex = 0;
+		uint32_t elementIndex = 0;
+		for (VertexElements& vElemt : m_VertexElements)
+		{
+			BufferLayout& layout = vElemt.UseLayout;
+			Ref<VertexBuffer> vab = vElemt.Buffer;
+
+			RY_CORE_ASSERT(nullptr != vab);
+			Ref<OpenGLVertexBuffer> vertexBufferOpenGL = std::static_pointer_cast<OpenGLVertexBuffer>(vab);
+
+			
+			SetupVertexBuffersToVAO(bindIndex, elementIndex, layout, vertexBufferOpenGL);
+			bindIndex++;
+		}
+
+		if(nullptr != m_IndexBuffer)
+		{
+			Ref<OpenGLIndexBuffer> indexBufferOpengGL = std::static_pointer_cast<OpenGLIndexBuffer>(m_IndexBuffer);
+			uint32_t indexBufferRenderID = indexBufferOpengGL->GetRenderID();
+			glVertexArrayElementBuffer(m_RendererID, indexBufferRenderID);
+		}
+
+	}
+
+	void OpenGLVertexArray::AddFloatBufferEllementToVAO(uint32_t indexElemment, uint32_t bindIndex, const BufferElement& element)
+	{
+		glEnableVertexArrayAttrib(m_RendererID, indexElemment);
+
+		GLenum glType = Utils::ShaderDaterTyToOpenGLBaseType(element.Type);
+		GLint elmenCount = element.GetCompontsCount();
+		GLboolean normalize = element.Normilized ? GL_TRUE : GL_FALSE;
+		GLint realtivOffset = element.Offset;
+
+		glVertexArrayAttribFormat(m_RendererID, indexElemment, elmenCount, glType, normalize, realtivOffset);
+		glVertexArrayAttribBinding(m_RendererID, indexElemment, bindIndex);
+	}
+
+	void OpenGLVertexArray::AddIntBufferEllementToVAO(uint32_t indexElemment, uint32_t bindIndex, const BufferElement& element)
+	{
+		glEnableVertexArrayAttrib(m_RendererID, indexElemment);
+
+		GLenum glType = Utils::ShaderDaterTyToOpenGLBaseType(element.Type);
+		GLint elmenCount = element.GetCompontsCount();
+		GLboolean normalize = element.Normilized ? GL_TRUE : GL_FALSE;
+		GLint realtivOffset = element.Offset;
+
+		glVertexArrayAttribIFormat(m_RendererID, indexElemment, elmenCount, glType, realtivOffset);
+		glVertexArrayAttribBinding(m_RendererID, indexElemment, bindIndex);
+	}
+
+	void OpenGLVertexArray::AddUintBufferEllementToVAO(uint32_t indexElemment, uint32_t bindIndex, const BufferElement& element)
+	{
+		glEnableVertexArrayAttrib(m_RendererID, indexElemment);
+
+		GLenum glType = Utils::ShaderDaterTyToOpenGLBaseType(element.Type);
+		GLint elmenCount = element.GetCompontsCount();
+		GLboolean normalize = element.Normilized ? GL_TRUE : GL_FALSE;
+		GLint realtivOffset = element.Offset;
+
+		glVertexArrayAttribIFormat(m_RendererID, indexElemment, elmenCount, glType, realtivOffset);
+		glVertexArrayAttribBinding(m_RendererID, indexElemment, bindIndex);
+	}
+
+	void OpenGLVertexArray::AddSkipBufferEllementToVAO(uint32_t indexElemment, uint32_t bindIndex, const BufferElement& element)
+	{
+		GLenum glType = Utils::ShaderDaterTyToOpenGLBaseType(element.Type);
+		GLint elmenCount = element.GetCompontsCount();
+		GLboolean normalize = element.Normilized ? GL_TRUE : GL_FALSE;
+		GLint realtivOffset = element.Offset;
+		GLuint byteSize = element.Size;
+
+		glVertexArrayBindingDivisor(m_RendererID, bindIndex, byteSize);
+	}
+
+	void OpenGLVertexArray::SetupVertexBuffersToVAO( uint32_t bindIndex, uint32_t& elementIndex, const BufferLayout& layout, const Ref<OpenGLVertexBuffer>& vertexBufferOpenGL)
+	{
+		uint32_t vertexBufferRenderID = vertexBufferOpenGL->GetRenderID();
+		const BufferLayout& layoutOrige = vertexBufferOpenGL->GetLayout();
+
+		if (vertexBufferRenderID == 0 && layoutOrige == layout)
+		{
+			RY_CORE_ASSERT(false, "not vaild RenderID");
+			return;
+		}
+
+		uint32_t ellemntsCount = layout.GetLength();
+		uint32_t strideSize = layout.GetStride();
+
+		glVertexArrayVertexBuffer(m_RendererID, bindIndex, vertexBufferRenderID, elementIndex, strideSize);
+		
+		uint32_t layoutIndex = 0u;
+		for (const BufferElement& elements : layout)
+		{
+			if (elements.Active)
+			{
+				switch (elements.Type)
+				{
+				case ShaderDataType::Float:
+				case ShaderDataType::Float2:
+				case ShaderDataType::Float3:
+				case ShaderDataType::Float4:
+					AddFloatBufferEllementToVAO(elementIndex, bindIndex, elements);
+					break;
+				case ShaderDataType::Int:
+				case ShaderDataType::Int2:
+				case ShaderDataType::Int3:
+				case ShaderDataType::Int4:
+					AddIntBufferEllementToVAO(elementIndex, bindIndex, elements);
+					break;
+				case ShaderDataType::Uint:
+				case ShaderDataType::Uint2:
+				case ShaderDataType::Uint3:
+				case ShaderDataType::Uint4:
+					AddUintBufferEllementToVAO(elementIndex, bindIndex, elements);
+					break;
+				default:
+					RY_CORE_ASSERT(false);
+					break;
+				}
+			}
+			else
+			{
+				AddSkipBufferEllementToVAO(elementIndex, bindIndex, elements);
+			}
+			
+			elementIndex++;
+		}
+			
+	}
+}

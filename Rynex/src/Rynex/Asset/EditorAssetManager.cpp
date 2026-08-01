@@ -53,6 +53,7 @@ namespace Rynex {
 				metadata.Name = path.filename().generic_string();
 				metadata.Type = Asset::GetAssetTypeFromFilePath(path);
 				metadata.State = AssetState::NotLoaded;
+				metadata.ChangeTime = GetCurrentTimeStr();
 			}
 
 			if(findDirectOnDisc)
@@ -62,6 +63,7 @@ namespace Rynex {
 			else
 			{
 				metadata.State = AssetState::LostConection;
+				metadata.ChangeTime = GetCurrentTimeStr();
 			}
 			std::string extension = path.extension().string();
 			if(extension.find("-",0) < extension.size())
@@ -82,7 +84,7 @@ namespace Rynex {
 					assetFileDirectory.Files.emplace_back(handle);
 					assetFileDirectory.FolderName = path.parent_path().filename().generic_string();
 					assetFileDirectory.FolderPath = parentGenaric;
-					RY_CORE_WARN("This Shoud Not Happend!");
+					RY_ASSET_WARN("This Shoud Not Happend!");
 				}
 			}
 			else
@@ -99,7 +101,7 @@ namespace Rynex {
 					assetFileDirectory.Files.emplace_back(handle);
 					assetFileDirectory.FolderName = path.parent_path().filename().generic_string();
 					assetFileDirectory.FolderPath = parentGenaric;
-					RY_CORE_WARN("This Shoud Not Happend!");
+					RY_ASSET_WARN("This Shoud Not Happend!");
 				}
 			}
 			
@@ -157,7 +159,7 @@ namespace Rynex {
 			assetFileDirectory.FolderName = path.parent_path().filename().generic_string();
 			assetFileDirectory.FolderPath = parentGenaric;
 			assetFileDirectory.Folders.emplace_back(path.generic_string());
-			RY_CORE_WARN("This Shoud Not Happend!");
+			RY_ASSET_WARN("This Shoud Not Happend!");
 			m_Changes = true;
 			return true;
 		}
@@ -184,6 +186,16 @@ namespace Rynex {
 		}
 		else
 			return AssetHandle(0);
+	}
+
+	AssetHandle AssetRegistry::GetAssetHandleConst(const std::filesystem::path& path) const
+	{
+		std::string& pathGenaric = path.generic_string();
+		if (!IsAssetInRegistry(pathGenaric))
+			return AssetHandle(0);
+
+		AssetHandle handle = m_PathRegistry.at(pathGenaric);
+		return handle;
 	}
 
 	AssetMetadata& AssetRegistry::GetMetadata(AssetHandle handle)
@@ -234,6 +246,7 @@ namespace Rynex {
 		for (const AssetHandle handle : handles)
 		{
 			const AssetMetadata& metadata = GetMetadataConst(handle);
+			
 			AssetType type = Asset::GetAssetTypeFromFilePath(metadata.FilePath.filename());
 			RY_CORE_ASSERT(!metadata.GetIntern());
 			itemes.emplace_back(AssetBrowserData(true, false,
@@ -245,6 +258,24 @@ namespace Rynex {
 		m_Changes = false;
 		m_CurentPath = showPath;
 		return itemes;
+	}
+
+	std::string AssetRegistry::GetCurrentTimeStr()
+	{
+		std::chrono::system_clock::time_point curent = std::chrono::system_clock::now();
+		std::time_t t = std::chrono::system_clock::to_time_t(curent);
+
+		// in lokale Zeit umwandeln
+		std::tm tm{};
+#ifdef _WIN32
+		localtime_s(&tm, &t);  // Windows
+#else
+		localtime_r(&t, &tm);  // Linux / macOS
+#endif
+
+		char buffer[20];
+		std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &tm);
+		return std::string(buffer);
 	}
 
 	void AssetRegistry::DeleteFolder(const std::filesystem::path& folderPath)
@@ -277,25 +308,24 @@ namespace Rynex {
 #pragma endregion
 
 
-#if RY_EDITOR_ASSETMANGER_THREADE
 
 #pragma region EditorAssetManagerThreade
 
 
 	void EditorAssetManegerThreade::OnAttach()
 	{
-		RY_CORE_WARN("Begin EditorAssetManegerThreade OnAttach");
+		RY_ASSET_WARN("Begin EditorAssetManegerThreade OnAttach");
 		DeserialzeAssetRegistry();
 		const std::filesystem::path& baseDir = Project::GetActiveAssetDirectory();
 		ScaneDirectory(baseDir);
-		RY_CORE_INFO("Ende EditorAssetManegerThreade OnAttach");
+		RY_ASSET_INFO("Ende EditorAssetManegerThreade OnAttach");
 	}
 
 	void EditorAssetManegerThreade::OnDetach()
 	{
-		RY_CORE_WARN("Begin EditorAssetManegerThreade OnDetach");
+		RY_ASSET_WARN("Begin EditorAssetManegerThreade OnDetach");
 		SerialzeAssetRegistry();
-		RY_CORE_INFO("Ende EditorAssetManegerThreade OnDetach");
+		RY_ASSET_INFO("Ende EditorAssetManegerThreade OnDetach");
 	}
 
 
@@ -401,7 +431,7 @@ namespace Rynex {
 	{
 		if (IsAssetHandleValid(handle))
 		{
-			return m_HandleRegistry.GetConstCopy(handle);
+			return m_HandleRegistry.GetCopy(handle);
 		}
 		return AssetMetadata();
 	}
@@ -437,10 +467,12 @@ namespace Rynex {
 	{
 		static AssetHandle s_NullHnadle = AssetHandle(0);
 		if (m_PathRegistry.IsFound(path))
-			return m_PathRegistry.GetConstCopy(path);
+			return m_PathRegistry.GetCopy(path);
 			
 		return s_NullHnadle;
 	}
+
+	
 
 	void EditorAssetManegerThreade::GetAssetHandleAsync(const std::filesystem::path& path, AssetHandle* handle)
 	{
@@ -457,7 +489,7 @@ namespace Rynex {
 
 #pragma region AssetDataMage
 
-	Ref<Asset> EditorAssetManegerThreade::GetAsset(AssetHandle handle, bool async)
+	Ref<Asset> EditorAssetManegerThreade::GetAsset(AssetHandle handle)
 	{
 		if (IsAssetHandleValid(handle))
 		{
@@ -485,18 +517,21 @@ namespace Rynex {
 					case AssetState::LostConection:
 					{
 						{
+							std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
+							std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
 
-							m_HandleRegistry.GetRefLemda([](AssetMetadata& metadata)
-								{
+							m_HandleRegistry.GetRefLemda([this](AssetMetadata& metadata)
+								{	
+									if(metadata.FilePath.parent_path() == m_CurentPath)
+										m_FileChanges = true;
+									m_RegestryChanges = true;
 									metadata.State = AssetState::Loading;
 								}, handle);
 							
-							std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
-							m_FileChanges = true;
-							m_RegestryChanges = true;
+						
 						}
 
-						asset = AssetImporter::ImportAsset(handle, GetMetadata(handle), async);
+						asset = AssetImporter::ImportAsset(handle, GetMetadata(handle));
 
 						{
 							
@@ -505,45 +540,65 @@ namespace Rynex {
 						RY_CORE_ASSERT(asset, "Error on: 'EditorAssetManager::GetAsset' No Asset Lodead!");
 						if (asset)
 						{
-							std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
-							m_HandleRegistry.GetRefLemda([](AssetMetadata& metadata)
+
 							{
-								metadata.State = AssetState::Ready;
-								metadata.LoadingInTime = std::chrono::steady_clock::now();
-							}, handle);
-							
-							asset->Handle = handle;
+								std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
+								std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
+
+								m_HandleRegistry.GetRefLemda([this](AssetMetadata& metadata)
+									{
+										if (metadata.FilePath.parent_path() == m_CurentPath)
+											m_FileChanges = true;
+										metadata.State = AssetState::Ready;
+										metadata.LoadingInTime = std::chrono::steady_clock::now();
+									}, handle);
+
+								asset->Handle = handle;
+							}
 							
 							m_LoadedAssets.Add(handle, asset);
 
-							m_FileChanges = true;
-							m_RegestryChanges = true;
+							
+							{
+								std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
+								m_RegestryChanges = true;
+							}
 						}
 						else
 						{
 							std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
+							std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
 
-							m_HandleRegistry.GetRefLemda([](AssetMetadata& metadata)
+							m_HandleRegistry.GetRefLemda([this](AssetMetadata& metadata)
 								{
+									if (metadata.FilePath.parent_path() == m_CurentPath)
+										m_FileChanges = true;
 									metadata.State = AssetState::Error;
 									metadata.LoadingInTime = std::chrono::steady_clock::now();
 								}, handle);
 
-							m_FileChanges = true;
+
 							m_RegestryChanges = true;
 						}
 						break;
 					}
 					case AssetState::Loading:
 					{
-						
+						bool lastTimeTaskExexute = true;
 						do {
-							using namespace std::chrono_literals;
-							std::this_thread::sleep_for(100ms);
-							RY_CORE_WARN("Wait For Asset To Loade");
+							if (Asset::CurrentOnMainThread() || !lastTimeTaskExexute)
+							{
+								using namespace std::chrono_literals;
+								std::this_thread::sleep_for(100ms);
+								RY_ASSET_WARN("Wait For Asset To Loade");
+							}
+							else
+							{
+								lastTimeTaskExexute = Application::Get().ExecuteTaskFromThread();
+							}
 						} while (GetMetadata(handle).State == AssetState::Loading);
 
-						asset = GetAsset(handle, async);
+						asset = GetAsset(handle);
 						break;
 						
 					}
@@ -551,7 +606,7 @@ namespace Rynex {
 					
 					case AssetState::Ready:
 					{
-						asset = GetAsset(handle, async);
+						asset = GetAsset(handle);
 						break;
 					}
 					case AssetState::Error:
@@ -587,7 +642,7 @@ namespace Rynex {
 
 	Ref<Asset> EditorAssetManegerThreade::GetAssetAsync(AssetHandle handle)
 	{
-		return GetAsset(handle, true);
+		return GetAsset(handle);
 	}
 
 	Ref<Asset> EditorAssetManegerThreade::GetAsset(const std::filesystem::path& path)
@@ -601,12 +656,15 @@ namespace Rynex {
 		{
 			{
 				std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
-				
-				m_HandleRegistry.GetRefLemda([](AssetMetadata& metadata) {
+				std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
+
+				m_HandleRegistry.GetRefLemda([this](AssetMetadata& metadata) {
+					if (metadata.FilePath.parent_path() == m_CurentPath)
+						m_FileChanges = true;
 					metadata.State = AssetState::NotLoaded;
+					
 				}, handle);
 				
-				m_FileChanges = true;
 				m_RegestryChanges = true;
 			}
 		}
@@ -618,7 +676,7 @@ namespace Rynex {
 		if (!IsAssetHandleValid(path))
 			CreateFileAsset(path);
 		const AssetHandle handle = GetAssetHandle(path);
-		return GetAsset(handle, true);
+		return GetAsset(handle);
 	}
 
 
@@ -689,10 +747,10 @@ namespace Rynex {
 
 		if (curentPath.empty())
 			return;
-
-		for (auto& p : std::filesystem::directory_iterator(curentPath))
-		{
-			const auto& path = p.path();
+	
+		for (const std::filesystem::directory_entry& p : std::filesystem::directory_iterator(curentPath))
+		{	
+			const std::filesystem::path& path = p.path();
 			if (p.is_directory())
 			{
 				AddDirectoryToParent(path);
@@ -710,67 +768,90 @@ namespace Rynex {
 
 	}
 
-	void EditorAssetManegerThreade::ReLoadeAsset(AssetHandle handle, bool async)
+	void EditorAssetManegerThreade::ReLoadeAsset(AssetHandle handle)
 	{
 		RY_CORE_ASSERT(handle != 0, "This Handle is not Accipteble");
 		if (IsAssetLoaded(handle))
 		{
-			using namespace std::chrono_literals;
-			std::this_thread::sleep_for(20ms);
+			std::chrono::microseconds waitTime = std::chrono::milliseconds(30);
+			std::this_thread::sleep_for(waitTime);
 			{
-				std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
+				std::lock_guard<std::mutex> lockChange(m_ChangesMutex);						
+				std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
 				int* aboutePtr = nullptr;
 				int aboute = 0;
 				aboutePtr = &aboute;
-				m_HandleRegistry.GetRefLemda([aboutePtr](AssetMetadata& metadata)
+				m_HandleRegistry.GetRefLemda([aboutePtr, this](AssetMetadata& metadata)
 					{
 						if (metadata.State == AssetState::Updateing)
 							*aboutePtr = 1;
 						else
 							metadata.State = AssetState::Updateing;
+						if (metadata.FilePath.parent_path() == m_CurentPath)
+							m_FileChanges = true;
 					}, handle);
 
 				if (aboute == 1)
 				{
-					RY_CORE_ERROR("About Reloading! Already Reloding somewhere else!");
-					// RY_CORE_ERROR("About Reloading!");
+					RY_ASSET_ERROR("About Reloading! Already Reloding somewhere else!");
 					return;
 				}
 
-				m_FileChanges = true;
+				
 				m_RegestryChanges = true;
-				RY_CORE_WARN("Beginn reloding Asset");
+				RY_ASSET_WARN("Beginn reloding Asset");
 			} 
 			
 
 			const AssetMetadata metadataC = GetMetadata(handle);
+			bool result = false;
+			for (uint32_t i = 0; i < 3 && !result; i++)
+			{
+				
+				waitTime = std::chrono::milliseconds(i * 45);
+				if(waitTime != std::chrono::milliseconds(0))
+					std::this_thread::sleep_for(waitTime);
+				result = AssetImporter::ReLoadeAsset(handle, metadataC);
+			}
 			
-			AssetImporter::ReLoadeAsset(handle, metadataC, async);
-
+			if(result)
 			{
 				std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
+				std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
 
-				m_HandleRegistry.GetRefLemda([](AssetMetadata& metadata)
+				m_HandleRegistry.GetRefLemda([this](AssetMetadata& metadata)
 					{
 						metadata.State = AssetState::Ready;
 						metadata.LoadingInTime = std::chrono::steady_clock::now();
+						if (metadata.FilePath.parent_path() == m_CurentPath)
+							m_FileChanges = true;
 					}, handle);
-				m_FileChanges = true;
+				
 				m_RegestryChanges = true;
 			}
+			else
+			{						
+				std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
+				m_HandleRegistry.GetRefLemda([this](AssetMetadata& metadata)
+					{
+						metadata.State = AssetState::Ready;
+						if (metadata.FilePath.parent_path() == m_CurentPath)
+							m_FileChanges = true;
+					}, handle);
+			}
 
-			RY_CORE_INFO("Asset: {0} Is Now Reloded", GetMetadata(handle).FilePath.string().c_str());
+			RY_ASSET_INFO("Asset: {0} Is Now Reloded", GetMetadata(handle).FilePath.string().c_str());
 		}
 		else
 		{
-			RY_CORE_INFO("don't need Reloding Asset: {0}", GetMetadata(handle).FilePath.string().c_str());
+			RY_ASSET_INFO("don't need Reloding Asset: {0}", GetMetadata(handle).FilePath.string().c_str());
 		}
 	}
 
-	void EditorAssetManegerThreade::ReLoadeAsset(const std::filesystem::path& path, bool async)
+	void EditorAssetManegerThreade::ReLoadeAsset(const std::filesystem::path& path)
 	{
 		const AssetHandle handle = GetAssetHandle(path);
-		ReLoadeAsset(handle, async);
+		ReLoadeAsset(handle);
 	}
 
 	void EditorAssetManegerThreade::GetMetadata(AssetHandle handle, AssetMetadata* metaData, std::mutex* metaDataMutex)
@@ -794,37 +875,165 @@ namespace Rynex {
 		}
 	}
 
+#if 1
+
+
+	void EditorAssetManegerThreade::ClearLodeadAssetList()
+	{
+		std::map<AssetHandle, Ref<Asset>> mapCopy;
+		{
+#if 0
+			Ref<std::unique_lock<std::shared_mutex>> lockLodedMap = m_LoadedAssets.GetMutexScopeLock();
+			std::map<AssetHandle, Ref<Asset>>* mapLR = m_LoadedAssets.GetMapPtr();
+			mapCopy = *mapLR;
+#else
+			m_LoadedAssets.Read(
+				[&mapCopy](const std::map<AssetHandle, Ref<Asset>>& map)
+				{
+					mapCopy = map;
+					return true;
+				}
+			);
+
+#endif
+		}
+		
+
+		for (auto&[assetHandle, assetRef] : mapCopy)
+		{
+			this->UnLoadeFileAsset(assetHandle);
+		}
+	}
+
+	bool EditorAssetManegerThreade::IsProjectDriectoryRelativ(const std::filesystem::path& assetPath)
+	{
+		size_t index = GetIndexProjectDriectory(assetPath);
+		std::string assetPathStr = assetPath.string();
+		size_t size = assetPathStr.size();
+
+		bool isRelativ = index >= size;
+		return isRelativ;
+	}
+
+	bool EditorAssetManegerThreade::IsProjectDriectoryAbsolut(const std::filesystem::path& assetPath)
+	{
+		size_t index = GetIndexProjectDriectory(assetPath);
+		std::string assetPathStr = assetPath.string();
+		size_t size = assetPathStr.size();
+		
+		bool isAbsult = assetPath.is_absolute();
+		bool isProjectAbsult = index < size;
+		return isAbsult || isProjectAbsult;
+	}
+
+	size_t EditorAssetManegerThreade::GetIndexProjectDriectory(const std::filesystem::path& assetPath)
+	{
+		Ref<Project> project = Project::GetActive();
+		const std::filesystem::path& projectDirectory = project->GetActiveProjectDirectory();
+
+		std::filesystem::path filePathDirParent = projectDirectory.parent_path();
+		std::filesystem::path filePathDirParentName = filePathDirParent.filename();
+		std::string projectDirectoryParentNameStr = filePathDirParentName.string();
+		std::string assetPathStr = assetPath.string();
+
+		size_t index = assetPathStr.find(projectDirectoryParentNameStr);
+		return index;
+	}
+
+	std::filesystem::path EditorAssetManegerThreade::GetFilePathProjectDirectoryAbosult(const std::filesystem::path& assetPath)
+	{
+		if(EditorAssetManegerThreade::IsProjectDriectoryAbsolut(assetPath))
+			return assetPath;
+
+		Ref<Project> project = Project::GetActive();
+		const std::filesystem::path& projectDirectory = project->GetActiveProjectDirectory();
+		std::filesystem::path filePath = projectDirectory / assetPath;
+	
+		return filePath;
+	}
+
+	std::filesystem::path EditorAssetManegerThreade::GetFilePathProjectDirectoryRelative(const std::filesystem::path& assetPath)
+	{
+		if (EditorAssetManegerThreade::IsProjectDriectoryRelativ(assetPath))
+			return assetPath;
+
+		Ref<Project> project = Project::GetActive();
+		const std::filesystem::path& projectDirectory = project->GetActiveProjectDirectory();
+
+		std::filesystem::path assetRaltiv = std::filesystem::relative(assetPath, projectDirectory);
+		return std::filesystem::path();
+	}
+
+#endif
 
 	void EditorAssetManegerThreade::SerialzeAssetRegistry()
 	{
-		//std::scoped_lock<std::mutex> lock(m_RegistryThreedQueueMutex);
-		RY_CORE_INFO("SerialzeAsseRegistry Asset Regestriey");
+		// std::scoped_lock<std::mutex> lock(m_RegistryThreedQueueMutex);
+		RY_ASSET_INFO("SerialzeAsseRegistry Asset Regestriey");
+#if 0
 		std::filesystem::path path = Project::GetActiveAssetRegistryPath();
 
+#if 0
 		m_HandleRegistry.GlobleMutexBegin();
+#else
+		Ref<std::unique_lock<std::shared_mutex>> lockHandleMap = m_HandleRegistry.GetMutexScopeLock();
+#endif
 		std::map<AssetHandle, AssetMetadata>* map = m_HandleRegistry.GetMapPtr();
 		EditorAssetMangerSerialzation::SerilzeThread(path, map);
+#if 0
 		m_HandleRegistry.GlobleMutexEnde();
-
+#endif
+#else
+		m_HandleRegistry.Write(
+			[](std::map<AssetHandle, AssetMetadata>& map)
+			{
+				std::filesystem::path path = Project::GetActiveAssetRegistryPath();
+				EditorAssetMangerSerialzation::SerilzeThread(path, &map);
+			}
+		);
+#endif
 	}
 
 	bool EditorAssetManegerThreade::DeserialzeAssetRegistry()
 	{
-		RY_CORE_INFO("DeserialzeAssetRegistry Asset Regestriey");
+		RY_ASSET_INFO("DeserialzeAssetRegistry Asset Regestriey");
+#if 0
 		{
+
 			std::filesystem::path path = Project::GetActiveAssetRegistryPath();
+#if 0
 			m_HandleRegistry.GlobleMutexBegin();
 			m_PathRegistry.GlobleMutexBegin();
+#endif
+
+			Ref<std::unique_lock<std::shared_mutex>> lockHandleMap = m_HandleRegistry.GetMutexScopeLock();
+			Ref<std::unique_lock<std::shared_mutex>> lockPathMap = m_PathRegistry.GetMutexScopeLock();
+
 
 			std::map<AssetHandle, AssetMetadata>* mapHR = m_HandleRegistry.GetMapPtr();
 			std::map<std::filesystem::path, AssetHandle>* mapPR = m_PathRegistry.GetMapPtr();
 
 			EditorAssetMangerSerialzation::DeserilzeThread(path, mapHR, mapPR);
-			
+#if 0
 			m_HandleRegistry.GlobleMutexEnde();
 			m_PathRegistry.GlobleMutexEnde();
+#endif
 		}
-		
+#else
+			m_HandleRegistry.Write(
+				[this](std::map<AssetHandle, AssetMetadata>& mapHandleRegister)
+				{
+					m_PathRegistry.Write(
+						[this, &mapHandleRegister](std::map<std::filesystem::path, AssetHandle>& mapPathRegister)
+						{
+							std::filesystem::path path = Project::GetActiveAssetRegistryPath();
+							EditorAssetMangerSerialzation::DeserilzeThread(path, &mapHandleRegister, &mapPathRegister);
+						}
+					);
+					
+				}
+			);
+#endif
 		return true;
 	}
 
@@ -847,7 +1056,7 @@ namespace Rynex {
 					return false;
 				case Rynex::AssetState::LostConection:
 				case Rynex::AssetState::Error:
-					RY_CORE_INFO("Mayby Conection to {} is Now longer lost!", metadata.FilePath.string().c_str());
+					RY_ASSET_INFO("Mayby Conection to {} is Now longer lost!", metadata.FilePath.string().c_str());
 				case Rynex::AssetState::Ready:
 				// case Rynex::AssetState::Uploading:
 				default:
@@ -869,21 +1078,45 @@ namespace Rynex {
 		return false;
 	}
 
+	bool EditorAssetManegerThreade::IsFileAssetExist(const std::filesystem::path& path)
+	{
+		std::filesystem::path pathExist = path;
+
+
+		if (path.is_relative())
+		{
+			std::string marker = Project::GetExpextedMarker(path);
+			std::filesystem::path base = Project::GetAbsulteFilePathFormMarker(marker);
+			pathExist = base / path;
+			pathExist = pathExist.generic_string();
+			RY_CORE_WARN("Maby the File-Path is not absolut \n\t{}\n\t{}", pathExist, path);
+		}
+		return std::filesystem::exists(pathExist);
+	}
+
 	bool EditorAssetManegerThreade::IsCurentAssetState(const std::filesystem::path& showPath) const
 	{
-		std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
-		std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
+		// std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
+		// std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
 		return m_FileChanges || showPath != m_CurentPath;
 	}
 
 	ContentBrowserItemesThreade EditorAssetManegerThreade::GetCurentAssetInformation(const std::filesystem::path& showPath)
 	{
 		std::string showPathGenaric = showPath.generic_string();
+
 		if (IsDirectoryInRegistry(showPathGenaric))
 		{
 			ContentBrowserItemesThreade itemes;
 			{
-				m_DirectoryRegistry.GlobleMutexBegin();
+#if 0
+#if 0
+				m_HandleRegistry.GlobleMutexBegin();
+				m_PathRegistry.GlobleMutexBegin();
+#else
+				Ref<std::unique_lock<std::shared_mutex>> lockDirectoryMutex = m_DirectoryRegistry.GetMutexScopeLock();
+#endif
+				
 				AssetFileDirectoryThreade& assetFileDirectory = m_DirectoryRegistry.GetRef(showPathGenaric);
 				const std::vector<std::filesystem::path>& foldersPaths = assetFileDirectory.Folders;
 				const std::vector<AssetHandle>& handles = assetFileDirectory.AssetFiles;
@@ -909,14 +1142,62 @@ namespace Rynex {
 
 					AssetType type = Asset::GetAssetTypeFromFilePath(metadata.FilePath);
 
-					// RY_CORE_ASSERT(!metadata.Interale);
+					// RY_ASSET_ASSERT(!metadata.Interale);
 					RY_CORE_ASSERT(!metadata.GetIntern());
 					itemes.emplace_back(true, false,
 						handle, metadata, type, Asset::GetAssetTypeDragAndDropName(type), metadata.State,
 						metadata.FilePath.filename().string(),
 						metadata.FilePath, metadata.FilePath.string());
 				}
+#if 0
 				m_DirectoryRegistry.GlobleMutexEnde();
+#else
+				RY_DESTROY_REF(lockDirectoryMutex);
+#endif
+#else
+				
+				m_DirectoryRegistry.ReadValue(showPathGenaric,
+					[this, &itemes](const AssetFileDirectoryThreade& assetFileDirectory) -> bool
+					{
+						const std::vector<std::filesystem::path>& foldersPaths = assetFileDirectory.Folders;
+						const std::vector<AssetHandle>& handles = assetFileDirectory.AssetFiles;
+
+						itemes.reserve(foldersPaths.size() + foldersPaths.size());
+
+						for (const std::filesystem::path& folderPath : foldersPaths)
+						{
+							itemes.emplace_back(
+								AssetBrowserDataThreade(false, true,
+									AssetHandle(0), AssetMetadata(),
+									AssetType::None, "",
+									AssetState::None, folderPath.filename().string(),
+									folderPath, folderPath.string()
+								)
+							);
+						}
+
+						for (const AssetHandle handle : handles)
+						{
+							if (!IsAssetHandleValid(handle))
+								continue;
+							CheckAssetFileExist(handle);
+							const AssetMetadata metadata = GetMetadata(handle);
+
+							AssetType type = Asset::GetAssetTypeFromFilePath(metadata.FilePath);
+
+							// RY_ASSET_ASSERT(!metadata.Interale);
+							RY_CORE_ASSERT(!metadata.GetIntern());
+							itemes.emplace_back(true, false,
+								handle, metadata, type, Asset::GetAssetTypeDragAndDropName(type), metadata.State,
+								metadata.FilePath.filename().string(),
+								metadata.FilePath, metadata.FilePath.string());
+						}
+
+						return true;
+					}
+				);
+#endif
+
 			}
 			{
 				std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
@@ -941,8 +1222,14 @@ namespace Rynex {
 	{
 		RegisterItemesThreade itemes;
 		{
+#if 0
+
+#if 0
 			m_HandleRegistry.GlobleMutexBegin();
-			std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
+#else
+			Ref<std::unique_lock<std::shared_mutex>> lockdirectoryMap = m_HandleRegistry.GetMutexScopeLock();
+#endif
+			// std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
 			std::map<AssetHandle, AssetMetadata>* map = m_HandleRegistry.GetMapPtr();
 			
 			itemes.reserve(map->size());
@@ -953,7 +1240,27 @@ namespace Rynex {
 			}
 			
 			m_RegestryChanges = false;
-			m_HandleRegistry.GlobleMutexEnde();
+#if 0
+			m_HandleRegistry.GlobleMutexBegin();
+#else
+			RY_DESTROY_REF(lockdirectoryMap);
+#endif
+#else
+			m_HandleRegistry.Read(
+				[&itemes](const std::map<AssetHandle, AssetMetadata>& map) -> bool
+				{
+					itemes.reserve(map.size());
+
+					for (const auto& [handle, metadata] : map)
+					{
+						RY_CORE_ASSERT(handle, "Handle withe zero!");
+						itemes.emplace_back(handle, metadata);
+					}
+					return true;
+				}
+			);
+#endif
+
 		}
 		
 		return itemes;
@@ -968,15 +1275,15 @@ namespace Rynex {
 			m_WorkingThreadMutex.lock();
 			m_WorkingThread.emplace_back(std::async(std::launch::async, [this](AssetHandle handleLem) {
 				const AssetMetadata metadata = GetMetadata(handleLem);
-				RY_CORE_WARN("Exexute Modified Event -> Asset: '{}'", metadata.FilePath.string().c_str());
-				ReLoadeAsset(handleLem, true);
+				RY_ASSET_WARN("Exexute Modified Event -> Asset: '{}'", metadata.FilePath.string().c_str());
+				ReLoadeAsset(handleLem);
 			}, handle));
 			m_WorkingThreadMutex.unlock();
 		}
 		else
 		{
 			const AssetMetadata metadata = GetMetadata(handle);
-			RY_CORE_WARN("Blocked Modified Event -> Asset: '{}'", metadata.FilePath.string().c_str());
+			RY_ASSET_WARN("Blocked Modified Event -> Asset: '{}'", metadata.FilePath.string().c_str());
 		}
 
 	}
@@ -987,7 +1294,7 @@ namespace Rynex {
 		m_WorkingThread.emplace_back(std::async(std::launch::async, [this](const std::filesystem::path pathLem)
 			{
 				std::filesystem::path parent = pathLem.parent_path();
-				RY_CORE_WARN("Exexute Added Event -> Path: '{}' | Scane Dir: '{}'", pathLem.filename().string().c_str(), parent.string().c_str());
+				RY_ASSET_WARN("Exexute Added Event -> Path: '{}' | Scane Dir: '{}'", pathLem.filename().string().c_str(), parent.string().c_str());
 				ScaneDirectory(parent);
 			}, path));
 		m_WorkingThreadMutex.unlock();
@@ -995,48 +1302,84 @@ namespace Rynex {
 
 	void EditorAssetManegerThreade::EventAsyncRemoved(const std::filesystem::path& path)
 	{
-		RY_CORE_WARN("Event Removed Thread is doing nothing! TODO!");
+		RY_ASSET_WARN("Event Removed Thread is doing nothing! TODO!");
 	}
 
 	void EditorAssetManegerThreade::EventAsyncRenamedNew(const std::filesystem::path& path)
 	{
-		RY_CORE_WARN("Event RenamedNew Thread is doing nothing! TODO!");
+		RY_ASSET_WARN("Event RenamedNew Thread is doing nothing! TODO!");
 	}
 
 	void EditorAssetManegerThreade::EventAsyncRenamedOld(const std::filesystem::path& path)
 	{
-		RY_CORE_WARN("Event RenamedOld Thread is doing nothing! TODO!");
+		RY_ASSET_WARN("Event RenamedOld Thread is doing nothing! TODO!");
 	}
 
 	bool EditorAssetManegerThreade::CheckAssetFileExist(AssetHandle handle)
 	{
 		if (!IsAssetHandleValid(handle))
 			return false;
+
+
+#if 0
+#if 0
 		m_HandleRegistry.GlobleMutexBegin();
+#else
+		Ref<std::unique_lock<std::shared_mutex>> lockHandleMap = m_HandleRegistry.GetMutexScopeLock();
+#endif
 		AssetMetadata& metaData = m_HandleRegistry.GetRef(handle);
 
 		if (!IsAssetPathExtensionVaild(metaData.FilePath))
 		{
 			metaData.State = AssetState::LostConection;
-			m_HandleRegistry.GlobleMutexEnde();
 			return false;
 		}
 		if(metaData.State == AssetState::LostConection || metaData.State == AssetState::Error)
 			metaData.State = AssetState::NotLoaded;
-		m_HandleRegistry.GlobleMutexEnde();
+#else
+		
+		std::pair<bool, AssetState> result = m_HandleRegistry.ReadValue(handle,
+			[this](const AssetMetadata& metaData) 
+			{
+				return std::pair<bool, AssetState>{ !IsAssetPathExtensionVaild(metaData.FilePath), metaData.State };
+			}
+		);
+		AssetState state = result.second;
+		if (result.first)
+		{
+			m_HandleRegistry.WriteValue(handle,
+				[](AssetMetadata& metaData)
+				{
+					metaData.State = AssetState::LostConection;
+				}
+			);
+		}
+		else if (state == AssetState::LostConection || state == AssetState::Error)
+		{
+			m_HandleRegistry.WriteValue(handle,
+				[](AssetMetadata& metaData)
+				{
+					metaData.State = AssetState::NotLoaded;
+				}
+			);
+		}
+#endif
 		return true;
 	}
 
 	void EditorAssetManegerThreade::CreateAssetDirectory(const std::filesystem::path& path)
 	{
-		std::string pathGenaric = path.generic_string();
-		std::string name = path.filename().string();
+		std::filesystem::path folderRelativPath = Project::GenarteProjectRaltivPath(path);
+
+		std::string pathGenaric = folderRelativPath.generic_string();
+		std::string name = folderRelativPath.filename().string();
 
 		if (!IsDirectoryInRegistry(pathGenaric))
 		{
 			{
 				std::lock_guard<std::mutex> lockChang(m_ChangesMutex);
-				m_FileChanges = true;
+				std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
+
 				m_RegestryChanges = true;
 				m_DirectoryRegistry.GetRefLemda([name, pathGenaric](AssetFileDirectoryThreade& assetFileDirectory)
 				{
@@ -1047,7 +1390,7 @@ namespace Rynex {
 			}
 			
 		
-			RY_CORE_INFO("Add AssetFolder Names {} on location {}", name.c_str(), pathGenaric.c_str());
+			RY_ASSET_INFO("Add AssetFolder Names {} on location {}", name.c_str(), pathGenaric.c_str());
 			// AddDirectoryToParent(pathGenaric);
 		}
 
@@ -1059,7 +1402,7 @@ namespace Rynex {
 		std::string extension = assetPath.extension().string();
 		if (extension.find("-", 0) < extension.size())
 		{
-			RY_CORE_WARN("Deteced speciel file Extension on Asset {} on location {}", assetName.c_str(), assetPathString.c_str());
+			RY_ASSET_WARN("Deteced speciel file Extension on Asset {} on location {}", assetName.c_str(), assetPathString.c_str());
 			parentGenaric = assetPathString.substr(0, assetPathString.size() - 2);
 		}
 		else
@@ -1085,7 +1428,7 @@ namespace Rynex {
 				}
 				assetFileDirectory.AssetFiles.emplace_back(handle);
 				
-				// RY_CORE_INFO("Add Asset on parent folder {}", assetPathString.c_str());
+				// RY_ASSET_INFO("Add Asset on parent folder {}", assetPathString.c_str());
 			}, parentGenaric);
 
 		
@@ -1093,14 +1436,19 @@ namespace Rynex {
 
 	void EditorAssetManegerThreade::AddDirectoryToParent(const std::filesystem::path& path)
 	{
-		std::string& origenelGenaric = path.generic_string();
-		std::string& origenelName = path.filename().string();
-		std::string& parentGenaric = path.parent_path().generic_string();
+		std::filesystem::path folderRelativPath = Project::GenarteProjectRaltivPath(path);
+		
 
-		if (!IsDirectoryInRegistry(origenelGenaric)&& !path.has_extension())
+		std::string origenelGenaric = folderRelativPath.generic_string();
+		std::string origenelName = folderRelativPath.filename().string();
+		std::string parentGenaric = folderRelativPath.parent_path().generic_string();
+
+		if (!IsDirectoryInRegistry(origenelGenaric) && !path.has_extension())
 		{
 			std::lock_guard<std::mutex> lockChang(m_ChangesMutex);
-			m_FileChanges = true;
+			std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
+			if(m_CurentPath == parentGenaric)
+				m_FileChanges = true;
 			m_RegestryChanges = true;
 			if(!m_DirectoryRegistry.IsFound(origenelGenaric))
 				m_DirectoryRegistry.Add(origenelGenaric, AssetFileDirectoryThreade());
@@ -1115,22 +1463,33 @@ namespace Rynex {
 		if (IsDirectoryInRegistry(parentGenaric))
 		{
 			std::lock_guard<std::mutex> lockChang(m_ChangesMutex);
-			m_FileChanges = true;
+			std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
+			if (m_CurentPath == parentGenaric)
+				m_FileChanges = true;
 			m_RegestryChanges = true; 
 			
-			m_DirectoryRegistry.GetRefLemda([origenelGenaric](AssetFileDirectoryThreade& assetFileDirectory)
+			bool result = m_DirectoryRegistry.ReadValue(parentGenaric, [&origenelGenaric](const AssetFileDirectoryThreade& assetFileDirectory)
 				{
-					bool findeFile = false;
 					for (auto& folder : assetFileDirectory.Folders)
 					{
 						if (folder == origenelGenaric)
-							return;
+							return false;
 					}
+					return true;
 
-					assetFileDirectory.Folders.emplace_back(origenelGenaric);
-				}, parentGenaric);
-
-			RY_CORE_WARN("Add Childe Folder {} to Folder {}", std::filesystem::path(parentGenaric).filename().string().c_str(), origenelGenaric.c_str());
+					
+				});
+			if (result)
+			{
+				m_DirectoryRegistry.WriteValue(parentGenaric, 
+					[&origenelGenaric](AssetFileDirectoryThreade& assetFileDirectory)
+					{
+						assetFileDirectory.Folders.emplace_back(origenelGenaric);
+					}
+				);
+				
+			}
+			RY_ASSET_WARN("Add Childe Folder {} to Folder {}", std::filesystem::path(parentGenaric).filename().string(), origenelGenaric);
 		}
 		else
 		{
@@ -1143,19 +1502,25 @@ namespace Rynex {
 
 	void EditorAssetManegerThreade::CreateFileAsset(const std::filesystem::path& path)
 	{
+#if RY_AKTIVATE_INTERAL_PATH
+#else
+		std::filesystem::path markedAssetPath = Project::GeanrateRealtivePathWitheMarker(path);
+		
 		std::string assetPathString = path.generic_string();
 		std::filesystem::path assetPath = assetPathString;
-		std::string assetName = assetPath.filename().generic_string();
+		std::string assetName = assetPath.filename().string();
 
+#endif
 		if (!IsAssetHandleValid(assetPath) && IsAssetPathExtensionVaild(assetPath))
 		{
+#if 0
 			AssetMetadata metaData;
 			// metaData.Aktive = true;
 			metaData.SetActive(true);
 			metaData.FilePath = assetPath;
 			metaData.Name = assetName;
 			metaData.Type = Asset::GetAssetTypeFromFilePath(assetPath);
-
+			metaData.ChangeTime = AssetRegistry::GetCurrentTimeStr();
 			metaData.State = IsFileAssetExist(assetPath) ? AssetState::NotLoaded : AssetState::LostConection;
 
 			AssetHandle handle;
@@ -1166,17 +1531,21 @@ namespace Rynex {
 
 			{
 				std::lock_guard<std::mutex> lock(m_ChangesMutex);
+				std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
+				if (m_CurentPath == assetPath.parent_path())
+					m_FileChanges = true;
 				
-				m_FileChanges = true;
 				m_RegestryChanges = true;
 			}
 			m_HandleRegistry.Add(handle, metaData);
 			m_PathRegistry.Add(assetPath, handle);
-
+#else
+			CreateNewFileAsset(assetName, assetPath, markedAssetPath);
+#endif
 		}
 		else if (IsAssetHandleValid(assetPath))
 		{
-			// RY_CORE_INFO("Check Asset Alrady Existing!");
+			// RY_ASSET_INFO("Check Asset Alrady Existing!");
 			// check State
 			
 			if (!IsFileAssetExist(assetPath))
@@ -1185,33 +1554,42 @@ namespace Rynex {
 				if (IsAssetLoaded(handle))
 					UnLoadeFileAsset(handle);
 
-				m_HandleRegistry.GetRefLemda([](AssetMetadata& metaData) 
+
+				std::lock_guard<std::mutex> lockChang(m_ChangesMutex);
+				std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
+
+				m_HandleRegistry.GetRefLemda([this](AssetMetadata& metaData)
 					{
 						metaData.State = AssetState::LostConection;
+						if (m_CurentPath == metaData.FilePath.parent_path())
+							m_FileChanges = true;
+						m_RegestryChanges = true;
+
 					}, handle);
 				
-				std::lock_guard<std::mutex> lockChang(m_ChangesMutex);
-				m_FileChanges = true;
-				m_RegestryChanges = true;
+				
 			}
 			else
 			{
 				const AssetHandle handle = GetAssetHandle(assetPath);
 				if (!IsAssetLoaded(handle))
 				{
+					std::lock_guard<std::mutex> lockChang(m_ChangesMutex);
+					std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
 					m_HandleRegistry.GetRefLemda([this](AssetMetadata& metaData)
 						{
 							if (metaData.State != AssetState::NotLoaded)
 							{
 								metaData.State = AssetState::LostConection;
-								m_FileChanges = true;
+								if (m_CurentPath == metaData.FilePath.parent_path())
+									m_FileChanges = true;
 								m_RegestryChanges = true;
 							}
 						}, handle);
 				}
 				else
 				{
-					m_HandleRegistry.GetRefLemda([this](AssetMetadata& metaData)
+					m_HandleRegistry.GetRefLemda([](AssetMetadata& metaData)
 						{
 							if (metaData.State != AssetState::Ready && metaData.State != AssetState::Loading)
 							{
@@ -1226,12 +1604,89 @@ namespace Rynex {
 		}
 		else if (!IsAssetPathExtensionVaild(assetPath))
 		{
-			RY_CORE_WARN("Asset {} we don't add to regestry because extione {} is not AssetType", assetPathString, assetPath.extension().string());
+			RY_ASSET_WARN("Asset {} we don't add to regestry because extione {} is not AssetType", assetPathString, assetPath.extension().string());
 		}
 		else
 		{
 			RY_CORE_ASSERT(false, "Don't know how that can happen");
 		}
+	}
+
+	void EditorAssetManegerThreade::CreateNewFileAsset(const std::string& name, const std::filesystem::path& path, const std::filesystem::path& pathMarker)
+	{
+		AssetMetadata metaData;
+		// metaData.Aktive = true;
+		metaData.SetActive(true);
+		metaData.SetFilePath(path);
+		metaData.Name = name;
+		metaData.Type = Asset::GetAssetTypeFromFilePath(path);
+		metaData.ChangeTime = AssetRegistry::GetCurrentTimeStr();
+		metaData.State = IsFileAssetExist(path) ? AssetState::NotLoaded : AssetState::LostConection;
+#if RY_AKTIVATE_INTERAL_PATH
+		metaData.PathMarker = pathMarker;
+#endif
+
+		AssetHandle handle;
+		while (handle == 0 || IsAssetHandleValid(handle))
+			handle = AssetHandle();
+
+		std::string pathString = path.string();
+		AddAssetFileToAssetDirectory(path, name, pathString, handle);
+
+		{
+			std::lock_guard<std::mutex> lock(m_ChangesMutex);
+			std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
+			if (m_CurentPath == path.parent_path())
+				m_FileChanges = true;
+
+			m_RegestryChanges = true;
+		}
+		m_HandleRegistry.Add(handle, metaData);
+#if RY_AKTIVATE_INTERAL_PATH
+		m_PathRegistry.Add(pathMarker, handle);
+#elif 0
+		std::filesystem::path pathAssetAbsolut;
+		std::filesystem::path pathAssetRealtive;
+		std::filesystem::path projectDir = Project::GetActiveProjectDirectory();
+		if (path.is_absolute())
+		{
+			pathAssetAbsolut = path;
+			std::filesystem::path projectRealtiv = std::filesystem::relative(path, projectDir);
+			std::string projectRealtivStr = projectRealtiv.generic_string();
+
+			pathAssetRealtive = projectRealtivStr;
+		}
+		else if (path.is_relative())
+		{
+			std::filesystem::path projectAbsoltu = projectDir / path;
+			std::filesystem::path patheAbsolut = std::filesystem::absolute(path);
+			if (std::filesystem::exists(path))
+			{
+				std::filesystem::path appRealtiv = std::filesystem::absolute(path);
+				std::string appRealtivStr = appRealtiv.generic_string();
+				pathAssetAbsolut = appRealtivStr;
+			}
+			else if (std::filesystem::exists(projectAbsoltu))
+			{
+				std::filesystem::path patheAbsolut = std::filesystem::absolute(path);
+				std::string projectRealtivStr = projectAbsoltu.generic_string();
+				pathAssetAbsolut = projectRealtivStr;
+			}
+			RY_CORE_ASSERT(std::filesystem::equivalent(pathAssetAbsolut, patheAbsolut), "We expext path to be insigth our App Struct or insigth our Project Struct");
+			pathAssetRealtive = path;
+		}
+		m_PathRegistry.Add(pathAssetAbsolut, handle);
+		m_PathRegistry.Add(pathAssetRealtive, handle);
+#elif 1
+		
+		m_PathRegistry.Add(metaData.AbsolutePath, handle);
+		m_PathRegistry.Add(metaData.RealtivePath, handle);
+
+		if(m_PathRegistry.IsFound(metaData.FilePath))
+			m_PathRegistry.Add(metaData.FilePath, handle);
+#else
+		m_PathRegistry.Add(path, handle);
+#endif
 	}
 
 	void EditorAssetManegerThreade::DeleateDirectory(const std::filesystem::path& path)
@@ -1258,6 +1713,15 @@ namespace Rynex {
 		{
 			if (IsAssetLoaded(handle))
 				UnLoadeFileAsset(handle);
+			const AssetMetadata metadata = m_HandleRegistry.GetCopy(handle);
+			if (metadata.GetDisc())
+			{
+				m_PathRegistry.Remove(metadata.RealtivePath);
+				m_PathRegistry.Remove(metadata.AbsolutePath);
+
+				if (m_PathRegistry.IsFound(metadata.FilePath))
+					m_PathRegistry.Remove(metadata.FilePath);
+			}
 			m_HandleRegistry.Remove(handle);
 			std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
 			m_FileChanges = true;
@@ -1269,286 +1733,94 @@ namespace Rynex {
 	{		
 		if (!IsAssetHandleValid(handle) || !IsAssetLoaded(handle))
 			return;
-		std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
-		m_HandleRegistry.GetRefLemda([](AssetMetadata& metadata)
+		std::lock_guard<std::mutex> lockChang(m_ChangesMutex);
+		std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
+		m_HandleRegistry.GetRefLemda([this](AssetMetadata& metaData)
 			{
-				metadata.State = AssetState::NotLoaded;
-				RY_CORE_WARN("Try to UnLoadeing Asset {} from disc path {}", metadata.FilePath.string().c_str(), metadata.Name.c_str());
+				metaData.State = AssetState::NotLoaded;
+				RY_ASSET_WARN("Try to UnLoadeing Asset {} from disc path {}", metaData.FilePath.string().c_str(), metaData.Name.c_str());
+				
+				if (m_CurentPath == metaData.FilePath.parent_path())
+					m_FileChanges = true;
+				m_RegestryChanges = true;
 			}, handle);
+		Ref<Asset> assetRefCopy = m_LoadedAssets.GetCopy(handle);
+		Weak<Asset> assetWeakCopy = assetRefCopy;
+		RY_DESTROY_REF(assetRefCopy);
+
 		m_LoadedAssets.Remove(handle);
-
 		
-		m_FileChanges = true;
-		m_RegestryChanges = true;
+		if (m_LoadedAssets.IsFound(handle))
+		{
+			RY_CORE_FATAL("UnLoadeing Faild its still in the Loaded AssetList");
+		}
+		if (Ref<Asset> assetWeakCopyRef = assetWeakCopy.lock())
+		{
+			RY_CORE_FATAL("UnLoadeing Faild Asset Still exist some whear else!");
+		}
+		
+
 	}
 
 #pragma endregion
 
 #pragma endregion
 
+
+
+#pragma endregion
+
+	template<>
+	inline AssetMangerMapMutex<AssetHandle, Ref<Asset>>::~AssetMangerMapMutex()
+	{
+#if 0
+		RY_CORE_ASSERT(!m_OutSideScope, "Mutex is alrady Set Globle");
+		m_Mutex.lock();
+		if (!m_AssetMap.empty())
+		{
+			for (auto& [key, asset] : m_AssetMap)
+			{
+				asset.reset();
+			}
+			m_AssetMap.clear();
+		}
+		m_Mutex.unlock();
 #else
-
-#pragma region EditorAssetManager
-
-	EditorAssetManager::EditorAssetManager()
-	{
-	}
-
-	void EditorAssetManager::OnAttach()
-	{
-		RY_CORE_WARN("Begin EditorAssetManager OnAttach");
-		DeserialzeAssetRegistry();
-		RY_CORE_INFO("Ende EditorAssetManager OnAttach");
-	}
-
-	void EditorAssetManager::OnDetach()
-	{
-		RY_CORE_WARN("Begin EditorAssetManager OnDetach");
-		SerialzeAssetRegistry();
-		RY_CORE_INFO("Ende EditorAssetManager OnDetach");
-	}
-
-	Ref<Asset> EditorAssetManager::GetAsset(AssetHandle handle)
-	{
-		if (m_AssetRegistry.IsAssetInRegistry(handle))
+		RY_CORE_ASSERT(!m_OutSideScope, "Mutex is alrady Set Globle");
+		std::unique_lock writerLock(m_Mutex);
+		m_Stop = true;
+		if (!m_AssetMap.empty())
 		{
-			Ref<Asset> asset = Ref<Asset>();
-			if (IsAssetLoaded(handle))
-			{
-				asset = m_LoadedAssets.at(handle);
-			}
-			else if(!IsAssetInteral(handle))
-			{
-				if(GetMetadata(handle).Interale)
+			WriteAction(
+				[this](std::map<AssetHandle, Ref<Asset>>& map)
 				{
-					RY_CORE_ASSERT(false, "Error on: 'EditorAssetManager::GetAsset' Asset is known In Regestry as Interale-Asset But got not Loadede! This cinde off error is a def Error!");
-					return nullptr;
+					for (auto& [key, asset] : map)
+					{
+						asset.reset();
+					}
+					map.clear();
 				}
-				AssetMetadata& metadata = m_AssetRegistry.GetMetadata(handle);
-				metadata.State = AssetState::Loading;
-				asset = AssetImporter::ImportAsset(handle, metadata);
-				metadata.State = AssetState::Ready;
-				RY_CORE_ASSERT(asset, "Error on: 'EditorAssetManager::GetAsset' No Asset Lodead!");
-				asset->Handle = handle;
-				m_LoadedAssets[handle] = asset;
-			}
-			else if (IsAssetInteral(handle))
-			{
-				RY_CORE_ASSERT(false, "Error on: 'EditorAssetManager::GetAsset' Asset is known In Regestry as Interale-Asset But got not Loadede! This cinde off error is a def Error!");
-				return nullptr;
-			}
-			else
-			{
-				RY_CORE_ASSERT(false, "Error on: 'EditorAssetManager::GetAsset' I Dont't know some isuse kan go to hear!");
-				return nullptr;
-			}
-			return asset;
+			);
 		}
-		
-		RY_CORE_ASSERT(false, "Error on: 'EditorAssetManager::GetAsset' No Asset handle found!");
-		return nullptr;
-	}
-
-	Ref<Asset> EditorAssetManager::GetAssetAsync(AssetHandle handle)
-	{
-		return GetAsset(handle);
-	}
-
-	Ref<Asset> EditorAssetManager::GetAsset(const std::filesystem::path& path)
-	{
-		return GetAsset(m_AssetRegistry.GetAssetHandle(path));
-	}
-
-
-	bool EditorAssetManager::IsAssetHandleValid(AssetHandle handle) const 
-	{
-		return m_AssetRegistry.IsAssetInRegistry(handle);
-	}
-
-	bool EditorAssetManager::IsAssetHandleValid(const std::filesystem::path& path) const 
-	{
-		return m_AssetRegistry.IsAssetInRegistry(path);
-	}
-
-	bool EditorAssetManager::IsAssetLoaded(AssetHandle handle) const 
-	{
-		return m_LoadedAssets.find(handle) != m_LoadedAssets.end() && (handle!=0);
-	}
-
-	bool EditorAssetManager::IsAssetLoaded(const std::filesystem::path& path) const
-	{
-		return IsAssetLoaded(m_AssetRegistry.IsAssetInRegistry(path));
-	}
-	
-	bool EditorAssetManager::IsAssetInteral(AssetHandle handle) const
-	{
-		return m_AssetRegistry.IsAssetInteral(handle);
-	}
-
-	AssetHandle EditorAssetManager::CreatLocaleAsset(Ref<Asset> asset, AssetMetadata& metadata)
-	{
-		AssetHandle handle = m_AssetRegistry.CreatLocaleAsset(asset, metadata);
-		m_LoadedAssets[handle] = asset;
-		if(IsAssetInteral(handle))
-			return handle;
-		return AssetHandle(0);
-	}
-
-	Ref<Asset> EditorAssetManager::GetLocaleAsset(AssetHandle handle)
-	{
-		RY_CORE_ASSERT(false, "This funktion is not any longer Sepoted! Use the funktion GetAsset");
-		if (IsAssetLoaded(handle) && !IsAssetHandleValid(handle))
-			return m_LoadedAssets.at(handle);
-		return nullptr;
-	}
-
-	void EditorAssetManager::DeleteLocaleAsset(AssetHandle handle)
-	{
-		if (IsAssetLoaded(handle) && !IsAssetHandleValid(handle))
-			m_LoadedAssets.erase(handle);
-	}
-
-
-	void EditorAssetManager::CreateAsset(const std::filesystem::path& path, Ref<Asset>& asset, AssetMetadata metadata)
-	{
-		std::string extensionString = path.extension().string();
-		if (!(extensionString.rfind(".ryframe-", 0) == 0 || extensionString.rfind(".ryarray-", 0) == 0 || extensionString == ".ryarray-i"))
-		{
-			if (IsAssetHandleValid(path))
-			{
-				// std::string extension = path.extension().string();
-				// std::string fileName = path.filename().string();
-				// size_t posL = fileName.find(extension);
-				// fileName.erase(posL, fileName.end());
-				// path = path
-				RY_CORE_ASSERT(false, "new Crated Asset is Alrady in path existens!");
-			}
-			while (IsAssetHandleValid(asset->Handle))
-			{
-				asset->Handle = AssetHandle();
-				RY_CORE_WARN("Gerat new AssetHandle Ther is a identikle Asset Alrady");
-			}
-		}
-		
-		if (IsAssetHandleValid(path))
-			asset->Handle = GetAssetHandle(path);
-		else
-			CreateAsset(path, asset->Handle, metadata);
-		
-		
-		
-		if (IsAssetHandleValid(asset->Handle))
-		{
-			if (!IsAssetLoaded(asset->Handle))
-			{
-				AssetMetadata& meta = m_AssetRegistry.GetMetadata(asset->Handle);
-				m_LoadedAssets[asset->Handle] = asset;
-				meta.State = AssetState::Ready;
-			}
-		}
-		else
-		{
-			RY_CORE_ASSERT(false, "new Crated Asset is not identikle There!");
-		}
-	}
-
-	
-
-	void EditorAssetManager::ReLoadeAsset(AssetHandle handle)
-	{
-		RY_CORE_ASSERT(handle != 0, "This Handle is not Accipteble");
-		RY_CORE_WARN("Reloning Asset: {0}", GetMetadata(handle).FilePath.string().c_str());
-		if (IsAssetLoaded(handle))
-		{
-			AssetMetadata& metadata = GetMetadata(handle);
-			metadata.State = AssetState::Updateing;
-			AssetImporter::ReLoadeAsset(handle,metadata);
-			metadata.State = AssetState::Ready;
-			
-			RY_CORE_INFO("Asset: {0} Is Now Reloded", GetMetadata(handle).FilePath.string().c_str());
-		}
-		else
-		{
-			RY_CORE_INFO("don't need Reloding Asset: {0}", GetMetadata(handle).FilePath.string().c_str());
-		}
-		
-	}
-
-	void EditorAssetManager::ReLoadeAsset(const std::filesystem::path& path)
-	{	
-		AssetHandle handle = GetAssetHandle(path);
-		if (handle != 0)
-			ReLoadeAsset(handle);
-		else
-			RY_CORE_ERROR("Try to Realoding On Path: {0} but It is not An Rynex Asset probebly!", path.string().c_str());
-	}
-
-	void EditorAssetManager::LoadeDownAsset(AssetHandle handle)
-	{
-		RY_CORE_ASSERT(handle != 0, "Asset is not known!");
-		RY_CORE_WARN("Down Lode Asset: {0}", GetMetadata(handle).FilePath.string().c_str());
-		if (IsAssetLoaded(handle))
-		{
-			AssetMetadata& metadata = GetMetadata(handle);
-			metadata.State = AssetState::Ready;
-			m_LoadedAssets[handle].reset();
-			m_LoadedAssets.erase(handle);
-			metadata.State = AssetState::NotLoaded;
-		}
-		else
-		{
-			RY_CORE_INFO("don't can down lownding Asset: {0}", GetMetadata(handle).FilePath.string().c_str());
-		}
-	}
-
-	void EditorAssetManager::LoadeDownAsset(const std::filesystem::path& path)
-	{
-		LoadeDownAsset(GetAssetHandle(path));
-	}
-
-	void EditorAssetManager::OnLoadeAsset(AssetHandle handle)
-	{
-		if (IsAssetHandleValid(handle) && IsAssetLoaded(handle))
-		{
-			AssetMetadata& metadata = GetMetadata(handle);
-			m_LoadedAssets[handle].reset();
-			metadata.State = AssetState::Ready;
-			m_LoadedAssets.erase(handle);
-			metadata.State = AssetState::NotLoaded;
-		}
-	}
-
-	void EditorAssetManager::OnLoadeAsset(const std::filesystem::path& path)
-	{
-		AssetHandle handle = GetAssetHandle(path);
-		if (handle != 0)
-			OnLoadeAsset(handle);
-		else
-			RY_CORE_ERROR("Try to Realoding On Path: {0} but It is not An Rynex Asset probebly!", path.string().c_str());
-	}
-
-	
-
-	void EditorAssetManager::SerialzeAssetRegistry()
-	{
-		//std::scoped_lock<std::mutex> lock(m_RegistryThreedQueueMutex);
-		RY_CORE_INFO("SerialzeAsseRegistry Asset Regestriey");
-		auto path = Project::GetActiveAssetRegistryPath();
-
-		EditorAssetMangerSerialzation::Serilze(path, m_AssetRegistry);
-	}
-
-	bool EditorAssetManager::DeserialzeAssetRegistry()
-	{
-		RY_CORE_INFO("DeserialzeAssetRegistry Asset Regestriey");
-		auto path = Project::GetActiveAssetRegistryPath();
-		
-		EditorAssetMangerSerialzation::Deserilze(path, m_AssetRegistry);
-		return true;
-	}
-
 #endif
+	}
 
-#pragma endregion
 
+	template<>
+	inline AssetMangerLeftRightMap<AssetHandle, Ref<Asset>>::~AssetMangerLeftRightMap()
+	{
+		std::unique_lock writerLock(m_WriterMutex);
+		m_Stop = true;
+		
+		WriteAction(
+			[this](std::map<AssetHandle, Ref<Asset>>& map)
+			{
+				for (auto& [key, asset] : map)
+				{
+					asset.reset();
+				}
+				map.clear();
+			}
+		);
+	}
 }

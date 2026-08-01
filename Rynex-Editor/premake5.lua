@@ -1,8 +1,22 @@
 project "Rynex-Editor"
+
+	if BuildProjectConf == "Static" or BuildProjectConf == "Static2Lib"   then
+		-- staticruntime "off" -- orig
+		staticruntime "on" 
+		io.write("Rynex-Editor.Conf::on\n")
+	end
+	if BuildProjectConf == "Static2" or BuildProjectConf == "StaticLib" then
+		staticruntime "off" -- orig
+		io.write("Rynex-Editor.Conf::off\n")
+	end
+	if BuildProjectConf == "Dynamic" then
+	 	staticruntime "off"
+		io.write("Rynex-Editor.Conf::off\n")
+	end
 	kind "ConsoleApp"
     language "C++"
 	cppdialect "C++17"
-	staticruntime "off"
+	
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
@@ -32,9 +46,13 @@ project "Rynex-Editor"
 		"%{IncludeDir.magic_enum}",
 
 		"%{IncludeDir.entt}",
+		"%{IncludeDir.robin_hood_hashing}", -- has map
 		-- Runtime Visuelle configs
 		"%{IncludeDir.ImGuizmo}",
-		
+		"%{IncludeDir.ImPlot}",
+		"%{IncludeDir.ImGui}",
+
+
 		-- "%{IncludeDir.msdfgen}",
 		-- "%{IncludeDir.msdf_atlas_gen}",
 		-- "%{IncludeDir.freetype}"
@@ -45,6 +63,8 @@ project "Rynex-Editor"
 		"Rynex"
 	}
 	
+	
+
 	filter "system:windows"
 		systemversion "latest"
 	
@@ -83,4 +103,8 @@ project "Rynex-Editor"
 		-- {
 		-- 	"%{Library.gtest_Release}"
 		-- }
+
+	-- filter "configurations:Preprocess"
+	-- 	flags { "NoPCH" }
+  	-- 	buildoptions { "/P" }
 

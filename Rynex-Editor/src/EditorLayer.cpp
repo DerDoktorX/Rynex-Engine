@@ -5,26 +5,20 @@
 #include <Rynex/Core/Input.h>
 #include <Rynex/Project/Project.h>
 #include <Rynex/Asset/Base/AssetManager.h>
-// #include <Rynex/Asset/EditorAssetManegerThreade.h>
 #include <Rynex/Utils/PlatformUtils.h>
 #include <Rynex/Math/Math.h>
 
 #include <Rynex/Serializers/SceneSerializer.h>
-#include <Rynex/Serializers/TextureSerialiazer.h>
-#include <Rynex/Serializers/VertexArraySerialzer.h>
 #if RY_SCRIPTING_HAZEL
    #include <Rynex/Scripting/HazelScripting/ScriptEngine.h> 
 #else
-    #include <Rynex/Scripting/ScriptingEngine.h>
+    #include <Rynex/Scripting/Mono/ScriptingEngine.h>
 #endif
-#include <Rynex/Renderer/Rendering/Renderer.h>
-#include <Rynex/Renderer/Rendering/Renderer2D.h>
-#include <Rynex/Renderer/Rendering/Renderer3D.h>
-#include <Rynex/Renderer/Materials/BasicMaterial.h>
 
+#include <Rynex/Renderer/Materials/Material.h>
+#include <Rynex/Renderer/Rendering/Renderer.h>
 
 #include <Rynex/Asset/Import/ShaderImporter.h>
-#include <Rynex/Renderer/Objects/Model.h>
 
 #include <imgui/imgui.h>
 #include <ImGuizmo.h>
@@ -33,308 +27,103 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <Rynex/Renderer/Text/Font.h>
+#include <Rynex/Renderer/Mesh/MeshSource.h>
+#include <Rynex/Renderer/Rendering/Render3D/IndirectDrawMap.h>
+#include <Rynex/Renderer/Mesh/MeshStatic.h>
+#include <Rynex/Core/Vector.h>
+
+#include <Rynex/Serializers/StaticMeshSerialzation.h>
+
+
+#include <Rynex/Core/VectorMapElementRef.h>
+#include <Rynex/Renderer/PiplineObjects/Piplines/PiplineBase.h>
+
+#include <type_traits>
+#include <stdexcept>
+#include <random>
+#include <Rynex/Asset/Import/TextureImporter.h>
+#include <Rynex/Renderer/Rendering/DrawContext.h>
+#include <Rynex/Renderer/ResoureManger/StagingSlot.h>
+
 
 
 
 namespace Rynex {
 
-#define RY_EDITOR_TEST_ENITITY 0
+#define RY_EDITOR_TEST_ENITITY 1
 #define RY_ENABLE_VIEWPORT 1
 #define TEST_SHADER_OUTPUT 0
 
+#define RY_KEY_CASE(key, func) \
+case key:\
+    func(); \
+    break
 
-#if TEST_SHADER_OUTPUT
 
-    namespace ShaderSim {
-         
-        using namespace glm;
 
-        struct InPut_FS
+#define RY_INTERNEL_IF_KEY_COMB_CASE(key, is, action) \
+case key: \
+    if(is) \
+        action; \
+    break
+
+#define RY_INTERNEL_IF_OR_ELSE_KEY_COMB_CASE(key, is, action1, action2) \
+case key: \
+    if(is) \
+        action1; \
+    else \
+        action2; \
+    break
+
+#define RY_INTERNEL_IF_OR_IF_ELSE_KEY_COMB_CASE(key, is1, is2, action1, action2) \
+case key: \
+    if(is1) \
+        action1; \
+    else if(is2) \
+        action2; \
+    break
+
+#define RY_INTERNEL_KEY_COMB_CASE_GET_MACRO_NAME(key, is, is_Or_Action, action1_Or_2, action2_Or_3, marco, ...) marco
+
+#define RY_INTERNEL_KEY_COMB_CASE_GET_MACRO(...) RY_EXPAND_MOAKRO( RY_INTERNEL_KEY_COMB_CASE_GET_MACRO_NAME(__VA_ARGS__, RY_INTERNEL_IF_OR_IF_ELSE_KEY_COMB_CASE, RY_INTERNEL_IF_OR_ELSE_KEY_COMB_CASE, RY_INTERNEL_IF_KEY_COMB_CASE) )
+#define RY_KEY_COMB_CASE(key, ...) RY_EXPAND_MOAKRO( RY_INTERNEL_KEY_COMB_CASE_GET_MACRO(key, __VA_ARGS__)(key, __VA_ARGS__) )
+
+#define TEST_SCENE_STATE_00 0
+#define TEST_SCENE_STATE_01 0
+#define TEST_SCENE_STATE_02 0
+#define TEST_SCENE_STATE_03 0
+#define TEST_SCENE_STATE_04 0
+#define TEST_SCENE_STATE_05 0
+#define TEST_SCENE_STATE_06 0
+#define TEST_SCENE_STATE_07 0
+#define TEST_SCENE_STATE_08 0
+#define TEST_SCENE_STATE_09 0
+#define TEST_SCENE_STATE_10 0
+
+#define TEST_BINDING_MANGER_SYSTEM 0
+
+#define TEST_RENDER_PIPLINE_SYSTEME 0
+#define TEST_MESH_STATIC_SERILAZTION 0
+#define TEST_LOADING_ASSETS_ASYNC 0
+#define TEST_PTR_RNEDERPIPLINE 0
+
+
+    namespace Utils {
+
+        static int RandomRange(int max)
         {
-            vec3 Position;	// 12
-            vec3 Normal;	// 24
-            vec2 Coords;	// 32
-        };
-
-        struct DrirectionLigthData_FS
-        {
-            vec4 Color;
-            vec3 Position;
-            float Intensitie;
-        };
-
-        struct PointLigthData_FS
-        {
-            vec3 Color;
-            float Distence;
-            vec3 Position;
-            float Intensitie;
-        };
-
-        struct SpotLigthData_FS
-        {
-            vec3 Color;
-            float Intensitie;
-            vec3 Position;
-            float Distence;
-            vec3 Direction;
-            float Inner;
-            float Outer;
-        };
-
-
-        struct CameraData_FS
-        {
-            mat4 ViewProjectionMatrix;	// 16
-            mat4 ViewMatrix;			// 32
-            mat4 ProjectionMatrix;		// 48
-            vec3 CamerPosition;			// 60
-            int Empty;					// 64
-        };
-
-        struct ModelData_FS
-        {
-            vec3 Color;
-            float Alpha;
-            float Emission;
-            float Matalness;
-            float Roughness;
-            float Shinines;
-            float Specular;
-
-            int EntityID;
-            ivec2 Empty;
-            mat4 ModelMatrix;
-        };
-
-        struct AmbientLigth_FS
-        {
-            vec3 Color;
-            float Intensitie;
-        };
-
-        struct DrirectionLigth_FS
-        {
-            int Aktive;
-            ivec3 Empty;
-            DrirectionLigthData_FS Direction[8];
-        };
-
-        struct PointLigth_FS
-        {
-            int Aktive;
-            ivec3 Empty;
-            PointLigthData_FS Point[32];
-        };
-
-        struct SpotLigth_FS
-        {
-            int Aktive;
-            ivec3 Empty;
-            SpotLigthData_FS Spot[32];
-        };
-
-        static CameraData_FS Camera = {
-            {
-                {1.39734, 0.00f, 0.00f, 0.00f},
-                { 0.00f, 3.73205f, 0.00f, 0.00f },
-                { 0.00f, 0.00f, -1.0002f, 9.80198f },
-                { 0.00f, 0.00f, -1.00f, 10.00f }
-            },
-            {
-                { 1.00f, 0.00f, 0.00f, 0.00f},
-                { 0.00f, 1.00f, 0.00f, 0.00f},
-                { 0.00f, 0.00f, 1.00f, -10.00f },
-                { 0.00f, 0.00f, 0.00f, 1.00f }
-            },
-            {
-                { 1.39734, 0.00f, 0.00f, 0.00f},
-                { 0.00f, 3.73205f, 0.00f, 0.00f},
-                { 0.00f, 0.00f, -1.0002f, -0.20002f },
-                { 0.00f, 0.00f, -1.00f, 0.00f }
-            },
-            {
-                 0.00f, 0.00f, -10.00f
-            },
-            -1
-        };
-
-        static ModelData_FS Model = {
-            {
-                1.00f, 0.00f, 1.00f
-            },
-            1.0f,
-            0.1f,
-            0.2f,
-            0.3f,
-            0.4f,
-            0.5f,
-            -1,
-            {-2, -3},
-            {
-                { 1.00f, 0.00f, 0.00f, 0.00f },
-                { 0.00f, 1.00f, 0.00f, 0.00f },
-                { 0.00f, 0.00f, 1.00f, 0.00f },
-                { 0.00f, 0.00f, 0.00f, 1.00f }
-            }
-        };
-
-        static AmbientLigth_FS AmbientL = {
-            {
-                1.00f, 1.00f, 1.00f
-            },
-            0.1f
-           
-        };
-
-        static DrirectionLigth_FS DrirectionelL = {
-            1,
-            {-1.0f,-2.0f,-3.0f},
-            {
-                {
-                    { 1.00f, 1.00f, 1.00f, -13.00f },
-                    { 3.00f, 3.10f, 0.00f },
-                    1.00
-                }
-            }
-
-        };
-
-        // output
-        static vec4 Color; 
-
-        static InPut_FS vData = {
-            {0.00f,0.00f, -1.00 },
-            {0.0f, 0.0f, -1.0f },
-            {0.0f,0.0f}
-        };
-
-        static const float PI = 3.14159265359f;
-
-        static float distrbutionGXX(float NdotH, float roughness)
-        {
-            float a = roughness * roughness;
-            float a2 = a * a;
-            float demom = NdotH * NdotH * (a2 - 1.0f);
-            demom = PI * demom * demom;
-            return a2 / std::max(demom, 0.00000001f);
+            return rand() % max;
         }
 
-        static float geomtrySmith(float NdotV, float NdotL, float roughness)
+        static float RandomFloatRange(int max, int min, float pos = 100.0f)
         {
-            float r = roughness - 1.0f;
-            float k = (r * r) / 8.0f;
-            float ggx1 = NdotV * (NdotV * (1.0f - k) + k);
-            float ggx2 = NdotL * (NdotL * (1.0f - k) + k);
-            return ggx1 * ggx2;
+            int v = RandomRange((max - min) * pos) + min * pos;
+            return v / pos;
         }
 
-        static vec3 frenselSchlick(float HdotV, vec3 baseReflectivity)
-        {
-            return baseReflectivity + ( vec3( 1.0f) - baseReflectivity) * vec3( pow( 1.0f - HdotV, 5.0f ));
-        }
-
-        static vec3 drirectionelLigthing(vec3 N, vec3 V, vec3 baseReflectivity, float metalic, vec3 albedo)
-        {
-            float roughness = Model.Roughness;
-            vec3 result = vec3(0.0f);
-            int Aktive = DrirectionelL.Aktive;
-            vec3 worldPostion = vData.Position;
-            
-            RY_CORE_INFO("roughness: {}", roughness);
-            RY_CORE_INFO("result: {}", glm::to_string(result));
-            RY_CORE_INFO("Aktive: {}", Aktive);
-            RY_CORE_INFO("worldPostion: {}", glm::to_string(worldPostion));
-
-            for (int i = 0; i < Aktive; i++)
-            {
-                DrirectionLigthData_FS ligthData = DrirectionelL.Direction[i];
-
-                vec3 ligtheOffset = ligthData.Position - worldPostion;
-                vec3 L = normalize(ligtheOffset);
-                vec3 H = normalize(V + L);
-                float distence = length(ligtheOffset);
-                float attenuation = 1.0f / (distence * distence);
-                vec3 radiance = vec3( ligthData.Color ) * attenuation;
-
-                float NdotV = max( dot(N, V) , 0.0000001f);
-                float NdotL = max( dot(N, L) , 0.0000001f);
-                float HdotV = max( dot(H, V) , 0.0f);
-                float NdotH = max( dot(N, H) , 0.0f);
-
-                float D = distrbutionGXX(NdotH, roughness);
-                float G = geomtrySmith(NdotV, NdotL, roughness);
-                vec3 F = frenselSchlick(HdotV, baseReflectivity);
-                RY_CORE_INFO("D: {}", D);
-                RY_CORE_INFO("G: {}", G);
-                RY_CORE_INFO("F: {}", glm::to_string(F));
-                vec3 specular = D * G * F;
-                specular /= 4.0f * NdotV * NdotL;
-
-                vec3 kD = vec3(1.0f) - F;
-                kD *= 1.0f - metalic;
-                // result += ( kD * albedo / PI + specular ) * radiance * NdotL;
-                result += (kD * albedo / PI + specular) * radiance * NdotL;
-            }
-            return result;
-        }
-       
-
-        static vec3 ambientLigthing(vec3 albedo)
-        {
-            return (AmbientL.Color * AmbientL.Intensitie) * albedo;
-        }
-
-        static vec3 tonemapping(vec3 color)
-        {
-            return color / (color + vec3( 1.0f ));
-        }
-       
-        static vec3 gamarCorrect(vec3 color)
-        {
-            return pow(color, vec3(1.0f / 2.2f));
-        }
-
-        static vec3 Ligth()
-        {
-            vec3 N = normalize(vData.Normal);
-            vec3 V = normalize(Camera.CamerPosition - vData.Position);
-            vec3 albedo = Model.Color;
-            float metalic = Model.Matalness;
-            vec3 baseReflectivity = mix(vec3(0.04f), albedo, metalic);
-            vec3 Lo = vec3(0.0f);
-
-            RY_CORE_INFO("N: {}", glm::to_string(N));
-            RY_CORE_INFO("V: {}", glm::to_string(V));
-            RY_CORE_INFO("albedo: {}", glm::to_string(albedo));
-            RY_CORE_INFO("metalic: {}", metalic);
-            RY_CORE_INFO("baseReflectivity: {}", glm::to_string(baseReflectivity));
-            RY_CORE_INFO("Lo: {}", glm::to_string(Lo));
-
-            Lo += drirectionelLigthing(N, V, baseReflectivity, metalic, albedo);
-            RY_CORE_INFO("Lo: {} after drirectionelLigthing", glm::to_string(Lo));
-            Lo += ambientLigthing(albedo);
-            RY_CORE_INFO("Lo: {} after ambientLigthing", glm::to_string(Lo));
-
-            return Lo;
-        }
-
-        static void main_FS()
-        {
-            vec3 color = vec3(0.0f);
-            color += Ligth();
-            RY_CORE_INFO("color after Ligth {}", glm::to_string(color));
-            color = tonemapping(color);
-            RY_CORE_INFO("color after tonning {}", glm::to_string(color));
-            color = gamarCorrect(color);
-            RY_CORE_INFO("color after gamma {}", glm::to_string(color));
-            Color = vec4(color, Model.Alpha);
-            RY_CORE_INFO("output color {}", glm::to_string(Color));
-        }
     }
 
-#endif
-
+    
     EditorLayer::EditorLayer()
         : Layer("Rynex-Editor")
         , m_CameraController((1280.0f / 720.0f), true)
@@ -342,21 +131,2139 @@ namespace Rynex {
         , m_Content_BPannel()
         , m_MenuBarPannel()
         , m_RendererPannel("Renderer")
+        , m_ViewPortRenderTime(1ull)
+        , m_ViewPortUpdateTime(1ull)
+        , m_CallFace(CallFace::None)
+        , m_ViewportBounds()
     {
-        // glm::mat4 scaleMat4Test = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
-        // glm::mat4 tranltionsMat4Test = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
     }
+
+#pragma region TestFunctions
+
+
+
+#pragma region TestRenderPipline
+
+    static void CreateStaticMeshEntity(const std::string& name, Ref<Scene> scene, const glm::mat4& matrix, Ref<MeshStatic> meshStatic)
+    {
+        Entity& entiy = scene->CreateEntity(name);
+        ModelMangerComponent& staticMesh = entiy.AddComponent<ModelMangerComponent>();
+        staticMesh.meshStatic = meshStatic;
+
+        TransformComponent& transC = entiy.GetComponent<TransformComponent>();
+        transC.SetTransform(matrix);
+        glm::mat4 mat = transC.GetTransform();
+
+
+        for (uint32_t x = 0; x < 4; x++)
+        {
+            for (uint32_t y = 0; y < 4; y++)
+            {
+                const float& checkMat = mat[x][y];
+                const float& checkMatrix = matrix[x][y];
+                RY_CORE_ASSERT(checkMat == checkMatrix);
+            }
+        }
+        entiy.UpdateMatrix();
+#if 1
+        const UUID& meshSourceEntityUUID = entiy.GetUUID();
+        std::vector<UUID>& meshSingleChildrenVec = staticMesh.singleMeshes;
+        const std::vector<MeshStatic::SingleObjectMeshData>& meshSingleVec = meshStatic->GetSingleObjectMesDataVec();
+        meshSingleChildrenVec.reserve(meshSingleVec.size());
+#if 0
+        uint32_t i = 0;
+        uint32_t countFormTo = 5;
+        uint32_t form = 18;
+        uint32_t to = form + countFormTo;
+
+        for(const MeshStatic::SingleObjectMeshData& meshSingle : meshSingleVec)
+        {
+
+            if (i == to)
+            {
+                break;
+            } 
+            else if(i < form)
+            {
+                i++;
+                continue;
+            }
+            i++;
+#else
+        for (const MeshStatic::SingleObjectMeshData& meshSingle : meshSingleVec)
+        {
+#endif
+            const Ref<Material>& materiel = meshSingle._Material;
+            const Ref<MeshSingle>& meshSingel = meshSingle._MeshSingle;
+            const glm::mat4& matrix = meshSingle.LocaleCildrenMatrix;
+            const std::string& name = meshSingle.NodeName;
+
+            Entity& e = entiy.AddChildrenEntity(name);
+            meshSingleChildrenVec.emplace_back(e.GetUUID());
+            StaticMeshComponent& singleStaticMesh = 
+                e.AddComponent<StaticMeshComponent>(
+                    meshSourceEntityUUID
+                    , meshSingel, materiel
+                );
+
+            TransformComponent& transMeshChildeC = e.GetComponent<TransformComponent>();
+            transMeshChildeC.SetTransform(matrix);
+            e.SetVisable(false);
+            e.UpdateMatrix();
+        }
+#endif
+    }
+
+    static void CreateStaticMeshEntity(const std::string& name, Entity& e, const glm::mat4& matrix, Ref<MeshStatic> meshStatic)
+    {
+        Entity& entiy = e.AddChildrenEntity(name);
+        ModelMangerComponent& staticMesh = entiy.AddComponent<ModelMangerComponent>();
+        staticMesh.meshStatic = meshStatic;
+
+        TransformComponent& transC = entiy.GetComponent<TransformComponent>();
+        transC.SetTransform(matrix);
+        glm::mat4 mat = transC.GetTransform();
+
+
+        for (uint32_t x = 0; x < 4; x++)
+        {
+            for (uint32_t y = 0; y < 4; y++)
+            {
+                const float& checkMat = mat[x][y];
+                const float& checkMatrix = matrix[x][y];
+                RY_CORE_ASSERT(checkMat == checkMatrix);
+            }
+        }
+        entiy.UpdateMatrix();
+#if 1
+        const UUID& meshSourceEntityUUID = entiy.GetUUID();
+        std::vector<UUID>& meshSingleChildrenVec = staticMesh.singleMeshes;
+        const std::vector<MeshStatic::SingleObjectMeshData>& meshSingleVec = meshStatic->GetSingleObjectMesDataVec();
+        meshSingleChildrenVec.reserve(meshSingleVec.size());
+
+        for (const MeshStatic::SingleObjectMeshData& meshSingle : meshSingleVec)
+        {
+            const Ref<Material>& materiel = meshSingle._Material;
+            const Ref<MeshSingle>& meshSingel = meshSingle._MeshSingle;
+            const glm::mat4& matrix = meshSingle.LocaleCildrenMatrix;
+            const std::string& name = meshSingle.NodeName;
+
+            Entity& e = entiy.AddChildrenEntity(name);
+            meshSingleChildrenVec.emplace_back(e.GetUUID());
+            StaticMeshComponent& singleStaticMesh =
+                e.AddComponent<StaticMeshComponent>(
+                    meshSourceEntityUUID
+                    , meshSingel, materiel
+                );
+
+            TransformComponent& transMeshChildeC = e.GetComponent<TransformComponent>();
+            transMeshChildeC.SetTransform(matrix);
+            e.SetVisable(false);
+            e.UpdateMatrix();
+        }
+#endif
+    }
+
+
+    static void TestProfileRenderShaderMapSubmit(Ref<MeshStatic> cube, Ref<MeshStatic> cube2, Ref<MeshStatic> ship, Ref<MeshStatic> cv, Ref<MeshStatic> sponzer, Ref<MeshStatic> sponzer2, Ref<Scene> scene)
+    {
+        glm::mat4 matrixShip1 = glm::mat4(
+            2.5f, 0.0f, 0.0f, 0.0f,
+            0.0f, 2.5f, 0.0f, 0.0f,
+            0.0f, 0.0f, 2.5f, 0.0f,
+            7.0f, 0.0f, 0.0f, 1.0f
+        );
+        glm::mat4 matrixShip2 = glm::mat4(
+            0.1f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.1f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.1f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+        );
+        glm::mat4 matrixShip3 = glm::mat4(
+            2.5f, 0.0f, 0.0f, 0.0f,
+            0.0f, 2.5f, 0.0f, 0.0f,
+            0.0f, 0.0f, 2.5f, 0.0f,
+            -15.0f, 0.0f, 0.0f,1.0f
+        );
+        glm::mat4 matrix1 = glm::mat4(
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+        );
+        glm::mat4 matrix2 = glm::mat4(
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 1.25f, 0.0f, 1.0f
+        );
+        glm::mat4 matrixPlane = glm::mat4(
+           15.0f,  0.0f, 0.0f, 0.0f,
+            0.0f, 0.05f, 0.0f, 0.0f,
+            0.0f,  0.0f,15.0f, 0.0f,
+            0.0f, -1.0f, 0.0f, 1.0f
+        );
+
+        Ref<Shader> shader = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/MeshTestShader.glsl"));
+
+        glm::vec3 up;
+        up = glm::vec3(0.0f, 0.0f, -1.0f);
+        up = glm::vec3(0.0f, 1.0f, 0.0f);
+        glm::vec3 center = glm::vec3(0.0f, 0.0f, 0.0f);
+        glm::vec3 position;
+        position = glm::vec3(-10.2f, 5.2f, 12.0f);
+        // position = glm::vec3(0.0f, 7.5f, 0.0f);
+        glm::vec3 direction = glm::normalize(position);
+        position += direction * 2.0f;
+
+        glm::vec3 scale = glm::vec3(1.0f);
+        float size = 20.f;
+        float nearClip = -5.0f;
+        float farClip = 45.0f;
+        float pixelSize = 2048 * 1.0f;
+      
+        // glm::mat4 view = glm::lookAt(position, center, up);
+
+        glm::mat4 view = glm::lookAt(position, center, up);
+        glm::mat4 projection;
+        projection = glm::ortho(-size, size, -size, size, nearClip, farClip);
+        float asspect = size / size; 
+        // projection = glm::perspective(glm::radians(45.0f), asspect, nearClip, farClip);
+
+
+        // glm::mat4 projection = glm::ortho(-25.0f, 25.0f, -25.0f, 25.0f, 0.0f, 100.f);
+        glm::mat4 projectionView = projection * view;
+        glm::mat4 inverseProjectionView = glm::inverse(projectionView);
+
+        glm::vec4 background = glm::vec4( 0.0f, 0.0f,  0.0f,  1.0f );
+
+        float pixelMultyPlyer = 75.0f;
+        glm::vec4 viewSpace = glm::vec4(0.0f, 0.0f, pixelSize, pixelSize);
+        int mode = RenderMode::Death_Buffer | RenderMode::CallFace_Front | RenderMode::A_Buffer;
+#if 1
+        glm::vec4 viewSpaceComplet = glm::vec4(0.0f, 0.0f, viewSpace.z , viewSpace.w);
+#else
+        glm::vec4 viewSpaceComplet = glm::vec4(0.0f, 0.0f, viewSpace.z * RY_SHADOW_COUNT, viewSpace.w);
+#endif
+        uint32_t withe = viewSpaceComplet.z;
+        uint32_t heigth = viewSpaceComplet.w;
+
+        FramebufferSpecification fbSpec = {
+            withe, heigth, 1u,
+            {
+                { TexFrom::DepthComp24, 1, { TexWarp::ClampEdge, TexWarp::ClampEdge, TexWarp::ClampEdge }, TexFilter::Linear, TexComp::Lequal }
+            }
+        };
+        
+        glm::vec4 viewSpaceImgageSize = viewSpace;
+        for (uint32_t i = 0; i < RY_SHADOW_COUNT; i++)
+        {
+#if 1
+            Ref<Framebuffer> fb = Framebuffer::Create(fbSpec);
+            fb->Resize2D(viewSpace.z, viewSpace.w);
+#ifndef RY_RENERER_DESIGN_CURENT_MAIN
+            uint32_t index = Renderer::SetPassView(
+                "Shadow",
+                ViewPassData( projection, view, 
+                position, background, viewSpaceComplet, mode, 2.2f, fb), ViewPassType::Shadow);
+#elif 1
+
+            Entity entity = scene->CreateEntity("Directionel");
+            CameraComponent& camnerC = entity.AddComponent<CameraComponent>();
+            camnerC.Camera.SetOrthoGrafic(size, nearClip, farClip);
+            camnerC.Primary = false;
+            RenderTargetComponent& renderTargetC = entity.AddComponent<RenderTargetComponent>();
+            ModelMatrixComponent& modelC = entity.GetComponent<ModelMatrixComponent>();
+            modelC.Locale = glm::inverse(view);
+            
+            renderTargetC.Target = CreateRef<RenderTarget>(fb);
+            const glm::uvec2& size = fb->GetFrambufferSize();
+            glm::ivec2 sizeInt = static_cast<glm::ivec2>(size);
+            glm::ivec4 viewSize = { sizeInt.x, sizeInt.y, 0, 0, };
+            ;
+            renderTargetC.RenderPassName = "Shadow";
+            renderTargetC.StroeIndex = 0xFFFFFFFFui32;
+            entity.UpadteTransformFromMatrix();
+            entity.UpdateMatrix();
+#endif // !RY_RENERER_DESIGN_CURENT_MAIN
+            
+#else
+            uint32_t index = Renderer::SetPassView(
+                ViewPassData{ projection, view, projectionView, inverseProjectionView,
+                position,  background,  viewSpaceImgageSize,  mode,  fb }, ViewPassType::Shadow);
+            viewSpaceImgageSize.x += viewSpace.z;
+#endif
+        }
+#ifdef RY_RENERER_DESIGN_CURENT_MAIN
+        cube = Mesh::CreateStaticMesh("Assets/Models/Cube.gltf");
+
+        CreateStaticMeshEntity("Cube", scene, matrix2, cube);
+#endif // !RY_RENERER_DESIGN_CURENT_MAIN
+
+#if TEST_SCENE_STATE_00
+        Renderer3D::SubmitMeshObject(ship, shader, matrixShip1,1);
+        Renderer3D::SubmitMeshObject(cube, shader, glm::translate(matrix2, glm::vec3(1.0f, 2.5f, 1.0f)), 2);
+        Renderer3D::SubmitMeshObject(cube, shader, matrix2, 3);
+
+        Renderer3D::SubmitMeshObject(cube, shader, matrix1, 3);
+        Renderer3D::SubmitMeshObject(ship, shader, matrixShip3, 4);
+        Renderer3D::SubmitMeshObject(cv, shader, glm::translate(matrixShip2, glm::vec3(-9.0f,  0.75f,  3.0f) * glm::vec3(10.0f)), 5);
+        Renderer3D::SubmitMeshObject(cv, shader, glm::translate(matrixShip2, glm::vec3( 9.0f, -0.75f,  3.0f) * glm::vec3(10.0f)), 6);
+        Renderer3D::SubmitMeshObject(cv, shader, glm::translate(matrixShip2, glm::vec3(-5.0f, -0.75f, -3.0f) * glm::vec3(10.0f)), 7);
+        Renderer3D::SubmitMeshObject(ship, shader, glm::translate(matrixShip1, glm::vec3(-10.0f,  0.5f,  7.5f) / glm::vec3(2.5f)), 8);
+        Renderer3D::SubmitMeshObject(ship, shader, glm::translate(matrixShip1, glm::vec3( 10.0f, -0.5f, 0.0f)  / glm::vec3(2.5f)), 9);
+        Renderer3D::SubmitMeshObject(ship, shader, glm::translate(matrixShip1, glm::vec3( 10.0f, 0.0f, -7.5f)  / glm::vec3(2.5f)), 10);
+        Renderer3D::SubmitMeshObject(cube2, shader, glm::translate(matrix2, glm::vec3(-15.0f, 5.0f, 0.0f)), 11);
+        Renderer3D::SubmitMeshObject(cube2, shader, glm::translate(matrix2, glm::vec3( 15.0f, 0.0f, 7.5f)), 12);
+       
+
+        Renderer3D::SubmitMeshObject(cube, shader, matrixPlane, 13);
+#elif TEST_SCENE_STATE_01
+        Renderer3D::SubmitMeshObject(sponzer2, shader, glm::scale(matrix1, glm::vec3(2.75f)), 1);
+#elif TEST_SCENE_STATE_02
+        Renderer3D::SubmitMeshObject(sponzer, shader, glm::scale(matrix1, glm::vec3(2.75f)), 1);
+#elif TEST_SCENE_STATE_03
+        Renderer3D::SubmitMeshObject(sponzer, shader, glm::scale(matrix1, glm::vec3(3.0f)), 1);
+        Renderer3D::SubmitMeshObject(sponzer2, shader, glm::scale(matrix1, glm::vec3(3.0f)), 2);
+#elif TEST_SCENE_STATE_04
+        CreateStaticMeshEntity("ship 1", scene, matrixShip1, ship);
+        CreateStaticMeshEntity("cube 1", scene, glm::translate(matrix2, glm::vec3(1.0f, 2.5f, 1.0f)), cube);
+        CreateStaticMeshEntity("cube 2", scene, matrix2, cube);
+
+        CreateStaticMeshEntity("cube 3", scene, matrix1, cube);
+        CreateStaticMeshEntity("ship 2", scene, matrixShip3, ship);
+        CreateStaticMeshEntity("cv 1", scene, glm::translate(matrixShip2, glm::vec3(-9.0f,  0.75f,  3.0f) * glm::vec3(10.0f)), cv);
+        CreateStaticMeshEntity("cv 2", scene, glm::translate(matrixShip2, glm::vec3( 9.0f, -0.75f,  3.0f) * glm::vec3(10.0f)), cv);
+        CreateStaticMeshEntity("cv 3", scene, glm::translate(matrixShip2, glm::vec3(-5.0f, -0.75f, -3.0f) * glm::vec3(10.0f)), cv);
+        CreateStaticMeshEntity("ship 3", scene, glm::translate(matrixShip1, glm::vec3(-10.0f, 0.5f, 7.5f) / glm::vec3(2.5f)), ship);
+        CreateStaticMeshEntity("ship 4", scene, glm::translate(matrixShip1, glm::vec3(10.0f, -0.5f, 0.0f) / glm::vec3(2.5f)), ship);
+        CreateStaticMeshEntity("ship 5", scene, glm::translate(matrixShip1, glm::vec3(10.0f, 0.0f, -7.5f) / glm::vec3(2.5f)), ship);
+        CreateStaticMeshEntity("cube2 1", scene, glm::translate(matrix2, glm::vec3(-15.0f, 5.0f, 0.0f)), cube2);
+        CreateStaticMeshEntity("cube2 2", scene, glm::translate(matrix2, glm::vec3(15.0f, 0.0f, 7.5f)), cube2);
+
+        CreateStaticMeshEntity("cube 4", scene, matrixPlane, cube);
+#elif TEST_SCENE_STATE_05
+        CreateStaticMeshEntity("cube", scene, glm::translate(matrix2, glm::vec3(1.0f, 2.5f, 1.0f)), cube);
+#elif TEST_SCENE_STATE_06
+        CreateStaticMeshEntity("cube2", scene, glm::translate(matrix2, glm::vec3(1.0f, 2.5f, 1.0f)), cube2);
+#elif TEST_SCENE_STATE_07
+        CreateStaticMeshEntity("sponzer2", scene, glm::scale(matrix1, glm::vec3(5.0f)), sponzer2);
+#elif TEST_SCENE_STATE_08
+        CreateStaticMeshEntity("sponzer", scene, glm::scale(matrix1, glm::vec3(5.0f)), sponzer);
+#elif TEST_SCENE_STATE_09
+        CreateStaticMeshEntity("sponzer", scene, glm::scale(matrix1, glm::vec3(5.0f)), sponzer);
+        CreateStaticMeshEntity("sponzer2", scene, glm::scale(matrix1, glm::vec3(5.0f)), sponzer2);
+#elif TEST_SCENE_STATE_10
+        Ref<MeshSource> cubeSource = cube->GetMeshSource();
+        std::vector<MeshStatic::SingleObjectMeshData> singleMeshDatasVec = cube->GetSingleObjectMesDataVec();
+        Ref<Material> materiel = singleMeshDatasVec.at(0)._Material;
+        MaterielShaderData data = Material::GetMaterielDataFromMateriel<MaterielShaderData>(materiel);
+        data.AmbientLigthe = 0.15f;
+        data.Color = glm::vec3(0.11f, data.Color.g, 0.11f);
+        Ref<Texture> tex = materiel->GetAlbedoTextures();
+        singleMeshDatasVec.at(0)._Material = CreateRef<DefaultMaterial>(data, tex);
+        Ref<MeshStatic> cubePlane = CreateRef<MeshStatic>(cubeSource, singleMeshDatasVec);
+        CreateStaticMeshEntity("Plane", scene, matrixPlane, cubePlane);
+        float multiyplyerCube = 2.5f;
+        float quda = 25.f;
+        float qudaHalf = quda / 2.0f;
+        for(float x = 0; x < quda; x++)
+        {
+            Entity rowEntity = scene->CreateEntity("Colume (" + std::to_string(static_cast<int>(x))+ ")");
+            for (float y = 0; y < quda; y++)
+            {
+                for (float z = 0; z < quda; z++)
+                {
+                    glm::vec3 postion = glm::vec3(x - qudaHalf, y, z- qudaHalf)* multiyplyerCube;
+                    glm::mat4 matrix = glm::translate(matrix1, postion);
+                    CreateStaticMeshEntity("Cubes", rowEntity, matrix, cube);
+                }
+            }
+        }
+        Entity camerE = scene->CreateEntity("Camera");
+        camerE.AddComponent<CameraComponent>();
+#endif
+
+    }
+
+    static void TestProfileRenderShaderMapRemove()
+    {
+        Ref<MeshStatic> ship;
+        Ref<MeshStatic> cv;
+        Ref<MeshStatic> cube;
+        Ref<MeshStatic> cube2;
+
+        Ref<MeshStatic> sponzer;
+        Ref<MeshStatic> sponzer2;
+
+        ship = Mesh::CreateStaticMesh(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/Yamto-Model/scene.gltf"));
+        cv = Mesh::CreateStaticMesh(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/CV-Model/scene.gltf"));
+        
+        cube = Mesh::CreateStaticMesh("Assets/Models/Cube.gltf");
+        cube2 = Mesh::CreateStaticMesh(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/Cube2.gltf"));
+        
+        sponzer = Mesh::CreateStaticMesh(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/main_sponza/main_sponza/NewSponza_Main_glTF_003.gltf"));
+        sponzer2 = Mesh::CreateStaticMesh(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/main_sponza/main_sponza/NewSponza_Main_glTF_003.gltf"));
+
+        Ref<Shader> shader = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/MeshTestShader.glsl"));
+
+
+    }
+
+    static void TestLinkedTextureArray()
+    {
+
+    }
+#pragma endregion
+
+#pragma region TestStaticMeshScene
+
+    static Ref<MeshStatic> TestDeserliceStaticMesh(const std::filesystem::path& filePath)
+    {
+        Ref<MeshStatic> mesh = CreateRef<MeshStatic>();
+        StaticMeshSerialzation serialzation(mesh);
+        
+        
+        Ref<MeshStatic> meshOrig;
+        meshOrig = Mesh::CreateStaticMesh(filePath);
+
+        std::filesystem::path projectPath = Project::GetActiveProjectDirectory();
+        std::string fileStr = filePath.string();
+        size_t index = fileStr.find('.');
+        size_t size = fileStr.size();
+        RY_CORE_ASSERT(index < size);
+
+        std::string fileStaticMeshStr = fileStr.substr(0, index);
+        fileStaticMeshStr += ".rystmesh";
+        
+        std::filesystem::path filePathStMesh = projectPath / fileStaticMeshStr;
+        RY_CORE_ASSERT(mesh->GetSingleMeshObjectCount() != meshOrig->GetSingleMeshObjectCount());
+        serialzation.Deserialize(filePathStMesh);
+        RY_CORE_ASSERT(mesh->GetSingleMeshObjectCount() == meshOrig->GetSingleMeshObjectCount());
+        return mesh;
+    }
+
+    static void TestSerliceStaticMesh(const std::filesystem::path& filePath)
+    {
+        Ref<MeshStatic> mesh;
+        mesh = Mesh::CreateStaticMesh(filePath);
+        StaticMeshSerialzation serialzation(mesh);
+
+        std::filesystem::path projectPath = Project::GetActiveProjectDirectory();
+        std::string fileStr = filePath.string();
+        size_t index = fileStr.find('.');
+        size_t size = fileStr.size();
+        RY_CORE_ASSERT(index < size);
+
+        std::string fileStaticMeshStr = fileStr.substr(0, index);
+        fileStaticMeshStr += ".rystmesh";
+
+        std::filesystem::path filePathStMesh = projectPath / fileStaticMeshStr;
+        serialzation.Serialize(filePathStMesh);
+    }
+
+    static void TestSerliceMesh()
+    { 
+        TestSerliceStaticMesh("Assets/Models/Cube.gltf");
+        TestSerliceStaticMesh("Assets/Models/Yamto-Model/scene.gltf");
+        TestSerliceStaticMesh("Assets/Models/CV-Model/scene.gltf");
+        TestSerliceStaticMesh("Assets/Models/Cube2.gltf");
+        TestSerliceStaticMesh("Assets/Models/pkg_a_curtains/pkg_a_curtains/NewSponza_Curtains_glTF.gltf");
+        TestSerliceStaticMesh("Assets/Models/main_sponza/main_sponza/NewSponza_Main_glTF_003.gltf");
+
+
+        TestDeserliceStaticMesh("Assets/Models/Yamto-Model/scene.gltf");
+    }
+
+#pragma endregion
+
+#pragma region TestLoding
+
+    static void TestAsync()
+    {
+        Ref<Scene> scene = CreateRef<Scene>();
+        Ref<Texture> tex = nullptr;
+       
+        Entity entity = scene->CreateEntity("hi-Test-asycn-loding");
+        entity.AddComponent<SpriteRendererComponent>();
+        int entityID = entity.GetEntityHandle();
+        int entityID2 = entityID + 1;
+
+        
+        Ref<Scene> sceneCopy = Scene::Copy(scene);
+
+        std::function<void(Ref<Texture>, Ref<Scene>, int)> onSceneAssetLoadedEntityFunc = Entity::OnAssetLoded<SpriteRendererComponent, Texture>;
+        Ref<LodePromisType<Texture, Scene, int>> loadePromis = CreateRef<LodePromisType<Texture, Scene, int>>(scene, onSceneAssetLoadedEntityFunc, entityID2);
+        std::filesystem::path filePath = RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/main_sponza/main_sponza/textures/metal_door_01_BaseColor.png");
+        loadePromis->ChangeFuncArgs(entityID);
+        AssetManager::GetAssetAsyncPromis<Texture>(filePath, loadePromis);
+        
+        loadePromis->AddRefObject(sceneCopy, onSceneAssetLoadedEntityFunc);
+
+        loadePromis->WaitForLoding();
+        
+        {
+            const SpriteRendererComponent& sprite = entity.GetComponent<SpriteRendererComponent>();
+            const Weak<Texture>& textureWeak = sprite.Texture;
+            Ref<Texture> texture = textureWeak.lock();
+            RY_CORE_ASSERT(nullptr != texture, "No Texture Set");
+        }
+        Entity entityCopy = scene->GetEntityByName("hi-Test-asycn-loding");
+        RY_CORE_ASSERT(entityCopy )
+        {
+
+            const SpriteRendererComponent& sprite = entityCopy.GetComponent<SpriteRendererComponent>();
+            const Weak<Texture>& textureWeak = sprite.Texture;
+            Ref<Texture> texture = textureWeak.lock();
+            RY_CORE_ASSERT(nullptr != texture, "No Texture Set");
+        }
+        
+    }
+
+    static void TestPtrtoRefPtr0()
+    {
+        Ref<Scene> origelScene = CreateRef<Scene>();
+        Entity entity = origelScene->CreateEntity("hi-Test-RefScene-FromScenePtr");
+        entity.AddComponent<SpriteRendererComponent>();
+
+        const Scene* sceneConstPtr = entity.GetScenePtr();
+        Scene* scenePtr = const_cast<Scene*>(sceneConstPtr);
+        Asset* assetPtr = reinterpret_cast<Asset*>(scenePtr);
+
+        Ref<Asset> sceneAsset = Asset::GetRefInPlace(assetPtr);
+        Ref<Scene> sceneRef = std::static_pointer_cast<Scene, Asset>(sceneAsset);
+        sceneAsset.reset();
+        RY_CORE_ASSERT(sceneRef == origelScene);
+        RY_CORE_ASSERT(sceneRef.use_count() == 2);
+        RY_CORE_ASSERT(origelScene.use_count() == 2);
+
+        origelScene.reset();
+        RY_CORE_ASSERT(sceneRef.use_count() == 1);       
+    }
+
+    static void TestPtrtoRefPtr1()
+    {
+        Ref<Scene> origelScene = CreateRef<Scene>();
+        Entity entity = origelScene->CreateEntity("hi-Test-RefScene-FromScenePtr");
+        entity.AddComponent<SpriteRendererComponent>();
+        origelScene.reset();
+        Ref<Scene> sceneRef = entity.GetScene();
+        RY_CORE_ASSERT(nullptr == sceneRef);
+        RY_CORE_ASSERT(sceneRef == origelScene);
+        RY_CORE_ASSERT(sceneRef.use_count() == 0);
+        RY_CORE_ASSERT(origelScene.use_count() == 0);
+    }
+
+    static void TestLoadingAssetAsync()
+    {
+        TestPtrtoRefPtr0();
+        TestPtrtoRefPtr1();
+        TestAsync();
+    }
+
+#pragma endregion
+
+    static void TestCubeAnd3DTextures(Ref<Scene>& aktiveScene)
+    {
+        {
+            constexpr uint32_t size = 16u;
+            constexpr uint32_t textureCubeMapCount = 6u;
+            constexpr uint32_t pixelData = 0xff;
+            constexpr uint32_t pixelByteSize = sizeof(uint32_t);
+            uint32_t withe = size;
+            uint32_t height = size;
+            uint32_t depth = textureCubeMapCount;
+
+            uint32_t pixelCount = depth * withe * height;
+            uint32_t texturesByteSize = pixelCount * pixelByteSize;
+            std::vector<uint8_t> cubeMapVec;
+            cubeMapVec.resize(texturesByteSize, pixelData);
+            TextureSpecification spec{
+                withe, height, depth,
+                TextureTarget::TextureCubeMap,
+                TextureFormat::RGBA8,
+                1u,
+            };
+            Ref<Texture> cubeMapTest = Texture::Create(spec, cubeMapVec.data(), cubeMapVec.size());
+            cubeMapTest->Bind(1u);
+            cubeMapTest->UnBind();
+            for (uint8_t& value : cubeMapVec)
+                value = 0xf0;
+            cubeMapTest->SetData(cubeMapVec.data(), cubeMapVec.size());
+
+            cubeMapTest->Bind(1u);
+            cubeMapTest->UnBind();
+
+            auto& entiy = aktiveScene->CreateEntity("Test ");
+            SpriteRendererComponent& spriteC = entiy.AddComponent<SpriteRendererComponent>();
+            TransformComponent& trasC = entiy.GetComponent<TransformComponent>();
+            spriteC.Texture = cubeMapTest;
+            spriteC.Color.b = 0.5f;
+            trasC.Scale *= 2.0f;
+            trasC.Transaltion.x = 4.0f;
+            AssetManager::CreatLocaleAsset(cubeMapTest);
+
+            entiy.UpdateMatrix();
+
+        }
+
+        {
+            constexpr uint32_t size = 16u;
+            constexpr uint32_t textureCubeMapCount = 6u;
+            constexpr uint32_t textureCubeMapDataCount = 4u;
+
+            constexpr uint32_t pixelData = 0xff;
+            constexpr uint32_t pixelData2 = 0x00;
+
+            constexpr uint32_t pixelByteSize = sizeof(uint32_t);
+            const uint32_t withe = size;
+            const uint32_t height = size;
+            uint32_t depth = textureCubeMapDataCount;
+
+            uint32_t pixelCount = depth * withe * height;
+
+            const uint32_t texturesDataByteSize = pixelCount * pixelByteSize;
+            depth = textureCubeMapCount;
+            pixelCount = depth * withe * height;
+
+            const  uint32_t texturesByteSize = pixelCount * pixelByteSize;
+
+
+            std::vector<uint8_t> cubeMapVec;
+            cubeMapVec.resize(texturesDataByteSize, pixelData);
+            TextureSpecification spec{
+                withe, height, depth,
+                TextureTarget::TextureCubeMap,
+                TextureFormat::RGBA8,
+                1u,
+            };
+            Ref<Texture> cubeMapTest = Texture::Create(spec, cubeMapVec.data(), cubeMapVec.size());
+            cubeMapTest->Bind(1u);
+            cubeMapTest->UnBind();
+
+            cubeMapVec.resize(texturesByteSize, pixelData2);
+            cubeMapTest->SetData(cubeMapVec.data(), cubeMapVec.size());
+
+            cubeMapTest->Bind(1u);
+            cubeMapTest->UnBind();
+
+            auto& entiy = aktiveScene->CreateEntity("Test cubeMapTest resize");
+            SpriteRendererComponent& spriteC = entiy.AddComponent<SpriteRendererComponent>();
+            TransformComponent& trasC = entiy.GetComponent<TransformComponent>();
+            AssetManager::CreatLocaleAsset(cubeMapTest);
+            spriteC.Color.b = 0.5f;
+
+            spriteC.Texture = cubeMapTest;
+            trasC.Scale *= 2.0f;
+            trasC.Transaltion.x = 0.0f;
+            entiy.UpdateMatrix();
+
+        }
+
+        {
+            constexpr uint32_t size = 16u;
+            constexpr uint32_t textureCubeMapCount = 6u;
+            constexpr uint32_t textureCubeMapDataCount = 4u;
+
+            constexpr uint32_t pixelData = 0x80;
+            constexpr uint32_t pixelByteSize = sizeof(uint32_t);
+            uint32_t withe = size;
+            uint32_t height = size;
+            uint32_t depth = textureCubeMapDataCount;
+
+            uint32_t pixelCount = depth * withe * height;
+
+            const uint32_t texturesDataByteSize = pixelCount * pixelByteSize;
+            depth = textureCubeMapCount;
+            pixelCount = depth * withe * height;
+
+            const  uint32_t texturesByteSize = pixelCount * pixelByteSize;
+            Ref<Texture> cubeMapTest = nullptr;
+
+            {
+                std::vector<uint8_t> cubeMapVec;
+                cubeMapVec.resize(texturesDataByteSize, pixelData);
+                TextureSpecification spec{
+                    withe, height, depth,
+                    TextureTarget::TextureCubeMap,
+                    TextureFormat::RGBA8,
+                    1u,
+                };
+                cubeMapTest = Texture::Create(spec);
+            }
+
+            cubeMapTest->Bind(1u);
+            cubeMapTest->UnBind();
+
+
+            {
+                std::vector<uint8_t> cubeMapVec;
+                cubeMapVec.resize(texturesByteSize, pixelData);
+                cubeMapTest->SetData(cubeMapVec.data(), cubeMapVec.size());
+            }
+
+            {
+                uint32_t withe = size * 2u;
+                uint32_t height = size * 2u;
+                uint32_t depth = textureCubeMapDataCount;
+
+                std::vector<uint8_t> cubeMapVec;
+                cubeMapTest->Resize2D(withe, height);
+                cubeMapVec.resize(texturesByteSize, pixelData);
+                cubeMapTest->SetData(cubeMapVec.data(), cubeMapVec.size());
+            }
+
+
+            cubeMapTest->Bind(1u);
+            cubeMapTest->UnBind();
+
+            auto& entiy = aktiveScene->CreateEntity("Test ");
+            SpriteRendererComponent& spriteC = entiy.AddComponent<SpriteRendererComponent>();
+            TransformComponent& trasC = entiy.GetComponent<TransformComponent>();
+            spriteC.Color.b = 0.5f;
+
+            spriteC.Texture = cubeMapTest;
+            AssetManager::CreatLocaleAsset(cubeMapTest);
+            trasC.Scale *= 2.0f;
+            trasC.Transaltion.x = 0.0f;
+
+            entiy.UpdateMatrix();
+
+        }
+
+        {
+            constexpr uint32_t size = 16u;
+            constexpr uint32_t pixelData = 0x0f;
+            constexpr uint32_t pixelByteSize = sizeof(uint32_t);
+            uint32_t withe = size;
+            uint32_t height = size;
+            uint32_t depth = size;
+
+            uint32_t pixelCount = depth * withe * height;
+            uint32_t texturesByteSize = pixelCount * pixelByteSize;
+            std::vector<uint8_t> texture3DDataVec;
+            texture3DDataVec.resize(texturesByteSize, pixelData);
+            TextureSpecification spec{
+                withe, height, depth,
+                TextureTarget::Texture3D,
+                TextureFormat::RGBA8,
+                1u,
+            };
+            Ref<Texture> texture3D = Texture::Create(spec, texture3DDataVec.data(), texture3DDataVec.size());
+            texture3D->Bind(1u);
+            texture3D->UnBind();
+            for (uint8_t& value : texture3DDataVec)
+                value = 0x00;
+            texture3D->SetData(texture3DDataVec.data(), texture3DDataVec.size());
+
+            texture3D->Bind(1u);
+            texture3D->UnBind();
+
+            auto& entiy = aktiveScene->CreateEntity("Test 3d Texture");
+            SpriteRendererComponent& spriteC = entiy.AddComponent<SpriteRendererComponent>();
+            TransformComponent& trasC = entiy.GetComponent<TransformComponent>();
+            spriteC.Color.b = 0.5f;
+
+            spriteC.Texture = texture3D;
+            trasC.Scale *= 2.0f;
+            trasC.Transaltion.x = -2.0f;
+            AssetManager::CreatLocaleAsset(texture3D);
+
+            entiy.UpdateMatrix();
+
+        }
+    }
+
+    static void TestArrayTextures(Ref<Scene>& aktiveScene)
+    {
+
+        {
+            constexpr uint32_t size = 4u;
+            constexpr uint32_t textureCount = 3u;
+            constexpr uint8_t pixelData = 0xff;
+            constexpr uint32_t pixelByteSize = sizeof(uint32_t);
+            uint32_t withe = size;
+            uint32_t height = size + 1u;
+            uint32_t depth = 1u;
+                       
+
+            TextureSpecification spec{
+                withe, height, depth,
+                TextureTarget::Texture2D,
+                TextureFormat::RGBA8,
+                1u,
+            };
+            TextureSpecification specArray = spec;
+            specArray.Target == TextureTarget::Texture2D_Array;
+            Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
+
+            std::vector<uint8_t> pixelDataVec;
+            uint32_t byteSize = withe * height * depth * pixelByteSize;
+            uint32_t pixelCount = withe * height * depth;
+            pixelDataVec.resize(pixelCount, pixelData);
+            linkedTextureArray->ResizeTextureArray(3);
+            
+            Ref<Texture> texture0 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture1 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture2 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture3 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+
+
+            linkedTextureArray->SetTextureToArray(0,texture0);
+            linkedTextureArray->SetTextureToArray(1,texture1);
+            linkedTextureArray->SetTextureToArray(2,texture2);
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            linkedTextureArray->UpdateDataGPU();
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+
+            linkedTextureArray->Bind(1u);
+            linkedTextureArray->UnBind(1u);
+        }
+
+        {
+            constexpr uint32_t size = 4u;
+            constexpr uint32_t textureCount = 3u;
+            constexpr uint8_t pixelData = 0xff;
+            constexpr uint32_t pixelByteSize = sizeof(uint32_t);
+            uint32_t withe = size;
+            uint32_t height = size + 1u;
+            uint32_t depth = 1u;
+
+
+            TextureSpecification spec{
+                withe, height, depth,
+                TextureTarget::Texture2D,
+                TextureFormat::RGBA8,
+                1u,
+            };
+
+            TextureSpecification specArray = spec;
+            specArray.Target == TextureTarget::Texture2D_Array;
+            Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
+
+            std::vector<uint8_t> pixelDataVec;
+            uint32_t byteSize = withe * height * depth * pixelByteSize;
+            uint32_t pixelCount = withe * height * depth;
+            pixelDataVec.resize(pixelCount, pixelData);
+
+
+            Ref<Texture> texture0 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture1 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture2 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture3 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+
+            linkedTextureArray->ResizeTextureArray(3);
+            linkedTextureArray->SetTextureToArray(0, texture0);
+            linkedTextureArray->SetTextureToArray(1, texture1);
+            linkedTextureArray->SetTextureToArray(2, texture2);
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            linkedTextureArray->UpdateDataGPU();
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+
+            linkedTextureArray->Bind(1u);
+            linkedTextureArray->UnBind(1u);
+
+            linkedTextureArray->ClearTextures();
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(0u == linkedTextureArray->GetTextureCount());
+
+        }
+
+        {
+            constexpr uint32_t size = 4u;
+            constexpr uint32_t textureCount = 3u;
+            constexpr uint8_t pixelData = 0xff;
+            constexpr uint32_t pixelByteSize = sizeof(uint32_t);
+            uint32_t withe = size;
+            uint32_t height = size + 1u;
+            uint32_t depth = 1u;
+
+
+            TextureSpecification spec{
+                withe, height, depth,
+                TextureTarget::Texture2D,
+                TextureFormat::RGBA8,
+                1u,
+            };
+
+            TextureSpecification specArray = spec;
+            specArray.Target == TextureTarget::Texture2D_Array;
+            Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
+
+            std::vector<uint8_t> pixelDataVec;
+            uint32_t byteSize = withe * height * depth * pixelByteSize;
+            uint32_t pixelCount = withe * height * depth;
+            pixelDataVec.resize(pixelCount, pixelData);
+
+
+            Ref<Texture> texture0 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture1 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture2 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture3 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+
+            linkedTextureArray->ResizeTextureArray(4);
+            linkedTextureArray->SetTextureToArray(0, texture0);
+            linkedTextureArray->SetTextureToArray(1, texture1);
+            linkedTextureArray->SetTextureToArray(2, texture2);
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            linkedTextureArray->UpdateDataGPU();
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            linkedTextureArray->SetTextureToArray(3, texture3);
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            linkedTextureArray->UpdateDataGPU();
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+
+            linkedTextureArray->Bind(1u);
+            linkedTextureArray->UnBind(1u);
+
+            linkedTextureArray->ClearTextures();
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(0u == linkedTextureArray->GetTextureCount());
+        }
+
+        {
+            constexpr uint32_t size = 4u;
+            constexpr uint32_t textureCount = 3u;
+            constexpr uint8_t pixelData = 0xff;
+            constexpr uint32_t pixelByteSize = sizeof(uint32_t);
+            uint32_t withe = size;
+            uint32_t height = size + 1u;
+            uint32_t depth = 1u;
+
+            TextureSpecification spec{
+                withe, height, depth,
+                TextureTarget::Texture2D,
+                TextureFormat::RGBA8,
+                1u,
+            };
+
+            TextureSpecification specArray = spec;
+            specArray.Target == TextureTarget::Texture2D_Array;
+            Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
+
+            std::vector<uint8_t> pixelDataVec;
+            uint32_t byteSize = withe * height * depth * pixelByteSize;
+            uint32_t pixelCount = withe * height * depth;
+            pixelDataVec.resize(pixelCount, pixelData);
+
+
+            Ref<Texture> texture0 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture1 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture2 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture3 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+
+            linkedTextureArray->ResizeTextureArray(4);
+            linkedTextureArray->SetTextureToArray(0, texture0);
+            linkedTextureArray->SetTextureToArray(1, texture1);
+            linkedTextureArray->SetTextureToArray(2, texture2);
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            linkedTextureArray->UpdateDataGPU();
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            linkedTextureArray->SetTextureToArray(3, texture3);
+            linkedTextureArray->SetTextureToArray(3, nullptr);
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+
+            linkedTextureArray->Bind(1u);
+            linkedTextureArray->UnBind(1u);
+
+            linkedTextureArray->ClearTextures();
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(0u == linkedTextureArray->GetTextureCount());
+        }
+
+        {
+            constexpr uint32_t size = 4u;
+            constexpr uint32_t textureCount = 3u;
+            constexpr uint8_t pixelData = 0xff;
+            constexpr uint32_t pixelByteSize = sizeof(uint32_t);
+            uint32_t withe = size;
+            uint32_t height = size + 1u;
+            uint32_t depth = 1u;
+
+
+            TextureSpecification spec{
+                withe, height, depth,
+                TextureTarget::Texture2D,
+                TextureFormat::RGBA8,
+                1u,
+            };
+
+            TextureSpecification specArray = spec;
+            specArray.Target == TextureTarget::Texture2D_Array;
+            Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
+
+            std::vector<uint8_t> pixelDataVec;
+            uint32_t byteSize = withe * height * depth * pixelByteSize;
+            uint32_t pixelCount = withe * height * depth;
+            pixelDataVec.resize(pixelCount, pixelData);
+
+
+            Ref<Texture> texture0 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture1 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture2 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture3 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+
+            linkedTextureArray->ResizeTextureArray(4);
+            linkedTextureArray->SetTextureToArray(0, texture0);
+            linkedTextureArray->SetTextureToArray(1, texture1);
+            linkedTextureArray->SetTextureToArray(2, texture2);
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            linkedTextureArray->UpdateDataGPU();
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            linkedTextureArray->SetTextureToArray(3, texture3);
+            linkedTextureArray->SetTextureToArray(3, nullptr);
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+
+            linkedTextureArray->Bind(1u);
+            linkedTextureArray->UnBind();
+
+            linkedTextureArray->ClearTextures();
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(0u == linkedTextureArray->GetTextureCount());
+
+        }
+
+        {
+            constexpr uint32_t size = 4u;
+            constexpr uint32_t textureCount = 3u;
+            constexpr uint8_t pixelData = 0xff;
+            constexpr uint8_t pixelData2 = 0x0f;
+
+            constexpr uint32_t pixelByteSize = sizeof(uint32_t);
+            uint32_t withe = size;
+            uint32_t height = size + 1u;
+            uint32_t depth = 1u;
+
+
+            TextureSpecification spec{
+                withe, height, depth,
+                TextureTarget::Texture2D,
+                TextureFormat::RGBA8,
+                1u,
+            };
+
+            TextureSpecification specArray = spec;
+            specArray.Target == TextureTarget::Texture2D_Array;
+            Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
+
+            std::vector<uint8_t> pixelDataVec;
+            uint32_t byteSize = withe * height * depth * pixelByteSize;
+            uint32_t pixelCount = withe * height * depth;
+            pixelDataVec.resize(pixelCount, pixelData);
+
+
+            Ref<Texture> texture0 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture1 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture2 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture3 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            pixelDataVec.resize(pixelCount, pixelData);
+
+            linkedTextureArray->ResizeTextureArray(4);
+            linkedTextureArray->SetTextureToArray(0, texture0);
+            linkedTextureArray->SetTextureToArray(1, texture1);
+            linkedTextureArray->SetTextureToArray(2, texture2);
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            linkedTextureArray->UpdateDataGPU();
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            texture1->SetData(pixelDataVec.data(), pixelDataVec.size());
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            linkedTextureArray->UpdateDataGPU();
+
+            linkedTextureArray->SetTextureToArray(3, texture3);
+            linkedTextureArray->SetTextureToArray(3, nullptr);
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+
+            linkedTextureArray->Bind(1u);
+            linkedTextureArray->UnBind();
+
+            linkedTextureArray->ClearTextures();
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+        }
+
+        {
+            constexpr uint32_t size = 4u;
+            constexpr uint32_t textureCount = 3u;
+            constexpr uint8_t pixelData = 0xff;
+            constexpr uint8_t pixelData2 = 0x0f;
+
+            constexpr uint32_t pixelByteSize = sizeof(uint32_t);
+            uint32_t withe = size;
+            uint32_t height = size + 1u;
+            uint32_t depth = 1u;
+
+
+            TextureSpecification spec{
+                withe, height, depth,
+                TextureTarget::Texture2D,
+                TextureFormat::RGBA8,
+                1u,
+            };
+
+            TextureSpecification specArray = spec;
+            specArray.Target == TextureTarget::Texture2D_Array;
+            Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
+
+            std::vector<uint8_t> pixelDataVec;
+            uint32_t byteSize = withe * height * depth * pixelByteSize;
+            uint32_t pixelCount = withe * height * depth;
+            pixelDataVec.resize(pixelCount, pixelData);
+
+
+            Ref<Texture> texture0 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture1 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture2 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture3 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            pixelDataVec.resize(pixelCount, pixelData);
+
+            linkedTextureArray->ResizeTextureArray(4);
+            linkedTextureArray->SetTextureToArray(0, texture0);
+            linkedTextureArray->SetTextureToArray(1, texture1);
+            linkedTextureArray->SetTextureToArray(2, texture2);
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            linkedTextureArray->UpdateDataGPU();
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            texture1->SetData(pixelDataVec.data(), pixelDataVec.size());
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            linkedTextureArray->UpdateDataGPU();
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+
+            linkedTextureArray->SetTextureToArray(3, texture3);
+            linkedTextureArray->SetTextureToArray(3, nullptr);
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+
+            linkedTextureArray->Bind(1u);
+            linkedTextureArray->UnBind();
+
+            linkedTextureArray->ClearTextures();
+            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+        }
+
+
+        {
+            DrawContext context;
+            struct {
+                glm::vec4 color = {1.0f,1.0f, 1.0f,1.0f };
+                glm::vec4 color2 = { -1.0f,-1.0f, -1.0f,-1.0f };
+
+            } dataStruct;
+            Ref<UniformBuffer> buffer = UniformBuffer::Create(&dataStruct, sizeof(dataStruct));
+            context.CreateBuffer("TestBuffer", buffer, BufferLayout({
+                {SDT::Float4, "color"},
+                {SDT::Float4, "color2"}
+            }));
+            context.SetElement("color2", dataStruct.color);
+            context.SetElement("color", dataStruct.color2);
+
+            Ref<UniformBuffer> returnBuffer = context.GetBufferAs<UniformBuffer>("TestBuffer");
+            
+            
+
+            RY_CORE_ASSERT(buffer.get() == returnBuffer.get());
+
+            context.PushScope("Sope");
+            Ref<UniformBuffer> returnBufferScope = context.GetBufferFromScopeNameAs<UniformBuffer>("", "TestBuffer");
+            context.PopScope();
+
+            Ref<UniformBuffer> returnBufferNotScope = context.GetBufferAs<UniformBuffer>("TestBuffer");
+
+            RY_CORE_ASSERT(buffer.get() == returnBufferScope.get());
+            RY_CORE_ASSERT(buffer.get() == returnBufferNotScope.get());
+
+        }
+    }
+
+
+
+    struct CameraPackage {
+        glm::mat4 ViewMatrix;
+        glm::mat4 ProjectionMatrix;
+        glm::mat4 ViewProjectionMatrix;           // VP
+        glm::mat4 ScaledTransformViewProjection;  // VP * 0.5 + 0.5
+        glm::vec4 Position;
+        glm::vec4 Direction;
+        glm::vec2 ImageOffset;
+        glm::vec2 ImageSize;
+
+        // Einmal bauen aus den Rohwerten — CameraPackage ist immer vollständig
+        static CameraPackage build(const glm::mat4& view,
+            const glm::mat4& proj,
+            const glm::vec3& pos,
+            const glm::vec3& dir,
+            glm::vec2 offset,
+            glm::vec2 size)
+        {
+            CameraPackage c;
+            c.ViewMatrix = view;
+            c.ProjectionMatrix = proj;
+            c.ViewProjectionMatrix = proj * view;
+            // STVP: NDC [-1,1] → [0,1] für Textur-Lookup im World-Space
+            static const glm::mat4 bias = glm::translate(glm::mat4(1.f), { 0.5f,0.5f,0.5f })
+                * glm::scale(glm::mat4(1.f), { 0.5f,0.5f,0.5f });
+            c.ScaledTransformViewProjection = bias * c.ViewProjectionMatrix;
+            c.Position = glm::vec4(pos, 1.f);
+            c.Direction = glm::vec4(dir, 0.f);
+            c.ImageOffset = offset;
+            c.ImageSize = size;
+            return c;
+        }
+    };
+    static void TestStagingSlotAppendWrite()
+    {
+        Ref<IStagingSlot> stagingSlot = CreateRef<StagingSlotAppendWrite<CameraPackage>>();
+        CameraPackage packeg;
+        std::memset(&packeg, 0, sizeof(packeg));
+        for (int i = 0; i < 16; i++)
+        {
+            stagingSlot->Add(&(packeg.Direction), sizeof(packeg.Direction));
+            stagingSlot->Add(&(packeg.ViewProjectionMatrix), sizeof(packeg.ViewProjectionMatrix));
+            stagingSlot->Add(&(packeg.ImageOffset), sizeof(packeg.ImageOffset));
+            stagingSlot->Add(&(packeg.Position), sizeof(packeg.Position));
+            stagingSlot->Add(&(packeg.ProjectionMatrix), sizeof(packeg.ProjectionMatrix));
+            stagingSlot->Add(&(packeg.ScaledTransformViewProjection), sizeof(packeg.ScaledTransformViewProjection));
+            stagingSlot->Add(&(packeg.ImageSize), sizeof(packeg.ImageSize));
+            stagingSlot->Add(&(packeg.ViewMatrix), sizeof(packeg.ViewMatrix));
+        }
+        for (int i = 0; i < 56; i++)
+        {
+            stagingSlot->Add(&(packeg.ImageOffset), sizeof(packeg.ImageOffset));
+            stagingSlot->Add(&(packeg.Position), sizeof(packeg.Position));
+            stagingSlot->Add(&(packeg.ProjectionMatrix), sizeof(packeg.ProjectionMatrix));
+            stagingSlot->Add(&(packeg.ImageSize), sizeof(packeg.ImageSize));
+            stagingSlot->Add(&(packeg.ViewMatrix), sizeof(packeg.ViewMatrix));
+            stagingSlot->Add(&(packeg.ScaledTransformViewProjection), sizeof(packeg.ScaledTransformViewProjection));
+            stagingSlot->Add(&(packeg.Direction), sizeof(packeg.Direction));
+            stagingSlot->Add(&(packeg.ViewProjectionMatrix), sizeof(packeg.ViewProjectionMatrix));
+        }
+        for (int i = 0; i < 4; i++)
+        {
+            stagingSlot->Add(&packeg, sizeof(packeg));
+        }
+        
+
+       
+
+    }
+
+    static void TestStagingSlotAppendByteWrite()
+    {
+        Ref<IStagingSlot> stagingSlot = CreateRef<StagingSlotAppendByteWrite>(sizeof(CameraPackage));
+        CameraPackage packeg;
+        std::memset(&packeg, 0, sizeof(packeg));
+        for (int i = 0; i < 56; i++)
+        {
+            stagingSlot->Add(&(packeg.Direction), sizeof(packeg.Direction));
+            stagingSlot->Add(&(packeg.ViewProjectionMatrix), sizeof(packeg.ViewProjectionMatrix));
+            stagingSlot->Add(&(packeg.ImageOffset), sizeof(packeg.ImageOffset));
+            stagingSlot->Add(&(packeg.Position), sizeof(packeg.Position));
+            stagingSlot->Add(&(packeg.ProjectionMatrix), sizeof(packeg.ProjectionMatrix));
+            stagingSlot->Add(&(packeg.ScaledTransformViewProjection), sizeof(packeg.ScaledTransformViewProjection));
+            stagingSlot->Add(&(packeg.ImageSize), sizeof(packeg.ImageSize));
+            stagingSlot->Add(&(packeg.ViewMatrix), sizeof(packeg.ViewMatrix));
+        }
+        for (int i = 0; i < 16; i++)
+        {
+            stagingSlot->Add(&(packeg.ImageOffset), sizeof(packeg.ImageOffset));
+            stagingSlot->Add(&(packeg.Position), sizeof(packeg.Position));
+            stagingSlot->Add(&(packeg.ProjectionMatrix), sizeof(packeg.ProjectionMatrix));
+            stagingSlot->Add(&(packeg.ImageSize), sizeof(packeg.ImageSize));
+            stagingSlot->Add(&(packeg.ViewMatrix), sizeof(packeg.ViewMatrix));
+            stagingSlot->Add(&(packeg.ScaledTransformViewProjection), sizeof(packeg.ScaledTransformViewProjection));
+            stagingSlot->Add(&(packeg.Direction), sizeof(packeg.Direction));
+            stagingSlot->Add(&(packeg.ViewProjectionMatrix), sizeof(packeg.ViewProjectionMatrix));
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            stagingSlot->Add(&packeg, sizeof(packeg));
+        }
+       
+
+
+
+    }
+
+    static void TestStagingSlotAppend()
+    {
+        Ref<IStagingSlot> stagingSlot = CreateRef<StagingSlotAppend<CameraPackage>>();
+        CameraPackage packeg;
+        std::memset(&packeg, 0, sizeof(packeg));
+
+        for(int i = 0; i < 64; i++)
+        {
+            stagingSlot->Add(&packeg, sizeof(packeg));
+        }
+       
+        for (int i = 0; i < 16; i++)
+        {
+            stagingSlot->Add(&packeg, sizeof(packeg));
+        }
+
+
+
+
+    }
+
+    static void TestStagingSlotAppendByte()
+    {
+        Ref<IStagingSlot> stagingSlot = CreateRef<StagingSlotAppendByte>(sizeof(CameraPackage));
+        CameraPackage packeg;
+        std::memset(&packeg, 0, sizeof(packeg));
+
+        for (int i = 0; i < 64; i++)
+        {
+            stagingSlot->Add(&packeg, sizeof(packeg));
+        }
+
+        
+        for (int i = 0; i < 16; i++)
+        {
+            stagingSlot->Add(&packeg, sizeof(packeg));
+        }
+
+
+
+
+    }
+
+
+    static void PerformenzTestBaseVarient()
+    {
+        std::vector<Ref<IStagingSlot>> baseClassVec; 
+        constexpr uint32_t count = 10000;
+        constexpr uint32_t actionsCount = 64;
+        constexpr uint32_t initByteSize = actionsCount * 2;
+
+        using TimeUnit = std::chrono::microseconds;
+        baseClassVec.reserve(count * 9);
+        LifeTimer timer;
+        int64_t exexuteBaseNansec[2];
+        int64_t initBaseNansec;
+
+        {
+            timer.BeginNewTimePoint();
+            for (int i = 0; i < count; i++)
+            {
+                baseClassVec.emplace_back(CreateRef<StagingSlotAppend<CameraPackage>>(initByteSize));
+                baseClassVec.emplace_back(CreateRef<StagingSlotAppendByte>(sizeof(CameraPackage), initByteSize));
+                baseClassVec.emplace_back(CreateRef<StagingSlotAppendWrite<CameraPackage>>(0, initByteSize));
+                baseClassVec.emplace_back(CreateRef<StagingSlotAppend<CameraPackage>>(initByteSize));
+
+                baseClassVec.emplace_back(CreateRef<StagingSlotAppendByte>(sizeof(CameraPackage), initByteSize));
+
+                baseClassVec.emplace_back(CreateRef<StagingSlotAppendByteWrite>(sizeof(CameraPackage), 0, initByteSize));
+                baseClassVec.emplace_back(CreateRef<StagingSlotAppend<CameraPackage>>(initByteSize));
+                baseClassVec.emplace_back(CreateRef<StagingSlotAppendWrite<CameraPackage>>(0, initByteSize));
+                baseClassVec.emplace_back(CreateRef<StagingSlotAppendByte>(sizeof(CameraPackage), initByteSize));
+            }
+            initBaseNansec = timer.GetTimePast<TimeUnit>();
+        }
+        
+
+
+        CameraPackage packeg;
+        std::memset(&packeg, 0, sizeof(CameraPackage));
+
+       
+       
+        {
+            timer.BeginNewTimePoint();
+            for (auto& e : baseClassVec)
+            {
+                for (int i = 0; i < actionsCount; i++)
+                {
+                    IStagingSlot::Add(e, packeg);
+                }
+            }
+            exexuteBaseNansec[0] = timer.GetTimePast<TimeUnit>();
+        }
+
+        {
+            timer.BeginNewTimePoint();
+            for (int i = 0; i < actionsCount; i++)
+            {
+                for (auto& e : baseClassVec)
+                {
+
+                    IStagingSlot::Add(e, packeg);
+
+                }
+            }
+            exexuteBaseNansec[1] = timer.GetTimePast<TimeUnit>();
+        }
+        baseClassVec.clear();
+        baseClassVec.shrink_to_fit();
+        RY_CORE_TRACE("base clase init: ({} micosec), exexute[0]: ({} micosec), exexute[1]: ({} micosec)", initBaseNansec, exexuteBaseNansec[0], exexuteBaseNansec[1]);
+
+        
+        std::vector<std::variant<StagingSlotAppend<CameraPackage>, StagingSlotAppendWrite<CameraPackage>, StagingSlotAppendByte, StagingSlotAppendByteWrite>> varientClassVec;
+        varientClassVec.reserve(count * 9);
+        int64_t initVarientNansec;
+        int64_t exexuteVarientNansec[2];
+
+        {
+            timer.BeginNewTimePoint();
+            for (int i = 0; i < count; i++)
+            {
+                varientClassVec.emplace_back(StagingSlotAppend<CameraPackage>(initByteSize));
+                varientClassVec.emplace_back(StagingSlotAppendByte(sizeof(CameraPackage), initByteSize));
+                varientClassVec.emplace_back(StagingSlotAppendWrite<CameraPackage>(0, initByteSize));
+                varientClassVec.emplace_back(StagingSlotAppend<CameraPackage>(initByteSize));
+
+                varientClassVec.emplace_back(StagingSlotAppendByte(sizeof(CameraPackage), initByteSize));
+
+                varientClassVec.emplace_back(StagingSlotAppendByteWrite(sizeof(CameraPackage), 0, initByteSize));
+                varientClassVec.emplace_back(StagingSlotAppend<CameraPackage>(initByteSize));
+                varientClassVec.emplace_back(StagingSlotAppendWrite<CameraPackage>(0, initByteSize));
+                varientClassVec.emplace_back(StagingSlotAppendByte(sizeof(CameraPackage), initByteSize));
+            }
+            initVarientNansec = timer.GetTimePast<TimeUnit>();
+        }
+        {
+            timer.BeginNewTimePoint();
+            for (auto& e : varientClassVec)
+            { 
+                std::visit([&](auto& stagingSlot) {
+                    for (int i = 0; i < actionsCount; i++)
+                    {
+                        stagingSlot.Add(&packeg, sizeof(CameraPackage));
+                    }
+                }, e);
+            }
+            exexuteVarientNansec[0] = timer.GetTimePast<TimeUnit>();
+        }
+        {
+            timer.BeginNewTimePoint();
+            for (int i = 0; i < actionsCount; i++)
+            {
+                for (auto& e : varientClassVec)
+                {
+                    std::visit([&](auto& stagingSlot) {
+                        stagingSlot.Add(&packeg, sizeof(CameraPackage));
+                    }, e);
+                }
+            }
+            exexuteVarientNansec[1] = timer.GetTimePast<TimeUnit>();
+        }
+        varientClassVec.clear();
+        varientClassVec.shrink_to_fit();
+        RY_CORE_TRACE("varient clase init: ({} micosec), exexute[0]: ({} micosec), exexute[1]: ({} micosec)", initVarientNansec, exexuteVarientNansec[0], exexuteVarientNansec[1]);
+
+        int64_t diffInitNanosec = initVarientNansec - initBaseNansec;
+        int64_t diffEexexuteNanosec[] = {
+            exexuteVarientNansec[0] - exexuteBaseNansec[0],
+            exexuteVarientNansec[1] - exexuteBaseNansec[1]
+        };
+
+        RY_CORE_TRACE("init differnz micosec: {} ({})", diffInitNanosec, (initBaseNansec < initVarientNansec ? "Base" : "Varient"));
+        RY_CORE_TRACE("exexute[0] differnz micosec: {} ({})", diffEexexuteNanosec[0], (exexuteBaseNansec[0] < exexuteVarientNansec[0] ? "Base" : "Varient"));
+        RY_CORE_TRACE("exexute[1] differnz micosec: {} ({})", diffEexexuteNanosec[1], (exexuteBaseNansec[1] < exexuteVarientNansec[1] ? "Base" : "Varient"));
+
+    }
+
+    static void PerformenzTestByteWriteVsWriteVarient()
+    {
+        std::vector<std::variant<StagingSlotAppendWrite<CameraPackage>>> varientWhriteClassVec;
+        std::vector<std::variant<StagingSlotAppendByteWrite>> varientWhriteByteClassVec;
+        using TimeUnit = std::chrono::milliseconds;
+        constexpr const char* timeUinteName = "milisec";
+        constexpr uint32_t count = 10000;
+        constexpr uint32_t actionsCount = 64;
+        constexpr uint32_t initByteSize = actionsCount * 2;
+
+        varientWhriteClassVec.reserve(count);
+        LifeTimer timer;
+
+        int64_t initWhriteVareintTime;
+        int64_t executeWhriteVareintTime[2];
+
+
+        int64_t initWhriteByteVareintTime;
+        int64_t executeWhriteByteVareintTime[2];
+
+        {
+            {
+                timer.BeginNewTimePoint();
+                for (int i = 0; i < count; i++)
+                {
+                    varientWhriteClassVec.emplace_back(StagingSlotAppendWrite<CameraPackage>(0, initByteSize));
+                }
+                initWhriteVareintTime = timer.GetTimePast<TimeUnit>();
+            }
+            CameraPackage packeg;
+            std::memset(&packeg, 0, sizeof(CameraPackage));
+
+
+            {
+                timer.BeginNewTimePoint();
+                for (auto& e : varientWhriteClassVec)
+                {
+                    for (int i = 0; i < actionsCount; i++)
+                    {
+                        std::visit([&](auto& stagingSlot) {
+                            stagingSlot.Add(&packeg, sizeof(packeg));
+
+                            }, e);
+                    }
+                }
+                executeWhriteVareintTime[0] = timer.GetTimePast<TimeUnit>();
+            }
+
+            {
+                timer.BeginNewTimePoint();
+                for (int i = 0; i < actionsCount; i++)
+                {
+                    for (auto& e : varientWhriteClassVec)
+                    {
+                        std::visit([&](auto& stagingSlot) {
+                            stagingSlot.Add(&packeg, sizeof(packeg));
+
+                            }, e);
+
+                    }
+                }
+                executeWhriteVareintTime[1] = timer.GetTimePast<TimeUnit>();
+            }
+        }
+        RY_CORE_TRACE("varient whrite clase init: ({1} {0}), exexute[0]: ({2} {0}), exexute[1]: ({3} {0})", timeUinteName, initWhriteVareintTime, executeWhriteVareintTime[0], executeWhriteVareintTime[1]);
+        {
+            {
+                timer.BeginNewTimePoint();
+                for (int i = 0; i < count; i++)
+                {
+                    varientWhriteByteClassVec.emplace_back(StagingSlotAppendByteWrite(sizeof(CameraPackage), 0, initByteSize));
+                }
+                initWhriteByteVareintTime = timer.GetTimePast<TimeUnit>();
+            }
+            CameraPackage packeg;
+            std::memset(&packeg, 0, sizeof(CameraPackage));
+
+
+            {
+                timer.BeginNewTimePoint();
+                for (auto& e : varientWhriteByteClassVec)
+                {
+                    for (int i = 0; i < actionsCount; i++)
+                    {
+                        std::visit([&](auto& stagingSlot) {
+                            stagingSlot.Add(&packeg, sizeof(packeg));
+
+                        }, e);
+                    }
+                }
+                executeWhriteByteVareintTime[0] = timer.GetTimePast<TimeUnit>();
+            }
+
+            {
+                timer.BeginNewTimePoint();
+                for (int i = 0; i < actionsCount; i++)
+                {
+                    for (auto& e : varientWhriteClassVec)
+                    {
+                        std::visit([&](auto& stagingSlot) {
+                            stagingSlot.Add(&packeg, sizeof(packeg));
+
+                            }, e);
+
+                    }
+                }
+                executeWhriteByteVareintTime[1] = timer.GetTimePast<TimeUnit>();
+            }
+        }
+        RY_CORE_TRACE("varient whrite Byte clase init: ({1} {0}), exexute[0]: ({2} {0}), exexute[1]: ({3} {0})", timeUinteName, initWhriteByteVareintTime, executeWhriteByteVareintTime[0], executeWhriteByteVareintTime[1]);
+    }
+
+    static void PerformenzTestByteWriteVsWriteBase()
+    {
+        std::vector<Ref<IStagingSlot>> baseWhriteClassVec;
+        std::vector<Ref<IStagingSlot>> baseWhriteByteClassVec;
+        using TimeUnit = std::chrono::milliseconds;
+        constexpr const char* timeUinteName = "milisec";
+        constexpr uint32_t count = 10000;
+        constexpr uint32_t actionsCount = 64;
+        constexpr uint32_t initByteSize = actionsCount * 2;
+
+        baseWhriteClassVec.reserve(count);
+        LifeTimer timer;
+
+        int64_t initWhriteBaseTime;
+        int64_t executeWhriteBaseTime[2];
+
+
+        int64_t initWhriteByteBaseTime;
+        int64_t executeWhriteByteBaseTime[2];
+
+        {
+            {
+                timer.BeginNewTimePoint();
+                for (int i = 0; i < count; i++)
+                {
+                    baseWhriteClassVec.emplace_back(CreateRef<StagingSlotAppendWrite<CameraPackage>>(0, initByteSize));
+                }
+                initWhriteBaseTime = timer.GetTimePast<TimeUnit>();
+            }
+            CameraPackage packeg;
+            std::memset(&packeg, 0, sizeof(CameraPackage));
+
+
+            {
+                timer.BeginNewTimePoint();
+                for (auto& e : baseWhriteClassVec)
+                {
+                    for (int i = 0; i < actionsCount; i++)
+                    {
+                        IStagingSlot::Add(e, packeg);
+                    }
+                }
+                executeWhriteBaseTime[0] = timer.GetTimePast<TimeUnit>();
+            }
+
+            {
+                timer.BeginNewTimePoint();
+                for (int i = 0; i < actionsCount; i++)
+                {
+                    for (auto& e : baseWhriteClassVec)
+                    {
+                        IStagingSlot::Add(e, packeg);
+                    }
+                }
+                executeWhriteBaseTime[1] = timer.GetTimePast<TimeUnit>();
+            }
+        }
+        RY_CORE_TRACE("base whrite clase init: ({1} {0}), exexute[0]: ({2} {0}), exexute[1]: ({3} {0})", timeUinteName, initWhriteBaseTime, executeWhriteBaseTime[0], executeWhriteBaseTime[1]);
+        {
+            {
+                timer.BeginNewTimePoint();
+                for (int i = 0; i < count; i++)
+                {
+                    baseWhriteByteClassVec.emplace_back(CreateRef<StagingSlotAppendByteWrite>(sizeof(CameraPackage), 0, initByteSize));
+                }
+                initWhriteByteBaseTime = timer.GetTimePast<TimeUnit>();
+            }
+            CameraPackage packeg;
+            std::memset(&packeg, 0, sizeof(CameraPackage));
+
+
+            {
+                timer.BeginNewTimePoint();
+                for (auto& e : baseWhriteByteClassVec)
+                {
+                    for (int i = 0; i < actionsCount; i++)
+                    {
+                        IStagingSlot::Add(e, packeg);
+                    }
+                }
+                executeWhriteByteBaseTime[0] = timer.GetTimePast<TimeUnit>();
+            }
+
+            {
+                timer.BeginNewTimePoint();
+                for (int i = 0; i < actionsCount; i++)
+                {
+                    for (auto& e : baseWhriteClassVec)
+                    {
+                        IStagingSlot::Add(e, packeg);
+                    }
+                }
+                executeWhriteByteBaseTime[1] = timer.GetTimePast<TimeUnit>();
+            }
+        }
+        RY_CORE_TRACE("base whrite Byte clase init: ({1} {0}), exexute[0]: ({2} {0}), exexute[1]: ({3} {0})", timeUinteName, initWhriteByteBaseTime, executeWhriteByteBaseTime[0], executeWhriteByteBaseTime[1]);
+    }
+
+
+    static void PerformenzTestByteVsTypeVarient()
+    {
+        std::vector<std::variant<StagingSlotAppend<CameraPackage>>> varientTypeClassVec;
+        std::vector<std::variant<StagingSlotAppendByte>> varientByteClassVec;
+        using TimeUnit = std::chrono::milliseconds;
+        constexpr const char* timeUinteName = "milisec";
+        constexpr uint32_t count = 10000;
+        constexpr uint32_t actionsCount = 64;
+        constexpr uint32_t initByteSize = actionsCount * 2;
+
+        varientTypeClassVec.reserve(count);
+        varientByteClassVec.reserve(count);
+        LifeTimer timer;
+
+        int64_t initWhriteVareintTime;
+        int64_t executeWhriteVareintTime[2];
+
+
+        int64_t initWhriteByteVareintTime;
+        int64_t executeWhriteByteVareintTime[2];
+
+        {
+            {
+                timer.BeginNewTimePoint();
+                for (int i = 0; i < count; i++)
+                {
+                    varientTypeClassVec.emplace_back(StagingSlotAppend<CameraPackage>(initByteSize));
+                }
+                initWhriteVareintTime = timer.GetTimePast<TimeUnit>();
+            }
+            CameraPackage packeg;
+            std::memset(&packeg, 0, sizeof(CameraPackage));
+
+
+            {
+                timer.BeginNewTimePoint();
+                for (auto& e : varientTypeClassVec)
+                {
+                    for (int i = 0; i < actionsCount; i++)
+                    {
+                        std::visit([&](auto& stagingSlot) {
+                            stagingSlot.Add(&packeg, sizeof(packeg));
+
+                            }, e);
+                    }
+                }
+                executeWhriteVareintTime[0] = timer.GetTimePast<TimeUnit>();
+            }
+
+            {
+                timer.BeginNewTimePoint();
+                for (int i = 0; i < actionsCount; i++)
+                {
+                    for (auto& e : varientTypeClassVec)
+                    {
+                        std::visit([&](auto& stagingSlot) {
+                            stagingSlot.Add(&packeg, sizeof(packeg));
+
+                            }, e);
+
+                    }
+                }
+                executeWhriteVareintTime[1] = timer.GetTimePast<TimeUnit>();
+            }
+        }
+        RY_CORE_TRACE("varient clase init: ({1} {0}), exexute[0]: ({2} {0}), exexute[1]: ({3} {0})", timeUinteName, initWhriteVareintTime, executeWhriteVareintTime[0], executeWhriteVareintTime[1]);
+        {
+            {
+                timer.BeginNewTimePoint();
+                for (int i = 0; i < count; i++)
+                {
+                    varientByteClassVec.emplace_back(StagingSlotAppendByte(sizeof(CameraPackage), initByteSize));
+                }
+                initWhriteByteVareintTime = timer.GetTimePast<TimeUnit>();
+            }
+            CameraPackage packeg;
+            std::memset(&packeg, 0, sizeof(CameraPackage));
+
+
+            {
+                timer.BeginNewTimePoint();
+                for (auto& e : varientByteClassVec)
+                {
+                    for (int i = 0; i < actionsCount; i++)
+                    {
+                        std::visit([&](auto& stagingSlot) {
+                            stagingSlot.Add(&packeg, sizeof(packeg));
+
+                            }, e);
+                    }
+                }
+                executeWhriteByteVareintTime[0] = timer.GetTimePast<TimeUnit>();
+            }
+
+            {
+                timer.BeginNewTimePoint();
+                for (int i = 0; i < actionsCount; i++)
+                {
+                    for (auto& e : varientByteClassVec)
+                    {
+                        std::visit([&](auto& stagingSlot) {
+                            stagingSlot.Add(&packeg, sizeof(packeg));
+
+                            }, e);
+
+                    }
+                }
+                executeWhriteByteVareintTime[1] = timer.GetTimePast<TimeUnit>();
+            }
+        }
+        RY_CORE_TRACE("varient Byte clase init: ({1} {0}), exexute[0]: ({2} {0}), exexute[1]: ({3} {0})", timeUinteName, initWhriteByteVareintTime, executeWhriteByteVareintTime[0], executeWhriteByteVareintTime[1]);
+    }
+    
+    static void PerformenzTestByteVsTypeBase()
+    {
+        std::vector<Ref<IStagingSlot>> baseTypeClassVec;
+        std::vector<Ref<IStagingSlot>> baseByteClassVec;
+        using TimeUnit = std::chrono::milliseconds;
+        constexpr const char* timeUinteName = "milisec";
+        constexpr uint32_t count = 10000;
+        constexpr uint32_t actionsCount = 64;
+        constexpr uint32_t initByteSize = actionsCount * 2;
+
+        baseTypeClassVec.reserve(count);
+        LifeTimer timer;
+
+        int64_t initTypeBaseTime;
+        int64_t executeTypeBaseTime[2];
+
+
+        int64_t initByteBaseTime;
+        int64_t executeByteBaseTime[2];
+
+        {
+            {
+                timer.BeginNewTimePoint();
+                for (int i = 0; i < count; i++)
+                {
+                    baseTypeClassVec.emplace_back(CreateRef<StagingSlotAppend<CameraPackage>>(initByteSize));
+                }
+                initTypeBaseTime = timer.GetTimePast<TimeUnit>();
+            }
+            CameraPackage packeg;
+            std::memset(&packeg, 0, sizeof(CameraPackage));
+
+
+            {
+                timer.BeginNewTimePoint();
+                for (auto& e : baseTypeClassVec)
+                {
+                    for (int i = 0; i < actionsCount; i++)
+                    {
+                        IStagingSlot::Add(e, packeg);
+                    }
+                }
+                executeTypeBaseTime[0] = timer.GetTimePast<TimeUnit>();
+            }
+
+            {
+                timer.BeginNewTimePoint();
+                for (int i = 0; i < actionsCount; i++)
+                {
+                    for (auto& e : baseTypeClassVec)
+                    {
+                        IStagingSlot::Add(e, packeg);
+                    }
+                }
+                executeTypeBaseTime[1] = timer.GetTimePast<TimeUnit>();
+            }
+        }
+        RY_CORE_TRACE("base clase init: ({1} {0}), exexute[0]: ({2} {0}), exexute[1]: ({3} {0})", timeUinteName, initTypeBaseTime, executeTypeBaseTime[0], executeTypeBaseTime[1]);
+        {
+            {
+                timer.BeginNewTimePoint();
+                for (int i = 0; i < count; i++)
+                {
+                    baseByteClassVec.emplace_back(CreateRef<StagingSlotAppendByte>(sizeof(CameraPackage), initByteSize));
+                }
+                initByteBaseTime = timer.GetTimePast<TimeUnit>();
+            }
+            CameraPackage packeg;
+            std::memset(&packeg, 0, sizeof(CameraPackage));
+
+
+            {
+                timer.BeginNewTimePoint();
+                for (auto& e : baseByteClassVec)
+                {
+                    for (int i = 0; i < actionsCount; i++)
+                    {
+                        IStagingSlot::Add(e, packeg);
+                    }
+                }
+                executeByteBaseTime[0] = timer.GetTimePast<TimeUnit>();
+            }
+
+            {
+                timer.BeginNewTimePoint();
+                for (int i = 0; i < actionsCount; i++)
+                {
+                    for (auto& e : baseByteClassVec)
+                    {
+                        IStagingSlot::Add(e, packeg);
+                    }
+                }
+                executeByteBaseTime[1] = timer.GetTimePast<TimeUnit>();
+            }
+        }
+        RY_CORE_TRACE("base Byte clase init: ({1} {0}), exexute[0]: ({2} {0}), exexute[1]: ({3} {0})", timeUinteName, initByteBaseTime, executeByteBaseTime[0], executeByteBaseTime[1]);
+    }
+
+#pragma endregion 
+
+#pragma region BuilPixelCuter
+
+    struct ImagePixel
+    {
+        std::vector<std::vector<glm::u8vec4>> pixel;
+        glm::ivec2 position;
+    };
+
+    static inline uint32_t PackPixelColor(const uint8_t* pixel, uint32_t channelCount)
+    {
+        uint32_t color = 0;
+        RY_CORE_ASSERT(channelCount <= 4, "To larg pxel bytes!");
+        for (uint32_t i = 0; i < channelCount; i++)
+        {
+            color |= static_cast<uint32_t>(pixel[i]) << (8 * i);
+        }
+        return color;
+    }
+
+    static inline glm::u8vec4 PackPixelColorVec(const uint8_t* pixel, uint32_t channelCount)
+    {
+        glm::u8vec4 color = { 0, 0, 0, 0 };
+        RY_CORE_ASSERT(channelCount <= 4, "To larg pxel bytes!");
+        for (uint32_t i = 0; i < channelCount; i++)
+        {
+            color |= static_cast<uint32_t>(pixel[i]) << (8 * i);
+        }
+        return color;
+    }
+#if 0
+    static std::vector<std::vector<glm::u8vec4>> ConvertBitMapInPixelValues(const uint8_t* byteDataPtr, uint32_t byteSize, uint32_t channelCount)
+    {
+        std::vector<glm::u8vec4> pixel;
+        uint32_t pixelCount = byteSize / channelCount;
+        pixel.resize(pixelCount);
+        for (uint32_t nextI = 3, i = 0u; i < byteSize && nextI < byteSize; i+=4, nextI += 4)
+        {
+            uint32_t indexPixel = i / channelCount;
+            pixel.at(i) = PackPixelColor(byteDataPtr + indexPixel, channelCount);
+        }
+        return pixel;
+    }
+
+    static uint32_t GetLinarIndexFromVec(const glm::ivec2& size, const glm::ivec2& position)
+    {
+        RY_CORE_ASSERT(position.x < size.x && position.y < size.y, "to larg postion!");
+        uint32_t xPos = position.x;
+        uint32_t yPos = position.y * size.y;
+        uint32_t index = xPos + yPos;
+        return index;
+    }
+
+    static glm::u8vec4 GetPixelValue(const std::vector<glm::u8vec4>& pixel, const glm::ivec2& size, const glm::ivec2& position)
+    {
+        uint32_t index = GetLinarIndexFromVec(size, position);
+        return pixel.at(index);
+    }
+
+    
+
+    
+    
+    static void AddBitMapInPixelValues(const ImagePixel& orignaleImage, const glm::ivec2& direction, ImagePixel& extraxtImage)
+    {
+        
+        glm::u8vec4 colorSearch = orignaleImage.pixel.at(orignaleImage.position.x).at(orignaleImage.position.y);
+        glm::ivec2 pos = orignaleImage.position + direction;
+        if (orignaleImage.pixel.size() <= pos.x || orignaleImage.pixel.at(pos.x).size() <= pos.y)
+            return;
+
+        glm::u8vec4 color = orignaleImage.pixel.at(pos.x).at(pos.y);
+        if(colorSearch != color)
+            return;
+
+        glm::ivec2 posnNextPos = extraxtImage.position + direction;
+        if (extraxtImage.pixel.size() <= posnNextPos.x)
+        {
+            extraxtImage.pixel.resize(posnNextPos.x);
+        }
+        std::vector<glm::u8vec4>& rowVec = extraxtImage.pixel.at(posnNextPos.x);
+        if (rowVec.size() <= posnNextPos.y)
+        {
+            rowVec.resize(posnNextPos.y);
+        }
+        
+        rowVec.at(posnNextPos.y) = color;
+        
+    }
+#endif
+
+#if 0
+    static std::vector<uint8_t> ExtractColorRegion(
+        const uint8_t* byteDataPtr,
+        uint32_t channelCount,
+        uint32_t byteSize,
+        glm::ivec2 size,
+        std::vector<uint32_t>& ignorColorsVec,
+        glm::ivec2& outRegionOffset,
+        glm::ivec2& outRegionSize)
+    {
+        outRegionOffset = glm::ivec2(0, 0);
+        outRegionSize = glm::ivec2(0, 0);
+
+        // --- Sicherheitschecks ---
+        const uint32_t expectedByteSize =
+            static_cast<uint32_t>(size.x) * static_cast<uint32_t>(size.y) * channelCount;
+
+        if (byteDataPtr == nullptr ||
+            channelCount == 0 || channelCount > 4 ||
+            size.x <= 0 || size.y <= 0 ||
+            expectedByteSize > byteSize)
+        {
+            return {};
+        }
+
+        auto isIgnored = [&](uint32_t color) -> bool
+            {
+                return std::find(ignorColorsVec.begin(), ignorColorsVec.end(), color) != ignorColorsVec.end();
+            };
+
+        // --- 1. Zielfarbe bestimmen: erste Farbe im Bild, die nicht ignoriert wird ---
+        uint32_t targetColor = 0;
+        bool foundTarget = false;
+
+        for (int32_t y = 0; y < size.y && !foundTarget; ++y)
+        {
+            for (int32_t x = 0; x < size.x; ++x)
+            {
+                const size_t index = (static_cast<size_t>(y) * size.x + x) * channelCount;
+                const uint32_t color = PackPixelColor(byteDataPtr + index, channelCount);
+                if (!isIgnored(color))
+                {
+                    targetColor = color;
+                    foundTarget = true;
+                    break;
+                }
+            }
+        }
+
+        if (!foundTarget)
+        {
+            RY_CORE_INFO("no Color Found!");
+            return {}; // Keine passende (nicht ignorierte) Farbe im Bild gefunden
+        }
+
+        // --- 2. Bounding-Box aller Pixel mit der Zielfarbe ermitteln ---
+        int32_t minX = std::numeric_limits<int32_t>::max();
+        int32_t minY = std::numeric_limits<int32_t>::max();
+        int32_t maxX = std::numeric_limits<int32_t>::min();
+        int32_t maxY = std::numeric_limits<int32_t>::min();
+
+        for (int32_t y = 0; y < size.y; ++y)
+        {
+            for (int32_t x = 0; x < size.x; ++x)
+            {
+                const size_t index = (static_cast<size_t>(y) * size.x + x) * channelCount;
+                const uint32_t color = PackPixelColor(byteDataPtr + index, channelCount);
+                if (color == targetColor)
+                {
+                    minX = std::min(minX, x);
+                    minY = std::min(minY, y);
+                    maxX = std::max(maxX, x);
+                    maxY = std::max(maxY, y);
+                }
+            }
+        }
+
+        // Sollte nicht passieren, da targetColor garantiert mindestens einmal vorkommt
+        if (maxX < minX || maxY < minY)
+        {
+            RY_CORE_ASSERT(false);
+            return {};
+        }
+
+        const int32_t regionWidth = maxX - minX + 1;
+        const int32_t regionHeight = maxY - minY + 1;
+
+        outRegionOffset = glm::ivec2(minX, minY);
+        outRegionSize = glm::ivec2(regionWidth, regionHeight);
+
+        // --- 3. Hintergrundfarbe für "andere" Pixel bestimmen ---
+        // Bei vorhandenem Alpha-Kanal -> transparent, sonst -> weiß.
+        uint8_t backgroundPixel[4] = { 255, 255, 255, 255 };
+        if (channelCount == 4)
+        {
+            // RGBA -> komplett transparent
+            backgroundPixel[0] = 0;
+            backgroundPixel[1] = 0;
+            backgroundPixel[2] = 0;
+            backgroundPixel[3] = 0;
+        }
+        else if (channelCount == 2)
+        {
+            // z.B. Gray+Alpha -> transparent
+            backgroundPixel[0] = 0;
+            backgroundPixel[1] = 0;
+        }
+        // Bei 1 oder 3 Kanälen (kein Alpha) bleibt backgroundPixel = weiß (255...)
+
+        // --- 4. Ausschnitt kopieren ---
+        std::vector<uint8_t> result(
+            static_cast<size_t>(regionWidth) * regionHeight * channelCount);
+
+        for (int32_t y = 0; y < regionHeight; ++y)
+        {
+            for (int32_t x = 0; x < regionWidth; ++x)
+            {
+                const size_t outIndex = (static_cast<size_t>(y) * regionWidth + x) * channelCount;
+
+                const int32_t srcX = minX + x;
+                const int32_t srcY = minY + y;
+                const size_t srcIndex = (static_cast<size_t>(srcY) * size.x + srcX) * channelCount;
+
+                const uint32_t color = PackPixelColor(byteDataPtr + srcIndex, channelCount);
+
+                if (color == targetColor)
+                {
+                    for (uint32_t c = 0; c < channelCount; ++c)
+                    {
+                        result[outIndex + c] = byteDataPtr[srcIndex + c];
+                    }
+                }
+                else
+                {
+                    for (uint32_t c = 0; c < channelCount; ++c)
+                    {
+                        result[outIndex + c] = backgroundPixel[c];
+                    }
+                }
+            }
+        }
+        RY_CORE_TRACE("Extraxt Imgag");
+        return result;
+    }
+
+
+
+
+    static void ExtraxtColorRegionFromImage()
+    {
+        int width, height, channels, req_comp;
+        const char* pathChar = "";
+        stbi_uc* dataBytePtr = stbi_load(pathChar, &width, &height, &channels);
+
+        uint32_t byteSize = width * height * channels;
+        glm::ivec2 size = { width, height };
+        std::vector<uint32_t> ignorColor = {
+            0xFFFFFFFF,0x00000000
+        };
+        glm::ivec2 outRiegionOffset = {
+            0,0
+        };
+        glm::ivec2 outRiegionSize = {
+           0,0
+        };
+        std::vector<uint8_t> colorField = ExtractColorRegion(dataBytePtr, channels, byteSize, size, ignorColor, outRiegionOffset, outRiegionSize);
+        
+    }
+#endif
+
+#pragma endregion
+
 
     void EditorLayer::OnAttach()
     {
-#if TEST_SHADER_OUTPUT
+        TextureImporter::ExtraxtColorRegionFromImage();
 
-           ShaderSim::main_FS();
-
-#endif
-        
         RY_CORE_INFO("EditorLayer::OnAttach Start!");
         RY_PROFILE_FUNCTION();
+
+#if 0
+        WeightedRandomizer<std::string> randomizer;
+        randomizer.add_item("CS-2", 3.0);           // 30 %
+        randomizer.add_item("HD-2", 3.0);           // 30 %
+        randomizer.add_item("PUBG", 3.0);           // 30 %
+        randomizer.add_item("Sea of Thieves", 1.0); // 10 %
+
+        std::string randome = randomizer.get_random();
+        RY_CORE_FATAL("Randome Gerator {}", randome);
+#endif
 
         m_AktiveScene = CreateRef<Scene>();
         m_EditorScene = CreateRef<Scene>();
@@ -370,555 +2277,146 @@ namespace Rynex {
         }
         else
         {
-#if 1
-            // Project::CreatNewPorject();
             if(!OpenProject())
                 Application::Get().Close();
-#else
-            RY_CORE_INFO("Open a Project!");
-            OpenProject("Sandbox.rproj");
-#endif
+
         }
 
-        Renderer::InitEditor();
-
+       
         m_Scene_HPanel.SetContext(m_AktiveScene);
 
         m_Content_BPannel.OnAtache();
        
         m_EditorCamera = CreateRef<EditorCamera>(30.0f, 1.778f, 0.1, 1000.0f);
+        // m_EditorCamera->SetDistance(5.5f);
+        // m_EditorCamera->SetYaw(0.02f);
+        // m_EditorCamera->SetPitch(-0.05f);
 
-
-
-#if 0
-        FramebufferSpecification fbSpec, fbSpec2;
-        fbSpec.Attachments =
-        {
-            FramebufferTextureFormat::RGBA8,
-            FramebufferTextureFormat::RGBA8,
-            FramebufferTextureFormat::RED_INTEGER,
-            FramebufferTextureFormat::Depth24Stencil8
-        };
-        fbSpec.Width = 1280;
-        fbSpec.Height = 720;
-        m_Framebuffer = Framebuffer::Create(fbSpec);
-        fbSpec2.Attachments =
-        {
-            FramebufferTextureFormat::RGBA8,
-            FramebufferTextureFormat::Depth24Stencil8
-        };
-        fbSpec2.Width = 1280;
-        fbSpec2.Height = 720;
-        m_SelectedFramebuffer = Framebuffer::Create(fbSpec2);
-        m_CallFace = CallFace::None;
-
-        m_Filtering = AssetManager::GetAsset<Shader>("../Rynex-Editor/Editor-Assets/shaders/Compute.glsl");
-        m_FinaleImage = Texture::Create({
-            ImageFormat::RGBA8, TextureTarget::Texture2D,
-            1280, 720,
-            TextureFilteringMode::Nearest,
-        });
-#endif
-
-#if RY_ENABLE_VIEWPORT
         m_ViewPortPannel = ViewPortPannel();
         m_ViewPortPannel.OnAttache("Main ViewPort", this);
-#endif
 
-#if RY_EDITOR_TEST_ENITITY
-
-
-#if 0
-        {
-            m_AktiveScene->CreateEntityWitheUUID(UUID(2), "MaiViewPort");
-            auto& entiy = m_AktiveScene->GetEntitiyByUUID(2);
-            entiy.AddComponent<MainViewPortComponent>();
-            auto& mainViewPort = entiy.GetComponent<MainViewPortComponent>();
-            mainViewPort.FrameBuffer = m_Framebuffer;
-            mainViewPort.EditorCamera = m_EditorCamera;
-        }
-#endif
         RY_CORE_INFO("Init Test Hard Coded Enttiy");
-#if 0
+
+        uint32_t count = 20;
+        for (uint32_t i = 0; i < count; i++)
         {
-            m_AktiveScene->CreateEntityWitheUUID(UUID(8976786), "3D_RendererTestEntity");
-            auto& entiy = m_AktiveScene->GetEntitiyByUUID(8976786);
+            auto& entiy = m_AktiveScene->CreateEntity("Test " + std::to_string(i));
+            entiy.AddComponent<SpriteRendererComponent>();
+            TransformComponent& trasC = entiy.GetComponent<TransformComponent>();
 
-            if (!entiy.HasComponent<TagComponent>())
-                entiy.AddComponent<TagComponent>("3D_RendererTestEntity");
+            trasC.Transaltion = glm::vec3(
+                Utils::RandomFloatRange(25, -25),
+                Utils::RandomFloatRange(25, -25),
+                Utils::RandomFloatRange(25, -25)
+            );
 
-            if (!entiy.HasComponent<TransformComponent>())
-                entiy.AddComponent<TransformComponent>();
-
-#if 0
-            if (!entiy.HasComponent<GeomtryComponent>())
-            {
-                entiy.AddComponent<GeomtryComponent>();
-                auto& geometry = entiy.GetComponent<GeomtryComponent>();
-
-                geometry.Geometry = VertexArray::Create();
-                geometry.Buffer = VertexBuffer::Create(6 * sizeof(float)); // Cube: 20 * (4 * 3 + 4* 2 + 4 * 3 )
-                geometry.Buffer->SetLayout(STANDERD_3DLAYOUTE);
-                //geometry.Geometry->SetPrimitv(VertexArray::Primitv::Traingle);
-                //Geomtrys::SetCubeVertex(geometry.Geometry, geometry.Buffer);
-                //Geomtrys::SetCubeIndex(geometry.Geometry);
-            }
-#endif
-            if (!entiy.HasComponent<MaterialComponent>())
-            {
-                entiy.AddComponent<MaterialComponent>();
-                auto& material = entiy.GetComponent<MaterialComponent>();
-#if RY_PATH_IN_LINE
-                //material.Shader = AssetManager::GetAsset<Shader>("../Rynex-Editor/Editor-Assets/shaders/3DTestTess.glsl");
-                material.Shader = AssetManager::GetAsset<Shader>("../Rynex-Editor/Editor-Assets/shaders/3DLigthe.glsl");
-                material.UniformLayoute.clear();
-               
-                UniformElement ellement;
-                {
-                    ellement.Name = "u_Color";
-                    ellement.Type = BufferAPI::GetShaderDataTypeFromString("vec3");
-                    ellement.ShResourceType = ShaderResourceType::LocalColor;
-                    material.UniformLayoute.push_back(ellement);
-                }
-                
-                {
-                    ellement.Name = "u_Model";
-                    ellement.Type = BufferAPI::GetShaderDataTypeFromString("mat4");
-                    ellement.ShResourceType = ShaderResourceType::LocalModel;
-                    material.UniformLayoute.push_back(ellement);
-                }
-
-                {
-                    ellement.Name = "u_ViewProj";
-                    ellement.Type = BufferAPI::GetShaderDataTypeFromString("mat4");
-                    ellement.ShResourceType = ShaderResourceType::MainCameraViewProjectionMatrix;
-                    material.UniformLayoute.push_back(ellement);
-
-                }
-
-                {
-                    ellement.Name = "u_EntityID";
-                    ellement.Type = BufferAPI::GetShaderDataTypeFromString("int");
-                    ellement.ShResourceType = ShaderResourceType::EnitiyID;
-                    material.UniformLayoute.push_back(ellement);
-                }
-
-                {
-                    ellement.Name = "u_CamerPos";
-                    ellement.Type = BufferAPI::GetShaderDataTypeFromString("vec3");
-                    ellement.ShResourceType = ShaderResourceType::MainCamerPos;
-                    material.UniformLayoute.push_back(ellement);
-                }
-
-                {
-                    ellement.Name = "u_LigthPos";
-                    ellement.Type = BufferAPI::GetShaderDataTypeFromString("vec3");
-                    ellement.ShResourceType = ShaderResourceType::None;
-                    ellement.GloblelResurce = false;
-                    material.UniformLayoute.push_back(ellement);
-                }
-
-                {
-                    ellement.Name = "u_LigthColor";
-                    ellement.Type = BufferAPI::GetShaderDataTypeFromString("vec3");
-                    ellement.ShResourceType = ShaderResourceType::None;
-                    ellement.GloblelResurce = false;
-                    material.UniformLayoute.push_back(ellement);
-                }
-
-                {
-                    ellement.Name = "u_Shinines";
-                    ellement.Type = BufferAPI::GetShaderDataTypeFromString("float");
-                    ellement.ShResourceType = ShaderResourceType::None;
-                    ellement.GloblelResurce = false;
-                    material.UniformLayoute.push_back(ellement);
-                }
-
-                {
-                    ellement.Name = "u_Specular";
-                    ellement.Type = BufferAPI::GetShaderDataTypeFromString("float");
-                    ellement.ShResourceType = ShaderResourceType::None;
-                    ellement.GloblelResurce = false;
-                    material.UniformLayoute.push_back(ellement);
-                    
-                }
-
-                {
-                    ellement.Name = "u_Ambient";
-                    ellement.Type = BufferAPI::GetShaderDataTypeFromString("float");
-                    ellement.ShResourceType = ShaderResourceType::None;
-                    // ellement.GloblelResurce = false;
-                    material.UniformLayoute.push_back(ellement); 
-                }
-                {
-                    for (auto& element : material.UniformLayoute)
-                    {
-                        if ((!element.GloblelResurce) && (!element.LocalResurce.size()))
-                        {
-                            element.LocalResurce.resize(ShaderDataTypeSize(element.Type));
-                            switch (element.Type)
-                            {
-                                case ShaderDataType::Float:
-                            {
-                                float* value = (float*)element.LocalResurce.data();
-                                *value = 0.0f;
-                                if (element.Name == "u_Shinines")
-                                    *value = 16.0f;
-                                else if (element.Name == "u_Specular")
-                                    *value = 0.5f;
-                                else if (element.Name == "u_Ambient")
-                                    *value = 0.1f;
-                                break;
-                            }
-                                case ShaderDataType::Float2:
-                            {
-                                glm::vec<2, float>* value = (glm::vec<2, float>*)element.LocalResurce.data();
-                                *value = { 0.0f, 0.0f};
-                                break;
-                            }
-                                case ShaderDataType::Float3:
-                            {
-                                
-                                glm::vec<3, float>* value = (glm::vec<3, float>*)element.LocalResurce.data();
-                                *value = { 0.0f, 0.0f,0.0f };
-                                if (element.Name == "u_LigthPos")
-                                    *value = { 2.5f, 3.0f, 2.0f };
-                                else if (element.Name == "u_LigthColor")
-                                    *value = { 1.0f, 1.0f, 1.0f };
-                                break;
-                            }
-                                case ShaderDataType::Float3x3:
-                            {
-                                glm::mat3* value = (glm::mat3*)element.LocalResurce.data();
-                                *value = {
-                                    1.0f, 0.0f, 0.0f,
-                                    0.0f, 1.0f, 0.0f,
-                                    0.0f, 0.0f, 1.0f
-                                };
-                                break;
-                            }
-                                case ShaderDataType::Float4x4:
-                            {
-                                glm::mat4* value = (glm::mat4*)element.LocalResurce.data();
-                                *value = {
-                                    1.0f, 0.0f, 0.0f, 0.0f,
-                                    0.0f, 1.0f, 0.0f, 0.0f,
-                                    0.0f, 0.0f, 1.0f, 0.0f,
-                                    0.0f, 0.0f, 0.0f, 1.0f
-                                };
-                                break;
-                            }
-                                case ShaderDataType::Int:
-                            {
-                                int* value = (int*)element.LocalResurce.data();
-                                *value = 0;
-                                break;
-                            }
-                                case ShaderDataType::Uint:
-                            {
-                                uint32_t* value = (uint32_t*)element.LocalResurce.data();
-                                *value = 0;
-                                break;
-                            }
-                                default:
-                                    break;
-                            }
-                        }
-                    }
-                }
-#endif
-            }
-
-#if 1
-            if (!entiy.HasComponent<GeomtryComponent>())
-            {
-                entiy.AddComponent<GeomtryComponent>();
-                GeomtryComponent& geomtry = entiy.GetComponent<GeomtryComponent>();
-                geomtry.Geometry = VertexArray::Create();
-                { 
-                    Ref<VertexBuffer> vertexBuffer = VertexBuffer::Create(32 * 18);
-                    Geomtrys::SetCubeVertex(geomtry.Geometry, vertexBuffer);
-                    Geomtrys::SetCubeIndex(geomtry.Geometry);
-                    
-                }
-                geomtry.Geometry->SetBoxAABB({ ShaderDataType::Float3, "a_Postion" });
-            }
-#endif
-#if 0
-            if (!entiy.HasComponent<ScriptComponent>())
-            {
-                entiy.AddComponent<ScriptComponent>();
-                auto& script = entiy.GetComponent<ScriptComponent>();
-                script.Name = "Sandbox.Player";
-            }
-#endif
-#if 0
-            if (!entiy.HasComponent<MeshComponent>())
-            {
-                entiy.AddComponent<MeshComponent>();
-                MeshComponent& meshC = entiy.GetComponent<MeshComponent>();
-                //CreateRef<Model>("../Rynex-Editor/Editor-Assets/Models/Cube.gltf");
-
-            }
-#endif
+            entiy.UpdateMatrix();
         }
-#endif
-
-#if 0
-        {
-            m_AktiveScene->CreateEntityWitheUUID(UUID(8976734286), "FrameBuffer_Test");
-            auto& entiy = m_AktiveScene->GetEntitiyByUUID(8976734286);
-
-            if (!entiy.HasComponent<TagComponent>())
-                entiy.AddComponent<TagComponent>("FrameBuffer_Test");
-
-            if (!entiy.HasComponent<TransformComponent>())
-                entiy.AddComponent<TransformComponent>();
-
-
-            if (!entiy.HasComponent<FrameBufferComponent>())
-            {
-                entiy.AddComponent<FrameBufferComponent>();
-                auto& framebufferC = entiy.GetComponent<FrameBufferComponent>();
-
-
-                framebufferC.FramebufferSpecification = fbSpec;
-                framebufferC.FrameBuffer = Framebuffer::Create(fbSpec);
-            }
-
-            if (!entiy.HasComponent<CameraComponent>())
-            {
-                entiy.AddComponent<CameraComponent>();
-                auto& camer = entiy.GetComponent<CameraComponent>();
-                 
-            }
-
-            if (!entiy.HasComponent<ScriptComponent>())
-            {
-                entiy.AddComponent<ScriptComponent>();
-                auto& script = entiy.GetComponent<ScriptComponent>();
-                script.Name = "Sandbox.Player";
-            }
-        }
-#endif
-#if 0
-        {
-            Ref<Texture> testTextPip1 = Texture::Create({
-                ImageFormat::RGBA8,
-                TextureTarget::Texture2D,
-                99, 99,
-                TextureFilteringMode::Nearest,
-                1
-                });
-
-
-            AssetMetadata metadata;
-            metadata.Type = testTextPip1->GetType();
-            metadata.FilePath = "../Rynex-Editor/Editor-Assets/CheckeBordNearest.rytex2d";
-            m_AssetManger->CreateAsset(metadata.FilePath, (Ref<Asset>)testTextPip1, metadata);
-            uint32_t size = 99 * 99;
-            uint32_t imageData[99 * 99];
-
-            for (uint32_t i = 0; i < size; i++)
-                imageData[i] = (i % 2) ? 0x00000000ui32 : 0xffffffffui32;
-
-            uint32_t whitheTexData = 0xffffffffui32;
-            testTextPip1->SetData(imageData, sizeof(uint32_t) * size);
-
-            Texture2DSerialiazer::Serlize(metadata.FilePath, testTextPip1);
-        }
-        {
-            Ref<Texture> testTextPip2 = Texture::Create({
-                ImageFormat::RGBA8,
-                TextureTarget::Texture2D,
-                7, 7,
-                TextureFilteringMode::Linear,
-                1
-            });
-            
-
-            AssetMetadata metadata;
-            metadata.Type = testTextPip2->GetType();
-            metadata.FilePath = "../Rynex-Editor/Editor-Assets/CheckeBordLinear.rytex2d";
-            m_AssetManger->CreateAsset(metadata.FilePath, (Ref<Asset>)testTextPip2, metadata);
-            uint32_t size = 7 * 7;
-            uint32_t imageData[7 * 7];
-
-            for (uint32_t i = 0; i < size; i++)
-                imageData[i] = (i % 2) ? 0xff0000000 : 0xffffffff;
-
-            uint32_t whitheTexData = 0xffffffff;
-            testTextPip2->SetData(imageData, sizeof(uint32_t) * size);
-
-            Texture2DSerialiazer::Serlize(metadata.FilePath, testTextPip2);
-        }
-#endif //This Code Create a Texture, saved it on disc if the same code run 2 tims in a row you get errors because its not allowd to overide olardy existen Assets!
-#if 0
-        {
-            UUID uuid = UUID();
-            m_AktiveScene->CreateEntityWitheUUID(uuid, "Texture_Test");
-            auto& entiy = m_AktiveScene->GetEntitiyByUUID(uuid);
-
-            if (!entiy.HasComponent<TagComponent>())
-                entiy.AddComponent<TagComponent>("Texture_Test");
-
-            if (!entiy.HasComponent<TransformComponent>())
-            {
-                 entiy.AddComponent<TransformComponent>();
-                
-
-            }
-            auto& transformC = entiy.GetComponent < TransformComponent>();
-            transformC.Transaltion = { 1.25f, 0.5f, 2.75f };
-            //transformC.Scale = { 5.f, 3.f, 10.f };
-
-
-            if (!entiy.HasComponent<SpriteRendererComponent>())
-            {
-                entiy.AddComponent<SpriteRendererComponent>();
-                auto& spriteC = entiy.GetComponent<SpriteRendererComponent>();
-
-
-                //spriteC.Texture = AssetManager::GetAsset<Texture2D>();
-                //spriteC.Color = { 1.,1.,1., 1. };
-            }
-
-        }
-#endif
-
-#if 1
-        {
-            Entity ambinet = m_AktiveScene->CreateEntity("3D_TestAmbient");
-            if (!ambinet.HasComponent<AmbientLigthComponent>())
-                ambinet.AddComponent<AmbientLigthComponent>();
-            AmbientLigthComponent& ambienTC = ambinet.GetComponent<AmbientLigthComponent>();
-            ambienTC.Color = { 0.0,0.0,0.0 };
-            ambienTC.Intensitie = 0.0;
-        }
-
-        {
-            Entity directionE = m_AktiveScene->CreateEntity("DrirektionleLigth");
-            if (!directionE.HasComponent<DrirektionleLigthComponent>())
-                directionE.AddComponent<DrirektionleLigthComponent>();
-            DrirektionleLigthComponent& directionC = directionE.GetComponent<DrirektionleLigthComponent>();
-            directionC.Color = { 1.0,1.0,1.0 };
-            directionC.Intensitie = 1.0;
-#if 0
-            directionC.ShadowFrameBuffer = Framebuffer::Create({
-                512, 512,
-                    {
-                        {
-                            TextureFormat::DepthComp24,
-                            1,
-                            {
-                                TextureWrappingMode::ClampEdge,
-                                TextureWrappingMode::ClampEdge,
-                                TextureWrappingMode::None,
-                            },
-                            TextureFilteringMode::Nearest
-                        }
-                    },
-                    1,
-                    false
-            });
-#endif
-
-
-            if (!directionE.HasComponent<ModelMatrixComponent>())
-                directionE.AddComponent<ModelMatrixComponent>();
-            ModelMatrixComponent& mat4C = directionE.GetComponent<ModelMatrixComponent>();
-            glm::mat4 ligthView = glm::lookAt(1.0f * glm::vec3(50.0f, 00.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0, 1.0f, 0.0f));
-            mat4C.Globle = ligthView;
-            mat4C.Locale = ligthView;
-
-            if (!directionE.HasComponent<TransformComponent>())
-                directionE.AddComponent<TransformComponent>();
-            TransformComponent& tranC = directionE.GetComponent<TransformComponent>();
-            tranC.SetTransform(ligthView);
-
-            directionE.UpdateMatrix();
-        }
-#if 1
-
-        {
-            Entity modelE = m_AktiveScene->CreateEntity("Sreene");
-            if (!modelE.HasComponent<MeshComponent>())
-                modelE.AddComponent<MeshComponent>();
-            MeshComponent& modelC = modelE.GetComponent<MeshComponent>();
-
-            if (!modelE.HasComponent<StaticMeshComponent>())
-                modelE.AddComponent<StaticMeshComponent>();
-            StaticMeshComponent& modelStaicC = modelE.GetComponent<StaticMeshComponent>();
-            std::vector<MeshTexture> meshTex;
-            std::vector<uint32_t> meshIndex;
-            {
-                meshIndex.reserve(3);
-                meshIndex.emplace_back(0);
-                meshIndex.emplace_back(1);
-                meshIndex.emplace_back(2);
-
-                meshIndex.emplace_back(0);
-                meshIndex.emplace_back(2);
-                meshIndex.emplace_back(3);
-            }
-            
-         
-            std::vector<MeshVertex> meshVertex;
-            {
-                meshVertex.reserve(4);
-                meshVertex.emplace_back(MeshVertex(glm::vec3(-1.0f,  1.0f,  0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
-                meshVertex.emplace_back(MeshVertex(glm::vec3(-1.0f, -1.0f,  0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)));
-                meshVertex.emplace_back(MeshVertex(glm::vec3 (1.0f, -1.0f,  0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)));
-                meshVertex.emplace_back(MeshVertex(glm::vec3( 1.0f,  1.0f,  0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)));
-            }
-#if RY_MODEL_NODE
-            std::vector<Ref<Mesh>> mesh;
-
-            mesh.push_back(CreateRef<Mesh>(std::move(meshVertex), std::move(meshIndex), std::move(meshTex), false));
-            std::vector<NodeData> nodeRoot;
-            nodeRoot.reserve(1);
-            NodeData nodeData = { mesh, glm::mat4(1.0f), "Sreene", std::vector<int>(), -1 };
-            nodeRoot.emplace_back(nodeData);
-#else
-            modelStaicC.UseAlleMeshes = true;
-
-            std::vector<Ref<Mesh>> mesh;
-            std::vector<MeshRootData> meshRootData;
-            meshRootData.reserve(1);
-            meshRootData.emplace_back(MeshRootData(glm::mat4(1.0f), std::string("Sreene")));
-            
-            mesh.push_back(CreateRef<Mesh>(std::move(meshVertex), std::move(meshIndex), std::move(meshTex), false));
-
-
-            modelStaicC.UseAlleMeshes = true;
-            modelStaicC.ModelR = CreateRef<Model>(mesh, meshRootData);
-            modelC.ModelR = modelStaicC.ModelR;
-#endif
-        }
-#endif
-#endif
-#endif
         
-        m_RendererPannel.OnAttache(this);
+
+        {
+#if 0
+            Ref<MeshStatic> ship;
+            Ref<MeshStatic> cv;
+
+            Ref<MeshStatic> cube;
+            Ref<MeshStatic> cube2;
+
+            Ref<MeshStatic> sponzer;
+            Ref<MeshStatic> sponzer2;
+#if TEST_BINDING_MANGER_SYSTEM 
+            TestBindMangerSystem();
+#endif
+
+#if TEST_RENDER_PIPLINE_SYSTEME
+            TestRenderPiplineMesh();
+#endif
+
+#if TEST_MESH_STATIC_SERILAZTION
+            TestSerliceMesh();
+            
+#endif
+
+#if TEST_LOADING_ASSETS_ASYNC
+            TestLoadingAssetAsync();
+#endif
+#if TEST_PTR_RNEDERPIPLINE
+            TestElementPtrFunc();
+#endif
+
+#if TEST_SCENE_STATE_00 || TEST_SCENE_STATE_04
+            ship = AssetManager::GetAsset<MeshStatic>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/Yamto-Model/scene.rystmesh"));
+
+            cv = AssetManager::GetAsset<MeshStatic>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/CV-Model/scene.rystmesh"));
+
+            cube = AssetManager::GetAsset<MeshStatic>("Assets/Models/Cube.rystmesh");
+            cube2 = AssetManager::GetAsset<MeshStatic>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/Cube2.rystmesh"));
+#elif TEST_SCENE_STATE_01|| TEST_SCENE_STATE_08
+            sponzer = AssetManager::GetAsset<MeshStatic>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/pkg_a_curtains/pkg_a_curtains/NewSponza_Curtains_glTF.rystmesh"));
+#elif TEST_SCENE_STATE_02 || TEST_SCENE_STATE_07
+            sponzer2 = AssetManager::GetAsset<MeshStatic>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/main_sponza/main_sponza/NewSponza_Main_glTF_003.rystmesh"));
+#elif TEST_SCENE_STATE_03 || TEST_SCENE_STATE_09
+            sponzer2 = AssetManager::GetAsset<MeshStatic>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/pkg_a_curtains/pkg_a_curtains/NewSponza_Curtains_glTF.rystmesh"));
+            sponzer = AssetManager::GetAsset<MeshStatic>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/main_sponza/main_sponza/NewSponza_Main_glTF_003.rystmesh"));
+#elif TEST_SCENE_STATE_05 || TEST_SCENE_STATE_10
+            cube = AssetManager::GetAsset<MeshStatic>("Assets/Models/Cube.rystmesh");
+#elif TEST_SCENE_STATE_6
+            cube2 = AssetManager::GetAsset<MeshStatic>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/Cube2.rystmesh"));
+#endif
+            Ref<Shader> shader = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/MeshTestShader.glsl"));
+            
+            TestProfileRenderShaderMapSubmit(cube, cube2, ship, cv, sponzer, sponzer2, m_AktiveScene);
+
+            glm::mat4 matrix = glm::mat4(
+                1.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 1.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 1.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f
+            );
+#endif
+
+            m_RendererPannel.OnAttache(this);
+        }
+        
+        
         m_MenuBarPannel.OnAttache(this);
         m_ProjectPannel.OnAttache(this);
+        m_MeshPannel.OnAttache(this);
+
+
+        m_Scene_HPanel.TestSubmitStaticProxyLocal();
         RY_CORE_INFO("EditorLayer::Sucese Finished!");
+
+
+
     }
 
     void EditorLayer::OnDetach()
     {
         RY_CORE_WARN("OnDetach Aktiv!");
         RY_PROFILE_FUNCTION();
-        
+
+        RY_DESTROY_REF(m_AktiveScene);
+        RY_DESTROY_REF(m_NextScene);
+        RY_DESTROY_REF(m_EditorCamera);
+        RY_DESTROY_REF(m_EditorScene);
+        RY_DESTROY_REF(m_AssetManger);
+        RY_DESTROY_REF(m_Project);
        
-        Renderer::ShutdownEditor();
-        Renderer::Shutdown();
-        ScriptingEngine::Shutdown();
-        Project::ShutDown();
+
         m_RendererPannel.OnDetache();
         m_MenuBarPannel.OnDetache();
         m_ProjectPannel.OnDetache();
         m_ViewPortPannel.OnDetache();
+        m_Content_BPannel.OnDetache();
+        m_Scene_HPanel.OnDetache();  
+        m_MeshPannel.OnDetache();
+
+        ScriptingEngine::Shutdown(); 
+        Renderer::ShutdownEditor();
+        Renderer::Shutdown();
+        Project::ShutDown();
+
         RY_CORE_WARN("OnDetach Done!");
     }
 
@@ -939,9 +2437,9 @@ namespace Rynex {
 
                 m_SceneState = SceneState::Edit;
             }
+
             Ref<Scene> newScene = Scene::Copy(m_NextScene);
 
-           
             m_EditorScene = newScene;
             m_AktiveScene = newScene;
 
@@ -952,37 +2450,187 @@ namespace Rynex {
             m_NextScene = nullptr;
         }
 
-        Renderer2D::ResetQuadeStats();
+#if TEST_SCENE_STATE_00
+        static bool s_NotUpdated = true;
+#endif
 
         switch (m_SceneState)
         {
             case SceneState::Edit:
             { 
-
-                m_AktiveScene->OnUpdateEditor(ts);   
+#if TEST_SCENE_STATE_00
+                s_NotUpdated = true;
+#endif
+                {
+                    RY_SCOPE_TIMER(m_ViewPortUpdateTime);
+                    m_AktiveScene->OnUpdateEditor(ts);
+                }
                 m_ViewPortPannel.OnRenderEditor(ts);
                 break;
             }
             case SceneState::Simulate:
             {
+                
                 m_EditorCamera->OnUpdate(ts);
-                m_AktiveScene->OnUpdateSimulation(ts);
+                
+                {
+                    RY_SCOPE_TIMER(m_ViewPortUpdateTime);
+                    m_AktiveScene->OnUpdateSimulation(ts);
+                }
                 m_ViewPortPannel.OnRenderSimultion();;
                 break;
             }
             case SceneState::Play:
             {
-                m_AktiveScene->OnUpdateRuntime(ts);
+                {
+                    m_AktiveScene->OnUpdateRuntime(ts);
+                    RY_SCOPE_TIMER(m_ViewPortUpdateTime);
+                }
                 m_ViewPortPannel.OnRenderRuntime(0);
+
+                
+#if TEST_SCENE_STATE_00
+                if(s_NotUpdated)
+                { 
+#if 1
+                    TestProfileRenderShaderMapRemove();
+#else
+                    Ref<Shader> shader = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/MeshTestShader.glsl"));
+                    Ref<MeshStatic> cube = Mesh::CreateStaticMesh("Assets/Models/Cube.gltf");
+                    glm::mat4 matrix2 = glm::mat4(
+                        1.0f, 0.0f, 0.0f, 0.0f,
+                        0.0f, 1.0f, 0.0f, 0.0f,
+                        0.0f, 0.0f, 1.0f, 0.0f,
+                        0.0f, 1.25f, 0.0f, 1.0f
+                    );
+                    Renderer3D::UpdateMeshObject(cube, shader, glm::translate(matrix2, glm::vec3(0.0f, 2.5f, 0.0f)), 2);
+#endif
+                    s_NotUpdated = false;
+                }
+#endif
+
                 break;
             }
         }
-        
+        m_ViewPortRenderTime = m_ViewPortPannel.GetSceneRenderTime();
+
         ////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////
         m_RendererPannel.OnUpdate(ts);
         m_ViewPortPannel.OnUpdate();
+        m_MeshPannel.OnUpdate();
     }
+    
+    void EditorLayer::OnImGuiRender()
+    {
+        static bool dokingEnabled   = true;
+        static bool assetsEnabled   = true;
+        static bool sceneEnabled    = true;
+        static bool viewPortEnabled = false;
+        static bool settingsEnabled = true;
+        static bool renderPannnel = false;
+        static bool meshPannnel = false;
+
+        static bool menuBarPannnel = false;
+
+        if (dokingEnabled) 
+        {
+            RY_PROFILE_SCOPE("ImGui Window - Editor");
+            static bool dokingSpaceOpen = true;
+            static bool opt_fullscreen = true;
+            static bool opt_padding = false;
+            
+            static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+
+            ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+            if (opt_fullscreen)
+            {
+                const ImGuiViewport* viewport = ImGui::GetMainViewport();
+                ImGui::SetNextWindowPos(viewport->WorkPos);
+                ImGui::SetNextWindowSize(viewport->WorkSize);
+                ImGui::SetNextWindowViewport(viewport->ID);
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+                window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+                window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+            }
+            
+
+            if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+                window_flags |= ImGuiWindowFlags_NoBackground;
+
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+            ImGui::Begin("Ryenex-Editor-Gui", &dokingSpaceOpen, window_flags);
+            ImGui::PopStyleVar();
+
+            if (opt_fullscreen)
+                ImGui::PopStyleVar(2);
+
+            // Submit the DockSpace
+            ImGuiIO& io = ImGui::GetIO();
+            if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+            {
+                ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+                ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+            }
+
+            if(menuBarPannnel)
+            {
+                RY_PROFILE_SCOPE("ImGui Pannel - Renderer");
+                ImGuiTopTaskBar();
+            }
+            else
+            {
+                m_MenuBarPannel.OnImGuiRender();
+            }
+            if (sceneEnabled)
+            {
+                RY_PROFILE_SCOPE("ImGui Pannel - Scene Pannels");
+                ImGuiPannels();
+            }
+            if(settingsEnabled)
+            {
+                RY_PROFILE_SCOPE("ImGui Pannel - View Settings");
+                ImGuiSettings(renderPannnel);
+            }
+
+            if (!viewPortEnabled)
+            {
+                RY_PROFILE_SCOPE("ImGui Pannel - View Port");
+                ViewPortPannel::SetEventBlocker(!m_ViewPortPannel.OnImGuiRender());
+            }
+            m_ProjectPannel.OnImGuiRender();
+            if (!renderPannnel)
+            {
+                RY_PROFILE_SCOPE("ImGui Pannel - Renderer");
+                m_RendererPannel.OnImGuiRender();
+            }
+
+            if (!meshPannnel)
+            {
+                RY_PROFILE_SCOPE("ImGui Pannel - Mesh");
+                m_MeshPannel.OnImGuiRender();
+            }
+            ImGui::End();
+        }
+        else
+        {   
+            if(sceneEnabled)    
+                ImGuiPannels();
+
+            if(settingsEnabled) 
+                ImGuiSettings(renderPannnel);
+
+            if(!renderPannnel)
+                m_RendererPannel.OnImGuiRender();
+           
+            ImGui::End();
+        }
+
+
+    }
+
+#pragma endregion
 
 #pragma region Events
 
@@ -1008,7 +2656,17 @@ namespace Rynex {
         int key = e.GetKeyCode();
         switch (key)
         {
+            RY_KEY_COMB_CASE(Key::N, control, NewScene());
+            RY_KEY_COMB_CASE(Key::Delete, m_ViewPortFocused, NewScene());
+            RY_KEY_COMB_CASE(Key::O, control, OpenScene());
+            RY_KEY_COMB_CASE(Key::S, control && shift, control, NewScene(), SaveCurentScene());
+            RY_KEY_COMB_CASE(Key::Q, control, m_GizmoType = -1);
+            RY_KEY_COMB_CASE(Key::W, control, m_GizmoType = ImGuizmo::OPERATION::TRANSLATE);
+            RY_KEY_COMB_CASE(Key::E, control, m_GizmoType = ImGuizmo::OPERATION::ROTATE);
+            RY_KEY_COMB_CASE(Key::R, control, m_GizmoType = ImGuizmo::OPERATION::SCALE);
 
+            
+#if 0
         case Key::N:
         {
             if (control)
@@ -1066,7 +2724,7 @@ namespace Rynex {
             //else
 
             break;
-
+#endif
         default:
             break;
         }
@@ -1075,8 +2733,8 @@ namespace Rynex {
 
     bool EditorLayer::OnMousePressed(MouseButtenPressedEvent& e)
     {
-        m_ViewPortPannel.OnMousPressed(e);
-        return true;
+ 
+        return m_ViewPortPannel.OnMousPressed(e);
     }
 
 #pragma endregion
@@ -1114,6 +2772,16 @@ namespace Rynex {
         m_ProjectPannel.OpenWindow();
     }
 
+    void EditorLayer::OpenViewPortTexture()
+    {
+        m_ViewPortPannel.OpenTextureWindows();
+    }
+
+    void EditorLayer::OpenMeshPannel()
+    {
+        m_MeshPannel.OpenWindow();
+    }
+
 #pragma endregion
 
 #pragma region ProjectFile
@@ -1125,7 +2793,7 @@ namespace Rynex {
 
     bool EditorLayer::OpenProject()
     {
-        std::string filepath = FileDialoges::OpenFile("Rynex Project (*.rproj)\0*.rproj\0");
+        std::string filepath = FileDialoges::OpenFile("Rynex Project (*.ryproj)\0*.ryproj\0");
         if (filepath.empty())
             return false;
 
@@ -1137,17 +2805,18 @@ namespace Rynex {
     {
         if (Project::Load(path))
         {
-#if RY_SCRIPTING_HAZEL
-            ScriptEngine::Init();
-#else
+
             if(!ScriptingEngine::IsInit())
                 ScriptingEngine::Init(true);
             
-
-#endif
+            if (!Renderer::IsInit())
+            {
+                
+                Renderer::Init();
+                Renderer::InitEditor();
+            }
             m_Project = Project::GetActive();
             m_AssetManger = m_Project->GetEditorAssetManger();
-            Renderer::Init();
             std::filesystem::path startScene = Project::GetActive()->GetConfig().StartScene;
             if (startScene.string() != "")
             {
@@ -1164,7 +2833,7 @@ namespace Rynex {
     {
         if(m_Project && m_Project->GetConfig().ProjectRady)
         {
-            m_Project->SaveActive(m_Project->GetConfig().ProjectPath / (m_Project->GetConfig().Name + ".rproj"));
+            m_Project->SaveActive(m_Project->GetConfig().ProjectPath / (m_Project->GetConfig().Name + ".ryproj"));
         }
     }
 
@@ -1176,15 +2845,14 @@ namespace Rynex {
     {
         m_AktiveScene = CreateRef<Scene>(); 
         m_ViewPortPannel.SetNewAktiveSecen(m_AktiveScene);
-        m_AktiveScene->OnViewportResize((uint32_t)m_ViewPortSize.x, (uint32_t)m_ViewPortSize.y);
         m_Scene_HPanel.SetContext(m_AktiveScene);
-       
+        m_AktiveScene->OnViewportResize(static_cast<uint32_t>(m_ViewPortSize.x), static_cast<uint32_t>(m_ViewPortSize.y));
     }
 
     void EditorLayer::OpenScene()
     {
         RY_PROFILE_FUNCTION();
-        std::string filepath = FileDialoges::OpenFile("Rynex Scene (*.rynex)\0*.rynex\0");
+        std::string filepath = FileDialoges::OpenFile("Rynex Scene (*.rynexscene)\0*.rynexscene\0");
 
        
         if (!filepath.empty())
@@ -1199,7 +2867,7 @@ namespace Rynex {
         m_AktiveScene = CreateRef<Scene>();
         m_ViewPortPannel.SetNewAktiveSecen(m_AktiveScene);
         SceneSerializer serialzer(m_AktiveScene);     
-        serialzer.Deserialize(path.string(), false);  
+        serialzer.Deserialize(path);  
 
         
         m_Scene_HPanel.SetContext(m_AktiveScene);
@@ -1208,35 +2876,8 @@ namespace Rynex {
 
     void EditorLayer::OpenScene(AssetHandle handle)
     {
-        RY_CORE_ASSERT(handle, "Error: EditorLayer::OpenScene(AssetHandle handle)");
-
-#if RY_EDITOR_ASSETMANGER_THREADE ? 1 : 0
-        
+        RY_CORE_ASSERT(handle, "Error: EditorLayer::OpenScene(AssetHandle handle)");        
         AssetManager::GetAssetAsync<Scene>(handle, &m_NextScene);
-
-#else
-        if (m_SceneState != SceneState::Edit)
-        {
-            RY_CORE_ASSERT(m_SceneState == SceneState::Play || m_SceneState == SceneState::Simulate, "Error Futer Funktion: EditorLayer::OnSceneStop()");
-           
-            if (m_SceneState == SceneState::Play)
-                m_AktiveScene->OnRuntimStop();
-            else if (m_SceneState == SceneState::Simulate)
-                m_AktiveScene->OnRuntimStop();
-
-            m_SceneState = SceneState::Edit;
-        }
-
-        Ref<Scene> readOnlyScene = AssetManager::GetAsset<Scene>(handle);
-        Ref<Scene> newScene = Scene::Copy(readOnlyScene);
-        m_EditorScene = newScene;
-        m_AktiveScene = m_EditorScene;
-        
-        m_Scene_HPanel.SetContext(m_EditorScene);
-        m_EditorScenePath = Project::GetActive()->GetEditorAssetManger()->GetMetadata(handle).FilePath;    
-        m_ViewPortPannel.SetNewAktiveSecen(m_AktiveScene);
-#endif
-
     }
 
     void EditorLayer::OpenSceneAsync(AssetHandle handle)
@@ -1259,13 +2900,9 @@ namespace Rynex {
         AssetHandle handle = m_AktiveScene->Handle;
         if (m_AssetManger->IsAssetHandleValid(handle))
         {
-#if RY_EDITOR_ASSETMANGER_THREADE
             const AssetMetadata metadata = m_AssetManger->GetMetadata(handle);
-#else
-            const AssetMetadata& metadata = m_AssetManger->GetMetadataConst(handle);
-#endif
             SceneSerializer serialzer(m_AktiveScene);
-            serialzer.Serialize(metadata.FilePath.string());
+            serialzer.Serialize(metadata.FilePath);
         }
         else
         {
@@ -1273,113 +2910,21 @@ namespace Rynex {
         }
     }
 
+    void EditorLayer::SaveImagViewPort()
+    {
+        std::string filepath = FileDialoges::SaveFile("png (*.png)\0*.png\0");
+        if (!filepath.empty())
+        {
+            Ref<Texture> textureViewPort = m_ViewPortPannel.GetFinaleImage();
+            TextureImporter::SaveTexture(textureViewPort, filepath);
+        }
+    }
+
 #pragma endregion
 
-    void EditorLayer::OnImGuiRender()
-    {
-        static bool dokingEnabled   = true;
-        static bool assetsEnabled   = true;
-        static bool sceneEnabled    = true;
-        static bool viewPortEnabled = false;
-        static bool settingsEnabled = true;
-        static bool renderPannnel = false;
-        static bool menuBarPannnel = false;
+#pragma region Pannels
 
-        if (dokingEnabled) 
-        {
-
-            static bool dokingSpaceOpen = true;
-            static bool opt_fullscreen = true;
-            static bool opt_padding = false;
-            
-            static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-
-            ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-            if (opt_fullscreen)
-            {
-                const ImGuiViewport* viewport = ImGui::GetMainViewport();
-                ImGui::SetNextWindowPos(viewport->WorkPos);
-                ImGui::SetNextWindowSize(viewport->WorkSize);
-                ImGui::SetNextWindowViewport(viewport->ID);
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-                window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-                window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-            }
-            
-
-            if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-                window_flags |= ImGuiWindowFlags_NoBackground;
-
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-            ImGui::Begin("Ryenex-Editor-Gui", &dokingSpaceOpen, window_flags);
-            ImGui::PopStyleVar();
-
-            if (opt_fullscreen)
-                ImGui::PopStyleVar(2);
-
-            // Submit the DockSpace
-            ImGuiIO& io = ImGui::GetIO();
-            if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-            {
-                ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-                ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-            }
-
-            if(menuBarPannnel)
-            {
-                ImGuiTopTaskBar();
-            }
-            else
-            {
-                m_MenuBarPannel.OnImGuiRender();
-            }
-            if(sceneEnabled)    ImGuiPannels();
-            if(settingsEnabled) ImGuiSettings(renderPannnel);
-#if RY_VIEW_PORT_FUNKTION   
-            if(viewPortEnabled) 
-            {
-                ImGuiViewPort();
-            }
-        
-            else
-            {
-
-                ViewPortPannel::SetEventBlocker(!m_ViewPortPannel.OnImGuiRender());
-
-            }
-#else
-            if (!viewPortEnabled)
-            {
-                ViewPortPannel::SetEventBlocker(!m_ViewPortPannel.OnImGuiRender());
-            }
-#endif
-            if (!renderPannnel)
-            {
-                m_RendererPannel.OnImGuiRender();
-            }
-            m_ProjectPannel.OnImGuiRender();
-            ImGui::End();
-        }
-        else
-        {   
-            if(sceneEnabled)    ImGuiPannels();
-            if(settingsEnabled) ImGuiSettings(renderPannnel);
-#if RY_VIEW_PORT_FUNKTION
-            if(viewPortEnabled) ImGuiViewPort();
-#endif
-            if(!renderPannnel)
-            {
-                m_RendererPannel.OnImGuiRender();
-            }
-           
-           
-
-            ImGui::End();
-        }
-
-
-    }
+    
 
     int* EditorLayer::GetPtrGizmoType()
     {
@@ -1388,16 +2933,21 @@ namespace Rynex {
 
     void EditorLayer::ImGuiSettings(bool renderPannnel)
     {
-        ImGui::Begin("Settings");
-        
-        if(renderPannnel)
-        {
-            ImGuiRenderInfo();
-        }
+        ImGuiWindowFlags flags = ImGuiWindowFlags_None;
+        flags |= ImGuiWindowFlags_NoCollapse;
+        flags |= ImGuiWindowFlags_NoTitleBar;
 
-        std::string sceneState;
-        switch (m_SceneState)
+        if(ImGui::Begin("Settings", &renderPannnel, flags))
         {
+
+            if (renderPannnel)
+            {
+                ImGuiRenderInfo();
+            }
+
+            std::string sceneState;
+            switch (m_SceneState)
+            {
             case SceneState::Edit:
             {
                 sceneState = "Edit";
@@ -1413,11 +2963,11 @@ namespace Rynex {
                 sceneState = "Simulate";
                 break;
             }
+            }
+            ImGui::Text("Curent Scene State: %s", sceneState.c_str());
+            ImGui::SameLine(500.0f, 1.0f);
+            ImGuiPlayButten();
         }
-        ImGui::Text("Curent Scene State: %s", sceneState.c_str());
-        ImGui::SameLine(500.0f, 1.0f);
-        ImGuiPlayButten();
-
         ImGui::End();
     }
 
@@ -1426,6 +2976,7 @@ namespace Rynex {
         bool hasPlayButton = m_SceneState == SceneState::Edit || m_SceneState == SceneState::Play;
         bool hasSimulateButton = m_SceneState == SceneState::Edit || m_SceneState == SceneState::Simulate;
         bool hasPauseButton = m_SceneState != SceneState::Edit;
+
         if (hasPlayButton)
         {
             if (ImGui::Button("Play", ImVec2(50, 0)))
@@ -1450,7 +3001,7 @@ namespace Rynex {
         }
         if (hasPauseButton)
         {
-            if (ImGui::Button("Pause", ImVec2(50, 0)))
+            if (ImGui::Button("Pause", ImVec2(100, 0)))
             {
                 m_SceneState = SceneState::Edit;
                 m_AktiveScene->OnRuntimStop();
@@ -1460,45 +3011,6 @@ namespace Rynex {
 
     void EditorLayer::ImGuiRenderInfo()
     { 
-#if RY_OLD_RENDER_SYSTEM
-         
-        ImGui::Text("Renderer:");
-
-        if(ImGui::Checkbox("Wirframe mode:", &m_RendereWirframe))
-            Renderer3D::AktivePolyGunMode(m_RendereWirframe);
-
-        if(ImGui::Checkbox("Deaph Test mode:", &m_RendereDepthe))
-            
-        
-        if (ImGui::RadioButton("None", (int*)&m_CallFace, (int)CallFace::None))
-        {
-                m_CallFace = CallFace::None;
-                Renderer3D::SetFace(m_CallFace);
-        }
-        if (ImGui::RadioButton("Front", m_CallFace == CallFace::Front))
-        {
-            m_CallFace = CallFace::Front;
-            Renderer3D::SetFace(m_CallFace);
-        }
-        if (ImGui::RadioButton("Back", m_CallFace == CallFace::Back))
-        {
-            m_CallFace = CallFace::Back;
-            Renderer3D::SetFace(m_CallFace);
-        }
-        if (ImGui::RadioButton("FrontBacke", m_CallFace == CallFace::FrontBacke))
-        {
-            m_CallFace = CallFace::FrontBacke;
-            Renderer3D::SetFace(m_CallFace);
-        }
-        
-        ImGui::Text("Renderer2D Stats:");
-        auto stats = Renderer2D::GetQuadeStats();
-        ImGui::Text("Draw Calls: %d", stats.DrawCalls);
-        ImGui::Text("Quad   : %d", stats.QuadCount);
-        ImGui::Text("Vertex : %d", stats.GetTotalVertexCount());
-        ImGui::Text("Indexs : %d", stats.GetTotalIndexCount());
-#else
-#endif
     }
 
    
@@ -1509,259 +3021,12 @@ namespace Rynex {
         m_Content_BPannel.OnImGuiRender();
     }
 
-#if RY_VIEW_PORT_FUNKTION 
-    
-    void EditorLayer::ImGuiViewPort()
-    {
-        
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0 ,0 });
-        ImGui::Begin("Viewport");
-        // GetMousePos
-        ImVec2 viewportOffset = ImGui::GetCursorPos();
 
-        // View Port   Hoverd + Focuse -> block Events
-        m_ViewPortFocused = ImGui::IsWindowFocused();
-        m_ViewPortHoverd = ImGui::IsWindowHovered();
-        Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewPortFocused && !m_ViewPortHoverd);
-        // ViewPort get Size + Resize Image + SetImage in ViewPort
-        ImVec2 viewportPannelSize = ImGui::GetContentRegionAvail();
-        ImGuiViewPortResize(viewportPannelSize);
-#if 0
-        uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID(0);
-#else
-        uint32_t textureID = m_FinaleImage->GetRenderID();
-#endif
-        //uint32_t textureID = m_Framebuffer->GetDeathAttachmentRendererID();
-        ImGui::Image(reinterpret_cast<void*>(textureID),  viewportPannelSize, ImVec2(0,1), ImVec2(1,0)); 
+#pragma endregion
 
-        // Drag and drop conten Broser
-        ImGuiContentBrowserViewPort();
-
-        // Set New ViewPort for Debuging or secen other stuffe
-        ImGuiSecundaryViewPort(m_Framebuffer, 1, viewportPannelSize.x, viewportPannelSize.y);
-       
-        // Get View port AABB In Mointore Scren Space / Not App Scren Space!
-        ImGuiSetMausPosInViewPort(viewportOffset);
-       
-        // Gizmos
-        ImGizmoInViewPort();
-
-        ImGui::End();
-        ImGui::PopStyleVar();
-    }
-
-    void EditorLayer::ImGuiSecundaryViewPort(const Ref<Framebuffer>& framebuffer, uint32_t id, float width , float height)
-    {
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0 ,0 });
-        ImGui::Begin("Secundary Viewport", nullptr, ImGuiWindowFlags_DockNodeHost  );
-
-        uint32_t textureID = framebuffer->GetColorAttachmentRendererID(id);
-        ImVec2 size = ImGui::GetWindowSize();
-        size.y = size.x / ((float)width / height);
-        ImGui::Image((ImTextureID)textureID, size, ImVec2(0, 1), ImVec2(1, 0));
-        ImGui::SetWindowSize(size);
-      
-        ImGui::End();
-        ImGui::PopStyleVar();
-    }
-
-    void EditorLayer::ImGuiContentBrowserViewPort()
-    {
-        if (ImGui::BeginDragDropTarget())
-        {
-            
-
-            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( GetAssetTypeDragAndDropName(AssetType::Scene).c_str() ))
-            {
-                AssetHandle handle = *(AssetHandle*)payload->Data;
-                OpenScene(handle);
-            }
-            ImGui::EndDragDropTarget();
-        }
-    }
-
-    void EditorLayer::ImGuiSetMausPosInViewPort( ImVec2 vpOffset)
-    {
-        auto windowSize = ImGui::GetWindowSize();
-        ImVec2 minBound = ImGui::GetWindowPos();
-        minBound.x += vpOffset.x;
-        minBound.y += vpOffset.y;
-
-        ImVec2 maxBound = { minBound.x + windowSize.x, minBound.y + windowSize.y };
-        m_ViewportBounds[0] = { minBound.x, minBound.y };
-        m_ViewportBounds[1] = { maxBound.x, maxBound.y };
-    }
-
-    void EditorLayer::ImGizmoInViewPort()
-    {
-        Entity selectedEntity = m_Scene_HPanel.GetSelectedEntity();
-
-        if (selectedEntity && m_GizmoType != -1)
-        {
-            ImGuizmo::SetOrthographic(false);
-            ImGuizmo::SetDrawlist();
-            float windowWidth = (float)ImGui::GetWindowWidth();
-            float windowHeight = (float)ImGui::GetWindowHeight();
-            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
-
-            // Camera
-
-            glm::mat4 camerProj, camerView;
-
-            switch (m_SceneState)
-            {
-                case SceneState::Edit:
-                {
-                    camerProj = m_EditorCamera->GetProjektion();
-                    camerView = m_EditorCamera->GetViewMatrix();
-                    break;
-                }
-                case SceneState::Play:
-                {
-                    auto camerEntt = m_AktiveScene->GetEntityPrimaryCamera();
-                    const auto& camera = camerEntt.GetComponent<CameraComponent>().Camera;
-                    const glm::mat4& camerProj = camera.GetProjektion();
-                    camerView = glm::inverse(camerEntt.GetComponent<TransformComponent>().GetTransform());
-                    break;
-                }
-                default:
-                {
-                    camerProj = m_EditorCamera->GetProjektion();
-                    camerView = m_EditorCamera->GetViewMatrix();
-                    break;
-                }
-            }
-            
-
-            // Entity transform
-            if (!selectedEntity.HasComponent<TransformComponent>()) return;
-
-            auto& tc = selectedEntity.GetComponent<TransformComponent>();
-            glm::mat4 transform = tc.GetTransform();
-
-
-            bool snap = Input::IsKeyPressed(Key::LeftControl);
-            float snapeValue = m_GizmoType == ImGuizmo::OPERATION::ROTATE ? 45.0f : 0.5f;
-            float snapeValues[3] = { snapeValue , snapeValue , snapeValue };
-
-            ImGuizmo::Manipulate(glm::value_ptr(camerView), glm::value_ptr(camerProj),
-                (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform),
-                nullptr, snap ? snapeValues : nullptr);
-
-            if (ImGuizmo::IsUsing())
-            {
-                glm::vec3 transation, rotation, scale;
-                Math::DecomposeTransform(transform, transation, rotation, scale);
-
-                glm::vec3 dealteRotation = rotation - tc.Rotation;
-                tc.Transaltion = transation;
-                tc.Rotation += dealteRotation;
-                tc.Scale = scale;
-            }
-
-        }
-    }
-
-    void EditorLayer::RenderSelectedEntity(Entity slelcted)
-    {
-        
-        m_SelectedFramebuffer->Bind();
-        RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-        RenderCommand::Clear();
-        Camera& mainCamera = (Camera)m_EditorCamera->GetProjektion();
-        glm::mat4 viewMatrix = m_EditorCamera->GetViewMatrix();
-        if ((slelcted != Entity() || slelcted != 0) && slelcted.HasComponent<TransformComponent>())
-        {
-            TransformComponent transformC = slelcted.GetComponent<TransformComponent>();
-            if (slelcted.HasComponent<SpriteRendererComponent>())
-            {
-                Renderer2D::BeginSceneQuade(mainCamera, viewMatrix);
-                SpriteRendererComponent spriteC = slelcted.GetComponent<SpriteRendererComponent>();
-                Renderer2D::DrawSprite(transformC.GetTransform(), spriteC, slelcted.GetEntityHandle());
-                Renderer2D::EndSceneQuade();
-            }
-            else  if (slelcted.HasComponent<GeomtryComponent>() && slelcted.HasComponent<MaterialComponent>())
-            {
-                Renderer3D::BeginScene(mainCamera, viewMatrix);
-                GeomtryComponent geomtryC = slelcted.GetComponent<GeomtryComponent>();
-                MaterialComponent materialC = slelcted.GetComponent<MaterialComponent>();
-                Ref<VertexArray> vertexArray = geomtryC.Geometry;
-                if (materialC.Shader != nullptr && vertexArray != nullptr)   
-                {
-                    Renderer3D::BeforDrawEntity(materialC, transformC.GetTransform(),(int)slelcted);
-                    Renderer3D::DrawObjectRender3D(vertexArray);
-                    Renderer3D::AfterDrawEntity(materialC);
-                }
-                Renderer3D::EndScene();
-            }
-        }
-      
-        m_SelectedFramebuffer->Unbind();
-    }
-
-    void EditorLayer::RenderHoveredEntity(Entity hovered)
-    {
-        m_HoveredFramebuffer->Bind();
-        RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-        RenderCommand::Clear();
-        Camera& mainCamera = (Camera)m_EditorCamera->GetProjektion();
-        glm::mat4 viewMatrix = m_EditorCamera->GetViewMatrix();
-        if (hovered != Entity() && hovered.HasComponent<TransformComponent>())
-        {
-            TransformComponent transformC = hovered.GetComponent<TransformComponent>();
-            if (hovered.HasComponent<SpriteRendererComponent>())
-            {
-                Renderer2D::BeginSceneQuade(mainCamera, viewMatrix);
-                SpriteRendererComponent spriteC = hovered.GetComponent<SpriteRendererComponent>();
-                Renderer2D::DrawSprite(transformC.GetTransform(), spriteC, hovered.GetEntityHandle());
-                Renderer2D::EndSceneQuade();
-            }
-            else  if (hovered.HasComponent<GeomtryComponent>() && hovered.HasComponent<MaterialComponent>())
-            {
-                Renderer3D::BeginScene(mainCamera, viewMatrix);
-                GeomtryComponent geomtryC = hovered.GetComponent<GeomtryComponent>();
-                MaterialComponent materialC = hovered.GetComponent<MaterialComponent>();
-                Ref<VertexArray> vertexArray = geomtryC.Geometry;
-                if (vertexArray != nullptr)
-                {
-                    Renderer3D::BeforDrawEntity(materialC, transformC.GetTransform(), (int)hovered);
-                    Renderer3D::DrawObjectRender3D(vertexArray);
-                    Renderer3D::AfterDrawEntity(materialC);
-                }
-                Renderer3D::EndScene();
-            }
-        }
-
-        m_HoveredFramebuffer->Unbind();
-    }
-
-    void EditorLayer::FinaleImgaeFilterEditor()
-    {
-        m_Filtering->Bind();
-        m_SelectedFramebuffer->BindColorAttachmentImage(Acces::Read, 0, 0);
-        m_Framebuffer->BindColorAttachmentImage(Acces::Read, 0, 1);
-        m_FinaleImage->BindImage(Acces::Write, 2);
-        RenderCommand::DispatcheCompute({ (m_ViewPortSize.x/32 )  , (m_ViewPortSize.y / 16)  , 1 });
-    }
-
-    void EditorLayer::ImGuiViewPortResize( ImVec2 vPSize)
-    {
-        if (m_ViewPortSize != *((glm::vec2*)&vPSize))
-        {
-            glm::vec<2, uint32_t> size = { vPSize.x , vPSize.y };
-            m_Framebuffer->Resize(size.x, size.y);
-            m_SelectedFramebuffer->Resize(size.x, size.y);
-            m_FinaleImage->Resize(size.x, size.y);
-            m_ViewPortSize = { vPSize.x, vPSize.y };
-            m_EditorCamera->SetViewportSize(vPSize.x, vPSize.y);
-            m_CameraController.OnResize((float)vPSize.x, (float)vPSize.y);
-
-            m_AktiveScene->OnViewportResize(size.x, size.y);
-        }
-    }
-#endif
 
     //--- Top Taskbar -------------
+#pragma region TopTaskBar
 
     void EditorLayer::ImGuiTopTaskBar()
     {
@@ -1822,11 +3087,7 @@ namespace Rynex {
         if (ImGui::BeginMenu("Script"))
         {
             if (ImGui::MenuItem("Reload assembly", "Ctrl+R"))
-#if RY_SCRIPTING_HAZEL
-                ScriptEngine::ReloadAssembly();
-#else
                 ScriptingEngine::ReloadAssambly();
-#endif
 
             ImGui::EndMenu();
         }
@@ -1870,4 +3131,6 @@ namespace Rynex {
         }
     }
 
+#pragma endregion
+   
 }

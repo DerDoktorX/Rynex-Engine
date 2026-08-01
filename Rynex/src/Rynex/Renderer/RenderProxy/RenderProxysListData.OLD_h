@@ -1,0 +1,141 @@
+#pragma once
+#include <Rynex/Memory/ThreadQueue.h>
+#include <Rynex/Renderer/API/ProtypeAPI.h>
+#include <Rynex/Renderer/RenderProxy/ProxyDrawCallGenarter.h>
+#include <Rynex/Renderer/RenderProxy/RenderProxyConectionEntity.h>
+#include <Rynex/Renderer/PiplineObjects/Batching/BatchManager.h>
+
+#define RY_PROCESS_ON_THREAD_MAIN
+#define RY_THREAD_QUEUE
+#define RY_RENDER_PROXY_VEC_CLASS
+
+namespace Rynex {
+	class ExecuteEvent;
+
+	class RenderProxysListData
+	{
+	private:
+		struct AddFuncArgs
+		{
+			AddFuncArgs() = delete;
+			AddFuncArgs(AddFuncArgs&&) = delete;
+			AddFuncArgs(const AddFuncArgs&) = default;
+
+			RenderProxy proxy;
+			glm::mat4 model;
+		};
+
+		struct UpdateFuncArgs
+		{
+			int entity;
+			uint32_t subMesh;
+			glm::mat4 model;
+
+			UpdateFuncArgs() = delete;
+			UpdateFuncArgs(UpdateFuncArgs&&) = delete;
+			UpdateFuncArgs(const UpdateFuncArgs&) = default;
+
+			UpdateFuncArgs(int entity, uint32_t subMesh, const glm::mat4& model)
+				: entity(entity)
+				, subMesh(subMesh)
+				, model(model)
+			{
+			}
+		};
+
+		struct RemoveFuncArgs
+		{
+			int entity;
+			uint32_t subMesh;
+			RemoveFuncArgs() = delete;
+			RemoveFuncArgs(RemoveFuncArgs&&) = delete;
+			RemoveFuncArgs(const RemoveFuncArgs&) = default;
+
+			RemoveFuncArgs(int entity, uint32_t subMesh)
+				: entity(entity)
+				, subMesh(subMesh)
+			{
+			}
+		};
+
+		struct RemoveFuncArgs2
+		{
+			int entity;
+			RemoveFuncArgs2() = delete;
+			RemoveFuncArgs2(RemoveFuncArgs2&&) = delete;
+			RemoveFuncArgs2(const RemoveFuncArgs2&) = default;
+
+			RemoveFuncArgs2(int entity)
+				: entity(entity)
+			{
+			}
+		};	
+
+		struct ThreadProcess
+		{
+			RenderProxySortedIndicesVec renderProxySortedIndicesVec;
+			RenderProxySortedProxyVec renderProxyArrayVec;
+			Memory::ThreadQueueVarients<AddFuncArgs, UpdateFuncArgs, RemoveFuncArgs2> m_ThreadQueue;
+		};
+	public:
+		RenderProxysListData();
+		~RenderProxysListData();
+
+		void Clear();
+
+		void Add(int entity, uint32_t subMesh, const Ref<MeshSingle>& mesh, const Ref<Material>& materiel, const glm::mat4& model);
+		void UpdateTrasform(int entity, const glm::mat4& model);
+		void UpdateTrasform(int entity, uint32_t subMesh, const glm::mat4& model);
+
+		void Remove(int entity);
+		bool HasEntity(int entity)const;
+
+		void EventCallback();
+
+		bool HasChangedMain() const { return m_HasChagedMain; }
+		bool HasChangedCurent() const { return m_HasChagedCurent; }
+#if defined(RY_PROCESS_ON_THREAD_MAIN) && defined(RY_USE_SORTED_PROXY_LIST)
+		RenderProxySortedProxyVec& GetRenderProxyVec() { return m_RenderProxyVec; }
+#else
+		RenderProxySortedIndicesVec GetRenderProxyVec() { return m_RenderProxyVec; }
+#endif
+		void ResetChangedMain() { m_HasChagedMain = false; }
+		void ResetChangedCurent() { m_HasChagedCurent = false; }
+
+		bool CheckProxyFromIndex(uint32_t proxyIndex, uint32_t proxyCount, ProxyDrawCallGenarter& drawCallGenrater);
+	private:
+		void Remove(int entity, uint32_t subMesh);
+
+		uint32_t AddProxy(const RenderProxy& proxy, const glm::mat4& matrix);
+		void UpdateProxyTransform(int entity, uint32_t subMesh, uint32_t proxyIndex, const glm::mat4& matrix);
+		void RemoveProxy(int entity, uint32_t subMesh, uint32_t proxyIndex);
+
+
+		void ResetEventWaitingTimer();
+		void EventThreadFunc();
+	private:
+		int64_t m_EventWaitingTimer;
+#if defined(RY_PROCESS_ON_THREAD_MAIN) && defined(RY_USE_SORTED_PROXY_LIST)
+		RenderProxySortedProxyVec m_RenderProxyVec;
+#elif defined(RY_PROCESS_ON_THREAD_MAIN) && !defined(RY_USE_SORTED_PROXY_LIST)
+		RenderProxySortedIndicesVec m_RenderProxyVec;
+#elif !defined(RY_PROCESS_ON_THREAD_MAIN) && defined(RY_USE_SORTED_PROXY_LIST)
+		RenderProxySortedProxyVec m_RenderProxyArrayVec[2];
+		RenderProxySortedProxyVec* m_RenderProxyVecPtr;
+		std::thread m_EventProxyProccesThread;
+#else	
+		RenderProxySortedIndicesVec m_RenderProxyArrayVec[2];
+		RenderProxySortedIndicesVec* m_RenderProxyVecPtr;
+		std::thread m_EventProxyProccesThread;
+#endif
+
+		RenderProxyConectionEntity m_RenderProxyMapEntity;
+		Memory::ThreadQueueVarients<AddFuncArgs, UpdateFuncArgs, RemoveFuncArgs2> m_ThreadQueue;
+
+		bool m_HasChagedMain;
+		bool m_HasChagedCurent;
+	private:
+		friend ExecuteEvent;
+	};
+
+}

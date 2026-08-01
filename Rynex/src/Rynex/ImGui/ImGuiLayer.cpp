@@ -4,14 +4,18 @@
 #include "Rynex/Core/Application.h"
 
 #include <imgui.h>
+#include <implot.h>
 #include <ImGuizmo.h>
+
 #define IMGUI_IMPL_API
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
-//TEMPORARY
- #include <GLFW/glfw3.h>
-// #include <glad/glad.h>
+
+
+// TEMPORARY
+#include <GLFW/glfw3.h>
+
 
 
 
@@ -31,6 +35,7 @@ namespace Rynex {
         RY_PROFILE_FUNCTION();
         IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
+        ImPlot::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -67,6 +72,7 @@ namespace Rynex {
         RY_PROFILE_FUNCTION();
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
+        ImPlot::DestroyContext();
         ImGui::DestroyContext();
 	}
 
@@ -80,25 +86,25 @@ namespace Rynex {
         }
     }
 
-	//void ImGuiLayer::OnUpdate()
-	//{
-    //    ImGuiIO& io = ImGui::GetIO();
-    //    Application& app = Application::Get();
-    //    io.DisplaySize = ImVec2(app.GetWindow().GetWidth(), app.GetWindow().GetHeight());
-    //
-    //    float time = (float)glfwGetTime();
-    //    io.DeltaTime = m_Time > 0.0f ? (time - m_Time) : (1.0f /60.0f) ;
-    //    m_Time = time;
-    //
-    //    ImGui_ImplOpenGL3_NewFrame();
-    //    ImGui::NewFrame();
-    //
-    //    static bool show = true;
-    //    ImGui::ShowDemoWindow(&show);
-    //
-    //    ImGui::Render();
-    //    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	//}
+	// void ImGuiLayer::OnUpdate()
+	// {
+    //     ImGuiIO& io = ImGui::GetIO();
+    //     Application& app = Application::Get();
+    //     io.DisplaySize = ImVec2(app.GetWindow().GetWidth(), app.GetWindow().GetHeight());
+    // 
+    //     float time = (float)glfwGetTime();
+    //     io.DeltaTime = m_Time > 0.0f ? (time - m_Time) : (1.0f /60.0f) ;
+    //     m_Time = time;
+    // 
+    //     ImGui_ImplOpenGL3_NewFrame();
+    //     ImGui::NewFrame();
+    // 
+    //     static bool show = true;
+    //     ImGui::ShowDemoWindow(&show);
+    // 
+    //     ImGui::Render();
+    //     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	// }
 
     void ImGuiLayer::Begin()
     {
@@ -116,6 +122,8 @@ namespace Rynex {
 
         //Rendering
         ImGui::Render();
+        
+
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -125,7 +133,7 @@ namespace Rynex {
             ImGui::RenderPlatformWindowsDefault();
             glfwMakeContextCurrent(backup_current_context);
         }
-       
+        
     }
 
     void ImGuiLayer::SetDarkThemeColore()
@@ -167,8 +175,13 @@ namespace Rynex {
     void ImGuiLayer::OnImGuiRender()
     {
 #if RY_IMGUI_DEMO_WINDOW
-        static bool show = true;
-        ImGui::ShowDemoWindow(&show);
+        static bool showGui = true;
+        ImGui::ShowDemoWindow(&showGui);
+#endif // RY_IMGUI_DEMO_WINDOW
+
+#if RY_IMPLOT_DEMO_WINDOW
+        static bool showPlot = true;
+        ImPlot::ShowDemoWindow(&showPlot);
 #endif // RY_IMGUI_DEMO_WINDOW
     }
 

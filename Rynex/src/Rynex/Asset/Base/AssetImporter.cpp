@@ -2,26 +2,23 @@
 #include "AssetImporter.h"
 #include "Asset.h"
 
-#include "Rynex/Asset/Import/TextureImporter.h"
-#include "Rynex/Asset/Import/FramebufferImporter.h"
-#include "Rynex/Asset/Import/SceneImporter.h"
-#include "Rynex/Asset/Import/ShaderImporter.h"
-#include "Rynex/Asset/Import/VertexArrayImporter.h"
-#include "Rynex/Asset/Import/ModelImporter.h"
+#include <Rynex/Asset/Import/TextureImporter.h>
+#include <Rynex/Asset/Import/SceneImporter.h>
+#include <Rynex/Asset/Import/ShaderImporter.h>
+#include <Rynex/Asset/Import/ModelImporter.h>
+#include <Rynex/Asset/Import/MeshImporter.h>
 
 namespace Rynex {
 
-	using AssetsImportFunction = std::function <Ref<Asset>(AssetHandle, const AssetMetadata, bool)>;
+	using AssetsImportFunction = std::function <Ref<Asset>(AssetHandle, const AssetMetadata)>;
 
 	static std::map<AssetType, AssetsImportFunction> s_AssetsImportFuncs = {
 		{ AssetType::Texture2D, TextureImporter::ImportTexture },
 		{ AssetType::Texture, TextureImporter::ImportTexture },
 		{ AssetType::Shader, ShaderImporter::ImportShader },
 		{ AssetType::Scene, SceneImporter::ImportScene },
-		{ AssetType::Framebuffer, FramebufferImporter::ImportFramebuffer },
-		{ AssetType::VertexArray, VertexArrayImporter::ImportVertexArray },
-		{ AssetType::Model, ModelImporter::ImportModel }
-
+		{ AssetType::MeshSource, ModelImporter::ImportModel },
+		{ AssetType::MeshStatic, MeshImporter::ImportMesh }
 	};
 
 #if RY_EDITOR_ASSETMANGER_THREADE  ? 0:0
@@ -37,33 +34,42 @@ namespace Rynex {
 	};
 #endif
 
-	using AssetsReloadingFunction = std::function <void(AssetHandle, const std::filesystem::path, bool)>;
+	using AssetsReloadingFunction = std::function <bool(AssetHandle, const std::filesystem::path)>;
 
 	static std::map<AssetType, AssetsReloadingFunction> s_AssetsReloadeFuncs = {
 		{ AssetType::Texture2D, TextureImporter::ReLoadeTexture },
 		{ AssetType::Texture, TextureImporter::ReLoadeTexture },
 		{ AssetType::Shader, ShaderImporter::ReLoadeShader },
 		{ AssetType::Scene, SceneImporter::ReLoadingScene },
-		{ AssetType::Framebuffer, FramebufferImporter::ReLoadingFramebuffer },
-		{ AssetType::VertexArray, VertexArrayImporter::ReLoadeVertexArray },
-		{ AssetType::Model, ModelImporter::ReLoadeModel }
-
+		{ AssetType::Model, ModelImporter::ReLoadeModel },
+		{ AssetType::MeshSource , ModelImporter::ReLoadeModel },
+		{ AssetType::MeshStatic, MeshImporter::ReLoadeMesh }
 	};
 	
 	
-	Ref<Asset> AssetImporter::ImportAsset(AssetHandle handle, const AssetMetadata& metadata, bool async)
+	Ref<Asset> AssetImporter::ImportAsset(AssetHandle handle, const AssetMetadata& metadata)
 	{		
-		return s_AssetsImportFuncs.at(metadata.Type)(handle, metadata, async);
+		RY_LOG_DISABLE_NUMBER;
+
+		return s_AssetsImportFuncs.at(metadata.Type)(handle, metadata);
+
+		RY_LOG_ENABLE_NUMBER;
+
 	}
-#if RY_EDITOR_ASSETMANGER_THREADE ? 0:0
+#if RY_EDITOR_ASSETMANGER_THREADE ? 0 : 0
 	Ref<Asset> AssetImporter::ImportAssetAsync(AssetHandle handle, const AssetMetadata& metadata)
 	{
 		return s_AssetsAsyncImportFuncs.at(metadata.Type)(handle, metadata);
 	}
 #endif
-	void AssetImporter::ReLoadeAsset(AssetHandle handle, const AssetMetadata& metadata, bool async)
+	bool AssetImporter::ReLoadeAsset(AssetHandle handle, const AssetMetadata& metadata)
 	{
-		s_AssetsReloadeFuncs.at(metadata.Type)(handle, metadata.FilePath.generic_string(), async);
+		RY_LOG_DISABLE_NUMBER;
+
+		bool result = s_AssetsReloadeFuncs.at(metadata.Type)(handle, metadata.AbsolutePath);
+	
+		RY_LOG_ENABLE_NUMBER;
+		return result;
 	}
 
 	

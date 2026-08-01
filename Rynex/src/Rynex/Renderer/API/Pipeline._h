@@ -1,0 +1,38 @@
+#pragma once
+#include <Rynex/Renderer/API/Shader.h>
+#include <Rynex/Renderer/API/VertexArray.h>
+
+namespace Rynex {
+
+	class PipelineGPU
+	{
+	public:
+		void SetShader(const Ref<Shader>& shader);
+		const Ref<Shader>& GetShader() const;
+
+		void SetBindPoint(uint32_t slot, Weak<>)
+	};
+
+	class PipelineListGPU
+	{
+	public:
+		struct PipelineConfig
+		{
+			uint32_t Task;
+		};
+	public:
+		void AddPipeline(const Weak<PipelineGPU>& gpuPipeline, );
+		void RemovePipeline(const Weak<PipelineGPU>& gpuPipeline, uint32_t taskKatigorie);
+
+		void ExexuteTasks();
+
+
+		void SetPipelines(const std::vector<Weak<PipelineGPU>>& Pipelines) const;
+		const std::vector<Weak<PipelineGPU>>& GetPipelines() const;
+		
+		void ClearPipelines();
+
+		void SetFrameBuffer(const Ref<Framebuffer>& fb);
+		const Ref<Framebuffer>& GetFrameBuffer()const;
+	};
+}

@@ -26,17 +26,30 @@ namespace Rynex {
 		generator.setAttributes(attributes);
 		generator.setThreadCount(8);
 		generator.generate(glyphs.data(), (int)glyphs.size());
-
+		
 		msdfgen::BitmapConstRef<T, N> bitmap = (msdfgen::BitmapConstRef<T, N>)generator.atlasStorage();
 
+	
+		uint32_t widthUint = static_cast<uint32_t>(bitmap.width);
+		uint32_t heightUint = static_cast<uint32_t>(bitmap.height);
+		uint32_t uintSize = sizeof(T);
+		uint32_t bytesSize = uintSize * widthUint * heightUint * 3u;
+		T* dataTypePtr = const_cast<T*>(bitmap.pixels);
+		void* dataPtr = reinterpret_cast<void*>(dataTypePtr);
+
 		TextureSpecification spec;
-		spec.Width = bitmap.width;
-		spec.Height = bitmap.height;
+		spec.Width = widthUint;
+		spec.Height = heightUint;
+		spec.Depth = 1u;
 		spec.Format = TextureFormat::RGB8;
 		spec.GenerateMips = false;
 		spec.FilteringMode = TextureFilteringMode::Linear;
 		spec.Target = TextureTarget::Texture2D;
-		Ref<Texture> texture = Texture::Create(spec, (void*)bitmap.pixels, bitmap.width * bitmap.height * 3);
+		// Ref<Texture> texture = Texture::Create(spec, (void*)bitmap.pixels, bitmap.width * bitmap.height * 3);
+
+		Ref<Texture> texture = Texture::Create(spec, dataPtr, bytesSize);
+		texture->SetData(dataPtr, bytesSize);
+
 		return texture;
 	}
 #endif
@@ -108,7 +121,7 @@ namespace Rynex {
 		double emSize = 40.0;
 
 		msdf_atlas::TightAtlasPacker atlasPacker;
-		// atlasPacker.setDimensionsConstraint()
+		// atlasPacker.setDimensionsConstraint();
 		atlasPacker.setPixelRange(2.0);
 		atlasPacker.setMiterLimit(1.0);
 		atlasPacker.setPadding(0);
@@ -175,13 +188,19 @@ namespace Rynex {
 		delete m_Data;
 	}
 
-	Ref<Font> Font::GetDefault()
+	void Font::ResetDefault()
 	{
-		static Ref<Font> DefaultFont;
-		if (!DefaultFont)
-			DefaultFont = CreateRef<Font>("../Rynex-Editor/Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf");
+		m_Default.reset();
+		m_Default = nullptr;
+	}
 
-		return DefaultFont;
+	Ref<Font> Font::GetDefault()
+	{		
+		
+		if (!m_Default)
+			m_Default = CreateRef<Font>("../Rynex-Editor/Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf");
+
+		return m_Default;
 	}
 
 }

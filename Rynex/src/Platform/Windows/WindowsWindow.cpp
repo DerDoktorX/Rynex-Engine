@@ -8,6 +8,7 @@
 
 #include "Platform/OpenGL/OpenGLContext.h"
 #include "Platform/OpenGL/OpenGLThreadContext.h"
+
 //#include <glad/glad.h>
 
 
@@ -37,6 +38,9 @@ namespace Rynex {
 
 	WindowsWindow::~WindowsWindow()
 	{
+		Shutdown();
+
+		
 	}
 
 	Ref<ThreadContext> WindowsWindow::CreateThreadeContext()
@@ -72,6 +76,9 @@ namespace Rynex {
 		m_Data.Title += { " Dist Mode" };
 #elif RY_REALSE
 		m_Data.Title += { " Realse Mode" };
+#endif
+#if RY_ENABLE_GARFIC_API_DBUGE_MASSEGES
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #endif
 
 		m_Window = glfwCreateWindow((int)m_Data.Width, (int)m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
@@ -235,6 +242,8 @@ namespace Rynex {
 #endif
 				data.EventCallback(event);
 			});
+
+		
 		
 		RY_CORE_INFO("WindowsWindow::Init Succese!");
 
@@ -242,13 +251,38 @@ namespace Rynex {
 
 	void WindowsWindow::Shutdown()
 	{
+
+#if 1
+		if(m_Context->GetMemoryUsage() != 0)
+			RY_CORE_FATAL("Not Deltet Buffer! {} KB", m_Context->GetMemoryUsage());
+#else
+
+		for (int x = 30; x >= 0; x--)
+		{
+			RY_CORE_TRACE("Shut Down in {}s", x);
+			OnSreenRefresh();
+
+			using namespace std::chrono_literals;
+			std::this_thread::sleep_for(0.975s);
+
+		}
+		RY_CORE_INFO("By By");
+
+#endif
+		RY_DESTROY_REF(m_Context);
 		glfwDestroyWindow(m_Window);
-		m_Context.reset();
+		
 	}
 
 	void WindowsWindow::OnUpdate()
 	{
+		Ref<PlatformTimer> timer = PlatformTimer::Create(&m_UpdateScreeTime);
 		glfwPollEvents();
+		m_Context->SwapBuffers();
+	}
+
+	void WindowsWindow::OnSreenRefresh()
+	{
 		m_Context->SwapBuffers();
 	}
 

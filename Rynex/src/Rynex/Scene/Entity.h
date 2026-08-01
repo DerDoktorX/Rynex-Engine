@@ -4,6 +4,7 @@
 #include "Components.h"
 
 #include <entt.hpp>
+#include <Rynex/Renderer/Rendering/Render3D/Renderer3D.h>
 
 namespace Rynex {
 
@@ -27,48 +28,217 @@ namespace Rynex {
 		T& AddComponent(Args&&... args)
 		{
 			RY_CORE_ASSERT(!HasComponent<T>(), "Entity arlead has that component!");
-			T& component = m_Scene->m_Registery.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
-			m_Scene->OnComponentAdded<T>(*this, component);
+			Ref<Scene> scene = m_Scene.lock();
+			T& component = scene->m_Registery.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+			scene->OnComponentAdded<T>(*this, component);
 			return component;
 		}
+		
+		template<typename T, typename... Args>
+		T& AddOrReplaceComponent(Args&&... args)
+		{
+			Ref<Scene> scene = m_Scene.lock();
+			T& component = scene->m_Registery.emplace_or_replace<T>( m_EntityHandle, std::forward<Args>(args)...);
+			
+			scene->OnComponentAdded<T>(*this, component);
+			return component;
+			
+		}
+
+		template<typename T>
+		void LockComponent()
+		{
+			
+		}
+
+		template<typename T>
+		void UnlockComponent()
+		{
+
+		}
+
+		
 
 		Entity AddChildrenEntity(const std::string& name = std::string(""));
+		Entity CopyEntity();
 
 		void DestroyEntity();
 		void DestroyEntityChildrens();
+		void CopyChildres(Entity e);
+		
+		template<typename T>
+		void UpdateComponent(const T& comp)
+		{
+			RY_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
+			Ref<Scene> scene = m_Scene.lock();
+			scene->m_Registery.replace<T>(m_EntityHandle, comp);
+		}
 
 		template<typename T>
 		T& GetComponent()
 		{
 			RY_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
-			return m_Scene->m_Registery.get<T>(m_EntityHandle);
+			Ref<Scene> scene = m_Scene.lock();
+			return scene->m_Registery.get<T>(m_EntityHandle);
 		};
 
 		template<typename T>
-		bool HasComponent()
-		{
-			return m_Scene->m_Registery.has<T>(m_EntityHandle);
-		};
-
-		template<typename T>
-		void RemoveComponent()
+		const T& GetComponentC() const
 		{
 			RY_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
-			m_Scene->m_Registery.remove<T>(m_EntityHandle);
+			Ref<Scene> scene = m_Scene.lock();
+			return scene->m_Registery.get<T>(m_EntityHandle);
 		};
 
-		operator bool() { return m_EntityHandle != entt::null && m_Scene != nullptr && m_Scene->m_Registery.alive() && m_Scene->m_Registery.valid(m_EntityHandle); };
+		template<typename T, typename N>
+		static void OnAssetLoded(Ref<N> asset, Ref<Scene> scene, int entityID);
+
+		template<typename T>
+		bool HasComponent() const
+		{
+			Ref<Scene> scene = m_Scene.lock();
+			return scene->m_Registery.has<T>(m_EntityHandle);
+		};
+
+		template<typename T>
+		void RemoveComponent();
+
+		bool IsVisbble() const
+		{
+			const VisibleComponent& visbelC = GetComponentC<VisibleComponent>();
+			bool visble = visbelC.isVisable;
+			return visble;
+		}
+
+		void SetVisable(bool state)
+		{
+			VisibleComponent& visbelC = GetComponent<VisibleComponent>();
+			if (visbelC.isVisable != state) 
+			{
+				int entityHandle = GetEntityHandle();
+				RY_CORE_INFO("Entity({}) has viblity changed from {} to {}!", entityHandle, visbelC.isVisable, state);
+			}
+			visbelC.isVisable = state;
+			
+		}
+
+		// template<>
+		// void RemoveComponent<StaticMeshComponent>();
+
+#if RY_EVENT_RENDER_UPDATE
+		template<>
+		void RemoveComponent<ModelMatrixComponent>()
+		{
+			RY_CORE_ASSERT(HasComponent<ModelMatrixComponent>(), "Entity does not have component!");
+			if (HasComponent<ModelMangerComponent>() || HasComponent<DynamicMeshComponent>())
+				m_Scene->m_RemoveList.emplace_back<int>(int(m_EntityHandle));
+			m_Scene->m_Registery.remove<ModelMatrixComponent>(m_EntityHandle);
+		};
+
+		template<>
+		void RemoveComponent<ModelMangerComponent>()
+		{
+			RY_CORE_ASSERT(HasComponent<ModelMangerComponent>(), "Entity does not have component!");
+			if (HasComponent<ModelMatrixComponent>())
+				m_Scene->m_RemoveList.emplace_back<int>(int(m_EntityHandle));
+			m_Scene->m_Registery.remove<ModelMangerComponent>(m_EntityHandle);
+		};
+
+
+		template<>
+		void RemoveComponent<DynamicMeshComponent>()
+		{
+			RY_CORE_ASSERT(HasComponent<DynamicMeshComponent>(), "Entity does not have component!");
+			if (HasComponent<ModelMatrixComponent>())
+				m_Scene->m_RemoveList.emplace_back<int>(int(m_EntityHandle));
+			m_Scene->m_Registery.remove<DynamicMeshComponent>(m_EntityHandle);
+		};
+#endif
+
+		operator bool() { return IsVaild(); }
 		operator entt::entity() const { return m_EntityHandle; }
-		operator uint32_t() const { return (uint32_t)m_EntityHandle; }
+		// operator uint32_t() const { return (uint32_t)m_EntityHandle; }
+		
+		
+
+		bool IsVaild() const 
+		{ 
+			Ref<Scene> scene = m_Scene.lock();
+			bool result = entt::null != m_EntityHandle && nullptr != scene && scene->m_Registery.valid(m_EntityHandle);
+			return result;
+		}
+
+		bool IsNotVaild() const
+		{
+			Ref<Scene> scene = m_Scene.lock();
+			bool result = (entt::null == m_EntityHandle || nullptr == scene || !scene->m_Registery.valid(m_EntityHandle));
+			return result;
+		}
+
+		uint32_t GetEntityIndexHandle() const
+		{
+			uint32_t uEnitityID = entt::to_integral(m_EntityHandle);
+			return uEnitityID;
+		}
+		int GetEntityHandle() const 
+		{ 
+			uint32_t uEnitityID = GetEntityIndexHandle();
+			int enitityID = static_cast<int>(uEnitityID);
+			return enitityID;
+		}
+		entt::entity GetDefaultEntityHandle() const { return m_EntityHandle; }
+
+		
+#ifdef RY_COMPONENT_RELATION_SHIPS_BASED_UUID
+		UUID GetParentID() const { return GetComponentC<RealtionShipUUIDComponent>().parent; }
+#else
+		UUID GetParentID() const 
+		{ 
+			Entity parentE( 
+				this->GetComponentC<RealtionShipComponent>().parent, 
+				GetScene().get()
+			); 
+			return parentE.GetUUID();
+		}
+#endif
+		Entity GetParentEntity() const
+		{ 
+			if (UUID idParent = GetParentID())
+				return GetScene()->GetEntitiyByUUID(idParent);
+			return Entity();
+		}
+		
+#ifdef RY_COMPONENT_RELATION_SHIPS_BASED_UUID
+		std::vector<UUID>& GetChildrens() 
+		{ 
+			return GetComponent<RealtionShipUUIDComponent>().childrens; 
+		}
+
+		bool RemoveFromChildrens(Entity e);
+		bool AddToChildrens(Entity e);
+#else
+		std::vector<UUID> GetChildrens()
+		{
+			return GetComponent<RealtionShipUUIDComponent>().childrens;
+		}
+#endif
 
 		UUID GetUUID() { return GetComponent<IDComponent>().ID; }
-		int GetEntityHandle() const { return (int)m_EntityHandle; }
 		std::string GetTagName() { return GetComponent<TagComponent>().Tag; }
 		void UpdateMatrix();
+		void UpdateAutoMatrix();
+		
+		void UpadteTransformFromMatrix();
+		void UpdateMatrixFromTransform();
+		void ExecuteOnChildrens(const std::function<void(Entity e)>& func);
+
+		template<typename T, typename N>
+		void SetLodedAsset(Ref<N> asset);
 
 		bool operator==(const Entity& other) const
 		{
-			return m_EntityHandle == other.m_EntityHandle && m_Scene == other.m_Scene;
+			Ref<Scene> scene = m_Scene.lock();
+			return m_EntityHandle == other.m_EntityHandle && scene == other.GetScene();
 		}
 
 		bool operator!=(const Entity& other) const
@@ -79,17 +249,154 @@ namespace Rynex {
 		State GetState() const { return m_State; }
 		void SetState(State state) { m_State = state; }
 		
-		const Scene const* GetScene() const;
+		const Scene *const GetScenePtr() const;
+		Ref<Scene> GetScene() const;
 
 		bool IsInSceneCameraEntityViewFustrum()
 		{
-			return m_Scene->IsCameraEntityViewFustrum(); 
+			Ref<Scene> scene = m_Scene.lock();
+			return scene->IsCameraEntityViewFustrum();
 		}
+	
+
 	private:
+		Weak<Scene> m_Scene;
 		entt::entity m_EntityHandle{ entt::null };
-		Scene* m_Scene = nullptr;
 		State m_State = State::None;
+	private:
+#if 0
+		friend bool operator==(const Entity& e, uint32_t handle);
+		friend bool operator!=(const Entity& e, uint32_t handle);
+		friend bool operator==(uint32_t handle, const Entity& e);
+		friend bool operator!=(uint32_t handle, const Entity& e);
+#elif 0
+		friend bool operator==(const Entity& e, int handle);
+		friend bool operator!=(const Entity& e, int handle);
+		friend bool operator==(int handle, const Entity& e);
+		friend bool operator!=(int handle, const Entity& e);
+#endif
 	};
+#if 0
+
+	bool operator==(const Entity& e, uint32_t handle)
+	{
+		bool r = e.m_EntityHandle == static_cast<entt::entity>(handle);
+		return r;
+	}
+	bool operator!=(const Entity& e, uint32_t handle)
+	{
+		bool r = e.m_EntityHandle != static_cast<entt::entity>(handle);
+		return r;
+	}
+	bool operator==(uint32_t handle, const Entity& e)
+	{
+		bool r = static_cast<entt::entity>(handle) == e.m_EntityHandle;
+		return r;
+	}
+	bool operator!=(uint32_t handle, const Entity& e)
+	{
+		bool r = static_cast<entt::entity>(handle) != e.m_EntityHandle;
+		return r;
+	}
+#elif 0
+	bool operator==(const Entity& e, int handle)
+	{
+		bool r = e.m_EntityHandle == static_cast<entt::entity>(handle);
+		return r;
+	}
+	bool operator!=(const Entity& e, int handle)
+	{
+		bool r = e.m_EntityHandle != static_cast<entt::entity>(handle);
+		return r;
+	}
+	bool operator==(int handle, const Entity& e)
+	{
+		bool r = static_cast<entt::entity>(handle) == e.m_EntityHandle;
+		return r;
+	}
+	bool operator!=(int handle, const Entity& e)
+	{
+		bool r = static_cast<entt::entity>(handle) != e.m_EntityHandle;
+		return r;
+	}
+#endif
+
+
+	template<typename T, typename N>
+	void Entity::OnAssetLoded(Ref<N> asset, Ref<Scene> scene, int entityID)
+	{
+#if 0
+		if (!Asset::CurrentOnMainThread())
+		{
+			std::function<void()> func = std::bind(&Entity::OnAssetLoded<T, N>, asset, scene, entityID);
+			Application::Get().SubmiteToMainThreedQueue(func);
+			return;
+		}
+#endif
+		entt::entity enttEntityID = entt::entity(entityID);
+		Entity entity = Entity(enttEntityID, scene.get() );
+
+		if (!entity)
+			return;
+
+		if (!entity.HasComponent<T>())
+			return;
+
+		entity.SetLodedAsset<T, N>(asset);
+	}
+
+	template<typename T>
+	void Entity::RemoveComponent()
+	{
+		RY_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
+		Ref<Scene> scene = m_Scene.lock();
+		scene->m_Registery.remove<T>(m_EntityHandle);
+	}
+
+
+	template<typename T, typename N>
+	void Entity::SetLodedAsset(Ref<N> asset)
+	{
+		static_cast(false, "not set types");
+	}
+	
+	template<>
+	inline void Entity::SetLodedAsset<SpriteRendererComponent, Texture>(Ref<Texture> asset)
+	{
+		SpriteRendererComponent& componet = GetComponent<SpriteRendererComponent>();
+		componet.Texture = asset;
+		UpdateComponent(componet);
+	}
+
+	
+
+	template<>
+	inline void Entity::SetLodedAsset<ModelMangerComponent, MeshStatic>(Ref<MeshStatic> asset)
+	{
+		ModelMangerComponent& componet = GetComponent<ModelMangerComponent>();
+		componet.meshStatic = asset;
+		componet.rendereStoreIndexVec2.clear();
+#if RY_DISABLE_FLAT_2D_VEC
+		componet.objectRendereIndexPiplineVec2.clear();
+#else
+		componet.objectRendereIndexPiplineVec2.Clear();
+#endif
+		componet.singleMeshes.clear();
+
+		if(Ref<Scene> scene = m_Scene.lock())
+		{
+#if 0
+			for (const UUID& id : componet.singleMeshes)
+			{
+				Entity& e = scene->GetEntitiyByUUID(id);
+				e.DestroyEntity();
+			}
+			componet.singleMeshes.clear();
+#endif
+		}
+		UpdateComponent(componet);		
+
+	}
 
 }
 

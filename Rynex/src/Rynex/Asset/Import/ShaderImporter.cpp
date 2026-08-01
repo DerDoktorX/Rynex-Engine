@@ -5,30 +5,52 @@
 
 namespace Rynex {
 
-    Ref<Shader> ShaderImporter::ImportShader(AssetHandle handle, const AssetMetadata& metadata, bool async)
+    Ref<Shader> ShaderImporter::ImportShader(AssetHandle handle, const AssetMetadata& metadata)
     {
-        //CreateRef<Shader>()
-		return LoadShader(metadata.FilePath, metadata.Name, async);
+#if 0
+		std::filesystem::path filePath = (Project::GetActiveProjectDirectory() / metadata.FilePath).string();
+#else
+		std::filesystem::path filePath = metadata.AbsolutePath;
+#endif
+		return LoadShader(filePath, metadata.Name);
     }
 
-	Ref<Shader> ShaderImporter::LoadShader(const std::filesystem::path& path, const std::string& name, bool async)
+	Ref<Shader> ShaderImporter::LoadShader(const std::filesystem::path& path, const std::string& name)
 	{
 		std::string result;
-		std::ifstream in(path, std::ios::in, std::ios::binary);
-		if (in)
-		{
-			in.seekg(0, std::ios::end);
-			result.resize(in.tellg());
-			in.seekg(0, std::ios::beg);
-			in.read(&result[0], result.size());
-			in.close();
-			RY_CORE_INFO("Sucesfull open and close file'{0}'! (LoadShader)", path.string());
+		try
+		{		
+			std::ifstream in(path, std::ios::in, std::ios::binary);
+
+			if (in)
+			{
+				in.seekg(0, std::ios::end);
+				uint32_t sizeByte = in.tellg();
+				RY_CORE_ASSERT(sizeByte != 0, "File Found But Empty!");
+				result.resize(sizeByte);
+				in.seekg(0, std::ios::beg);
+				in.read(&result[0], result.size());
+				in.close();
+				RY_CORE_INFO("Sucesfull open and close file'{0}'! (LoadShader)", path.string());
+
+			}
+			else
+			{
+				RY_CORE_ERROR("Coud not open file '{0}' filepath. (LoadShader)", path.string());
+				return nullptr;
+			}
 		}
-		else
-		{
-			RY_CORE_ERROR("Coud not open file '{0}' filepath. (LoadShader)", path.string());
+		catch (const std::ios_base::failure& e) {
+			RY_CORE_FATAL("Exception caught: {}", e.what());
 			return nullptr;
 		}
+		catch (std::exception e)
+		{
+			RY_CORE_FATAL("Exception caught: {}", e.what());
+			return nullptr;
+		}
+
+		RY_CORE_ASSERT(!result.empty(), "File Found But Empty!");
 		Ref<Shader> shader;
 
 		shader = Shader::CreateAsync(std::move(result));
@@ -36,7 +58,7 @@ namespace Rynex {
 		return shader;
 	}
 
-	void ShaderImporter::ReLoadeShader(AssetHandle handle, const std::filesystem::path& path, bool async)
+	bool ShaderImporter::ReLoadeShader(AssetHandle handle, const std::filesystem::path& path)
 	{
 		RY_CORE_WARN("In Dev Funktion: ReLoadeShader!");
 		
@@ -67,20 +89,22 @@ namespace Rynex {
 				if(in.bad())
 					RY_CORE_FATAL("Read/write error on i/o operation '{}'", mes);
 				RY_CORE_ERROR("Coud not open file '{0}' filepath. (ReLoadeShader)  Error Flage: {1}", path.string(), in.rdstate());
-				return;
+				return false;
 			}
 		}
 		catch (const std::ios_base::failure& e) {
 			RY_CORE_FATAL("Exception caught: {}", e.what());
-			return;
+			return false;
 		}
 		catch (std::exception e)
 		{
 			RY_CORE_FATAL("Exception caught: {}", e.what());
-			return;
+			return false;
 		}
 		Ref<Shader> shader = AssetManager::GetAsset<Shader>(handle);
 		shader->ReganrateShader(std::move(result));
+		return true;
+
 	}
 
 }

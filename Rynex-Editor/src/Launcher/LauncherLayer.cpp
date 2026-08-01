@@ -161,7 +161,7 @@ namespace Rynex {
 			m_ProjectPath = FileDialoges::SelectFolder();
 		else
 		{
-			std::filesystem::path filepath = FileDialoges::OpenFile("Rynex Project (*.rproj)\0*.rproj\0");
+			std::filesystem::path filepath = FileDialoges::OpenFile("Rynex Project (*.ryproj)\0*.ryproj\0");
 			m_ProjectPath = filepath.parent_path().string();
 			m_ProjectName = filepath.filename().string();
 		}
@@ -188,7 +188,7 @@ namespace Rynex {
 			
 			return;
 		}
-		Application::Get().SubmiteToMainThreedQueue([&]() {
+		Application::Get().SubmiteToMainThreedQueue([this]() {
 
 			ApplicationSpecification& spec = Application::Get().GetSpecification();
 			std::string path = m_ProjectPath + "\\" + m_ProjectName;
@@ -206,7 +206,7 @@ namespace Rynex {
 			
 			return;
 		}
-		Application::Get().SubmiteToMainThreedQueue([&](){
+		Application::Get().SubmiteToMainThreedQueue([this](){
 			
 
 			Ref<Project> project = Project::GetActive()->CreatNewPorject(m_ProjectPath, m_ProjectName);

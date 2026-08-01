@@ -1,15 +1,24 @@
 include "./vendor/bin/premake/premake_customization/solution_items.lua"
 
-workspace "Rynex-Engine"
+workspace "Rynex-Rendering"
 	architecture "x86_64"
 	startproject "Rynex-Editor"
 	--startproject "Sandbox"
+
+	-- BuildProjectConf = "Static"
+	-- BuildProjectConf = "Static2Lib"
+	-- BuildProjectConf = "StaticLib"
+	BuildProjectConf = "Static2"
+	-- libraryWarnig = "off"
+	libraryWarnig = "on"
+	-- BuildProjectConf = "Dynamic"
 
 	configurations 
 	{ 
 		"Debug", 
 		"Release",
 		"Dist"
+		-- "Preprocess_SourceFiles"
 	}
 
 	solution_items
@@ -17,11 +26,13 @@ workspace "Rynex-Engine"
 		".editorconfig"
 	}
 
-	flags
-	{
-		"MultiProcessorCompile"
-	}
+	-- flags
+	-- {
+	-- 	"MultiProcessorCompile"
+	-- }
 
+	multiprocessorcompile "on"
+	-- conformancemode "Off" -- disable in vs2026 -> /permissive-
 -- Include directories relativ to root folder (solutione directory)
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
@@ -29,10 +40,20 @@ defines
 {
 	"RY_PLATFORM_WINDOWS"
 }
+if BuildProjectConf == "Dynamic" then
+defines
+{
+	"RY_DYNAMIC_LINK"
+}
+end
 
 IncludeDir = {}
 -- Runtime
-IncludeDir["entt"] 		= "%{wks.location}/Rynex/vendor/entt/include"
+IncludeDir["entt"] 		= "%{wks.location}/Rynex/vendor/entt_single_header/include"
+-- IncludeDir["entt"] 		= "%{wks.location}/Rynex/vendor/entt/src/include"
+
+IncludeDir["robin_hood_hashing"] 		= "%{wks.location}/Rynex/vendor/robin-hood-hashing/include"
+
 IncludeDir["mono"] 	= "%{wks.location}/Rynex/vendor/mono/include"
 -- Math
 IncludeDir["glm"] 		= "%{wks.location}/Rynex/vendor/glm"
@@ -44,10 +65,13 @@ IncludeDir["stb_image"] = "%{wks.location}/Rynex/vendor/stb_image"
 IncludeDir["yaml_cpp"] 	= "%{wks.location}/Rynex/vendor/yaml-cpp/include"
 IncludeDir["filewatch"] = "%{wks.location}/Rynex/vendor/filewatch"
 IncludeDir["assimp"] = "%{wks.location}/Rynex/vendor/assimp/include"
+IncludeDir["meshoptimizer"] = "%{wks.location}/Rynex/vendor/meshoptimizer/src"
 
 IncludeDir["magic_enum"] = "%{wks.location}/Rynex/vendor/magic_enum"
 -- Runtime Visuelle configs
 IncludeDir["ImGui"] 	= "%{wks.location}/Rynex/vendor/imgui"
+IncludeDir["ImPolt"] 	= "%{wks.location}/Rynex/vendor/implot"
+
 IncludeDir["ImGuizmo"] 	= "%{wks.location}/Rynex/vendor/ImGuizmo"
 
 IncludeDir["msdfgen"] 	= "%{wks.location}/Rynex/vendor/msdf-atelas-gen/msdfgen"
@@ -66,7 +90,6 @@ LibraryDir["mono_Debug"] = "%{wks.location}/Rynex/vendor/mono/lib/Debug"
 Library["mono"] = "%{LibraryDir.mono}/libmono-static-sgen.lib"
 Library["mono_Release"] = "%{LibraryDir.mono_Release}/libmono-static-sgen.lib"
 Library["mono_Debug"] = "%{LibraryDir.mono_Debug}/libmono-static-sgen.lib"
-
 
 
 	LibraryDir["assimp"] 	= "%{wks.location}/Rynex/vendor/assimp/lib/%{cfg.buildcfg}"
@@ -95,22 +118,24 @@ Library["WinVersion"] = "Version.lib"
 Library["Bcrypt"] = "Bcrypt.lib"
 
 group "Dependencies"
-	--include "vendor/bin/premake" <- Why include in Hazel
+	-- include "vendor/bin/premake" <- Why include in Hazel
 	include "Rynex/vendor/GLFW"
 	include "Rynex/vendor/Glad"
 	include "Rynex/vendor/yaml-cpp"
 	include "Rynex/vendor/imgui"
+	include "Rynex/vendor/implot"
+
 	include "Rynex/vendor/msdf-atelas-gen"
-	--include "Rynex/vendor/assimp"
--- Not Yet Includede	|
---						V
--- include "Hazel/vendor/msdf-atlas-gen"
+	include "Rynex/vendor/meshoptimizer"
+
+	-- include "Rynex-Test/vendor/gtest"
+	-- include "Rynex/vendor/assimp"
 group ""
 
 --group "MainWorking"
 include "Rynex"
 include "Rynex-Editor"
-include "Rynex-Test"
+-- include "Rynex-Test"
 include "Sandbox"
 -- include "Rynex-Sanboxe-Fetures"
 --group ""

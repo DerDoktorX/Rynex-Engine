@@ -10,6 +10,8 @@ namespace Rynex {
 	
 	Layer::~Layer()
 	{
+		m_DebugeName.empty();
+		m_DebugeName.shrink_to_fit();
 	}
 
 }

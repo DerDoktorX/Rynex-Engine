@@ -2,9 +2,9 @@
 #include "Material.h"
 
 
-#include "Rynex/Renderer/Materials/ShaderMaterial.h"
-#include "Rynex/Renderer/Materials/BasicMaterial.h"
-#include "Rynex/Renderer/Materials/DeferredMaterial.h"
+#include <Rynex/Renderer/Materials/DefaultMaterial.h>
+#include <Rynex/Renderer/Rendering/Renderer.h>
+
 
 
 namespace Rynex {
@@ -13,76 +13,71 @@ namespace Rynex {
 
 	
 
-	Ref<Material> Material::CreateBasic(const std::vector<std::filesystem::path>& paths)
-	{
 	
-		return CreateRef<BasicMaterial>( paths);
-	}
-
-	Ref<Material> Material::CreateDefeard()
-	{
-		return Ref<DeferredMaterial>();
-	}
-
-	Ref<Material> Material::CreateShader(ShaderMaterialDefaultNames& names)
-	{
-		return CreateRef<ShaderMaterial>(names);
-	}
-
-
-	Ref<Material> Material::CreateBasicAsysnc(std::vector<std::filesystem::path>&& paths)
-	{
-		return CreateRef<BasicMaterial>( std::move(paths));
-	}
-
-	Ref<Material> Material::CreateDefeardAsysnc()
-	{
-		return Ref<DeferredMaterial>();
-	}
-
-	Ref<Material> Material::CreateShaderAsysnc()
-	{
-		return Ref<ShaderMaterial>();
-	}
 
 
 
 	const glm::vec3& Material::GetColor() const
 	{
-		return glm::vec3(1.0f, 0.0f, 1.0f);
+		RY_CORE_WARN("Material default Impl!");
+		return glm::vec3(-1.0f, 0.0f, -1.0f);
 	}
 
 	float Material::GetAlpha() const
 	{
-		return 0.0f;
+		RY_CORE_WARN("Material default Impl!");
+		return -1.0f;
 	}
 
-	const Ref<Shader>& Material::GetShader() const
+	int Material::GetShadeRenderMode() const 
 	{
-		return nullptr;
+		return RenderMode::CallFace_Back
+			| RenderMode::PrimitivReset
+			| RenderMode::Death_Buffer
+			| RenderMode::A_Buffer;
 	}
 
-	int Material::GetFlage()
-	{
-		return 0;
+	int Material::GetDepthRenderMode() const 
+	{ 
+		return RenderMode::Death_Buffer
+			| RenderMode::PrimitivReset
+			| RenderMode::CallFace_None;
 	}
 
-	const glm::mat4& Material::GetMatrix() const
+	bool Material::IsRady() const
 	{
-		return glm::mat4(1.0f);
-	}
-
-	void Material::BindFrameBuffer(uint32_t index, int* entityIDs, uint32_t size)
-	{
-		int entityID = entityIDs == nullptr ? -2 : 0;
-		Bind(&entityID, size == 0 ? 1 : size);
-	}
-
-	
-	bool Material::IsRady()
-	{
-		RY_CORE_WARN("Materil default Impl!");
+		RY_CORE_WARN("Material default Impl!");
 		return false;
 	}
 
+	
+
+	template<typename T>
+	static T Material::GetMaterielDataFromMateriel(const Ref<Material>& material)
+	{
+		static_assert(false, "No Default GetMaterielDataFromMateriel");
+	}
+
+	template<>
+	static MaterielShaderData Material::GetMaterielDataFromMateriel<MaterielShaderData>(const Ref<Material>& material)
+	{
+		const void* ptr = material->GetMaterielDataPtr();
+		const MaterielShaderData* dataPtr = reinterpret_cast<const MaterielShaderData*>(ptr);
+		MaterielShaderData data = *dataPtr;
+		return data;
+	}
+
+	template<typename T>
+	void Material::SetupMaterielObject(T& materielDataObject, int texureAlbedoIndex, int texureSpecularIndex, int texureHeigthIndex)
+	{
+		static_cast(false);
+	}
+
+	template<>
+	void Material::SetupMaterielObject<MaterielShaderData>(MaterielShaderData& materielDataObject, int texureAlbedoIndex, int texureSpecularIndex, int texureHeigthIndex)
+	{
+		materielDataObject.UseTexure = texureAlbedoIndex;
+		RY_CORE_ASSERT(texureSpecularIndex == -1, "Not Expexted!");
+		RY_CORE_ASSERT(texureHeigthIndex == -1, "Not Expexted!");
+	}
 }

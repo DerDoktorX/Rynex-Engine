@@ -38,26 +38,40 @@
 	}
 
 #endif
+#if 0
+	void operator delete(void* ptr, size_t size) noexcept
+	{
+
+		std::free(ptr);
+	}
+
+	void operator delete(void* ptr) noexcept
+	{
+
+		std::free(ptr);
+	}
+#endif
 
 	int main(int argc, char** argv)
 	{
 		printf("Rynex Engin\n");
 		
-		Rynex::Log::Init();
+		Rynex::Log::Get();
 		
 		RY_PROFILE_BEGIN_SESSION("Startup", "Profile/RynexPrifile-Startup.json");
 		RY_CORE_INFO("Initlatione Log!");
+		RY_INFO("Initlatione Log!");
 #if RY_ENABLE_DEFAULT_PROJECT
 		if (1==argc)
 		{
-			argv[1] = RY_DEFAULT_PROJECT_PATH;
+			argv[1] = RY_DEFAULT_PATH_PROJECT_FILE;
 			argc = 2;
 		}
 		Rynex::Application* app = Rynex::CreateApplication({ argc, argv });
 #else
 		Rynex::Application* app = Rynex::CreateApplication({ argc, argv });
 #endif
-		RY_INFO("Initlatione Log!");
+		
 
 		RY_PROFILE_END_SESSION();
 

@@ -3,30 +3,10 @@
 #include "RendererAPI.h"
 
 namespace Rynex {
-#if 0
-	class Shader;
-	class VertexArray;
-	class Texture;
-	class UniformBuffer;
-
-	struct DrawRendererArgs
-	{
-		Ref<Shader> Shader;
-		Ref<VertexArray> VertexArray;
-		std::vector<Ref<Texture>> Textures;
-		std::vector<Ref<UniformBuffer>> UniformBuffers;
-
-		DrawRendererArgs() = default;
-		DrawRendererArgs(Ref<Shader>& shader, Ref<VertexArray>& vertexArray, std::initializer_list<Ref<UniformBuffer>> uniformBuffers, std::initializer_list<Ref<Texture>> textures)
-			: Shader(shader)
-			, VertexArray(vertexArray)
-			, UniformBuffers(uniformBuffers)
-			, Textures(textures)
-		{
-
-		}
-	};
+#if RY_RENDERER_API_INDEIPENDENT
+	struct DrawRendererSpec;
 #endif
+
 	class RYNEX_API RenderCommand
 	{
 	public:
@@ -40,7 +20,7 @@ namespace Rynex {
 		inline static void Shutdown()
 		{
 			// RY_CORE_MEMORY_FREE("s_RendererAPI", "RenderCommand::Shutdown");
-			
+			s_RendererAPI->ShutDown();
 			delete s_RendererAPI;
 			s_RendererAPI = nullptr;
 		};
@@ -70,9 +50,24 @@ namespace Rynex {
 			s_RendererAPI->SetDethTest(active);
 		};
 
+		inline static void SetBiasGPU(float factor, float units)
+		{
+			s_RendererAPI->SetBiasGPU(factor, units);
+		};
+
+		inline static void DisableBiasGPU()
+		{
+			s_RendererAPI->DisableBiasGPU();
+		};
+
 		inline static void SetMode(int mode)
 		{
 			s_RendererAPI->SetMode(mode);
+		};
+
+		inline static void SetModeForce(int mode)
+		{
+			s_RendererAPI->SetModeForce(mode);
 		};
 
 		inline static int GetMode()
@@ -96,6 +91,11 @@ namespace Rynex {
 			s_RendererAPI->Clear();
 		};
 
+		inline static void ClearNoDepth()
+		{
+			s_RendererAPI->ClearNoDepth();
+		};
+
 		// This clears only death
 		inline static void ClearDepth()
 		{
@@ -111,6 +111,40 @@ namespace Rynex {
 		{
 			s_RendererAPI->DrawIndexedMeshInstecing(instecing, vertexArray, indexcount);
 		};
+
+
+		inline static void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, uint32_t drawCount, void* indirectData, uint32_t indirectStrideSize)
+		{
+			s_RendererAPI->DrawMultyMeshIndriect(vertexArray, drawCount, indirectData, indirectStrideSize);
+		};
+
+		template<typename T>
+		inline static void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, uint32_t drawCount, T* indirectData)
+		{
+			s_RendererAPI->DrawMultyMeshIndriect(vertexArray, drawCount, indirectData, sizeof(T));
+		}
+
+		inline static void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, uint32_t drawCount, uint32_t indirectStrideSize)
+		{
+			s_RendererAPI->DrawMultyMeshIndriect(vertexArray, drawCount, indirectStrideSize);
+		};
+
+		inline static void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, const Ref<IndirectBuffer>& indriectBuffer, uint32_t drawCount)
+		{
+			s_RendererAPI->DrawMultyMeshIndriect(vertexArray, indriectBuffer, drawCount);
+		};
+
+		inline static void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, const Ref<IndirectBuffer>& indriectBuffer)
+		{
+			s_RendererAPI->DrawMultyMeshIndriect(vertexArray, indriectBuffer);
+		};
+
+		inline static void DrawElement(const Ref<VertexArray>& vertexArray, const Mesh::PerDrawObject& drawObject)
+		{
+			s_RendererAPI->DrawElement(vertexArray, drawObject);
+		};
+
+		
 
 		inline static void DrawStripsMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
 		{
@@ -148,11 +182,19 @@ namespace Rynex {
 			s_RendererAPI->DrawError();
 		};
 
+		inline static void RestPipline()
+		{
+			s_RendererAPI->RestPipline();
+		};
+
+		
 #if RY_RENDERER_API_INDEIPENDENT
 
-		inline static void DrawIndexed(const Ref<Shader>& shader)
+		
+
+		inline static void DrawIndexed(const DrawRendererSpec& drawSpec)
 		{
-			s_RendererAPI->DrawIndexed(shader);
+			s_RendererAPI->DrawIndexed(drawSpec);
 		};
 
 #endif

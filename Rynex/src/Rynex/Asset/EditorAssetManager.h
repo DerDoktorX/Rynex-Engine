@@ -1,12 +1,13 @@
 #pragma once
 
 
-#include "Rynex/Asset/Base/AssetManagerBase.h"
-#include "Rynex/Asset/Base/AssetMetadata.h"
-#include "Rynex/Asset/Base/Asset.h"
-#include "Rynex/Asset/Base/AssetMangerMapMutex.h"
+#include <Rynex/Asset/Base/AssetManagerBase.h>
+#include <Rynex/Asset/Base/AssetMetadata.h>
+#include <Rynex/Asset/Base/Asset.h>
+#include <Rynex/Asset/Base/AssetMangerMapMutex.h>
+#include <Rynex/Asset/Base/AssetMangerLeftRightMap.h>
 
-#include "Rynex/Renderer/API/Texture.h"
+#include <Rynex/Renderer/API/Texture.h>
 
 #include <map>
 #include <future>
@@ -28,7 +29,7 @@ namespace Rynex {
 		
 		std::string Name = "";
 		std::filesystem::path Path = "";
-		std::filesystem::path RelativPath = "";
+		std::filesystem::path RelativProjectPath = "";
 		std::string PathString = "";
 
 		AssetBrowserData() = default;
@@ -37,11 +38,18 @@ namespace Rynex {
 			AssetType type,  const std::string& typeString, 
 			AssetState state,const std::string& name, 
 			const std::filesystem::path& path,  const std::string& pathString)
-			: IsAssset(isAssset), IsFolder(isFolder), Handle(handle),
+			: IsAssset(isAssset), 
+			IsFolder(isFolder),
+			Handle(handle),
 			Metadata(metadata),
-			Type(type), TypeString(typeString), State(state),
-			Name(name), Path(path),
-			RelativPath(""), PathString(pathString), Texture(nullptr)
+			Type(type), 
+			TypeString(typeString), 
+			State(state),
+			Name(name), 
+			Path(path),
+			RelativProjectPath(""), 
+			PathString(pathString), 
+			Texture(nullptr)
 		{}
 		AssetBrowserData(AssetBrowserData&&) = default;
 		AssetBrowserData(const AssetBrowserData&) = default;
@@ -53,6 +61,7 @@ namespace Rynex {
 		std::vector<AssetHandle> Files;
 		std::string FolderName;
 		std::filesystem::path FolderPath;
+		std::filesystem::path ReltiveProjectFolderPath;
 	};
 
 	using HandleRegistry = std::map<AssetHandle, AssetMetadata>;
@@ -76,6 +85,7 @@ namespace Rynex {
 		bool AddDirectoryToParent(const std::filesystem::path& parentPath);
 
 		AssetHandle GetAssetHandle(const std::filesystem::path& path);
+		AssetHandle GetAssetHandleConst(const std::filesystem::path& path) const;
 
 		void DeleteFolder(const std::filesystem::path& folderPath);
 		void DeleteLocaleAsset(AssetHandle handle);
@@ -94,6 +104,8 @@ namespace Rynex {
 
 		bool IsCurentAssetState(const std::filesystem::path& showPath) const;
 		ContentBrowserItemes GetCurentAssetInformation(const std::filesystem::path& showPath);
+
+		static std::string GetCurrentTimeStr();
 	private:
 		HandleRegistry m_HandleRegistry;
 		PathRegistry m_PathRegistry;
@@ -121,12 +133,12 @@ namespace Rynex {
 
 		std::string Name = "";
 		std::filesystem::path Path = "";
-		std::filesystem::path RelativPath = "";
+		std::filesystem::path RelativProjectPath = "";
 		std::string PathString = "";
 
 		AssetBrowserDataThreade() = default;
 		AssetBrowserDataThreade(bool isAssset, bool isFolder, AssetHandle handle, const AssetMetadata& metadata, AssetType type, const std::string& typeString, AssetState state, const std::string& name, const std::filesystem::path& path, const std::string& pathString)
-			: IsAssset(isAssset), IsFolder(isFolder), Handle(handle), Metadata(metadata), Type(type), TypeString(typeString), State(state), Name(name), Path(path), RelativPath(""), PathString(pathString), Texture(nullptr)
+			: IsAssset(isAssset), IsFolder(isFolder), Handle(handle), Metadata(metadata), Type(type), TypeString(typeString), State(state), Name(name), Path(path), RelativProjectPath(""), PathString(pathString), Texture(nullptr)
 		{}
 		AssetBrowserDataThreade(AssetBrowserDataThreade&&) = default;
 		AssetBrowserDataThreade(const AssetBrowserDataThreade&) = default;
@@ -163,15 +175,18 @@ namespace Rynex {
 	using ContentBrowserItemesThreade = std::vector<AssetBrowserDataThreade>;
 	using RegisterItemesThreade = std::vector<AssetRigestriyPannel>;
 
-#if 0
-	using HandleMutexRegistryThreade = std::map<AssetHandle, std::mutex>;
-#endif
-
 	
 
 	class EditorAssetManegerThreade : public AssetManagerBase
 	{
 	public:
+#if 1
+		template<typename K, typename T>
+		using AssetMangerMap = AssetMangerMapMutex<K, T>;
+#else
+		template<typename K, typename T>
+		using AssetMangerMap = AssetMangerLeftRightMap<K, T>;
+#endif
 		virtual void OnAttach();
 		virtual void OnDetach();
 
@@ -190,34 +205,35 @@ namespace Rynex {
 		void IsAssetLoadedAsync(AssetHandle handle, bool* result);
 		void IsAssetLoadedAsync(const std::filesystem::path& path, bool* result);
 
-		const AssetMetadata GetMetadata(AssetHandle handle) const;
-		const AssetMetadata GetMetadata(const std::filesystem::path& path) const;
+		virtual const AssetMetadata GetMetadata(AssetHandle handle) const override;
+		virtual const AssetMetadata GetMetadata(const std::filesystem::path& path) const override;
 		void GetMetadataAsync(AssetHandle handle, AssetMetadata* meatdat);
 		void GetMetadataAsync(const std::filesystem::path& path, AssetMetadata* meatdat);
 
-		const AssetHandle GetAssetHandle(const std::filesystem::path& path) const;
+		virtual const AssetHandle GetAssetHandle(const std::filesystem::path& path) const override;
+
 		void GetAssetHandleAsync(const std::filesystem::path& path, AssetHandle* handle);
 
-		virtual Ref<Asset> GetAsset(AssetHandle handle, bool async = false) override;
+		virtual Ref<Asset> GetAsset(AssetHandle handle) override;
 		virtual Ref<Asset> GetAssetAsync(AssetHandle handle) override;
 		virtual Ref<Asset> GetAsset(const std::filesystem::path& path) override;
 		virtual Ref<Asset> GetAssetAsync(const std::filesystem::path& path) override;
 
 
-		virtual AssetHandle CreatLocaleAsset(Ref<Asset> asset, AssetMetadata& metadata = AssetMetadata()) override;
+		virtual AssetHandle CreatLocaleAsset(Ref<Asset> asset, AssetMetadata& metadata) override;
 		virtual void CreatLocaleAsset(Ref<Asset> asset, AssetMetadata& metadata, AssetHandle handle) override;
 
 		virtual Ref<Asset> GetLocaleAsset(AssetHandle handle) override;
 		virtual void DeleteLocaleAsset(AssetHandle handle) override;
 
-		AssetHandle CreatLocaleAssetAsync(Ref<Asset>& asset, AssetMetadata& metadata = AssetMetadata());
+		AssetHandle CreatLocaleAssetAsync(Ref<Asset>& asset, AssetMetadata& metadata);
 		Ref<Asset> GetLocaleAssetAsync(AssetHandle handle);
 
 		void DeleteLocaleAssetAsync(AssetHandle handle);
 
 		void ScaneDirectory(const std::filesystem::path& path);
-		void ReLoadeAsset(AssetHandle handle, bool async);
-		void ReLoadeAsset(const std::filesystem::path& path, bool async);
+		void ReLoadeAsset(AssetHandle handle);
+		void ReLoadeAsset(const std::filesystem::path& path);
 
 		bool IsCurentAssetState(const std::filesystem::path& showPath) const;
 		ContentBrowserItemesThreade GetCurentAssetInformation(const std::filesystem::path& showPath);
@@ -237,16 +253,17 @@ namespace Rynex {
 		void DeleateDirectory(const std::filesystem::path& path);
 		void DeleateFileAsset(AssetHandle handle);
 		void UnLoadeFileAsset(const AssetHandle handle);
+		
+		void ClearLodeadAssetList();
+		static bool IsProjectDriectoryRelativ(const std::filesystem::path& assetPath);
+		static bool IsProjectDriectoryAbsolut(const std::filesystem::path& assetPath);
+		static size_t GetIndexProjectDriectory(const std::filesystem::path& assetPath);
+		static std::filesystem::path GetFilePathProjectDirectoryAbosult(const std::filesystem::path& assetPath);
+		static std::filesystem::path GetFilePathProjectDirectoryRelative(const std::filesystem::path& assetPath);
 	private:
 
 		bool ExexuteEvent(AssetHandle handle);
-		inline bool IsFileAssetExist(const std::filesystem::path& path)
-		{
-			std::filesystem::path pathExist = path;
-			if (!path.is_absolute())
-				pathExist = std::filesystem::absolute(path);
-			return std::filesystem::exists(pathExist);
-		}
+		inline bool IsFileAssetExist(const std::filesystem::path& path);
 		bool CheckAssetFileExist(AssetHandle handle);
 
 		void CreateAssetDirectory(const std::filesystem::path& parentPath);
@@ -254,10 +271,14 @@ namespace Rynex {
 		void AddDirectoryToParent(const std::filesystem::path& prentPath);
 		void AddDirectory(const std::filesystem::path& path);
 		void CreateFileAsset(const std::filesystem::path& path);
+		void CreateNewFileAsset(const std::string& name, const std::filesystem::path& path, const std::filesystem::path& pathMarker);
 
 		void GetMetadata(AssetHandle handle, AssetMetadata* metaData, std::mutex* metaDataMutex);
 		void DeleateDirectory(const std::vector<std::filesystem::path>& paths);
 		void DeleateFileAsset(const std::vector<AssetHandle>& handles);
+
+		
+
 	private:
 #if 0
 		AssetMap						m_LoadedAssets;
@@ -273,10 +294,10 @@ namespace Rynex {
 		mutable std::mutex				m_DirectoryRegistryMutex;
 
 #else
-		AssetMangerMapMutex<AssetHandle, Ref<Asset>>							m_LoadedAssets;
-		AssetMangerMapMutex<AssetHandle, AssetMetadata>							m_HandleRegistry;
-		AssetMangerMapMutex<std::filesystem::path, AssetHandle>					m_PathRegistry;
-		AssetMangerMapMutex<std::filesystem::path, AssetFileDirectoryThreade>	m_DirectoryRegistry;
+		AssetMangerMap<AssetHandle, Ref<Asset>>							m_LoadedAssets;
+		AssetMangerMap<AssetHandle, AssetMetadata>							m_HandleRegistry;
+		AssetMangerMap<std::filesystem::path, AssetHandle>					m_PathRegistry;
+		AssetMangerMap<std::filesystem::path, AssetFileDirectoryThreade>	m_DirectoryRegistry;
 #endif 
 		bool							m_FileChanges = true;
 		bool							m_RegestryChanges = true;

@@ -1,0 +1,401 @@
+#include "rypch.h"
+#include "RenderProxysListData.h"
+namespace Rynex {
+#if 1
+    class ExecuteEvent
+    {
+    public:
+        ExecuteEvent(RenderProxysListData& proxy)
+            : m_ProxyRef(proxy)
+        {
+
+        }
+
+        void operator()(RenderProxysListData::AddFuncArgs funcArgs)
+        {
+            const RenderProxy& proxy = funcArgs.proxy;
+            const glm::mat4& model = funcArgs.model;
+            uint32_t proxyIndex = m_ProxyRef.AddProxy(proxy, model);
+
+#ifdef RY_PROCESS_ON_THREAD_MAIN
+            auto& renderProxyVec = m_ProxyRef.m_RenderProxyVec;
+#else        
+            RY_CORE_ASSERT(nullptr != m_ProxyRef.m_RenderProxyVecPtr);
+            auto& renderProxyVec = *(m_ProxyRef.m_RenderProxyVecPtr);
+#endif
+
+            m_ProxyRef.m_RenderProxyMapEntity.AddProxyIndexToMap(proxy.entity, proxy.subMesh, proxyIndex, renderProxyVec);
+
+            m_ProxyRef.m_HasChagedMain = true;
+            m_ProxyRef.m_HasChagedCurent = true;
+#if 0
+            if constexpr (std::is_same_v<std::decay_t<decltype(m_ProxyRef.m_RenderProxyVec)>, RenderProxySortedProxyVec>)
+            {
+                m_ProxyRef.CheckConectionToProxyData();
+            }
+#endif
+        }
+
+        void operator()(RenderProxysListData::UpdateFuncArgs funcArgs)
+        {
+#ifdef RY_RENDER_PROXY_HASH_MAP_ENTITY_IN_PLACE
+            const StaticeRenderProxys::IndexSubMesh& indexSubMesh = m_ProxyRef.GetIndexSubMeshFromMap(funcArgs.entity, funcArgs.subMesh);
+#else
+            const RenderProxyConectionEntity::IndexSubMesh& indexSubMesh = m_ProxyRef.m_RenderProxyMapEntity.GetIndexSubMeshFromMap(funcArgs.entity, funcArgs.subMesh);
+#endif
+            uint32_t indexProxy = indexSubMesh.proxyIndex;
+            RY_CORE_ASSERT(indexSubMesh.subMesh == funcArgs.subMesh, "not the same sub mesh!");
+            m_ProxyRef.UpdateProxyTransform(funcArgs.entity, funcArgs.subMesh, indexProxy, funcArgs.model);
+            m_ProxyRef.m_HasChagedMain = true;
+            m_ProxyRef.m_HasChagedCurent = true;
+        }
+#if 1
+        void operator()(RenderProxysListData::RemoveFuncArgs funcArgs)
+        {
+#if 0
+            if constexpr (std::is_same_v<std::decay_t<decltype(m_ProxyRef.m_RenderProxyVec)>, RenderProxySortedProxyVec>)
+            {
+                CheckConectionToProxyData();
+            }
+#endif
+
+            uint32_t proxyIndex = m_ProxyRef.m_RenderProxyMapEntity.RemoveProxyIndexFromMap(funcArgs.entity, funcArgs.subMesh);
+
+            RY_CORE_INFO("Remove Enity {} Submesh {} Index[{}]", funcArgs.entity, funcArgs.subMesh, proxyIndex);
+            m_ProxyRef.RemoveProxy(funcArgs.entity, funcArgs.subMesh, proxyIndex);
+
+
+            m_ProxyRef.m_HasChagedMain = true;
+            m_ProxyRef.m_HasChagedCurent = true;
+            RY_CORE_WARN("Not test Func");
+        }
+#endif
+
+        void operator()(RenderProxysListData::RemoveFuncArgs2 funcArgs)
+        {
+
+            std::vector<RenderProxyConectionEntity::IndexSubMesh> proxyIndexVec = m_ProxyRef.m_RenderProxyMapEntity.RemoveProxyIndexVecFromMap(funcArgs.entity);
+#if 0
+            if constexpr (std::is_same_v<std::decay_t<decltype(m_ProxyRef.m_RenderProxyVec)>, RenderProxySortedProxyVec>)
+            {
+                CheckConectionToProxyData();
+            }
+#endif
+            RY_CORE_INFO("Remove all Submesh from Enity {}", funcArgs.entity);
+            for (const RenderProxyConectionEntity::IndexSubMesh& indexSubMesh : proxyIndexVec)
+            {
+                RY_CORE_INFO("Remove Enity {} Submesh {} Index[{}]", funcArgs.entity, indexSubMesh.subMesh, indexSubMesh.proxyIndex);
+                m_ProxyRef.RemoveProxy(funcArgs.entity, indexSubMesh.subMesh, indexSubMesh.proxyIndex);
+            }
+            m_ProxyRef.m_HasChagedMain = true;
+            m_ProxyRef.m_HasChagedCurent = true;
+        }
+    private:
+        RenderProxysListData& m_ProxyRef;
+    };
+
+
+	RenderProxysListData::RenderProxysListData()
+        : m_HasChagedMain(true)
+        , m_HasChagedCurent(true)
+	{
+        ResetEventWaitingTimer();
+	}
+
+	RenderProxysListData::~RenderProxysListData()
+	{
+        Clear();
+	}
+
+	void RenderProxysListData::Clear()
+	{
+        m_RenderProxyMapEntity.Clear();
+
+#ifndef RY_PROCESS_ON_THREAD_MAIN
+        for (auto& renderProxyVec : m_RenderProxyArrayVec)
+        {
+            renderProxyVec.Clear();
+        }
+#else
+        m_RenderProxyVec.Clear();
+#endif
+        std::scoped_lock<std::mutex> lock(m_ThreadQueue.GetMutex());
+        ResetEventWaitingTimer();
+
+        while (!m_ThreadQueue.Empty())
+        {
+            m_ThreadQueue.PopNoLock();
+        }
+        m_HasChagedMain = true;
+	}
+
+	void RenderProxysListData::Add(int entity, uint32_t subMesh, const Ref<MeshSingle>& mesh, const Ref<Material>& materiel, const glm::mat4& model)
+	{
+#ifdef RY_USE_SINGLE_DATA_STRUCTS_FOR_DATA
+        RenderProxy proxy{
+             mesh, materiel, entity, subMesh
+        };
+#else
+        RenderProxy proxy{
+             mesh, materiel, model, entity, subMesh
+        };
+#endif
+        AddFuncArgs addFuncArgs = {
+            proxy, model
+        };
+
+#ifndef RY_THREAD_QUEUE
+        uint32_t proxyIndex = AddProxy(proxy);
+        m_HasChaged = true;
+        AddProxyIndexToMap(entity, subMesh, proxyIndex);
+
+        UpdateTrasform(entity, subMesh, model);
+#else
+#ifdef RY_PROCESS_ON_THREAD_MAIN
+        constexpr int64_t timenanSecounds = 800000i64;
+        if (Asset::CurrentOnMainThread() && m_EventWaitingTimer < timenanSecounds)
+        {
+            LifeTimer timer;
+
+            ExecuteEvent event{ *this };
+            event(addFuncArgs);
+
+            m_EventWaitingTimer += timer.GetTimePast();
+
+
+            return;
+        }
+#endif
+
+        m_ThreadQueue.Push(addFuncArgs);
+#endif
+
+	}
+
+	void RenderProxysListData::UpdateTrasform(int entity, uint32_t subMesh, const glm::mat4& model)
+	{
+#ifndef RY_THREAD_QUEUE
+        const IndexSubMesh& indexSubMesh = GetIndexSubMeshFromMap(entity, subMesh);
+        uint32_t indexProxy = indexSubMesh.proxyIndex;
+        UpdateProxyTransform(entity, subMesh, indexProxy, model);
+        m_HasChaged = true;
+#else
+        UpdateFuncArgs updateFuncArgs = UpdateFuncArgs{
+            entity, subMesh, model
+        };
+#ifdef RY_PROCESS_ON_THREAD_MAIN
+        constexpr int64_t timenanSecounds = 800000i64;
+        if (Asset::CurrentOnMainThread() && m_EventWaitingTimer < timenanSecounds)
+        {
+            LifeTimer timer;
+
+            ExecuteEvent event{ *this };
+            event(updateFuncArgs);
+            m_EventWaitingTimer += timer.GetTimePast();
+
+            return;
+        }
+#endif
+
+        m_ThreadQueue.Push(updateFuncArgs);
+#endif
+	}
+
+	void RenderProxysListData::Remove(int entity)
+	{
+#ifndef RY_THREAD_QUEUE
+        std::vector<IndexSubMesh> proxyIndexVec = RemoveProxyIndexVecFromMap(entity);
+        for (const IndexSubMesh& indexSubMesh : proxyIndexVec)
+        {
+            RemoveProxy(entity, indexSubMesh.subMesh, indexSubMesh.proxyIndex);
+        }
+#else
+        RemoveFuncArgs2 removeFuncArgs2 = RemoveFuncArgs2{
+            entity
+        };
+#ifdef RY_PROCESS_ON_THREAD_MAIN
+        constexpr int64_t timenanSecounds = 800000i64;
+
+        if (Asset::CurrentOnMainThread() && m_EventWaitingTimer < timenanSecounds)
+        {
+            LifeTimer timer;
+            ExecuteEvent event{ *this };
+            event(removeFuncArgs2);
+            m_EventWaitingTimer += timer.GetTimePast();
+            return;
+        }
+#endif
+
+        m_ThreadQueue.Push(removeFuncArgs2);
+#endif
+	}
+
+	bool RenderProxysListData::HasEntity(int entity) const
+	{
+        return m_RenderProxyMapEntity.HasEntity(entity);
+    }
+
+	void RenderProxysListData::EventCallback()
+	{
+        constexpr uint32_t maxCount = MAXUINT32;
+        if (!m_ThreadQueue.Empty())
+        {
+            constexpr int64_t timenanSecounds = 800000i64;
+
+            std::scoped_lock<std::mutex> lock(m_ThreadQueue.GetMutex());
+            LifeTimer timer;
+            while (!m_ThreadQueue.Empty() && m_EventWaitingTimer < timenanSecounds)
+            {
+                m_ThreadQueue.FrontNoLock(ExecuteEvent{ *this });
+                m_ThreadQueue.PopNoLock();
+                m_EventWaitingTimer += timer.GetTimePast();
+            }
+        }
+        ResetEventWaitingTimer();
+	}
+#endif
+
+	void RenderProxysListData::Remove(int entity, uint32_t subMesh)
+	{
+        uint32_t proxyIndex = m_RenderProxyMapEntity.RemoveProxyIndexFromMap(entity, subMesh);
+        RemoveProxy(entity, subMesh, proxyIndex);
+        m_HasChagedMain = true;
+	}
+
+	uint32_t RenderProxysListData::AddProxy(const RenderProxy& proxy, const glm::mat4& matrix)
+	{
+#ifdef RY_PROCESS_ON_THREAD_MAIN
+        auto& renderProxyVec = m_RenderProxyVec;
+#else        
+        RY_CORE_ASSERT(nullptr != m_RenderProxyVecPtr);
+        auto& renderProxyVec = *m_RenderProxyVecPtr;
+#endif
+
+#ifndef RY_RENDER_PROXY_VEC_CLASS
+        const BoundingVolume& volume = proxy.mesh->GetBoundingVolume();
+        uint32_t index;
+        uint32_t count = m_SortedProxyVec.size();
+
+        index = m_FreeListVec.empty() ? count : GetIndexFromFreeList();
+
+        if (count == index)
+        {
+            m_SortedProxyVec.emplace_back(proxy);
+            m_BoundingVolumeVec.emplace_back(volume.GetAABB(proxy.model), volume.GetSphere(proxy.model));
+        }
+        else
+        {
+            m_SortedProxyVec.at(index) = proxy;
+            m_BoundingVolumeVec.at(index) = BoundingVolume(volume.GetAABB(proxy.model), volume.GetSphere(proxy.model));
+        }
+
+        InsertIntoSortedIndices(index);
+#else
+        uint32_t index = renderProxyVec.SubmiteProxy(proxy, matrix);
+#endif
+        return index;
+    }
+
+	void RenderProxysListData::UpdateProxyTransform(int entity, uint32_t subMesh, uint32_t proxyIndex, const glm::mat4& matrix)
+	{
+#ifdef RY_PROCESS_ON_THREAD_MAIN
+        auto& renderProxyVec = m_RenderProxyVec;
+#else        
+        RY_CORE_ASSERT(nullptr != m_RenderProxyVecPtr);
+        auto& renderProxyVec = *m_RenderProxyVecPtr;
+#endif
+
+#ifndef RY_RENDER_PROXY_VEC_CLASS
+        RenderProxy& proxy = m_SortedProxyVec.at(proxyIndex);
+        RY_CORE_ASSERT(proxy.entity == entity, "We update the whrong Enity in the Proxy!");
+        RY_CORE_ASSERT(proxy.subMesh == subMesh, "We update the whrong SubMesh in the Proxy!");
+#else
+        RenderProxy& proxy = renderProxyVec.AtProxy(proxyIndex);
+        RY_CORE_ASSERT(proxy.entity == entity, "We update the whrong Enity in the Proxy!");
+        RY_CORE_ASSERT(proxy.subMesh == subMesh, "We update the whrong SubMesh in the Proxy!");
+
+#endif
+#ifndef RY_USE_SINGLE_DATA_STRUCTS_FOR_DATA
+        proxy.model = matrix;
+#endif
+#ifdef RY_SINGLE_VALUE_VEC
+        renderProxyVec.AtModelMatrix(proxyIndex) = matrix;
+        const BoundingVolume& volume = proxy.mesh->GetBoundingVolume();
+        renderProxyVec.AtBV(proxyIndex) = BoundingVolume(volume.GetAABB(matrix), volume.GetSphere(matrix));
+
+        glm::mat4 normaleMatrix = glm::inverse(glm::transpose(matrix));
+        renderProxyVec.AtNormaleMatrix(proxyIndex) = normaleMatrix;
+#endif
+    }
+
+	void RenderProxysListData::RemoveProxy(int entity, uint32_t subMesh, uint32_t proxyIndex)
+	{
+#ifdef RY_PROCESS_ON_THREAD_MAIN
+        auto& renderProxyVec = m_RenderProxyVec;
+#else        
+        RY_CORE_ASSERT(nullptr != m_RenderProxyVecPtr);
+        auto& renderProxyVec = *m_RenderProxyVecPtr;
+#endif
+
+#ifndef RY_RENDER_PROXY_VEC_CLASS
+        const RenderProxy& proxy = m_SortedProxyVec.at(proxyIndex);
+        RY_CORE_ASSERT(proxy.entity == entity, "We remove the whrong Enity in the Proxy!");
+        RY_CORE_ASSERT(proxy.subMesh == subMesh, "We remove the whrong SubMesh in the Proxy!");
+
+        AddFreeList(proxyIndex);
+        RemoveFromSortedIndices(proxyIndex);
+#else
+        if constexpr (std::is_same_v<std::decay_t<decltype(renderProxyVec)>, RenderProxySortedProxyVec>)
+        {
+#ifdef RY_RENDER_PROXY_HASH_MAP_ENTITY_IN_PLACE
+            CheckConectionToProxyData();
+#else
+            m_RenderProxyMapEntity.CheckConectionToProxyData(renderProxyVec);
+#endif
+
+            const RenderProxy& proxy = renderProxyVec.AtProxy(proxyIndex);
+            if (proxy.entity != entity || proxy.subMesh != subMesh)
+            {
+                uint32_t index = renderProxyVec.FindeProxy(entity, subMesh);
+                RY_CORE_ERROR("Whrong index, expextedt index Pos {} but actuely its {}", proxyIndex, index);
+
+                const RenderProxy& proxy2 = renderProxyVec.AtProxy(index);
+                RY_CORE_ASSERT(proxy2.entity == entity, "We remove the whrong Enity in the Proxy!");
+                RY_CORE_ASSERT(proxy2.subMesh == subMesh, "We remove the whrong SubMesh in the Proxy!");
+                renderProxyVec.Remove(index);
+                return;
+            }
+            renderProxyVec.Remove(proxyIndex);
+
+        }
+        else
+        {
+            const RenderProxy& proxy = renderProxyVec.AtProxy(proxyIndex);
+            RY_CORE_ASSERT(proxy.entity == entity, "We remove the whrong Enity in the Proxy!");
+            RY_CORE_ASSERT(proxy.subMesh == subMesh, "We remove the whrong SubMesh in the Proxy!");
+            renderProxyVec.Remove(proxyIndex);
+
+        }
+#endif
+	}
+
+	bool RenderProxysListData::CheckProxyFromIndex(uint32_t proxyIndex, uint32_t proxyCount, ProxyDrawCallGenarter& drawCallGenrater)
+	{
+
+        if (proxyCount <= proxyIndex)
+            return nullptr;
+
+        RenderProxy& proxy = m_RenderProxyVec.AtSortedProxy(proxyIndex);
+        return drawCallGenrater.SetProxyData(proxy);
+    }
+
+	void RenderProxysListData::ResetEventWaitingTimer()
+	{
+        m_EventWaitingTimer = 0;
+	}
+
+	void RenderProxysListData::EventThreadFunc()
+	{
+        RY_CORE_NOT_IMPL();
+	}
+}

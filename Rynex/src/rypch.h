@@ -11,15 +11,18 @@
 #include <array>
 #include <sstream>
 #include <vector>
-#include <unordered_map>
 #include <unordered_set>
 #include <filesystem>
 #include <regex>
 #include <optional>
+#include <queue>
 
-#include "Rynex/Core/Base.h"
-#include "Rynex/Core/Log.h"
-#include "Rynex/Core/Instrumentor.h"
+// fast hash map
+#include <robin_hood.h>
+
+#include <Rynex/Core/Base.h>
+#include <Rynex/Core/Log.h>
+#include <Rynex/Core/Instrumentor.h>
 
 #ifdef  RY_PLATFORM_WINDOWS
 #include <Windows.h>

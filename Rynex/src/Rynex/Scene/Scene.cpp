@@ -3,34 +3,87 @@
 
 #include "Entity.h"
 #include "ScriptableEntity.h"
-#include "Rynex/Renderer/Rendering/Renderer2D.h"
-#include "Rynex/Renderer/Rendering/Renderer3D.h"
+
 #if RY_SCRIPTING_HAZEL
 	#include "Rynex/Scripting/HazelScripting/ScriptEngine.h"
 #else
-	#include "Rynex/Scripting/ScriptingEngine.h"
+	#include <Rynex/Scripting/Mono/ScriptingEngine.h>
 #endif
-#include "Rynex/Serializers/VertexArraySerialzer.h"
-#include "Rynex/Asset/Base/AssetMetadata.h"
-#include "Rynex/Asset/EditorAssetManager.h"
-#include "Rynex/Project/Project.h"
-#include "Rynex/Renderer/Rendering/RendererIcons.h"
+#include <Rynex/Asset/Base/AssetMetadata.h>
+#include <Rynex/Asset/EditorAssetManager.h>
+#include <Rynex/Project/Project.h>
+
+#include <Rynex/Renderer/Rendering/Render2D/Renderer2D.h>
+#include <Rynex/Renderer/Rendering/Render3D/Renderer3D.h>
+#include <Rynex/Renderer/RenderCommand.h>
+#include <Rynex/Core/Application.h>
 
 // TODO: Move toCoreConfig.h
-#define RENDERER_2D		1
-#define RENDERER_3D		1
-#define QUADS_DRAW		1
-#define CIRCLE_DRAW		1
-#define CIRCLE_DRAW		0
-#define TEXT_DRAW		0
-#define ENTITY_SCRIPT	1
-#define NATIVE_SCRIPT	1
-#define SCRIPT_CS		1
-
+#define RENDERER_2D						1
+#define RENDERER_3D						1
+#define QUADS_DRAW						1
+#define CIRCLE_DRAW						1
+#define CIRCLE_DRAW						0
+#define TEXT_DRAW						0
+#define ENTITY_SCRIPT					1
+#define NATIVE_SCRIPT					1
+#define SCRIPT_CS						1
+#define RY_SCENE_CAMERA_VIEW_FUSTREMS	0
+#define RY_USE_3D_STAIC_MODEL			1
+#define RY_ENABLE_3D_SUBMIT_DATA		0
 
 namespace Rynex {
 
 	namespace Utils {
+
+		static ViewPassData GenarateViewPassData(Camera& camera, const glm::mat4& view, const glm::vec3& postion, const Ref<Framebuffer>& fb, const glm::vec4& color)
+		{
+			const glm::uvec2& size = fb->GetFrambufferSize();
+			ViewPassData viewPassData = ViewPassData(
+				camera.GetProjektion(), view, postion,
+				color, glm::vec4{ size.x, size.y, 0, 0 },
+				RenderMode::Death_Buffer | RenderMode::A_Buffer | RenderMode::CallFace_Back | RenderMode::Gamma,
+				2.2f,
+				fb
+			);
+
+			return viewPassData;
+		}
+#ifdef RY_RENERER_DESIGN_CURENT_MAIN
+		static void RenderDataMain(Camera& camera, const glm::mat4& view, const glm::mat4& model, const Ref<Framebuffer>& fb, const glm::vec4& color, Ref<RenderTarget>& renderTarget)
+		{
+			if (nullptr == renderTarget)
+			{
+				renderTarget = CreateRef<RenderTarget>(fb);
+				renderTarget->SetClearColorAttachment(1, -1);
+			}
+			const glm::uvec2& size = fb->GetFrambufferSize();
+			glm::ivec2 sizeInt = static_cast<glm::ivec2>(size);
+			glm::ivec4 viewSize = { sizeInt.x, sizeInt.y, 0, 0, };
+
+			// Renderer::SetRenderPassNameMain("Shade-Rendering");
+			// Renderer::GetDrawContext().PushScope("Shade-Rendering");
+
+			Renderer::SetRenderTargetMain(renderTarget);
+			Renderer::SetViewSizeMain(viewSize);
+			// glm::mat4 model = view;
+			Renderer::SetRenderCameraMain(model, camera);
+			glm::vec4 clearColor = color;
+			if (Renderer::GetBackgroundGamma())
+			{
+				float gammaCorection = Renderer::GetGammaValue();
+				glm::vec3 backgroundRGB = glm::vec3(clearColor);
+				glm::vec3 scale = glm::vec3(gammaCorection);
+				glm::vec3 vecColorPow = glm::pow(backgroundRGB, scale);
+				clearColor = glm::vec4(vecColorPow, color.a);
+			}
+			renderTarget->SetClearColorAttachment(0, clearColor);
+			// Renderer::SetSceneMode(RenderMode::Death_Buffer | RenderMode::A_Buffer | RenderMode::CallFace_Back | RenderMode::Gamma);
+			
+			
+		}
+#endif
+
 
 		template<typename... Component>
 		static void CopyComponent(entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttMap)
@@ -65,19 +118,47 @@ namespace Rynex {
 		}
 
 		template<typename... Component>
-		static void CopyComponentIfExists(ComponentGroup<Component...>, Entity dst, Entity src)
+		static void CopyComponentIfExists(ComponentGroup<Component ...>, Entity dst, Entity src)
 		{
 			CopyComponentIfExists<Component...>(dst, src);
 		}
 
+		
+		
 
-		inline static glm::mat4 CalculateDirectionShadowMapsCamera(const glm::mat4& ligthModelMatrix, const glm::vec3& cameraViewFustrumCenter, const std::array<glm::vec4, 8>& cameraFustemWorld)
+		template<typename... Component>
+		static void SwapComponentIfExists(Entity a, Entity b)
 		{
-			glm::mat4 viewLigth = SceneCamera::GetShadowViewMatrix(cameraViewFustrumCenter, ligthModelMatrix[3]);
-			auto [min, max] = SceneCamera::GetMinMaxViewFustrumInSpace(viewLigth, cameraFustemWorld);
+			([&]()
+				{
+					if (!a.HasComponent<Component>() && !b.HasComponent<Component>())
+						return;
 
-			glm::mat4 ViewProjetionLigth = Renderer3D::CalculateShadowDirectionelMatrix(viewLigth, min, max);
-			return ViewProjetionLigth;
+					if (a.HasComponent<Component>() && b.HasComponent<Component>())
+					{
+						Component tempComp = a.GetComponent<Component>();
+						a.AddOrReplaceComponent<Component>(b.GetComponent<Component>());
+						b.AddOrReplaceComponent<Component>(tempComp);
+					}
+					else if (a.HasComponent<Component>())
+					{
+						b.AddOrReplaceComponent<Component>(a.GetComponent<Component>());
+						a.RemoveComponent<Component>();
+					}
+					else if (b.HasComponent<Component>())
+					{
+						a.AddOrReplaceComponent<Component>(b.GetComponent<Component>());
+						b.RemoveComponent<Component>();
+					}
+
+
+				}(), ...);
+		}
+
+		template<typename... Component>
+		static void SwapComponentIfExists(ComponentGroup<Component ...>, Entity a, Entity b)
+		{
+			SwapComponentIfExists<Component...>(a, b);
 		}
 
 		inline static glm::mat4 CalculateDirectionShadowMapsCamera(const glm::mat4& modelMatrix, float size, float nearClip, float farClip)
@@ -89,42 +170,15 @@ namespace Rynex {
 		{
 			
 
-			glm::mat4 porjetionOth = glm::ortho(-15.0f, 15.0f, -15.0f, 15.0f, 0.0f, 100.f);
-#if 0
-			glm::mat4 porjetionPer = glm::perspective(glm::radians(45.f), 3.0f / 4.0f, 0.1f, 100.f);
-			SceneCamera sceneCamera = SceneCamera();
-			sceneCamera.SetViewPortSize(2048.0f, 2048.0f);
-			sceneCamera.SetPerspectiv(glm::radians(90.0f), 0.1f, 100.f);
-			sceneCamera.SetOrthoGrafic(15.0f, 0.0f, 100.f);
-
-			glm::mat4 porjetionCamera = sceneCamera.GetProjektion();
-			
-
+			glm::mat4 porjetionOth = glm::ortho(-25.0f, 25.0f, -25.0f, 25.0f, 0.0f, 100.f);
 			glm::mat4 viewIn = glm::inverse(modelMatrix);
-			
-#endif
 			glm::mat4 viewLo = glm::lookAt(glm::vec3(modelMatrix[3]), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
 			return porjetionOth * viewLo;
 		}
 
 		inline static glm::mat4 CalculateSpotShadowMapsCamera(const glm::mat4& modelMatrix, float outer, float farClip)
 		{
-			// float farClipL = 100.0f;
-			// glm::mat4 porjetionOth = glm::ortho(-15.0f, 15.0f, -15.0f, 15.0f, 0.0f, farClip);
 			glm::mat4 porjetionPer = glm::perspective(glm::radians(45.0f)  , 2048.0f / 2048.0f, 0.01f, farClip);
-#if 0
-			
-			SceneCamera sceneCamera = SceneCamera();
-			sceneCamera.SetProjectionType(SceneCamera::ProjectionType::Perspectiv);
-			sceneCamera.SetViewPortSize(2048.0f, 2048.0f);
-			sceneCamera.SetPerspectiv(glm::radians(45.0f), 1.f, farClipL);
-			
-			// sceneCamera.SetOrthoGrafic(15.0f, 0.0f, farClipL);
-			glm::mat4 porjetionCamera = sceneCamera.GetProjektion();
-
-			
-			glm::mat4 viewLo = glm::lookAt(glm::vec3(modelMatrix[3]), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
-#endif
 			glm::mat4 viewIn = glm::inverse(modelMatrix);
 			return porjetionPer * viewIn;
 		}
@@ -146,16 +200,69 @@ namespace Rynex {
 			}
 			return porjetionView;
 		}
+
+		inline static glm::mat4 CalculatePointShadowMapsCamera(const glm::vec3& position, glm::vec3& direction, glm::vec3& up, float farClip)
+		{
+			glm::mat4 matrix = glm::lookAt((direction * 0.0f) + position, position + direction, up);
+			glm::mat4 porjetionPer = glm::perspective(glm::radians(90.0f), 2048.0f / 2048.0f, 0.001f, farClip);
+			return porjetionPer * matrix;
+		}
+
+		inline static void CalculatePointShadowMapsCameras(const glm::vec3& position, glm::mat4* viewProjtion, float farClip)
+		{
+			viewProjtion[0] = Utils::CalculatePointShadowMapsCamera(position, glm::vec3(  1.0f,  0.0f,  0.0f ), glm::vec3(  0.0f, -1.0f,  0.0f ), farClip);
+			viewProjtion[1] = Utils::CalculatePointShadowMapsCamera(position, glm::vec3( -1.0f,  0.0f,  0.0f ), glm::vec3(  0.0f, -1.0f,  0.0f ), farClip);
+			viewProjtion[2] = Utils::CalculatePointShadowMapsCamera(position, glm::vec3(  0.0f,  1.0f,  0.0f ), glm::vec3(  0.0f,  0.0f,  1.0f ), farClip);
+			viewProjtion[3] = Utils::CalculatePointShadowMapsCamera(position, glm::vec3(  0.0f, -1.0f,  0.0f ), glm::vec3(  0.0f,  0.0f, -1.0f ), farClip);
+			viewProjtion[4] = Utils::CalculatePointShadowMapsCamera(position, glm::vec3(  0.0f,  0.0f, -1.0f ), glm::vec3(  0.0f, -1.0f,  0.0f ), farClip);
+			viewProjtion[5] = Utils::CalculatePointShadowMapsCamera(position, glm::vec3(  0.0f,  0.0f,  1.0f ), glm::vec3(  0.0f, -1.0f,  0.0f ), farClip);
+		}
+	
+		template<typename T>
+		static const T& OnEventFunc(std::string_view type, entt::registry& registry, entt::entity entity)
+		{
+			const T& compent = registry.get<T>(entity);
+			std::string_view nameEntity = "Unkowne Entitiy";
+			if (registry.has<TagComponent>(entity))
+				nameEntity = registry.get<TagComponent>(entity).Tag;
+
+			std::string_view nameCompent = typeid(T).name();
+			RY_CORE_TRACE("{} has {} on Entity({})", nameCompent.data(), type,  nameEntity.data());
+			return compent;
+		}
+
 	}
 
 	Scene::Scene()
-	{
+		: m_Registery()
+		, m_LodingPromisVec()
+		, m_MainTartget()
 
+		, m_MausPixlePos({ -1.0f, -1.0f })
+		, m_BackGround({ 0.45,0.45f, 0.45f,1.0f })
+		, m_TimeElpassed3DSubmit(1ull)
+		, m_ViewPortWithe(1u)
+		, m_ViewPortHeigth(1u)
+
+		, m_StepFrames(0)
+		, m_EntityLeangth(0)
+		, m_RedererDefaultModeFlags(0)
+		, m_Hovered(false)
+		, m_Resized(false)
+		, m_Running(false)
+		, m_Paused(false)
+	{
+		m_ViewPortSelected = entt::null;
 	}
 
 	Scene::~Scene()
 	{
-
+		Scene* scene = ScriptingEngine::GetSceneContext();
+		if (scene == this)
+		{
+			ScriptingEngine::OnRuntimeStop();
+		}
+		OnDisconectToRenderer();
 	}
 
 
@@ -164,41 +271,187 @@ namespace Rynex {
 	Ref<Scene> Scene::Copy(Ref<Scene> other)
 	{
 		Ref<Scene> newScene = CreateRef<Scene>();
+		std::vector<Ref<LodePromis<Scene>>>& lodingPromisOtherVec = other->m_LodingPromisVec;
+
+		
 
 		newScene->m_ViewPortWithe = other->m_ViewPortWithe;
 		newScene->m_ViewPortHeigth = other->m_ViewPortHeigth;
 
-		auto& srcSceneRegistry = other->m_Registery;
-		auto& dstSceneRegistry = newScene->m_Registery;
+		entt::registry& srcSceneRegistry = other->m_Registery;
+		entt::registry& dstSceneRegistry = newScene->m_Registery;
 		std::unordered_map<UUID, entt::entity> enttMap;
 
 		// Create entities in new scene
-		auto idView = srcSceneRegistry.view<IDComponent>();
-		for (auto e : idView)
+		using IDComponentView = entt::basic_view<enum entt::entity, entt::exclude_t<>, IDComponent>;
+		IDComponentView idView = srcSceneRegistry.view<IDComponent>();
+		IDComponentView::iterator itEnde = idView.end() - 1;
+		IDComponentView::iterator itBeginn = idView.begin() - 1;
+	
+		for (IDComponentView::iterator it = itEnde; it != itBeginn; it--)
 		{
+			const entt::entity& e = *it;
 			UUID uuid = srcSceneRegistry.get<IDComponent>(e).ID;
-			const auto& name = srcSceneRegistry.get<TagComponent>(e).Tag;
+			const std::string& name = srcSceneRegistry.get<TagComponent>(e).Tag;
 			Entity newEntity = newScene->CreateEntityWitheUUID(uuid, name);
 			enttMap[uuid] = (entt::entity)newEntity;
 		}
 
+		
 		// Copy components (except IDComponent and TagComponent)
-		Utils::CopyComponent(AllComponents{}, dstSceneRegistry, srcSceneRegistry, enttMap);
 		newScene->Handle = other->Handle;
+
+#if 1		
+		// Utils::CopyComponent(AllComponents{}, dstSceneRegistry, srcSceneRegistry, enttMap);
+
+		for (Ref<LodePromis<Scene>>& promis : lodingPromisOtherVec)
+		{
+			promis->AddRefObject(newScene);
+		}
+
+
+#endif
+		Utils::CopyComponent(AllComponents{}, dstSceneRegistry, srcSceneRegistry, enttMap);
+
+
 		return newScene;
 	}
+
+	void Scene::CopyComponentToEntity(Entity dst, Entity src)
+	{
+		TagComponent tagCcopy = src.GetComponent<TagComponent>();
+		IDComponent idCcopy = src.GetComponent<IDComponent>();
+		Utils::CopyComponentIfExists(AllComponents{}, dst, src);
+		TagComponent& tagC = src.GetComponent<TagComponent>();
+		IDComponent& idC = src.GetComponent<IDComponent>();
+		tagC = tagCcopy;
+		idC = idCcopy;
+	}
+
+	void Scene::SwapComponentFromEntitys(Entity a, Entity b)
+	{
+		Ref<Scene> scene = a.GetScene();
+		if (b.GetScene() != scene || nullptr != scene || a.IsNotVaild() || b.IsNotVaild())
+			return;
+
+
+		for (Ref<LodePromis<Scene>>& promis  : scene->m_LodingPromisVec)
+		{
+			if(promis != nullptr && !promis->IsTransferComplet())
+			{
+				RY_CORE_FATAL("We have befor doing some swaping first Loade All Assets!");
+				return;
+			}
+		}
+		scene->m_LodingPromisVec.clear();
+
+		TagComponent tagCompTemp = a.GetComponent<TagComponent>();
+		IDComponent idCompTemp = a.GetComponent<IDComponent>();
+
+
+		TagComponent& aTagComp = a.GetComponent<TagComponent>();
+		IDComponent& aIDComp = a.GetComponent<IDComponent>();
+
+		TagComponent& bTagComp = a.GetComponent<TagComponent>();
+		IDComponent& bIDComp = a.GetComponent<IDComponent>();
+		aTagComp = bTagComp;
+		aIDComp = bIDComp;
+
+		bTagComp = tagCompTemp;
+		bIDComp = idCompTemp;
+		
+
+		Utils::SwapComponentIfExists(AllComponents{}, a, b);
+		
+	}
+
+	
+
+	void Scene::SetFuncSubmit3DSceneDrawListToFrame(const std::function<void()>& func)
+	{
+		Renderer3D::ResetTargetRenderPtr();
+	}
+
+	void Scene::OnConectToRenderer()
+	{
+		OnDisconectToRenderer();
+
+		
+		RY_CORE_INFO("Conect Scene to Renderer!");
+		m_Registery.on_construct<ModelMatrixComponent>().connect<&Scene::OnEntityModelMatrixCreate>();
+		m_Registery.on_update<ModelMatrixComponent>().connect<&Scene::OnEntityModelMatrixChanged>();
+		m_Registery.on_destroy<ModelMatrixComponent>().connect<&Scene::OnEntityModelMatrixDestroy>();
+
+		m_Registery.on_construct<ModelMangerComponent>().connect<&Scene::OnEntityStaticMeshCreate>();
+		m_Registery.on_update<ModelMangerComponent>().connect<&Scene::OnEntityStaticMeshChanged>();
+		m_Registery.on_destroy<ModelMangerComponent>().connect<&Scene::OnEntityStaticMeshDestroy>();
+
+		m_Registery.on_construct<StaticMeshComponent>().connect<&Scene::OnEntityStaticSingleMeshCreate>();
+		m_Registery.on_update<StaticMeshComponent>().connect<&Scene::OnEntityStaticSingleMeshChanged>();
+		m_Registery.on_destroy<StaticMeshComponent>().connect<&Scene::OnEntityStaticSingleMeshDestroy>();
+		
+		Submit3DStaticeEntitysRenderProxy(m_Registery.view<ModelMatrixComponent, ModelMangerComponent>());
+		
+	}
+
+	void Scene::OnDisconectToRenderer()
+	{
+		RY_CORE_INFO("Diconect Scene from Renderer!");
+		entt::sink sinkCreateModelMatrixC = m_Registery.on_construct<ModelMatrixComponent>();
+		if (!sinkCreateModelMatrixC.empty())
+			sinkCreateModelMatrixC.disconnect();
+
+		entt::sink sinkUpdateModelMatrixC = m_Registery.on_update<ModelMatrixComponent>();
+		if (!sinkUpdateModelMatrixC.empty())
+			sinkUpdateModelMatrixC.disconnect();
+
+		entt::sink sinkDestroyModelMatrixC = m_Registery.on_destroy<ModelMatrixComponent>();
+		if (!sinkDestroyModelMatrixC.empty())
+			sinkDestroyModelMatrixC.disconnect();
+
+
+		entt::sink sinkCreateStaticMeshC = m_Registery.on_construct<ModelMangerComponent>();
+		if (!sinkCreateStaticMeshC.empty())
+			sinkCreateStaticMeshC.disconnect();
+
+		entt::sink sinkUpdateStaticMeshC = m_Registery.on_update<ModelMangerComponent>();
+		if (!sinkUpdateStaticMeshC.empty())
+			sinkUpdateStaticMeshC.disconnect();
+		
+		entt::sink sinkDestroyStaticMeshC = m_Registery.on_destroy<ModelMangerComponent>();
+		if (!sinkDestroyStaticMeshC.empty())
+		{
+			sinkDestroyStaticMeshC.disconnect();
+			Renderer3D::ClearRenderProxy();
+		}
+
+
+		entt::sink sinkCreateStaticSingleMeshC = m_Registery.on_construct<StaticMeshComponent>();
+		if (!sinkCreateStaticSingleMeshC.empty())
+			sinkCreateStaticSingleMeshC.disconnect();
+
+		entt::sink sinkUpdateStaticSingleMeshC = m_Registery.on_update<StaticMeshComponent>();
+		if (!sinkUpdateStaticSingleMeshC.empty())
+			sinkUpdateStaticSingleMeshC.disconnect();
+
+		entt::sink sinkDestroyStaticSingleMeshC = m_Registery.on_destroy<StaticMeshComponent>();
+		if (!sinkDestroyStaticSingleMeshC.empty())
+			sinkDestroyStaticSingleMeshC.disconnect();
+
+		
+	}
+
+	
 
 	void Scene::ClearAll()
 	{
 		m_Registery.clear();
 		m_ViewPortWithe = 1;
 		m_ViewPortHeigth = 1;
-		m_IsRunning = false;
-		m_IsPaused = false;
+		m_Running = false;
+		m_Paused = false;
 		m_StepFrames = 0;
 		m_EntityLeangth = 0;
-		m_EntityMapID.clear();
-		m_EntityMapTag.clear();
 	}
 
 #pragma endregion
@@ -218,27 +471,28 @@ namespace Rynex {
 		entity.AddComponent<IDComponent>(uuid);
 		entity.AddComponent<TransformComponent>();
 
-#if RY_REALTION_SCHIP_ID_COMP
-		entity.AddComponent<RealtionShipComponent>();
-#elif RY_REALTION_SCHIP_ARRAY_COMP
-		entity.AddComponent<RealtionShipsComponent>();
-#endif
+
+		entity.AddComponent<RealtionShipUUIDComponent>();
 
 		entity.AddComponent<ModelMatrixComponent>();
+		entity.AddComponent<VisibleComponent>();
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
 
-		m_EntityMapID[uuid] = entity;
-		m_EntityMapTag[name] = entity;
 		m_EntityLeangth++;
 		return entity;
 	}
 	
 	void Scene::DestroyEntity(Entity entity)
 	{
+		std::string name = entity.GetTagName();
+		UUID id = entity.GetUUID();
+		uint64_t idUint = id;
+
 		entity.DestroyEntity();
-		m_EntityMapID.erase(entity.GetUUID());
-		m_EntityMapTag.erase(entity.GetComponent<TagComponent>().Tag);
+		
+
+		RY_CORE_INFO("Destroy Entity: {} {}", name.c_str(), idUint);
 		if (entity == Entity{ m_ViewPortSelected, this })
 			m_ViewPortSelected = entt::null;
 		m_Registery.destroy(entity);
@@ -258,20 +512,29 @@ namespace Rynex {
 
 	Entity Scene::GetEntitiyByUUID(UUID uuid)
 	{
-		if (m_EntityMapID.find(uuid) != m_EntityMapID.end())
-			return { m_EntityMapID.at(uuid), this };
-
-		return {};
+		auto viewTag = m_Registery.view<IDComponent>();
+		for (auto& entityTag : viewTag)
+		{
+			IDComponent& tagC = viewTag.get<IDComponent>(entityTag);
+			if (tagC.ID == uuid)
+			{
+				return Entity{ entityTag, this };
+			}
+		}
+		return Entity();
 	}
 
 	Entity Scene::GetEntityByName(const std::string& tag)
 	{
+	
+
 		auto viewTag = m_Registery.view<TagComponent>();
 		for (auto& entityTag : viewTag)
 		{
 			const auto& tagC = viewTag.get<TagComponent>(entityTag);
 			if (tagC.Tag == tag)
 			{
+				
 				return Entity{ entityTag, this };
 			}
 		}
@@ -292,7 +555,14 @@ namespace Rynex {
 
 	bool Scene::IsTagInScene(const std::string& tag)
 	{
-		return (m_EntityMapTag.find(tag) != m_EntityMapTag.end());
+		auto viewTag = m_Registery.view<TagComponent>();
+		for (auto& entityTag : viewTag)
+		{
+			const auto& tagC = viewTag.get<TagComponent>(entityTag);
+			if (tagC.Tag == tag)
+				return true;
+		}
+		return false;
 	}
 
 	bool Scene::IsCameraEntityViewFustrum()
@@ -306,6 +576,8 @@ namespace Rynex {
 		}
 		return false;
 	}
+	
+	
 
 #pragma endregion
 
@@ -314,11 +586,8 @@ namespace Rynex {
 
 	void Scene::OnRuntimStart()
 	{
-#if RY_SCRIPTING_HAZEL
-		ScriptEngine::OnRuntimeStart(this);
-#else
+
 		ScriptingEngine::OnRuntimeStart(this);
-#endif
 		// Instandiat
 
 		auto view = m_Registery.view<ScriptComponent>();
@@ -326,22 +595,13 @@ namespace Rynex {
 		for (auto e : view)
 		{
 			Entity entity = { e, this };
-#if RY_SCRIPTING_HAZEL
-			ScriptEngine::OnCreateEntity(entity);
-#else
 			ScriptingEngine::OnCreatEntity(entity);
 				
-#endif
 		}
 	}
 
 	void Scene::OnRuntimStop()
 	{
-#if RY_SCRIPTING_HAZEL
-		ScriptEngine::OnRuntimeStop();
-#else
-		
-#endif
 		auto view = m_Registery.view<ScriptComponent>();
 		for (auto e : view)
 		{
@@ -366,10 +626,10 @@ namespace Rynex {
 					nsc.Instance->m_Entity = Entity{ entity , this };
 					nsc.Instance->OnCreate();
 				}
-				nsc.Instance->OnUpdate(ts.GetFPS());
+				nsc.Instance->OnUpdate(ts.GetSecounds());
 			});
 		
-		for (EnttEntity e : scriptView)
+		for (entt::entity e : scriptView)
 		{
 			Entity entity = { e, this };
 			ScriptingEngine::OnUpdateEntity(entity, ts.GetSecounds());
@@ -381,136 +641,75 @@ namespace Rynex {
 	void Scene::OnRenderRuntime(const Ref<Framebuffer>& framebuffer, int camera)
 	{
 		RY_PROFILE_SCOPE("Scene-OnRenderRuntime");
-		Renderer3D::BeginFrame();
-		EnttCameraView cameraView = m_Registery.view<ModelMatrixComponent, CameraComponent>();
+
 		EnttView3D enttView3D = {
 			m_Registery.view<ModelMatrixComponent, DynamicMeshComponent>(),
-			m_Registery.view<ModelMatrixComponent, StaticMeshComponent>(),
-			m_Registery.view<ModelMatrixComponent, MaterialComponent, GeomtryComponent>()
+			m_Registery.view<ModelMatrixComponent, ModelMangerComponent>(),
+			m_Registery.view<ModelMatrixComponent, StaticMeshComponent>()
+		};
+		EnttView2D enttView2D = {
+			m_Registery.view<ModelMatrixComponent, SpriteRendererComponent>(),
+			m_Registery.view<ModelMatrixComponent, TextComponent>()
 		};
 		EnttViewLigths enttViewLigths = {
-			m_Registery.view<AmbientLigthComponent>(),
-			m_Registery.view<ModelMatrixComponent, DrirektionleLigthComponent>(),
+			m_Registery.view<ModelMatrixComponent, DrirectionleLigthComponent>(),
 			m_Registery.view<ModelMatrixComponent, PointLigthComponent>(),
 			m_Registery.view<ModelMatrixComponent, SpotLigthComponent>()
 		};
-		
-		EnttView2D enttView2D = { m_Registery.view<ModelMatrixComponent, SpriteRendererComponent>(),
-			m_Registery.view<ModelMatrixComponent, TextComponent>()
-		};
-		m_RedererDefaultModeFlags = Renderer::GetMode();
-		RenderFrambuffers(enttView3D, enttView2D, cameraView);
 
-		SceneCamera* mainCamera = nullptr;
-		glm::mat4* mainTransform = nullptr;
-		std::array<glm::vec4, 8> fustemWorldCamera;
-		glm::vec4 centerCamerViewFustrum;
-		glm::mat4 view;
+		EnttCameraView cameraView = m_Registery.view<ModelMatrixComponent, CameraComponent>();
+		glm::mat4* modelMatrixPtr = nullptr;
+		Camera* cameraPtr = nullptr;
 
-		int count = 0;
-		for (EnttEntity camerE : cameraView)
+		for (entt::entity camerE : cameraView)
 		{
-			auto& [modelC, cameraC] = cameraView.get<ModelMatrixComponent, CameraComponent>(camerE);
-			if (cameraC.Primary)
+			auto& [modelC, camerC] = cameraView.get<ModelMatrixComponent, CameraComponent>(camerE);
+			if (camerC.Primary)
 			{
-				if (count == camera)
-				{
-					view = glm::inverse(modelC.Globle);
-					fustemWorldCamera = cameraC.Camera.GetViewFustrumWorld(view);
-					mainCamera = &cameraC.Camera;
-					
-					centerCamerViewFustrum = cameraC.Camera.GetWorldCameraCenter(view);
-					mainTransform = &modelC.Globle;
-
-					break;
-				}
-				count++;
+				cameraPtr = &camerC.Camera;
+				modelMatrixPtr = &modelC.Globle;
+				break;
 			}
 		}
 
-		if (mainCamera && mainTransform )
-		{
-			
-			
-			
-			// Renderer3D::SetRenderCamera(*mainCamera, view, centerCamerViewFustrum);
-			SetLigthsRuntime(enttViewLigths, enttView3D, *mainCamera, view, glm::vec3(centerCamerViewFustrum));
+		if (cameraPtr == nullptr)
+			return;
 
-			Render3DSceneShadowScene(enttView3D);
-			Renderer3D::SetShadowsUniform();
+		glm::mat4& modelMatrixRef = *modelMatrixPtr;
+		glm::mat4 viewMatrix = glm::inverse(modelMatrixRef);
+		glm::vec3 postion = modelMatrixRef[3];
+#ifndef RY_RENERER_DESIGN_CURENT_MAIN
+		ViewPassData& viewPass = Utils::GenarateViewPassData(*cameraPtr, viewMatrix, postion, framebuffer, m_BackGround);
 
-			framebuffer->Bind();
-			RenderCommand::SetClearColor(m_BackGround);
-			RenderCommand::Clear();
-			framebuffer->ClearAttachment(1, -1);
-			Render3DSceneViewPortScene(*mainCamera, view, enttView3D);
-			RenderScene2D(*mainCamera, view, enttView2D);
-			framebuffer->Unbind();
-		}
-		else
-		{
-			framebuffer->Bind();
-			RenderCommand::SetClearColor({ 1.0f, 0.0f, 0.0f, 1.0f });
-			RenderCommand::Clear();
-			framebuffer->ClearAttachment(1, -1);
-			framebuffer->Unbind();
-		}
-		Renderer3D::EndFrame();
-
-	}
-
-	void Scene::SetLigthsRuntime(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D, Camera& camera, const glm::mat4& viewMatrix, const glm::vec3& viewCenter)
-	{
-		RY_PROFILE_SCOPE("Scene-SetLigthsRuntime");
-		EnttAmbientLView& ambientView = enttViewLigths.AmbientLCV;
-		EnttDrirektionLeLView& directionelView = enttViewLigths.DrirektionLCV;
-		EnttPointLView& pointView = enttViewLigths.PointLCV;
-		EnttSpotLView& spotView = enttViewLigths.SpotLCV;
-
-		const glm::mat4& projetionCamera = camera.GetProjektion();
-		glm::mat4 viewProjetionCamera = projetionCamera * viewMatrix;
-		glm::mat4 inverseViewProjetionCamera = glm::inverse(viewProjetionCamera);
-
-		// std::array<glm::vec4, 8> fustemWorldCamera = SceneCamera::GetInverseViewProjetionFustrumWorld(inverseViewProjetionCamera);
-		// std::array<glm::vec4, 8> fustemWorldCamera = SceneCamera::GetViewProjetionFustrumWorld(glm::ortho(-256,256,-256,256,0, 20));
-		// std::array<glm::vec4, 8> fustemWorldCamera = SceneCamera::GetViewProjetionFustrumWorld(glm::ortho(-126.f, 126.f, -126.f, 126.f, 0.f, 10.f) * glm::inverse(glm::translate(glm::mat4(1.0f), glm::vec3(3.f, 5.f, 4.f))));
+		Renderer::SetMainPassView(viewPass);
+#else
+		Utils::RenderDataMain(*cameraPtr, viewMatrix, modelMatrixRef, framebuffer, m_BackGround, m_MainTartget);
+#endif // !RY_RENERER_DESIGN_CURENT_MAIN
 		
-		for (EnttEntity directionelE : directionelView)
-		{
-			auto& [ modelC, directionelC] = directionelView.get<ModelMatrixComponent, DrirektionleLigthComponent>(directionelE);
-			
-			// glm::mat4 viewProjtion = Utils::CalculateShadowMapsCamera(modelC.Globle, viewCenter, fustemWorldCamera);
-			// glm::mat4 viewProjtion = Utils::CalculateShadowMapsCamera(modelC.Globle, {0.0f, 0.0f, 0.0f}, fustemWorldCamera);
-			glm::mat4 viewProjtion = Utils::CalculateDirectionShadowMapsCamera(modelC.Globle);
-			Renderer3D::AddShadowMapDirectionelLigth(viewProjtion);
-			Renderer3D::SetLigthUniform(directionelC, modelC.Globle, viewProjtion);
-			
-		}
 
-		for (EnttEntity pointE : pointView)
-		{
-			auto& [matrixC, pointC] = pointView.get<ModelMatrixComponent, PointLigthComponent>(pointE);
-			Renderer3D::SetLigthUniform(pointC, matrixC.Globle);
-		}
+		EnttRenderTextView& enttRenderTextView = enttView2D.rendererTextCV;
+		Submit2DTextEntitys(enttRenderTextView);
+		
 
-		for (EnttEntity spotE : spotView)
-		{
-			auto& [ modelC, spotC] = spotView.get<ModelMatrixComponent, SpotLigthComponent>(spotE);
-			glm::mat4 viewProjtion = Utils::CalculateSpotShadowMapsCamera(modelC.Globle, spotC.Outer, spotC.Distence);
-			// glm::mat4 viewProjtion = Utils::CalculateDirectionShadowMapsCamera(modelC.Globle);
-			Renderer3D::AddShadowMapSpotlLigth(viewProjtion);
-			Renderer3D::SetLigthUniform(spotC, modelC.Globle, viewProjtion);
-			
-		}
+		EnttRender2DView& enttRender2DView = enttView2D.renderer2DCV;
+		Submit2DEntitys(enttRender2DView);
 
-		AmbientLigthComponent* useAmbientC = nullptr;
-		for (EnttEntity ambientE : ambientView)
-		{
-			useAmbientC = &ambientView.get<AmbientLigthComponent>(ambientE);
+#if RY_USE_3D_STAIC_MODEL
+		EnttRender3DStaticModelView& enttRender3DStaticModelView = enttView3D.staticCV;
 
-			break;
-		}
-		Renderer3D::SetLigthUniform(useAmbientC);
+#ifndef RY_RENERER_DESIGN_CURENT_MAIN
+		Submit3DStaticeEntitys(enttRender3DStaticModelView, &m_TimeElpassed3DSubmit);
+#else
+		Submit3DStaticeEntitysMain(enttRender3DStaticModelView, &m_TimeElpassed3DSubmit);
+#endif
+
+#else
+		EnttRender3DSingleStaticModelView& enttRender3DSingleStaticModelView = enttView3D.SingleStaticCV;
+		Submit3DSingleStaticeEntitys(enttRender3DSingleStaticModelView, &m_TimeElpassed3DSubmit);
+#endif
+		RenderNowMain();
+
+		ResetRenderTaregtMain();
 
 	}
 
@@ -521,202 +720,107 @@ namespace Rynex {
 	void Scene::OnUpdateEditor(TimeStep ts)
 	{
 		RY_PROFILE_SCOPE("Scene-OnUpdateEditor");
-#if RY_SCRIPTING_HAZEL
-		// ScriptEngine::ReloadAssembly();
-		// ScriptEngine::OnRuntimeStart(this);
-		auto scriptView = m_Registery.view<ScriptComponent>();
-		for (EnttEntity scriptViewE : scriptView)
-		{
-			Entity entity = { scriptViewE, this };
-		}
-		// ScriptEngine::OnRuntimeStop();
-#else
-
-		// if (!ScriptingEngine::ReloadeScriptAvaible()) return;
-
-		// ScriptingEngine::OnRuntimeStart(this);
-#if 0
-		auto scriptView = m_Registery.view<ScriptComponent>();
-		for (EnttEntity scriptViewE : scriptView)
-		{
-			Entity entity = { scriptViewE, this };
-			ScriptingEngine::OnDrawEntity(entity);
-		}
-#endif
-		// ScriptingEngine::OnRuntimeStop();
-#endif
-
 	}
 
 	void Scene::OnRenderEditor(const Ref<Framebuffer>& framebuffer, const Ref<EditorCamera>& editorCamera)
 	{
-	
 		RY_PROFILE_SCOPE("Scene-OnRenderEditor");
-		EnttCameraView cameraView = m_Registery.view<ModelMatrixComponent, CameraComponent>();
+		Renderer3D::UpdateEventProxys();
+
 		EnttView3D enttView3D = {
 			m_Registery.view<ModelMatrixComponent, DynamicMeshComponent>(),
+			m_Registery.view<ModelMatrixComponent, ModelMangerComponent>(),
 			m_Registery.view<ModelMatrixComponent, StaticMeshComponent>(),
-			m_Registery.view<ModelMatrixComponent, MaterialComponent, GeomtryComponent>()
 		};
 		EnttView2D enttView2D = {
 			m_Registery.view<ModelMatrixComponent, SpriteRendererComponent>(),
 			m_Registery.view<ModelMatrixComponent, TextComponent>()
 		};
 		EnttViewLigths enttViewLigths = {
-			m_Registery.view<AmbientLigthComponent>(),
-			m_Registery.view<ModelMatrixComponent, DrirektionleLigthComponent>(),
+			m_Registery.view<ModelMatrixComponent, DrirectionleLigthComponent>(),
 			m_Registery.view<ModelMatrixComponent, PointLigthComponent>(),
 			m_Registery.view<ModelMatrixComponent, SpotLigthComponent>()
 		};
-		Camera& mainCamera = (Camera)editorCamera->GetProjektion();
-		glm::mat4 viewMatrix = editorCamera->GetViewMatrix();
-		glm::vec3 worldPostionCenterView = editorCamera->GetWorldPostionCenterView();
 		
+		Camera& mainCamera = static_cast<Camera>(editorCamera->GetProjektion());
+		const glm::mat4& viewMatrix = editorCamera->GetViewMatrix();
+		const glm::vec3& worldPostionCenterView = editorCamera->GetWorldPostionCenterView();
 
-		m_RedererDefaultModeFlags = Renderer::GetMode();
 		const glm::uvec2& size = framebuffer->GetFrambufferSize();
+		glm::mat4 modelCamera = glm::inverse(viewMatrix);
+#ifndef RY_RENERER_DESIGN_CURENT_MAIN
+		ViewPassData viewPassData = ViewPassData(
+			mainCamera.GetProjektion(), viewMatrix, editorCamera->GetPosition(),
+			m_BackGround, glm::vec4{ size.x, size.y, 0, 0 },
+			RenderMode::Death_Buffer | RenderMode::A_Buffer | RenderMode::CallFace_Back | RenderMode::Gamma,
+			1.0f,
+			framebuffer
+		);
+		Renderer::SetMainPassView(viewPassData);
+#else
+		Utils::RenderDataMain(mainCamera, viewMatrix, modelCamera, framebuffer, m_BackGround, m_MainTartget);
+#endif // !RY_RENERER_DESIGN_CURENT_MAIN
+		EnttRender3DStaticModelView& enttRender3DStaticModelView = enttView3D.staticCV;
+		EnttRenderTargetView& renderTargetView = m_Registery.view<RenderTargetComponent, CameraComponent, ModelMatrixComponent>();
+		RenderRenderTaregtView(renderTargetView, enttRender3DStaticModelView);
 
-		Renderer3D::BeginFrame();
-		RenderFrambuffers(enttView3D, enttView2D, cameraView);
-		Renderer::SetMode(m_RedererDefaultModeFlags);
 
-		SetLigthsEditor(enttViewLigths, enttView3D, mainCamera, viewMatrix, worldPostionCenterView, size);
+		EnttCameraView cameraView = m_Registery.view<ModelMatrixComponent, CameraComponent>();
+		Submit2DCamerIcons(cameraView);
 
-		Render3DSceneShadowScene(enttView3D);
-		Renderer3D::SetShadowsUniform();
+		EnttDrirektionLigthView drirektionLigthView = m_Registery.view<ModelMatrixComponent, DrirectionleLigthComponent>();
+		Submit2DDrirectionLigthIcons(drirektionLigthView);
 
-		Renderer::SetMode(m_RedererDefaultModeFlags);
-		framebuffer->Bind();
-		RenderCommand::SetClearColor(m_BackGround);
-		RenderCommand::Clear();
-		framebuffer->ClearAttachment(1, -1);
+
+		EnttRenderTextView& enttRenderTextView = enttView2D.rendererTextCV;
+		Submit2DTextEntitys(enttRenderTextView);
+
+		EnttRender2DView& enttRender2DView = enttView2D.renderer2DCV;		
+		Submit2DEntitys(enttRender2DView);
+
+
 		
+#if RY_USE_3D_STAIC_MODEL
 		
-		for (EnttEntity camerE : cameraView)
+#if RY_ENABLE_3D_SUBMIT_DATA
+		Submit3DDataSingleStaticeEntitys(enttRender3DStaticModelView, &m_TimeElpassed3DSubmit);
+#else
+
+		
+
+#ifndef RY_RENERER_DESIGN_CURENT_MAIN
+		Submit3DStaticeEntitys(enttRender3DStaticModelView, &m_TimeElpassed3DSubmit);
+#else
+#ifndef RY_RENDER_PROXY_IN_MAIN_RENDER_CALL
+		if(Renderer::IsSceneSubmite3DAktive())
 		{
-			auto& [ modelC, camerC] = cameraView.get<ModelMatrixComponent, CameraComponent>(camerE);
-			Renderer2D::DrawCameraIcon(modelC.Globle, (int)camerE);
-			glm::mat4 viewCamera = glm::inverse(modelC.Globle);
-			if (camerC.ViewFustrum)
-			{
-				// std::array<glm::vec4, 8> fustemWorldCamera = camerC.Camera.GetViewFustrumWorld(viewCamera);
-				// std::array<glm::vec4, 8> fustemWorldCamera = SceneCamera::GetViewProjetionFustrumWorld(glm::ortho(-126.f, 126.f, -126.f, 126.f, 0.f, 10.f) * glm::inverse(glm::translate(glm::mat4(1.0f), glm::vec3(3.f, 5.f, 4.f))));
-				glm::mat4 viewProjetionCamera = (camerC.Camera.GetProjektion() * viewCamera);
-				glm::mat4 inverseViewProjetionCamera = glm::inverse(viewProjetionCamera);
-				glm::vec3 centerCamerViewFustrum = camerC.Camera.GetWorldCameraCenter(viewCamera);
-
-				for (EnttEntity dirLigth : enttViewLigths.DrirektionLCV)
-				{
-					auto& [ligthModelC, ligthDirectionC] = enttViewLigths.DrirektionLCV.get<ModelMatrixComponent, DrirektionleLigthComponent>(dirLigth);
-					
-				
-					// glm::mat4 viewProjetionLigth = Utils::CalculateShadowMapsCamera(ligthModelC.Globle, centerCamerViewFustrum, fustemWorldCamera);
-					// glm::mat4 viewProjetionLigth = CalculateShadowMapsCamera(modelC.Globle, { 0.0f, 0.0f, 0.0f }, fustemWorldCamera);
-					glm::mat4 viewProjetionLigth = Utils::CalculateDirectionShadowMapsCamera(ligthModelC.Globle);
-					glm::mat4 inverseViewProjetionLigth = glm::inverse(viewProjetionLigth);
-					Renderer3D::DrawLineBoxAABB(SceneCamera::GetViewFustrum(), inverseViewProjetionLigth, glm::vec3(ligthModelC.Globle[3]), (int)dirLigth, Entity{ m_ViewPortSelected, this } == dirLigth ? glm::vec3(0.65f, 0.95f, 0.15f) : glm::vec3(0.85f, 0.25f, 0.15f));
-				}
-
-				for (EnttEntity spotLigth : enttViewLigths.SpotLCV)
-				{
-					auto& [ligthModelC, ligthSpotC] = enttViewLigths.SpotLCV.get<ModelMatrixComponent, SpotLigthComponent>(spotLigth);
-
-
-					// glm::mat4 viewProjetionLigth = Utils::CalculateShadowMapsCamera(ligthModelC.Globle, centerCamerViewFustrum, fustemWorldCamera);
-					// glm::mat4 viewProjetionLigth = CalculateShadowMapsCamera(modelC.Globle, { 0.0f, 0.0f, 0.0f }, fustemWorldCamera);
-					glm::mat4 viewProjetionLigth = Utils::CalculateSpotShadowMapsCamera(ligthModelC.Globle, ligthSpotC.Outer, ligthSpotC.Distence);
-					// glm::mat4 viewProjetionLigth = Utils::CalculateSpotShadowMapsCamera(ligthModelC.Globle, Entity{ spotLigth, this });
-					glm::mat4 inverseViewProjetionLigth = glm::inverse(viewProjetionLigth);
-					Renderer3D::DrawLineBoxAABB(SceneCamera::GetViewFustrum(), inverseViewProjetionLigth, glm::vec3(ligthModelC.Globle[3]), (int)spotLigth, Entity{ m_ViewPortSelected, this } == spotLigth ? glm::vec3(0.65f, 0.95f, 0.15f) : glm::vec3(0.85f, 0.25f, 0.15f));
-				}
-				Renderer3D::DrawLineBoxAABB(SceneCamera::GetViewFustrum(), inverseViewProjetionCamera, glm::vec3(modelC.Globle[3]), (int)camerE, Entity { m_ViewPortSelected, this } == camerE ? glm::vec3(0.65f, 0.95f, 0.15f) : glm::vec3(0.85f, 0.25f, 0.15f));
-			}
+			Submit3DStaticeEntitysMain(enttRender3DStaticModelView, &m_TimeElpassed3DSubmit);
 		}
 
-		Render3DSceneViewPortScene(mainCamera, viewMatrix, enttView3D);
-		RenderScene2D(mainCamera, viewMatrix, enttView2D);
+
+#endif
+#endif
+
+#endif
+
+#else
+		EnttRender3DSingleStaticModelView& enttRender3DSingleStaticModelView = enttView3D.SingleStaticCV;
+#if RY_ENABLE_3D_SUBMIT_DATA
+		Submit3DDataSingleStaticeEntitys(enttRender3DSingleStaticModelView, &m_TimeElpassed3DSubmit);
+#else
+		Submit3DSingleStaticeEntitys(enttRender3DSingleStaticModelView, &m_TimeElpassed3DSubmit);
+#endif
+#endif
+
+		RenderNowMain();
+
 		
-		Renderer2D::EndSceneIcon();
-		
-		framebuffer->Unbind();
-		Renderer3D::EndFrame();
+
+
+		ResetRenderTaregtMain();
 	}
 
-	void Scene::EditorFilterSreene()
-	{
-
-	}
-
-	void Scene::SetLigthsEditor(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D, Camera& camera, const glm::mat4& viewMatrix, const glm::vec3& viewCenter, const glm::uvec2& viewPortSize)
-	{
-		RY_PROFILE_SCOPE("Scene-SetLigthsEditor");
-		EnttAmbientLView& ambientView = enttViewLigths.AmbientLCV;
-		EnttDrirektionLeLView& directionelView = enttViewLigths.DrirektionLCV;
-		EnttPointLView& pointView = enttViewLigths.PointLCV;
-		EnttSpotLView& spotView = enttViewLigths.SpotLCV;
-
-		int ligthIndex = 0;
-		int directionCount = 0;
-		const glm::mat4& projetionCamera = camera.GetProjektion();
-		glm::mat4 viewProjetionCamera = projetionCamera * viewMatrix;
-		glm::mat4 inverseViewProjetionCamera = glm::inverse(viewProjetionCamera);
-		
-		// std::array<glm::vec4, 8> fustemWorldCamera = SceneCamera::GetInverseViewProjetionFustrumWorld(inverseViewProjetionCamera);
-		// std::array<glm::vec4, 8> fustemWorldCamera = SceneCamera::GetViewProjetionFustrumWorld(glm::ortho(-256, 256, -256, 256, 0, 20));
-		// std::array<glm::vec4, 8> fustemWorldCamera = SceneCamera::GetViewProjetionFustrumWorld(glm::ortho(-126.f, 126.f, -126.f, 126.f, 0.f, 10.f) * glm::inverse(glm::translate(glm::mat4(1.0f), glm::vec3(3.f, 5.f, 4.f))));
-		Renderer2D::BeginSceneIcon(camera, viewMatrix, viewPortSize);
-		
-		for (EnttEntity directionelE : directionelView)
-		{
-			auto& [ modelC, directionelC] = directionelView.get< ModelMatrixComponent, DrirektionleLigthComponent>(directionelE);
-			// glm::mat4 matrix = glm::lookAt(glm::vec3(matrixC.GlobleMatrix4x4[3]), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-			
-			// glm::mat4 viewProjtion = Utils::CalculateShadowMapsCamera(modelC.Globle, viewCenter, fustemWorldCamera);
-			// glm::mat4 viewProjtion = CalculateShadowMapsCamera(modelC.Globle, { 0.0f, 0.0f, 0.0f }, fustemWorldCamera);
-			glm::mat4 viewProjtion = Utils::CalculateDirectionShadowMapsCamera(modelC.Globle);
-			Renderer3D::AddShadowMapDirectionelLigth(viewProjtion);
-			Renderer3D::SetLigthUniform(directionelC, modelC.Globle, viewProjtion);
-			Renderer2D::DrawLigthDirctionelIcon(modelC.Globle, (int)directionelE);
-			
-		}
-
-		
-
-		for (EnttEntity pointE : pointView)
-		{
-			auto& [matrixC, pointC] = pointView.get<ModelMatrixComponent, PointLigthComponent>(pointE);
-			
-			Renderer3D::SetLigthUniform(pointC, matrixC.Globle);
-			Renderer2D::DrawLigthPointIcon(matrixC.Globle, (int)pointE);
-
-		}
-
-		for (EnttEntity spotE : spotView)
-		{
-			auto& [ modelC, spotC] = spotView.get<ModelMatrixComponent, SpotLigthComponent>(spotE);
-			// glm::mat4 viewProjtion = Utils::CalculateShadowMapsCamera(modelC.Globle);
-		
-			glm::mat4 viewProjetion = Utils::CalculateSpotShadowMapsCamera(modelC.Globle, spotC.Outer, spotC.Distence);
-			// glm::mat4 viewProjetion = Utils::CalculateSpotShadowMapsCamera(modelC.Globle, Entity{ spotE, this });
-			Renderer3D::AddShadowMapSpotlLigth(viewProjetion);
-			Renderer3D::SetLigthUniform(spotC, modelC.Globle, viewProjetion);
-			Renderer2D::DrawLigthSpotIcon(modelC.Globle, (int)spotE);
-			
-
-		}
-		
-		AmbientLigthComponent* useAmbientC = nullptr;
-		for (EnttEntity ambientE : ambientView)
-		{
-			useAmbientC = &ambientView.get<AmbientLigthComponent>(ambientE);
-			break;
-		}
-
-		Renderer3D::SetLigthUniform(useAmbientC);
-		
-
-
-	}
+	
 
 #pragma endregion
 
@@ -724,7 +828,7 @@ namespace Rynex {
 
 	void Scene::OnUpdateSimulation(TimeStep ts)
 	{
-		OnUpdateEditor(ts);
+		OnUpdateRuntime(ts);
 	}
 
 	void Scene::OnRenderSimulation(const Ref<Framebuffer>& framebuffer, const Ref<EditorCamera>& camera)
@@ -734,302 +838,560 @@ namespace Rynex {
 
 #pragma endregion
 
+	Ref<Scene> Scene::GetRefInPlace(Scene* scenePtr)
+	{
+		Ref<Scene> sceneRef = Asset::GetRefInPlaceType<Scene>(scenePtr);
+		return sceneRef;
+	}
 
 #pragma region Renderer
 
-#if 0
-	void Scene::RenderSingleEntityEdgeDitection(Entity entity, Camera& camera, const glm::mat4& viewMatrix, const glm::vec4& backGroundColor, const Ref<Framebuffer> frameBuffer)
+#pragma region Render2D_SubmitFunc
+
+	void Scene::Submit2DEntitys(EnttRender2DView& view2dQuads)
 	{
-		
-
-		frameBuffer->Bind();
-		RenderCommand::Clear();
-		RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-
-		if (!entity)
+#if 0
+		for (entt::entity render2dE : view2dQuads)
 		{
-			frameBuffer->Unbind();
+			auto& [transformC, spriteC] = view2dQuads.get<ModelMatrixComponent, SpriteRendererComponent>(render2dE);
+			Renderer2D::SubmitSprite(transformC.Globle, spriteC, static_cast<int>(render2dE));
+		}
+#else
+		view2dQuads.each([](entt::entity e, ModelMatrixComponent& transformC, SpriteRendererComponent& spriteC)
+		{
+			uint32_t uEnitityID = entt::to_integral(e);
+			int32_t enitityID = static_cast<int32_t>(uEnitityID);
+
+			Renderer2D::SubmitSprite(transformC.Globle, spriteC, enitityID);
+		});
+#endif
+	}
+
+	void Scene::Submit2DTextEntitys(EnttRenderTextView& view2dText)
+	{
+#if 0
+		for (entt::entity render2dE : view2dText)
+		{
+			auto& [transformC, textC] = view2dText.get<ModelMatrixComponent, TextComponent>(render2dE);
+			Renderer2D::SubmitStringCom(transformC.Globle, textC, static_cast<int>(render2dE));
+		}
+#else
+		view2dText.each([](entt::entity e, ModelMatrixComponent& transformC, TextComponent& textC)
+		{
+			uint32_t uEnitityID = entt::to_integral(e);
+			int32_t enitityID = static_cast<int32_t>(uEnitityID);
+
+			Renderer2D::SubmitStringCom(transformC.Globle, textC, enitityID);
+		});
+#endif
+
+	}
+
+#pragma region IconSubmitionFunc
+
+	void Scene::Submit2DCamerIcons(EnttCameraView& cameraView)
+	{	
+#if 0
+		for (entt::entity camerE : cameraView)
+		{
+			auto& [modelC, camerC] = cameraView.get<ModelMatrixComponent, CameraComponent>(camerE);
+			Renderer2D::SubmitCameraIcon(modelC.Globle, static_cast<int>(camerE));
+		}
+#else
+		cameraView.each([](entt::entity e, ModelMatrixComponent& modelC, CameraComponent& camerC)
+			{
+				uint32_t uEnitityID = entt::to_integral(e);
+				int32_t enitityID = static_cast<int32_t>(uEnitityID);
+
+				Renderer2D::SubmitCameraIcon(modelC.Globle, enitityID);
+			});
+#endif
+	}
+
+	void Scene::Submit2DDrirectionLigthIcons(EnttDrirektionLigthView& drirektionLigthView)
+	{
+#if 0
+		for (entt::entity dirctionLigthE : drirektionLigthView)
+		{
+			auto& [modelC, dirctionLigthC] = drirektionLigthView.get<ModelMatrixComponent, DrirectionleLigthComponent>(dirctionLigthE);
+			Renderer2D::SubmitLigthDirctionelIcon(modelC.Globle, static_cast<int>(dirctionLigthE));
+		}
+#else
+		drirektionLigthView.each([](entt::entity e, ModelMatrixComponent& modelC, DrirectionleLigthComponent& dirctionLigthC)
+			{
+				uint32_t uEnitityID = entt::to_integral(e);
+				int32_t enitityID = static_cast<int32_t>(uEnitityID);
+
+				Renderer2D::SubmitLigthDirctionelIcon(modelC.Globle, enitityID);
+			});
+#endif
+	}
+
+	void Scene::Submit2DPointLigthIcons(EnttPointLigthView& pointLigthView)
+	{
+#if 0
+		for (entt::entity dirctionLigthE : pointLigthView)
+		{
+			auto& [modelC, pointLigthC] = pointLigthView.get<ModelMatrixComponent, PointLigthComponent>(dirctionLigthE);
+			Renderer2D::SubmitLigthPointIcon(modelC.Globle, static_cast<int>(dirctionLigthE));
+		}
+#else
+		pointLigthView.each([](entt::entity e, ModelMatrixComponent& modelC, PointLigthComponent& pointLigthC)
+			{
+				uint32_t uEnitityID = entt::to_integral(e);
+				int32_t enitityID = static_cast<int32_t>(uEnitityID);
+
+				Renderer2D::SubmitLigthPointIcon(modelC.Globle, enitityID);
+			});
+#endif
+
+	}
+
+	void Scene::Submit2DSpotLigthIcons(EnttSpotLigthView& spotLigthView)
+	{
+#if 0
+		for (entt::entity spotLigthE : spotLigthView)
+		{
+			auto& [modelC, spotLigthC] = spotLigthView.get<ModelMatrixComponent, SpotLigthComponent>(spotLigthE);
+			Renderer2D::SubmitLigthSpotIcon(modelC.Globle, static_cast<int>(spotLigthE));
+		}
+#else
+		spotLigthView.each([](entt::entity e, ModelMatrixComponent& modelC, SpotLigthComponent& spotLigthC)
+		{
+			uint32_t uEnitityID = entt::to_integral(e);
+			int32_t enitityID = static_cast<int32_t>(uEnitityID);
+
+			Renderer2D::SubmitLigthSpotIcon(modelC.Globle, enitityID);
+		});
+#endif
+	}
+
+#pragma endregion
+
+#pragma endregion
+
+
+
+#pragma region Render3D_SubmitFunc
+
+#pragma region LigthSubmitionFunc
+
+	void Scene::SubmitLigtheViews(EnttViewLigths& ligths)
+	{
+		RY_REMBER_FUNC_CHANGE("Implemten Function Sumbmit Call to Render3D");
+		Submit3DDrirectionLigth(ligths.drirektionLCV);
+		Submit3DPointLigth(ligths.pointLCV);
+		Submit3DSpotLigth(ligths.spotLCV);
+	}
+
+
+
+	void Scene::Submit3DPointLigth(EnttPointLigthView& pointLigthView)
+	{
+		RY_REMBER_FUNC_CHANGE("Impation Finaly");
+#if 0
+		for (entt::entity pointLigthdE : pointLigthView)
+		{
+			auto& [transformC, pointLigthC] = pointLigthView.get<ModelMatrixComponent, PointLigthComponent>(pointLigthdE);
+		}
+#else
+		pointLigthView.each([](entt::entity e, ModelMatrixComponent& transformC, PointLigthComponent& pointLigthC)
+		{
+		});
+#endif
+
+	}
+
+	void Scene::Submit3DSpotLigth(EnttSpotLigthView& spotLigthView)
+	{
+		RY_REMBER_FUNC_CHANGE("Impation Finaly");
+#if 0
+		for (entt::entity spotLigthdE : spotLigthView)
+		{
+			auto& [transformC, spotLigthC] = spotLigthView.get<ModelMatrixComponent, SpotLigthComponent>(spotLigthdE);
+		}
+#else
+		spotLigthView.each([](entt::entity e, ModelMatrixComponent& renderTargetC, SpotLigthComponent& spotLigthC)
+		{
+		});
+#endif
+	}
+
+	void Scene::Submit3DDrirectionLigth(EnttDrirektionLigthView& drirektionLigthView)
+	{
+		RY_REMBER_FUNC_CHANGE("Impation Finaly");
+#if 0
+		for (entt::entity drirektionLigthE : drirektionLigthView)
+		{
+			auto& [transformC, drirektionLigthC] = drirektionLigthView.get<ModelMatrixComponent, DrirectionleLigthComponent>(drirektionLigthE);
+		}
+#else
+		drirektionLigthView.each([](entt::entity e, ModelMatrixComponent& transformC, DrirectionleLigthComponent& drirektionLigthC)
+		{
+		});
+#endif
+	}
+
+#pragma endregion
+
+#pragma region RenderTarget
+	void Scene::RenderRenderTaregtView(EnttRenderTargetView& renderTargetView, EnttRender3DStaticModelView& view3dStaticMesh)
+	{
+		Renderer::ResetCurentRenderPassFrame();
+#if 0
+		for (entt::entity renderTargetE : renderTargetView)
+		{
+			auto&[renderTargetC, cameraC, modelC] = renderTargetView.get<RenderTargetComponent, CameraComponent, ModelMatrixComponent>(renderTargetE);
+			if (cameraC.Primary || nullptr == renderTargetC.Target || nullptr == renderTargetC.Target->GetFramebuffer())
+			{
+				continue;
+			}
+			SubmitRenderTaregtCurent(cameraC.Camera, modelC.Globle, renderTargetC);
+			Submit3DStaticeEntitysCurent(view3dStaticMesh);
+			RenderNowCurent();
+			ResetRenderTaregtCurent();
+
+			Renderer::IncromentCurentRenderPass();
+		}
+#else
+		renderTargetView.each([&view3dStaticMesh](entt::entity e, RenderTargetComponent& renderTargetC, CameraComponent& cameraC, ModelMatrixComponent& modelC)
+			{
+				if (cameraC.Primary || nullptr == renderTargetC.Target || nullptr == renderTargetC.Target->GetFramebuffer())
+				{
+					return;
+				}
+				SubmitRenderTaregtCurent(cameraC.Camera, modelC.Globle, renderTargetC);
+				if (Renderer::IsSceneSubmite3DAktive())
+				{
+					Submit3DStaticeEntitysCurent(view3dStaticMesh);
+				}
+				RenderNowCurent();
+				ResetRenderTaregtCurent();
+
+				Renderer::IncromentCurentRenderPass();
+			});
+#endif
+	}
+
+	void Scene::SubmitRenderTaregtCurent(Camera& camera, const glm::mat4& model, RenderTargetComponent& targetC)
+	{
+#ifdef RY_RENERER_DESIGN_CURENT_MAIN
+		Renderer::SetNextCurentRenderPass(targetC.StroeIndex);
+		Renderer::SetRenderPassNameCurent(targetC.RenderPassName);
+
+		// Renderer::GetDrawContext().PushScope(targetC.RenderPassName, Renderer::GetCurentIndex());
+
+		Renderer::SetRenderCameraCurent(model, camera);
+		
+		Renderer::SetRenderCameraCurentUB();
+		Renderer::SetRenderTargetCurent(targetC.Target);
+		const glm::ivec4& viewSize = targetC.Target->GetRenderViewSize();
+
+
+		Renderer::SetViewSizeCurent(viewSize);
+		
+#endif
+
+	}
+
+	void Scene::SubmitRenderTaregtMain(Camera& camera, const glm::mat4& model, RenderTargetComponent& targetC)
+	{
+#ifdef RY_RENERER_DESIGN_CURENT_MAIN
+		Renderer::SetRenderPassNameMain(targetC.RenderPassName);
+		Renderer::SetRenderCameraMain(model, camera);
+#endif
+	}
+
+	void Scene::RenderNowMain()
+	{
+		Renderer2D::SubmitRenderDrawList();
+		Renderer::RenderSubmitSceneMain();
+	}
+
+	void Scene::RenderNowCurent()
+	{
+#ifdef RY_RENERER_DESIGN_CURENT_MAIN
+		Renderer::RenderingPassCurent();
+#endif
+
+	}
+
+	void Scene::ResetRenderTaregtMain()
+	{
+#ifdef RY_RENERER_DESIGN_CURENT_MAIN
+		Renderer::ClearMainPiplines();
+#endif
+		Renderer3D::ResetMeshObject();
+		// Renderer::GetDrawContext().PopScope();
+	}
+
+	void Scene::ResetRenderTaregtCurent()
+	{
+#ifdef RY_RENERER_DESIGN_CURENT_MAIN
+		Renderer::ClearCurentPiplines();
+#endif
+
+		Renderer3D::ResetMeshObject();
+		// Renderer::GetDrawContext().PopScope();
+
+	}
+
+	
+
+#pragma endregion
+
+#pragma region SubmitTo3DRenderPiplinesFuncs
+
+	void Scene::Submit3DStaticeEntitysRenderProxy(EnttRender3DStaticModelView& view3dStaticMesh)
+	{
+		Renderer3D::ClearRenderProxy();
+
+		view3dStaticMesh.each([](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC)
+		{
+			uint32_t uEnitityID = entt::to_integral(e);
+			int32_t enitityID = static_cast<int32_t>(uEnitityID);
+
+			Renderer3D::AddMeshComponentRenderProxy(enitityID, meshCompC, transformC.Globle);
+		});
+	}
+
+	void Scene::Submit3DStaticeEntitys(EnttRender3DStaticModelView& view3dStaticMesh, int64_t* timerPtr)
+	{
+		Ref<PlatformTimer> timer = PlatformTimer::Create(timerPtr);
+		view3dStaticMesh.each([](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC)
+			{
+				uint32_t uEnitityID = entt::to_integral(e);
+				int32_t enitityID = static_cast<int32_t>(uEnitityID);
+
+				Renderer3D::MeshCompont(transformC.Globle, meshCompC, enitityID);
+			});
+		// Renderer3D::SubmitHashMeshesToPipline();
+	}
+
+	void Scene::Submit3DStaticeEntitysMain(EnttRender3DStaticModelView& view3dStaticMesh, int64_t* timerPtr)
+	{
+		Ref<PlatformTimer> timer = PlatformTimer::Create(timerPtr);
+		view3dStaticMesh.each([](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC)
+			{
+				uint32_t uEnitityID = entt::to_integral(e);
+				int32_t enitityID = static_cast<int32_t>(uEnitityID);
+
+				Renderer3D::MeshCompontMain(transformC.Globle, meshCompC, enitityID);
+			});
+		
+		// Renderer3D::SubmitHashMeshesToPipline();
+	}
+
+
+	void Scene::Submit3DStaticeEntitysCurent(EnttRender3DStaticModelView& view3dStaticMesh)
+	{
+#if 0
+		for (entt::entity render3dE : view3dStaticMesh)
+		{
+			auto& [transformC, meshC] = view3dStaticMesh.get<ModelMatrixComponent, ModelMangerComponent>(render3dE);
+			uint32_t uEnitityID = entt::to_integral(render3dE);
+			int32_t enitityID = static_cast<int32_t>(uEnitityID);
+
+			Renderer3D::MeshCompontCurent(transformC.Globle, meshC, enitityID);
+		}
+#else
+		view3dStaticMesh.each([](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC)
+			{
+				uint32_t uEnitityID = entt::to_integral(e);
+				int32_t enitityID = static_cast<int32_t>(uEnitityID);
+
+				Renderer3D::MeshCompontCurent(transformC.Globle, meshCompC, enitityID);
+			});
+#endif
+		// Renderer3D::SubmitHashMeshesToPipline();
+	}
+
+	void Scene::Submit3DSingleStaticeEntitys(EnttRender3DSingleStaticModelView& view3dSingleStaticMesh, int64_t* timerPtr)
+	{
+		Ref<PlatformTimer> timer = PlatformTimer::Create(timerPtr);
+		view3dSingleStaticMesh.each([](entt::entity e, ModelMatrixComponent& transformC, StaticMeshComponent& meshCompC)
+			{
+				uint32_t uEnitityID = entt::to_integral(e);
+				int32_t enitityID = static_cast<int32_t>(uEnitityID);
+
+
+				Renderer3D::MeshCompont(transformC.Globle, meshCompC, enitityID);
+			});
+	}
+
+
+#pragma region OnEventFunc
+
+#pragma region ModelMatrix
+
+	void Scene::OnEntityModelMatrixCreate(entt::registry& registry, entt::entity entity)
+	{
+		const ModelMatrixComponent& modelMatrixC = Utils::OnEventFunc<ModelMatrixComponent>("create", registry, entity);
+		if (registry.has<ModelMangerComponent>(entity))
+		{
+			const ModelMangerComponent& staticMeshC = registry.get<ModelMangerComponent>(entity);
+
+			uint32_t uEnitityID = entt::to_integral(entity);
+			int32_t enitityID = static_cast<int32_t>(uEnitityID);
+
+			Renderer3D::AddMeshComponentRenderProxy(enitityID, staticMeshC, modelMatrixC.Globle);
+		}
+	}
+	
+	
+	void Scene::OnEntityModelMatrixChanged(entt::registry& registry, entt::entity entity)
+	{
+		const ModelMatrixComponent& modelMatrixC = Utils::OnEventFunc<ModelMatrixComponent>("changed", registry, entity);
+		if (registry.has<ModelMangerComponent>(entity))
+		{
+			const ModelMangerComponent& staticMeshC = registry.get<ModelMangerComponent>(entity);
+
+			uint32_t uEnitityID = entt::to_integral(entity);
+			int32_t enitityID = static_cast<int32_t>(uEnitityID);
+
+			Renderer3D::UpdateTransformMeshComponentRenderProxy(enitityID, staticMeshC, modelMatrixC.Globle);
+		}
+
+	}
+
+	void Scene::OnEntityModelMatrixDestroy(entt::registry& registry, entt::entity entity)
+	{
+		const ModelMatrixComponent& modelMatrixC = Utils::OnEventFunc<ModelMatrixComponent>("destroy", registry, entity);
+		if (registry.has<ModelMangerComponent>(entity))
+		{
+			const ModelMangerComponent& staticMeshC = registry.get<ModelMangerComponent>(entity);
+
+			uint32_t uEnitityID = entt::to_integral(entity);
+			int32_t enitityID = static_cast<int32_t>(uEnitityID);
+
+			Renderer3D::RemoveMeshComponentRenderProxy(enitityID);
+		}
+
+	}
+
+#pragma endregion
+
+	
+#pragma region StaticMesh
+
+	void Scene::OnEntityStaticMeshCreate(entt::registry& registry, entt::entity entity)
+	{
+		const ModelMangerComponent& staticMeshC = Utils::OnEventFunc<ModelMangerComponent>("create", registry, entity);
+		if (registry.has<ModelMatrixComponent>(entity))
+		{
+			const ModelMatrixComponent& modelMatrixC = registry.get<ModelMatrixComponent>(entity);
+
+			uint32_t uEnitityID = entt::to_integral(entity);
+			int32_t enitityID = static_cast<int32_t>(uEnitityID);
+
+			Renderer3D::AddMeshComponentRenderProxy(enitityID, staticMeshC, modelMatrixC.Globle);
+		}
+
+	}
+
+	void Scene::OnEntityStaticMeshChanged(entt::registry& registry, entt::entity entity)
+	{
+		if (!Asset::CurrentOnMainThread())
+		{
+			
+			Application::Get().SubmiteToMainThreedQueueWait(
+				[&registry, entity]() 
+				{
+					Scene::OnEntityStaticMeshChanged(registry, entity); 
+				}
+			);
 			return;
 		}
 
-		
-
-		if ((entity != Entity() || entity != 0) && entity.HasComponent<ModelMatrixComponent>())
+		const ModelMangerComponent& staticMeshC = Utils::OnEventFunc<ModelMangerComponent>("changed", registry, entity);
+		if (registry.has<ModelMatrixComponent>(entity))
 		{
-			ModelMatrixComponent& mat4C = entity.GetComponent<ModelMatrixComponent>();
-			if (entity.HasComponent<SpriteRendererComponent>())
-			{
-				Renderer2D::BeginSceneQuade(camera, viewMatrix);
-				SpriteRendererComponent& spriteC = entity.GetComponent<SpriteRendererComponent>();
-				Renderer2D::DrawSprite(mat4C.Globle, spriteC, entity.GetEntityHandle());
-				Renderer2D::EndSceneQuade();
-			}
+			const ModelMatrixComponent& modelMatrixC = registry.get<ModelMatrixComponent>(entity);
 
-			if (entity.HasComponent<CameraComponent>())
-			{
-				Renderer2D::BeginSceneIcon(camera, viewMatrix, frameBuffer->GetFrambufferSize());
-				Renderer2D::DrawCameraIcon(mat4C.Globle, entity.GetEntityHandle());
-				Renderer2D::EndSceneIcon();
-			}
-			if (entity.HasComponent<Rynex::DrirektionleLigthComponent>())
-			{
-				Renderer2D::BeginSceneIcon(camera, viewMatrix, frameBuffer->GetFrambufferSize());
-				Renderer2D::DrawLigthDirctionelIcon(mat4C.Globle, entity.GetEntityHandle());
-				Renderer2D::EndSceneIcon();
-			}
-			if (entity.HasComponent<Rynex::SpotLigthComponent>())
-			{
-				Renderer2D::BeginSceneIcon(camera, viewMatrix, frameBuffer->GetFrambufferSize());
-				Renderer2D::DrawLigthSpotIcon(mat4C.Globle, entity.GetEntityHandle());
-				Renderer2D::EndSceneIcon();
-			}
-			if (entity.HasComponent<Rynex::PointLigthComponent>())
-			{
-				Renderer2D::BeginSceneIcon(camera, viewMatrix, frameBuffer->GetFrambufferSize());
-				Renderer2D::DrawLigthPointIcon(mat4C.Globle, entity.GetEntityHandle());
-				Renderer2D::EndSceneIcon();
-			}
-#if 0
-			else  if (slelcted.HasComponent<GeomtryComponent>())
-			{
-				Renderer3D::BeginScene(mainCamera, viewMatrix);
+			uint32_t uEnitityID = entt::to_integral(entity);
+			int32_t enitityID = static_cast<int32_t>(uEnitityID);
 
-				if (geomtryC.Geometry != nullptr)
-				{
+			Renderer3D::RemoveMeshComponentRenderProxy(enitityID);
+			Renderer3D::AddMeshComponentRenderProxy(enitityID, staticMeshC, modelMatrixC.Globle);
 
-					Renderer3D::BeforDrawEntity(m_MaterialC, mat4C.Globle, slelcted.GetEntityHandle());
-					Renderer3D::DrawObjectRender3D(geomtryC.Geometry);
-					Renderer3D::AfterDrawEntity(m_MaterialC);
-				}
-				Renderer3D::EndScene();
-			}
-#endif
-			if (entity.HasComponent<StaticMeshComponent>())
-			{
-				Renderer3D::BeginScene(camera, viewMatrix);
-				StaticMeshComponent& staticMeshC = entity.GetComponent<StaticMeshComponent>();
-
-
-				if (staticMeshC.ModelR != nullptr)
-				{
-
-					const std::vector<Ref<Mesh>>& meshes = staticMeshC.ModelR->GetMeshes();
-#if 0
-					const std::vector<glm::mat4>& globels = staticMeshC.GlobleMeshMatrix;
-					for (uint32_t i = 0, length = globels.size(); i < length; i++)
-					{
-						Renderer3D::DrawModdelSeclection(globels[i], meshes[i], m_MaterialC.Materiel, slelcted.GetEntityHandle());
-					}
-#elif 0
-					for (const Ref<Mesh>& mesh : meshes)
-					{
-						Renderer3D::DrawModdel(mat4C.Globle, staticMeshC, slelcted.GetEntityHandle());
-					}
-#else
-					for (const Ref<Mesh>& mesh : meshes)
-					{
-						Renderer3D::DrawModdelSeclection(mat4C.Globle, mesh, m_MaterialC.Materiel, entity.GetEntityHandle());
-					}
-#endif
-				}
-				Renderer3D::EndScene();
-			}
-			if (entity.HasComponent<DynamicMeshComponent>())
-			{
-				DynamicMeshComponent& dynamicMeshC = entity.GetComponent<DynamicMeshComponent>();
-				UUID parent = entity.GetComponent<RealtionShipComponent>().ParentID;
-				Renderer3D::BeginScene(camera, viewMatrix);
-				if (parent)
-				{
-					if (dynamicMeshC.MeshR != nullptr)
-					{
-						m_MaterialC.Materiel->SetMatrix(mat4C.Globle);
-						Renderer3D::DrawModdelSeclection(mat4C.Globle, dynamicMeshC.MeshR, m_MaterialC.Materiel, entity.GetEntityHandle());
-
-					}
-				}
-				Renderer3D::EndScene();
-			}
 		}
-
-		frameBuffer->Unbind();
-	}
-#endif
-
-	void Scene::Render3DSceneViewPortScene(Camera& camera, glm::mat4& viewMatrix, EnttView3D& enttView3D)
-	{
-		RY_PROFILE_SCOPE("Scene-Render3DSceneViewPortScene");
-		Renderer3D::BeginScene(camera, viewMatrix);
-		RenderScene3DDraw(enttView3D, Renderer3D::DrawMesh3D);
-		Renderer3D::EndScene();
 	}
 
-
-	// TODO: Frambuffer Render System
-	void Scene::Render3DSceneFrambufferScene(Camera& camera, glm::mat4& viewMatrix, EnttView3D& enttView3D, uint32_t framebufferIndex)
+	void Scene::OnEntityStaticMeshDestroy(entt::registry& registry, entt::entity entity)
 	{
-		RY_PROFILE_SCOPE("Frambuffers");
-		RY_CORE_ASSERT(false, "need Finael Plane");
-		// Need otherFunktion
-		Renderer3D::BeginScene(camera, viewMatrix);
-		RenderScene3DDraw(enttView3D, Renderer3D::DrawMeshFrambuffer);
-		Renderer3D::EndScene();
-	}
-
-	void Scene::Render3DSceneShadowScene(EnttView3D& enttView3D)
-	{
-		RY_PROFILE_SCOPE("Scene-Render3DSceneShadowScene");
-		Renderer3D::BeginSceneShadow();
-		RenderScene3DSubmit(enttView3D, Renderer3D::DrawMeshMeshShadow);
-		Renderer3D::EndSceneShadow();
-	}
-
-	void Scene::RenderScene2D(Camera& camera, glm::mat4& viewMatrix, EnttView2D& enttView2D)
-	{
-		EnttRender2DView& enttRender2DView = enttView2D.Renderer2DCV;
-		EnttRenderTextView& enttRenderTextView = enttView2D.RendererTextCV;
-		RY_PROFILE_SCOPE("Scene Draw 2D");
-
-		Renderer2D::BeginSceneQuade(camera, viewMatrix);
-		for (EnttEntity render2dE : enttRender2DView)
+		const ModelMangerComponent& staticMeshC = Utils::OnEventFunc<ModelMangerComponent>("destroy", registry, entity);
+		if (registry.has<ModelMatrixComponent>(entity))
 		{
-			auto& [transformC, spriteC] = enttRender2DView.get< ModelMatrixComponent, SpriteRendererComponent>(render2dE);
-			Renderer2D::DrawSprite(transformC.Globle, spriteC, (int)render2dE);
-		}
-		for (EnttEntity render2dE : enttRenderTextView)
-		{
-			auto& [transformC, textC] = enttRenderTextView.get< ModelMatrixComponent, TextComponent>(render2dE);
-			Renderer2D::DrawStringCom(transformC.Globle, textC, (int)render2dE);
-		}
-		Renderer2D::EndSceneQuade();
-	}
-	
-	
+			const ModelMatrixComponent& modelMatrixC = registry.get<ModelMatrixComponent>(entity);
 
-	void Scene::RenderScene3DDraw(EnttView3D& enttView3D, RenderFunc func)
+			uint32_t uEnitityID = entt::to_integral(entity);
+			int32_t enitityID = static_cast<int32_t>(uEnitityID);
+
+			Renderer3D::RemoveMeshComponentRenderProxy(enitityID);
+		}
+	}
+
+#pragma endregion
+
+#pragma region StaticSingleMesh
+
+	void Scene::OnEntityStaticSingleMeshCreate(entt::registry& registry, entt::entity entity)
 	{
-
-		RY_PROFILE_SCOPE("Scene Draw 3D");
-		
-		EnttRender3DStaticModelView& enttRender3DStaticModelView = enttView3D.StaticCV;
-		for (EnttEntity render3dE : enttRender3DStaticModelView)
-		{
-			auto& [tranformC, staticMeshC] = enttRender3DStaticModelView.get<ModelMatrixComponent, StaticMeshComponent>(render3dE);
-
-			if (staticMeshC.ModelR == nullptr)
-				continue;
-
-			Renderer3D::RenderComponet( tranformC.Globle, staticMeshC, (int)render3dE, func);
-		}
-
-
-		EnttRender3DDynamicModelView& enttRender3DDynamicModelView = enttView3D.DynamicModelCV;
-		for (EnttEntity render3dE : enttRender3DDynamicModelView)
-		{
-			auto& [tranformC, dynamicMeshC] = enttRender3DDynamicModelView.get<ModelMatrixComponent,  DynamicMeshComponent>(render3dE);
-			if (dynamicMeshC.MeshD.size() == 0)
-				continue;
-
-			Renderer3D::RenderComponet( tranformC.Globle, dynamicMeshC, (int)render3dE, func);
-		}
-		
+		const StaticMeshComponent& staticSingleMeshC = Utils::OnEventFunc<StaticMeshComponent>("create", registry, entity);
 
 	}
-#if 1
-	void Scene::RenderScene3DSubmit(EnttView3D& enttView3D, RenderFunc func)
+
+	void Scene::OnEntityStaticSingleMeshChanged(entt::registry& registry, entt::entity entity)
 	{
-		RY_PROFILE_SCOPE("Scene Submit 3D");
-
-		EnttRender3DStaticModelView& enttRender3DStaticModelView = enttView3D.StaticCV;
-		for (EnttEntity render3dE : enttRender3DStaticModelView)
-		{
-			auto& [tranformC, staticMeshC] = enttRender3DStaticModelView.get<ModelMatrixComponent, StaticMeshComponent>(render3dE);
-
-			if (staticMeshC.ModelR == nullptr)
-				continue;
-
-			Renderer3D::SubmitComponet(tranformC.Globle, staticMeshC, (int)render3dE, func);
-		}
-
-
-		EnttRender3DDynamicModelView& enttRender3DDynamicModelView = enttView3D.DynamicModelCV;
-		for (EnttEntity render3dE : enttRender3DDynamicModelView)
-		{
-			auto& [tranformC, dynamicMeshC] = enttRender3DDynamicModelView.get<ModelMatrixComponent, DynamicMeshComponent>(render3dE);
-			if (dynamicMeshC.MeshD.size() == 0)
-				continue;
-
-			Renderer3D::SubmitComponet(tranformC.Globle, dynamicMeshC, (int)render3dE, func);
-		}
+		const StaticMeshComponent& staticSingleMeshC = Utils::OnEventFunc<StaticMeshComponent>("changed", registry, entity);
 
 	}
-#endif
 
-	
-#if 0
-	void Scene::SubmiteScene2D(EnttView2D& enttView2D)
+	void Scene::OnEntityStaticSingleMeshDestroy(entt::registry& registry, entt::entity entity)
 	{
-		RY_PROFILE_SCOPE("Scene 2D - Submit");
+		const StaticMeshComponent& staticSingleMeshC = Utils::OnEventFunc<StaticMeshComponent>("destroy", registry, entity);
 
-		EnttRender2DView& enttRender2DView = enttView2D.Renderer2DCV;
-		EnttRenderTextView& enttRenderTextView = enttView2D.RendererTextCV;
-		for (EnttEntity render2dE : enttRender2DView)
+	}
+
+#pragma endregion
+
+
+#pragma endregion
+
+#pragma endregion
+
+
+
+#pragma region Submit3DObjectsDataFuncs
+
+	void Scene::Submit3DDataStaticeEntitys(EnttRender3DStaticModelView& view3dStaticMesh, int64_t* timerPtr)
+	{
+		Ref<PlatformTimer> timer = PlatformTimer::Create(timerPtr);
+		for (entt::entity render3dE : view3dStaticMesh)
 		{
-			auto& [transformC, spriteC] = enttRender2DView.get< ModelMatrixComponent, SpriteRendererComponent>(render2dE);
-			Renderer2D::DrawSprite(transformC.Globle, spriteC, (int)render2dE);
+			auto& [transformC, meshC] = view3dStaticMesh.get<ModelMatrixComponent, ModelMangerComponent>(render3dE);
+			Renderer3D::MeshCompontSetData(transformC.Globle, meshC, static_cast<int>(render3dE));
+
 		}
+		Renderer3D::SubmitShadeDataMeshObjectToPipline();
+		Renderer3D::SubmitDepthDataMeshObjectToPipline();
+	}
 
-
-		for (EnttEntity render2dE : enttRenderTextView)
+	void Scene::Submit3DDataSingleStaticeEntitys(EnttRender3DSingleStaticModelView& view3dSingleStaticMesh, int64_t* timerPtr)
+	{
+		Ref<PlatformTimer> timer = PlatformTimer::Create(timerPtr);
+		for (entt::entity render3dE : view3dSingleStaticMesh)
 		{
-			auto& [transformC, textC] = enttRenderTextView.get< ModelMatrixComponent, TextComponent>(render2dE);
-			Renderer2D::DrawStringCom(transformC.Globle, textC, (int)render2dE);
+			auto& [transformC, meshC] = view3dSingleStaticMesh.get<ModelMatrixComponent, StaticMeshComponent>(render3dE);
+			Renderer3D::MeshCompontSetData(transformC.Globle, meshC, static_cast<int>(render3dE));
 		}
-		Renderer2D::EndSceneQuade();
-
+		Renderer3D::SubmitShadeDataMeshObjectToPipline();
+		Renderer3D::SubmitDepthDataMeshObjectToPipline();
 	}
 
-	void Scene::SubmiteScene3D(EnttView3D& enttView3D)
-	{
+#pragma endregion
 
-	}
-
-	void Scene::SubmiteLigthsEditor(EnttViewLigths& enttViewLigths)
-	{
-
-	}
-	
-	void Scene::RenderScene(Camera& camera, glm::mat4& transform, const Ref<Framebuffer>& frameBuffer)
-	{
-	}
-#endif
-
-
-	void Scene::RenderFrambuffers( EnttView3D& enttView3D, EnttView2D& enttView2D, EnttCameraView& enttCameraView)
-	{
-#if RY_OLD_RENDER_SYSTEM
-		RY_PROFILE_SCOPE("Scene-RenderFrambuffers");
-		EnttFrameBufferView frambufferView = m_Registery.view<ModelMatrixComponent, CameraComponent, FrameBufferComponent>();
-		for (EnttEntity frameE : frambufferView)
-		{
-			auto& [modelC, camerC, frambufferC] = frambufferView.get<ModelMatrixComponent, CameraComponent, FrameBufferComponent>(frameE);
-			if (frambufferC.FrameBuffer)
-			{
-				frambufferC.FrameBuffer->Bind();
-				RenderCommand::SetClearColor(m_BackGround);
-				RenderCommand::Clear();
-				glm::mat4 view = glm::inverse(modelC.Globle);
-				Render3DSceneFrambufferScene(camerC.Camera, view, enttView3D, frambufferC.FrameBufferLayoutIndex);
-				RenderScene2D(camerC.Camera, view, enttView2D);
-				frambufferC.FrameBuffer->Unbind();
-
-				
-			}
-			
-		}
-#else
-#endif
-	}
+#pragma endregion
 
 
 	void Scene::OnViewportResize(uint32_t withe, uint32_t heigth)
@@ -1037,13 +1399,12 @@ namespace Rynex {
 		m_ViewPortWithe = withe;
 		m_ViewPortHeigth = heigth;
 
-		//resize
 		auto view = m_Registery.view<CameraComponent>();
-		for (EnttEntity entity : view)
+		for (entt::entity entity : view)
 		{
 			auto& cameraComponent = view.get<CameraComponent>(entity);
 
-			if (!cameraComponent.FixedAspectRotaion)
+			if (cameraComponent.Primary && !cameraComponent.FixedAspectRotaion)
 				cameraComponent.Camera.SetViewPortSize(withe, heigth);
 
 		}
@@ -1061,6 +1422,8 @@ namespace Rynex {
 	{
 		static_assert(false);
 	}
+
+	
 
 	// Template Component
 	template<>
@@ -1082,6 +1445,11 @@ namespace Rynex {
 			entity.AddComponent<ViewMatrixComponent>();
 		if (!entity.HasComponent<WorldViewFustrumComponent>())
 			entity.AddComponent<WorldViewFustrumComponent>();
+	}
+
+	template<>
+	void Scene::OnComponentAdded<RenderTargetComponent>(Entity entity, RenderTargetComponent& component)
+	{
 	}
 
 	template<>
@@ -1143,14 +1511,26 @@ namespace Rynex {
 	}
 
 	template<>
-	void Scene::OnComponentAdded<RealtionShipComponent>(Entity entity, RealtionShipComponent& component)
+	void Scene::OnComponentAdded<VisibleComponent>(Entity entity, VisibleComponent& component)
 	{
+		component.isVisable = true;
 	}
 
 	template<>
 	void Scene::OnComponentAdded<StaticMeshComponent>(Entity entity, StaticMeshComponent& component)
 	{
 	}
+
+	template<>
+	void Scene::OnComponentAdded<RealtionShipUUIDComponent>(Entity entity, RealtionShipUUIDComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<ModelMangerComponent>(Entity entity, ModelMangerComponent& component)
+	{
+	}
+
 
 	template<>
 	void Scene::OnComponentAdded<DynamicMeshComponent>(Entity entity, DynamicMeshComponent& component)
@@ -1162,13 +1542,9 @@ namespace Rynex {
 	{
 	}
 
-	template<>
-	void Scene::OnComponentAdded<AmbientLigthComponent>(Entity entity, AmbientLigthComponent& component)
-	{
-	}
 
 	template<>
-	void Scene::OnComponentAdded<DrirektionleLigthComponent>(Entity entity, DrirektionleLigthComponent& component)
+	void Scene::OnComponentAdded<DrirectionleLigthComponent>(Entity entity, DrirectionleLigthComponent& component)
 	{
 		if (!entity.HasComponent<ViewMatrixComponent>())
 			entity.AddComponent<ViewMatrixComponent>();

@@ -33,6 +33,7 @@ namespace Rynex {
 
 		virtual ~Window() {}
 
+		virtual void OnSreenRefresh() = 0;
 		virtual void OnUpdate() = 0;
 
 		virtual uint32_t GetWidth() const = 0;
@@ -49,6 +50,7 @@ namespace Rynex {
 		virtual bool IsVSync() const = 0;
 		virtual bool IsFocused() const = 0;
 		virtual void* GetNativeWindow() const = 0;
+		virtual int64_t GetRenderTime() const = 0;
 
 		virtual GraphicsContext* GetGraphicsContext() = 0;
 

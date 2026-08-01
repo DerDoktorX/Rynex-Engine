@@ -18,7 +18,7 @@ namespace Rynex {
 		template<typename T>
 		static std::string_view GetStringFromEnum(T e)
 		{
-			return std::string_view();
+			return std::string_view("");
 		}
 		//{
 		//	return magic_enum::enum_name(e);

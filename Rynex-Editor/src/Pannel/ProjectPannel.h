@@ -29,7 +29,7 @@ namespace Rynex {
 		void SaveProject();
 	public:
 		enum class ProjectPathSelectDialog {
-			Nono = 0,
+			None = 0,
 			Directory,
 			ProjectFile,
 			ScriptFile,

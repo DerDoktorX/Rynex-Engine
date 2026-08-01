@@ -47,8 +47,8 @@ namespace Rynex {
 
 	void SceneCamera::SetViewPortSize(uint32_t withe, uint32_t heigth)
 	{
-		m_AspectRotatio = (float)withe / (float)heigth;
-
+		m_AspectRotatio = static_cast<float>(withe) / static_cast<float>(heigth);
+		m_ViewAsspect = { static_cast<int>(withe), static_cast<int>(heigth) };
 		RecalulateProjection();
 	}
 
@@ -149,6 +149,22 @@ namespace Rynex {
 		return viewFustremWorld;
 	}
 
+	float SceneCamera::GetWorldViewFustrumRaidus(const glm::mat4& view)
+	{
+		std::array<glm::vec4, 8> viewFustrum = SceneCamera::GetInverseViewProjetionFustrumWorld(view);
+		float radius = 0.0f;
+		for (glm::vec4& pos : viewFustrum)
+		{
+			for (uint8_t i = 0; i < 3; i++)
+			{
+				float value = pos[i];
+				radius = value > radius ? value : radius;
+			}
+		}
+
+		return radius;
+	}
+
 	std::array<glm::vec4, 8> SceneCamera::GetViewFustrumWorld(const glm::mat4& view, const glm::mat4& projetion)
 	{
 		std::array<glm::vec4, 8> viewFustremWorld = m_ViewFustrum;
@@ -165,7 +181,7 @@ namespace Rynex {
 	std::array<glm::vec4, 8> SceneCamera::GetInverseViewProjetionFustrumWorld(const glm::mat4& inverseViewProjetion)
 	{
 		std::array<glm::vec4, 8> viewFustremWorld = m_ViewFustrum;
-		for (auto& fust : viewFustremWorld)
+		for (glm::vec4& fust : viewFustremWorld)
 			fust = inverseViewProjetion * fust;
 		return viewFustremWorld;
 	}

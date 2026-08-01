@@ -19,9 +19,10 @@ layout(location = 0) out vec4 Color;
 layout(location = 1) out int EntityID;
 
 uniform int u_EntityID;
+uniform vec3 u_Color;
 
 void main()
 {
-    EntityID=u_EntityID;
-    Color =  vec4(1.0, 0.0, 0.0, 1.0);
+    EntityID = u_EntityID;
+    Color = vec4(u_Color.rgb, 1.0);
 }
