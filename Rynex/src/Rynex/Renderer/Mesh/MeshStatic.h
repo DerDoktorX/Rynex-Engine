@@ -17,82 +17,7 @@ namespace Rynex {
 	class RYNEX_API MeshStatic : public Mesh
 	{
 	public:
-#if 0
-		struct SingleObjectMeshRender : public SingleMeshObject
-		{
-			SingleObjectMeshRender() = default;
-			SingleObjectMeshRender(const SingleObjectMeshRender&) = default;
-			SingleObjectMeshRender(const Ref<MeshSingle>& meshSingle, const Ref<Material>& materiel, const glm::mat4& localeMatrix)
-				: SingleMeshObject({ materiel, meshSingle })
-				, LocaleCildrenMatrix(localeMatrix)
-			{
-			}
 
-			glm::mat4 LocaleCildrenMatrix;
-
-			const UUID& GetHandle() const;
-			const Mesh::PerDrawObject& GetShadePerDrawObjectIndrect() const;
-			const Mesh::PerDrawObject& GetDepthPerDrawObjectIndrect() const;
-
-			bool operator==(const SingleObjectMeshRender& data) const
-			{
-				bool rMateriel = this->_Material == data._Material;
-				bool rMesh = this->_MeshSingle == data._MeshSingle;
-				bool rMatrix = this->LocaleCildrenMatrix == data.LocaleCildrenMatrix;
-				return rMateriel && rMesh && rMatrix;
-			}
-
-			bool operator!=(const SingleObjectMeshRender& data) const
-			{
-				bool rMateriel = this->_Material == data._Material;
-				bool rMesh = this->_MeshSingle == data._MeshSingle;
-				bool rMatrix = this->LocaleCildrenMatrix == data.LocaleCildrenMatrix;
-				return rMateriel || rMesh || rMatrix;
-			}
-		};
-		struct SingleObjectMeshData : public SingleObjectMeshRender
-		{
-			SingleObjectMeshData() = default;
-
-			SingleObjectMeshData(const Ref<MeshSingle>& meshSingle, const Ref<Material>& materiel, const glm::mat4& localeMatrix, const std::string& nodeName, uint32_t localeMeshIndex, uint32_t localeMaterielIndex)
-				: SingleObjectMeshRender(meshSingle, materiel, localeMatrix )
-				, NodeName(nodeName)
-				, LocaleIndexMesh(localeMeshIndex)
-				, LocaleIndexMateriel(localeMaterielIndex)
-			{
-			}
-
-			std::string		NodeName;
-			uint32_t		LocaleIndexMesh;
-			uint32_t		LocaleIndexMateriel;
-
-			const UUID& GetHandle() const;
-			const Mesh::PerDrawObject& GetShadePerDrawObjectIndrect() const;
-			const Mesh::PerDrawObject& GetDepthPerDrawObjectIndrect() const;
-
-			bool operator==(const SingleObjectMeshData& data) const
-			{
-				bool rMateriel = this->_Material == data._Material;
-				bool rMesh = this->_MeshSingle == data._MeshSingle;
-				bool rMatrix = this->LocaleCildrenMatrix == data.LocaleCildrenMatrix;
-				bool rNodeName = this->NodeName == data.NodeName;
-				bool rIndexMesh = this->LocaleIndexMesh == data.LocaleIndexMesh;
-				bool rIndexMateriel = this->LocaleIndexMateriel == data.LocaleIndexMateriel;
-				return rMateriel && rMesh && rMatrix && rNodeName && rIndexMesh && rIndexMateriel;
-			}
-
-			bool operator!=(const SingleObjectMeshData& data) const
-			{
-				bool rMateriel = this->_Material == data._Material;
-				bool rMesh = this->_MeshSingle == data._MeshSingle;
-				bool rMatrix = this->LocaleCildrenMatrix == data.LocaleCildrenMatrix;
-				bool rNodeName = this->NodeName != data.NodeName;
-				bool rIndexMesh = this->LocaleIndexMesh != data.LocaleIndexMesh;
-				bool rIndexMateriel = this->LocaleIndexMateriel != data.LocaleIndexMateriel;
-				return rMateriel || rMesh || rMatrix || rNodeName || rIndexMesh || rIndexMateriel;
-			}
-		};	
-#else
 		struct SingleObjectMeshData : public SingleMeshObject
 		{
 			SingleObjectMeshData() = default;
@@ -137,15 +62,10 @@ namespace Rynex {
 				return rMateriel || rMesh || rMatrix || rNodeName || rIndexMesh || rIndexMateriel;
 			}
 		};
-#endif
 	public:
 		MeshStatic();
 		MeshStatic(const Ref<MeshSource>& source);
 		MeshStatic(const Ref<MeshSource>& source, const std::vector<SingleObjectMeshData>& singleMeshDatas);
-#if 0
-		MeshStatic(const Ref<VertexArray>& vaa, const Ref<VertexBuffer>& vab, const Ref<IndexBuffer>& iab, const Ref<StorageBuffer>& ssboM, const std::vector<SingleObjectMeshData>& singleMeshDatas);
-		MeshStatic(const Ref<VertexArray>& vaa, const Ref<VertexBuffer>& vab, const Ref<IndexBuffer>& iab, const std::vector<SingleObjectMeshData>& singleMeshDatas);
-#endif
 		virtual ~MeshStatic();
 
 		virtual Mesh::Type GetMeshType() const override { return Mesh::Type::Static; }
