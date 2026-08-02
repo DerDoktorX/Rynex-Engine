@@ -68,14 +68,6 @@ namespace Rynex {
 			std::vector<uint32_t> ShadeIndicesDataVec;
 			std::vector<uint32_t> DepthIndicesDataVec;
 		};
-#if 0
-		struct MeshData 
-		{
-			Ref<IndexBuffer> IAB;
-			Ref<VertexArray> IAA;
-			Mesh::PerDrawObject indrectPDO;
-		};
-#endif
 	public:
 
 		MeshSource(std::vector<MeshSource::_Material>&& materiel, std::vector<MeshSource::SourceMesh>&& meshes, std::vector<MeshSource::SourceVertex>&& vertexSourceData,  EntityNodes&& nodes);
@@ -86,17 +78,13 @@ namespace Rynex {
 		void SetVertexBuffer(const Ref<VertexBuffer>& vb, uint32_t i) { m_VABvec.at(i) = vb; }
 		void SetIndexBuffer(const Ref<IndexBuffer>& vi, uint32_t i) { m_DepthIABvec.at(i) = vi; }
 
-#if RY_OLD_INDRECT
 		void SetStorageBuffer(const Ref<StorageBuffer>& sbboM) { m_StorageBuffer = sbboM; }
-#endif
 
 		void SetMaterials(const std::vector<Ref<Material>>& m) { m_MaterialsVec = m; }
 		void SetTextures(const std::vector<Ref<Texture>>& textures);
 
-#if RY_OLD_INDRECT
 		void SetTexturesMap(const MapVector<int64_t, Ref<Texture>>& t) { m_TexturesMap = t; }
 		void SetPerDrawObject(const std::vector<Mesh::PerDrawObject>& pdo) { m_ShadePerDrawObjectVec = pdo; }
-#endif
 
 
 		const Ref<VertexBuffer>& GetVertexBuffer(uint32_t i) const { return m_VABvec.at(i); }
@@ -118,28 +106,22 @@ namespace Rynex {
 
 
 		// ---
-#if RY_OLD_INDRECT
 		const Ref<StorageBuffer>& GetOffsetBuffer() const { return m_StorageBuffer; }
 
 		const std::vector<Ref<Texture>>& GetTexturesVecConst() const { return m_TexturesMap.GetVector(); }
 		const MapVector<int64_t, Ref<Texture>>& GetTexturesMapConst() const { return m_TexturesMap; }
 		const std::vector<Mesh::PerDrawObject>& GetPerDrawObjectsVecConst() const { return m_ShadePerDrawObjectVec; }
-#endif
 
 		const std::vector<Ref<MeshSingle>>& GetMeshSingleVecConst() const { return m_SingleMeshVec; }
 		const std::vector<Ref<Material>>& GetMaterialsVecConst() const { return m_MaterialsVec; }
 
-#if RY_OLD_INDRECT
 
 		const std::vector<Ref<Texture>>& GetTexturesVec() const { return GetTexturesVecConst(); }
 		const MapVector<int64_t, Ref<Texture>>& GetTexturesMap() const { return GetTexturesMapConst(); }
 		const std::vector<Mesh::PerDrawObject>& GetPerDrawObjectsShadeVec() const { return GetPerDrawObjectsVecConst(); }
-#endif
 
 
-#if RY_OLD_INDRECT
 		const std::vector<PerDrawObject>& GetPerDrawObjectsDepthVec() const { return m_DepthPerDrawObjectVec; }
-#endif
 		const std::vector<Ref<MeshSingle>>& GetMeshSingleVec() const { return GetMeshSingleVecConst(); }
 		const std::vector<Ref<Material>>& GetMaterialsVec() const { return GetMaterialsVecConst(); }
 
@@ -174,26 +156,19 @@ namespace Rynex {
 		std::vector<Ref<IndexBuffer>>& GetShadeIndexBufferVec() { return m_ShadeIABvec; }
 		std::vector<Ref<IndexBuffer>>& GetDepthIndexBufferVec() { return m_DepthIABvec; }
 
-#if RY_OLD_INDRECT
 		Ref<StorageBuffer>& GetOffsetBuffer() { return m_StorageBuffer; }
-#endif
 
 
 		std::vector<Ref<Material>>& GetMaterialsVec() { return m_MaterialsVec; }
-#if RY_OLD_INDRECT
 		std::vector<Ref<Texture>>& GetTexturesVec() { return m_TexturesMap.GetVector(); }
 		std::vector<Ref<Texture>>& GetTexturesMap() { return m_TexturesMap.GetVector(); }
 		std::vector<PerDrawObject>& GetPerDrawObjectsShadeVec() { return m_ShadePerDrawObjectVec; }
 		std::vector<PerDrawObject>& GetPerDrawObjectsDepthVec() { return m_ShadePerDrawObjectVec; }
-#endif
 
 		std::vector<Ref<MeshSingle>>& GetMeshSingleVec() { return m_SingleMeshVec; }
 
-#if RY_OLD_INDRECT
 		const Ref<MeshStatic>& GetStaticMesh() const { return m_MeshStatic; }
-		void SetStaticMesh(const Ref<MeshStatic>& staticMesh) { m_MeshStatic = staticMesh; }
-#endif
-		std::vector<MeshSource::SourceMesh>& GetMeshSources() { return m_SourceMeshes; }
+		void SetStaticMesh(const Ref<MeshStatic>& staticMesh) { m_MeshStatic = staticMesh; }		std::vector<MeshSource::SourceMesh>& GetMeshSources() { return m_SourceMeshes; }
 		void OptimizeMeshes();
 
 		static void OptimizeMeshVec(std::vector<MeshVerteices>& verticies, std::vector<uint32_t>& indicies);
@@ -233,11 +208,9 @@ namespace Rynex {
 
 		std::vector<Ref<MeshSingle>> m_SingleMeshVec;
 		std::vector<Ref<Material>> m_MaterialsVec;
-#if RY_OLD_INDRECT
 		Ref<StorageBuffer> m_StorageBuffer;
 		MapVector<int64_t, Ref<Texture>> m_TexturesMap;
 		Ref<MeshStatic> m_MeshStatic;
-#endif
 		std::vector<Mesh::PerDrawObject> m_ShadePerDrawObjectVec;
 		std::vector<Mesh::PerDrawObject> m_DepthPerDrawObjectVec;
 
