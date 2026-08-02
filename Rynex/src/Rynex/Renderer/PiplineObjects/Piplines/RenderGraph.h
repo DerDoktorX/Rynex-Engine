@@ -28,15 +28,13 @@ namespace Rynex {
 		FullscreenEffekt fullscreen;
 	};
 
-#if 0
-	using RenderTextureResourceSerilze = RenderTextureResource<typename std::string>;
-#else
+
 	struct RenderTextureResourceSerilze
 	{
 		uint32_t handleID;
 		TextureSpecification specification;
 	};
-#endif
+
 	using RenderPassSerilze = RenderPassType<typename std::string>;
 
 	using RenderTextureResourceRuntime = uint32_t;
