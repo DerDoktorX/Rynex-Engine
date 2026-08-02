@@ -44,38 +44,12 @@ namespace Rynex {
 
 	void MeshSingle::ExtractFrustum(const glm::mat4& m, glm::vec4 planes[6])
 	{
-#if 0
-		glm::vec3 plane0Normle = glm::vec3(
-			viewProj[0][3] - viewProj[0][0],
-			viewProj[1][3] - viewProj[1][0],
-			viewProj[2][3] - viewProj[2][0]
-		);
-		float plane0Constatnt = viewProj[3][3] - viewProj[3][0];
-		float plane0NormleLength = glm::length(plane0Normle);
-		float plane0inverseNormalLength = 1.0f / plane0NormleLength;
-		plane0Normle *= plane0inverseNormalLength;
-		plane0Constatnt *= plane0inverseNormalLength;
-		
-
-		planes[0] = glm::vec4(
-			viewProj[0][3] - viewProj[0][0],
-			viewProj[1][3] - viewProj[1][0],
-			viewProj[2][3] - viewProj[2][0],
-			viewProj[3][3] - viewProj[3][0]
-		);
-
-		planes[2] = viewProj[3] + viewProj[1];
-		planes[3] = viewProj[3] - viewProj[1];
-		planes[4] = viewProj[3] + viewProj[2];
-		planes[5] = viewProj[3] - viewProj[2];
-#else
 		glm::mat4 mTranspose = glm::transpose(m);
 		for(int i = 0; i < 6; i+=2)
 		{
 			int indexPlaneGroup = i;
 			CaculateCorectViewFustremPlane(m, mTranspose, i, &planes[indexPlaneGroup]);
 		}
-#endif
 	}
 
 	bool MeshSingle::IsNotPointInFiewFustrem(glm::vec3 max, glm::vec3 min, const glm::vec4& planeSide)
@@ -122,24 +96,6 @@ namespace Rynex {
 		
 		for (const glm::vec4& p : planes)
 		{
-#if 0
-			if (IsNotPointInFiewFustrem(max, min, p))
-			{
-				glm::vec4 postion(
-					p.x < 0.0f ? max.x : min.x,
-					p.y < 0.0f ? max.y : min.y,
-					p.z < 0.0f ? max.z : min.z,
-					1.0f
-				);
-				glm::vec4 postionClip = m * postion;
-				bool checkX = (-postionClip.w <= postionClip.x) && (postionClip.x <= postionClip.w);
-				bool checkY = (-postionClip.w <= postionClip.y) && (postionClip.y <= postionClip.w);
-				bool checkZ = (-postionClip.w <= postionClip.z) && (postionClip.z <= postionClip.w);
-				bool check = checkX || checkY || checkZ;
-				// RY_CORE_ASSERT(check, "Somthing is Whrong!");
-				return true;
-			}
-#endif
 			glm::vec4 postion(
 				p.x < 0.0f ? max.x : min.x,
 				p.y < 0.0f ? max.y : min.y,
@@ -318,9 +274,7 @@ namespace Rynex {
 
 		const std::vector<Mesh::PerDrawObject>& depthIndrectPDOVec = source->GetPerDrawObjectsDepthVec();
 		SetupPDOIndrect(depthIndrectPDOVec, m_DepthPDOIndrect);
-#if 0
-		m_ShadeVAA->SetBoxAABB({ ShaderDataType::Float3, "a_Postion" });
-#endif
+
 	}
 
 	void MeshSingle::Destroy()
