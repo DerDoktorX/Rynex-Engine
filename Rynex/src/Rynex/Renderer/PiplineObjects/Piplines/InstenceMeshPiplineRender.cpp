@@ -10,7 +10,6 @@ namespace Rynex {
 
 #pragma region Base
 
-#ifdef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
 
 	static glm::mat4 computePSMMatrix(const glm::mat4& camView, const glm::mat4& camProj, const glm::vec3& lightDirWorld, float nearPlane, float farPlane)
 	{
@@ -140,7 +139,7 @@ namespace Rynex {
 	{
 		m_InstencCount = 0u;
 	}
-#endif
+
 
 #pragma endregion
 
@@ -148,18 +147,7 @@ namespace Rynex {
 #pragma region Shade
 
     InstenceMeshPiplineRenderShade::InstenceMeshPiplineRenderShade()
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-		: m_Shader(nullptr)
-		, m_CameraBuffer(nullptr)
-		, m_RenderMode(0)
-		, m_ManagingMode(PiplineManagingState::Managing_None)
-		, m_DrawsAfterLastUpdate(0u)
-		, m_InstencCount(0u)
-		
-		, m_ModelBufferSSOB(nullptr)
-#else
 		: InstenceMeshPiplineRenderBase()
-#endif 
 		, m_LigthBuffer(nullptr)	
 		, m_RenderObject()
 		, m_MaterielBuffer(nullptr)
@@ -171,11 +159,7 @@ namespace Rynex {
 	InstenceMeshPiplineRenderShade::~InstenceMeshPiplineRenderShade()
     {
 		Clear();
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-		RY_DESTROY_REF(m_ModelBufferSSOB);
-		m_DrawsAfterLastUpdate = 0;
-		RY_DESTROY_REF(m_ModelBufferVAO);
-#endif
+
 		
     }
 
@@ -204,54 +188,28 @@ namespace Rynex {
 	{
 		m_LigthBuffer = buffer;
 	}
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-	void InstenceMeshPiplineRenderShade::SetCameraUniformBuffer(Ref<UniformBuffer> camerbuffer)
-	{
-		m_CameraBuffer = camerbuffer;
-	}
 
-	void InstenceMeshPiplineRenderShade::SetDisplayUniformBuffer(Ref<UniformBuffer> dispalaybuffer)
-	{
-	}
-	
-#endif
 	
 
 	void InstenceMeshPiplineRenderShade::BindResources()
 	{
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-		m_Shader->Bind();
-
-		m_CameraBuffer->Bind(UniformBinding_MainCamer);
-#else
 		InstenceMeshPiplineRenderBase::BindResources();
-#endif
+
 		m_MaterielBuffer->Bind(UniformBinding_Materiel);
 		m_LigthBuffer->Bind(UniformBinding_LigthCamera);
 
-#ifdef RY_ENABLE_SSOB_MODEL_BUFFER
-		m_ModelBufferSSOB->Bind(StorageBinding_RenderObject);
-#endif
 		m_AlbdeoTex->Bind(TextureBinding_Abldoe);
 		m_ShadowTex->Bind(TextureBinding_Shadow);
 	}
 
 	void InstenceMeshPiplineRenderShade::UnbindResources()
 	{
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-		m_Shader->UnBind();
-
-		m_CameraBuffer->UnBind(UniformBinding_MainCamer);
-#else
 		InstenceMeshPiplineRenderBase::UnbindResources();
-#endif
 		m_LigthBuffer->UnBind(UniformBinding_LigthCamera);
 		m_MaterielBuffer->UnBind(UniformBinding_Materiel);
 
 
-#ifdef RY_ENABLE_SSOB_MODEL_BUFFER
-		m_ModelBufferSSOB->UnBind(StorageBinding_RenderObject);
-#endif
+
 		m_AlbdeoTex->UnBind(TextureBinding_Abldoe);
 		m_ShadowTex->UnBind(TextureBinding_Shadow);
 	}
@@ -276,15 +234,7 @@ namespace Rynex {
 
 	void InstenceMeshPiplineRenderShade::Clear()
 	{
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-		m_InstencCount = 0u;
-		m_RenderMode = 0;
-		RY_DESTROY_REF(m_Shader);
-		RY_DESTROY_REF(m_CameraBuffer);
-		
-#else
 		InstenceMeshPiplineRenderBase::Clear();
-#endif
 		RY_DESTROY_REF(m_AlbdeoTex);
 		RY_DESTROY_REF(m_ShadowTex);
 		RY_DESTROY_REF(m_LigthBuffer);
@@ -351,10 +301,6 @@ namespace Rynex {
 	uint64_t InstenceMeshPiplineRenderShade::GetStorageBufferNumber() const
 	{		
 		uint64_t number = 0ull;
-#ifdef RY_ENABLE_SSOB_MODEL_BUFFER
-		uint64_t modelNumber = reinterpret_cast<uint64_t>(m_ModelBufferSSOB.get());
-		number |= modelNumber << (Hash_BindingPointMultyplyNumberBitMove * StorageBinding_RenderObject);
-#endif
 		return number;
 	}
 
@@ -404,32 +350,7 @@ namespace Rynex {
 		}
 		m_DrawsAfterLastUpdate++;
 
-#ifdef RY_ENABLE_SSOB_MODEL_BUFFER
-		if (nullptr == m_ModelBufferSSOB)
-		{
-			RenderObject* dataPtr = m_RenderObject.ObjectVec.data();
-			uint32_t count = m_RenderObject.ObjectVec.size();
-			uint32_t bytesSize = count * sizeof(RenderObject);
 
-			m_ModelBufferSSOB = StorageBuffer::Create(dataPtr, bytesSize, BufferType::ShaderStorage, StorageBuffer::Type::None);
-		}
-		else if (m_RenderObject.NeedUpdate())
-		{
-			RenderObject* dataPtr = m_RenderObject.ObjectVec.data();
-			uint32_t count = m_RenderObject.ObjectVec.size();
-			uint32_t bytesSize = m_InstencCount * sizeof(RenderObject);
-			uint32_t bufferBytesSize = m_ModelBufferSSOB->GetByteSize();
-			if(bytesSize <= bufferBytesSize )
-			{
-				m_ModelBufferSSOB->SetData(dataPtr, bytesSize);
-			}
-			else
-			{
-				m_ModelBufferSSOB->Resize2D(dataPtr, bytesSize);
-			}
-			m_RenderObject.Updated();
-		}
-#else
 		if (nullptr == m_ModelBufferVAO)
 		{
 			RenderObject* dataPtr = m_RenderObject.ObjectVec.data();
@@ -438,37 +359,19 @@ namespace Rynex {
 			constexpr uint32_t instanceIndex = 1u;
 			constexpr bool aktive = true;
 			BufferLayout layout = BufferLayout({
-#if 0
-				{ SDT::Float4, "a_ModelMarix[0]" },
-				{ SDT::Float4, "a_ModelMarix[1]" },
-				{ SDT::Float4, "a_ModelMarix[2]" },
-				{ SDT::Float4, "a_ModelMarix[3]" },
-
-				{ SDT::Float4, "a_NormleMatrix[0]" },
-				{ SDT::Float4, "a_NormleMatrix[1]" },
-				{ SDT::Float4, "a_NormleMatrix[2]" },
-				{ SDT::Float4, "a_NormleMatrix[3]" },
-#else
 				{ SDT::Float4x4, "a_ModelMarix" },
 				{ SDT::Float4x4, "a_NormleMatrix" },
-
-#endif
 				{ SDT::Int, "a_EntityID" },
 				{ SDT::Int3, "a_Empty" }
-
 			}, instanceIndex);
 			layout.SetAutoCompress(true);
-#ifdef RY_OPENGL_USE_ARRAY_BUFFER
-			m_ModelBufferVAO = VertexBuffer::Create(dataPtr, bytesSize, BufferDataUsage::DynamicDraw, layout);
-#else
+
 			m_ModelBufferVAO = VertexBuffer::Create(dataPtr, bytesSize, BufferFlag::None, layout);
-#endif
 			RY_CORE_ASSERT(m_VertexArray->GetVertexBuffersCount() != 2)
 			m_VertexArray->AddVertexBuffer(m_ModelBufferVAO);
 		}
 		else if (m_RenderObject.NeedUpdate())
 		{
-#ifndef RY_ONCHNAGE_CREATE_INSTANCE_VAB_COMPLET_NEW
 			RenderObject* dataPtr = m_RenderObject.ObjectVec.data();
 			uint32_t count = m_RenderObject.ObjectVec.size();
 			uint32_t bytesSize = m_InstencCount * sizeof(RenderObject);
@@ -477,91 +380,27 @@ namespace Rynex {
 
 			if (bytesSize <= bufferBytesSize && halfByteSize < bytesSize)
 			{
-#ifdef RY_INSTANCE_ONCHANGE_PRINT
-				RY_CORE_TRACE("InstenceMeshPiplineRenderShade: Update Buffer!");
-#endif
 
 				m_ModelBufferVAO->SetData(dataPtr, bytesSize);
 				if (m_VertexArray->GetVertexBuffersCount() != 2)
 					m_VertexArray->AddVertexBuffer(m_ModelBufferVAO);
-#if 0
-				else
-					m_VertexArray->SetVertexBufferNew(m_ModelBufferVAO);
-#endif
-
 			}
 			else
 			{
-#ifdef RY_INSTANCE_ONCHANGE_PRINT
-				RY_CORE_TRACE("InstenceMeshPiplineRenderShade: Resize Buffer!");
-#endif
+
 				m_ModelBufferVAO->ResizeBuffer(dataPtr, bytesSize);
 			
 				if (m_VertexArray->GetVertexBuffersCount() != 2)
 					m_VertexArray->AddVertexBuffer(m_ModelBufferVAO);
-#if 0
-				else
-					m_VertexArray->SetVertexBufferNew(m_ModelBufferVAO);
-#endif
+
 
 			}				
 
 			m_RenderObject.Updated();
-#else
-			RenderObject* dataPtr = m_RenderObject.ObjectVec.data();
-			uint32_t count = m_RenderObject.ObjectVec.size();
-#if 0
-			uint32_t bytesSize = count * sizeof(RenderObject);
-#else
-			uint32_t bytesSize = m_InstencCount * sizeof(RenderObject);
-#endif
 
-			constexpr uint32_t instanceAddIndex = 1u;
-			constexpr bool aktive = true;
-			constexpr bool normilze = false;
-			constexpr uint32_t countElements = 0u;
-			BufferLayout layout = {
-#if 1
-				{ SDT::Float4, "a_ModelMarix[0]", aktive, instanceAddIndex },
-				{ SDT::Float4, "a_ModelMarix[1]", aktive, instanceAddIndex },
-				{ SDT::Float4, "a_ModelMarix[2]", aktive, instanceAddIndex },
-				{ SDT::Float4, "a_ModelMarix[3]", aktive, instanceAddIndex },
-
-				{ SDT::Float4, "a_NormleMatrix[0]", aktive, instanceAddIndex },
-				{ SDT::Float4, "a_NormleMatrix[1]", aktive, instanceAddIndex },
-				{ SDT::Float4, "a_NormleMatrix[2]", aktive, instanceAddIndex },
-				{ SDT::Float4, "a_NormleMatrix[3]", aktive, instanceAddIndex },
-#else
-				{ SDT::Float4x4, "a_ModelMarix", aktive, instanceAddIndex },
-				{ SDT::Float4x4, "a_NormleMatrix", aktive, instanceAddIndex },
-
-#endif
-			};
-			if (m_VertexArray->GetVertexBuffersCount() == 2u)
-			{
-				m_VertexArray->ClearVertexBuffers();
-				CheckVAOFromMeshSingleShade(m_VertexArray, m_SingleMeshObject._MeshSingle);
-			}
-			m_ModelBufferVAO = VertexBuffer::Create(dataPtr, bytesSize, BufferDataUsage::None, layout);
-
-			RY_CORE_ASSERT(m_VertexArray->GetVertexBuffersCount() != 2);
-			m_VertexArray->AddVertexBuffer(m_ModelBufferVAO);
-#endif
 		}
-#endif
 	}
 
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-	void InstenceMeshPiplineRenderShade::SetDataMangingFlags(PiplineManagingState flags)
-	{
-		RY_CORE_WARN("This PiplineManagingState is changing nothing on this is a one Render Object Call");
-		m_ManagingMode = flags;
-	}
-	void InstenceMeshPiplineRenderShade::DrawNow()
-	{
-		DrawNow(m_RenderMode);
-	}
-#endif
 
 	void InstenceMeshPiplineRenderShade::DrawNow(int flags)
 	{
@@ -617,16 +456,10 @@ namespace Rynex {
 
 	bool InstenceMeshPiplineRenderShade::SubmiteResources(const Ref<Shader>& shader, const SingleMeshObject& singleMesh)
 	{
-		// RY_CORE_ASSERT(nullptr == m_Shader || m_Shader == shader);
 		m_Shader = shader;
-		// RY_CORE_ASSERT(nullptr == m_SingleMeshObject._MeshSingle || m_SingleMeshObject._MeshSingle == singleMesh._MeshSingle);
-		// RY_CORE_ASSERT(nullptr == m_SingleMeshObject._Material || m_SingleMeshObject._Material == singleMesh._Material);
 		m_SingleMeshObject = singleMesh;
 
 		const Ref<Material>& materiel = m_SingleMeshObject._Material;
-
-		// RY_CORE_ASSERT(nullptr == m_AlbdeoTex || m_AlbdeoTex == materiel->GetAlbedoTextures());
-		// RY_CORE_ASSERT(0 == m_RenderMode || m_RenderMode == materiel->GetShadeRenderMode());
 
 		m_AlbdeoTex = materiel->GetAlbedoTextures();
 		m_RenderMode = materiel->GetShadeRenderMode();
@@ -636,24 +469,6 @@ namespace Rynex {
 		Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
 		return CheckVAOFromMeshSingleShade(m_VertexArray, meshSingle);
 	}
-
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-	uint32_t InstenceMeshPiplineRenderShade::GetCurentEntityRender() const
-	{
-		return m_InstencCount;
-	}
-
-	uint32_t InstenceMeshPiplineRenderShade::GetMaxEntityRender() const
-	{
-		return State_MaxEntityRender;
-	}
-
-	uint32_t InstenceMeshPiplineRenderShade::GetFrameCountNotUpdate() const
-	{
-		return m_DrawsAfterLastUpdate;
-	}
-#endif
-
 
 	int InstenceMeshPiplineRenderShade::CheckSubmiteMeshObject(const Ref<Shader>& shader, const SingleMeshObject& singleMesh)
 	{
@@ -677,17 +492,7 @@ namespace Rynex {
 #pragma region Depth
 
 	InstenceMeshPiplineRenderDepth::InstenceMeshPiplineRenderDepth()
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-		: m_Shader(nullptr)
-		, m_CameraBuffer(nullptr)
-		, m_ModelBufferSSOB(nullptr)
-		, m_RenderMode(0)
-		, m_ManagingMode(PiplineManagingState::Managing_None)
-		, m_DrawsAfterLastUpdate(0u)
-		, m_InstencCount(0u)
-#else
 		: InstenceMeshPiplineRenderBase()
-#endif
 		, m_RenderObject()
 	{
 	}
@@ -695,12 +500,6 @@ namespace Rynex {
 	InstenceMeshPiplineRenderDepth::~InstenceMeshPiplineRenderDepth()
 	{
 		Clear();
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-		m_DrawsAfterLastUpdate = 0;
-
-		RY_DESTROY_REF(m_ModelBufferSSOB);
-		RY_DESTROY_REF(m_ModelBufferVAO);
-#endif
 	}
 
 	void InstenceMeshPiplineRenderDepth::SubmitRenderTargetResurces(ViewPassStorage& viewPass)
@@ -726,54 +525,26 @@ namespace Rynex {
 		);
 	}
 
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-	void InstenceMeshPiplineRenderDepth::SetCameraUniformBuffer(Ref<UniformBuffer> camerbuffer)
-	{
-		m_CameraBuffer = camerbuffer;
-	}
-
-	void InstenceMeshPiplineRenderDepth::SetDisplayUniformBuffer(Ref<UniformBuffer> dispalaybuffer)
-	{
-	}
-#endif
 	void InstenceMeshPiplineRenderDepth::BindResources()
 	{
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-		m_Shader->Bind();
-		m_CameraBuffer->Bind(UniformBinding_MainCamer);
 
-#else
 		
 		InstenceMeshPiplineRenderBase::BindResources();
 		// Renderer::GetPackegeCamerUniformMain()->Bind(0);
-#ifdef RY_ENABLE_SSOB_MODEL_BUFFER
-		m_ModelBufferSSOB->Bind(StorageBinding_RenderObject);
-#endif
-#endif
+
 	}
 
 
 
 	void InstenceMeshPiplineRenderDepth::UnbindResources()
 	{
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-		m_Shader->UnBind();
-
-		m_CameraBuffer->UnBind(UniformBinding_MainCamer);
-#else
 		InstenceMeshPiplineRenderBase::UnbindResources();
-#endif
-
-#ifdef RY_ENABLE_SSOB_MODEL_BUFFER
-		m_ModelBufferSSOB->UnBind(StorageBinding_RenderObject);
-#endif
 	}
 
 
 	bool InstenceMeshPiplineRenderDepth::Empty() const
 	{
 		return 0 == m_InstencCount;
-
 	}
 
 	bool InstenceMeshPiplineRenderDepth::IsFull() const
@@ -789,14 +560,7 @@ namespace Rynex {
 
 	void InstenceMeshPiplineRenderDepth::Clear()
 	{
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-		m_InstencCount = 0u;
-		m_RenderMode = 0;
-		RY_DESTROY_REF(m_Shader);
-		RY_DESTROY_REF(m_CameraBuffer);
-#else
 		InstenceMeshPiplineRenderBase::Clear();
-#endif
 		RY_DESTROY_REF(m_SingleMeshObject._Material);
 		RY_DESTROY_REF(m_SingleMeshObject._MeshSingle);
 	}
@@ -848,10 +612,6 @@ namespace Rynex {
 	uint64_t InstenceMeshPiplineRenderDepth::GetStorageBufferNumber() const
 	{
 		uint64_t number = 0;
-#ifdef RY_ENABLE_SSOB_MODEL_BUFFER
-		uint64_t modelNumber = reinterpret_cast<uint64_t>(m_ModelBufferSSOB.get());
-		number |= modelNumber << (Hash_BindingPointMultyplyNumberBitMove * StorageBinding_RenderObject);
-#endif
 		return number;
 	}
 
@@ -903,81 +663,29 @@ namespace Rynex {
 		}
 		m_DrawsAfterLastUpdate++;
 
-#ifdef RY_ENABLE_SSOB_MODEL_BUFFER
-		if (nullptr == m_ModelBufferSSOB)
-		{
-
-			RenderObject* dataPtr = m_RenderObject.ObjectVec.data();
-			uint32_t count = m_RenderObject.ObjectVec.size();
-			uint32_t bytesSize = count * sizeof(RenderObject);
-
-			m_ModelBufferSSOB = StorageBuffer::Create(dataPtr, bytesSize, BufferType::ShaderStorage, StorageBuffer::Type::None);
-			m_RenderObject.Updated();
-		}
-		else if (m_RenderObject.NeedUpdate())
-		{
-			RenderObject* dataPtr = m_RenderObject.ObjectVec.data();
-			uint32_t count = m_RenderObject.ObjectVec.size();
-			uint32_t bytesSize = m_InstencCount * sizeof(RenderObject);
-			uint32_t bufferBytesSize = m_ModelBufferSSOB->GetByteSize();
-			uint32_t halfByteSize = bufferBytesSize / 2u;
-			if (bytesSize <= bufferBytesSize && halfByteSize < bytesSize)
-			{
-				m_ModelBufferSSOB->SetData(dataPtr, bytesSize);
-			}
-			else
-			{
-				m_ModelBufferSSOB->Resize2D(dataPtr, bytesSize);
-			}
-			m_RenderObject.Updated();
-		}
-#else
 		if (nullptr == m_ModelBufferVAO)
 		{
 			RenderObject* dataPtr = m_RenderObject.ObjectVec.data();
 			uint32_t count = m_RenderObject.ObjectVec.size();
-#if 0
-			uint32_t bytesSize = count * sizeof(RenderObject);
-#else
 			uint32_t bytesSize = m_InstencCount * sizeof(RenderObject);
-#endif
 
 			constexpr uint32_t instanceAddIndex = 1u;
 			constexpr bool aktive = true;
 			constexpr bool normilze = false;
 			constexpr uint32_t countElements = 0u;
 			BufferLayout layout = BufferLayout({
-#if 1 || !defined(RY_CHNAGE_OF_ORGNISE_LAYOUTE_INSTANC_INCREASE) || !defined(RY_HOLD_LAYOUT_ELEMENT_INCREAS_INSTANCE)
 				{ SDT::Float4, "a_ModelMarix[0]", aktive, countElements, normilze },
 				{ SDT::Float4, "a_ModelMarix[1]", aktive, countElements, normilze },
 				{ SDT::Float4, "a_ModelMarix[2]", aktive, countElements, normilze },
 				{ SDT::Float4, "a_ModelMarix[3]", aktive, countElements, normilze },
 			}, instanceAddIndex);
-#elif !0 || !defined(RY_CHNAGE_OF_ORGNISE_LAYOUTE_INSTANC_INCREASE) || !defined(RY_HOLD_LAYOUT_ELEMENT_INCREAS_INSTANCE)
-				{ SDT::Float4x4, "a_ModelMarix" },
-			}, instanceAddIndex);
 
-#elif 1 || defined(RY_CHNAGE_OF_ORGNISE_LAYOUTE_INSTANC_INCREASE) || defined(RY_HOLD_LAYOUT_ELEMENT_INCREAS_INSTANCE)
-				{ SDT::Float4, "a_ModelMarix[0]", aktive, instanceAddIndex, countElements, normilze },
-				{ SDT::Float4, "a_ModelMarix[1]", aktive, instanceAddIndex, countElements, normilze },
-				{ SDT::Float4, "a_ModelMarix[2]", aktive, instanceAddIndex, countElements, normilze },
-				{ SDT::Float4, "a_ModelMarix[3]", aktive, instanceAddIndex, countElements, normilze },
-			});
-#else
-				{ SDT::Float4x4, "a_ModelMarix", aktive, instanceAddIndex },
-			});
-#endif
-#ifdef RY_OPENGL_USE_ARRAY_BUFFER
-			m_ModelBufferVAO = VertexBuffer::Create(dataPtr, bytesSize, BufferDataUsage::DynamicDraw, layout);
-#else
 			m_ModelBufferVAO = VertexBuffer::Create(dataPtr, bytesSize, BufferFlag::None, layout);
-#endif
 			RY_CORE_ASSERT(m_VertexArray->GetVertexBuffersCount() != 2);
 			m_VertexArray->AddVertexBuffer(m_ModelBufferVAO);
 		}
 		else if (m_RenderObject.NeedUpdate())
 		{
-#ifndef RY_ONCHNAGE_CREATE_INSTANCE_VAB_COMPLET_NEW
 			RenderObject* dataPtr = m_RenderObject.ObjectVec.data();
 			uint32_t count = m_RenderObject.ObjectVec.size();
 			uint32_t bytesSize = m_InstencCount * sizeof(RenderObject);
@@ -986,9 +694,7 @@ namespace Rynex {
 
 			if (bytesSize <= bufferBytesSize && halfByteSize < bytesSize)
 			{
-#ifdef RY_INSTANCE_ONCHANGE_PRINT
-				RY_CORE_TRACE("InstenceMeshPiplineRenderDepth: Update Buffer!");
-#endif
+
 				m_ModelBufferVAO->SetData(dataPtr, bytesSize);
 		
 				if (m_VertexArray->GetVertexBuffersCount() != 2)
@@ -997,9 +703,7 @@ namespace Rynex {
 			}
 			else
 			{
-#ifdef RY_INSTANCE_ONCHANGE_PRINT
-				RY_CORE_TRACE("InstenceMeshPiplineRenderDepth: Resize Buffer!");
-#endif
+
 				m_ModelBufferVAO->ResizeBuffer(dataPtr, bytesSize);
 		
 				if (m_VertexArray->GetVertexBuffersCount() != 2)
@@ -1008,57 +712,10 @@ namespace Rynex {
 					m_VertexArray->SetVertexBufferNew(m_ModelBufferVAO);
 			}
 			m_RenderObject.Updated();
-#else
-			RenderObject* dataPtr = m_RenderObject.ObjectVec.data();
-			uint32_t count = m_RenderObject.ObjectVec.size();
-#if 0
-			uint32_t bytesSize = count * sizeof(RenderObject);
-#else
-			uint32_t bytesSize = m_InstencCount * sizeof(RenderObject);
-#endif
-			uint32_t halfByteSize = bufferBytesSize / 2u;
 
-			constexpr uint32_t instanceAddIndex = 1u;
-			constexpr bool aktive = true;
-			constexpr bool normilze = false;
-			constexpr uint32_t countElements = 0u;
-			BufferLayout layout = {
-#if 1
-
-				{ SDT::Float4, "a_ModelMarix[0]", aktive, instanceAddIndex, countElements, normilze },
-				{ SDT::Float4, "a_ModelMarix[1]", aktive, instanceAddIndex, countElements, normilze },
-				{ SDT::Float4, "a_ModelMarix[2]", aktive, instanceAddIndex, countElements, normilze },
-				{ SDT::Float4, "a_ModelMarix[3]", aktive, instanceAddIndex, countElements, normilze },
-#else
-				{ SDT::Float4x4, "a_ModelMarix", aktive, instanceAddIndex },
-#endif
-			};
-			if (m_VertexArray->GetVertexBuffersCount() == 2u)
-			{
-				m_VertexArray->ClearVertexBuffers();
-				CheckVAOFromMeshSingleDepth(m_VertexArray, m_SingleMeshObject._MeshSingle);
-			}
-			m_ModelBufferVAO = VertexBuffer::Create(dataPtr, bytesSize, BufferDataUsage::None, layout);
-
-			RY_CORE_ASSERT(m_VertexArray->GetVertexBuffersCount() != 2);
-			m_VertexArray->AddVertexBuffer(m_ModelBufferVAO);
-#endif
 		}
-#endif
 	}
 
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-	void InstenceMeshPiplineRenderDepth::SetDataMangingFlags(PiplineManagingState flags)
-	{
-		RY_CORE_WARN("This PiplineManagingState is changing nothing on this is a one Render Object Call");
-		m_ManagingMode = flags;
-	}
-
-	void InstenceMeshPiplineRenderDepth::DrawNow()
-	{
-		DrawNow(m_RenderMode);
-	}
-#endif
 
 	void InstenceMeshPiplineRenderDepth::DrawNow(int flags)
 	{
@@ -1079,9 +736,6 @@ namespace Rynex {
 		RY_CORE_ASSERT(0 < m_InstencCount);
 		drawElement.InstancesCount = m_InstencCount;
 		RenderCommand::DrawElement(m_VertexArray, drawElement);
-#if RY_UNBIND
-		UnbindResources();
-#endif
 	}
 
 	bool InstenceMeshPiplineRenderDepth::SubmiteResources(const Ref<Shader>& shader, const SingleMeshObject& singleMesh)
@@ -1095,23 +749,6 @@ namespace Rynex {
 		Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
 		return CheckVAOFromMeshSingleDepth(m_VertexArray, meshSingle);
 	}
-
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-	uint32_t InstenceMeshPiplineRenderDepth::GetCurentEntityRender()const
-	{
-		return m_InstencCount;
-	}
-
-	uint32_t InstenceMeshPiplineRenderDepth::GetMaxEntityRender()const
-	{
-		return State_MaxEntityRender;
-	}
-
-	uint32_t InstenceMeshPiplineRenderDepth::GetFrameCountNotUpdate()const
-	{
-		return m_DrawsAfterLastUpdate;
-	}
-#endif
 
 
 	int InstenceMeshPiplineRenderDepth::CheckSubmiteMeshObject(const Ref<Shader>& shader, const SingleMeshObject& singleMesh)
@@ -1140,18 +777,7 @@ namespace Rynex {
 #pragma region Shape
 
 	InstenceMeshPiplineRenderShape::InstenceMeshPiplineRenderShape()
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-		: m_Shader(nullptr)
-		, m_CameraBuffer(nullptr)
-		, m_ModelBufferSSOB(nullptr)
-		, m_AlbdeoTex(nullptr)
-		, m_RenderMode(0)
-		, m_ManagingMode(PiplineManagingState::Managing_None)
-		, m_DrawsAfterLastUpdate(0u)
-		, m_InstencCount(0u)
-#else
 		: InstenceMeshPiplineRenderBase()
-#endif
 		, m_RenderObject()
 	{
 	}
@@ -1159,11 +785,6 @@ namespace Rynex {
 	InstenceMeshPiplineRenderShape::~InstenceMeshPiplineRenderShape()
 	{
 		Clear();
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-		m_DrawsAfterLastUpdate = 0;
-		RY_DESTROY_REF(m_ModelBufferSSOB);
-		RY_DESTROY_REF(m_ModelBufferVAO);
-#endif
 	}
 
 	void InstenceMeshPiplineRenderShape::SubmitRenderTargetResurces(ViewPassStorage& viewPass)
@@ -1178,45 +799,17 @@ namespace Rynex {
 	{
 	}
 
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-	void InstenceMeshPiplineRenderShape::SetCameraUniformBuffer(Ref<UniformBuffer> camerbuffer)
-	{
-		m_CameraBuffer = camerbuffer;
-	}
-
-	void InstenceMeshPiplineRenderShape::SetDisplayUniformBuffer(Ref<UniformBuffer> dispalaybuffer)
-	{
-	}
-#endif
 
 	void InstenceMeshPiplineRenderShape::BindResources()
 	{
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-		m_Shader->Bind();
 
-		m_CameraBuffer->Bind(UniformBinding_MainCamer);
-#ifdef RY_ENABLE_SSOB_MODEL_BUFFER
-		m_ModelBufferSSOB->Bind(StorageBinding_RenderObject);
-#endif
-#else
 		InstenceMeshPiplineRenderBase::BindResources();
-#endif
 		m_AlbdeoTex->Bind(TextureBinding_Abldoe);
 	}
 
 	void InstenceMeshPiplineRenderShape::UnbindResources()
 	{
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-		m_Shader->UnBind();
-
-		m_CameraBuffer->UnBind(UniformBinding_MainCamer);
-#ifdef RY_ENABLE_SSOB_MODEL_BUFFER
-		m_ModelBufferSSOB->UnBind(StorageBinding_RenderObject);
-#endif
-#else
 		InstenceMeshPiplineRenderBase::UnbindResources();
-#endif
-
 		m_AlbdeoTex->UnBind(TextureBinding_Abldoe);
 	}
 
@@ -1240,17 +833,8 @@ namespace Rynex {
 
 	void InstenceMeshPiplineRenderShape::Clear()
 	{
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-		m_InstencCount = 0u;
-		m_RenderMode = 0;
-		RY_DESTROY_REF(m_Shader);
-		
-		RY_DESTROY_REF(m_CameraBuffer);
-		RY_DESTROY_REF(m_SingleMeshObject._Material);
-		RY_DESTROY_REF(m_SingleMeshObject._MeshSingle);
-#else
+
 		InstenceMeshPiplineRenderBase::Clear();
-#endif
 		RY_DESTROY_REF(m_AlbdeoTex);
 	}
 
@@ -1305,10 +889,6 @@ namespace Rynex {
 	uint64_t InstenceMeshPiplineRenderShape::GetStorageBufferNumber() const
 	{
 		uint64_t number = 0;
-#ifdef RY_ENABLE_SSOB_MODEL_BUFFER
-		uint64_t modelNumber = reinterpret_cast<uint64_t>(m_ModelBufferSSOB.get());
-		number |= modelNumber << (Hash_BindingPointMultyplyNumberBitMove * StorageBinding_RenderObject);
-#endif
 		return number;
 	}
 
@@ -1359,36 +939,6 @@ namespace Rynex {
 		}
 		m_DrawsAfterLastUpdate++;
 
-#ifdef RY_ENABLE_SSOB_MODEL_BUFFER
-		if (nullptr == m_ModelBufferSSOB)
-		{
-
-			RenderObject* dataPtr = m_RenderObject.ObjectVec.data();
-			uint32_t count = m_RenderObject.ObjectVec.size();
-			RY_CORE_ASSERT(m_InstencCount <= count, "To many instec too renderen!");
-
-			uint32_t bytesSize = m_InstencCount * sizeof(RenderObject);
-
-			m_ModelBufferSSOB = StorageBuffer::Create(dataPtr, bytesSize, BufferType::ShaderStorage, StorageBuffer::Type::None);
-		}
-		else if (m_RenderObject.NeedUpdate())
-		{
-			RenderObject* dataPtr = m_RenderObject.ObjectVec.data();
-			uint32_t count = m_RenderObject.ObjectVec.size();
-			RY_CORE_ASSERT(m_InstencCount <= count, "To many instec too renderen!");
-			uint32_t bytesSize = m_InstencCount * sizeof(RenderObject);
-			uint32_t bufferBytesSize = m_ModelBufferSSOB->GetByteSize();
-			if (bytesSize <= bufferBytesSize && halfByteSize < bytesSize)
-			{
-				m_ModelBufferSSOB->SetData(dataPtr, bytesSize);
-			}
-			else
-			{
-				m_ModelBufferSSOB->Resize2D(dataPtr, bytesSize);
-			}
-			m_RenderObject.Updated();
-		}
-#else
 		if (nullptr == m_ModelBufferVAO)
 		{
 			RenderObject* dataPtr = m_RenderObject.ObjectVec.data();
@@ -1400,39 +950,20 @@ namespace Rynex {
 			constexpr bool normilze = false;
 
 			BufferLayout layout = BufferLayout({
-#if 1 || !defined(RY_CHNAGE_OF_ORGNISE_LAYOUTE_INSTANC_INCREASE) || !defined(RY_HOLD_LAYOUT_ELEMENT_INCREAS_INSTANCE)
 				{ SDT::Float4, "a_ModelMarix[0]", aktive, countElements, normilze },
 				{ SDT::Float4, "a_ModelMarix[1]", aktive, countElements, normilze },
 				{ SDT::Float4, "a_ModelMarix[2]", aktive, countElements, normilze },
 				{ SDT::Float4, "a_ModelMarix[3]", aktive, countElements, normilze },
 				}, instanceAddIndex);
-#elif !0 || !defined(RY_CHNAGE_OF_ORGNISE_LAYOUTE_INSTANC_INCREASE) || !defined(RY_HOLD_LAYOUT_ELEMENT_INCREAS_INSTANCE)
-				{ SDT::Float4x4, "a_ModelMarix" },
-			}, instanceAddIndex);
+			
 
-#elif 1 || defined(RY_CHNAGE_OF_ORGNISE_LAYOUTE_INSTANC_INCREASE) || defined(RY_HOLD_LAYOUT_ELEMENT_INCREAS_INSTANCE)
-				{ SDT::Float4, "a_ModelMarix[0]", aktive, instanceAddIndex, countElements, normilze },
-				{ SDT::Float4, "a_ModelMarix[1]", aktive, instanceAddIndex, countElements, normilze },
-				{ SDT::Float4, "a_ModelMarix[2]", aktive, instanceAddIndex, countElements, normilze },
-				{ SDT::Float4, "a_ModelMarix[3]", aktive, instanceAddIndex, countElements, normilze },
-			});
-#else
-				{ SDT::Float4x4, "a_ModelMarix", aktive, instanceAddIndex },
-			});
-#endif			
-
-#ifdef RY_OPENGL_USE_ARRAY_BUFFER
-			m_ModelBufferVAO = VertexBuffer::Create(dataPtr, bytesSize, BufferDataUsage::DynamicDraw, layout);
-#else
 			m_ModelBufferVAO = VertexBuffer::Create(dataPtr, bytesSize, BufferFlag::None, layout);
-#endif
-			RY_CORE_ASSERT(m_VertexArray->GetVertexBuffersCount() != 2)
+			RY_CORE_ASSERT(2 != m_VertexArray->GetVertexBuffersCount());
 			m_VertexArray->AddVertexBuffer(m_ModelBufferVAO);
 		}
 		else if (m_RenderObject.NeedUpdate())
 		{
 
-#ifndef RY_ONCHNAGE_CREATE_INSTANCE_VAB_COMPLET_NEW
 			RenderObject* dataPtr = m_RenderObject.ObjectVec.data();
 			uint32_t count = m_RenderObject.ObjectVec.size();
 			uint32_t bytesSize = m_InstencCount * sizeof(RenderObject);
@@ -1441,9 +972,7 @@ namespace Rynex {
 
 			if (bytesSize <= bufferBytesSize && halfByteSize < bytesSize)
 			{
-#ifdef RY_INSTANCE_ONCHANGE_PRINT
-				RY_CORE_TRACE("InstenceMeshPiplineRenderShape: Update Buffer!");
-#endif
+
 				m_ModelBufferVAO->SetData(dataPtr, bytesSize);
 
 				if (m_VertexArray->GetVertexBuffersCount() != 2)
@@ -1451,9 +980,6 @@ namespace Rynex {
 			}
 			else
 			{
-#ifdef RY_INSTANCE_ONCHANGE_PRINT
-				RY_CORE_TRACE("InstenceMeshPiplineRenderShape: Resize Buffer!");
-#endif
 				m_ModelBufferVAO->ResizeBuffer(dataPtr, bytesSize);
 
 				if (m_VertexArray->GetVertexBuffersCount() != 2)
@@ -1461,59 +987,12 @@ namespace Rynex {
 				else
 					m_VertexArray->SetVertexBufferNew(m_ModelBufferVAO);
 			}
-#else
-				RenderObject* dataPtr = m_RenderObject.ObjectVec.data();
-				uint32_t count = m_RenderObject.ObjectVec.size();
-#if 0
-				uint32_t bytesSize = count * sizeof(RenderObject);
-#else
-				uint32_t bytesSize = m_InstencCount * sizeof(RenderObject);
-#endif
 
-				constexpr uint32_t instanceAddIndex = 1u;
-				constexpr bool aktive = true;
-				constexpr bool normilze = false;
-				constexpr uint32_t countElements = 0u;
-				BufferLayout layout = {
-	#if 1
-
-					{ SDT::Float4, "a_ModelMarix[0]", aktive, instanceAddIndex, countElements, normilze },
-					{ SDT::Float4, "a_ModelMarix[1]", aktive, instanceAddIndex, countElements, normilze },
-					{ SDT::Float4, "a_ModelMarix[2]", aktive, instanceAddIndex, countElements, normilze },
-					{ SDT::Float4, "a_ModelMarix[3]", aktive, instanceAddIndex, countElements, normilze }
-	#else
-					{ SDT::Float4x4, "a_ModelMarix", aktive, instanceAddIndex },
-	#endif
-				};
-
-				if (m_VertexArray->GetVertexBuffersCount() == 2u)
-				{
-					m_VertexArray->ClearVertexBuffers();
-					CheckVAOFromMeshSingleDepth(m_VertexArray, m_SingleMeshObject._MeshSingle);
-				}
-				m_ModelBufferVAO = VertexBuffer::Create(dataPtr, bytesSize, BufferDataUsage::None, layout);
-
-				RY_CORE_ASSERT(m_VertexArray->GetVertexBuffersCount() != 2);
-				m_VertexArray->AddVertexBuffer(m_ModelBufferVAO);
-#endif
 			
 			m_RenderObject.Updated();
 		}
-#endif
 	}
 
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-	void InstenceMeshPiplineRenderShape::SetDataMangingFlags(PiplineManagingState flags)
-	{
-		RY_CORE_WARN("This PiplineManagingState is changing nothing on this is a one Render Object Call");
-		m_ManagingMode = flags;
-	}
-
-	void InstenceMeshPiplineRenderShape::DrawNow()
-	{
-		DrawNow(m_RenderMode);
-	}
-#endif
 
 	void InstenceMeshPiplineRenderShape::DrawNow(int flags)
 	{
@@ -1535,23 +1014,16 @@ namespace Rynex {
 		RY_CORE_ASSERT(0 < m_InstencCount);
 		drawElement.InstancesCount = m_InstencCount;
 		RenderCommand::DrawElement(m_VertexArray, drawElement);
-#if RY_UNBIND
-		UnbindResources();
-#endif
+
 	}
 
 	bool InstenceMeshPiplineRenderShape::SubmiteResources(const Ref<Shader>& shader, const SingleMeshObject& singleMesh)
 	{
-		// RY_CORE_ASSERT(nullptr == m_Shader || m_Shader == shader);
 		m_Shader = shader;
-		// RY_CORE_ASSERT(nullptr == m_SingleMeshObject._MeshSingle || m_SingleMeshObject._MeshSingle == singleMesh._MeshSingle);
-		// RY_CORE_ASSERT(nullptr == m_SingleMeshObject._Material || m_SingleMeshObject._Material == singleMesh._Material);
 		m_SingleMeshObject = singleMesh;
 
 		const Ref<Material>& materiel = m_SingleMeshObject._Material;
 
-		// RY_CORE_ASSERT(nullptr == m_AlbdeoTex || m_AlbdeoTex == materiel->GetAlbedoTextures());
-		// RY_CORE_ASSERT(0 == m_RenderMode || m_RenderMode == materiel->GetShadeRenderMode());
 
 		m_AlbdeoTex = materiel->GetAlbedoTextures();
 		m_RenderMode = materiel->GetShadeRenderMode();
@@ -1560,22 +1032,7 @@ namespace Rynex {
 		return CheckVAOFromMeshSingleShape(m_VertexArray, meshSingle);
 	}
 
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
-	uint32_t InstenceMeshPiplineRenderShape::GetCurentEntityRender() const
-	{
-		return m_InstencCount;
-	}
 
-	uint32_t InstenceMeshPiplineRenderShape::GetMaxEntityRender() const
-	{
-		return State_MaxEntityRender;
-	}
-
-	uint32_t InstenceMeshPiplineRenderShape::GetFrameCountNotUpdate() const
-	{
-		return m_DrawsAfterLastUpdate;
-	}
-#endif
 
 	int InstenceMeshPiplineRenderShape::CheckSubmiteMeshObject(const Ref<Shader>& shader, const SingleMeshObject& singleMesh)
 	{
