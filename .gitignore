@@ -22,10 +22,11 @@ Rynex/vendor/gtest
 Rynex/vendor/assimp
 
 Profile/
-/ERRORS/
-binPreprozesSource/
-premake_Srcripts/
-scripts/__pycache__/
+ERRORS
+binPreprozesSource
+premake_Srcripts
+
+scripts/__pycache__
 # Files
 *.bat
 *.rdc
