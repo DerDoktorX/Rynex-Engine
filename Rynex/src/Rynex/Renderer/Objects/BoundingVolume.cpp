@@ -17,9 +17,6 @@ namespace Rynex {
 			if (value < *min)
 				*min = value;
 		}
-
-		
-
 	}
 
 	BoundingVolume::BoundingVolume()
@@ -141,13 +138,11 @@ namespace Rynex {
 				glm::vec3 half = glm::vec3(0.5f, 0.5f, 0.5f) * differenze;
 				m_Sphere.Center = m_AABB.Max + half;
 				m_Sphere.Radius = 0.0f;
-#if 1
 				for (const uint32_t& vertexIndex : indices32ByteVec)
 				{
 					uint32_t vertexBytePos = vertexIndex * stride;
 					FindeRadius(dataVec, vertexBytePos + postionElement.offset, postionElement);
 				}
-#endif
 				break;
 			}
 		}
@@ -366,14 +361,6 @@ namespace Rynex {
 		}
 		}
 	}
-#if 0
-	template<int L, typename T>
-	void BoxAABB::CheckValues<L, T>(glm::vec<L, T>* value)
-	{
-		static_assert(false);
-	}
-#endif
-#if 1
 	void BoundingVolume::CheckValues(glm::vec<2, float>* value)
 	{
 		Utils::CheckAndSetAABB(&m_AABB.Min.x, &m_AABB.Max.x, value->x);
@@ -449,5 +436,4 @@ namespace Rynex {
 
 	}
 
-#endif
 }
