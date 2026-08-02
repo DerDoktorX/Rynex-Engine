@@ -8,7 +8,7 @@
 namespace Rynex {
 
 #pragma region Shade
-#define RY_UNBIND 0
+
 	SingleMeshPiplineRenderShade::SingleMeshPiplineRenderShade()
 		: m_Shader(nullptr)
 		, m_CameraBuffer(nullptr)
@@ -147,11 +147,8 @@ namespace Rynex {
 				{ShaderDataType::Int, "EntityID"},
 				{ShaderDataType::Int3, "Empty"},
 			});
-#ifdef RY_OPENGL_OLD_UNIFORM
-			m_ModelBuffer = UniformBuffer::Create(&m_RenderObject.Object, sizeof(RenderObject), layout);
-#else
+
 			m_ModelBuffer = UniformBuffer::Create(&m_RenderObject.Object, sizeof(RenderObject), layout, UniformBinding_RenderObject);
-#endif
 		}
 		else if (m_RenderObject.NeedUpdate())
 		{
@@ -461,11 +458,7 @@ namespace Rynex {
 				{ShaderDataType::Float4x4, "ModelMatrix"},
 
 			});
-#ifdef RY_OPENGL_OLD_UNIFORM
-			m_ModelBuffer = UniformBuffer::Create(&m_RenderObject.Object, sizeof(RenderObject), layout);
-#else
 			m_ModelBuffer = UniformBuffer::Create(&m_RenderObject.Object, sizeof(RenderObject), layout, UniformBinding_RenderObject);
-#endif
 		}
 		else if (m_RenderObject.NeedUpdate())
 		{
@@ -537,9 +530,6 @@ namespace Rynex {
 		BindResources();
 
 		RenderCommand::DrawElement(m_VertexArray, drawElement);
-#if RY_UNBIND
-		UnbindResources();
-#endif
 	}
 
 	uint32_t SingleMeshPiplineRenderDepth::GetCurentEntityRender() const
