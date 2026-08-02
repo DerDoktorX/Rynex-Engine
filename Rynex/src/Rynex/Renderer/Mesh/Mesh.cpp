@@ -11,8 +11,6 @@
 
 
 
-
-
 namespace Rynex {
     
     namespace Utils {
@@ -21,12 +19,9 @@ namespace Rynex {
 
             static void MaterielBuffer(const MeshSource::SourceMesh& meshSource, const std::vector<MeshSource::_Material>& materielSource, std::vector<Mesh::MeshMaterielIndex>& materielBuffer, std::vector<Ref<Material>>& materiels)
             {
-
                 int materielIndex = static_cast<int>(meshSource.MaterielIndex);
                 
                 Ref<Material> materiel = CreateRef<DefaultMaterial>();
-
-
                 materielBuffer.emplace_back<Mesh::MeshMaterielIndex>(
                     Mesh::MeshMaterielIndex{
                         materielIndex
@@ -97,70 +92,8 @@ namespace Rynex {
             }
         }
 
-#if 0
-        static void GenrateBatchedVertexBuffer(Ref<MeshSource>& meshSource)
-        {
 
-            
-        const Ref<VertexBuffer>& vab = source->GetVertexBuffer();
-        const Ref<IndexBuffer>& iab = source->GetShadeIndexBuffer();
-        Ref<VertexArray>& vaa = source->GetShadeVertexArray();
-        const Ref<StorageBuffer>& ssboM = source->GetStorageBuffer();
-
-        const MeshSource::EntityNodes& node = source->GetNodes();
-        std::vector<Ref<Material>>& materiels = source->GetMaterials();
-        std::vector<Mesh::PerDrawObject>& pdo = source->GetPerDrawObject();
-        std::vector<UUID>& meshesID = source->GetMeshesID();
-            std::vector<glm::mat4> sboMattrices; 
-            
-            uint32_t vertexCount = 0;
-
-            std::vector<MeshVertex> vertices;
-            std::vector<uint32_t> indicies;
-            std::vector<Mesh::MeshMaterielIndex> materielBuffer;
-
-            uint32_t size = meshesSources.size();
-            pdo.reserve(size);
-            meshesID.reserve(size);
-            materielBuffer.reserve(size);
-            sboMattrices.reserve(size);
-
-            for (MeshSource::SourceMesh& meshSour : meshesSources)
-            {
-               
-                GenrateLoop::MaterielBufferBatching(meshSour, m_M, materielBuffer, materiels);
-                GenrateLoop::PerDrawObjectBufferBatching(meshSour, pdo, indicies, vertexCount);
-                GenrateLoop::CreateMeshIDBatching(meshSour, meshesID);
-#if 0 // provite index Offset
-                indicies.reserve(meshSour.MeshIndex.size());
-                for (const uint32_t& index : meshSour.MeshIndex)
-                    indicies.emplace_back(index+ vertexCount);
-#else // blind Copy
-                GenrateLoop::BatchIncicies(meshSour, indicies);
-                GenrateLoop::BatchVertices(meshSour, vertices);
-#endif //
-                
-
-                vertexCount = vertices.size();
-                
-            }
-            vab = VertexBuffer::Create(
-                vertices.data(), 
-                vertices.size() * sizeof(MeshVertex), 
-                BufferDataUsage::StaticDraw, 
-                {
-                    {ShaderDataType::Float3, "a_Postion"},
-                    {ShaderDataType::Float2, "a_UV"},
-                    {ShaderDataType::Float3, "a_Normals"},
-                }
-            );
-            vib = IndexBuffer::Create(indicies.data(), indicies.size(), BufferDataUsage::StaticDraw);
-
-            ssboM = StorageBuffer::Create(materielBuffer.data(), materielBuffer.size() * sizeof(Mesh::MeshMaterielIndex), StorageBuffer::Type::Read);
-        }
-#endif
-
-        
+   
 
         static void GenartaeStaticMatrixBufferNode( std::vector<Mesh::MeshRenderObject>& objectVec, const glm::mat4& localeParent, const MeshSource::EntityNodes& sourceNodes, std::vector<uint32_t>& sortMatrix, const Ref<MeshSource>& source)
         {
@@ -174,17 +107,8 @@ namespace Rynex {
             glm::mat4 meshMatrix;
             
 
-            // meshMatrix = localeParent * sourceNodes.Matrics;
-            // meshMatrix = sourceNodes.Matrics * localeParent;
 
             meshMatrix = localeParent * sourceNodes.Matrics;
-            // meshMatrix = sourceNodes.Matrics * glm::inverse(localeParent);
-            // meshMatrix = sourceNodes.Matrics / localeParent;
-            // meshMatrix = sourceNodes.Matrics;
-
-            // meshMatrix = localeParent;
-            // meshMatrix = localeParent * glm::mat4(1.0) / sourceNodes.Matrics;
-            // meshMatrix = glm::mat4(1.0);
 
             if(meshSize != 0u)
             {
@@ -268,10 +192,6 @@ namespace Rynex {
             {
                 uint32_t offset = gretesrSize - size;
                 vec.resize(gretesrSize); 
-                // for (uint32_t i = 0; i < offset; i++)
-                // {
-                //     vec.emplace_back(defaultValue);
-                // }
             }
 
            
@@ -336,14 +256,10 @@ namespace Rynex {
     Ref<MeshStatic> Mesh::CreateStaticMeshOld(Ref<MeshSource> source)
     {
         Ref<MeshStatic> meshStatic = source->GetStaticMesh();
-#if 0
-        RY_CORE_FATAL("DISABLE Mesh_::CreateStaticMesh if ptr exist Copy Ptr");
-#else
         if (meshStatic != nullptr)
         {
             return meshStatic;
         }
-#endif
         uint32_t i = 0;
         const std::vector<Ref<VertexBuffer>>& vabVec = source->GetVertexBufferVec();
         const std::vector<Ref<IndexBuffer>>& iabVec = source->GetShadeIndexBufferVec();
@@ -356,11 +272,7 @@ namespace Rynex {
 
         if (!source->HasMeshDataGerated())
         {
-#if 0
-            source->GenarteMeshesGPUBufferBatched();
-#else
             source->GenarteMeshDataIndevdiuelBuffer();
-#endif
         }
         
         std::vector<Mesh::PerDrawObject>& pdo = source->GetPerDrawObjectsShadeVec();
@@ -368,9 +280,6 @@ namespace Rynex {
 
         std::vector<Mesh::MeshRenderObject> meshRenderObject;
         Utils::GenartaeStaticMatrixBuffer(node, meshRenderObject, source);
-#if 0
-        meshStatic = CreateRef<MeshStatic>(vaa, vab, iab, ssboM, materiels, pdo, localeChildrenMat, meshesID);
-#else
 
         std::vector<MeshStatic::SingleObjectMeshData> singleMeshData = std::move(
             Utils::GenartaeMeshStaicPackedSigleMeshData(meshRenderObject)
@@ -378,7 +287,6 @@ namespace Rynex {
 
 
         meshStatic = CreateRef<MeshStatic>(source, singleMeshData);
-#endif
 
         source->SetStaticMesh(meshStatic);
 
@@ -390,14 +298,10 @@ namespace Rynex {
     Ref<MeshStatic> Mesh::CreateStaticMesh(Ref<MeshSource> source)
     {
         Ref<MeshStatic> meshStatic = source->GetStaticMesh();
-#if 0
-        RY_CORE_FATAL("DISABLE Mesh_::CreateStaticMesh if ptr exist Copy Ptr");
-#else
         if (meshStatic != nullptr)
         {
             return meshStatic;
         }
-#endif
         uint32_t i = 0;
         const std::vector<Ref<VertexBuffer>>& vabVec = source->GetVertexBufferVec();
         const std::vector<Ref<IndexBuffer>>& iabVec = source->GetShadeIndexBufferVec();
