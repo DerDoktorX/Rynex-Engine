@@ -27,82 +27,74 @@ namespace Rynex {
 		virtual void Clear() = 0;
 		
 	};
-#if RY_ENABLE_ENUM_NAMESPACE_PIPLINE_RENDER
-	namespace PiplineRender
+
+	typedef enum PiplineResultState
 	{
-#endif
-		typedef enum PiplineResultState
-		{
-			// Result_None is shoud never happen
-			Result_None							= 0,
-			Result_Success						= BIT(0),
-			
+		// Result_None is shoud never happen
+		Result_None							= 0,
+		Result_Success						= BIT(0),
+		
 
-			// state is set if we have not enough space for more RenderShape / Textexurs / Shading defenition / RenderObject
-			Result_NoRenderShapeSpaceLeft		= BIT(1),
-			Result_NoTextexurSpaceLeft			= BIT(2),
-			Result_NoShadeDefinitionSpaceLeft	= BIT(3),
-			Result_NoRenderObjectSpaceLeft		= BIT(4),
-			Result_NoShaderSpaceLeft			= BIT(5),
+		// state is set if we have not enough space for more RenderShape / Textexurs / Shading defenition / RenderObject
+		Result_NoRenderShapeSpaceLeft		= BIT(1),
+		Result_NoTextexurSpaceLeft			= BIT(2),
+		Result_NoShadeDefinitionSpaceLeft	= BIT(3),
+		Result_NoRenderObjectSpaceLeft		= BIT(4),
+		Result_NoShaderSpaceLeft			= BIT(5),
 
-			// state we dont allowe Resurce  RenderShape / Texture / Shade definition / RenderObject / Shader 
-			Result_NotAllowedRenderShape		= BIT(6),
-			Result_NotAllowedTexture			= BIT(7),
-			Result_NotAllowedShadeDefinition	= BIT(8),
-			Result_NotAllowedRenderObject		= BIT(9),
-			Result_NotAllowedShader				= BIT(10),
+		// state we dont allowe Resurce  RenderShape / Texture / Shade definition / RenderObject / Shader 
+		Result_NotAllowedRenderShape		= BIT(6),
+		Result_NotAllowedTexture			= BIT(7),
+		Result_NotAllowedShadeDefinition	= BIT(8),
+		Result_NotAllowedRenderObject		= BIT(9),
+		Result_NotAllowedShader				= BIT(10),
 
-			Result_Error						= BIT(11),
+		Result_Error						= BIT(11),
 
-			Result_AllNoSpaceLeft				= Result_NoTextexurSpaceLeft
-			| Result_NoShadeDefinitionSpaceLeft 
-			| Result_NoRenderObjectSpaceLeft
-#if 1
-			| Result_NoRenderShapeSpaceLeft,
-#else
-			,
-#endif
-			Result_AllNotAllowed				= Result_NotAllowedTexture 
-			| Result_NotAllowedShadeDefinition 
-			| Result_NotAllowedRenderObject 
-			| Result_NotAllowedShader
+		Result_AllNoSpaceLeft				= Result_NoTextexurSpaceLeft
+		| Result_NoShadeDefinitionSpaceLeft 
+		| Result_NoRenderObjectSpaceLeft
+
+		| Result_NoRenderShapeSpaceLeft,
+
+		Result_AllNotAllowed				= Result_NotAllowedTexture 
+		| Result_NotAllowedShadeDefinition 
+		| Result_NotAllowedRenderObject 
+		| Result_NotAllowedShader
 
 
-		} PiplineResultState;
+	} PiplineResultState;
 
-		typedef enum PiplineManagingState
-		{
-			// Managing_None is disable all Manager option 
-			Managing_None						= 0,
+	typedef enum PiplineManagingState
+	{
+		// Managing_None is disable all Manager option 
+		Managing_None						= 0,
 
-			// Managing_SortEnabele enable 1 of ... set how to Sort RenderObjcts bevor in draw func draw to Target, disable option to
-			Managing_SortRenderObjEnabele		= BIT(0),
+		// Managing_SortEnabele enable 1 of ... set how to Sort RenderObjcts bevor in draw func draw to Target, disable option to
+		Managing_SortRenderObjEnabele		= BIT(0),
 
 
-			// sort withe the postion what is in eth for- and backgund and sort by distence front to back / back to front
-			Managing_SortRenderObjFrontToBack	= BIT(1),
-			Managing_SortRenderObjBackToFront	= BIT(2),
+		// sort withe the postion what is in eth for- and backgund and sort by distence front to back / back to front
+		Managing_SortRenderObjFrontToBack	= BIT(1),
+		Managing_SortRenderObjBackToFront	= BIT(2),
 
-			// sort the RenderObj that all, withe the same shadeDefintion index render in order.
-			// Can used simultaneously, withe Managing_SortRenderObjTexture
-			// Prioritization is based on Managing_SortRenderObjTexture
-			Managing_SortRenderObjShade			= BIT(3),
+		// sort the RenderObj that all, withe the same shadeDefintion index render in order.
+		// Can used simultaneously, withe Managing_SortRenderObjTexture
+		// Prioritization is based on Managing_SortRenderObjTexture
+		Managing_SortRenderObjShade			= BIT(3),
 
-			// sort the RenderObj that all, withe the same Texture render in order. 
-			// Can used simultaneously, withe Managing_SortRenderObjShade
-			// Prioritization is based on Managing_SortRenderObjTexture
-			Managing_SortRenderObjTexture		= BIT(4),
+		// sort the RenderObj that all, withe the same Texture render in order. 
+		// Can used simultaneously, withe Managing_SortRenderObjShade
+		// Prioritization is based on Managing_SortRenderObjTexture
+		Managing_SortRenderObjTexture		= BIT(4),
 
-			// sort the RenderObj after the Entity Integer
-			Managing_SortRenderObjEntity		= BIT(5)
-
-			
-		} PiplineManagingState;
+		// sort the RenderObj after the Entity Integer
+		Managing_SortRenderObjEntity		= BIT(5)
 
 		
-#if RY_ENABLE_ENUM_NAMESPACE_PIPLINE_RENDER
-	}
-#endif
+	} PiplineManagingState;
+
+		
 
 	class PiplineRenderBase
 	{
@@ -244,38 +236,19 @@ namespace Rynex {
 		// return shows if we haved updated the buffer or not
 		static bool CheckVAOFromMeshSingleDepth(Ref<VertexArray>& vao, Ref<MeshSingle>& meshSingle)
 		{
-#if 1
 			if (HasVAOFromMeshSingleSomeDepthBuffer(vao, meshSingle))
 				return false;
 
 			RY_DESTROY_REF(vao);
 			const Ref<VertexBuffer>& vab = meshSingle->GetVertexBuffer();
 			const Ref<IndexBuffer>& iabDepth = meshSingle->GetDepthIndexBuffer();
-#if 0
-			BufferLayout layout = vab->GetLayout();
 
-			for (BufferElement& e : layout)
-			{
-				if(e.name != MeshSource::s_VerexBufferAtributePostionName)
-				{
-					e.Active = false;
-				}
-			}
-			vao = VertexArray::Create();
-			vao->AddVertexBuffer(vab, layout);
-			vao->SetIndexBuffer(iabDepth);
-
-#else
 
 
 			vao = VertexArray::Create();
 			vao->AddVertexBuffer(vab);
 			vao->SetIndexBuffer(iabDepth);
-#endif
-			vao->SetPrimitv(VertexArray::Primitv::Traingle);
-#else
-			CheckVAOFromMeshSingleShade(vao, meshSingle);
-#endif
+
 			return true;
 
 		}
@@ -387,31 +360,5 @@ namespace Rynex {
 
 	};
 
-	
 
-#if 0
-	class PiplineBase
-	{
-	public:
-		virtual ~PiplineBase() {}
-
-		virtual Ref<ElementPiplinEntityPtr> CreatEntityMesh(int enitiyID, const glm::mat4& matrix, Ref<Material> material, Ref<MeshSingle> meshSingle) = 0;
-
-		virtual void Clear() = 0;
-
-		virtual void SetCameraUniformBuffer(uint32_t bindSlot, Ref<UniformBuffer> camerbuffer) = 0;
-		virtual void SetDisplayUniformBuffer(uint32_t bindSlot, Ref<UniformBuffer> dispalaybuffer) = 0;
-
-
-		virtual void AddDrawEntityListToRenderTarget(RenderTarget& target) = 0;
-		virtual void AddDrawEntityListToRenderTarget(RenderTarget& target, Ref<UniformBuffer> camerbuffer) = 0;
-		virtual void Draw() = 0;
-
-
-		virtual uint32_t GetObjectsCount() const = 0;
-		virtual uint32_t GetTextureCount() const = 0;
-		virtual uint32_t GetMaterielCount() const = 0;
-
-	};
-#endif
 }
