@@ -39,11 +39,6 @@ namespace Rynex {
 			: Handle(handle)
 		{ }
 		AssetHandle Handle;
-#ifdef RY_ASSET_VAILDE_BOOL
-		void Invalidate() { m_Valid = false; };
-		void Validate() { m_Valid = true; };
-		bool IsValid() const{ return m_Valid; };
-#endif
 		virtual AssetType GetType() const = 0;
 		virtual ~Asset();
 
@@ -54,16 +49,11 @@ namespace Rynex {
 		static std::string GetAssetTypeMoveAssetInfosName(AssetType type);
 
 		static bool CurrentOnMainThread();
-
-
-
 		static Ref<Asset> GetRefInPlace(Asset* assetPtr)
 		{
 			RY_CORE_ASSERT(nullptr != assetPtr);
 			Ref<Asset> asset = assetPtr->shared_from_this();
 			RY_CORE_ASSERT(nullptr != asset);
-			
-			
 			return asset;
 		}
 
@@ -72,8 +62,6 @@ namespace Rynex {
 			RY_CORE_ASSERT(nullptr != assetPtr);
 			Weak<Asset> asset = assetPtr->weak_from_this();
 			RY_CORE_ASSERT(!asset.expired());
-
-
 			return asset;
 		}
 
@@ -116,6 +104,7 @@ namespace Rynex {
 		{
 			Weak<T> assetWeakT = Asset::GetWeakInPlace<T>(assetPtr);
 			Weak<N> assetWeakN = nullptr;
+
 			if(Ref<T> assetRefT  = assetWeak.lock())
 			{
 				Ref<T> assetRefN = std::static_pointer_cast<N, T>(assetRefT);
@@ -126,9 +115,6 @@ namespace Rynex {
 
 	private:
 		static std::thread::id s_MainThreadId;
-#ifdef RY_ASSET_VAILDE_BOOL
-		bool m_Valid = false;
-#endif
 	};
 
 
