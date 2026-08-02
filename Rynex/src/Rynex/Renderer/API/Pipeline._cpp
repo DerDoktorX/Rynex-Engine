@@ -1,4 +1,0 @@
-#include "rypch.h"
-#include "Pipeline.h"
-namespace Rynex {
-}
