@@ -1,11 +1,11 @@
 project "Sandbox"
 
-	if BuildProjectConf == "Static" or BuildProjectConf == "Static2Lib"  then
+	if BuildProjectConf == "Static" or BuildProjectConf == "Static2Lib" then
 		-- staticruntime "off" -- orig
 		staticruntime "on" 
 		io.write("Sandbox.Conf::on\n")
 	end
-	if BuildProjectConf == "Static2" or BuildProjectConf == "StaticLib"then
+	if BuildProjectConf == "Static2" or BuildProjectConf == "StaticLib" then
 		staticruntime "off" -- orig
 		io.write("Sandbox.Conf::off\n")
 	end
