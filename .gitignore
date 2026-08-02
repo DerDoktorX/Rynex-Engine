@@ -1,8 +1,6 @@
 .vs/
-bin/
-bin-int/
-
-
+**/bin/
+**/bin-int/
 
 
 # Nor realvent
@@ -12,12 +10,13 @@ RederDocs/
 Rynex-Test/
 
 # Liberays
-Rynex/vendor/spdlog/
-Rynex/vendor/glm/
+Rynex/vendor/spdlog
+Rynex/vendor/glm
 #Rynex/vendor/GLFW/
-Rynex/vendor/imgui/
-Rynex/vendor/ImGuizmo/
+Rynex/vendor/imgui
+Rynex/vendor/ImGuizmo
 Rynex/vendor/msdf-atelas-gen
+Rynex/vendor/meshoptimizer
 Rynex/vendor/gtest
 Rynex/vendor/assimp
 
@@ -29,10 +28,10 @@ RenderDoc/*.csv
 
 scripts/__pycache__
 # Files
-*.bat
-*.rdc
-*.cap
-*.json
+**.bat
+**.rdc
+**.cap
+**.json
 
 # from Hazel
 
@@ -46,14 +45,14 @@ Rynex-ScriptingCore/bin
 Rynex-ScriptingCore/obj
 
 # Hazel files
-*.log
+**.log
 
 
 # Visual Studio files and folder
-*.slnx
-*.sln
+**.slnx
+**.sln
 *.vcxproj
 **.vcxproj.filters
 **.vcxproj.user
-*.csproj
+**.csproj
 **.csproj.user
