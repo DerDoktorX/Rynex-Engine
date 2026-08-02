@@ -12,8 +12,6 @@ namespace Rynex {
 		static void SetBufferData(Ref<StorageBuffer>& buffer, const void *const dataPtr, uint32_t byteSize);
 
 
-		// static void ResizeBufferData(Ref<IndriectBuffer>& buffer, const uint16_t *const dataPtr, uint32_t byteSize);
-		// static void ResizeBufferData(Ref<IndriectBuffer>& buffer, const uint32_t *const dataPtr, uint32_t byteSize);
 		static void ResizeBufferData(Ref<VertexBuffer>& buffer, const void *const dataPtr, uint32_t byteSize);
 		static void ResizeBufferData(Ref<UniformBuffer>& buffer, const void *const dataPtr, uint32_t byteSize);
 		static void ResizeBufferData(Ref<IndirectBuffer>& buffer, const void *const dataPtr, uint32_t byteSize);
@@ -47,13 +45,7 @@ namespace Rynex {
 		bool UpdateBuffer(Ref<N>& buffer);
 
 	private:
-#if RY_DATA_VEC
-		std::vector<T> m_DataVec;
-		uint32_t m_StoreObjectCount;
-		uint32_t m_MaxStoredObjects;
-#else
 		Memory::StoreSubmite<T> m_DataStore;
-#endif
 		
 		bool m_Changed;
 	};
@@ -79,12 +71,7 @@ namespace Rynex {
 		uint32_t allocCount = m_DataStore.GetAllocCount<uint32_t>();
 		if (allocCount != count)
 		{
-			
-#if RY_DATA_VEC
-			m_DataVec.resize(m_MaxStoredObjects);
-#else
 			m_DataStore.Resize2D(count);
-#endif
 		}
 
 	}
@@ -92,22 +79,6 @@ namespace Rynex {
 	template<typename T>
 	inline bool BatchedRenderData<T>::SetObject(int entity, uint32_t& storeIndex, const T& data)
 	{
-#if RY_DATA_VEC
-		if (m_MaxStoredObjects <= m_StoreObjectCount)
-			return false;
-
-		if (m_StoreObjectCount != storeIndex)
-			storeIndex = m_StoreObjectCount;
-		T& storeData = m_DataVec.at(m_StoreObjectCount);
-
-		if (data != storeData)
-		{
-			storeData = data;
-			m_Changed = true;
-		}
-
-		m_StoreObjectCount++;
-#else
 		if(!m_DataStore.IsCurentPosEndVaild())
 			return false;
 
@@ -118,24 +89,11 @@ namespace Rynex {
 			m_Changed = true;
 		}
 		m_DataStore.Incroment();
-#endif
 		return true;
 	}
 	template<typename T>
 	inline bool BatchedRenderData<T>::ForceObject(int entity, uint32_t& storeIndex, const T& data)
 	{
-#if RY_DATA_VEC
-		if (m_MaxStoredObjects <= m_StoreObjectCount)
-			return false;
-
-		if (m_StoreObjectCount != storeIndex)
-			storeIndex = m_StoreObjectCount;
-
-		T& storeData = m_DataVec.at(m_StoreObjectCount);
-		storeData = data;
-		m_Changed = true;
-		m_StoreObjectCount++;
-#else
 		if (!m_DataStore.IsCurentPosEndVaild())
 			return false;
 
@@ -143,7 +101,6 @@ namespace Rynex {
 		storeData = data;
 		m_Changed = true;
 		m_DataStore.Incroment();
-#endif
 
 		return true;
 	}
@@ -155,11 +112,7 @@ namespace Rynex {
 	template<typename T>
 	inline uint32_t BatchedRenderData<T>::GetCounter() const
 	{
-#if RY_DATA_VEC
-		uint32_t count = m_StoreObjectCount;
-#else
 		uint32_t count = m_DataStore.GetCurentCount<uint32_t>()
-#endif
 		return count;
 	}
 	
@@ -168,16 +121,11 @@ namespace Rynex {
 	{		
 		constexpr uint32_t elmentByteSize = sizeof(T);
 
-#if RY_DATA_VEC
-		uint32_t count = m_StoreObjectCount;
-		uint32_t byteSize = count * elmentByteSize;
-#else
 		uint32_t byteSize = m_DataStore.GetCurentByteSize<uint32_t>();
 
 		uint32_t count = m_DataStore.GetCurentCount<uint32_t>()
 		uint32_t byteSize2 = count * elmentByteSize;
 		RY_CORE_ASSERT(byteSize == byteSize2, "difernt ByteSize!");
-#endif
 
 		return byteSize;
 	}
@@ -185,22 +133,14 @@ namespace Rynex {
 	template<typename T>
 	inline void Reset()
 	{
-#if RY_DATA_VEC
-		m_StoreObjectCount = 0u;
-#else
 		m_DataStore.Reset();
-#endif
 	}
 
 
 	template<typename T>
 	inline void BatchedRenderData<T>::Clear()
 	{
-#if RY_DATA_VEC
-		m_DataVec.clear();
-#else
 		RY_CORE_WARN("StoreSubmite can't not be Cleared! but we will reset the range");
-#endif
 		Reset();
 	}
 
@@ -210,11 +150,7 @@ namespace Rynex {
 	template<typename T>
 	inline const T *const BatchedRenderData<T>::GetDataPtr() const
 	{
-#if RY_DATA_VEC
-		const T *const dataPtr = m_DataVec.data();
-#else
 		const T* dataPtr = m_DataStore.GetDataPtr();
-#endif
 		return dataPtr;
 	}
 
