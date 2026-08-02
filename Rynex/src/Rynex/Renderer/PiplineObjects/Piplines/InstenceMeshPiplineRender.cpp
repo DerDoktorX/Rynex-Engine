@@ -6,7 +6,6 @@
 
 namespace Rynex {
 
-#define RY_UNBIND 0
 
 #pragma region Base
 
