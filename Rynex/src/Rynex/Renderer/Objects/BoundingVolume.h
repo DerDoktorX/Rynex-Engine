@@ -165,10 +165,6 @@ namespace Rynex {
 		void operator=(const BoundingVolume& rigth);
 	
 	private:
-#if 0
-		template<glm::length_t L, typename T>
-		void CheckValues(glm::vec<L, T>* value);
-#endif
 		
 		void CalculatMinMax(const std::vector<unsigned char>& data, uint32_t offset, BufferElement element);
 		void FindeRadius(const std::vector<unsigned char>& data, uint32_t offset, BufferElement element);
@@ -201,12 +197,6 @@ namespace Rynex {
 
 		AABB	m_AABB;
 		Sphere	m_Sphere;
-		
-
-		// glm::vec3 m_Max;
-		// glm::vec3 m_Min;
-		// glm::vec3 m_CenterPoint;
-		// float m_Radius;
 	};
 	
 
