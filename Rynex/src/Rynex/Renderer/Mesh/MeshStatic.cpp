@@ -55,29 +55,7 @@ namespace Rynex {
 	{
 		Generator();
 	}
-#if 0
-	MeshStatic::MeshStatic(const Ref<VertexArray>& shadeVAA, const Ref<VertexBuffer>& vab, const Ref<IndexBuffer>& shadeIAB, const Ref<StorageBuffer>& ssboM, const std::vector<SingleObjectMeshData>& singleMeshDatas)
-		: m_ShadeVAA(shadeVAA)
-		, m_VAB(vab)
-		, m_ShadeIAB(shadeIAB)
-		, m_DepthIAB()
-		, m_DepthVAA()
-		, m_SingleObjectDataVec(singleMeshDatas)
-	{
-		Generator();
-	}
 
-	MeshStatic::MeshStatic(const Ref<VertexArray>& shadeVAA, const Ref<VertexBuffer>& vab, const Ref<IndexBuffer>& shadeIAB, const std::vector<SingleObjectMeshData>& singleMeshDatas)
-		: m_VAB(vab)
-		, m_ShadeVAA(shadeVAA)
-		, m_ShadeIAB(shadeIAB)
-		, m_DepthVAA()
-		, m_DepthIAB()
-		, m_SingleObjectDataVec(singleMeshDatas)
-	{
-		Generator();
-	}
-#endif
 
 	MeshStatic::~MeshStatic()
 	{
@@ -137,34 +115,8 @@ namespace Rynex {
 
 	void MeshStatic::Generator()
 	{
-		
 		DestroyPackeges();
-		
-#if 0
-		SetupShadeVAA();
-		SetupDepthVAA();
-
-		Ref<Texture> texError = Renderer3D::GetErrorTex();
-		m_BindlesAlbedoTextureArray = BindlesTextureArray::CreateBindlesTextureArray({ texError });
-
-		MapVector<UUID, MaterielShaderData> defaultMaterielMap;
-		MapVector<UUID, int> offsetObjectMap;
-		MapVector<UUID, Mesh::PerDrawObject> drawObjectMap;
-		
-		int offsetValue = 0;
-		for (SingleObjectMeshData& m : m_SingleObjectDataVec)
-		{
-			SetDefaultMateriel(m, defaultMaterielMap);
-			SetOffsetObject(m, offsetObjectMap, offsetValue);
-			SetDrawObject(m, drawObjectMap);
-		}
-		
-		SetubeDefaultMaterialPackage(defaultMaterielMap);
-		SetubeOffsetObjectsPackage(offsetObjectMap);
-		SetubePerDrawObjectPackage(drawObjectMap);
-#else
 		GenarteMeshDataVec();
-#endif
 	}
 
 	void MeshStatic::SetupDepthVAA()
@@ -276,18 +228,9 @@ namespace Rynex {
 
 	void MeshStatic::Cear()
 	{
-#if 0
-		RY_DESTROY_REF(m_VAB);
-		RY_DESTROY_REF(m_ShadeVAA);
-		RY_DESTROY_REF(m_ShadeIAB);
-
-		RY_DESTROY_REF(m_DepthVAA);
-		RY_DESTROY_REF(m_DepthIAB);
-#else
 		m_VABvec.clear();
 		m_ShadeIABvec.clear();
 		m_DepthIABvec.clear();
-#endif
 		uint32_t i = 0;
 		for (SingleObjectMeshData& meshData : m_SingleObjectDataVec)
 		{
@@ -331,11 +274,7 @@ namespace Rynex {
 			RY_CORE_ASSERT(meshIndex == meshSource.MeshIndex, "Index Are not expexted Equel!");
 
 			const Ref<Material>& materiel = materielVec.at(indexMateriel);
-#if RY_ENABLE_INSTANCE_BUFFER
 			const Ref<MeshSingle>& meshSingle = singleMeshVec.at(meshDataIndex);
-#else
-			const Ref<MeshSingle>& meshSingle = singleMeshVec.at(meshIndex);
-#endif
 			m_SingleObjectDataVec.emplace_back(meshSingle, materiel, globleMatrix, nameNode, meshDataIndex, indexMateriel);
 		}
 		for (const MeshSource::EntityNodes& node : childrens)
