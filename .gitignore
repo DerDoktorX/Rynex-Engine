@@ -22,9 +22,10 @@ Rynex/vendor/gtest
 Rynex/vendor/assimp
 
 Profile/
-ERRORS
-binPreprozesSource
-premake_Srcripts
+ERRORS/*.txt
+binPreprozesSource/.cpp
+premake_Srcripts/.lua
+RenderDoc/*.csv
 
 scripts/__pycache__
 # Files
