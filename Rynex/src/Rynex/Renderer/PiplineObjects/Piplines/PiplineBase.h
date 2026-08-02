@@ -199,15 +199,11 @@ namespace Rynex {
 				a->GetShaderNumber()
 				, a->GetIndexBufferNumber()
 				, a->GetTextureNumber()
-				// , a->GetUniformBufferNumber()
-				// , a->GetStorageBufferNumber()
 			);
 			SortTuple bTuple = std::make_tuple(
 				b->GetShaderNumber()
 				, b->GetIndexBufferNumber()
 				, b->GetTextureNumber()
-				// , b->GetUniformBufferNumber()
-				// , b->GetStorageBufferNumber()
 
 			);
 			bool result = aTuple < bTuple;
