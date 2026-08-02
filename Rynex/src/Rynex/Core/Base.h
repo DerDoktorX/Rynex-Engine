@@ -397,6 +397,16 @@ namespace Rynex {
 	}
 
 
+	std::filesystem::path GetPathAsGenaric(std::filesystem::path path)
+	{
+		std::filesystem::path pathLexically = path.lexically_normal();
+		std::string pathGenericStr = pathLexically.generic_string();
+		pathLexically = pathGenericStr;
+		return pathLexically;
+	}
+
+
+
 	template<typename T>
 	using Weak = std::weak_ptr<T>;
 

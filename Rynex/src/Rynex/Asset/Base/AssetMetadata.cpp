@@ -6,17 +6,14 @@ namespace Rynex {
 
 	void AssetMetadata::SetFilePath(const std::filesystem::path& path)
 	{
-		std::filesystem::path pathToAsset = path.lexically_normal();
-		std::string pathToAssetStr = pathToAsset.generic_string();
-		pathToAsset = pathToAsset;
+		std::filesystem::path pathToAsset = GetPathAsGenaric(path);
 		std::pair <std::string, std::filesystem::path> pair = Project::GeanrateRealtivePathAndMarker(pathToAsset);
 		const std::string& marker = pair.first;
 		const std::filesystem::path& realtivePath = pair.second;
 		std::filesystem::path basePath = Project::GetAbsulteFilePathFormMarker(marker);
 		std::filesystem::path filePathMarker = Project::SetMarker(realtivePath, marker);
-		std::filesystem::path pathAbosulte = basePath / realtivePath;
-		std::string pathAbosulteStr = pathAbosulte.generic_string();
-		pathAbosulte = pathAbosulteStr;
+		std::filesystem::path pathAbosulte = GetPathAsGenaric(basePath / realtivePath);
+
 
 		if (path.is_absolute() && pathToAsset != pathAbosulte)
 			RY_CORE_WARN("The Absolute Path {} is not like the Orignale Path {}", pathAbosulte, pathToAsset);
@@ -36,9 +33,7 @@ namespace Rynex {
 		std::string marker = Project::ExtraxtMarker(markedPath);
 		std::filesystem::path realtivePath = Project::RemoveMarker(markedPath, marker);
 		std::filesystem::path basePath = Project::GetAbsulteFilePathFormMarker(marker);
-		std::filesystem::path pathAbosulte = basePath / realtivePath;
-		std::string pathAbosulteStr = pathAbosulte.generic_string();
-		pathAbosulte = pathAbosulteStr;
+		std::filesystem::path pathAbosulte = GetPathAsGenaric(basePath / realtivePath);
 
 
 		AbsolutePath = pathAbosulte;
