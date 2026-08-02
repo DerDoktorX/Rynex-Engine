@@ -48,15 +48,11 @@ namespace Rynex {
 		Ref<VertexArray> vertexArray;
 		Ref<VertexBuffer> instanceObjectBuffer;
 		Ref<UniformBuffer> materielUB;
-#if 0	
-		std::vector<Batch::Render3DMeshObject> rendeObjectVec;
-#else
 		std::vector<Batch::Render3DMeshObject> rendeObjectVec;
 		std::vector<Batch::Render3DMeshObjectTrasform> rendeObjectTransformVec;
 
 		Memory::DynamicDataStruct rendeObjectDynamicElementStruct;
 		std::vector<RenderProxyDynamicEllmenenttData> renderProxyDynamicDataTypeVec;
-#endif
 		uint32_t curentIndex;
 		bool needUpdate;
 
@@ -66,15 +62,10 @@ namespace Rynex {
 		{
 			curentIndex = 0u;
 			needUpdate = false;
-#ifndef RY_BATCHING_UPDATE_BUFFER_RANGE_BASED
-			rendeObjectVec.clear();
-#endif
-
 		}
 
 		void AddRenderObject(const Batch::Render3DMeshObject& renderObject)
 		{
-#ifdef RY_BATCHING_UPDATE_BUFFER_RANGE_BASED
 			uint32_t count = rendeObjectVec.size();
 			if (count <= curentIndex)
 			{
@@ -93,15 +84,11 @@ namespace Rynex {
 					needUpdate = true;
 				}
 			}
-#else
-			rendeObjectVec.emplace_back(renderObject);
-#endif
 			curentIndex++;
 		}
 
 		void AddRenderObject(const Batch::Render3DMeshObjectTrasform& renderObjectTrasform)
 		{
-#ifdef RY_BATCHING_UPDATE_BUFFER_RANGE_BASED
 			uint32_t count = rendeObjectTransformVec.size();
 			if (count <= curentIndex)
 			{
@@ -121,9 +108,6 @@ namespace Rynex {
 				}
 
 			}
-#else
-			rendeObjectVec.emplace_back(renderObject);
-#endif
 			curentIndex++;
 		}
 
@@ -142,7 +126,6 @@ namespace Rynex {
 
 		void AddTexture(const Ref<Texture>& texture)
 		{
-#ifdef RY_BATCHING_UPDATE_BUFFER_RANGE_BASED
 			if (nullptr == linkedTextureArray)
 			{
 				RY_CORE_ASSERT(nullptr != texture);
@@ -155,9 +138,6 @@ namespace Rynex {
 				linkedTextureArray->ResizeTextureArray(curentIndex+1);
 			}
 			linkedTextureArray->SetTextureToArray(curentIndex, texture);
-#else
-			rendeObjectVec.emplace_back(renderObject);
-#endif
 			curentIndex++;
 		}
 
@@ -165,13 +145,8 @@ namespace Rynex {
 	};
 
 
-#ifdef RY_USE_BATCH_RENDERER_POOL
 	using BatchVAO = Memory::StoreSubmite<BatchedRenderObjectVAO>;
 	using BatchTexture = Memory::StoreSubmite<BatchedTexture>;
-#else
-	using BatchVAO = BatchedRenderObjectVAO;
-	using BatchVAO = BatchedTexture;
-#endif
 
 
 	class BatchManager
@@ -188,13 +163,7 @@ namespace Rynex {
 
 		BatchVAO* GetBatchPtrVAO(const Batch3DKey& key);
 		BatchVAO& GetBatchVAO(const Batch3DKey& key);
-#if 0
-		BatchVAO* GetBatchPtrVAO(const Batch3DKey& key);
-		BatchVAO& GetBatchVAO(const Batch3DKey& key);
 
-		BatchTexture* GetBatchPtrTexture(const Batch3DKey& key);
-		BatchTexture& GetBatchTexture(const Batch3DKey& key);
-#endif
 		BatchTexture* GetBatchPtrTexture(const Batch3DKey& key);
 		BatchTexture& GetBatchTexture(const Batch3DKey& key);
 
