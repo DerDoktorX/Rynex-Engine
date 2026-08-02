@@ -17,8 +17,12 @@ Rynex/vendor/glm/
 #Rynex/vendor/GLFW/
 Rynex/vendor/imgui/
 Rynex/vendor/ImGuizmo/
+Rynex/vendor/msdf-atelas-gen
+Rynex/vendor/gtest
+Rynex/vendor/assimp
+
 Profile/
-ERRORS/
+/ERRORS/
 binPreprozesSource/
 premake_Srcripts/
 scripts/__pycache__/
