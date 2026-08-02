@@ -120,17 +120,11 @@ namespace Rynex {
 
 		void ForceLoadeAllDataUp()
 		{
-#if RY_BUFFER_PACKEGE_WARN_BLOCK
-			RY_CORE_WARN("We Imediedt Push The Date ({}) to Buffer ({}) withe oute Binding!", s_DataNameStr, s_BufferNameStr);
-#endif
 			LoadeDataUp();
 		}
 
 		void ForceStateDataUptoData()
 		{
-#if RY_BUFFER_PACKEGE_WARN_BLOCK
-			RY_CORE_WARN("We Imediedt Skip The Data ({}) to be Uploadedt tu Buffer ({}) Untile the Data change another Time!", s_DataNameStr, s_BufferNameStr);
-#endif
 			m_Update = false;
 		}
 	private:
@@ -147,164 +141,6 @@ namespace Rynex {
 
 	};
 
-#if 0
-	template<typename T, typename N, typename ...Args>
-	class UpoladeBufferDataPackage
-	{
-	public:
-		UpoladeBufferDataPackage(const UpoladeBufferDataPackage& p)
-			: m_Buffers(p.m_Buffers)
-			, m_Data(p.m_Data)
-			, m_CreateFunc(p.m_CreateFunc)
-			, m_CreateArgs(p.m_CreateArgs)
-		{
-		}
-
-		UpoladeBufferDataPackage(Args&& ... args)
-			: m_Buffer(buffer)
-			, m_Data(N())
-			, m_CreateArgs(args)
-		{
-		}
-
-
-		UpoladeBufferDataPackage(const Ref<T>& buffer, const N& data)
-			: m_Buffer(buffer)
-			, m_Data(data)
-		{
-		}
-
-		UpoladeBufferDataPackage(const N& data)
-			: m_Buffer(nullptr)
-			, m_Data(data)
-		{
-		}
-
-		~UpoladeBufferDataPackage()
-		{
-			DestroyPackege();
-		}
-
-		bool NeedUpdated() const { return m_Update; }
-		bool NeedNotUpdated() const { return !m_Update; }
-		bool HasBuffer() const { return nullptr != m_Buffer; }
-		bool HasNoBuffer() const { return nullptr == m_Buffer; }
-		bool IsRady() const { return (NeedNotUpdated() && HasBuffer()); }
-		bool IsNotRady() const { return (NeedUpdated() || HasNoBuffer()); }
-		operator bool() const { return !IsRady(); }
-
-		const std::vector<Ref<T>>& GetBuffers()const { return m_Buffers; }
-
-
-		void UpdateCurentBuffer()
-		{
-			uint32_t i = 0;
-			for (const Ref<T>& buffer : m_Buffers)
-			{
-				if (buffer->IsTransferd())
-					break;
-				i++;
-			}
-			if (i != 0)
-			{
-				i--;
-				m_Buffers.erase(m_Buffers.begin(), m_Buffers.begin() + i);
-			}
-		}
-
-		const Ref<T>& GetCurentBuffer()const
-		{
-			const Ref<T>& buffer = m_Buffers.front();
-			return buffer;
-		}
-
-		const N& GetDataEnd()const { return m_Data; }
-
-		void SetBuffer(const Ref<T>& buffer) { m_Update = true; m_Buffer = buffer; }
-		void SetData(const N& data) { m_Update = true; m_Data = data; }
-
-		template<typename U>
-		void SetData(uint32_t offsetByteSize, const U& data)
-		{
-			this->SetData(&data, offsetByteSize, sizeof(U));
-		}
-
-
-		void SetData(const void* dataPtr, uint32_t offsetByteSize, uint32_t byteSize)
-		{
-			uint32_t bufferSizeExpectSize = offsetByteSize + byteSize;
-
-			int differenz = sizeof(N) - bufferSizeExpectSize;
-			RY_CORE_ASSERT(sizeof(N) >= bufferSizeExpectSize, "Buffer Overfolwe by {} Bytes too large", (-differenz));
-			uint32_t copyByteSize = byteSize - offsetByteSize;
-
-			const void* offsetDataPtr = dataPtr + offset;
-			N* offsetMemeberDataPtr = &m_Data;
-
-			std::memcpy(offsetMemeberDataPtr, offsetDataPtr, copyByteSize);
-		}
-
-		N& ConfigData() { m_Update = true;  return m_Data; }
-
-		void BindBuffer(uint32_t slot)
-		{
-			
-			m_Buffer->Bind(slot);
-		}
-
-		void UnBind()
-		{
-			m_Buffer->UnBind();
-		}
-
-		void DestroyPackege()
-		{
-			for(Ref<T> buffer : m_Buffers)
-			{
-				RY_DESTROY_REF(buffer);
-			}
-		}
-
-		void ForceLoadeDataUp()
-		{
-#if RY_BUFFER_PACKEGE_WARN_BLOCK
-			RY_CORE_WARN("We Imediedt Push The Date ({}) to Buffer ({}) withe oute Binding!", s_DataNameStr, s_BufferNameStr);
-#endif
-			LoadeDataUp();
-		}
-
-	private:
-		void LoadeDataUp()
-		{
-			m_Buffers.emplace_back();
-		}
-
-		constexpr static std::string GetBufferName()
-		{
-			std::string str = "Ref<";
-			std::string typeName = typeid(T).name();
-			typeName.erase(typeName.begin(), typeName.begin() + 6);
-			str += typeName;
-			str += ">";
-			return str;
-		}
-
-		constexpr static std::string GetDataName()
-		{
-			std::string str = typeid(N).name();
-			str.erase(str.begin(), str.begin() + 7);
-			return str;
-		}
-	private:
-		std::vector<Ref<T>> m_Buffers;
-		N m_Data;
-		Args ... m_CreateArgs;
-		std::function<Ref<T>(Args...)> m_CreateFunc;
-
-		inline static std::string s_BufferNameStr = GetBufferName();
-		inline static std::string s_DataNameStr = GetDataName();
-	};
-#endif
 
 	template<typename T, typename N /*, typename Array = std::vector<N>*/ >
 	class BufferArrayPackage
@@ -691,7 +527,7 @@ namespace Rynex {
 
 	};
 
-#if 1
+
 	template<typename T, typename _Key,typename N /*, typename Array = std::vector<N>*/ >
 	class BufferArrayMapPackage
 	{
@@ -1187,9 +1023,7 @@ namespace Rynex {
 	};
 	
 	
-#endif
 
-#if 1
 
 	template<typename T, typename _Key, typename N /*, typename Array = std::vector<N> */>
 	class BufferArrayMapElementPtrPackage
@@ -1670,7 +1504,6 @@ namespace Rynex {
 	};
 
 	
-#endif
 
 	template<typename T>
 	using UniformArrayPackage = typename BufferArrayPackage<UniformBuffer, T>;
