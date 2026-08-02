@@ -1,7 +1,6 @@
 project "Rynex-Editor"
 
 	if BuildProjectConf == "Static" or BuildProjectConf == "Static2Lib"   then
-		-- staticruntime "off" -- orig
 		staticruntime "on" 
 		io.write("Rynex-Editor.Conf::on\n")
 	end
@@ -42,7 +41,6 @@ project "Rynex-Editor"
 		-- Filse
 		"%{IncludeDir.filewatch}",
 		-- Entity
-		--"%{IncludeDir.assimp}",
 		"%{IncludeDir.magic_enum}",
 
 		"%{IncludeDir.entt}",
@@ -51,11 +49,6 @@ project "Rynex-Editor"
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.ImPlot}",
 		"%{IncludeDir.ImGui}",
-
-
-		-- "%{IncludeDir.msdfgen}",
-		-- "%{IncludeDir.msdf_atlas_gen}",
-		-- "%{IncludeDir.freetype}"
 	}
 
 	links
@@ -72,39 +65,13 @@ project "Rynex-Editor"
 		defines "RY_DEBUG"
 		runtime "Debug"
 		symbols "on"
-		--editandcontinue "Off"
-		--buildoptions 
-		--{ 
-		--	"/Zi", "/fsanitize=address"
-		--}
-      	--linkoptions 
-		--{ 
-		--	"/fsanitize=address" 
-		--}
-		-- links
-		-- {
-		-- 	"%{Library.gtest_Debug}"
-		-- }
 
 	filter "configurations:Release"
 		defines "RY_REALSE"
 		runtime "Release"
 		optimize "on"
-		-- links
-		-- {
-		-- 	"%{Library.gtest_Release}"	
-		-- }
 
 	filter "configurations:Dist"
 		defines "RY_DIST"
 		runtime "Release"
 		optimize "on"
-		-- links
-		-- {
-		-- 	"%{Library.gtest_Release}"
-		-- }
-
-	-- filter "configurations:Preprocess"
-	-- 	flags { "NoPCH" }
-  	-- 	buildoptions { "/P" }
-

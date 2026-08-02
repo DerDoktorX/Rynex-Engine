@@ -2,7 +2,6 @@ project "Rynex"
 
 	if BuildProjectConf == "Static" or BuildProjectConf == "Static2Lib"  then
 	   kind "StaticLib"
-	   -- staticruntime "off" -- orig
 	   staticruntime "on" 
 	   io.write("Rynex.Conf:StaticLib::on\n")
 	end
@@ -40,12 +39,6 @@ project "Rynex"
 		"vendor/ImGuizmo/ImGuizmo.cpp",
 
 		"vendor/magic_enum/**.hpp",
-		-- "vendor/filewatch/**.h",
-		-- "vendor/filewatch/**.cpp",
-
-		-- "vendor/impolt/*.h",
-		-- "vendor/impolt/*.cpp",
-
 	}
 
 	defines
@@ -76,10 +69,6 @@ project "Rynex"
 		"%{IncludeDir.magic_enum}",
 		"%{IncludeDir.assimp}",
 		"%{IncludeDir.meshoptimizer}",
-		 --"%{IncludeDir.assimp}",
-			--"%{IncludeDir._config}",
-			--"%{IncludeDir.assimp_config}",
-			--"%{IncludeDir.assimp_include}",
 		-- Runtime Visuelle configs
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.ImGuizmo}",
@@ -102,19 +91,14 @@ project "Rynex"
 		"ImGui", 			-- Runtime Visuelle configs
 		"ImPolt",
 
-		--"%{Library.assimp}"	-- Runtime C# Scripts Reloade
 		"msdf-atlas-gen"
 	}
 	
 	filter "files:vendor/ImGuizmo/**.cpp"
-	-- flags { "NoPCH" }
 		enablepch "off"
-		-- enablepch "on"
 
 	filter "files:vendor/impolt/*.cpp"
-	-- flags { "NoPCH" }
 		enablepch "off"
-		-- enablepch "on"
 
 	filter "system:windows"
 		systemversion "latest"
@@ -144,67 +128,30 @@ project "Rynex"
 	
 	filter "configurations:Debug"
 		defines "RY_DEBUG"
-		-- defines "RY_DEV"
-	-- For Compile Rynex in .dll |
-	--							 V
-		--buildoptions "/MDd"
-	--							 ^
 		runtime "Debug"
 		symbols "on"
 		links
 		{
-		--	"%{Library.ShaderC_Debug}",
-		--	"%{Library.SPIRV_Cross_Debug}",
-		--	"%{Library.SPIRV_Cross_GLSL_Debug}"
 			"%{Library.mono_Debug}",
 			"%{Library.assimp_Debug}"
 		}
-		-- editandcontinue "Off"
-		-- buildoptions 
-		-- { 
-		-- 	"/Zi", "/fsanitize=address"
-		-- }
-      	-- linkoptions 
-		-- { 
-		-- 	"/fsanitize=address" 
-		-- }
 
 	filter "configurations:Release"
 		defines "RY_REALSE"
-		-- defines "RY_DEV"
-	-- For Compile Rynex in .dll |
-	--							 V	
-		--buildoptions "/MD"
-	--							 ^
 		runtime "Release"
 		optimize "on"
 		links
 		{
-		--	"%{Library.ShaderC_Release}",
-		--	"%{Library.SPIRV_Cross_Release}",
-		--	"%{Library.SPIRV_Cross_GLSL_Release}"
 			"%{Library.mono_Release}",
 			"%{Library.assimp_Release}"
 		}
 
 	filter "configurations:Dist"
 		defines "RY_DIST"
-	-- For Compile Rynex in .dll |
-	--							 V
-		--buildoptions "/MD"
-	--							 ^
 		runtime "Release"
 		optimize "on"
 		links
 		{
-			--"%{Library.ShaderC_Release}",
-			--"%{Library.SPIRV_Cross_Release}",
-			--"%{Library.SPIRV_Cross_GLSL_Release}"
 			"%{Library.mono_Release}",
 			"%{Library.assimp_Release}"
 		}
-
-	-- filter "configurations:Preprocess_SourceFiles"
-	-- 	defines { "GENERATING_PREPROCESSED_OUTPUT" }
-  	-- 	buildoptions { "/P" }
-

@@ -3,22 +3,15 @@ include "./vendor/bin/premake/premake_customization/solution_items.lua"
 workspace "Rynex-Rendering"
 	architecture "x86_64"
 	startproject "Rynex-Editor"
-	--startproject "Sandbox"
 
-	-- BuildProjectConf = "Static"
-	-- BuildProjectConf = "Static2Lib"
-	-- BuildProjectConf = "StaticLib"
 	BuildProjectConf = "Static2"
-	-- libraryWarnig = "off"
 	libraryWarnig = "on"
-	-- BuildProjectConf = "Dynamic"
 
 	configurations 
 	{ 
 		"Debug", 
 		"Release",
 		"Dist"
-		-- "Preprocess_SourceFiles"
 	}
 
 	solution_items
@@ -26,14 +19,9 @@ workspace "Rynex-Rendering"
 		".editorconfig"
 	}
 
-	-- flags
-	-- {
-	-- 	"MultiProcessorCompile"
-	-- }
 
 	multiprocessorcompile "on"
 	-- conformancemode "Off" -- disable in vs2026 -> /permissive-
--- Include directories relativ to root folder (solutione directory)
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 defines
@@ -50,8 +38,6 @@ end
 IncludeDir = {}
 -- Runtime
 IncludeDir["entt"] 		= "%{wks.location}/Rynex/vendor/entt_single_header/include"
--- IncludeDir["entt"] 		= "%{wks.location}/Rynex/vendor/entt/src/include"
-
 IncludeDir["robin_hood_hashing"] 		= "%{wks.location}/Rynex/vendor/robin-hood-hashing/include"
 
 IncludeDir["mono"] 	= "%{wks.location}/Rynex/vendor/mono/include"
@@ -118,7 +104,6 @@ Library["WinVersion"] = "Version.lib"
 Library["Bcrypt"] = "Bcrypt.lib"
 
 group "Dependencies"
-	-- include "vendor/bin/premake" <- Why include in Hazel
 	include "Rynex/vendor/GLFW"
 	include "Rynex/vendor/Glad"
 	include "Rynex/vendor/yaml-cpp"
@@ -127,229 +112,15 @@ group "Dependencies"
 
 	include "Rynex/vendor/msdf-atelas-gen"
 	include "Rynex/vendor/meshoptimizer"
-
-	-- include "Rynex-Test/vendor/gtest"
-	-- include "Rynex/vendor/assimp"
 group ""
 
---group "MainWorking"
 include "Rynex"
 include "Rynex-Editor"
--- include "Rynex-Test"
 include "Sandbox"
--- include "Rynex-Sanboxe-Fetures"
---group ""
+
 
 group "Core"	
 	include "Rynex-ScriptingCore"
 group ""
---group "Tools"
---group ""
 
-
---group "Misc"
-	
---group ""
-
-
-
---	project "Rynex"
---    location "Rynex"
---    --kind "SharedLib"
---	kind "StaticLib"
---    language "C++"
---    staticruntime "on"
---	cppdialect "C++17"
---
---	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
---	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
---
---	pchheader "rypch.h"
---	pchsource "Rynex/src/rypch.cpp"
---
---	files
---	{
---		"%{prj.name}/src/**.h",
---		"%{prj.name}/src/**.cpp",
---		"%{prj.name}/vendor/stb_image/**.h",
---		"%{prj.name}/vendor/stb_image/**.cpp",
---		"%{prj.name}/vendor/glm/glm/**.hpp",
---		"%{prj.name}/vendor/glm/glm/**.inl",
---	}
---
---	includedirs
---	{
---		"%{prj.name}/src/",
---		"%{prj.name}/src/Rynex/",
---		"%{prj.name}/vendor/spdlog/include",
---		"%{IncludeDir.GLFW}",
---		"%{IncludeDir.Glad}",
---		"%{IncludeDir.ImGui}",
---		"%{IncludeDir.glm}",
---		"%{IncludeDir.stb_image}",
---		"%{IncludeDir.entt}",
---		"%{IncludeDir.yaml_cpp}",
---		
---	}
---
---	links
---	{
---		"Glad",
---		"GLFW",
---		"ImGui",
---		"yaml-cpp",
---		"opengl32.lib",	
---	}
---
---	filter "system:windows"
---		
---		
---		systemversion "latest"
---
---		defines
---		{
---			"RY_PLATFORM_WINDOWS",
---			"RY_BUILD_DLL",
---			"GLFW_INCLUDE_NONE"
---		}
---
---		--postbuildcommands
---		--{
---		--	("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
---		--}
---	
---	filter "configurations:Debug"
---		defines "RY_DEBUG"
---		--buildoptions "/MDd"
---		runtime "Debug"
---		symbols "on"
---
---	filter "configurations:Release"
---		defines "RY_REALSE"
---		--buildoptions "/MD"
---		runtime "Release"
---		optimize "on"
---
---	filter "configurations:Dist"
---		defines "RY_DIST"
---		--buildoptions "/MD"
---		runtime "Release"
---		optimize "on"
---
---	project "Sandbox"
---	location "Sandbox"
---    kind "ConsoleApp"
---    language "C++"
---	cppdialect "C++17"
---	staticruntime "on"
---
---	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
---	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
---
---	files
---	{
---		"%{prj.name}/src/**.h",
---		"%{prj.name}/src/**.cpp",
---	}
---
---	includedirs
---	{
---		"Rynex/vendor/spdlog/include",
---		"Rynex/src",
---		"Rynex/vendor",
---		"%{IncludeDir.ImGui}",
---		"%{IncludeDir.glm}",
---		"%{IncludeDir.entt}",
---		"%{IncludeDir.yaml_cpp}",
---	}
---
---	links
---	{
---		"Rynex"
---	}
---
---	filter "system:windows"
---		staticruntime "on"
---		systemversion "latest"
---
---		defines
---		{
---			"RY_PLATFORM_WINDOWS",
---		}
---
---	filter "configurations:Debug"
---		defines "RY_DEBUG"
---		--buildoptions "/MDd"
---		runtime "Debug"
---		symbols "on"
---
---	filter "configurations: Release"
---		defines "RY_REALSE"
---		--buildoptions "/MD"
---		runtime "Release"
---		symbols "on"
---
---	filter "configurations:Dist"
---		defines "RY_DIST"
---		--buildoptions "/MD"
---		runtime "Release"
---		symbols "on"
---		
---	project "Rynex-Editor"
---	location "Rynex-Editor"
---		kind "ConsoleApp"
---		language "C++"
---		cppdialect "C++17"
---		staticruntime "on"
---		
---	
---		targetdir ("bin/" .. outputdir .. "/%{prj.name}")
---		objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
---	
---		files
---		{
---			"%{prj.name}/src/**.h",
---			"%{prj.name}/src/**.cpp",
---		}
---	
---		includedirs
---		{
---			"Rynex/vendor/spdlog/include",
---			"Rynex/src",
---			"Rynex/vendor",
---			"%{IncludeDir.ImGui}",
---			"%{IncludeDir.glm}",
---			"%{IncludeDir.entt}",
---		}
---		links
---		{
---			"Rynex"
---		}
---	
---		filter "system:windows"
---			staticruntime "on"
---			systemversion "latest"
---	
---			defines
---			{
---				"RY_PLATFORM_WINDOWS",
---			}
---	
---		filter "configurations:Debug"
---			defines "RY_DEBUG"
---			--buildoptions "/MDd"
---			runtime "Debug"
---			symbols "on"
---	
---		filter "configurations: Release"
---			defines "RY_REALSE"
---			--buildoptions "/MD"
---			runtime "Release"
---			symbols "on"
---	
---		filter "configurations:Dist"
---			defines "RY_DIST"
---			--buildoptions "/MD"
---			runtime "Release"
---			symbols "on"
 			
