@@ -437,11 +437,7 @@ namespace Rynex {
 
 	void OpenGLFramebuffer::Bind(float width, float height, float x, float y)
 	{
-#if RY_OPENGL_BIND_RENDER_COMAND
 		OpenGLRenderCommand::BindFramebuffer(m_RendererID);
-#else
-		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
-#endif
 		GLsizei widthS = width == 0.0f ? m_Specification.Width : width;
 		GLsizei heightS = height == 0.0f ? m_Specification.Height : height;
 		glViewport(x, y, widthS, heightS);
@@ -451,13 +447,10 @@ namespace Rynex {
 	{
 		GLsizei widthS = m_Specification.Width;
 		GLsizei heightS = m_Specification.Height;
-#if RY_OPENGL_BIND_RENDER_COMAND
 		uint32_t defaultTexture = OpenGLRenderCommand::GetDefaultFrambufferRenderID();
 		glm::uvec2 windowSize = OpenGL::GetMainWindowCurentSize();
 		OpenGLRenderCommand::BindFramebuffer(defaultTexture);
-#else
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-#endif
+
 		glViewport(0, 0, windowSize.x, windowSize.y);
 
 	}
@@ -522,37 +515,12 @@ namespace Rynex {
 
 	void OpenGLFramebuffer::Invalidate()
 	{
-#ifdef RY_OPENGL_MAIN_THREADE
-		if (OpenGLThreadContext::IsActive())
-		{
-			if (m_RendererID)
-			{
-				RY_GRAFIC_DELETE(m_RendererID, OpenGLFramebuffer);
-				glDeleteFramebuffers(1u, &m_RendererID);
-				m_RendererID = 0u;
-			}
-
-			glCreateFramebuffers(1u, &m_RendererID);
-			RY_GRAFIC_CREATE(m_RendererID, OpenGLFramebuffer);
-
-			uint32_t colorAtchmentCount = SetupTextures();
-			SetFrameBufferStates(colorAtchmentCount);
-		}
-		else
-		{
-
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-				Invalidate();
-				});
-		}
-#else
 		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLFramebuffer::Invalidate);
 
 		CreateID();
 
 		uint32_t colorAtchmentCount = SetupTextures();
 		SetFrameBufferStates(colorAtchmentCount);
-#endif
 	}
 
 	void OpenGLFramebuffer::CreateAttechmentTexture(Ref<OpenGLTextureStorageModern>& texture, uint32_t slot)
@@ -592,19 +560,6 @@ namespace Rynex {
 		glNamedFramebufferTexture(m_RendererID, attachmentTypeSLot, textureRenderID, 0);
 	}
 
-#ifdef RY_TEXTURE_STORE_ARRAY
-	void OpenGLFramebuffer::ConecetTextureToFramffbuffer(const Ref<StoreTextureArray>& textureArray, uint32_t texArrayindex, uint32_t slot)
-	{
-		const TextureSpecification& specs = textureArray->GetSpecification();
-		TextureFormat formate = specs.Format;
-		uint32_t attecmentType = Utils::AtchemtType(formate); // Color, Depth, Stencil
-
-		uint32_t targetFromat = textureArray->GetOpenGLTextureTarget();
-		uint32_t textureRenderID = textureArray->GetRenderID();
-		uint32_t attachmentTypeSLot = attecmentType + slot;
-		glNamedFramebufferTexture(m_RendererID, attachmentTypeSLot, textureRenderID, texArrayindex);
-	}
-#endif
 
 	void OpenGLFramebuffer::OnChildeSpecifcationChange(OpenGLTextureStorageModern* ptrTex)
 	{
