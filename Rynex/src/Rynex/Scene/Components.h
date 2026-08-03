@@ -28,8 +28,6 @@ namespace Rynex {
 #pragma region Identfing_Componts
 
 
-	
-
 	struct IDComponent
 	{
 		UUID ID;
@@ -81,28 +79,12 @@ namespace Rynex {
 			glm::mat4 scale = glm::scale(glm::mat4(1.0f), Scale);
 
 			glm::mat4 matrix = translate * rotation * scale;
-#if 0
-			glm::mat4 rotionX = glm::rotate(glm::mat4(1.0f), Rotation.x, { 1.0f, 0.0f ,0.0f });
-			glm::mat4 rotionY = glm::rotate(glm::mat4(1.0f), Rotation.y, { 0.0f, 1.0f ,0.0f });
-			glm::mat4 rotionZ = glm::rotate(glm::mat4(1.0f), Rotation.z, { 0.0f, 0.0f ,1.0f });
-			glm::mat4 rotate = rotionX * rotionY * rotionZ;
 
-			glm::mat4 matrixRot = translate * rotate * scale;
-			
-			RY_CORE_ASSERT(matrixRot == matrix);
-#endif
 			return matrix;
 		}
 
 		void SetTransform(const glm::mat4& matrix)
 		{
-#if 0
-			glm::vec3 skew = {};
-			glm::vec4 perspectiv = {};
-			glm::qua qaurt = glm::quat(Rotation);
-			glm::decompose(matrix, Scale, qaurt, Transaltion, skew, perspectiv);
-			Rotation = glm::eulerAngles(qaurt);
-#else
 			Transaltion = TransformComponent::ExtraxtTransaltion(matrix);
 			Scale = TransformComponent::ExtraxtScale(matrix);
 			Rotation = TransformComponent::ExtraxtRotation(matrix, Scale);
@@ -122,8 +104,6 @@ namespace Rynex {
 				}
 			}
 			
-#endif
-
 		}
 		static glm::vec3 ExtraxtTransaltion(const glm::mat4& matrix)
 		{
@@ -182,13 +162,8 @@ namespace Rynex {
 	struct SpriteRendererComponent
 	{
 		glm::vec4 Color{ 1.0f, 0.0f, 1.0f, 1.0f };
-#if RY_DISABLE_WEAK_PTR
-		Ref<Texture> Texture;
-#else
 		Weak<Texture> Texture;
-		
-#endif
-		
+				
 
 		SpriteRendererComponent() = default;
 		SpriteRendererComponent(const SpriteRendererComponent&) = default;
@@ -256,7 +231,6 @@ namespace Rynex {
 
 	};
 
-#if 1
 	struct GeomtryComponent
 	{
 		Ref<VertexArray> Geometry = nullptr;
@@ -272,10 +246,8 @@ namespace Rynex {
 		MaterialComponent() = default;
 		MaterialComponent(const MaterialComponent&) = default;
 	};
-#endif
 
 #pragma region Matrix_Compents
-#ifdef COMPONENT_SINGLE_MODEL
 	struct ModelMatrixComponent
 	{
 		glm::mat4 Locale = glm::mat4(1.0);
@@ -285,75 +257,6 @@ namespace Rynex {
 		ModelMatrixComponent() = default;
 		ModelMatrixComponent(const ModelMatrixComponent&) = default;
 	};
-#else
-	// Model Matrix: used by nearly every 3d Object, Ligths and Cameras.
-	struct ModelMatrixLocaleComponent
-	{
-		glm::mat4 Matrix = glm::mat4(1.0);
-		ModelMatrixLocaleComponent() = default;
-		ModelMatrixLocaleComponent(const ModelMatrixLocaleComponent&) = default;
-
-		void Set(const TransformComponent& transformComponent)
-		{
-			Matrix = transformComponent.GetTransform();
-		}
-	};
-
-	struct ModelMatrixGlobleComponent
-	{
-		glm::mat4 Matrix = glm::mat4(1.0);
-
-		ModelMatrixGlobleComponent() = default;
-		ModelMatrixGlobleComponent(const ModelMatrixGlobleComponent&) = default;
-
-		void Set(const ModelMatrixGlobleComponent& prante, const ModelMatrixLocaleComponent& locale)
-		{
-			Matrix = prante * locale;
-		}
-
-		void Set(const ModelMatrixLocaleComponent& locale)
-		{
-			Matrix = locale.Matrix;
-		}
-
-
-		ModelMatrixGlobleComponent& operator=(const ModelMatrixLocaleComponent& locale)
-		{
-			Matrix = locale.Matrix;
-			return *this;
-		}
-
-		ModelMatrixGlobleComponent& operator=(const ModelMatrixGlobleComponent& l)
-		{
-			Matrix = l.Matrix;
-			return *this;
-		}
-
-		ModelMatrixGlobleComponent& operator=(const glm::mat4& matrix)
-		{
-			Matrix = matrix;
-			return *this;
-		}
-
-	
-	};
-
-	constexpr glm::mat4 operator*(const ModelMatrixGlobleComponent& leftGloble, const ModelMatrixLocaleComponent& rigthtLocale)
-	{
-		return leftGloble.Matrix * rigthtLocale.Matrix;
-	}
-
-	constexpr glm::mat4 operator*(const ModelMatrixGlobleComponent& leftGloble, const glm::mat4& rigthtMatrix)
-	{
-		return leftGloble.Matrix * rigthtMatrix;
-	}
-
-	constexpr glm::mat4 operator*(const glm::mat4& leftMatrix, const ModelMatrixLocaleComponent& rigthtLocale)
-	{
-		return leftMatrix * rigthtLocale.Matrix;
-	}
-
-#endif
 	
 	// View Matrix: often used by Cameras and Matrix for rendering, but also often using Model Matrix,
 	// this Matrix is the glm::inverse version from Model Matrix.
@@ -660,7 +563,6 @@ namespace Rynex {
 
 		
 	};
-#ifdef RY_COMPONENT_RELATION_SHIPS_BASED_UUID
 	struct RealtionShipUUIDComponent
 	{
 		UUID parent = 0;
@@ -669,16 +571,6 @@ namespace Rynex {
 		RealtionShipUUIDComponent() = default;
 		RealtionShipUUIDComponent(const RealtionShipUUIDComponent&) = default;
 	};
-#else
-	struct RealtionShipComponent
-	{
-		entt::entity parent = entt::null;
-		std::vector<entt::entity> ChildrensVec;
-
-		RealtionShipComponent() = default;
-		RealtionShipComponent(const RealtionShipComponent&) = default;
-	};
-#endif
 
 
 	template<typename... Component>
@@ -692,19 +584,11 @@ namespace Rynex {
 		MaterialComponent,
 		GeomtryComponent,
 		Matrix3x3Component,
-#if 1
 		ModelMatrixComponent
-#else
-		ModelMatrixLocaleComponent
-#endif
 		, ViewMatrixComponent,
 		FrameBufferComponent,
 		StaticMeshComponent,
-#ifndef RY_RELATION_SHIPS_ENTITY_BASED
 		RealtionShipUUIDComponent,
-#else
-		RealtionShipComponent,
-#endif
 		VisibleComponent,
 		ModelMangerComponent, DynamicMeshComponent,
 		NativeSripteComponent,
