@@ -22,47 +22,18 @@
 	glGetBooleanv( type, &bufferType); \
 	RY_CORE_ASSERT(bufferType == isEquel, #type " is not Equel " #isEquel "!");\
 }
-#if 0
-namespace robin_hood {
 
-	template<>
-	struct hash<Rynex::AktiveBindlesTexture, void>
-	{
-		std::size_t operator()(const Rynex::AktiveBindlesTexture& bindelssTexture) const
-		{
-			std::size_t hashV = bindelssTexture.GetHash();
-			return hashV;
-		}
-
-
-
-
-	};
-}
-#endif
 
 #define RY_CHECK_BIND_ON_MAIN_THREAD()	RY_CORE_ASSERT(::Rynex::Asset::CurrentOnMainThread(), "Bining aktion on not Main Thread!")
 
-#if 1
-			
-#if 0
-	#define RY_CHECK_BUFFER_BIND_STATE(x)	\
-		RY_CHECK_BIND_ON_MAIN_THREAD();		\
-		if(x == renderID)					\
-			return;							\
-											\
-		x = renderID						
-#else
-	#define RY_CHECK_BUFFER_BIND_STATE(x)	\
-		if(x == renderID)					\
-			return;							\
-											\
-		x = renderID						
-#endif
 
-#else
-	#define RY_CHECK_BUFFER_BIND_STATE(x)	x = renderID
-#endif
+#define RY_CHECK_BUFFER_BIND_STATE(x)	\
+	if(x == renderID)					\
+		return;							\
+										\
+	x = renderID						
+
+
 
 namespace Rynex {
 
@@ -156,95 +127,7 @@ namespace Rynex {
 		RY_CHECK_BUFFER_BIND_STATE(m_BindVertexArrayState);
 		glBindVertexArray(renderID);
 	}
-#ifdef RY_OPENGL_UN_RESOURCESE
-	void OpenGLRendererAPI::UnBindBuffer(uint32_t target)
-	{
-		constexpr uint32_t resetBindNumber = 0u;
-		switch (target)
-		{
-		case GL_ELEMENT_ARRAY_BUFFER:
-			BindIndexBuffer(resetBindNumber);
-			break;
-		case GL_DRAW_INDIRECT_BUFFER:
-			BindIndrectBuffer(resetBindNumber);
-			break;
-		case GL_SHADER_STORAGE_BUFFER:
-			BindStorageBuffer(resetBindNumber);
-			break;
-		case GL_ARRAY_BUFFER:
-			BindVertexArray(resetBindNumber);
-			break;
-		case GL_UNIFORM_BUFFER:
-			BindUniformBuffer(resetBindNumber);
-			break;
-		default:
-			RY_CORE_ASSERT(false);
-			break;
-		}
-	}
 
-	void OpenGLRendererAPI::UnBindIndexBuffer(uint32_t renderID)
-	{
-		
-		
-	}
-
-	void OpenGLRendererAPI::UnBindUniformBuffer(uint32_t renderID)
-	{
-		
-
-	}
-
-	
-
-	void OpenGLRendererAPI::UnBindVertexBufferSlot(uint32_t slot, uint32_t renderID)
-	{
-		constexpr uint32_t resetBindSlotBuffer = 0u;
-		uint32_t i = 0u;
-		for (uint32_t& buffer : m_BindVertexBufferStateVec)
-		{
-			if (buffer == renderID)
-			{
-				buffer = resetBindSlotBuffer;
-				glBindBufferBase(GL_ARRAY_BUFFER, i, resetBindSlotBuffer);
-				return;
-			}
-			i++;
-		}
-	}
-
-	void OpenGLRendererAPI::UnBindUniformBufferSlot(uint32_t slot, uint32_t renderID)
-	{
-		constexpr uint32_t resetBindSlotBuffer = 0u;
-		uint32_t i = 0u;
-		for (uint32_t& buffer : m_BindUniformBufferStateVec)
-		{
-			if (buffer == renderID)
-			{
-				buffer = resetBindSlotBuffer;
-				glBindBufferBase(GL_UNIFORM_BUFFER, i, resetBindSlotBuffer);
-				return;
-			}
-			i++;
-		}
-	}
-
-	void OpenGLRendererAPI::UnBindStorageBufferSlot(uint32_t slot, uint32_t renderID)
-	{
-		constexpr uint32_t resetBindSlotBuffer = 0u;
-		uint32_t i = 0u;
-		for (uint32_t& buffer : m_BindStorageStateVec)
-		{
-			if (buffer == renderID)
-			{
-				buffer = resetBindSlotBuffer;
-				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, i, resetBindSlotBuffer);
-				return;
-			}
-			i++;
-		}
-	}
-#endif
 	void OpenGLRendererAPI::BindBuffer(uint32_t target, uint32_t renderID)
 	{
 		switch (target)
@@ -532,21 +415,14 @@ namespace Rynex {
 
 	void OpenGLRendererAPI::ClearDepth()
 	{
-		
 		glClear(GL_DEPTH_BUFFER_BIT);
-		// glDepthMask(GL_TRUE);
-		// glDepthFunc(GL_LESS);
-		// glEnable(GL_DEPTH_TEST);
 	}
 
 	void OpenGLRendererAPI::DrawIndexedMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
 	{
 		vertexArray->Bind();
 		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
-#if 0
-		RY_CORE_INFO("DrawIndexedMesh IndexBuffer renderID = {0}, count = {1}, indexCount {2} ",vertexArray->GetIndexBuffers()->GetRenderID(), count, indexCount);
-#endif
-		
+
 		GL_CHECK_LOOP();
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
@@ -557,7 +433,6 @@ namespace Rynex {
 		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
 		
 		glDrawElementsInstanced(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr, instecing);
-		
 	}
 
 	typedef  struct {
@@ -593,15 +468,7 @@ namespace Rynex {
 	void OpenGLRendererAPI::DrawElement(const Ref<VertexArray>& vertexArray, const Mesh::PerDrawObject& drawObject)
 	{
 		vertexArray->Bind();
-		// glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
 
-#if GL_CHECK_BINDINGS_BEFOR_DRAW
-		CHECK_BINDINGS_ASSERTi(GL_DRAW_FRAMEBUFFER_BINDING);
-		CHECK_BINDINGS_ASSERTi(GL_CURRENT_PROGRAM);
-		CHECK_BINDINGS_ASSERTi(GL_VERTEX_ARRAY_BINDING);
-		CHECK_BINDINGS_ASSERTi(GL_UNIFORM_BUFFER_BINDING);
-		CHECK_BINDINGS_ASSERTi(GL_SHADER_STORAGE_BUFFER_BINDING);
-#endif
 
 		Ref<OpenGLVertexArray> vertexArrayGL = std::static_pointer_cast<OpenGLVertexArray>(vertexArray);
 		GLenum mode = vertexArrayGL->GetPrimitvOpenGLMode();
@@ -633,55 +500,14 @@ namespace Rynex {
 		uint32_t stride = sizeof(DrawElementsIndirectCommandOpenGL) - indriectBuffer->GetStrideSize();
 		vertexArray->Bind();
 		indriectBuffer->Bind();
-		// glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
-
-#if GL_CHECK_BINDINGS_BEFOR_DRAW
-		CHECK_BINDINGS_ASSERTi(GL_DRAW_FRAMEBUFFER_BINDING);
-		CHECK_BINDINGS_ASSERTi(GL_CURRENT_PROGRAM);
-		CHECK_BINDINGS_ASSERTi(GL_VERTEX_ARRAY_BINDING);
-		CHECK_BINDINGS_ASSERTi(GL_UNIFORM_BUFFER_BINDING);
-		CHECK_BINDINGS_ASSERTi(GL_SHADER_STORAGE_BUFFER_BINDING);
-#endif
-		// CHECK_BINDINGS_ASSERTb(GL_DEPTH_TEST, GL_TRUE);
-
-
 		
 	
 		Ref<OpenGLVertexArray> vertexArrayGL = std::static_pointer_cast<OpenGLVertexArray>(vertexArray);
 		GLenum mode = vertexArrayGL->GetPrimitvOpenGLMode();
 		uint32_t count = indriectBuffer->GetCount();
-#if 0
-		const DrawElementsIndirectCommandOpenGL* indirect = (const DrawElementsIndirectCommandOpenGL*)indriectBuffer->GetDataPtr();
-		
-		GLsizei n;
-		for (n = 0; n < count; n++) 
-		{
-			const DrawElementsIndirectCommandOpenGL* cmd;
-			if (stride != 0) 
-			{
-				cmd = (const DrawElementsIndirectCommandOpenGL*)((char*)indirect + n * stride);
-				RY_CORE_ASSERT(false, "Check is Corect!");
-			}
-			else 
-			{
-				cmd = (const DrawElementsIndirectCommandOpenGL*)indirect + n;
-			}
-
-			glDrawElementsInstancedBaseVertexBaseInstance(mode,
-				cmd->count,
-				GL_UNSIGNED_INT,
-				(void*)(cmd->firstIndex * sizeof(uint32_t)),
-				cmd->instanceCount,
-				cmd->baseVertex,
-				cmd->baseInstance);
-		}
-#else
 		glMultiDrawElementsIndirect(mode, GL_UNSIGNED_INT, nullptr, count, stride);
-#endif
 		GL_CHECK_LOOP();
 
-		// glFinish();
-		// glFlush();
 	}
 	
 
@@ -727,14 +553,8 @@ namespace Rynex {
 
 	void OpenGLRendererAPI::RestPipline()
 	{
-
-#ifdef RY_OPENGL_ALL_BINDING_RESET
-		GLint maxTextureUnits= 0;
-		glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
-#else
 		int maxTextureUnits = m_HigestBindSamplerStateSlot < m_HigestBindTextureStateSlot ? m_HigestBindTextureStateSlot : m_HigestBindSamplerStateSlot;
 		maxTextureUnits += 1;
-#endif
 		for (int i = 0; i < maxTextureUnits; i++) 
 		{
 			OpenGLRendererAPI::BindTextureSlot(i, 0u);      // Textur-Binding reset
@@ -744,12 +564,7 @@ namespace Rynex {
 		m_HigestBindTextureStateSlot = -1;
 
 
-#ifdef RY_OPENGL_ALL_BINDING_RESET
-		GLint maxUniformBufferSlots = 0;
-		glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxUniformBufferSlots);
-#else
 		int maxUniformBufferSlots = m_HigestBindUniformBufferStateSlot + 1;
-#endif
 
 		for (int i = 0; i < maxUniformBufferSlots; i++) 
 		{
@@ -758,12 +573,7 @@ namespace Rynex {
 		m_HigestBindUniformBufferStateSlot = -1;
 		
 		
-#ifdef RY_OPENGL_ALL_BINDING_RESET
-		GLint maxShaderStorageBufferSlots = 0;
-		glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &maxUniformBufferSlots);
-#else
 		int maxShaderStorageBufferSlots = m_HigestBindStorageStateSlot + 1;
-#endif
 
 		for (int i = 0; i < maxShaderStorageBufferSlots; i++)
 		{
@@ -772,12 +582,8 @@ namespace Rynex {
 		m_HigestBindStorageStateSlot = -1;
 		
 
-#ifdef RY_OPENGL_ALL_BINDING_RESET
-		GLint maxVertexBufferSlots = 0;
-		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_BINDINGS, &maxVertexBufferSlots);
-#else
 		int maxVertexBufferSlots = m_HigestBindVertexBufferStateSlot + 1;
-#endif
+
 		for (int i = 0; i < maxVertexBufferSlots; i++)
 		{
 			OpenGLRendererAPI::BindVertexBufferSlot(i, 0);
@@ -952,35 +758,6 @@ namespace Rynex {
 			{
 				break;
 			}
-#if 0
-			case Renderer::CallFace_None:
-			{
-				glDisable(GL_CULL_FACE);
-				break;
-			}
-			case Renderer::CallFace_Front:
-			{
-				glDisable(GL_CULL_FACE);
-				// glCullFace(GL_FRONT);
-				// glFrontFace(GL_CCW);
-				break;
-			}
-			case Renderer::CallFace_Back:
-			{
-				glDisable(GL_CULL_FACE);
-				// glCullFace(GL_BACK);
-				// glFrontFace(GL_CCW);
-				break;
-			}
-			case Renderer::CallFace_FrontBack:
-			{
-				glDisable(GL_CULL_FACE);
-				// glCullFace(GL_FRONT_AND_BACK);
-				// glFrontFace(GL_CCW);
-				RY_CORE_WARN("Not Known Type! Thsi is Funkioning but maby not korekt!");
-				break;
-			}
-#endif
 			case RenderMode::A_Buffer:
 			{
 				glDisable(GL_DITHER);
