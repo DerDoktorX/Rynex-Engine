@@ -345,20 +345,6 @@ namespace Rynex {
 
 #pragma endregion
 
-#if 0
-	static void GeomtryComponent_SetLayout(UUID entityID, int conte, )
-	{
-		Scene* scene = ScriptingEngine::GetSceneContext();
-		Entity entity = scene->GetEntitiyByUUID(entityID);
-		if (!entity.HasComponent<GeomtryComponent>()) return;
-
-		auto& geometryC = entity.GetComponent<GeomtryComponent>();
-		geometryC.Buffer->SetLayout();
-
-		_SetPrimitv
-
-	}
-#endif //TODO: Create SetPrimitv Funktion!
 
 #pragma endregion
 
@@ -411,13 +397,9 @@ namespace Rynex {
 	{
 		Entity entity = Utils::GetFromSceneEntity(entityID);
 		RY_CORE_ASSERT(entity.HasComponent<SpriteRendererComponent>());
-#if RY_DISABLE_WEAK_PTR
-		if (Ref<Texture> tex = entity.GetComponent<SpriteRendererComponent>().Texture)
-			*handle = tex->Handle;
-#else
+
 		if(Ref<Texture> tex = entity.GetComponent<SpriteRendererComponent>().Texture.lock())
 			*handle = tex->Handle;
-#endif
 	}
 
 #pragma endregion
@@ -588,15 +570,6 @@ namespace Rynex {
 		return entity.GetComponent<CameraComponent>().Camera.GetProjektion();
 	}
 
-#if 0
-	static void CameraComponent_Camera_GetProjektion(UUID entityID, glm::mat4* matrix)
-	{
-		Entity entity = Utils::GetFromSceneEntity(entityID);
-		RY_CORE_ASSERT(entity.HasComponent<CameraComponent>());
-		entity.GetComponent<CameraComponent>().Camera = Camera(*matrix);
-	}
-#endif // TODO: Decide if we expose that
-
 #pragma endregion
 
 #pragma endregion
@@ -625,35 +598,7 @@ namespace Rynex {
 #pragma endregion
 
 #pragma region MaterialComponent
-#if ENABLE_MATERIL_COMPONET
-	static void MaterialComponent_SetShader(UUID entityID, AssetHandle* handle)
-	{
-		Entity entity = Utils::GetFromSceneEntity(entityID);
-		RY_CORE_ASSERT(entity.HasComponent<MaterialComponent>());
-		entity.GetComponent<MaterialComponent>().Materiel->SetShader(AssetManager::GetAsset<Shader>(*handle));
-	}
 
-	static void MaterialComponent_GetShader(UUID entityID, AssetHandle* handle)
-	{
-		Entity entity = Utils::GetFromSceneEntity(entityID);
-		RY_CORE_ASSERT(entity.HasComponent<MaterialComponent>());
-		*handle = entity.GetComponent<MaterialComponent>().Materiel->GetShader()->Handle;
-	}
-	
-	static void MaterialComponent_SetColor(UUID entityID, glm::vec3* color)
-	{
-		Entity entity = Utils::GetFromSceneEntity(entityID);
-		RY_CORE_ASSERT(entity.HasComponent<MaterialComponent>());
-		entity.GetComponent<MaterialComponent>().Color = *color;
-	}
-
-	static void MaterialComponent_GetColor(UUID entityID, glm::vec3* color)
-	{
-		Entity entity = Utils::GetFromSceneEntity(entityID);
-		RY_CORE_ASSERT(entity.HasComponent<MaterialComponent>());
-		*color = entity.GetComponent<MaterialComponent>().Color;
-	}
-#endif
 #pragma endregion
 
 #pragma region 
@@ -708,183 +653,7 @@ namespace Rynex {
 #pragma endregion
 
 #pragma region MeshComponent
-#if RY_ENABLE_SCRIPTING_MESH_COMP
-	static void MeshComponent_SetModelR(UUID entityID, AssetHandle handle)
-	{
-		Entity entity = Utils::GetFromSceneEntity(entityID);
-		RY_CORE_ASSERT(entity.HasComponent<MeshComponent>());
-		entity.GetComponent<MeshComponent>().ModelR = AssetManager::GetAsset<Model>(handle);
-	}
 
-	static void MeshComponent_GetModelR(UUID entityID, AssetHandle* handle)
-	{
-		Entity entity = Utils::GetFromSceneEntity(entityID);
-		RY_CORE_ASSERT(entity.HasComponent<MeshComponent>());
-		*handle = entity.GetComponent<MeshComponent>().ModelR->Handle;
-	}
-
-	static void MeshComponent_SetMeshMode(UUID entityID, MeshMode meshMode)
-	{
-		Entity entity = Utils::GetFromSceneEntity(entityID);
-		RY_CORE_ASSERT(entity.HasComponent<MeshComponent>());
-		MeshComponent& mesh = entity.GetComponent<MeshComponent>();
-		if (mesh.MeshModeE != meshMode && mesh.ModelR)
-		{
-			if (mesh.MeshModeE == MeshMode::Dynamic)
-			{
-				entity.DestroyEntityChildrens();
-
-			}
-
-			switch (meshMode)
-			{
-				case MeshMode::None:
-			{
-				if (entity.HasComponent<ModelMangerComponent>())
-					entity.RemoveComponent<ModelMangerComponent>();
-				break;
-			}
-				case MeshMode::Statitic:
-			{
-				if (!entity.HasComponent<ModelMangerComponent>())
-					entity.AddComponent<ModelMangerComponent>();
-				ModelMangerComponent& staticMesh = entity.GetComponent<ModelMangerComponent>();
-				staticMesh.ModelR = mesh.ModelR;
-				ModelMatrixComponent& parentMat4C = entity.GetComponent<ModelMatrixComponent>();
-#if RY_MODEL_NODE
-				auto& modelData = mesh.ModelR->GetNodes();
-				staticMesh.Meshes.reserve(modelData.size());
-				for (auto& node : modelData)
-				{
-					for (auto& meshNode : node.Meshes)
-					{
-						staticMesh.Meshes.emplace_back(MeshStatic{
-							parentMat4C.Globle * node.Matrix,
-							node.Matrix,
-							meshNode,
-							nullptr});
-					}
-				}
-
-#else
-				auto& modelData = mesh.ModelR->GetRootDatas();
-				staticMesh.LocaleMeshMatrix.reserve(modelData.size());
-
-				for (auto& meshData : modelData)
-				{
-					staticMesh.LocaleMeshMatrix.emplace_back(meshData.NodeMatrix);
-					staticMesh.GlobleMeshMatrix.emplace_back(parentMat4C.Globle * meshData.NodeMatrix);
-				}
-
-#endif
-				break;
-			}
-				case MeshMode::Dynamic:
-				{
-					if (!entity.HasComponent<ModelMatrixComponent>())
-						entity.AddComponent<ModelMatrixComponent>();
-					ModelMatrixComponent& parentMat4C = entity.GetComponent<ModelMatrixComponent>();
-
-					if (!entity.HasComponent<RealtionShipComponent>())
-						entity.AddComponent<RealtionShipComponent>();
-					if (!entity.HasComponent<MaterialComponent>())
-						entity.AddComponent<MaterialComponent>();
-					MaterialComponent& materialCParent = entity.GetComponent<MaterialComponent>();
-
-#if RY_MODEL_NODE
-					auto& nodeRoot = mesh.ModelR->GetNodes();
-
-
-					for (const auto& node : nodeRoot)
-					{
-						const std::vector<Ref<Mesh>>& mesh = node.Meshes;
-						Entity childeEntity = entity.AddChildrenEntity(node.Name);
-
-						childeEntity.AddComponent<DynamicMeshComponent>();
-						childeEntity.AddComponent<MaterialComponent>();
-
-						if (!childeEntity.HasComponent<ModelMatrixComponent>())
-							childeEntity.AddComponent<ModelMatrixComponent>();
-						ModelMatrixComponent& childMat4C = childeEntity.GetComponent<ModelMatrixComponent>();
-						childMat4C.Locale = node.Matrix;
-						childMat4C.Globle = parentMat4C.Locale * node.Matrix;
-
-						if (!childeEntity.HasComponent<TransformComponent>())
-							childeEntity.AddComponent<TransformComponent>();
-						TransformComponent& transformC = childeEntity.GetComponent<TransformComponent>();
-						transformC.SetTransform(childMat4C.Locale);
-
-						if (!childeEntity.HasComponent<DynamicMeshComponent>())
-							childeEntity.AddComponent<DynamicMeshComponent>();
-						DynamicMeshComponent& dynamicMeshC = childeEntity.GetComponent<DynamicMeshComponent>();
-
-						dynamicMeshC.MeshD.clear();
-						dynamicMeshC.MeshD.reserve(mesh.size());
-						for (const auto& meshDC : mesh)
-						{
-							dynamicMeshC.MeshD.emplace_back(meshDC);
-						}
-						
-
-						if (!childeEntity.HasComponent<MaterialComponent>())
-							childeEntity.AddComponent<MaterialComponent>();
-					}
-
-#else
-					std::vector<MeshRootData> rootDatas = mesh.ModelR->GetRootDatas();
-					std::vector<Ref<Mesh>> meshes = mesh.ModelR->GetMeshes();
-					uint32_t size = rootDatas.size() == meshes.size() ? meshes.size() : 0;
-
-					for (uint32_t i = 0; i < size; i++)
-					{
-						MeshRootData& rootData = rootDatas[i];
-						Ref<Mesh>& mesh = meshes[i];
-						Entity childeEntity = entity.AddChildrenEntity(rootData.NodeName);
-
-						childeEntity.AddComponent<DynamicMeshComponent>();
-						childeEntity.AddComponent<MaterialComponent>();
-
-						if (!childeEntity.HasComponent<ModelMatrixComponent>())
-							childeEntity.AddComponent<ModelMatrixComponent>();
-						ModelMatrixComponent& childMat4C = childeEntity.GetComponent<ModelMatrixComponent>();
-						childMat4C.Locale = rootData.NodeMatrix;
-						childMat4C.Globle = parentMat4C.Locale * rootData.NodeMatrix;
-
-						if (!childeEntity.HasComponent<TransformComponent>())
-							childeEntity.AddComponent<TransformComponent>();
-						TransformComponent& transformC = childeEntity.GetComponent<TransformComponent>();
-						transformC.SetTransform(childMat4C.Locale);
-
-						if (!childeEntity.HasComponent<DynamicMeshComponent>())
-							childeEntity.AddComponent<DynamicMeshComponent>();
-						DynamicMeshComponent& dynamicMeshC = childeEntity.GetComponent<DynamicMeshComponent>();
-						dynamicMeshC.meshR = mesh;
-
-						if (!childeEntity.HasComponent<MaterialComponent>())
-							childeEntity.AddComponent<MaterialComponent>();
-
-
-					}
-#endif
-					break;
-				}
-				default:
-				{
-					RY_CORE_ASSERT(false);
-					break;
-				}
-			}
-		}
-		mesh.MeshModeE = meshMode;
-	}
-
-	static MeshMode MeshComponent_GetMeshMode(UUID entityID)
-	{
-		Entity entity = Utils::GetFromSceneEntity(entityID);
-		RY_CORE_ASSERT(entity.HasComponent<MeshComponent>());
-		return entity.GetComponent<MeshComponent>().MeshModeE;
-	}
-#endif // TODO: Scripting Mesh Componet Fixing
 
 #pragma endregion
 
@@ -1105,16 +874,6 @@ namespace Rynex {
 #pragma region ScriptClassAPI
 
 #pragma region TextureClass
-#if 0
-	static void Texture_Create_Withe_Heigth(AssetHandle* handle, uint32_t withe, uint32_t height)
-	{
-		Ref<Texture> texture = Texture::Create(withe, height);
-		texture->Handle = AssetHandle();
-		texture->Handle = *handle = AssetManager::CreatLocaleAsset<Texture>(texture);
-		RY_CORE_ASSERT(AssetManager::GetAsset<Texture>(texture->Handle) == texture, "Texture_Create_Spec Created Texture is not the same like in the Regestry!");
-		RY_CORE_INFO("Texture Create form C# id = {0}", static_cast<uint64_t>*handle);
-	}
-#endif
 
 	static void Texture_Create_Spec_Data_ByteSize(AssetHandle* handle, TextureSpecification* spec, void* data, uint32_t size)
 	{
@@ -1329,17 +1088,6 @@ namespace Rynex {
 
 	static void VertexBuffer_Create_Vertices_Size_Usage(AssetHandle* handle, void* vertices, uint32_t size, BufferDataUsage usage)
 	{
-		
-#ifdef RY_OPENGL_USE_ARRAY_BUFFER
-
-		Ref<VertexBuffer> vertexBuffer = VertexBuffer::Create(vertices, size, usage);
-		vertexBuffer->Handle = AssetHandle();
-		vertexBuffer->Handle = *handle = AssetManager::CreatLocaleAsset<VertexBuffer>(vertexBuffer);
-		RY_CORE_ASSERT(AssetManager::GetAsset<VertexBuffer>(vertexBuffer->Handle) == vertexBuffer, "VertexBuffer_Create_Vertices_Size Created VertexBuffer is not the same like in the Regestry!");
-		RY_CORE_INFO("VertexBuffer Create form C# id = {0}", static_cast<uint64_t>(*handle));
-#else
-#endif
-		
 	}
 
 	static void VertexBuffer_Destroy(AssetHandle handle)
@@ -1434,29 +1182,10 @@ namespace Rynex {
 
 	static void IndexBuffer_Create_Indices32_Size_Usage(AssetHandle* handle, uint32_t* indices, uint32_t size, BufferDataUsage usage)
 	{
-#ifdef RY_OPENGL_USE_ARRAY_BUFFER
-		Ref<IndexBuffer> indexBuffer = IndexBuffer::Create(indices, size, usage);
-		indexBuffer->Handle = AssetHandle();
-		indexBuffer->Handle = *handle = AssetManager::CreatLocaleAsset<IndexBuffer>(indexBuffer);
-		RY_CORE_ASSERT(AssetManager::GetAsset<IndexBuffer>(indexBuffer->Handle) == indexBuffer, "IndexBuffer_Create_Indices32_Size_Usage Created IndexBuffer is not the same like in the Regestry!");
-		RY_CORE_INFO("IndexBuffer Create form C# id = {0}, renderID = {1}", static_cast<uint32_t>(*handle), indexBuffer->GetRenderID());
-#else
-#endif
-
-		
 	}
 
 	static void IndexBuffer_Create_Indices16_Size_Usage(AssetHandle* handle, uint16_t* indices, uint32_t size, BufferDataUsage usage)
 	{
-#ifdef RY_OPENGL_USE_ARRAY_BUFFER
-		Ref<IndexBuffer> indexBuffer = IndexBuffer::Create(indices, size, usage);
-		indexBuffer->Handle = AssetHandle();
-		indexBuffer->Handle = *handle = AssetManager::CreatLocaleAsset<IndexBuffer>(indexBuffer);
-		RY_CORE_ASSERT(AssetManager::GetAsset<IndexBuffer>(indexBuffer->Handle) == indexBuffer, "IndexBuffer_Create_Indices16_Size_Usage Created IndexBuffer is not the same like in the Regestry!");
-		RY_CORE_INFO("IndexBuffer Create form C# id = {0}", static_cast<uint64_t>(*handle));
-#else
-#endif
-
 	}
 
 	static void IndexBuffer_Destroy(AssetHandle handle)
