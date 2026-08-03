@@ -1,7 +1,5 @@
 #pragma once
 namespace Rynex {
-	// class TimeStep;
-	// bool operator==(const TimeStep& a, const TimeStep& b);
 
 	class RYNEX_API TimeStep
 	{
