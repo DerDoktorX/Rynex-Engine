@@ -598,14 +598,6 @@ namespace Rynex {
 
 				});
 
-			// EcheInfo1([changeIndex, changeBy, equalFunc, this](const _Key1& key1, DataInfo1& info1) {
-			// 	glm::uvec2& rangeChild = info1.RangeChild2;
-			// 	if (equalFunc(rangeChild.x, changeIndex))
-			// 	{
-			// 		rangeChild.x += changeBy;
-			// 		rangeChild.y += changeBy;
-			// 	}
-			// });
 		}
 		void ChangeIndex3FromList(uint32_t changeIndex, uint32_t changeBy, std::function<bool(const uint32_t&, const uint32_t&)> equalFunc3, std::function<bool(const uint32_t&, const uint32_t&)> equalFunc2)
 		{
