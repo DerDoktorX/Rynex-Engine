@@ -28,10 +28,6 @@ namespace Rynex {
 		using ShaderDefine = std::pair<std::string, std::string>;
 		using ShaderDefineVec = std::vector<ShaderDefine>;
 
-#if 0
-		OpenGLShader() = default;
-#endif // TODO: after test dealating!
-
 		OpenGLShader(std::string&& source);
 		OpenGLShader(const std::string& source, const std::string& name);
 		OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
@@ -69,6 +65,7 @@ namespace Rynex {
 		virtual void SetInt4(const std::string& name, const glm::ivec4& value) override;
 		virtual void SetInt4Array(const std::string& name, int32_t* value, uint32_t count) override;
 
+
 		virtual void SetFloat(const std::string& name, float value) override;
 		virtual void SetFloatArray(const std::string& name, float* value, uint32_t count) override;
 		virtual void SetFloat2(const std::string& name, const glm::vec2& value) override;
@@ -88,9 +85,7 @@ namespace Rynex {
 		virtual void RemoveDefine(const std::string& name) override;
 
 		virtual const std::vector<ShaderDefine>& GetShaderDefineVec() const override { return m_ShaderDefineVec; }
-#if 1
 		virtual std::map<std::string, std::string>& GetUniformLayoute() override { return m_sUniformLayoute; }
-#endif
 		virtual const std::map<ShaderType::ShaderType, std::string>& GetShaderMap() const override { return m_ShaderMap; }
 
 		virtual const BufferLayout& GetOutPut() const { return m_OutPutLayout; }
@@ -138,9 +133,7 @@ namespace Rynex {
 		void UploadUniformInt(const std::string& name, int value);
 		void UploadUniformInt(const std::string& name, void* value);
 		void UploadUniformIntArray(const std::string& name, int32_t* value, uint32_t count);
-#if 0
 		void UploadUniformIntArray(const std::string& name, void* value, uint32_t count);
-#endif	
 
 		void UploadUniformInt2(const std::string& name, const glm::ivec2& value);
 		void UploadUniformInt2(const std::string& name, void* value);
@@ -195,9 +188,7 @@ namespace Rynex {
 		std::string m_Source = "";
 		std::unordered_map<std::string, int32_t> m_UnifromLocation;
 		std::map<ShaderType::ShaderType, std::string> m_ShaderMap;
-#if 1
 		std::map<std::string, std::string> m_sUniformLayoute;
-#endif
 		std::map<uint32_t, std::string> m_ShaderSources;
 		ShaderDefineVec m_ShaderDefineVec;
 		BufferLayout m_OutPutLayout;
