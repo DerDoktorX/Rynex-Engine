@@ -43,8 +43,6 @@ namespace Rynex {
 		template<typename T>
 		static Ref<T> GetAsset(AssetHandle handle)
 		{
-			// Ref<Project> project = Project::GetActive();
-			// auto assetManger = project->GetAssetManger();
 			Ref<Asset> asset = Project::GetActive()->GetAssetManger()->GetAsset(handle);
 			return std::static_pointer_cast<T>(asset);
 		}
@@ -78,9 +76,6 @@ namespace Rynex {
 		static Ref<T> GetAsset(const std::filesystem::path& path)
 		{
 			
-#if RY_AKTIVATE_INTERAL_PATH
-			RY_CORE_ASSERT(Project::HasSomeMarker(path))
-#endif
 			Ref<Asset> asset = Project::GetActive()->GetAssetManger()->GetAsset(path);
 			return std::static_pointer_cast<T>(asset);
 		}
