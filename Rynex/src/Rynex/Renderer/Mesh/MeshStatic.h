@@ -17,7 +17,6 @@ namespace Rynex {
 	class RYNEX_API MeshStatic : public Mesh
 	{
 	public:
-
 		struct SingleObjectMeshData : public SingleMeshObject
 		{
 			SingleObjectMeshData() = default;
@@ -183,7 +182,4 @@ namespace Rynex {
 
 		friend StaticMeshSerialzation;
 	};
-
-	
-	
 }
