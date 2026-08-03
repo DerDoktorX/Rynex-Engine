@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Rynex/Renderer/API/Buffer.h>
-// #define RY_LOG_DYNAMIC_STRUCT_DATA_TRANSFARE
 namespace Rynex {
 
 	namespace Memory {
@@ -238,11 +237,6 @@ namespace Rynex {
 				ContainerValueTypePtr beginValueDataPosPtr = DynamicDataStruct::GetOffsetDataPosPtr<T>(offsetBytesSize);
 				const T* valuePtr = &value;
 				SizeType byteSize = sizeof(T);
-#ifdef RY_LOG_DYNAMIC_STRUCT_DATA_TRANSFARE
-				DifferenceType offsetIndex = beginValueDataPosPtr - m_Data.data();
-				DifferenceType lastIndex = offsetIndex + byteSize;
-				RY_CORE_INFO("Set Value {} withe {} bytes in value Range ({}, {})[{}]", typeid(T).name(), sizeof(T), offsetIndex, lastIndex, m_Data.size());
-#endif
 				std::memcpy(beginValueDataPosPtr, valuePtr, byteSize);
 			}
 
@@ -252,11 +246,6 @@ namespace Rynex {
 				ContainerValueTypePtr beginValueDataPosPtr = DynamicDataStruct::GetOffsetDataPosPtr<T>(offsetBytesSize);
 				SizeType byteSize = sizeof(T);
 
-#ifdef RY_LOG_DYNAMIC_STRUCT_DATA_TRANSFARE
-				DifferenceType offsetIndex = beginValueDataPosPtr - m_Data.data();
-				DifferenceType lastIndex = offsetIndex + byteSize;
-				RY_CORE_INFO("Get Value {} withe {} bytes in value Range ({}, {})[{}]", typeid(T).name(), sizeof(T), offsetIndex, lastIndex, m_Data.size());
-#endif
 				std::memcpy(valuePtr, beginValueDataPosPtr, byteSize);
 			}
 
