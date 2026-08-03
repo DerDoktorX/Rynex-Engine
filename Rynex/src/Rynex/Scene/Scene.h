@@ -11,7 +11,6 @@
 #include <entt.hpp>
 
 #include <Rynex/Renderer/Rendering/Renderer.h>
-// #define RY_RELATION_SHIPS_ENTITY_BASED
 namespace Rynex {
 	
 #pragma region PrototypenComponents
@@ -219,10 +218,6 @@ namespace Rynex {
 		friend class SceneHierachyPannel;
 		friend class SceneRenderer;
 	};
-
-	// template<typename T>
-	// using SceneLodePromis = LodePromis<T, Scene, int>;
-	
 
 }
 
