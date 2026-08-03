@@ -12,20 +12,6 @@ namespace Rynex {
 	static Ref<Texture> s_WhiteTexture = nullptr;
 
 
-
-#ifdef RY_OPNEGL_OLD_TEXTURE
-	Ref<Texture> Texture::Create(uint32_t withe, uint32_t height)
-	{
-		switch (Renderer::GetAPI())
-		{
-			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Curently not supportet"); return nullptr;
-			case RendererAPI::API::OpenGL:	return CreateRef<OpenGLTexture>(withe, height);
-		}
-		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
-		return nullptr;
-		return Ref<Texture>();
-	}
-#endif
 	Ref<Texture> Texture::Create(TextureSpecification spec, void* data, uint32_t size)
 	{
 		switch (Renderer::GetAPI())
@@ -109,29 +95,6 @@ namespace Rynex {
 
 	}
 
-#ifdef RY_OPNEGL_OLD_TEXTURE
-	Ref<Texture> Texture::Create(const std::string& path)
-	{
-		RY_CORE_ERROR("Not allowd Funktion(AssetManger)!: Texture::Create");
-		switch (Renderer::GetAPI())
-		{
-			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Curently not supportet"); return nullptr;
-			case RendererAPI::API::OpenGL:	
-			{
-				int width, height, channels;
-				stbi_set_flip_vertically_on_load(1);
-				stbi_uc* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-				if (!data) RY_CORE_ERROR("filePath->{0}", path.c_str());
-				RY_CORE_ASSERT(data, "Faild to load Image!");
-
-				return CreateRef<OpenGLTexture>(data, width, height, channels);
-				stbi_image_free(data);
-			}
-		}
-		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
-		return nullptr;
-	}
-#endif
 
 	void Texture::BindTex(uint32_t renderID, uint32_t slot)
 	{
