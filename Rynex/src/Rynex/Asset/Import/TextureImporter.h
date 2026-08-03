@@ -13,7 +13,6 @@ namespace Rynex {
 		static bool ReLoadeTexture(AssetHandle handle, const std::filesystem::path& path);
 		static bool SaveTexture(const Ref<Texture>& tex, const std::filesystem::path& path);
 
-		static void ExtraxtColorRegionFromImage();
 	};
 
 }
