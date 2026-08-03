@@ -21,18 +21,6 @@ namespace Rynex {
 		{ AssetType::MeshStatic, MeshImporter::ImportMesh }
 	};
 
-#if RY_EDITOR_ASSETMANGER_THREADE  ? 0:0
-	static std::map<AssetType, AssetsImportFunction> s_AssetsAsyncImportFuncs = {
-		{ AssetType::Texture2D, TextureImporter::ImportTexture },
-		{ AssetType::Texture, TextureImporter::ImportTexture },
-		// { AssetType::Shader, ShaderImporter::ImportShader },
-		// { AssetType::Scene, SceneImporter::ImportScene },
-		{ AssetType::Framebuffer, FramebufferImporter::ImportFramebuffer },
-		// { AssetType::VertexArray, VertexArrayImporter::ImportVertexArray },
-		{ AssetType::Model, ModelImporter::ImportModelAsync }
-
-	};
-#endif
 
 	using AssetsReloadingFunction = std::function <bool(AssetHandle, const std::filesystem::path)>;
 
@@ -56,12 +44,7 @@ namespace Rynex {
 		RY_LOG_ENABLE_NUMBER;
 
 	}
-#if RY_EDITOR_ASSETMANGER_THREADE ? 0 : 0
-	Ref<Asset> AssetImporter::ImportAssetAsync(AssetHandle handle, const AssetMetadata& metadata)
-	{
-		return s_AssetsAsyncImportFuncs.at(metadata.Type)(handle, metadata);
-	}
-#endif
+
 	bool AssetImporter::ReLoadeAsset(AssetHandle handle, const AssetMetadata& metadata)
 	{
 		RY_LOG_DISABLE_NUMBER;
