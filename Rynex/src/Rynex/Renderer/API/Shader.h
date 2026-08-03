@@ -112,9 +112,8 @@ namespace Rynex{
 		virtual void RemoveDefine(const std::string& name) = 0;
 
 		virtual const std::vector<std::pair<std::string, std::string>>& GetShaderDefineVec() const = 0;
-#if 1
+
 		virtual std::map<std::string, std::string>& GetUniformLayoute() = 0;
-#endif
 		virtual const std::map<ShaderType::ShaderType, std::string>& GetShaderMap() const = 0;
 
 		virtual const BufferLayout& GetOutPut() const = 0;
@@ -128,7 +127,6 @@ namespace Rynex{
 		static AssetType GetStaticType() { return AssetType::Shader; }
 		
 		AssetType GetType() const { return GetStaticType(); }
-		// virtual AssetHandle GetHandle() const { return m_Handle; };
 	};
 
 	class RYNEX_API ShaderLibary
