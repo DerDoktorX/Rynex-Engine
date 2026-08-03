@@ -69,13 +69,6 @@ namespace Rynex {
 
 		void EndSession()
 		{
-#if 0
-			WriteFooter();
-			m_OutputStream.close();
-			delete m_CurrentSession;
-			m_CurrentSession = nullptr;
-			m_ProfileCount = 0;
-#endif
 			std::lock_guard lock(m_Mutex);
 			InternalEndSession();
 
@@ -222,7 +215,6 @@ namespace Rynex {
 		{
 			if (!m_Stopped)
 				Stop();
-			//delete[] m_Name;
 		}
 
 		template<typename _TimeUint = TimeUnit>
@@ -287,9 +279,6 @@ namespace Rynex {
 	#define RY_PROFILE_SCOPE(name)								::Rynex::InstrumentationTimer timer##__LINE__(name);
 #endif
 	#define RY_PROFILE_FUNCTION()								RY_PROFILE_SCOPE(__FUNCSIG__)
-
-
-
 #else
 	#define RY_PROFILE_BEGIN_SESSION(name, filepath)
 	#define RY_PROFILE_END_SESSION()
