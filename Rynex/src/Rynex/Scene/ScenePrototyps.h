@@ -26,11 +26,7 @@ namespace Rynex {
 	struct SpotLigthComponent;
 	struct ParticelComponente;
 
-#ifdef RY_COMPONENT_RELATION_SHIPS_BASED_UUID
 	struct RealtionShipUUIDComponent;
-#else
-	struct RealtionShipComponent
-#endif
 
 	struct TextComponent;
 	struct ViewMatrixComponent;
@@ -40,10 +36,5 @@ namespace Rynex {
 
 	struct TransformComponent;
 
-#ifdef COMPONENT_SINGLE_MODEL
 	struct ModelMatrixComponent;
-#else
-	struct ModelMatrixLocaleComponent;
-	struct ModelMatrixGlobleComponent;
-#endif
 }
