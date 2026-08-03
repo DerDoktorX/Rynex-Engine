@@ -60,25 +60,7 @@ namespace Rynex {
 
 	int64_t OpenGLFence::StoppThreadUntlieLoded()
 	{
-#if 0
-		bool transfered = IsTransfered();
-		LifeTimer timer;
-		if (!transfered)
-		{
-			transfered = WaitForTransfered(0ull, true);
-
-			while (!transfered)
-			{
-				transfered = IsTransfered();
-				using namespace std::chrono_literals;
-				std::this_thread::sleep_for(50ns);
-			}
-		}
-		int64_t pastTime = timer.GetTimePast<std::chrono::nanoseconds>();
-		return pastTime;
-#else
 		return 0ll;
-#endif
 	}
 
 	bool OpenGLFence::IsTransfered()
@@ -89,7 +71,6 @@ namespace Rynex {
 		GLint status = GetState(GL_SYNC_STATUS);
 		
 	
-#if 1
 		if (GL_SIGNALED == status)
 		{
 			constexpr GLuint64 timeout = 0ull;
@@ -97,23 +78,6 @@ namespace Rynex {
 			return WaitForTransfered(timeout);
 		}
 		RY_CORE_ASSERT(status == GL_UNSIGNALED, "The only rigth other return value from GetState(GL_SYNC_STATUS), woude be GL_UNSIGNALED");
-#elif 1
-		if (status == GL_SIGNALED)
-		{
-			Destroy();
-
-			return true;
-		}
-#else
-		
-		GLenum result = glClientWaitSync(m_Fance, 0, 0);
-		if (result == GL_ALREADY_SIGNALED)
-		{
-			Destroy();
-			return true;
-		}
-		
-#endif
 
 		return false;
 	}
@@ -130,10 +94,7 @@ namespace Rynex {
 		constexpr GLbitfield falg = 0u;
 		m_Fance = glFenceSync(condition, falg);
 		GL_CHECK();
-#if 0
-		glFlush();
-		GL_CHECK();
-#endif
+
 	}
 
 	void OpenGLFence::DestroyID()
