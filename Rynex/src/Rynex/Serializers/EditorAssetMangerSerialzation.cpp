@@ -17,12 +17,9 @@
 
 namespace Rynex {
 
-#if RY_EDITOR_ASSETMANGER_THREADE
 
-#if 1
 	bool EditorAssetMangerSerialzation::SerilzeThread(const std::filesystem::path& filepath, std::map<AssetHandle, AssetMetadata>* handleReg)
 	{
-		RY_LOG_DISABLE_NUMBER;
 
 		YAML::Emitter out;
 		{
@@ -69,7 +66,6 @@ namespace Rynex {
 		fout << out.c_str();
 		fout.close();
 
-		RY_LOG_ENABLE_NUMBER;
 
 		return true;
 	}
@@ -77,7 +73,6 @@ namespace Rynex {
 	bool EditorAssetMangerSerialzation::DeserilzeThread(const std::filesystem::path& filepath, std::map<AssetHandle, AssetMetadata>* handleReg, std::map<std::filesystem::path, AssetHandle>* pathReg)
 	{
 		RY_CORE_INFO("Deserialze Path: '{0}'", filepath.string().c_str());
-		RY_LOG_DISABLE_NUMBER;
 
 		YAML::Node data;
 		try
@@ -96,16 +91,6 @@ namespace Rynex {
 			return false;
 		for (const YAML::detail::iterator_value& node : rootNode)
 		{
-#if 0
-			AssetHandle handle = node["Handle"].as<uint64_t>();
-			auto& metadata = m_AssetRegistry.GetMetadata(handle);
-
-			metadata.FilePath = node["FilePath"].as<std::string>();
-			m_PathRegistry[metadata.FilePath] = handle;
-			metadata.Type = AssetTypeFromString(node["Type"].as<std::string>());
-			metadata.Name = node["Name"].as<std::string>();
-#else
-#endif
 			AssetHandle handle = node["Handle"].as<uint64_t>();
 
 			AssetMetadata metadata;
@@ -124,26 +109,6 @@ namespace Rynex {
 			filePathMarker = filePathMarkerStr;
 			
 		
-#if 0
-			
-
-			std::string marker = Project::ExtraxtMarker(filePathMarker);
-			std::filesystem::path realtivePath = Project::RemoveMarker(filePathMarker, marker);
-			std::filesystem::path absultePath = Project::ReplaceMarkerWitheAbsolutePath(filePathMarker);
-			if (realtivePath == origFilePath)
-			{
-				metadata.SetMarkedFilePath(filePathMarker, origFilePath);
-			}
-			else if(absultePath == origFilePath)
-			{
-				metadata.SetMarkedFilePath(filePathMarker, origFilePath);
-			}
-			else
-			{
-				RY_CORE_WARN("No Realtiv and no Absolute Pathe Mathed The Origenel Path {}", origFilePath);
-				metadata.SetFilePath(origFilePath);
-			}
-#elif 1
 			if (YAML::Node nodePath = node["FilePath"])
 			{
 				filePathStr = nodePath.as<std::string>();
@@ -159,13 +124,6 @@ namespace Rynex {
 			{
 				metadata.SetMarkedFilePath(filePathMarker);
 			}
-#else	
-			std::filesystem::path origFilePath = filePathStr;
-			filePathStr = origFilePath.generic_string();
-			origFilePath = filePathStr;
-
-			metadata.SetMarkedFilePath(filePathMarker, origFilePath);
-#endif
 			
 
 			metadata.Type = Asset::AssetTypeFromString(node["Type"].as<std::string>());
@@ -179,8 +137,6 @@ namespace Rynex {
 				metadata.ChangeTime = node["ChangeTime"].as<std::string>();
 			else
 				metadata.ChangeTime = AssetRegistry::GetCurrentTimeStr();
-			// metadata.Aktive = true;
-			// metadata.Interale = false;
 			metadata.SetActive(true);
 			metadata.SetIntern(false);
 			metadata.State = AssetState::LostConection;
@@ -190,11 +146,9 @@ namespace Rynex {
 			pathReg->insert_or_assign(metadata.FilePath, handle);
 			handleReg->insert_or_assign(handle, metadata);
 		}
-		RY_LOG_ENABLE_NUMBER;
 
 		return true;
 	}
-#endif
 
-#endif
+
 }
