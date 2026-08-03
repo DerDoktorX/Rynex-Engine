@@ -4,9 +4,7 @@
 
 
 namespace Rynex {
-#if 1
-	
-#endif
+
 	enum class RYNEX_API FrameBufferImageSize : uint8_t
 	{
 		Nono = 0,
@@ -21,7 +19,6 @@ namespace Rynex {
 	{
 		FramebufferTextureSpecification() = default;
 
-		// FramebufferTextureSpecification(FramebufferTextureSpecification&&) = default;
 		FramebufferTextureSpecification(const FramebufferTextureSpecification&) = default;
 
 		FramebufferTextureSpecification(TextureFormat format)
@@ -165,10 +162,7 @@ namespace Rynex {
 
 		virtual bool SetTextureForDepthAttchment(const Ref<Texture>& texture) = 0;
 		virtual bool SetTextureForColorAttchment(const Ref<Texture>& texture, uint32_t atchmentIndex) = 0;
-#ifdef RY_TEXTURE_STORE_ARRAY
-		virtual bool SetTextureForDepthAttchment(const Ref<StoreTextureArray>& texture, uint32_t texArrayindex) = 0;
-		virtual bool SetTextureForColorAttchment(const Ref<StoreTextureArray>& texture, uint32_t texArrayindex, uint32_t atchmentIndex) = 0;
-#endif
+
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const = 0;
 		virtual uint32_t GetDeathAttachmentRendererID() const = 0;
 
