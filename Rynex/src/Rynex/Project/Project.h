@@ -1,16 +1,9 @@
 #pragma once
-#include "Rynex/Core/Log.h"
-#include "Rynex/Core/Base.h"
+#include <Rynex/Core/Log.h>
+#include <Rynex/Core/Base.h>
 
-#include "Rynex/Asset/RuntimeAssetManager.h"
-
-#if RY_EDITOR_ASSETMANGER_THREADE
-	// #include "Rynex/Asset/EditorAssetManegerThreade.h"
-#else
-	#include "Rynex/Asset/EditorAssetManager.h"
-#endif
-
-#include "Rynex/Scripting/Mono/ScriptingEngine.h"
+#include <Rynex/Asset/RuntimeAssetManager.h>
+#include <Rynex/Scripting/Mono/ScriptingEngine.h>
 
 #define RY_PATH_PROJECT_MARKER_STR "Project#!#"
 #define RY_PATH_ENGINE_MARKER_STR "Engine#!#"
@@ -211,11 +204,7 @@ namespace Rynex {
 		Ref<AssetManagerBase> GetAssetManger() { return m_AssetManger; }
 		Ref<RuntimeAssetManager> GetRuntimeAssetManger() const { return std::static_pointer_cast<RuntimeAssetManager>(m_AssetManger); }
 
-#if RY_EDITOR_ASSETMANGER_THREADE
 		Ref<EditorAssetManegerThreade> GetEditorAssetManger() const { return  std::static_pointer_cast<EditorAssetManegerThreade>(m_AssetManger); }
-#else
-		Ref<EditorAssetManager> GetEditorAssetManger() const { return  std::static_pointer_cast<EditorAssetManager>(m_AssetManger); }
-#endif
 
 		static Ref<Project> New();
 		static Ref<Project> CreatNewPorject();
