@@ -106,11 +106,7 @@ namespace Rynex {
 
 	private:		
 		std::vector<uint8_t> m_Data;
-#ifdef RY_USE_PRENT_LINKE
 		Memory::WeakPtrSet<OpenGLBindlesTextureArray, OpenGLLinkedTextureArray, OpenGLFramebuffer> m_ParentVec;
-#elif 1
-		std::vector<std::variant<Weak<OpenGLBindlesTextureArray>, Weak<OpenGLLinkedTextureArray>, Weak<OpenGLFramebuffer>>> m_ParentVec;
-#endif
 		OpenGLFence m_FanceObject;
 		uint64_t m_BindlesHandle = 0ull;
 
@@ -128,7 +124,6 @@ namespace Rynex {
 		friend OpenGLLinkedTextureArray;
 	};
 
-#if 1
 	class OpenGLLinkedTextureArray : public LinkedTextureArray
 	{
 	public:
@@ -216,6 +211,5 @@ namespace Rynex {
 		
 		bool m_DataUpdatedGPU;
 	};
-#endif
 }
 
