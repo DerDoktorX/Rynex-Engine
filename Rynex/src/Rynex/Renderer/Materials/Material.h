@@ -16,45 +16,7 @@ namespace Rynex {
 
 	namespace DrawSpecification {
 		using BatchConfig = int;
-#if 0
-		typedef enum ResurceType : BatchConfig
-		{
-			MaterielPram = BIT(0),
-			MaterielTex = BIT(1),
-			RenderObject = BIT(2),
-			Geometry = BIT(3)
-		} ResurceType;
-		constexpr int s_ResurceTypeBitMove = 4;
 
-		
-		typedef enum BatchingType : BatchConfig
-		{
-			Uniform = BIT(0 + s_ResurceTypeBitMove),
-			Vertex = BIT(1 + s_ResurceTypeBitMove),
-			SSBO = BIT(2 + s_ResurceTypeBitMove),
-			Texture = BIT(3 + s_ResurceTypeBitMove)
-		} BatchingType;
-		constexpr int s_BatchingTypeBitMove = 4 + s_ResurceTypeBitMove;
-
-
-		typedef enum Distribution : BatchConfig
-		{
-			DistMultyBind = BIT(0 + s_BatchingTypeBitMove),
-			DistArray = BIT(1 + s_BatchingTypeBitMove),
-			DistInterleaved = BIT(2 + s_BatchingTypeBitMove)
-		} BatchingAces;	
-		constexpr int s_DistributionBitMove = 3 + s_BatchingTypeBitMove;
-
-
-		typedef enum TextureMode : BatchConfig
-		{
-			TexSparse = BIT(0 + s_DistributionBitMove),
-			TexAtlas = BIT(1 + s_DistributionBitMove),
-			TexBindless = BIT(2 + s_DistributionBitMove),
-			TexArray = BIT(3 + s_DistributionBitMove)
-		} TextureMode;		
-		constexpr int s_TextureModeBitMove = 4 + s_DistributionBitMove;
-#else
 		enum ResurceType : BatchConfig
 		{
 			MaterielPram = 1,
@@ -94,63 +56,8 @@ namespace Rynex {
 		};
 		constexpr int s_TextureModeBitMove = BinaryPresentionCount(4) + s_DistributionBitMove;
 		constexpr int s_DrawSpecificationCount = s_TextureModeBitMove;
-#endif
 
 		
-#if 0
-		typedef enum Spec
-		{
-			None = 0,
-			Batching_Aces_Binding_Range = BIT(0),
-			Batching_Aces_Array = BIT(1),
-
-			Batching_Type_Uniform = BIT(0),
-			Batching_Type_Vertex = BIT(0),
-			Batching_Type_SSBO = BIT(0),
-			Batching_Type_Texture = BIT(0),
-
-
-
-#pragma region Materiel_Prame_Def
-			MaterielPramBatching_Binding_UB = MaterielPramBatching_Binding | MaterielPramBatching_UB,
-			MaterielPramBatching_Array_UB = MaterielPramBatching_Array | MaterielPramBatching_UB,
-			MaterielPramBatching_Binding_Array_UB = MaterielPramBatching_Binding | MaterielPramBatching_Array | MaterielPramBatching_UB,
-
-			MaterielPramBatching_Binding_SSBO = MaterielPramBatching_Binding | MaterielPramBatching_SSBO,
-			MaterielPramBatching_Array_SSBO = MaterielPramBatching_Array | MaterielPramBatching_SSBO,
-			MaterielPramBatching_Binding_Array_SSBO = MaterielPramBatching_Binding | MaterielPramBatching_Array | MaterielPramBatching_SSBO,
-
-			MaterielPramBatching_Array_VAB = MaterielPramBatching_Array | MaterielPramBatching_VAB,
-#pragma endregion
-			MaterielTextureBatching_Binding = BIT(5),
-			MaterielTextureBatching_Array = BIT(6),
-
-			MaterielTextureBatching_Texture = BIT(7),
-			MaterielTextureBatching_Spares = BIT(8),
-			MaterielTextureBatching_Atlas = BIT(9),
-			MaterielTextureBatching_Bindles = BIT(10),
-
-#pragma region Materiel_Texture_Def
-			MaterielTextureBatching_Binding_Texture = MaterielTextureBatching_Binding |  MaterielTextureBatching_Texture,
-			MaterielTextureBatching_Array_Texture = MaterielTextureBatching_Array | MaterielTextureBatching_Texture,
-			MaterielTextureBatching_Binding_Array_Texture = MaterielTextureBatching_Binding | MaterielTextureBatching_Array | MaterielTextureBatching_Texture,
-
-			MaterielTextureBatching_Binding_Spares = MaterielTextureBatching_Binding | MaterielTextureBatching_Spares,
-			MaterielTextureBatching_Array_Spares = MaterielTextureBatching_Array | MaterielTextureBatching_Spares,
-			MaterielTextureBatching_Texture = MaterielTextureBatching_Binding | MaterielTextureBatching_Array | MaterielTextureBatching_Spares,
-
-			MaterielTextureBatching_Binding_Atlas = MaterielTextureBatching_Binding | MaterielTextureBatching_Atlas,
-			MaterielTextureBatching_Array_Atlas = MaterielTextureBatching_Array | MaterielTextureBatching_Atlas,
-			MaterielTextureBatching_Binding_Array_Atlas = MaterielTextureBatching_Binding | MaterielTextureBatching_Array | MaterielTextureBatching_Atlas,
-
-			MaterielTextureBatching_Binding_Bindles = MaterielTextureBatching_Binding | MaterielTextureBatching_Atlas,
-			MaterielTextureBatching_Array_Bindles = MaterielTextureBatching_Array | MaterielTextureBatching_Atlas,
-			MaterielTextureBatching_Binding_Array_Bindles = MaterielTextureBatching_Binding | MaterielTextureBatching_Array | MaterielTextureBatching_Atlas
-#pragma endregion
-
-
-		} Spec;
-#endif
 
 		constexpr BatchConfig Config(BatchingType type, Distribution dist)
 		{
@@ -172,103 +79,11 @@ namespace Rynex {
 
 		enum {
 			None = 0,
-#if 0
-			MaterielPramBatching = BIT(1),
-			MaterielTextureBatching = BIT(1),
-			RenderObjectBatching = BIT(2),
-			GeometryBatching = BIT(3),
-#endif
+
 
 			RenderObject_Vertex_Array = ConfigRes(ResurceType::RenderObject, Config(BatchingType::Vertex, Distribution::DistArray)),
 			RenderObject_SSBO_Array = ConfigRes(ResurceType::RenderObject, Config(BatchingType::SSBO, Distribution::DistArray)),
 			RenderObject_Uniform_MultyBind = ConfigRes(ResurceType::RenderObject, Config(BatchingType::Uniform, Distribution::DistMultyBind)),
-#if 0
-#pragma region Uniform
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Uniform, TextureMode::TexNone, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Uniform, TextureMode::TexNone, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Uniform, TextureMode::TexNone, Distribution::DistInterleaved)),
-
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Uniform, TextureMode::TexSparse, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Uniform, TextureMode::TexSparse, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Uniform, TextureMode::TexSparse, Distribution::DistInterleaved)),
-
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Uniform, TextureMode::TexAtlas, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Uniform, TextureMode::TexAtlas, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Uniform, TextureMode::TexAtlas, Distribution::DistInterleaved)),
-
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Uniform, TextureMode::TexBindless, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Uniform, TextureMode::TexBindless, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Uniform, TextureMode::TexBindless, Distribution::DistInterleaved)),
-
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Uniform, TextureMode::TexArray, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Uniform, TextureMode::TexArray, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Uniform, TextureMode::TexArray, Distribution::DistInterleaved)),
-#pragma endregion
-#pragma region Vertex
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Vertex, TextureMode::TexNone, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Vertex, TextureMode::TexNone, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Vertex, TextureMode::TexNone, Distribution::DistInterleaved)),
-
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Vertex, TextureMode::TexSparse, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Vertex, TextureMode::TexSparse, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Vertex, TextureMode::TexSparse, Distribution::DistInterleaved)),
-
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Vertex, TextureMode::TexAtlas, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Vertex, TextureMode::TexAtlas, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Vertex, TextureMode::TexAtlas, Distribution::DistInterleaved)),
-
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Vertex, TextureMode::TexBindless, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Vertex, TextureMode::TexBindless, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Vertex, TextureMode::TexBindless, Distribution::DistInterleaved)),
-
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Vertex, TextureMode::TexArray, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Vertex, TextureMode::TexArray, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Vertex, TextureMode::TexArray, Distribution::DistInterleaved)),
-#pragma endregion
-#pragma region SSBO
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, TextureMode::TexNone, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, TextureMode::TexNone, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, TextureMode::TexNone, Distribution::DistInterleaved)),
-
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, TextureMode::TexSparse, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, TextureMode::TexSparse, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, TextureMode::TexSparse, Distribution::DistInterleaved)),
-			
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, TextureMode::TexAtlas, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, TextureMode::TexAtlas, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, TextureMode::TexAtlas, Distribution::DistInterleaved)),
-
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, TextureMode::TexBindless, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, TextureMode::TexBindless, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, TextureMode::TexBindless, Distribution::DistInterleaved)),
-
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, TextureMode::TexArray, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, TextureMode::TexArray, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, TextureMode::TexArray, Distribution::DistInterleaved)),
-#pragma endregion
-#pragma region SSBO
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Texture, TextureMode::TexNone, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Texture, TextureMode::TexNone, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Texture, TextureMode::TexNone, Distribution::DistInterleaved)),
-
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Texture, TextureMode::TexSparse, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Texture, TextureMode::TexSparse, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Texture, TextureMode::TexSparse, Distribution::DistInterleaved)),
-
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Texture, TextureMode::TexAtlas, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Texture, TextureMode::TexAtlas, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Texture, TextureMode::TexAtlas, Distribution::DistInterleaved)),
-
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Texture, TextureMode::TexBindless, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Texture, TextureMode::TexBindless, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Texture, TextureMode::TexBindless, Distribution::DistInterleaved)),
-
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Texture, TextureMode::TexArray, Distribution::DistMultyBind)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Texture, TextureMode::TexArray, Distribution::DistArray)),
-			MaterielPram_Uniform_MultyBind = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::Texture, TextureMode::TexArray, Distribution::DistInterleaved)),
-#pragma endregion
-
-#endif
 
 			MaterielPram_SSBO_Array = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, Distribution::DistArray)),
 			MaterielPram_SSBO_Interleaved = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, Distribution::DistInterleaved)),
@@ -398,17 +213,6 @@ namespace Rynex {
 			int64_t materileKey = (int64_t)materielPtr;
 			return materileKey;
 		}
-
-#if 0
-		template<typename _Key, typename N>
-		static bool IsMaterielInMapVector(MapVector<_Key, N>& mapVector, const Ref<Material>& materiel)
-		{
-			_Key key = GetMaterielKey<N>(mapVector, materiel);
-			bool has = mapVector.HasKey(key);
-			return has;
-
-		}
-#endif
 
 	};
 
