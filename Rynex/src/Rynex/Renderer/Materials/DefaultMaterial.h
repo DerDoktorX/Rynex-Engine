@@ -79,11 +79,7 @@ namespace Rynex {
     private:
         Ref<Texture> m_DefaultMap;
         Pass* m_LastPassPtr;
-#if RY_DEFAULT_MATERIEL_WEAK
         Weak<UniformBuffer> m_UniformMaterial;
-#else
-        Ref<UniformBuffer> m_UniformMaterial;
-#endif
         MaterielShaderData m_BufferData;
         int m_ShadeRenderMode;
         int m_DepthRenderMode;
@@ -91,11 +87,6 @@ namespace Rynex {
 
         std::vector<Pass> m_PassesVec;
         bool m_Change;
-
-        // Ref<Texture> m_AlbedoMap;
-        // Ref<Texture> m_NormalMap;
-        // Ref<Texture> m_RoughnessMap;
-        // Ref<Texture> m_MetallicMap;
     };
 
 
