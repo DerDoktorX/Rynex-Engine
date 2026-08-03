@@ -12,14 +12,11 @@ namespace Rynex {
 	public:
 		inline static void Init()
 		{
-			// RY_CORE_MEMORY_ALICATION("s_RendererAPI", "RenderCommand::Init || namespace Rynex", OpenGLRendererAPI);
-
 			s_RendererAPI->Init();
 		};
 
 		inline static void Shutdown()
 		{
-			// RY_CORE_MEMORY_FREE("s_RendererAPI", "RenderCommand::Shutdown");
 			s_RendererAPI->ShutDown();
 			delete s_RendererAPI;
 			s_RendererAPI = nullptr;
@@ -187,17 +184,6 @@ namespace Rynex {
 			s_RendererAPI->RestPipline();
 		};
 
-		
-#if RY_RENDERER_API_INDEIPENDENT
-
-		
-
-		inline static void DrawIndexed(const DrawRendererSpec& drawSpec)
-		{
-			s_RendererAPI->DrawIndexed(drawSpec);
-		};
-
-#endif
 
 	private:
 		static RendererAPI* s_RendererAPI;
