@@ -95,7 +95,6 @@ namespace Rynex {
 		const GLubyte* glVersion = glGetString(GL_VERSION);
 		std::string_view version(reinterpret_cast<const char*>(glVersion));
 		std::string versionStr(version.data(), version.size());
-// #if RY_IS_NVIDEA_GPU
 		if(versionStr.find("NVIDIA") < versionStr.length())
 		{
 			GLint totalMemoryKB = 0;
@@ -111,14 +110,12 @@ namespace Rynex {
 
 			RY_CORE_INFO("OpenGL version: ({}) / GPU memory {} KB, VRam: {} KB", version.data(), totalMemoryKB, totalVRamKB);
 		}
-// #else
 		else
 		{
 			RY_CORE_INFO("OpenGL version: ({})", version.data());
 			m_MaxVidoeMemory = 0ull;
 			m_MaxGPUMemory = 0ull;
 		}
-// #endif	
 	}
 
 	
