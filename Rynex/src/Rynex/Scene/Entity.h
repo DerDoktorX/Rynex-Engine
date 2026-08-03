@@ -122,42 +122,9 @@ namespace Rynex {
 			
 		}
 
-		// template<>
-		// void RemoveComponent<StaticMeshComponent>();
-
-#if RY_EVENT_RENDER_UPDATE
-		template<>
-		void RemoveComponent<ModelMatrixComponent>()
-		{
-			RY_CORE_ASSERT(HasComponent<ModelMatrixComponent>(), "Entity does not have component!");
-			if (HasComponent<ModelMangerComponent>() || HasComponent<DynamicMeshComponent>())
-				m_Scene->m_RemoveList.emplace_back<int>(int(m_EntityHandle));
-			m_Scene->m_Registery.remove<ModelMatrixComponent>(m_EntityHandle);
-		};
-
-		template<>
-		void RemoveComponent<ModelMangerComponent>()
-		{
-			RY_CORE_ASSERT(HasComponent<ModelMangerComponent>(), "Entity does not have component!");
-			if (HasComponent<ModelMatrixComponent>())
-				m_Scene->m_RemoveList.emplace_back<int>(int(m_EntityHandle));
-			m_Scene->m_Registery.remove<ModelMangerComponent>(m_EntityHandle);
-		};
-
-
-		template<>
-		void RemoveComponent<DynamicMeshComponent>()
-		{
-			RY_CORE_ASSERT(HasComponent<DynamicMeshComponent>(), "Entity does not have component!");
-			if (HasComponent<ModelMatrixComponent>())
-				m_Scene->m_RemoveList.emplace_back<int>(int(m_EntityHandle));
-			m_Scene->m_Registery.remove<DynamicMeshComponent>(m_EntityHandle);
-		};
-#endif
 
 		operator bool() { return IsVaild(); }
 		operator entt::entity() const { return m_EntityHandle; }
-		// operator uint32_t() const { return (uint32_t)m_EntityHandle; }
 		
 		
 
@@ -189,18 +156,8 @@ namespace Rynex {
 		entt::entity GetDefaultEntityHandle() const { return m_EntityHandle; }
 
 		
-#ifdef RY_COMPONENT_RELATION_SHIPS_BASED_UUID
 		UUID GetParentID() const { return GetComponentC<RealtionShipUUIDComponent>().parent; }
-#else
-		UUID GetParentID() const 
-		{ 
-			Entity parentE( 
-				this->GetComponentC<RealtionShipComponent>().parent, 
-				GetScene().get()
-			); 
-			return parentE.GetUUID();
-		}
-#endif
+
 		Entity GetParentEntity() const
 		{ 
 			if (UUID idParent = GetParentID())
@@ -208,7 +165,6 @@ namespace Rynex {
 			return Entity();
 		}
 		
-#ifdef RY_COMPONENT_RELATION_SHIPS_BASED_UUID
 		std::vector<UUID>& GetChildrens() 
 		{ 
 			return GetComponent<RealtionShipUUIDComponent>().childrens; 
@@ -216,12 +172,6 @@ namespace Rynex {
 
 		bool RemoveFromChildrens(Entity e);
 		bool AddToChildrens(Entity e);
-#else
-		std::vector<UUID> GetChildrens()
-		{
-			return GetComponent<RealtionShipUUIDComponent>().childrens;
-		}
-#endif
 
 		UUID GetUUID() { return GetComponent<IDComponent>().ID; }
 		std::string GetTagName() { return GetComponent<TagComponent>().Tag; }
@@ -264,75 +214,14 @@ namespace Rynex {
 		entt::entity m_EntityHandle{ entt::null };
 		State m_State = State::None;
 	private:
-#if 0
-		friend bool operator==(const Entity& e, uint32_t handle);
-		friend bool operator!=(const Entity& e, uint32_t handle);
-		friend bool operator==(uint32_t handle, const Entity& e);
-		friend bool operator!=(uint32_t handle, const Entity& e);
-#elif 0
-		friend bool operator==(const Entity& e, int handle);
-		friend bool operator!=(const Entity& e, int handle);
-		friend bool operator==(int handle, const Entity& e);
-		friend bool operator!=(int handle, const Entity& e);
-#endif
-	};
-#if 0
 
-	bool operator==(const Entity& e, uint32_t handle)
-	{
-		bool r = e.m_EntityHandle == static_cast<entt::entity>(handle);
-		return r;
-	}
-	bool operator!=(const Entity& e, uint32_t handle)
-	{
-		bool r = e.m_EntityHandle != static_cast<entt::entity>(handle);
-		return r;
-	}
-	bool operator==(uint32_t handle, const Entity& e)
-	{
-		bool r = static_cast<entt::entity>(handle) == e.m_EntityHandle;
-		return r;
-	}
-	bool operator!=(uint32_t handle, const Entity& e)
-	{
-		bool r = static_cast<entt::entity>(handle) != e.m_EntityHandle;
-		return r;
-	}
-#elif 0
-	bool operator==(const Entity& e, int handle)
-	{
-		bool r = e.m_EntityHandle == static_cast<entt::entity>(handle);
-		return r;
-	}
-	bool operator!=(const Entity& e, int handle)
-	{
-		bool r = e.m_EntityHandle != static_cast<entt::entity>(handle);
-		return r;
-	}
-	bool operator==(int handle, const Entity& e)
-	{
-		bool r = static_cast<entt::entity>(handle) == e.m_EntityHandle;
-		return r;
-	}
-	bool operator!=(int handle, const Entity& e)
-	{
-		bool r = static_cast<entt::entity>(handle) != e.m_EntityHandle;
-		return r;
-	}
-#endif
+	};
+
 
 
 	template<typename T, typename N>
 	void Entity::OnAssetLoded(Ref<N> asset, Ref<Scene> scene, int entityID)
 	{
-#if 0
-		if (!Asset::CurrentOnMainThread())
-		{
-			std::function<void()> func = std::bind(&Entity::OnAssetLoded<T, N>, asset, scene, entityID);
-			Application::Get().SubmiteToMainThreedQueue(func);
-			return;
-		}
-#endif
 		entt::entity enttEntityID = entt::entity(entityID);
 		Entity entity = Entity(enttEntityID, scene.get() );
 
@@ -376,24 +265,9 @@ namespace Rynex {
 		ModelMangerComponent& componet = GetComponent<ModelMangerComponent>();
 		componet.meshStatic = asset;
 		componet.rendereStoreIndexVec2.clear();
-#if RY_DISABLE_FLAT_2D_VEC
-		componet.objectRendereIndexPiplineVec2.clear();
-#else
 		componet.objectRendereIndexPiplineVec2.Clear();
-#endif
 		componet.singleMeshes.clear();
 
-		if(Ref<Scene> scene = m_Scene.lock())
-		{
-#if 0
-			for (const UUID& id : componet.singleMeshes)
-			{
-				Entity& e = scene->GetEntitiyByUUID(id);
-				e.DestroyEntity();
-			}
-			componet.singleMeshes.clear();
-#endif
-		}
 		UpdateComponent(componet);		
 
 	}
