@@ -475,23 +475,7 @@ namespace OpenGL {
 
 	static GLenum GetFlagsFromFlagTypes(Rynex::BufferFlagGPU flag)
 	{
-#if 0
-		switch (flag)
-		{
-			RY_INTERNLE_GET_OPENGL_MACRO_CASE(Rynex::BufferFlag::None, 0u);
-			RY_INTERNLE_GET_OPENGL_MACRO_CASE(Rynex::BufferFlag::Dynamic, GL_DYNAMIC_STORAGE_BIT);
-			RY_INTERNLE_GET_OPENGL_MACRO_CASE(Rynex::BufferFlag::Read, GL_MAP_READ_BIT);
-			RY_INTERNLE_GET_OPENGL_MACRO_CASE(Rynex::BufferFlag::Write, GL_MAP_WRITE_BIT);
 
-			RY_INTERNLE_GET_OPENGL_MACRO_CASE(Rynex::BufferFlag::Presistent, GL_MAP_PERSISTENT_BIT);
-			RY_INTERNLE_GET_OPENGL_MACRO_CASE(Rynex::BufferFlag::Coherent, GL_MAP_COHERENT_BIT);
-			RY_INTERNLE_GET_OPENGL_MACRO_CASE(Rynex::BufferFlag::Client, GL_CLIENT_STORAGE_BIT);
-
-
-
-			RY_INTERNLE_GET_OPENGL_MACRO_DEFAULT();
-		}
-#else
 		uint8_t enumValue = 0;
 
 		if(flag == enumValue)
@@ -545,87 +529,9 @@ namespace OpenGL {
 				}
 			}
 		}
-#endif
 		return result;
 	}
 
-#if 0
-	class ObjectCount
-	{
-	public:
-		ObjectCount()
-			: m_Count(0ull)
-			, m_Create(0ull)
-			, m_Destroy(0ull)
-		{
-		}
-		~ObjectCount()
-		{
-			m_Mutex.lock();
-			::Rynex::Ref<::spdlog::logger> log = ::Rynex::Log::GetCoreLogger();
-			if (log != nullptr)
-			{
-				log->info("Last OpenGL Buffer Destroyed! Create {}, Destroyed {}", m_Create, m_Destroy);
-			}
-			m_Mutex.unlock();
-		}
-
-		uint64_t GetCurentCount() 
-		{
-			std::scoped_lock<std::mutex> lock(m_Mutex);
-			uint64_t count = m_Count;
-			return count;
-		}
-
-		bool IsCountZero()
-		{
-			return GetCurentCount() != 0ull;
-		}
-		
-		void Inroment()
-		{
-			std::scoped_lock<std::mutex> lock(m_Mutex);
-			m_Count++;
-			m_Create++;
-		}
-		
-
-		void Decrement()
-		{
-			std::scoped_lock<std::mutex> lock(m_Mutex);
-			m_Count--;
-			m_Destroy++;
-		}
-	private:
-		std::mutex m_Mutex;
-		uint64_t m_Count;
-
-		uint64_t m_Create;
-		uint64_t m_Destroy;
-
-		
-	};
-
-	class OpenGLObject
-	{
-	public:
-		OpenGLObject()
-		{
-			if (nullptr == sm_Objects)
-				sm_Objects = ::Rynex::CreateRef<ObjectCount>();
-			sm_Objects->Inroment();
-		}
-
-		~OpenGLObject()
-		{
-			if (nullptr != sm_Objects && sm_Objects->IsCountZero())
-				sm_Objects.reset();
-		}
-	private:
-
-		static ::Rynex::Ref<ObjectCount> sm_Objects;
-	};
-#endif
 
 }
 
