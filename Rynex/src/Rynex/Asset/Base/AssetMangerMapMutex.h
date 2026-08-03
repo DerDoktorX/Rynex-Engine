@@ -1,31 +1,25 @@
 #pragma once
 #include <rypch.h>
 
+#define CHECK_LOCK_STATE_DIRECT_DATA_ACCES(returnFaild) \
+	if(!this->IsLockedFromOutsideAny()) \
+	{\
+		RY_CORE_ASSERT(!m_ScopeGuardLock.expired(), "Curently mutex is not locked! no Scope Lock"); \
+		RY_CORE_ASSERT(m_OutSideScope, "Curently mutex is not locked! no Start/Ende Lock");\
+		return returnFaild;\
+	}\
+	RY_CORE_WARN("We give now Direct Data Acces!")
+
+#define CHECK_IS_NOT_LOCK_STATE_LOCKING(returnFaild) \
+	if(!this->IsNotLockedFromOutsideCarfull()) \
+	{\
+		RY_CORE_ASSERT(m_ScopeGuardLock.expired(), "Curently mutex is locked! no Scope Lock"); \
+		RY_CORE_ASSERT(!m_OutSideScope, "Curently mutex is locked! no Start/Ende Lock");\
+		return returnFaild;\
+	}\
+	RY_CORE_INFO("We are now able to Lock resurces From outside!")
 
 namespace Rynex {
-// #define RY_MUTEX_PRE_ASSET_IN_MAP
-#if 1
-	#define CHECK_LOCK_STATE_DIRECT_DATA_ACCES(returnFaild) \
-		if(!this->IsLockedFromOutsideAny()) \
-		{\
-			RY_CORE_ASSERT(!m_ScopeGuardLock.expired(), "Curently mutex is not locked! no Scope Lock"); \
-			RY_CORE_ASSERT(m_OutSideScope, "Curently mutex is not locked! no Start/Ende Lock");\
-			return returnFaild;\
-		}\
-		RY_CORE_WARN("We give now Direct Data Acces!")
-	
-	#define CHECK_IS_NOT_LOCK_STATE_LOCKING(returnFaild) \
-		if(!this->IsNotLockedFromOutsideCarfull()) \
-		{\
-			RY_CORE_ASSERT(m_ScopeGuardLock.expired(), "Curently mutex is locked! no Scope Lock"); \
-			RY_CORE_ASSERT(!m_OutSideScope, "Curently mutex is locked! no Start/Ende Lock");\
-			return returnFaild;\
-		}\
-		RY_CORE_INFO("We are now able to Lock resurces From outside!")
-#else
-	#define CHECK_LOCK_STATE_DIRECT_DATA_ACCES(returnFaild) RY_CORE_WARN("We give now Direct Data Acces! No Satfy Check")
-	#define CHECK_IS_NOT_LOCK_STATE_LOCKING(returnFaild) RY_CORE_WARN("We are now able to Lock resurces From outside! No Satfy Check")
-#endif
 
 	template<typename K, typename T>
 	class AssetMangerMapMutex
@@ -48,61 +42,31 @@ namespace Rynex {
 
 		inline T GetCopy(const K& key) const
 		{
-#if 0
-			std::shared_lock lock(m_Mutex);
-#ifdef RY_MUTEX_PRE_ASSET_IN_MAP
-			return m_AssetMap.at(key).secound;
-#else
-			return m_AssetMap.at(key);
-#endif
-#else
 			return Read(
 				[&key](const std::map<K, T>& map)
 				{
 					return map.at(key);
 				}
 			);
-#endif
 
 		};
 		
 		inline void GetRefLemda(std::function<void(T&)> func, const K& key)
 		{
-#if 0
-			std::unique_lock lock(m_Mutex);
-
-			func(m_AssetMap.at(key));
-
-#ifdef RY_MUTEX_PRE_ASSET_IN_MAP
-			std::pair<mutable std::mutex, T>& pair = m_AssetMap.at(key)
-			lock = std::lock_guard<std::mutex>(pair.first);
-			func(pair.secound);
-#else
-			func(m_AssetMap.at(key));
-#endif
-#else
 			Write(
 				[&key, func](std::map<K, T>& map)
 				{
 					func(map.at(key));
 				}
 			);
-#endif
 		};
 
 
 		// Set Globle Mutex!
 		inline T& GetRef(const K& key)
 		{
-			CHECK_LOCK_STATE_DIRECT_DATA_ACCES(T());
-#ifdef RY_MUTEX_PRE_ASSET_IN_MAP
-			std::pair<std::mutex, T>& pair = m_AssetMap.at(key)
-			std::lock_guard<std::mutex> lock(pair.first);
-
-			return m_AssetMap.at(key).secound;
-#else			
+			CHECK_LOCK_STATE_DIRECT_DATA_ACCES(T());			
 			return m_AssetMap.at(key);
-#endif
 		};
 
 		inline RefScopeLock GetMutexScopeLock()
@@ -132,45 +96,14 @@ namespace Rynex {
 		// Set Globle Mutex!
 		inline void GetPtr(const K& key, T* value)
 		{
-#if 0
-			CHECK_LOCK_STATE_DIRECT_DATA_ACCES();
-			*value = m_AssetMap.at(key);
-#else			
+			
 			Write(
 				[&key, value](std::map<K, T>& map)
 				{
 					*value = map.at(key);
 				}
 			);
-#endif
-
-			
-			
 		};
-
-#if 0
-		// Set The Function Before you want use Value Ptr or Ref!
-		inline void GlobleMutexBegin()
-		{
-			RY_CORE_ASSERT(!m_OutSideScope, "Mutex is alrady Set Globle!");
-			if (!m_OutSideScope)
-			{
-				m_Mutex.lock();
-				m_OutSideScope = true;
-			}
-		};
-
-		// Set The Function After you want use Value Ptr or Ref!
-		inline void GlobleMutexEnde()
-		{
-			RY_CORE_ASSERT(m_OutSideScope, "Mutex is not Set Globle!");
-			if (m_OutSideScope)
-			{
-				m_Mutex.unlock();
-				m_OutSideScope = false;
-			}
-		};
-#endif
 
 		template<typename Func>
 		inline void WriteValue(const K& key, Func&& func)
@@ -186,95 +119,44 @@ namespace Rynex {
 
 		inline void Set(const K& key, const T& value)
 		{
-#if 0
-
-			std::unique_lock lock(m_Mutex);
-#ifdef RY_MUTEX_PRE_ASSET_IN_MAP
-			std::pair<mutable std::mutex, T>& pair = m_AssetMap.at(key)
-			lock = std::lock_guard<std::mutex>(pair.first);
-
-			pair.secound = value;
-#else			
-			m_AssetMap.at(key) = value;
-#endif
-#else
 			Write(
 				[&key, &value](std::map<K, T>& map)
 				{
 					map.at(key) = value;
 				}
 			);
-#endif
 
 		};
 
 		inline void Add(const K& key, const T& value)
 		{
-#if 0
-			std::unique_lock lock(m_Mutex);
-#ifdef RY_MUTEX_PRE_ASSET_IN_MAP
-			std::pair<mutable std::mutex, T> pair = {
-				std::mutex(), value
-			};
-			m_AssetMap[key] = pair;
-#else	
-			m_AssetMap[key] = value;
-#endif
 
-#else
 			Write(
 				[&key, &value](std::map<K, T>& map)
 				{
 					map[key] = value;
 				}
 			);
-#endif
 		};
 
 		inline void Remove(const K& key)
 		{
-#if 0
-			std::unique_lock lock(m_Mutex);
-#ifdef RY_MUTEX_PRE_ASSET_IN_MAP
-
-			{
-				std::pair<mutable std::mutex, T>& pair = m_AssetMap.at(key);
-				std::lock_guard<std::mutex> lockElement(pair.secound);
-			}
-			m_AssetMap.erase(key);
-#else	
-			m_AssetMap.erase(key);
-#endif
-#else
 			Write(
 				[&key](std::map<K, T>& map)
 				{
 					map.erase(key);
 				}
 			);
-#endif
 		};
 
 		inline void Change(const K& key, const T& value)
 		{
-#if 0
-
-			std::unique_lock lock(m_Mutex);
-#ifdef RY_MUTEX_PRE_ASSET_IN_MAP
-			std::pair<mutable std::mutex, T>& pair = m_AssetMap.at(key)
-			lock = std::lock_guard<std::mutex>(pair.first);
-			pair.secound = value;
-#else	
-			m_AssetMap.at(key) = value;
-#endif
-#else
 			Write(
 				[&key, &value](std::map<K, T>& map)
 				{
 					map.at(key) = value;
 				}
 			);
-#endif
 		};
 
 		template<typename Func>
@@ -291,45 +173,22 @@ namespace Rynex {
 
 		inline bool IsFound(const K& key) const
 		{
-#if 0
-			std::shared_lock lock(m_Mutex);
-			return m_AssetMap.find(key) != m_AssetMap.end();
-#else
 			return Read(
 				[&key](const std::map<K, T>& map) 
 				{
 					return map.find(key) != map.end();
 				}
 			);
-#endif
 		};
 
 		inline void Clear()
 		{
-#if 0
-			std::unique_lock lock(m_Mutex);
-			RY_CORE_ASSERT(!m_OutSideScope, "Mutex is alrady Set Globle");
-			
-
-			if (!m_AssetMap.empty())
-			{
-#ifdef RY_MUTEX_PRE_ASSET_IN_MAP
-				for (auto& [key, pair] : m_AssetMap)
-				{
-					std::lock_guard<std::mutex> elementLock = std::lock_guard<std::mutex>(pair.first);
-				}
-#endif
-
-				m_AssetMap.clear();
-			}
-#else
 			Write(
 				[](std::map<K, T>& map)
 				{
 					map.clear();
 				}
-			);
-#endif
+			);		
 		}
 
 		template<typename Func>
@@ -463,11 +322,7 @@ namespace Rynex {
 			return false;
 		}
 	private:
-#ifdef RY_MUTEX_PRE_ASSET_IN_MAP
-		std::map<K, std::pair<mutable std::mutex, T>> m_AssetMap;
-#else
 		std::map<K, T> m_AssetMap;
-#endif
 		WeakScopeLock m_ScopeGuardLock;
 		mutable std::shared_mutex m_Mutex;
 		mutable std::atomic_uint64_t m_OutSideScopeThreadID;
