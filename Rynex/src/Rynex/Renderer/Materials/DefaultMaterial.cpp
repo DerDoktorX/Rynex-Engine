@@ -53,16 +53,10 @@ namespace Rynex {
 			RenderMode::CallFace_None
 			| RenderMode::A_Buffer
 			| RenderMode::Death_Buffer
-#if RY_MESH_OPTIMIZE_TRINGLE_STRIPS
-			| RenderMode::PrimitivReset
-#endif
 		)
 		, m_DepthRenderMode(
 			RenderMode::CallFace_None
 			| RenderMode::Death_Buffer
-#if RY_MESH_OPTIMIZE_TRINGLE_STRIPS
-			| RenderMode::PrimitivReset
-#endif
 		)
 		, m_LastPassPtr(nullptr)
 	{
@@ -88,16 +82,10 @@ namespace Rynex {
 			RenderMode::CallFace_None
 			| RenderMode::A_Buffer
 			| RenderMode::Death_Buffer
-#if RY_MESH_OPTIMIZE_TRINGLE_STRIPS
-			| RenderMode::PrimitivReset
-#endif
 		)
 		, m_DepthRenderMode(
 			RenderMode::CallFace_None
 			| RenderMode::Death_Buffer
-#if RY_MESH_OPTIMIZE_TRINGLE_STRIPS
-			| RenderMode::PrimitivReset
-#endif
 		)
 		, m_PassesVec()
 		, m_LastPassPtr(nullptr)
@@ -105,12 +93,7 @@ namespace Rynex {
 		std::vector<std::filesystem::path> filePaths = std::move(paths);
 		if (filePaths.empty())
 		{
-#if CHEKEBORD_DEFAULT_TEXTURE_DEFAULT_MATERIEL
-			m_DefaultMap = Renderer3D::GetDefoultChekebordTex();
-#else
 			m_DefaultMap = Texture::White();
-#endif
-
 		}
 		else
 		{			
@@ -155,27 +138,17 @@ namespace Rynex {
 			RenderMode::CallFace_None
 			| RenderMode::A_Buffer
 			| RenderMode::Death_Buffer
-#if RY_MESH_OPTIMIZE_TRINGLE_STRIPS
-			| RenderMode::PrimitivReset
-#endif
 		)
 		, m_DepthRenderMode(
 			RenderMode::CallFace_None
 			| RenderMode::Death_Buffer
-#if RY_MESH_OPTIMIZE_TRINGLE_STRIPS
-			| RenderMode::PrimitivReset
-#endif
 		)
 		, m_LastPassPtr(nullptr)
 		, m_PassesVec()
 	{	
 		if (nullptr == m_DefaultMap)
 		{
-#if CHEKEBORD_DEFAULT_TEXTURE_DEFAULT_MATERIEL
-			m_DefaultMap = Renderer3D::GetDefoultChekebordTex();
-#else
 			m_DefaultMap = Texture::White();
-#endif
 		}
 
 		m_PassesVec = {
@@ -240,24 +213,14 @@ namespace Rynex {
 
 	Ref<UniformBuffer> DefaultMaterial::GetMaterielUniformBuffer()
 	{
-#if RY_DEFAULT_MATERIEL_WEAK
 		if (Ref<UniformBuffer> ubMaterialRef = m_UniformMaterial.lock())
 		{
 			return ubMaterialRef;
 		}
-#else
-		if (nullptr != m_UniformMaterial)
-		{
-			return m_UniformMaterial;
-		}
-#endif
+
 		else
 		{
-#if RY_DEFAULT_MATERIEL_WEAK
 			m_UniformMaterial.reset();
-#else
-			RY_DESTROY_REF(m_UniformMaterial);
-#endif
 
 			BufferLayout layout = BufferLayout({
 				{ SDT::Float3,	"Color"			},
@@ -269,11 +232,7 @@ namespace Rynex {
 			}, 0);
 			uint32_t byteSize = sizeof(m_BufferData);
 			MaterielShaderData* materielShaderDataPtr = &m_BufferData;
-#ifdef RY_OPENGL_USE_ARRAY_BUFFER
 			Ref<UniformBuffer> ubMateril = UniformBuffer::Create(materielShaderDataPtr, byteSize, layout);
-#else
-			Ref<UniformBuffer> ubMateril = UniformBuffer::Create(materielShaderDataPtr, byteSize, layout);
-#endif
 			m_UniformMaterial = ubMateril;
 			return ubMateril;
 		}
@@ -409,16 +368,5 @@ namespace Rynex {
 
 		return -1;
 	}
-
-	
-
-	
-
-
-
-
-
-
-	
 
 }
