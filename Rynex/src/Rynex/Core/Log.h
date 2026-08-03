@@ -48,7 +48,6 @@ namespace Rynex {
 		}
 
 		
-#if 1
 		template<typename ...Args>
 		inline static constexpr void LoggerMessage(std::shared_ptr<spdlog::logger>& logger, bool checks, spdlog::level::level_enum levelType, spdlog::format_string_t<Args...> fmt, Args&& ... args)
 		{
@@ -66,7 +65,6 @@ namespace Rynex {
 				LoggerMessage<T>(logger, levelType, msg);
 			}
 		}
-#endif
 	private:
 		static Log s_LogInstance;
 	// --- private member varibels --------------------------------------------------------------------------------------------
@@ -239,7 +237,6 @@ inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternion)
 #elif RY_CONSOLE_FUNC_FETURE_REMBER_PRINT
 
 #define RY_INTERNAL_EMPTY_REMBER_FUNC_CHANGE()			RY_CORE_FATAL(msg "\n Rember some Chnage in func {0} in File {1}:{2}", RY_STRINGIFY_MOAKRO(__FUNCSIG__), std::filesystem::path(__FILE__).string(), __LINE__)
-// #define RY_INTERNAL_MSG_REMBER_FUNC_CHANGE(msg, ...)	RY_CORE_FATAL(msg "\n Rember some Chnage in func {0} in File {1}:{2}", RY_STRINGIFY_MOAKRO(__FUNCSIG__), std::filesystem::path(__FILE__).string(), __LINE__)
 #define RY_INTERNAL_MSG_REMBER_FUNC_CHANGE(msg)	RY_CORE_FATAL(msg "\n Rember some Chnage in func {0} in File {1}:{2}", RY_STRINGIFY_MOAKRO(__FUNCSIG__), std::filesystem::path(__FILE__).string(), __LINE__)
 
 
@@ -255,11 +252,6 @@ inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternion)
 
 
 #define RY_REMBER_FUNC_CHANGE(...) RY_EXPAND_MOAKRO( RY_INTERALE_REMBER_FUNC_CHANG_GET_MACRO(__VA_ARGS__)(__VA_ARGS__) )
-
-// #undef RY_INTERNAL_MSG_REMBER_FUNC_CHANGE
-// #undef RY_INTERNAL_EMPTY_REMBER_FUNC_CHANGE
-// #undef RY_INTERALE_REMBER_FUNC_CHANGE_GET_MACRO_NAME
-// #undef RY_INTERALE_REMBER_FUNC_CHANG_GET_MACRO
 
 
 #else
