@@ -8,21 +8,14 @@ namespace Rynex {
 	template<typename T, size_t _Size, typename _Unit = uint32_t>
 	class ArrayElementPtr;
 
-#if 0
-	template<typename T, typename _Unit = uint32_t>
-#else
 	template<typename T, typename _Unit = uint32_t, typename _StoreStruct = std::vector<typename T>>
-#endif
 	class ElementVecPtr
 	{
 	public:
 		
 		using ChangeFunc = typename std::function<void(typename _Unit)>;
-#if 0
+
 		using StoreStruct = typename std::vector<typename T>;
-#else
-		using StoreStruct = typename std::vector<typename T>;
-#endif
 		using RefStoreStruct = typename Ref<typename StoreStruct>;
 
 	public:
@@ -321,26 +314,6 @@ namespace Rynex {
 			m_Map[toKey] = e;
 			CheckeSize();
 		}
-#if 0
-		MapValueRef SetData(const _Key& key, T& data)
-		{
-			if (HasKey(key))
-			{
-				MapValueRef value = GetElementRef(key);
-				_Unit index = value->GetIndex();
-				T& dataVec = m_Vector->at(index);
-				dataVec = data;
-				return value;
-			}
-			else
-			{
-				MapValueRef value = AddData(key, data);
-				return value;
-			}
-		}
-#endif
-
-
 
 		MapValueRef SetData(const _Key& key, const T& data)
 		{
