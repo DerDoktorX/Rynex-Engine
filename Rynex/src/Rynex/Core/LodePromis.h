@@ -140,10 +140,7 @@ namespace Rynex {
 				if (Ref<N> refObject = weakObject.lock())
 				{
 					if (addObject == refObject)
-					{
-
 						return;
-					}
 				}
 			}
 			m_ObjectVec.emplace_back(addObject);
@@ -184,7 +181,6 @@ namespace Rynex {
 		{
 			// Difernz ?
 			std::unique_lock<std::mutex> lock(m_WaitMutex);
-			// std::lock_guard<std::mutex> lock(m_WaitMutex);
 			std::function<bool()> func = std::bind(&LodePromisType<T, N, Args...>::LodingFinsht, this);
 			m_CV.wait(lock, func);
 			RY_CORE_TRACE("Starte Exexute again after now Loding is Finish");
@@ -193,7 +189,6 @@ namespace Rynex {
 		void Transfering(Ref<T> asset)
 		{
 			// Difernz ?
-			// std::unique_lock<std::mutex> lock(m_Mutex);
 			std::lock_guard<std::mutex> lock(m_Mutex);
 			for (Weak<typename N>& weakObject : m_ObjectVec)
 			{
@@ -207,25 +202,18 @@ namespace Rynex {
 			}
 			m_TransferComplet = true;
 		}
+
 		bool LodingFinsht() const
 		{
 			return m_TransferComplet;
 		}
+
 		void Execute(Ref<N> object, Ref<T> asset)
 		{
-#if 1
-
 			std::apply([object, asset, func = m_StaticFunc](auto&&... args)
 				{
 					func(asset, object, std::forward<decltype(args)>(args)...);
 				}, m_FuncArgs);
-#else
-			std::apply(
-				[object, asset, func](Args&&... args)
-				{
-					func(asset, object, std::forward<Args>(args)...);
-				}, m_FuncArgs);
-#endif
 		}
 		
 	// --- private member varibles --------------------------------------------------------------------------------------------
