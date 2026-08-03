@@ -109,11 +109,7 @@ namespace Rynex {
 		if (m_TexturesMap.HasObject(texture))
 		{
 			Ref<OpenGLTextureStorageModern> texRef = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(texture);
-#if 0
-			texRef->RemoveOnChangeFunc(Handle);
-#else
 			texRef->RemoveParent(this);
-#endif
 			m_TexturesMap.EraseFromObject(texture);
 
 			LoadeBindlesHandles();
@@ -123,25 +119,12 @@ namespace Rynex {
 	void OpenGLBindlesTextureArray::SwapTexture(const Ref<Texture>& fromTexture, const Ref<Texture>& toTexture)
 	{
 		Ref<OpenGLTextureStorageModern> fromTexRef = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(fromTexture);
-#if 0
-		fromTexRef->RemoveOnChangeFunc(this->Handle);
-#else
 		fromTexRef->RemoveParent(this);
-#endif
 
 		m_TexturesMap.ChangeKeyObject(fromTexture, toTexture);
 
 		Ref<OpenGLTextureStorageModern> toTexRef = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(toTexture);
-#if 0
-		std::function<void(OpenGLTextureStorageModern*)> funcChange = std::bind(&OpenGLBindlesTextureArray::OnChildeChange, this, std::placeholders::_1);
-		std::function<void(OpenGLTextureStorageModern*)> funcDestroy = std::bind(&OpenGLBindlesTextureArray::OnChildeDestroy, this, std::placeholders::_1);
-
-		ParentEventFuncs<OpenGLTextureStorageModern> parentEventFunc = ParentEventFuncs<OpenGLTextureStorageModern>(funcChange, funcDestroy);
-
-		toTexRef->AddOnChangeFunc(this->Handle, parentEventFunc);
-#else
 		toTexRef->AddParent(this);
-#endif
 	}
 
 	int OpenGLBindlesTextureArray::GetStoredTextureIndex(const Ref<Texture>& texture) const
@@ -213,20 +196,7 @@ namespace Rynex {
 
 	void OpenGLBindlesTextureArray::InvalideData()
 	{
- #ifdef RY_OPENGL_MAIN_THREADE
-
-		if (!OpenGLThreadContext::IsActive())
-		{
-#if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
-			Application::Get().SubmiteToMainThreedQueue(std::bind(&OpenGLBindlesTextureArray::InvalideData, this));
-#else
-			Application::Get().SubmiteToMainThreedQueueWait(std::bind(&OpenGLBindlesTextureArray::InvalideData, this));
-#endif
-			return;
-		}
-#else
 		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLBindlesTextureArray::InvalideData);
-#endif
 		LoadeBindlesHandles();
 	}
 
@@ -255,17 +225,7 @@ namespace Rynex {
 		{
 			int index = m_TexturesMap.AddObjectIndex( texture);			
 			Ref<OpenGLTextureStorageModern> texRef = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(texture);
-
-#if 0
-			std::function<void(OpenGLTextureStorageModern*)> funcChange = std::bind(&OpenGLBindlesTextureArray::OnChildeChange, this, std::placeholders::_1);
-			std::function<void(OpenGLTextureStorageModern*)> funcDestroy = std::bind(&OpenGLBindlesTextureArray::OnChildeDestroy, this, std::placeholders::_1);
-			
-			ParentEventFuncs<OpenGLTextureStorageModern> parentEventFunc = ParentEventFuncs<OpenGLTextureStorageModern>(funcChange, funcDestroy);
-			
-			texRef->AddOnChangeFunc(this->Handle, parentEventFunc);
-#else
 			texRef->AddParent(this);
-#endif
 			LoadeBindlesHandles();
 			return index;
 		}
@@ -283,15 +243,7 @@ namespace Rynex {
 			int index = m_TexturesMap.AddObjectIndex(texture);
 
 			Ref<OpenGLTextureStorageModern> texRef = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(texture);
-#if 0
-			std::function<void(OpenGLTextureStorageModern*)> funcChange = std::bind(&OpenGLBindlesTextureArray::OnChildeChange, this, std::placeholders::_1);
-			std::function<void(OpenGLTextureStorageModern*)> funcDestroy = std::bind(&OpenGLBindlesTextureArray::OnChildeDestroy, this, std::placeholders::_1);
-
-			ParentEventFuncs<OpenGLTextureStorageModern> parentEventFunc = ParentEventFuncs<OpenGLTextureStorageModern>(funcChange, funcDestroy);
-			texRef->AddOnChangeFunc(this->Handle, parentEventFunc);
-#else
 			texRef->AddParent(this);
-#endif
 
 
 			return index;
