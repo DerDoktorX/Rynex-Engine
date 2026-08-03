@@ -38,7 +38,6 @@ namespace Rynex {
 
 			out << YAML::Key << name.c_str();
 			out << YAML::BeginMap;
-			// out << YAML::Key << "Path" << filePath;
 			out << YAML::Key << "Path-ProjectMarker" << pathMarked;
 			out << YAML::Key << "Handle" << handle;
 			out << YAML::EndMap;
