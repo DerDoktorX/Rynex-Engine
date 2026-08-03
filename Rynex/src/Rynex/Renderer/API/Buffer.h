@@ -126,9 +126,7 @@ namespace Rynex {
 		std::string name;
 		ShaderDataType type;
 		bool active;
-#if defined(RY_CHNAGE_OF_ORGNISE_LAYOUTE_INSTANC_INCREASE) || defined(RY_HOLD_LAYOUT_ELEMENT_INCREAS_INSTANCE)
-		uint32_t instanceIncreas;
-#endif
+
 		uint32_t offset;
 		uint32_t size;
 		bool normilized;
@@ -141,18 +139,7 @@ namespace Rynex {
 		}
 
 		BufferElement(const BufferElement&) = default;
-#if defined(RY_CHNAGE_OF_ORGNISE_LAYOUTE_INSTANC_INCREASE) || defined(RY_HOLD_LAYOUT_ELEMENT_INCREAS_INSTANCE)
-		BufferElement(const BufferElement& buffer, uint32_t count)
-			: name(buffer.name), type(buffer.type), active(buffer.active), size(buffer.size), offset(0), normilized(buffer.normilized), count(count), instanceIncreas(buffer.instanceIncreas)
-		{
-		}
 
-		BufferElement(ShaderDataType type, const std::string& name, bool active = true, uint32_t instanceIncreas = 0, uint32_t count = 0, bool normilized = false)
-			: name(name), type(type), active(active), instanceIncreas(instanceIncreas), size(ShaderDataTypeSize(type)), offset(0), normilized(normilized), count(count)
-		{
-		}
-
-#else
 		BufferElement(const BufferElement& buffer, uint32_t count)
 			: name(buffer.name), type(buffer.type), active(buffer.active), size(buffer.size), offset(0u), normilized(buffer.normilized), count(count)
 		{
@@ -162,15 +149,11 @@ namespace Rynex {
 			: name(name), type(type), active(active), size(ShaderDataTypeSize(type)), offset(0u), normilized(normilized), count(count)
 		{
 		}
-#endif
 
 		uint64_t GetHash() const
 		{
 			uint64_t hashType = static_cast<uint64_t>(this->type);
 			uint64_t hashActive = this->active ? 1ull : 0ull;
-#if defined(RY_CHNAGE_OF_ORGNISE_LAYOUTE_INSTANC_INCREASE) || defined(RY_HOLD_LAYOUT_ELEMENT_INCREAS_INSTANCE)
-			uint64_t hashInstanceIncreas = static_cast<uint64_t>(this->instanceIncreas);
-#endif
 
 			uint64_t hashOffset = static_cast<uint64_t>(this->offset);
 
@@ -181,20 +164,11 @@ namespace Rynex {
 			uint64_t hash = 0;
 			hash += 1 * hashType;
 			hash += 2 * hashActive;
-#if defined(RY_CHNAGE_OF_ORGNISE_LAYOUTE_INSTANC_INCREASE) || defined(RY_HOLD_LAYOUT_ELEMENT_INCREAS_INSTANCE)
-			hash += 3 * hashInstanceIncreas;
-			hash += 4 * hashOffset;
-
-			hash += 5 * hashSize;
-			hash += 6 * hashNormilized;
-			hash += 7 * hashCount;
-#else
 			hash += 3 * hashOffset;
 
 			hash += 4 * hashSize;
 			hash += 5 * hashNormilized;
 			hash += 6 * hashCount;
-#endif
 
 			return hash;
 		}
@@ -257,30 +231,6 @@ namespace Rynex {
 		
 		BufferLayout(const BufferLayout&) = default;
 
-#if 0 && (defined(RY_CHNAGE_OF_ORGNISE_LAYOUTE_INSTANC_INCREASE) || defined(RY_HOLD_LAYOUT_ELEMENT_INCREAS_INSTANCE))
-		BufferLayout(const std::initializer_list<BufferElement>& element)
-			: m_Elements(element)
-			, m_HashNumber(0ull)
-			, m_Length(0ull)
-			, m_BufferCount(0ull)
-			, m_Stride(0ull)
-			, m_InstanceIncreas(0u)
-		{
-			CaculateOffsetAndStride();
-		}
-
-
-		BufferLayout(const std::vector<BufferElement>& element)
-			: m_Elements(element)
-			, m_HashNumber(0ull)
-			, m_Length(0ull)
-			, m_BufferCount(0ull)
-			, m_Stride(0ull)
-			, m_InstanceIncreas(0u)
-		{
-			CaculateOffsetAndStride();
-		}
-#elif !defined(RY_CHNAGE_OF_ORGNISE_LAYOUTE_INSTANC_INCREASE)
 		BufferLayout(const std::initializer_list<BufferElement>& element, uint32_t instanceIncreas = 0u)
 			: m_Elements(element)
 			, m_HashNumber(0ull)
@@ -304,7 +254,7 @@ namespace Rynex {
 		{
 			CaculateOffsetAndStride();
 		}
-#endif
+
 		inline size_t GetStride() const { return m_Stride; }
 		inline const std::vector<BufferElement>& GetElements() const { return m_Elements; }
 
@@ -333,37 +283,15 @@ namespace Rynex {
 		bool operator==(const BufferLayout& layouteRigth) const
 		{
 			bool result = true;
-#if 0
-			result = result && layouteRigth.m_BufferCount == this->m_BufferCount;
-			result = result && layouteRigth.m_Length == this->m_Length;
-			result = result && layouteRigth.m_Stride == this->m_Stride;
-			uint32_t size = this->m_Length;
-			
-			const std::vector<BufferElement>& elementsRigth = layouteRigth.m_Elements;
-			const std::vector<BufferElement>& elementsThis = this->m_Elements;
-			uint32_t i = 0u;
-			while (i < size && result)
-			{
-				const BufferElement& ellementRigth = elementsRigth.at(i);
-				const BufferElement& ellementThis = elementsThis.at(i);
-				result = result && ellementRigth.type == ellementThis.type;
-				i++;
-			}
-			RY_CORE_ASSERT(!result || m_HashNumber == layouteRigth.GetHash());
-#else
+
 			result = m_HashNumber == layouteRigth.GetHash();
-#endif
 			return result;
 		}
 
 		
 		bool operator!=(const BufferLayout& layouteRigth) const
 		{
-#if 0
-			bool result = !(*this == layouteRigth);
-#else
 			bool result = m_HashNumber != layouteRigth.GetHash();
-#endif
 			return result;
 		}
 
@@ -404,9 +332,7 @@ namespace Rynex {
 			m_BufferCount = 0ull;
 			m_HashNumber = 0ull;
 			uint64_t i = 1u;
-#if defined(RY_CHNAGE_OF_ORGNISE_LAYOUTE_INSTANC_INCREASE) || defined(RY_HOLD_LAYOUT_ELEMENT_INCREAS_INSTANCE)
-			m_InstanceIncreas = m_Elements.empty() ? 0u : m_Elements.front().instanceIncreas;
-#endif
+
 			for (BufferElement& elements : m_Elements)
 			{
 				elements.offset = offset;
@@ -415,9 +341,6 @@ namespace Rynex {
 				m_Stride += elements.size;
 				m_Length++;
 				m_BufferCount += elements.GetCompontsCount();
-#if defined(RY_CHNAGE_OF_ORGNISE_LAYOUTE_INSTANC_INCREASE) || defined(RY_HOLD_LAYOUT_ELEMENT_INCREAS_INSTANCE)
-				RY_CORE_ASSERT(m_InstanceIncreas == elements.instanceIncreas);
-#endif
 				i++;
 			}
 		}
@@ -455,17 +378,11 @@ namespace Rynex {
 
 		static Ref<VertexBuffer> Create(const uint32_t size);
 		static Ref<VertexBuffer> Create(const void* vertices, uint32_t size);
-#ifdef RY_OPENGL_USE_ARRAY_BUFFER
-		static Ref<VertexBuffer> Create(const void* vertices, uint32_t size, BufferDataUsage usage);
-		static Ref<VertexBuffer> Create(const void* vertices, uint32_t size, BufferDataUsage usage, const BufferLayout& layout);
-		static Ref<VertexBuffer> CreateAsync( std::vector<uint8_t>&& data, uint32_t size, BufferDataUsage usage, const BufferLayout& layout);
-#else
+
 		static Ref<VertexBuffer> Create(const void* vertices, uint32_t size, BufferFlagGPU flag);
 		static Ref<VertexBuffer> Create(const void* vertices, uint32_t size, BufferFlagGPU flag, const BufferLayout& layout);
 		static Ref<VertexBuffer> CreateAsync(std::vector<uint8_t>&& data, uint32_t size, BufferFlagGPU flag, const BufferLayout& layout);
-#endif
 		static Ref<VertexBuffer> Default();
-		// virtual const RendererAPI::API GetRendererAPI() const = 0;
 
 		virtual const std::vector<uint8_t>& GetBufferData() const = 0;
 		virtual void FreeBufferData() = 0;
@@ -498,15 +415,9 @@ namespace Rynex {
 		virtual uint32_t GetByteSize() const = 0;
 		virtual uint32_t GetRenderID() const = 0;
 
-#ifdef RY_OPENGL_USE_ARRAY_BUFFER
-		static Ref<IndexBuffer> Create(const uint32_t* indices, uint32_t count, BufferDataUsage usage = BufferDataUsage::StaticDraw);
-		static Ref<IndexBuffer> Create(const uint16_t* indices, uint32_t count, BufferDataUsage usage = BufferDataUsage::StaticDraw);
-		static Ref<IndexBuffer> CreateAsync(std::vector<uint32_t>&& data, uint32_t size, BufferDataUsage usage = BufferDataUsage::StaticDraw);
-#else
 		static Ref<IndexBuffer> Create(const uint32_t* indices, uint32_t count, BufferFlagGPU flag = BufferFlag::None);
 		static Ref<IndexBuffer> Create(const uint16_t* indices, uint32_t count, BufferFlagGPU flag = BufferFlag::None);
 		static Ref<IndexBuffer> CreateAsync(std::vector<uint32_t>&& data, uint32_t size, BufferFlagGPU flag = BufferFlag::None);
-#endif
 
 		static AssetType GetStaticType() { return AssetType::IndexBuffer; }
 		AssetType GetType() const override { return GetStaticType(); }
@@ -536,7 +447,6 @@ namespace Rynex {
 		virtual void ResizeBuffer(uint32_t byteSize) = 0;
 		virtual void ResizeBuffer(const void* data, uint32_t byteSize) = 0;
 		
-		// Ref<UniformBuffer> CreateLinkedUnformBuffer(uint32_t byteOffset, uint32_t byteSize, const BufferLayout& layout, uint32_t binding) = 0;
 		virtual uint32_t GetByteSize() const = 0;
 		static AssetType GetStaticType() { return AssetType::StorageBuffer; }
 
@@ -608,8 +518,6 @@ namespace Rynex {
 		virtual void SetData(const void* data, uint32_t byteSize) = 0;
 		virtual void SetData(const void* data, uint32_t offset, uint32_t byteSize) = 0;
 
-		// virtual void SetLocelData(const BufferElement& ellement, const void* data, uint32_t byteSize) = 0;
-
 		virtual uint32_t GetByteSize() const = 0;
 		virtual uint32_t GetRenderID() const = 0;
 
@@ -617,15 +525,9 @@ namespace Rynex {
 		static Ref<UniformBuffer> Create(uint32_t byteSize);
 		static Ref<UniformBuffer> Create(const void* data, uint32_t byteSize);
 		static Ref<UniformBuffer> Create(const void* data, uint32_t byteSize, const BufferLayout& layout);
-#ifdef RY_OPENGL_OLD_UNIFORM
-		static Ref<UniformBuffer> Create(const void* data, uint32_t byteSize, const BufferLayout& layout, BufferDataUsage usage);
-		static Ref<UniformBuffer> CreateAsync(std::vector<uint8_t>&& data, const BufferLayout& layout, BufferDataUsage usage);
-#else
 		static Ref<UniformBuffer> Create(const void* data, uint32_t byteSize, const BufferLayout& layout, BufferFlagGPU flag);
 		static Ref<UniformBuffer> CreateAsync(std::vector<uint8_t>&& data, const BufferLayout& layout, BufferFlagGPU flag);
-#endif
 		static Ref<UniformBuffer> CreateCopy(const Ref<UniformBuffer>& uniformBuffer);
-		// virtual const RendererAPI::API GetRendererAPI() const = 0;
 
 		virtual const std::vector<uint8_t>& GetBufferData() const = 0;
 		virtual void FreeBufferData() = 0;
