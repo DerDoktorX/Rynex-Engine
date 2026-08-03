@@ -34,34 +34,6 @@ namespace Rynex {
 
 	Entity Entity::AddChildrenEntity(const std::string& name)
 	{
-#if RY_REALTION_SCHIP_ID_COMP
-		UUID idParent = GetComponent<RealtionShipComponent>().FirstID;
-		Entity childe = m_Scene->CreateEntity(name);
-
-		RealtionShipComponent& childeRealtionshipC = childe.GetComponent<RealtionShipComponent>();
-		RealtionShipComponent& parentRealtionshipC = GetComponent<RealtionShipComponent>();
-		if (!idParent)
-		{
-			parentRealtionshipC.FirstID = childe.GetUUID();
-			childeRealtionshipC.ParentID = GetUUID();
-		}
-		else
-		{
-			Entity otherChildsEntity = m_Scene->GetEntitiyByUUID(idParent);
-			UUID nextChildren = otherChildsEntity.GetComponent<RealtionShipComponent>().NextID;
-
-			while (nextChildren)
-			{
-				otherChildsEntity = m_Scene->GetEntitiyByUUID(nextChildren);
-				nextChildren = otherChildsEntity.GetComponent<RealtionShipComponent>().NextID;
-			}
-
-			otherChildsEntity.GetComponent<RealtionShipComponent>().NextID = childe.GetUUID();
-			childe.GetComponent<RealtionShipComponent>().PreviusID = otherChildsEntity.GetUUID();
-			childeRealtionshipC.ParentID = GetUUID();
-
-		}
-#elif RY_REALTION_SCHIP_ARRAY_COMP
 		Ref<Scene> scene = m_Scene.lock();
 
 
@@ -71,8 +43,6 @@ namespace Rynex {
 		rlsCchild.parent = GetUUID();
 		std::vector<UUID>& childrens = GetChildrens();
 		childrens.push_back(childID);
-
-#endif
 		
 		return childe;
 	}
@@ -100,7 +70,6 @@ namespace Rynex {
 		Scene::CopyComponentToEntity(copy, Entity(m_EntityHandle, scene.get()));
 		RealtionShipUUIDComponent& realtionshipC = copy.GetComponent<RealtionShipUUIDComponent>();
 
-		// copy.CopyChildres(Entity(m_EntityHandle, m_Scene));
 
 		realtionshipC = RealtionShipUUIDComponent();
 		return copy;
@@ -111,41 +80,6 @@ namespace Rynex {
 	void Entity::DestroyEntity()
 	{
 		Ref<Scene> scene = m_Scene.lock();
-
-#if RY_REALTION_SCHIP_ID_COMP
-		RealtionShipComponent& parentRealtionshipC = GetComponent<RealtionShipComponent>();
-		UUID nextChilde = parentRealtionshipC.FirstID;
-		UUID newParentEnitity = parentRealtionshipC.ParentID;
-		while (nextChilde)
-		{
-			Entity childeEntity = m_Scene->GetEntitiyByUUID(nextChilde);
-			RealtionShipComponent& childeRealtionshipC = childeEntity.GetComponent<RealtionShipComponent>();
-			RY_CORE_ASSERT(childeRealtionshipC.ParentID == GetUUID(), "is not SameParent!");
-			childeRealtionshipC.ParentID = newParentEnitity;
-			nextChilde = childeRealtionshipC.NextID;
-		}
-		Entity parent = m_Scene->GetEntitiyByUUID(newParentEnitity);
-		if (newParentEnitity)
-		{
-			UUID nextCilde = parentRealtionshipC.NextID ? parentRealtionshipC.NextID : 0ull;
-			UUID previusCilde = parentRealtionshipC.PreviusID ? parentRealtionshipC.PreviusID : 0ull;
-			if (nextCilde)
-			{
-				Entity enitytNext = m_Scene->GetEntitiyByUUID(parentRealtionshipC.NextID);
-				enitytNext.GetComponent<RealtionShipComponent>().PreviusID = previusCilde;
-			}
-			if (previusCilde)
-			{
-				Entity enitytPrivus = m_Scene->GetEntitiyByUUID(parentRealtionshipC.PreviusID);
-				enitytPrivus.GetComponent<RealtionShipComponent>().NextID = nextCilde;
-			}
-			else
-			{
-				Entity enitytPrente = m_Scene->GetEntitiyByUUID(parentRealtionshipC.ParentID);
-				enitytPrente.GetComponent<RealtionShipComponent>().FirstID = nextCilde;
-			}
-		}
-#elif RY_REALTION_SCHIP_ARRAY_COMP
 
 		std::string name = GetTagName();
 		Entity parent = GetParentEntity();
@@ -175,32 +109,12 @@ namespace Rynex {
 		
 		if (HasComponent<ModelMangerComponent>())
 			RemoveComponent<ModelMangerComponent>();
-#endif
 	}
 
 	void Entity::DestroyEntityChildrens()
 	{
 		Ref<Scene> scene = m_Scene.lock();
 
-#if RY_REALTION_SCHIP_ID_COMP
-		RealtionShipComponent& parentRealtionshipC = GetComponent<RealtionShipComponent>();
-		UUID nextChilde = parentRealtionshipC.FirstID;
-		while (nextChilde)
-		{
-			Entity childeEntity = m_Scene->GetEntitiyByUUID(nextChilde);
-			RealtionShipComponent& childeRealtionshipC = childeEntity.GetComponent<RealtionShipComponent>();
-			RY_CORE_ASSERT(childeRealtionshipC.ParentID == GetUUID(), "is not SameParent!");
-
-			UUID first = childeRealtionshipC.FirstID;
-			if (first)
-			{
-				Entity firstChilde = m_Scene->GetEntitiyByUUID(nextChilde);
-				firstChilde.DestroyEntityChildrens();
-			}
-			nextChilde = childeRealtionshipC.NextID;
-			m_Scene->DestroyEntity(childeEntity);
-		}
-#elif RY_REALTION_SCHIP_ARRAY_COMP
 		std::vector<UUID> cildresCopy = GetChildrens();
 		for (auto& childe : cildresCopy)
 		{
@@ -218,8 +132,6 @@ namespace Rynex {
 				std::string name = childeEntity.GetTagName();
 		}
 		
-#endif
-
 	}
 
 	
@@ -271,56 +183,9 @@ namespace Rynex {
 
 	void Entity::UpdateAutoMatrix()
 	{
-#if RY_REALTION_SCHIP_ID_COMP
 
-		TransformComponent& entityTransformC = GetComponent<TransformComponent>();
-		ModelMatrixComponent& entityMatrix4x4C = GetComponent<ModelMatrixComponent>();
-		RealtionShipComponent& parentRealtionshipC = GetComponent<RealtionShipComponent>();
-		UUID nextChilde = parentRealtionshipC.FirstID;
-
-		
-		UUID parentEnitity = parentRealtionshipC.ParentID;
-		if (parentEnitity)
-		{
-			Entity parent = m_Scene->GetEntitiyByUUID(parentEnitity);
-			glm::mat4& parentMat = parent.GetComponent<ModelMatrixComponent>().Globle;
-			entityMatrix4x4C.Globle = parentMat * entityMatrix4x4C.Locale;
-		}
-		else
-		{
-			entityMatrix4x4C.Globle = entityMatrix4x4C.Locale;
-		}
-
-		if (HasComponent<ViewMatrixComponent>())
-		{
-			ViewMatrixComponent& view = GetComponent<ViewMatrixComponent>();
-			view.Locale = glm::inverse(entityMatrix4x4C.Locale);
-			view.Globle = glm::inverse(entityMatrix4x4C.Globle);
-		}
-		if (HasComponent<ModelMangerComponent>())
-		{
-			ModelMangerComponent& staticMesh = GetComponent<ModelMangerComponent>();
-			staticMesh.UpdateMatrix(entityMatrix4x4C.Globle);
-
-		}
-		while (nextChilde)
-		{
-			Entity childeEntity = m_Scene->GetEntitiyByUUID(nextChilde);
-			RealtionShipComponent& childeRealtionshipC = childeEntity.GetComponent<RealtionShipComponent>();
-			RY_CORE_ASSERT(childeRealtionshipC.ParentID == GetUUID(), "is not SameParent!");
-			childeEntity.UpdateMatrix();
-			UUID first = childeRealtionshipC.FirstID;
-			if (first)
-			{
-				Entity firstChilde = m_Scene->GetEntitiyByUUID(nextChilde);
-				firstChilde.UpdateMatrix();
-			}
-			nextChilde = childeRealtionshipC.NextID;
-		}
-#elif RY_REALTION_SCHIP_ARRAY_COMP
 		UpadteTransformFromMatrix();
 
-#ifdef COMPONENT_SINGLE_MODEL
 		ModelMatrixComponent& entityMatrix4x4C = GetComponent<ModelMatrixComponent>();
 		if (Entity parent = GetParentEntity())
 		{
@@ -342,47 +207,10 @@ namespace Rynex {
 			view.Globle = glm::inverse(entityMatrix4x4C.Globle);
 			UpdateComponent(view);
 		}
-#else
-		ModelMatrixLocaleComponent& entityModelMatrixLocaleC = GetComponent<ModelMatrixLocaleComponent>();
-		ModelMatrixGlobleComponent& entityModelMatrixGlobleC = GetComponent<ModelMatrixGlobleComponent>();
-		if (Entity parent = GetParentEntity())
-		{
-			ModelMatrixGlobleComponent& parentModelMatrixGlobleC = parent.GetComponent<ModelMatrixGlobleComponent>();
-			
-			entityModelMatrixGlobleC.Set(parentModelMatrixGlobleC, entityModelMatrixLocaleC);
-			UpdateComponent(entityModelMatrixGlobleC);
-		}
-		else
-		{
-			entityModelMatrixGlobleC.Set(entityModelMatrixLocaleC);
-			UpdateComponent(entityModelMatrixGlobleC);
-		}
 
-
-		if (HasComponent<ViewMatrixComponent>())
-		{
-			ViewMatrixComponent& view = GetComponent<ViewMatrixComponent>();
-			view.Locale = glm::inverse(entityModelMatrixLocaleC.Matrix);
-			view.Globle = glm::inverse(entityModelMatrixGlobleC.Matrix);
-			UpdateComponent(view);
-		}
-#endif
 
 		if (HasComponent<ModelMangerComponent>())
-		{
 			ModelMangerComponent& staticMesh = GetComponent<ModelMangerComponent>();
-			
-
-#if 0
-			ModelMangerComponent& staticMesh = GetComponent<ModelMangerComponent>();
-			if (staticMesh.ModelR)
-			{
-				staticMesh.UpdateMatrix(entityMatrix4x4C.Globle);
-				UpdateComponent(staticMesh);
-			}
-#endif
-
-		}
 
 		Ref<Scene> scene = m_Scene.lock();
 		for (UUID& childID : GetChildrens())
@@ -392,7 +220,6 @@ namespace Rynex {
 
 			child.UpdateAutoMatrix();
 		}
-#endif
 	}
 
 	
@@ -400,13 +227,9 @@ namespace Rynex {
 	void Entity::UpadteTransformFromMatrix()
 	{
 		TransformComponent& entityTransformC = GetComponent<TransformComponent>();
-#ifdef COMPONENT_SINGLE_MODEL
 		ModelMatrixComponent& entityMatrix4x4C = GetComponent<ModelMatrixComponent>();
 		const glm::mat4& matrix = entityMatrix4x4C.Locale;
-#else
-		ModelMatrixLocaleComponent& entityModelMatrixLocaleC = GetComponent<ModelMatrixLocaleComponent>();
-		const glm::mat4& matrix = entityModelMatrixLocaleC.Matrix;
-#endif
+
 		entityTransformC.SetTransform(matrix);
 
 		UpdateComponent(entityTransformC);
@@ -415,22 +238,16 @@ namespace Rynex {
 	void Entity::UpdateMatrixFromTransform()
 	{
 		TransformComponent& entityTransformC = GetComponent<TransformComponent>();
-#ifdef COMPONENT_SINGLE_MODEL
 		ModelMatrixComponent& entityMatrix4x4C = GetComponent<ModelMatrixComponent>();
 		entityMatrix4x4C.Locale = entityTransformC.GetTransform();
 		UpdateComponent(entityMatrix4x4C);
-#else
-		ModelMatrixLocaleComponent& entityModelMatrixLocaleC = GetComponent<ModelMatrixLocaleComponent>();
-		entityModelMatrixLocaleC.Set(entityTransformC);
-		UpdateComponent(entityModelMatrixLocaleC);
-#endif
+
 
 		
 	}
 
 	bool Entity::RemoveFromChildrens(Entity e)
 	{
-#ifdef RY_COMPONENT_RELATION_SHIPS_BASED_UUID
 		UUID removeId = e.GetUUID();
 		uint32_t i = 0u;
 
@@ -451,12 +268,11 @@ namespace Rynex {
 		RealtionShipUUIDComponent& realtionShipComp = e.GetComponent<RealtionShipUUIDComponent>();
 		realtionShipComp.parent = UUID(0ull);
 		return true;
-#endif
+
 	}
 
 	bool Entity::AddToChildrens(Entity e)
 	{
-#ifdef RY_COMPONENT_RELATION_SHIPS_BASED_UUID
 		UUID addId = e.GetUUID();
 		uint32_t i = 0u;
 
@@ -477,63 +293,11 @@ namespace Rynex {
 		RealtionShipUUIDComponent& realtionShipComp = e.GetComponent<RealtionShipUUIDComponent>();
 		realtionShipComp.parent = this->GetUUID();
 		return true;
-#endif
 	}
 
 	void Entity::UpdateMatrix()
 	{
-#if RY_REALTION_SCHIP_ID_COMP
-
-		TransformComponent& entityTransformC = GetComponent<TransformComponent>();
-		ModelMatrixComponent& entityMatrix4x4C = GetComponent<ModelMatrixComponent>();
-		RealtionShipComponent& parentRealtionshipC = GetComponent<RealtionShipComponent>();
-		UUID nextChilde = parentRealtionshipC.FirstID;
-
-		entityMatrix4x4C.Locale = entityTransformC.GetTransform();
-		UUID parentEnitity = parentRealtionshipC.ParentID;
-		if(parentEnitity)
-		{
-			Entity parent = m_Scene->GetEntitiyByUUID(parentEnitity);
-			glm::mat4& parentMat =  parent.GetComponent<ModelMatrixComponent>().Globle;
-			entityMatrix4x4C.Globle = parentMat * entityMatrix4x4C.Locale;
-		}
-		else
-		{
-			entityMatrix4x4C.Globle = entityMatrix4x4C.Locale;
-		}
-
-		if (HasComponent<ViewMatrixComponent>())
-		{
-			ViewMatrixComponent& view = GetComponent<ViewMatrixComponent>();
-			view.Locale = glm::inverse(entityMatrix4x4C.Locale);
-			view.Globle = glm::inverse(entityMatrix4x4C.Globle);
-		}
-		if (HasComponent<ModelMangerComponent>())
-		{
-			ModelMangerComponent& staticMesh = GetComponent<ModelMangerComponent>();
-			if(staticMesh.ModelR)
-				staticMesh.UpdateMatrix(entityMatrix4x4C.Globle);
-			
-		}
-		while (nextChilde)
-		{
-			Entity childeEntity = m_Scene->GetEntitiyByUUID(nextChilde);
-			RealtionShipComponent& childeRealtionshipC = childeEntity.GetComponent<RealtionShipComponent>();
-			RY_CORE_ASSERT(childeRealtionshipC.ParentID == GetUUID(), "is not SameParent!");
-			childeEntity.UpdateMatrix();
-			UUID first = childeRealtionshipC.FirstID;
-			if (first)
-			{
-				Entity firstChilde = m_Scene->GetEntitiyByUUID(nextChilde);
-				firstChilde.UpdateMatrix();
-			}
-			nextChilde = childeRealtionshipC.NextID;
-		}
-#elif RY_REALTION_SCHIP_ARRAY_COMP
 		UpdateMatrixFromTransform();
-
-#ifdef COMPONENT_SINGLE_MODEL
-
 		ModelMatrixComponent& entityMatrix4x4C = GetComponent<ModelMatrixComponent>();
 		
 		if (Entity parent = GetParentEntity())
@@ -547,56 +311,17 @@ namespace Rynex {
 			entityMatrix4x4C.Globle = entityMatrix4x4C.Locale;
 			UpdateComponent(entityMatrix4x4C);
 		}
-#else
-
-		ModelMatrixLocaleComponent& entityModelMatrixLocaleC = GetComponent<ModelMatrixLocaleComponent>();
-		ModelMatrixGlobleComponent& entityModelMatrixGlobleC = GetComponent<ModelMatrixGlobleComponent>();
-
-		if (Entity parent = GetParentEntity())
-		{
-			ModelMatrixGlobleComponent& parentModelMatrixGlobleC = parent.GetComponent<ModelMatrixGlobleComponent>();
-			entityModelMatrixGlobleC.Set(parentModelMatrixGlobleC, entityModelMatrixLocaleC);
-			UpdateComponent(entityModelMatrixGlobleC);
-		}
-		else
-		{
-			entityModelMatrixGlobleC.Set(entityModelMatrixLocaleC);
-			UpdateComponent(entityModelMatrixGlobleC);
-		}
-#endif
-
-		
-		
 
 
 		if (HasComponent<ViewMatrixComponent>())
 		{
 			ViewMatrixComponent& viewC = GetComponent<ViewMatrixComponent>();
-#ifdef COMPONENT_SINGLE_MODEL
 			viewC.Locale = glm::inverse(entityMatrix4x4C.Locale);
 			viewC.Globle = glm::inverse(entityMatrix4x4C.Globle);
-			UpdateComponent(viewC);
-#else
-			viewC.Locale = glm::inverse(entityModelMatrixLocaleC.Matrix);
-			viewC.Globle = glm::inverse(entityModelMatrixGlobleC.Matrix);
-			UpdateComponent(viewC);
-#endif
-			
+			UpdateComponent(viewC);			
 
 		}
-#if 0
-		if (HasComponent<ModelMangerComponent>())
-		{
-			ModelMangerComponent& staticMeshC = GetComponent<ModelMangerComponent>();
 
-			if (staticMesh.ModelR)
-				staticMesh.UpdateMatrix(entityMatrix4x4C.Globle);
-			UpdateComponent(staticMeshC);
-
-
-
-		}
-#endif
 
 		Ref<Scene> scene = m_Scene.lock();
 		for (UUID& childID : GetChildrens())
@@ -607,31 +332,10 @@ namespace Rynex {
 			child.UpdateMatrix();
 		}
 
-#endif
 	}
 
 	void Entity::ExecuteOnChildrens(const std::function<void(Entity e)>& func)
 	{
-#if RY_REALTION_SCHIP_ID_COMP
-		RealtionShipComponent& parentRealtionshipC = GetComponent<RealtionShipComponent>();
-		UUID nextChilde = parentRealtionshipC.FirstID;
-		while (nextChilde)
-		{
-			Entity childeEntity = m_Scene->GetEntitiyByUUID(nextChilde);
-			RealtionShipComponent& childeRealtionshipC = childeEntity.GetComponent<RealtionShipComponent>();
-			RY_CORE_ASSERT(childeRealtionshipC.ParentID == GetUUID(), "is not SameParent!");
-
-			UUID first = childeRealtionshipC.FirstID;
-			if (first)
-			{
-				Entity firstChilde = m_Scene->GetEntitiyByUUID(nextChilde);
-				firstChilde.DestroyEntityChildrens();
-			}
-			nextChilde = childeRealtionshipC.NextID;
-			func(childeEntity);
-			childeEntity.ExecuteOnChildrens(func);
-		}
-#elif RY_REALTION_SCHIP_ARRAY_COMP
 		Ref<Scene> scene = m_Scene.lock();
 		for (UUID& childID : GetChildrens())
 		{
@@ -640,7 +344,6 @@ namespace Rynex {
 			func(child);
 			child.ExecuteOnChildrens(func);
 		}
-#endif
 	}
 
 	const Scene *const Entity::GetScenePtr() const
