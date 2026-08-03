@@ -12,11 +12,7 @@ namespace Rynex {
 		, m_ByteSize(byteSize)
 		, m_FanceObject()
 	{
-#ifdef RY_SET_RESIZE_MEMORY_FUNC
-		ResizeMemoryData(byteSize);
-#else
 		CopyMemoryData(nullptr, byteSize);
-#endif
 		InvalideData(target);
 	}
 
@@ -62,11 +58,7 @@ namespace Rynex {
 	{
 		RY_CORE_ASSERT(0u != target);
 		RY_CORE_ASSERT(0u != m_RendererID);
-#if RY_OPENGL_BIND_RENDER_COMAND
 		OpenGLRenderCommand::BindBuffer(target, m_RendererID);
-#else
-		glBindBuffer(target, m_RendererID);
-#endif
 	}
 
 	void OpenGLShaderStorageBuffer::UnBind(uint32_t target) const
@@ -75,11 +67,7 @@ namespace Rynex {
 
 		RY_CORE_ASSERT(0u != target);
 		RY_CORE_ASSERT(0u != m_RendererID);
-#if RY_OPENGL_BIND_RENDER_COMAND
 		OpenGLRenderCommand::BindBuffer(target, 0u);
-#else
-		glBindBuffer(target, 0);
-#endif
 		GL_CHECK_LOOP();
 
 	}
@@ -91,11 +79,7 @@ namespace Rynex {
 		RY_CORE_ASSERT(0u != target);
 		RY_CORE_ASSERT(0u != m_RendererID);
 
-#if RY_OPENGL_BIND_RENDER_COMAND
 		OpenGLRenderCommand::BindBufferSlot(target, slot, m_RendererID);
-#else
-		glBindBufferBase(target, slot, m_RendererID);
-#endif
 		GL_CHECK_LOOP();
 	}
 
@@ -106,11 +90,7 @@ namespace Rynex {
 		RY_CORE_ASSERT(0u != target);
 		RY_CORE_ASSERT(0u != m_RendererID);
 
-#if RY_OPENGL_BIND_RENDER_COMAND
 		OpenGLRenderCommand::BindBufferSlot(target, slot, 0u);
-#else
-		glBindBufferBase(target, slot, 0);
-#endif
 
 		GL_CHECK_LOOP();
 	}
@@ -127,18 +107,11 @@ namespace Rynex {
 		glNamedBufferSubData(m_RendererID, offset, byteSize, dataOffsetPtr);
 
 		GL_CHECK_LOOP();
-#ifdef RY_USE_GRAFIC_API_FANCE
-		m_FanceObject.SetupFence();
-#endif
+
 	}
 
 	void OpenGLShaderStorageBuffer::ResizeData(uint32_t target, uint32_t byteSize)
 	{
-		
-
-#ifdef RY_SET_RESIZE_MEMORY_FUNC
-		ResizeMemoryData(byteSize);
-#endif
 		InvalideData(target);
 	}
 
@@ -160,9 +133,6 @@ namespace Rynex {
 
 	void OpenGLShaderStorageBuffer::SetupFance()
 	{
-#ifdef RY_USE_GRAFIC_API_FANCE
-		m_FanceObject.SetupFence();
-#else
 		if (Asset::CurrentOnMainThread())
 			return;
 
@@ -171,8 +141,6 @@ namespace Rynex {
 		int64_t pastTime = m_FanceObject.StoppThreadUntlieLoded();
 		RY_CORE_INFO("Data OpenGLShaderStorageBuffer Transfered! off {} bytesComplet. Time waiting {} Nanosec", byteSize, pastTime);
 		m_FanceObject.DestroyID();
-		
-#endif
 	}
 
 	void OpenGLShaderStorageBuffer::CreateID(uint32_t target)
@@ -209,19 +177,7 @@ namespace Rynex {
 
 	void OpenGLShaderStorageBuffer::InvalideData(uint32_t target)
 	{
-#ifdef RY_OPENGL_MAIN_THREADE
-		if (!OpenGLThreadContext::IsActive())
-		{
-#if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
-			Application::Get().SubmiteToMainThreedQueue(std::bind(&OpenGLShaderStorageBuffer::InvalideData, this, target));
-#else
-			Application::Get().SubmiteToMainThreedQueueWait(std::bind(&OpenGLShaderStorageBuffer::InvalideData, this, target));
-#endif
-			return;
-		}
-#else
 		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLShaderStorageBuffer::InvalideData, target);
-#endif
 		RY_CORE_ASSERT(0u != m_ByteSize);
 
 		RY_CORE_ASSERT(m_ByteSize == m_Data.size());
@@ -283,15 +239,6 @@ namespace Rynex {
 		uint8_t* offsetDataDstPtr = m_Data.data() + offset;
 		std::memcpy(offsetDataDstPtr, dataPtr, size);
 	}
-#ifdef RY_SET_RESIZE_MEMORY_FUNC
-	void OpenGLShaderStorageBuffer::ResizeMemoryData(uint32_t byteSize)
-	{
-		m_Data.clear();
-		m_ByteSize = byteSize;
-		m_Data.resize(byteSize);
-
-	}
-#endif
 
 	void OpenGLShaderStorageBuffer::LoadeGPUDataOnCPU()
 	{
