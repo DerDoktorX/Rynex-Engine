@@ -127,26 +127,7 @@ namespace Rynex {
 		
 			return HasSortedElementIteratorVector(vec, element, itPos, funcEqual);
 		}
-#if 0
-		template<typename T, typename N, typename FuncSort, typename FuncEqual>
-		constexpr bool AddSortedElementVector(std::vector<T>& vec, const N& searchElement, FuncSort funcSort, FuncEqual funcEqual)
-		{
-			using It = VectorIterator<T>;
-			if (vec.empty())
-			{
-				vec.insert(vec.begin(), element);
-				return true;
-			}
-			It itPos = GetSortedElementIteratorVector(vec, element, funcSort);
-			if (HasSortedElementIteratorVector<T, N, FuncEqual>(itPos, vec.end(), searchElement, funcEqual))
-			{
-				RY_CORE_WARN("You try to add a element what is alrady added");
-				return It();
-			}
 
-			return itPos;
-		}
-#endif
 		template<typename T, typename N, typename FuncSort, typename FuncEqual>
 		constexpr bool AddSortedElementVector(std::vector<T>& vec, const N& insertElement, FuncSort funcSort, FuncEqual funcEqual)
 		{
