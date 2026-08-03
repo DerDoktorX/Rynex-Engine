@@ -61,7 +61,6 @@ namespace Rynex {
 
 		void Clear()
 		{
-#if RY_VECTOR_SIMPLE_LOOP
 			uint64_t size = Size();
 
 			for (uint64_t i = 0; i < size; i++)
@@ -69,10 +68,6 @@ namespace Rynex {
 				RY_CORE_ASSERT(i < size, "Buffer Overfolw!");
 				m_Begin[i].~Data();
 			}
-
-#elif RY_VECTOR_LOOP 
-#elif RY_VECTOR_CLEAR_EDVENC
-#endif
 
 		}
 
@@ -127,7 +122,6 @@ namespace Rynex {
 
 		void CopyToPtr(Data* beginPtr, uint64_t capcitySize) const
 		{
-#if RY_VECTOR_SIMPLE_LOOP
 			uint64_t curentCapacity = Size();
 			uint32_t size = capcitySize < curentCapacity ? capcitySize : curentCapacity;
 
@@ -136,14 +130,11 @@ namespace Rynex {
 				RY_CORE_ASSERT(i < capcitySize && i < curentCapacity);
 				beginPtr[i] = m_Begin[i];
 			}
-#elif RY_VECTOR_LOOP 
-#elif RY_VECTOR_COPYEDVENC
-#endif
+
 		}
 
 		void MoveToPtr(Data* beginPtr, uint64_t capcitySize)
 		{
-#if RY_VECTOR_SIMPLE_LOOP
 			uint64_t curentCapacity = Size();
 			uint32_t size = capcitySize < curentCapacity ? capcitySize : curentCapacity;
 
@@ -152,9 +143,6 @@ namespace Rynex {
 				RY_CORE_ASSERT(i < capcitySize && i < curentCapacity);
 				beginPtr[i] = std::move(m_Begin[i]);
 			}
-#elif RY_VECTOR_LOOP 
-#elif RY_VECTOR_MOVE_EDVENC
-#endif
 		}
 
 		void SetNewData(Data* beginPtr, Data* endePtr, uint64_t capcitySize)
