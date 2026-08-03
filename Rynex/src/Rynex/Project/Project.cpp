@@ -72,10 +72,7 @@ namespace Rynex {
 
         static std::filesystem::path SetupFolder(const std::filesystem::path& pFolder,const std::string& name)
         {
-            
-            // std::filesystem::path absultPath = std::filesystem::absolute(pFolder);
             std::filesystem::path absultPath = pFolder / name;
-
             try 
             {
                 RY_CORE_ASSERT(std::filesystem::create_directory(absultPath), "Folder Existig alraedy!");
@@ -122,8 +119,6 @@ namespace Rynex {
             if(pFolder == "")
                 pFolder = FileDialoges::SelectFolder();
             
-
-            // pConfig.StartScene = pwFolder/"Assets/Scene/Default.ryscene";
             CreateProjectFolderStruct(pConfig, pFolder, name);
             if (!BulidScriptingProject(pConfig))
                 return;
@@ -179,22 +174,7 @@ namespace Rynex {
 
     std::filesystem::path Project::GenarteProjectRaltivPath(const std::filesystem::path& path)
     {
-#if 0
-        if (!path.is_absolute())
-            return path;
-
-        const std::filesystem::path& projectFolder = Project::GetActiveProjectDirectory();
-        std::filesystem::path relativPath = std::filesystem::relative(path, projectFolder);
-        return relativPath;
-#elif 0
-        if (path.is_absolute())
-            return path;
-
-        std::filesystem::path absolutePath = std::filesystem::absolute(path);
-        return absolutePath;
-#else
         return path;
-#endif
     }
 
     std::filesystem::path Project::CreateAssetInterlPathFormatProject(const std::filesystem::path& path)
@@ -409,15 +389,7 @@ namespace Rynex {
             return "";
         }
         size_t markerIndex = i - 1;
-#if 0
-        size_t sizeMarker = std::strlen(markersArray[markerIndex]);
-        size_t startPosMarker = 0ull;
-        size_t endPosMarker = pos + sizeMarker - offset;
-
-        std::string markerInside = searchePath.substr(startPosMarker, endPosMarker);
-#else
         std::string markerInside = markersArray[markerIndex];
-#endif
         return markerInside;
     }
 
@@ -443,15 +415,7 @@ namespace Rynex {
             return L"";
         }
         size_t markerIndex = i - 1;
-#if 0
-        size_t sizeMarker = std::strlen(markersArray[markerIndex]);
-        size_t startPosMarker = 0ull;
-        size_t endPosMarker = pos + sizeMarker - offset;
-
-        std::string markerInside = searchePath.substr(startPosMarker, endPosMarker);
-#else
         std::wstring markerInside = markersArray[markerIndex];
-#endif
         return markerInside;
     }
 
@@ -690,9 +654,6 @@ namespace Rynex {
             else
                 marker = projectMarker;
         }
-#if 0
-        RY_CORE_TRACE("We think that Path: {} is part of {}", path, marker);
-#endif
         return marker;
     }
 
@@ -706,83 +667,7 @@ namespace Rynex {
             RY_CORE_WARN("The Path is Vaild but File is not Found {}", realitveToStr);
         return areTheSame;
     }
-#if 0
-#pragma region OldPathFuntion
-    std::string Project::SetProjectMarker(const std::filesystem::path& path)
-    {
-        std::string projectMarker = RY_PATH_PROJECT_MARKER_STR "/";
-        std::string pathStr = path.string();
-        if (pathStr.find(projectMarker) < pathStr.size())
-        {
-            RY_CORE_WARN("This file Path has alrady a Marker! {}", pathStr);
-            return pathStr;
-        }
-        else if (path.is_absolute())
-        {
-            const std::filesystem::path& projectAbsultPath = GetActiveProjectDirectory();
-            std::filesystem::path filePathRaltive = std::filesystem::relative(path, projectAbsultPath);
-            pathStr = projectMarker + filePathRaltive.string();
-            return pathStr;
-        }
-        else
-        {
-            std::filesystem::path rootDir = std::filesystem::absolute(path);
-            std::filesystem::path projectPath = GetActiveProjectDirectory();
-            std::filesystem::path projectDirPathName = projectPath.filename();
 
-            std::filesystem::path projectAssetPath = GetActiveAssetDirectory();
-            std::filesystem::path projectAssetPathName = projectAssetPath.filename();
-
-            if (projectDirPathName == rootDir)
-            {
-                pathStr = projectMarker + pathStr;
-                return pathStr;
-            }
-            else if (projectAssetPathName == rootDir)
-            {
-                std::filesystem::path filePathRaltive = std::filesystem::relative(projectPath, projectAssetPath);
-                std::string raeltive = filePathRaltive.string();
-                pathStr = projectMarker + raeltive;
-                return pathStr;
-            }
-
-            RY_CORE_FATAL("rootDir: {}\n\tprojectPath: {}\n\tprojectDirPathName: {}\n\tprojectAssetPath: {}\n\tprojectAssetPathName: {}",
-                rootDir, projectPath, projectDirPathName, projectAssetPath, projectAssetPathName);
-
-
-        }
-
-        RY_CORE_FATAL("File Path: {}\n\t Path str curend Build: {}\n\t Marker: {}", path, pathStr, projectMarker);
-        // RY_CORE_ASSERT(false, "Unexpexted Run");
-        return "";
-
-    }
-
-    std::string Project::RemoveProjectMarker(const std::string& pathStr)
-    {
-        std::string projectMarker = RY_PATH_PROJECT_MARKER_STR "/";
-        uint32_t index = pathStr.find(projectMarker);
-        uint32_t count = pathStr.size();
-        if (index < count)
-        {
-            std::string pathWithoutMarker = pathStr.substr(index + projectMarker.size());
-            return pathWithoutMarker;
-        }
-        else
-        {
-            RY_CORE_WARN("No Prject-Marker Found in {}", pathStr);
-            return pathStr;
-        }
-
-    }
-
-    std::string Project::RemoveProjectMarker(const std::filesystem::path& path)
-    {
-        std::string pathStr = path.string();
-        return RemoveProjectMarker(pathStr);
-    }
-#pragma endregion
-#endif
 #pragma endregion
 
     Ref<Project> Project::New()
@@ -814,13 +699,9 @@ namespace Rynex {
         s_ActiveInstancProject.reset();
         s_ActiveInstancProject = CreateRef<Project>();
         ProjectConfig& pConfig = s_ActiveInstancProject->m_Config;
-       Utils::CreateProject(pConfig);
-       Project::SaveActive((pConfig.ProjectPath / (pConfig.Name + ".ryproj")));
-#if RY_EDITOR_ASSETMANGER_THREADE
-       Ref<EditorAssetManegerThreade>& editorAssetManager = s_ActiveInstancProject->GetEditorAssetManger();
-#else
-       Ref<EditorAssetManager>& editorAssetManager = s_ActiveProject->GetEditorAssetManger();
-#endif
+        Utils::CreateProject(pConfig);
+        Project::SaveActive((pConfig.ProjectPath / (pConfig.Name + ".ryproj")));
+        Ref<EditorAssetManegerThreade>& editorAssetManager = s_ActiveInstancProject->GetEditorAssetManger();
 
        if (editorAssetManager)
        {
@@ -828,15 +709,9 @@ namespace Rynex {
        }
        else
        {
-#if RY_EDITOR_ASSETMANGER_THREADE
            Ref<EditorAssetManegerThreade> editorAssetManagerN = CreateRef<EditorAssetManegerThreade>();
            editorAssetManagerN->SerialzeAssetRegistry();
            s_ActiveInstancProject->m_AssetManger = editorAssetManagerN;
-#else
-           Ref<EditorAssetManager> editorAssetManagerN = CreateRef<EditorAssetManager>();
-           editorAssetManagerN->SerialzeAssetRegistry();
-           s_ActiveProject->m_AssetManger= editorAssetManagerN;
-#endif
        }
        return s_ActiveInstancProject;
     }
@@ -848,11 +723,8 @@ namespace Rynex {
         ProjectConfig& pConfig = s_ActiveInstancProject->m_Config;
         Utils::CreateProject(pConfig, projectPath, name);
         Project::SaveActive((pConfig.ProjectPath / (pConfig.Name + ".ryproj")));
-#if RY_EDITOR_ASSETMANGER_THREADE
         Ref<EditorAssetManegerThreade>& editorAssetManager = s_ActiveInstancProject->GetEditorAssetManger();
-#else
-        Ref<EditorAssetManager>& editorAssetManager = s_ActiveProject->GetEditorAssetManger();
-#endif
+
 
 
         if (editorAssetManager)
@@ -861,13 +733,8 @@ namespace Rynex {
         }
         else
         {
-#if RY_EDITOR_ASSETMANGER_THREADE
             Ref<EditorAssetManegerThreade> editorAssetManagerN = CreateRef<EditorAssetManegerThreade>();
             editorAssetManagerN->SerialzeAssetRegistry();
-#else
-            Ref<EditorAssetManager> editorAssetManagerN = CreateRef<EditorAssetManager>();
-            editorAssetManagerN->SerialzeAssetRegistry();
-#endif
             s_ActiveInstancProject->m_AssetManger = editorAssetManagerN;
         }
         s_ActiveInstancProject = project;
@@ -891,21 +758,12 @@ namespace Rynex {
         {
             project->m_Config.ProjectPath = path.parent_path();
             
-#if RY_EDITOR_ASSETMANGER_THREADE
             Ref<EditorAssetManegerThreade> editorAssetManager = CreateRef<EditorAssetManegerThreade>();
             editorAssetManager->OnAttach();
             s_ActiveInstancProject->m_AssetManger = editorAssetManager;
 
             editorAssetManager->DeserialzeAssetRegistry();
-           
-#else
-            Ref<EditorAssetManager> editorAssetManager = CreateRef<EditorAssetManager>();
-            editorAssetManager->OnAttach();
-            s_ActiveProject->m_AssetManger = editorAssetManager; 
-
-            editorAssetManager->DeserialzeAssetRegistry();
-#endif
-            RY_CORE_ERROR("Project Loading For Editor Sucese");
+                       RY_CORE_ERROR("Project Loading For Editor Sucese");
             return s_ActiveInstancProject;
         }
         RY_CORE_ERROR("Project Loading Faild");
