@@ -267,11 +267,7 @@ namespace Utils {
 		{
 			RY_LOG_DISABLE_NUMBER;
 
-#if RY_EDITOR_ASSETMANGER_THREADE
 			Ref<EditorAssetManegerThreade> editorAssetManger = Project::GetActive()->GetEditorAssetManger();
-#else
-			Ref<EditorAssetManager> editorAssetManger = Project::GetActive()->GetEditorAssetManger();
-#endif
 
 
 			RY_CORE_ASSERT(entity.HasComponent<IDComponent>(), "Error: Entity has not IDComponent");
@@ -309,20 +305,8 @@ namespace Utils {
 
 				CameraComponent& cc = entity.GetComponent<CameraComponent>();
 				SceneCamera& camera = cc.Camera;
-#if 0
-				out << YAML::Key << "Camera" << YAML::Value;
-				out << YAML::BeginMap;
-				out << YAML::Key << "ProjectionType" << YAML::Value << (int)camera.GetProjectionType();
-				out << YAML::Key << "PerspectivVerticleFOV" << YAML::Value << camera.GetPerspectivVerticleFOV();
-				out << YAML::Key << "PerspectivNearClipe" << YAML::Value << camera.GetPerspectivNearClipe();
-				out << YAML::Key << "PerspectivFarClipe" << YAML::Value << camera.GetPerspectivFarClipe();
-				out << YAML::Key << "OrthographicSize" << YAML::Value << camera.GetOrthographicSize();
-				out << YAML::Key << "OrthographicNearClipe" << YAML::Value << camera.GetOrthographicNearClipe();
-				out << YAML::Key << "OrthographicFarClipe" << YAML::Value << camera.GetOrthographicFarClipe();
-				out << YAML::EndMap;
-#else
+
 				out << YAML::Key << "Camera" << camera;
-#endif
 				out << YAML::Key << "Primary" << YAML::Value << cc.Primary;
 				out << YAML::Key << "FixedAspectRotaion" << YAML::Value << cc.FixedAspectRotaion;
 
@@ -345,17 +329,10 @@ namespace Utils {
 
 				SpriteRendererComponent& sc = entity.GetComponent<SpriteRendererComponent>();
 				out << YAML::Key << "Color" << YAML::Value << sc.Color;
-#if RY_DISABLE_WEAK_PTR
-				if (sc.Texture)
-				{
-					SerializerAssetFormate(out, "Texture", sc.Texture->Handle);
-				}
-#else
 				if (Ref<Texture> tex = sc.Texture.lock())
 				{
 					SerializerAssetFormate(out, "Texture", tex->Handle);
 				}
-#endif
 				out << YAML::EndMap;
 			}
 
@@ -363,18 +340,6 @@ namespace Utils {
 			if (entity.HasComponent<RealtionShipUUIDComponent>())
 			{
 				RealtionShipUUIDComponent& rSc = entity.GetComponent<RealtionShipUUIDComponent>();
-
-				// UUID parent = rSc.ParentID;
-				// UUID previus = rSc.PreviusID;
-				// UUID first = rSc.FirstID;
-				// UUID next = rSc.NextID;
-				// out << YAML::Key << "RealtionShipComponent";
-				// out << YAML::BeginMap;
-				// out << YAML::Key << "Previus" << YAML::Value << previus;
-				// out << YAML::Key << "First" << YAML::Value << first;
-				// out << YAML::Key << "Next" << YAML::Value << next;
-				// out << YAML::Key << "Parent" << YAML::Value << parent;
-				// out << YAML::EndMap;
 
 				out << YAML::Key << "RealtionShipComponent";
 				out << YAML::BeginMap;
@@ -492,50 +457,10 @@ namespace Utils {
 					
 
 					out << YAML::BeginMap;
-#if 0				
-					out << YAML::Key << "FramebufferSpecifcation";
 
-					{
-
-
-						out << YAML::BeginMap;
-						const FramebufferSpecification& spec = frameC.FrameBuffer->GetFramebufferSpecification();
-						out << YAML::Key << "Width" << YAML::Value << spec.Width;
-						out << YAML::Key << "Height" << YAML::Value << spec.Height;
-
-						{
-							out << YAML::Key << "Attachments";
-							out << YAML::BeginSeq;
-							for (const FramebufferTextureSpecification& framTexSpec : spec.Attachments.Attachments)
-							{
-								// out << YAML::Key << "TextureAssetHandle" << YAML::Value << AssetHandle();
-								out << YAML::BeginMap;
-								out << YAML::Key << "TextureFormat" << YAML::Value << (int)framTexSpec.TextureFormat;
-								out << YAML::Key << "TextureWrapping" << YAML::Value;
-								out << YAML::BeginMap;
-								{
-									out << YAML::Key << "R" << YAML::Value << (int)framTexSpec.TextureWrapping.R;
-									out << YAML::Key << "T" << YAML::Value << (int)framTexSpec.TextureWrapping.T;
-									out << YAML::Key << "S" << YAML::Value << (int)framTexSpec.TextureWrapping.S;
-								}
-								out << YAML::EndMap;
-								out << YAML::Key << "TextureFiltering" << YAML::Value << (int)framTexSpec.TextureFiltering;
-								out << YAML::Key << "Samples" << YAML::Value << framTexSpec.Samples;
-								out << YAML::EndMap;
-							}
-							out << YAML::EndSeq;
-						}
-						out << YAML::Key << "Samples" << YAML::Value << spec.Samples;
-						out << YAML::Key << "SwapChainTarget" << YAML::Value << spec.SwapChainTarget;
-
-						out << YAML::EndMap;
-
-					}
-#else
 					
 					const FramebufferSpecification& spec = frameC.FrameBuffer->GetFramebufferSpecification();
 					out << YAML::Key << "FramebufferSpecifcation" << spec;
-#endif
 					out << YAML::Key << "ClearColor" << YAML::Value << frameC.ClearColor;
 					out << YAML::Key << "FramebufferSize" << YAML::Value << (int)frameC.FramebufferSize;
 
@@ -629,16 +554,8 @@ namespace Utils {
 			uint32_t index = 0;
 			const std::vector<BufferElement>& elements = layout.GetElements();
 			uint32_t elementsSize = elements.size();
-#if 1
 			for (YAML::detail::iterator_value& element : node)
 			{
-#else
-
-			int count = node.size();
-			for (int i = count; 0 < i; i--)
-			{
-				YAML::detail::iterator_value& element = node[i];
-#endif
 				switch (elements[(index % elementsSize)].type)
 				{
 				case ShaderDataType::Float:
@@ -780,8 +697,6 @@ namespace Utils {
 
 	void SceneSerializer::Serialize(const std::filesystem::path& path)
 	{
-		RY_LOG_DISABLE_NUMBER;
-
 		RY_CORE_WARN("Begin Serialize a Scene from '{}'", path);
 		YAML::Emitter out;
 		out << YAML::BeginMap;
@@ -795,8 +710,6 @@ namespace Utils {
 
 				Utils::Serializer::SerializerEntity(out, entity, m_Scene);
 			});
-
-
 		out << YAML::EndMap;
 
 		std::ofstream fout(path);
@@ -809,25 +722,16 @@ namespace Utils {
 			entity.UpdateMatrix();
 		});
 		RY_CORE_INFO("Ende Scene Serializetation");
-		RY_LOG_ENABLE_NUMBER;
-
 	}
 
 	void SceneSerializer::SerializeRuntime(const std::filesystem::path& path)
 	{
-		RY_LOG_DISABLE_NUMBER;
-
 		RY_CORE_ASSERT(false, "SceneSerializer::SerializeRuntime not Implementet!");
-		
-		
-		RY_LOG_ENABLE_NUMBER;
 	}
 
 
 	bool SceneSerializer::Deserialize(const std::filesystem::path& path)
 	{
-		RY_LOG_DISABLE_NUMBER;
-
 		RY_CORE_WARN("Begin Serialize a Scene from '{}'", path);
 
 		m_Scene->ClearAll();
@@ -843,32 +747,19 @@ namespace Utils {
 		std::string sceneName = data["Scene"].as<std::string>();
 		RY_CORE_ASSERT("Deserialize scene '{0}'", sceneName);
 		std::vector<Ref<LodePromis<Scene>>>& lodingPromisVec = m_Scene->m_LodingPromisVec;
-		// std::vector<Ref<LodePromis>> lodingPromisVec;
 		lodingPromisVec.clear();
 
 		YAML::Node entities = data["Entities"];
 		if (entities)
 		{
-#if 1
 			for (YAML::detail::iterator_value entity : entities)
 			{
-#else
-			YAML::iterator itBegin = entities.begin();
-			YAML::iterator itEnde = entities.end() - 1;
-			itEnde--;
-			for (int i = entities.size(); 0 < i; i--)
-			{
-				YAML::detail::iterator_value& entity = entities[i];
-#endif
 				uint64_t uuid = entity["Entity"].as<uint64_t>();
 
 				std::string name;
 				YAML::Node tagComponent = entity["TagComponent"];
 				if (tagComponent)
 					name = tagComponent["Tag"].as<std::string>();
-
-				// RY_CORE_ASSERT(sceneName, "Deserializing entity withe ID = {0}, name = {1}");
-
 				Entity deserializedEntity = m_Scene->CreateEntityWitheUUID(uuid, name);
 
 
@@ -917,20 +808,7 @@ namespace Utils {
 					CameraComponent& cc = deserializedEntity.AddComponent<CameraComponent>();
 
 					YAML::Node& cameraProps = cameraComponent["Camera"];
-					
-#if 0
-					cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
-
-					cc.Camera.SetPerspectivVerticleFOV(cameraProps["PerspectivVerticleFOV"].as<float>());
-					cc.Camera.SetPerspectivNearClipe(cameraProps["PerspectivNearClipe"].as<float>());
-					cc.Camera.SetPerspectivFarClipe(cameraProps["PerspectivFarClipe"].as<float>());
-
-					cc.Camera.SetOrthograficSize(cameraProps["OrthographicSize"].as<float>());
-					cc.Camera.SetOrthograficNearClipe(cameraProps["OrthographicNearClipe"].as<float>());
-					cc.Camera.SetOrthograficFarClipe(cameraProps["OrthographicFarClipe"].as<float>());
-#else
 					cc.Camera = cameraProps.as<SceneCamera>();
-#endif
 					cc.Primary = cameraComponent["Primary"].as<bool>();
 					cc.FixedAspectRotaion = cameraComponent["FixedAspectRotaion"].as<bool>();
 				}
@@ -949,7 +827,6 @@ namespace Utils {
 					RefSceneLodePromisType<Texture> promis = Utils::Deserialize::DeserializeAssetFormate<SpriteRendererComponent, Texture>(spriteRendererComponent["Texture"], deserializedEntity, AssetType::Texture2D);
 					if (nullptr != promis)
 						lodingPromisVec.emplace_back(promis);
-
 				}
 				
 
@@ -981,32 +858,13 @@ namespace Utils {
 					viewMatC.Globle = viewMatrixComponentN["Globle"].as<glm::mat4>();
 				}
 
-#if 1
 				if (YAML::Node staticMeshComponent = entity["StaticMeshComponent"])
 				{
 					ModelMangerComponent& smc = deserializedEntity.AddComponent<ModelMangerComponent>();
-#if 1
 					RefSceneLodePromisType<MeshStatic> promis = Utils::Deserialize::DeserializeAssetFormate<ModelMangerComponent, MeshStatic>(staticMeshComponent["StaticMesh"], deserializedEntity, AssetType::MeshStatic);
 					if(nullptr != promis)
 						lodingPromisVec.emplace_back(promis);
-#else
-					Utils::DeserializeAssetFormate<MeshStatic>(staticMeshComponent["StaticMesh"], &smc.meshStatic, false);
-#endif
 				}
-#endif
-#if 0
-				if (YAML::Node dynamicMeshComponent = entity["DynamicMeshComponent"])
-				{
-
-					DynamicMeshComponent& dmc = deserializedEntity.AddComponent<DynamicMeshComponent>();
-
-					if (YAML::Node modelDyN = dynamicMeshComponent["Model-D"])
-					{
-						assetHandleError = Utils::DeserializeModelDyanmic(modelDyN, dmc, async) || assetHandleError;
-
-					}
-				}
-#endif
 
 
 				if (YAML::Node textComponent = entity["TextComponent"])
@@ -1063,81 +921,16 @@ namespace Utils {
 				if (YAML::Node frameBufferComponent = entity["FrameBufferComponent"])
 				{
 					FrameBufferComponent& frameC = deserializedEntity.AddComponent<FrameBufferComponent>();
-#if 0
-					
-					if (YAML::Node frameBuffer = frameBufferComponent["FrameBuffer"])
-					{
-						FramebufferSpecification frame;
-						frame.Height = frameBuffer["Height"].as<uint32_t>();
-						frame.Width = frameBuffer["Width"].as<uint32_t>();
-						uint32_t size = frameBuffer["Attachments"].size();
-						frame.Attachments.Attachments.reserve(size);
-						for (YAML::Node& attchment : frameBuffer["Attachments"] )
-						{
-							YAML::Node warp = attchment["TextureWrapping"];
 
-							frame.Attachments.Attachments.emplace_back(FramebufferTextureSpecification(
-								(TexFrom)attchment["TextureFormat"].as<int>(),
-								attchment["Samples"].as<uint32_t>(),
-								{
-									(TexWarp)warp["S"].as<int>(),
-									(TexWarp)warp["T"].as<int>(),
-									(TexWarp)warp["R"].as<int>()
-								},
-								(TexFilter)attchment["TextureFiltering"].as<int>()
-							));
-						}
-						frameC.FrameBuffer = Framebuffer::Create(frame);
-					}
-#else
 					if (YAML::Node framebufferSpecifcationNode = frameBufferComponent["FramebufferSpecifcation"])
 					{
 						FramebufferSpecification frame = framebufferSpecifcationNode.as<FramebufferSpecification>();
 						frameC.FrameBuffer = Framebuffer::Create(frame);
 					}
-#endif				
 					frameC.ClearColor = frameBufferComponent["ClearColor"].as<glm::vec3>();
 					frameC.FramebufferSize = (FrameBufferImageSize)frameBufferComponent["FramebufferSize"].as<int>();
 
 				}
-#if 0
-				if (YAML::Node frameBufferComponent = entity["RenderTargetComponent"])
-				{
-					RenderTargetComponent& renderTargetC = deserializedEntity.AddComponent<RenderTargetComponent>();
-					if (YAML::Node RenderTargetN = frameBufferComponent["RenderTarget"])
-					{
-						Ref<RenderTarget> target = CreateRef<RenderTarget>();
-						glm::vec4 renderView = RenderTargetN["renderView"].as<glm::vec4>();
-						FramebufferSpecification frameSpec;
-						
-						for (YAML::Node& attchment : RenderTargetN["Attachments"])
-						{
-							FramebufferTextureSpecification spec;
-
-							spec.TextureFormat;
-							std::string textureFormatStr = attchment["TextureFormat"].as<std::string>();
-							{
-								std::optional<TextureFormat> typeTextureFormat = magic_enum::enum_cast<TextureFormat>(textureFormatStr, magic_enum::case_insensitive);
-								if (!typeTextureFormat.has_value())
-								{
-									RY_CORE_ERROR("No Vaild Texture formate ({})", textureFormatStr);
-									continue;
-								}
-
-								spec.TextureFormat = typeTextureFormat.value();
-							}
-
-
-							spec.Samples = attchment["Samples"].as<uint32_t>();
-
-							
-						}
-						frameC.FrameBuffer = Framebuffer::Create(frame);
-					}
-					frameC.ClearColor = frameBufferComponent["ClearColor"].as<glm::vec3>();
-					frameC.FramebufferSize = (FrameBufferImageSize)frameBufferComponent["FramebufferSize"].as<int>();
-				}
-#endif
 	
 		}
 
@@ -1145,44 +938,12 @@ namespace Utils {
 			
 		}
 		RY_CORE_INFO("Ende Scene Deserializetion");
-
-#if 0
-		for(RefSceneLodePromisType<Texture>& promisTex : lodingPromisTypes.PromiseTextureLodeVec)
-		{
-
-			if(!promisTex->IsTransferComplet())
-				promisTex->WaitForLoding();
-		}
-
-		for (RefSceneLodePromisType<MeshStatic>& promisMeshStatic : lodingPromisTypes.PromiseMeshStaticLodeVec)
-		{
-			if (!promisMeshStatic->IsTransferComplet())
-				promisMeshStatic->WaitForLoding();
-		}
-#endif
-
-#if 0
-		for (RefSceneLodePromis& promis : lodingPromisVec)
-		{
-			if (!promis->IsTransferComplet())
-				promis->WaitForLoding();
-		}
-		lodingPromisVec.clear();
-#endif
-		
-		RY_LOG_ENABLE_NUMBER;
-
 		return true;
 	}
 
 	bool SceneSerializer::DeserializeRuntime(const std::filesystem::path& path)
 	{
-		RY_LOG_DISABLE_NUMBER;
-
 		RY_CORE_ASSERT(false, "SceneSerializer::DeserializeRuntime not Implementet!");
-		RY_LOG_ENABLE_NUMBER;
-
-		
 		return false;
 	}
 
