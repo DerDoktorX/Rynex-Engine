@@ -43,7 +43,6 @@ namespace Rynex {
 
 		_Unit GetIndex(const _Key& key) const
 		{
-			// const PairMapKeyType& pair = m_Map.at(key); 
 			const _Unit& index = m_Map.at(key);
 			return index;
 		}
@@ -309,91 +308,6 @@ namespace Rynex {
 	};
 
 
-	
-
-#if 0
-
-#define RY_INTERNALE_MAP_VECTOR_OBJECT_PTR_KEY(obj, typeResult, func)							\
-	int64_t key = m_GetKeyFromPtrFunc(obj);														\
-	typeResult result = _MapVectorRef::func(key);												\
-	return result
-
-#define RY_INTERNALE_MAP_VECTOR_OBJECT_PTR_KEY_VOID(obj, func)									\
-	int64_t key = m_GetKeyFromPtrFunc(obj);														\
-	_MapVectorRef::func(key)
-
-
-#define RY_INTERNALE_MAP_VECTOR_OBJECT_PTR_KEY_OBJECT(obj, typeResult, func)					\
-	int64_t key = m_GetKeyFromPtrFunc(obj);														\
-	typeResult result = _MapVectorRef::func(key, obj);											\
-	return result
-
-
-	template<typename T>																					\
-	class MapVectorRef : public MapVector<int64_t, typename Ref<typename T>>
-	{																										\
-	private:																								\
-		using _MapVectorRef = MapVector<int64_t, typename Ref<typename T>>;									\
-		using _T = typename Ref<typename T>;																\
-	public:																									\
-		MapVectorRef()																						
-		{																								
-		}
-			
-		~MapVectorRef()
-		{																								
-		}																								
-
-		bool HasObject(const _T& object) const														
-		{																								
-			RY_INTERNALE_MAP_VECTOR_OBJECT_PTR_KEY(object, bool, HasKey);											
-		}																								
-			
-		uint32_t GetIndex(const _T& object)															
-		{																							
-			RY_INTERNALE_MAP_VECTOR_OBJECT_PTR_KEY(object, uint32_t, GetIndex);									
-		}																								
-		_T& GetObjectDataFromObject(const _T& object)												
-		{																								
-			RY_INTERNALE_MAP_VECTOR_OBJECT_PTR_KEY(object, _T&, GetDataFromKey);									
-		}																								
-			
-		_T& AddObject(_T& object)
-		{																								
-			RY_INTERNALE_MAP_VECTOR_OBJECT_PTR_KEY_OBJECT(object, _T&, AddData);									
-		}																				
-			
-		_T& AddObject(const _T& object)																
-		{																								
-			RY_INTERNALE_MAP_VECTOR_OBJECT_PTR_KEY_OBJECT(object, _T&, AddData);									
-		}																								
-			
-		_T& SetObject(_T& object)																	
-		{																								
-			RY_INTERNALE_MAP_VECTOR_OBJECT_PTR_KEY_OBJECT(object, _T&, SetData);
-		}																								
-			
-		_T& SetObject(const _T& object)																
-		{																								
-			RY_INTERNALE_MAP_VECTOR_OBJECT_PTR_KEY_OBJECT(object, _T&, SetData);
-		}																								
-			
-		void EraseFromObject(const T& object)														
-		{																								
-			RY_INTERNALE_MAP_VECTOR_OBJECT_PTR_KEY_VOID(object, EraseFromKey);									
-		}																								
-	private:																						
-		static int64_t GetKeyFromPtr(const _T& object)													
-		{			
-			T* objectPtr = object.get();																
-			int64_t objectKey = (int64_t)objectPtr;														
-			return objectKey;																			
-		}	
-	};
-
-
-#else
-
 
 #define RY_INTERNALE_MAP_VECTOR_OBJECT_PTR_KEY(obj, typeResult, func)							\
 	int64_t key = m_GetKeyFromPtrFunc(obj);														\
@@ -588,5 +502,4 @@ namespace Rynex {
 			return objectKey;
 		}
 	};
-#endif
 }
