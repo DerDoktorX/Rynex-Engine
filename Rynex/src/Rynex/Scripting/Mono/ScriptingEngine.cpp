@@ -44,11 +44,7 @@ namespace Rynex {
 		Scope<filewatch::FileWatch<std::string>> AppAssemblyFileWatcher;
 		bool AsseblyReloading = false;
 		std::atomic_bool AssamblyReloding = false;
-#ifndef RY_DIST 
 		bool EnableDebugging = true;
-#else
-		bool EnableDebugging = false;
-#endif
 	};
 
 	static ScriptingEngineData* s_Data = nullptr;
@@ -144,12 +140,6 @@ namespace Rynex {
 
 				const char* nameSpace = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAMESPACE]);
 				const char* name = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAME]);
-
-				//MonoClass* monoClass = mono_class_from_name(s_Data->CoreAssemblyImage, nameSpace, name);
-				//MonoClass* entityClass = mono_class_from_name(s_Data->CoreAssemblyImage, "Rynex", "Entity");
-
-				//bool isEntity = mono_class_from_name(s_Data->CoreAssemblyImage, "Rynex", "Entity");
-
 				RY_CORE_TRACE("{}.{}", nameSpace, name);
 			}
 		}
@@ -171,23 +161,7 @@ namespace Rynex {
 		// Funktion in C++ defined executed in C#
 		ScriptGlue::RegisterFunctions();
 		
-#if RY_SCRIPT_PATH		
-		RY_CORE_INFO("Load Assambly from Path: '{0}'", "Resources/Scripts/Rynex-ScriptingCore.dll");
-		bool status = LoadAssambly("Resources/Scripts/Rynex-ScriptingCore.dll");
-		if (!status)
-		{
-			RY_CORE_ERROR("[ScriptEngine] Could not load Rynex-ScriptCore assembly.");
-			return;
-		}
-		RY_CORE_INFO("Load AppAssambly from Path: '{0}'", "SandboxProject/Assets/Scripts/Binaries/Sanbox.dll");
-		status = LoadAppAssambly("SandboxProject/Assets/Scripts/Binaries/Sanbox.dll");
-		if (!status)
-		{
-			RY_CORE_ERROR("[ScriptEngine] Could not load app assembly.");
-			return;
-		}
 
-#else
 		RY_CORE_INFO("Load Assambly from Path: '{0}'", Project::GetActiveProjectScriptingCoreDirektory().string().c_str());
 		std::filesystem::path corePath = Project::GetActiveProjectScriptingCoreDirektory().generic_string();
 		bool status = LoadAssambly(corePath);
@@ -204,7 +178,6 @@ namespace Rynex {
 			RY_CORE_ERROR("[ScriptEngine] Could not load APP assembly.");
 			return;
 		}
-#endif
 		LoadAssemblyClasses();
 		
 		ScriptGlue::RegisterComponents();
@@ -265,10 +238,6 @@ namespace Rynex {
 		RY_CORE_INFO("FileWatcher Scripting: {0}\n> {1}",(int)change_type , path.c_str());
 		if ( change_type == filewatch::Event::modified)
 		{
-			
-			// using namespace std::chrono_literals;
-			// std::this_thread::sleep_for(500ms);
-
 			s_Data->AssamblyReloding = true;
 			Application::Get().SubmiteToMainThreedQueue( &ReLoadeAssamblyNextFrame );
 			RY_CORE_INFO("Submit Scripting Execute! 1");
@@ -298,11 +267,6 @@ namespace Rynex {
 
 		s_Data->AppAssemblyImage = mono_assembly_get_image(s_Data->AppAssembly);
 
-#if 0
-		Utils::PrintAssemblyTypes(s_Data->AppAssembly);
-#endif
-
-		
 		return true;
 	}
 
@@ -364,14 +328,6 @@ namespace Rynex {
 		
 	}
 
-#if 0
-	bool ScriptingEngine::ReloadeScriptAvaible()
-	{
-		bool state = s_Data->AsseblyReloading;
-		s_Data->AsseblyReloading = false;
-		return state;
-	}
-#endif
 
 	std::vector<std::string> ScriptingEngine::GetListExistClasses()
 	{
@@ -532,37 +488,6 @@ namespace Rynex {
 		
 	}
 
-#if 0
-	// This Funktion is old and not in use
-	// TODO: Decide to dealte the Funktion or not
-	void ScriptingEngine::ExecuteScriptClass()
-	{
-		//s_Data->EntityClass = ScriptClass("Rynex", "Entity");
-		s_Data->EntityClass = ScriptClass("Rynex", "Entity");
-		MonoObject* instance = s_Data->EntityClass.Instantiate();
-
-		// Funktion in C# defined executed in C++
-		{
-			MonoMethod* printMessageFunc = s_Data->EntityClass.GetMethode("PrintMessage");
-			s_Data->EntityClass.InvokeMethode(printMessageFunc, instance);
-		}
-
-		{
-			MonoMethod* printIntFunc = s_Data->EntityClass.GetMethode("PrintCustemInt", 1);
-			int value = 5;
-			void* param = &value;
-			s_Data->EntityClass.InvokeMethode(printIntFunc, instance, &param);
-		}
-
-		{
-			MonoString* monoString = mono_string_new(s_Data->AppDomain, "I am C++!");
-			MonoMethod* printCustemMessageFunc = s_Data->EntityClass.GetMethode("PrintCustemMessage", 1);
-			void* stringParam = monoString;
-			s_Data->EntityClass.InvokeMethode(printCustemMessageFunc, instance, &stringParam);
-		}
-	}
-#endif
-
 	MonoObject* ScriptingEngine::InstantiateClass(MonoClass* monoClass)
 	{
 		MonoObject* instance = mono_object_new(s_Data->AppDomain, monoClass);
@@ -712,16 +637,6 @@ namespace Rynex {
 	{
 		if (m_OnDestroyMethod)
 			m_ScriptClass->InvokeMethode(m_OnDestroyMethod, m_Instance);
-#if 0
-		if (m_Constructor)
-			delete m_Constructor;
-		if (m_OnCreateMethod)
-			delete m_OnCreateMethod;
-		if (m_OnDrawMethod)
-			delete m_OnDrawMethod;
-		if (m_OnUpdateMethod)
-			delete m_OnUpdateMethod;
-#endif
 	}
 
 #pragma endregion
