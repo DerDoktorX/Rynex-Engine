@@ -89,9 +89,6 @@ namespace Rynex {
 
 		void DeleteFolder(const std::filesystem::path& folderPath);
 		void DeleteLocaleAsset(AssetHandle handle);
-		// const AssetMetadata& GetMetadata(AssetHandle handle);
-		// const AssetMetadata& GetMetadata(const std::filesystem::path& path);
-
 		AssetMetadata& GetMetadata(AssetHandle handle);
 		const AssetMetadata& GetMetadataConst(AssetHandle handle) const;
 		AssetMetadata& GetMetadata(const std::filesystem::path& path);
@@ -116,7 +113,6 @@ namespace Rynex {
 	};
 
 	
-#if RY_EDITOR_ASSETMANGER_THREADE
 
 #pragma region EditorAssetManagerThreade
 
@@ -142,7 +138,7 @@ namespace Rynex {
 		{}
 		AssetBrowserDataThreade(AssetBrowserDataThreade&&) = default;
 		AssetBrowserDataThreade(const AssetBrowserDataThreade&) = default;
-};
+	};
 
 	struct AssetFileDirectoryThreade
 	{
@@ -180,13 +176,9 @@ namespace Rynex {
 	class EditorAssetManegerThreade : public AssetManagerBase
 	{
 	public:
-#if 1
 		template<typename K, typename T>
 		using AssetMangerMap = AssetMangerMapMutex<K, T>;
-#else
-		template<typename K, typename T>
-		using AssetMangerMap = AssetMangerLeftRightMap<K, T>;
-#endif
+
 		virtual void OnAttach();
 		virtual void OnDetach();
 
@@ -280,25 +272,11 @@ namespace Rynex {
 		
 
 	private:
-#if 0
-		AssetMap						m_LoadedAssets;
-		mutable std::mutex				m_LoadedAssetsMutex;
-
-		HandleRegistryThreade			m_HandleRegistry;
-		mutable std::mutex				m_HandleRegistryMutex;
-
-		PathRegistryThreade				m_PathRegistry;
-		mutable std::mutex				m_PathRegistryMutex;
-
-		DirectoryRegistryThreade		m_DirectoryRegistry;
-		mutable std::mutex				m_DirectoryRegistryMutex;
-
-#else
 		AssetMangerMap<AssetHandle, Ref<Asset>>							m_LoadedAssets;
 		AssetMangerMap<AssetHandle, AssetMetadata>							m_HandleRegistry;
 		AssetMangerMap<std::filesystem::path, AssetHandle>					m_PathRegistry;
 		AssetMangerMap<std::filesystem::path, AssetFileDirectoryThreade>	m_DirectoryRegistry;
-#endif 
+
 		bool							m_FileChanges = true;
 		bool							m_RegestryChanges = true;
 		mutable std::mutex				m_ChangesMutex;
@@ -312,10 +290,6 @@ namespace Rynex {
 		std::filesystem::path			m_BaseAssetPath = "";
 		mutable std::mutex				m_BaseAssetPathMutex;
 
-#if 0
-		HandleMutexRegistryThreade		m_HandleMutexRegistry;
-		std::mutex						m_HandleMutexRegistryMutex;
-#endif // TODO: Dealet if we defnetli don't needed, if we have never have the case we do not some smale operation to the some assets data!
 		mutable std::mutex				m_WorkingThreadMutex;
 		std::vector<std::future<void>>	m_WorkingThread;
 		
@@ -324,85 +298,7 @@ namespace Rynex {
 
 #pragma endregion
 
-#else
 
-	class EditorAssetManager : public AssetManagerBase
-	{
-	public:
-		EditorAssetManager();
-		
-		virtual void OnAttach();
-		virtual void OnDetach();
-
-		virtual Ref<Asset> GetAsset(AssetHandle handle) override;
-		virtual Ref<Asset> GetAssetAsync(AssetHandle handle) override;
-		virtual Ref<Asset> GetAsset(const std::filesystem::path& path) override;
-
-
-
-		virtual bool IsAssetHandleValid(AssetHandle handle) const override;
-		virtual bool IsAssetHandleValid(const std::filesystem::path& path) const override;
-		virtual bool IsAssetInteral(AssetHandle handle) const override;
-
-
-		virtual bool IsAssetLoaded(AssetHandle handle) const override;
-		virtual bool IsAssetLoaded(const std::filesystem::path& path) const override;
-
-		virtual AssetHandle CreatLocaleAsset(Ref<Asset> asset, AssetMetadata& metadata) override;
-		virtual Ref<Asset> GetLocaleAsset(AssetHandle handle) override;
-		virtual void DeleteLocaleAsset(AssetHandle handle) override;
-
-		void CreateAsset(const std::filesystem::path& path, Ref<Asset>& asset, AssetMetadata metadata);
-		void CreateAsset(const std::filesystem::path& path, AssetHandle handle = AssetHandle(), AssetMetadata metadata = AssetMetadata(), bool findDirectOnDisc = true) { m_AssetRegistry.CreateAsset(path, handle, metadata, findDirectOnDisc); }
-		
-		bool AddDirectoryToParent(const std::filesystem::path& parentPath) { return m_AssetRegistry.AddDirectoryToParent(parentPath); }
-		bool AddInteralManger(const std::filesystem::path& parentPath) { return m_AssetRegistry.AddDirectoryToParent(parentPath); }
-		
-
-		void DeleteFolder(const std::filesystem::path& folderPath) { return m_AssetRegistry.DeleteFolder(folderPath); };
-		//
-		AssetMetadata& GetMetadata(AssetHandle handle) { return m_AssetRegistry.GetMetadata(handle); }
-		AssetMetadata& GetMetadata(const std::filesystem::path& path) { return m_AssetRegistry.GetMetadata(path); }
-
-		const AssetMetadata& GetMetadataConst(AssetHandle handle) { return m_AssetRegistry.GetMetadataConst(handle); }
-
-		AssetHandle GetAssetHandle(const std::filesystem::path& path) { return m_AssetRegistry.GetAssetHandle(path); }
-
-		const AssetFileDirectory& GetAssetFileDirectory(const std::filesystem::path& path) { return m_AssetRegistry.GetAssetFileDirectory(path); }
-
-
-		const HandleRegistry& GetHandleRegistry() const { return m_AssetRegistry.GetHandleRegistry(); }
-		const PathRegistry& GetPathRegistry() const { return  m_AssetRegistry.GetPathRegistry(); }
-		const DirectoryRegistry& GetDirectorysRegistry() const { return  m_AssetRegistry.GetDirectorysRegistry(); }
-
-		void ReLoadeAsset(AssetHandle handle);
-		void ReLoadeAsset(const std::filesystem::path& path);
-
-		void LoadeDownAsset(AssetHandle handle);
-		void LoadeDownAsset(const std::filesystem::path& path);
-
-		void OnLoadeAsset(AssetHandle handle);
-		void OnLoadeAsset(const std::filesystem::path& path);
-
-
-		bool IsCurentAssetState(const std::filesystem::path& showPath) { return m_AssetRegistry.IsCurentAssetState(showPath); }
-	
-		ContentBrowserItemes GetCurentAssetInformation(const std::filesystem::path& showPath) { return m_AssetRegistry.GetCurentAssetInformation(showPath); }
-		//
-		void SerialzeAssetRegistry();
-		bool DeserialzeAssetRegistry();		
-	
-
-		
-
-	private:
-		AssetMap m_LoadedAssets;
-		AssetRegistry m_AssetRegistry;
-
-	};
-
-
-#endif
 
 }
 
