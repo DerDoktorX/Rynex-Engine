@@ -12,7 +12,6 @@
 
 namespace Rynex {
 
-#if RY_ENABLE_FONT
 
 	template<typename T, typename S, int N, msdf_atlas::GeneratorFunction<S, N> GenFunc>
 	static Ref<Texture> CreateAndCacheAtlas(const std::string& fontName, float fontSize, const std::vector<msdf_atlas::GlyphGeometry>& glyphs,
@@ -45,42 +44,18 @@ namespace Rynex {
 		spec.GenerateMips = false;
 		spec.FilteringMode = TextureFilteringMode::Linear;
 		spec.Target = TextureTarget::Texture2D;
-		// Ref<Texture> texture = Texture::Create(spec, (void*)bitmap.pixels, bitmap.width * bitmap.height * 3);
 
 		Ref<Texture> texture = Texture::Create(spec, dataPtr, bytesSize);
 		texture->SetData(dataPtr, bytesSize);
 
 		return texture;
 	}
-#endif
 
 
 	Font::Font(const std::filesystem::path& filepath)
 		: m_Data(new MSDFData())
 	{
-#if RY_ENABLE_FONT
-#if 0
-		msdfgen::FreetypeHandle* ft = msdfgen::initializeFreetype();
-		if (ft)
-		{
-			std::string filString = filepath.string();
-			msdfgen::FontHandle* front = msdfgen::loadFont(ft, filString.c_str());
-			if (front)
-			{
-				msdfgen::Shape shape;
-				if (msdfgen::loadGlyph(shape, front, 'A'))
-				{
-					shape.normalize();
-					msdfgen::edgeColoringSimple(shape, 3.0);
-					msdfgen::Bitmap<float, 3> msdf(32, 32);
-					msdfgen::generateMSDF(msdf, shape, 4.0, 1.0, msdfgen::Vector2(4.0, 4.0));
-					msdfgen::savePng(msdf, "output.png");
-				}
-				msdfgen::destroyFont(front);
-			}
-			msdfgen::deinitializeFreetype(ft);
-		}
-#else
+
 		msdfgen::FreetypeHandle* ft = msdfgen::initializeFreetype();
 		RY_CORE_ASSERT(ft);
 
@@ -121,7 +96,6 @@ namespace Rynex {
 		double emSize = 40.0;
 
 		msdf_atlas::TightAtlasPacker atlasPacker;
-		// atlasPacker.setDimensionsConstraint();
 		atlasPacker.setPixelRange(2.0);
 		atlasPacker.setMiterLimit(1.0);
 		atlasPacker.setPadding(0);
@@ -162,25 +136,8 @@ namespace Rynex {
 		m_AtlasTexture = CreateAndCacheAtlas<uint8_t, float, 3, msdf_atlas::msdfGenerator>("Test", (float)emSize, m_Data->Glyphs, m_Data->FontGeometry, width, height);
 
 
-#if 0
-		msdfgen::Shape shape;
-		if (msdfgen::loadGlyph(shape, font, 'C'))
-		{
-			shape.normalize();
-			//                      max. angle
-			msdfgen::edgeColoringSimple(shape, 3.0);
-			//           image width, height
-			msdfgen::Bitmap<float, 3> msdf(32, 32);
-			//                     range, scale, translation
-			msdfgen::generateMSDF(msdf, shape, 4.0, 1.0, msdfgen::Vector2(4.0, 4.0));
-			msdfgen::savePng(msdf, "output.png");
-		}
-#endif
-
 		msdfgen::destroyFont(font);
 		msdfgen::deinitializeFreetype(ft);
-#endif
-#endif
 	}
 
 	Font::~Font()
