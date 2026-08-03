@@ -18,9 +18,9 @@ namespace Rynex {
 
 
 		WindowProps(const std::string& title = "Rynex Engine",
-			uint32_t width = 1600 ,
-			uint32_t height = 900 )
-			: Title(title), Width(width), Height(height)
+			uint32_t width = 1600u ,
+			uint32_t height = 900u )
+			: Title(title), Width(width), Height(height), PosX(0u), PosY(0u)
 		{
 
 		}
