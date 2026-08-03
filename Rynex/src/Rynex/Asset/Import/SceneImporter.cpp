@@ -9,11 +9,7 @@ namespace Rynex {
 
 	Ref<Scene> SceneImporter::ImportScene(AssetHandle handle, const AssetMetadata& metadata)
 	{
-#if 0
-		std::filesystem::path filePath = (Project::GetActiveProjectDirectory() / metadata.FilePath).string();
-#else
 		std::filesystem::path filePath = metadata.AbsolutePath;
-#endif
 		return LoadScene(filePath);
 	}
 
@@ -34,9 +30,5 @@ namespace Rynex {
 		 
 	}
 
-	
-
-
-	
 
 }
