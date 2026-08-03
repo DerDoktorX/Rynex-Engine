@@ -55,14 +55,7 @@ namespace Rynex {
 		uint32_t GetByteSize() const { return m_ByteSize; }
 		uint32_t GetRenderID() const
 		{
-#if RY_SEPERATED_USE_UPDATE_BUFFER
-			if (-1 != m_CurentIndex)
-				return m_SwapRendererID[m_CurentIndex];
-
-			return 0u;
-#else
 			return m_RendererID;
-#endif
 		}
 		uint32_t GetUsage() const { return m_Usage; }
 
