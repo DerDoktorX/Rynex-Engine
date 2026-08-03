@@ -43,9 +43,6 @@ namespace Rynex {
 		void AddCopyMemoryData(const uint8_t* dataPtr, uint32_t sibyteSizeze);
 		void CopyMemoryData(const uint8_t* dataPtr, uint32_t sibyteSizeze);
 		void CopyOffsetMemoryData(const uint8_t* dataPtr, uint32_t offset, uint32_t sizbyteSizee);
-#ifdef RY_SET_RESIZE_MEMORY_FUNC
-		void ResizeMemoryData(uint32_t byteSize);
-#endif
 	private:
 		std::vector<uint8_t> m_Data;
 		OpenGLFence m_FanceObject;
