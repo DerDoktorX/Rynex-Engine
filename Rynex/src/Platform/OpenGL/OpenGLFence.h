@@ -1,7 +1,6 @@
 #pragma once
 #include <glad/glad.h>
 
-// #define RY_USE_GRAFIC_API_FANCE
 namespace Rynex {
 
 	template<typename T>
