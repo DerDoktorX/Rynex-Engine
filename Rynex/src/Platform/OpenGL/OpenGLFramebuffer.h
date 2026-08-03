@@ -25,10 +25,7 @@ namespace Rynex {
 
 		virtual bool SetTextureForDepthAttchment(const Ref<Texture>& texture) override;
 		virtual bool SetTextureForColorAttchment(const Ref<Texture>& texture, uint32_t atchmentIndex) override;
-#ifdef RY_TEXTURE_STORE_ARRAY
-		virtual bool SetTextureForDepthAttchment(const Ref<StoreTextureArray>& texture, uint32_t texArrayindex) override;
-		virtual bool SetTextureForColorAttchment(const Ref<StoreTextureArray>& texture, uint32_t texArrayindex, uint32_t atchmentIndex) override;
-#endif
+
 
 		virtual void ClearDeathAttachment(float value) override;
 
@@ -73,9 +70,7 @@ namespace Rynex {
 		void CreateAttechmentTexture(Ref<OpenGLTextureStorageModern>& texture, uint32_t slot);
 
 		void ConecetTextureToFramffbuffer(const Ref<OpenGLTextureStorageModern>& texture, uint32_t slot);
-#ifdef RY_TEXTURE_STORE_ARRAY
-		void ConecetTextureToFramffbuffer(const Ref<StoreTextureArray>& textureArray, uint32_t texArrayindex, uint32_t slot);
-#endif
+
 
 		void SetFrameBufferStates(uint32_t countColorTex);
 
