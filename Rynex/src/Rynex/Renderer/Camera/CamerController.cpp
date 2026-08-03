@@ -15,11 +15,6 @@ namespace Rynex {
 
 	void OrthograficCameraController::OnUpdate(TimeStep ts)
 	{
-		//if (Input::IsMouseButtenPressd(0)) {
-		//	m_CamerPosition += glm::vec3(m_MouseOffset * 0.005f,0.0);
-		//	
-		//	RY_CORE_INFO("MousPos: {0}, {1}, {2}", m_CamerPosition.x, m_CamerPosition.y, m_CamerPosition.z);
-		//}
 
 		if (Input::IsKeyPressed(Key::W))
 			m_CamerPosition.y += m_CamerSpeed * ts;
@@ -79,12 +74,5 @@ namespace Rynex {
 		m_MousePos = { e.GetX()-640, e.GetY()-370 };
 		return false;
 	}
-
-	//bool OrthograficCameraController::OnMouseButtenPresed(MouseButtenPressedEvent& e)
-	//{
-	//	if(e.GetMouseButton() == 1)
-	//		return true;
-	//	return false;
-	//}
 	
 }
