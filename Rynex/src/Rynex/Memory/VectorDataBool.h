@@ -3,7 +3,7 @@
 
 namespace Ryenx{
 	namespace Memory {
-		// template<typename T = int>
+
 		class VectorDataBool
 		{
 		public:
