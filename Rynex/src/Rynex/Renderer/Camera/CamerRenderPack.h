@@ -18,10 +18,6 @@ namespace Rynex {
 		CamerRenderPackages(const Ref<Framebuffer>& fb, const glm::mat4& model, const glm::mat4& projection);
 		~CamerRenderPackages();
 
-		// const CamerPackage& GetCamerPackage() { UpdateBuffers();  return m_CamerPackage; }
-		// const DisplayPackage& GetDisplayPackage() { UpdateBuffers(); return m_DisplayPackage; }
-		// const DebugCamerPackage& GetDebugPackage() { UpdateBuffers(); return m_DebugePackage; }
-
 		RenderTarget& GetRenderTarget()  { return m_RenderTarget; }
 		const RenderTarget& GetRenderTarget() const { return m_RenderTarget; }
 		const Ref<Framebuffer>& GetFramebuffer() const { return m_RenderTarget.GetFramebuffer(); }
