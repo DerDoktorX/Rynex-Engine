@@ -36,11 +36,6 @@ namespace Rynex {
 		virtual bool IsModeEqual(int mode) = 0;
 		virtual void SetBiasGPU(float factor, float units) = 0;
 		virtual void DisableBiasGPU() = 0;
-
-#if 0
-		virtual void SetBlendMode(bool aktiv) = 0;
-		virtual void SetFront(bool aktiv) = 0;
-#endif
 		
 
 		virtual void CreateComputePipline(glm::vec3& size) = 0;
@@ -76,11 +71,6 @@ namespace Rynex {
 
 		inline static API GetAPI() { return s_API; }
 
-#if RY_RENDERER_API_INDEIPENDENT
-
-		virtual void DrawIndexed(const DrawRendererSpec& drawSpec) = 0;
-
-#endif
 	private:
 		static API s_API;
 	};
