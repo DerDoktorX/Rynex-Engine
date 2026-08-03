@@ -15,45 +15,7 @@ namespace Rynex {
 		{
 			RY_CORE_FATAL("We use more threads then avible");
 		}
-#if 0
-        for (size_t i = 0; i < numThreads; ++i)
-        {
-            m_Threads.emplace_back(
-#if 0
-                [this] {
-                    while (true)
-                    {
-                        std::function<void()> task;
-                        {
-                            std::unique_lock<std::mutex> lock(m_QueueMutex);
-
-                            m_CV.wait(lock, [this]
-                                {
-                                    return !m_Tasks.empty() || m_Stop;
-                                });
-
-                            if (m_Stop && m_Tasks.empty())
-                            {
-                                return;
-                            }
-
-                            // Get the next task from the queue
-                            task = std::move(m_Tasks.front());
-                            m_Tasks.pop();
-                        }
-
-                        task();
-                    }
-                }
-#else
-                RY_BIND_MEMBER_FUNC( ThreadPool::WaitForTask )
-#endif
-
-            );
-        }
-#else
         CreateThreads(numThreads);
-#endif
 
 
 	}
@@ -162,37 +124,8 @@ namespace Rynex {
             std::string disc = "(Empty)";
             std::string idStr = "(No Thread ID)";
 
-#if 0
-            {
-                std::unique_lock<std::mutex> lock(m_QueueMutex);
-                std::thread::id idThread = std::this_thread::get_id();
-#if 0
-                std::thread::id* idThreadPtr = &idThread;
-                uint32_t* idThreadNumberPtr = reinterpret_cast<uint32_t*>(idThreadPtr);
-                uint32_t idThreadNumber = *idThreadNumberPtr;
-#endif
-                RY_CORE_TRACE("Wait Threade {}", idThread);
-                m_CV.wait(lock, RY_BIND_MEMBER_FUNC(ThreadPool::HasTask) );
-                RY_CORE_TRACE("Continue Threade {}", idThread);
-                
-                if (m_Stop && m_Tasks.empty())
-                    return;
-
-
-                // Get the next task from the queue
-                SubmitTask& subTask = m_Tasks.front();
-                task = std::move(subTask.Task);
-                disc = subTask.TaskDisc;
-
-                idStr = GetCurentThreadIDstr();
-                m_Working.emplace_back(disc);
-                RY_THREAD_TASK_SUBMIT(idStr, disc);
-                m_Tasks.pop();
-            }
-#else
             if(ThreadWaitForTask(disc, idStr, task))
                 return;
-#endif
             
             if (nullptr != task)
             {
