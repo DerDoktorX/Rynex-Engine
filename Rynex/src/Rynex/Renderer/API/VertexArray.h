@@ -41,11 +41,7 @@ namespace Rynex {
 		virtual void SetPrimitv(Primitv primitv) = 0;
 		virtual Primitv GetPrimitv() = 0;
 
-#if RY_OPENGL_VAO_ABSTRACTION_DISABLE
-		virtual const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const = 0;
-#else
 		virtual const std::vector<VertexArray::VertexElements>& GetVertexBuffers() const = 0;
-#endif
 		
 		virtual void SetBoxAABB(BufferElement element) = 0;
 		virtual const BoundingVolume GetBoxAABB() const = 0;
