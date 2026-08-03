@@ -5,7 +5,7 @@
 
 
 namespace Rynex {
-#if 1
+
 	OpenGLArrayBuffer::OpenGLArrayBuffer(uint32_t target, const uint8_t* data, uint32_t byteSize, uint32_t usage)
 		: m_RendererID(0u)
 		, m_Usage(usage)
@@ -142,15 +142,11 @@ namespace Rynex {
 
 		RY_CORE_ASSERT(m_ByteSize == m_Data.size());
 
-#ifdef RY_USE_OPENGL_NAMED_BUFFER
 		const uint8_t* dataPtr = m_Data.data();
 		uint32_t byteSize = m_Data.size();
 
 		glNamedBufferData(m_RendererID, byteSize, dataPtr, m_Usage);
-#else
-		GLenum flag = m_Usage == GL_DYNAMIC_DRAW ? GL_DYNAMIC_STORAGE_BIT : 0;
-		glNamedBufferStorage(m_RendererID, m_Data.size(), m_Data.data(), flag);
-#endif
+
 		GL_CHECK();
 #ifdef RY_USE_GRAFIC_API_FANCE
 		m_FanceObject.SetupFence();
@@ -229,9 +225,6 @@ namespace Rynex {
 
 	void OpenGLArrayBuffer::SetupFance()
 	{
-#ifdef RY_USE_GRAFIC_API_FANCE
-		m_FanceObject.SetupFence();
-#else
 		if (Asset::CurrentOnMainThread())
 			return;
 
@@ -241,7 +234,6 @@ namespace Rynex {
 		RY_CORE_INFO("Data OpenGLArrayBuffer Transfered! off {} bytesComplet. Time waiting {} Nanosec", byteSize, pastTime);
 		m_FanceObject.DestroyID();
 		ClearLocaleDataStore();
-#endif
 	}
 
 	void OpenGLArrayBuffer::LoadeGPUDataOnCPU()
@@ -261,8 +253,4 @@ namespace Rynex {
 		m_Data.clear();
 		m_Data.shrink_to_fit();
 	}
-
-	
-
-#endif
 }
