@@ -7,11 +7,7 @@ namespace Rynex {
 
     Ref<Shader> ShaderImporter::ImportShader(AssetHandle handle, const AssetMetadata& metadata)
     {
-#if 0
-		std::filesystem::path filePath = (Project::GetActiveProjectDirectory() / metadata.FilePath).string();
-#else
 		std::filesystem::path filePath = metadata.AbsolutePath;
-#endif
 		return LoadShader(filePath, metadata.Name);
     }
 
@@ -67,9 +63,6 @@ namespace Rynex {
 		try {
 			
 			std::ifstream in(path, std::ios::in, std::ios::binary);
-			// in.open(path, std::ios::in, std::ios::binary);
-			// in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-			
 		
 			if (in)
 			{
