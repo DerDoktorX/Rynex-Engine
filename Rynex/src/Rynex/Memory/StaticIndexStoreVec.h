@@ -9,7 +9,6 @@ namespace Rynex {
 		{
 		public:
 			using ValueType = typename T;
-			// using ValueType = int;
 
 			using ContainerType = typename std::vector<typename ValueType>;
 			using SizeType = typename ContainerType::size_type;
