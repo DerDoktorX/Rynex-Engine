@@ -12,17 +12,7 @@
 
 #define RY_ENABLE_BINDLES_GLSL_INLINE_TEXTURE RY_ENABLE_BINDLES_TEXTURE && 0
 namespace Rynex {
-#ifdef RY_REGULAR_EXPRESION_OPEN_GLSL
-	namespace OpenGlsl {
-		static const std::string COMMENT = "R((//[^\n]*|/\*[\s\S]*?\*/))";
 
-
-	}
-
-	namespace SyntaxGlsl {
-		static const std::regex COMMENT_REGEX;
-	}
-#else
 	namespace SyntaxGlsl {
 		constexpr char* COMMENT_LINE = "//";
 		constexpr char* COMMENT_FIST = "/*";
@@ -34,15 +24,8 @@ namespace Rynex {
 		constexpr char* MACRO_ENDIF = "#endif";
 	}
 
-#endif
 	namespace Utils {
-#ifdef RY_REGULAR_EXPRESION_OPEN_GLSL
-		static const std::regex SyntaxGlsl::COMMENT_REGEX(
-			OpenGlsl::COMMENT, 
-			std::regex::ECMAScript |std::regex::optimize
-		);
 
-#endif
 
 		static std::vector<size_t> GetFoundPos(const std::string& shaderCode, const std::string& searchStr)
 		{
@@ -456,40 +439,6 @@ namespace Rynex {
 				number = 0u;
 			}
 			return number;
-#if 0
-			uint32_t count = 1;
-			while (1.0f < (number * std::pow(0.1, count)))
-				count++;
-			
-			if (places < count)
-			{
-				uint32_t space = count - places;
-				uint32_t end = startIndex + space;
-				for (uint32_t i = startIndex; i < end; i++)
-				{
-					auto it = infoLog.begin() + i;
-					infoLog.insert(it, ' ');
-				}
-				
-			}
-
-			{
-				uint32_t end = startIndex + count;
-				for (uint32_t i = startIndex; i < end; i++)
-				{
-					uint32_t num = (number * std::pow(0.1, count - i));
-					RY_CORE_ASSERT(num < 10, "We need values between 0-9!");
-
-					if (num < 10)
-						infoLog[i] = num + '0';
-					else
-					{
-						RY_CORE_FATAL("Mayby Line {} is mean!", number);
-						return;
-					}
-				}
-			}
-#endif // TODO: Config the opengl Error Masge
 
 		}
 
@@ -671,31 +620,7 @@ namespace Rynex {
 			shaderCode += bindlesDefine;
 			
 		}
-#if 0
-		static void GetUniformList(const std::string& shaderCode, std::map<std::string, UniformElement>& uniformMap)
-		{
-			std::istringstream stream(shaderCode);
-			std::string word;
-			std::string type, name;
-			while (stream >> word) 
-			{
-				if (word == "uniform") 
-				{
-					
-					if (stream >> type >> name) {
-						if (!name.empty() && name.back() == ';') 
-						{
-							name.pop_back();
-						}
-						UniformElement& uniformElement = uniformMap[name];
-						uniformElement.Name = name;
-						uniformElement.Type = BufferAPI::GetShaderDataTypeFromString(type);
-					}
-				}
-			}
-			stream.clear();
-		}
-#endif
+
 
 		static ShaderDataType GetTypeShaderDataType(GLenum type) {
 			switch (type) {
@@ -719,50 +644,6 @@ namespace Rynex {
 			case GL_FLOAT_MAT3: return SDT::Float3x3;
 			case GL_FLOAT_MAT4: return SDT::Float4x4;
 
-
-			
-#if 0					
-			case GL_BOOL: return "bool";
-			
-			case GL_BOOL_VEC2: return "bvec2";
-			case GL_BOOL_VEC3: return "bvec3";
-			case GL_BOOL_VEC4: return "bvec4";
-
-			case GL_DOUBLE_VEC2: return "dvec2";
-			case GL_DOUBLE_VEC3: return "dvec3";
-			case GL_DOUBLE_VEC4: return "dvec4";
-			case GL_DOUBLE: return "double";
-		
-			case GL_FLOAT_MAT2x3: return "mat2x3";
-			case GL_FLOAT_MAT2x4: return "mat2x4";
-			case GL_FLOAT_MAT3x2: return "mat3x2";
-			case GL_FLOAT_MAT3x4: return "mat3x4";
-			case GL_FLOAT_MAT4x2: return "mat4x2";
-			case GL_FLOAT_MAT4x3: return "mat4x3";
-			case GL_FLOAT_MAT2: return "mat2";
-				// Double matrices
-			case GL_DOUBLE_MAT2: return "dmat2";
-			case GL_DOUBLE_MAT3: return "dmat3";
-			case GL_DOUBLE_MAT4: return "dmat4";
-			case GL_DOUBLE_MAT2x3: return "dmat2x3";
-			case GL_DOUBLE_MAT2x4: return "dmat2x4";
-			case GL_DOUBLE_MAT3x2: return "dmat3x2";
-			case GL_DOUBLE_MAT3x4: return "dmat3x4";
-			case GL_DOUBLE_MAT4x2: return "dmat4x2";
-			case GL_DOUBLE_MAT4x3: return "dmat4x3";
-
-				// Samplers
-			case GL_SAMPLER_1D: return "sampler1D";
-			case GL_SAMPLER_2D: return "sampler2D";
-			case GL_SAMPLER_3D: return "sampler3D";
-			case GL_SAMPLER_CUBE: return "samplerCube";
-			case GL_SAMPLER_1D_SHADOW: return "sampler1DShadow";
-			case GL_SAMPLER_2D_SHADOW: return "sampler2DShadow";
-
-			case GL_IMAGE_2D: return "image2D";
-			case GL_INT_IMAGE_2D: return "iimage2D";
-			case GL_UNSIGNED_INT_IMAGE_2D: return "uimage2D";
-#endif
 			default: 
 				RY_CORE_ASSERT(false, "not vaild Shader data Type")
 				return SDT::None;
@@ -943,22 +824,6 @@ namespace Rynex {
 				ellments.offset = location;
 			}
 			size_t count = bufferElementVec.size();
-#if 0 
-			int uperBound = count-1;
-			int lowerBound = 0;
-
-			while (lowerBound < uperBound)
-			{
-				BufferElement& uperElement = bufferElementVec.at(uperBound);
-				BufferElement& lowerElement = bufferElementVec.at(lowerBound);
-				BufferElement temp = uperElement;
-				uperElement = lowerElement;
-				lowerElement = temp;
-
-				uperBound--;
-				lowerBound++;
-			}
-#else
 			if (1u == count)
 			{
 				return BufferLayout(bufferElementVec);
@@ -970,7 +835,6 @@ namespace Rynex {
 					return a.offset < b.offset;
 				}
 			);
-#endif
 			return BufferLayout(bufferElementVec);
 		}
 
@@ -1006,24 +870,6 @@ namespace Rynex {
 				ellments.count = location;
 			}
 			size_t count = bufferElementVec.size();
-#if 0 
-			int uperBound = count - 1;
-			int lowerBound = 0;
-
-			while (lowerBound < uperBound)
-			{
-				BufferElement& uperElement = bufferElementVec.at(uperBound);
-				BufferElement& lowerElement = bufferElementVec.at(lowerBound);
-				BufferElement temp = uperElement;
-				uperElement = lowerElement;
-				lowerElement = temp;
-
-				uperBound--;
-				lowerBound++;
-			}
-#else
-			
-#endif
 			if(1u == count)
 			{
 				return BufferLayout(bufferElementVec);
@@ -1049,66 +895,21 @@ namespace Rynex {
 		, m_Name("Unknown")
 	{
 		std::string shaderSource = std::move(source);
-#if 0
-		m_ShaderSources = PreProcess(m_Source);
-		
-		if (!OpenGLThreadContext::IsActive())
-		{
-#if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
-			Application::Get().SubmiteToMainThreedQueue(std::bind(&OpenGLShader::InitAsync, this));
-#else
-			Application::Get().SubmiteToMainThreedQueueWait(std::bind(&OpenGLShader::InitAsync, this));
-#endif
-			return;
-		}
-
-		OpenGLShader::InitAsync();
-#else
 		Invalidate(shaderSource);
-#endif
 	}
 
 	OpenGLShader::OpenGLShader(const std::string& source, const std::string& name)
 		: m_Name(name), m_Source()
 	{
-		std::string shaderSource = std::move(source);
-
-#if 0
-		m_ShaderSources = PreProcess(m_Source);
-
-		if (!OpenGLThreadContext::IsActive())
-		{
-#if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
-			Application::Get().SubmiteToMainThreedQueue(std::bind(&OpenGLShader::InitAsync, this));
-#else
-			Application::Get().SubmiteToMainThreedQueueWait(std::bind(&OpenGLShader::InitAsync, this));
-#endif
-			return;
-		}
-
-		OpenGLShader::InitAsync();
-#else
+		std::string shaderSource = source;
 		Invalidate(shaderSource);
-#endif		
 	}
 
 	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
 		: m_Name(name), m_Source()
 	{
 		std::string shaderSource = vertexSrc + fragmentSrc;
-#if 0
-		if (!OpenGLThreadContext::IsActive())
-		{
-#if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
-			Application::Get().SubmiteToMainThreedQueue(std::bind(&OpenGLShader::InitAsync, this));
-#else
-			Application::Get().SubmiteToMainThreedQueueWait(std::bind(&OpenGLShader::Invalidate, this));
-#endif
-			return;
-		}
-#else
 		Invalidate(shaderSource);
-#endif		
 
 	}
 
@@ -1185,19 +986,7 @@ namespace Rynex {
 			return;
 		}
 
-#ifdef RY_OPENGL_MAIN_THREADE
-		if (!OpenGLThreadContext::IsActive())
-		{
-#if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
-			Application::Get().SubmiteToMainThreedQueue(std::bind(&OpenGLShader::Invalidate, this));
-#else
-			Application::Get().SubmiteToMainThreedQueueWait(std::bind(&OpenGLShader::Invalidate, this));
-#endif
-			return;
-		}
-#else
 		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLShader::Invalidate, std::string(shaderSounrce));
-#endif
 		constexpr int resetShaderType = 0;
 		std::map<uint32_t, std::string> shaderSource;
 		std::map<ShaderType::ShaderType, std::string> shaderMap;
@@ -1219,106 +1008,19 @@ namespace Rynex {
 
 	void OpenGLShader::ReganrateShader(std::string& source)
 	{
-#if 0
-		m_Source = source;
-		if (OpenGLThreadContext::IsActive())
-		{
-			m_ShaderMap.clear();
-			m_sUniformLayoute.clear();
-			m_ShaderType = 0;
-			m_ShaderSources = PreProcess(m_Source);
-			if (m_RendererID)
-			{
-				RY_GRAFIC_DELETE(m_RendererID, OpenGLShaderProgram);
-				glDeleteProgram(m_RendererID);
-				m_RendererID = 0;
-			}
-		}
-		else
-		{
-#if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-#else
-			Application::Get().SubmiteToMainThreedQueueWait([this]() {
-#endif
-				m_ShaderMap.clear();
-				m_sUniformLayoute.clear();
-				m_ShaderType = 0;
-				m_ShaderSources = PreProcess(m_Source);
-				if (m_RendererID)
-				{
-					RY_GRAFIC_DELETE(m_RendererID, OpenGLShaderProgram);
-					glDeleteProgram(m_RendererID);
-					m_RendererID = 0;
-				}
-				Compile(m_ShaderSources);
-				});
-				}
-#else
 		Invalidate(source);
-#endif
 	}
 
 	void OpenGLShader::ReganrateShader(std::string&& source)
 	{		
 		std::string shaderSounrce = std::move(source);
-#if 0
-		if (OpenGLThreadContext::IsActive())
-		{
-			m_ShaderMap.clear();
-			m_sUniformLayoute.clear();
-			m_UnifromLocation.clear();
-			m_ShaderType = 0;
-			m_ShaderSources = PreProcess(m_Source);
-			if (m_RendererID)
-			{
-				RY_GRAFIC_DELETE(m_RendererID, OpenGLShaderProgram);
-				glDeleteProgram(m_RendererID);
-				m_RendererID = 0;
-			}
-			Compile(m_ShaderSources);
-		}
-		else
-		{
-			if (m_Source != "")
-			{
-#if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
-				Application::Get().SubmiteToMainThreedQueue([this]() {
-#else
-				Application::Get().SubmiteToMainThreedQueueWait([this]() {
-#endif
-					m_ShaderMap.clear();
-					m_sUniformLayoute.clear();
-					m_UnifromLocation.clear();
-					m_ShaderType = 0;
-					m_ShaderSources = PreProcess(m_Source);
-					if (m_RendererID)
-					{
-						RY_GRAFIC_DELETE(m_RendererID, OpenGLShaderProgram);
-						glDeleteProgram(m_RendererID);
-						m_RendererID = 0;
-					}
-					Compile(m_ShaderSources);
-					});
-					}
-			}
-#else
 		Invalidate(shaderSounrce);
-#endif
 	}
 
 	void OpenGLShader::Bind() const
 	{
 		RY_CORE_ASSERT(0u != m_RendererID);
-#if RY_OPENGL_BIND_RENDER_COMAND
 		OpenGLRenderCommand::BindShader(m_RendererID);
-#else
-		if(s_LastBindShaderID != m_RendererID)
-		{
-			glUseProgram(m_RendererID);
-			s_LastBindShaderID = m_RendererID;
-		}
-#endif
 	}
 
 	void OpenGLShader::UnBind() const
@@ -1326,15 +1028,7 @@ namespace Rynex {
 		RY_REMBER_FUNC_CHANGE("Maybe Delting the funtion and use a Globel Reset Binding Function that can be calld by RenderCommand");
 		RY_CORE_ASSERT(0u != m_RendererID);
 
-#if RY_OPENGL_BIND_RENDER_COMAND
 		OpenGLRenderCommand::BindShader(0u);
-#else
-		if (s_LastBindShaderID != m_RendererID)
-		{
-			glUseProgram(0);
-			s_LastBindShaderID = 0u;
-		}		
-#endif
 	}
 
 	void OpenGLShader::AddShader(const std::string& shader, ShaderType::ShaderType shaderType)
@@ -1437,7 +1131,7 @@ namespace Rynex {
 		}
 		case ShaderDataType::Int:
 		{
-			//UploadUniformIntArray(name, value, count);
+			UploadUniformIntArray(name, value, count);
 			break;
 		}
 		default:
@@ -1448,28 +1142,7 @@ namespace Rynex {
 
 	ShaderTypeType OpenGLShader::PreProcess(const std::string& source, std::map<uint32_t, std::string>& shaderSource, std::map<ShaderType::ShaderType, std::string>& shaderMap) const
 	{
-
-#if 0
-		std::tuple<std::map<GLenum, std::string>, std::map<Shader::Type, std::string>, int> tupleValue;
-		std::map<GLenum, std::string>& shaderSource = std::get<0>(tupleValue);
-		std::map<Shader::Type, std::string>& shaderMap = std::get<1>(tupleValue);
-		int& shaderTypeFlag = std::get<2>(tupleValue);
-
-		shaderSource = std::map<GLenum, std::string>();
-		shaderMap = std::map<Shader::Type, std::string>();
-		shaderTypeFlag = 0;
-#elif 0
-		std::map<GLenum, std::string> shaderSource;
-		std::map<Shader::Type, std::string> shaderMap;
-		
-		shaderTypeFlag
-#else
 		ShaderTypeType shaderTypeFlag = 0;
-#endif
-#if 0
-		std::map<std::string, std::string> sUniformBuffer;
-		std::map<std::string, Buu> uniformBuffer;
-#endif
 		const char* typeToken = "#type";
 		size_t typeTokenLeangth = strlen(typeToken);
 		size_t pos = source.find(typeToken, 0);
@@ -1480,18 +1153,7 @@ namespace Rynex {
 			size_t begin = pos + typeTokenLeangth + 1;
 			std::string type = source.substr(begin, eol - begin);
 			{
-#if 0
-				bool isToken = false;
-				for (constexpr char* shaderToken : g_ShaderTokenList)
-				{
-					if (type == shaderToken)
-					{
-						isToken = true;
-						break;
-					}
-				}
-				RY_CORE_ASSERT(isToken, "Invadlid shader type specification");
-#else
+
 				RY_CORE_ASSERT(type == g_ShaderTokenList[0]
 					|| type == g_ShaderTokenList[1]
 					|| type == g_ShaderTokenList[2]
@@ -1499,21 +1161,13 @@ namespace Rynex {
 					|| type == g_ShaderTokenList[4]
 					|| type == g_ShaderTokenList[5]
 					|| type == g_ShaderTokenList[6], "Invadlid shader type specification");
-#endif
 			}
 
 			size_t nextLinePos = source.find_first_of("\r\n",eol);
 			pos = source.find(typeToken, nextLinePos);
-#if 0
-			Utils::GetUniformList(source, uniformBuffer);
-			Utils::GetUniformList(source, sUniformBuffer);
-#endif
 			size_t shaderCharCount = pos - (std::string::npos == nextLinePos? source.size() - 1 : nextLinePos);
 			std::string& shader = source.substr(nextLinePos, shaderCharCount);
 			Utils::AddDefineVecToShaderCode(m_ShaderDefineVec, shader);
-#if RY_ENABLE_BINDLES_GLSL_INLINE_TEXTURE
-			Utils::SetubBindingDefine(shader);
-#endif
 			ShaderType::ShaderType shaderType = Utils::ShaderTypeEnumFromString(type);
 			shaderMap[shaderType] = shader;
 			uint32_t typeShaderGL = Utils::ShaderTypeFromString(type);
@@ -1521,18 +1175,7 @@ namespace Rynex {
 			shaderTypeFlag |= shaderType;
 		}
 		
-#if 0
-		m_sUniformLayoute = sUniformBuffer;
-#endif
-#if 0
-		return std::tuple<std::map<GLenum, std::string>, std::map<Shader::Type, std::string>, int>(
-			std::move(shaderSource),
-			std::move(shaderMap),
-			shaderTypeFlag
-		);
-#else
 		return shaderTypeFlag;
-#endif
 	}
 
 	bool OpenGLShader::Compile(std::map<GLenum, std::string>& shadersSources)
@@ -1904,6 +1547,11 @@ namespace Rynex {
 	void OpenGLShader::UploadUniformIntArray(const std::string& name, int32_t* values, uint32_t count)
 	{
 		glUniform1iv(GetLocation(name), count, values);
+	}
+
+	void OpenGLShader::UploadUniformIntArray(const std::string& name, void* values, uint32_t count)
+	{
+		glUniform1iv(GetLocation(name), count, static_cast<int32_t*>(values));
 	}
 
 
