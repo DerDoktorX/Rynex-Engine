@@ -40,25 +40,6 @@ namespace Rynex{
 			}
 		}
 
-#if 0
-		static void AddMemoryToTracker(uint64_t memory)
-		{
-			Application& app = Application::Get();
-			Window& window = app.GetWindow();
-			GraphicsContext* conext = window.GetGraphicsContext();
-			OpenGLContext* OpenGLconext = static_cast<OpenGLContext*>(conext);
-			OpenGLconext->AddCurentAllocMemory(memory);
-		}
-
-		static void RemoveMemoryToTracker(uint64_t memory)
-		{
-			Application& app = Application::Get();
-			Window& window = app.GetWindow();
-			GraphicsContext* conext = window.GetGraphicsContext();
-			OpenGLContext* OpenGLconext = static_cast<OpenGLContext*>(conext);
-			OpenGLconext->RemoveCurentAllocMemory(memory);
-		}
-#endif
 
 		static uint32_t ImageChanelsBytes(TextureFormat interalformat)
 		{
@@ -84,7 +65,6 @@ namespace Rynex{
 			case TextureFormat::Depth24Stencil8:	return 3 * 1;
 			case TextureFormat::Depth32FStencil8:	return 4 * 1;
 
-			// case TextureFormat::DepthComp:			return 1 * 1;
 			case TextureFormat::DepthComp16:		return 1 * 2;
 			case TextureFormat::DepthComp24:		return 1 * 3;
 			case TextureFormat::DepthComp32:		return 1 * 3;
@@ -154,7 +134,6 @@ namespace Rynex{
 				case TextureFormat::RED_INTEGER:		
 					return GL_RED_INTEGER;
 
-				// case TextureFormat::DepthComp:			
 				case TextureFormat::DepthComp16:		
 				case TextureFormat::DepthComp24:		
 				case TextureFormat::DepthComp32:		
@@ -196,7 +175,6 @@ namespace Rynex{
 
 				case TextureFormat::RED_INTEGER:		return GL_R32I;
 
-				// case TextureFormat::DepthComp:			return GL_DEPTH_COMPONENT;
 				case TextureFormat::DepthComp16:		return GL_DEPTH_COMPONENT16;
 				case TextureFormat::DepthComp24:		return GL_DEPTH_COMPONENT24;
 				case TextureFormat::DepthComp32:		return GL_DEPTH_COMPONENT32;
@@ -239,21 +217,6 @@ namespace Rynex{
 			}
 		}
 
-#if 0
-		static uint64_t GetMemoryBytsFromTextur(const TextureSpecification& spec)
-		{
-			uint64_t sizePixel = Utils::ImageChanelsBytes(spec.Format);
-			uint64_t midmapsSize = std::pow(2, spec.GenerateMips);
-			uint64_t width = spec.Width / midmapsSize;
-			uint64_t heigth = spec.Height / midmapsSize;
-
-			RY_CORE_ASSERT(spec.Samples != 0);
-			uint64_t samples = spec.Samples;
-
-			uint64_t byteSize = width * heigth * sizePixel * samples;
-			return byteSize;
-		}
-#endif
 
 		static uint32_t ImageCahnels(TextureFormat interalformat)
 		{
@@ -304,23 +267,6 @@ namespace Rynex{
 			}
 			return GL_REPEAT;
 		}
-#if 0
-		static GLenum WrappingDimension(int index)
-		{
-			switch (index)
-			{
-				case 0:	return GL_TEXTURE_WRAP_S;
-				case 1:	return GL_TEXTURE_WRAP_T;
-				case 2:	return GL_TEXTURE_WRAP_R;
-				default: 
-				{
-					RY_CORE_ASSERT(false, "Error WrappingDimension whrong index! not mor than 2!");
-					return GL_TEXTURE_WRAP_R;
-				}
-			}
-		}
-#endif
-
 
 		static GLenum FilteringMode(TextureFilteringMode filteringMode)
 		{
@@ -337,21 +283,7 @@ namespace Rynex{
 				}
 			}
 		}
-#if 0
-		static GLenum FilteringDimensionality(int index)
-		{
-			switch (index)
-			{
-				case 0:	return GL_TEXTURE_MIN_FILTER;
-				case 1:	return GL_TEXTURE_MAG_FILTER;
-				default:
-				{
-					RY_CORE_ASSERT(false, "Error FilteringDimensionality whrong index! not mor than 1!");
-					return GL_TEXTURE_MAG_FILTER;
-				}
-			}
-		}
-#endif
+
 		static GLenum TexTarget(TextureTarget target, bool multisampled)
 		{
 			switch (target)
@@ -370,7 +302,6 @@ namespace Rynex{
 				case TextureTarget::Texture3D:	
 				{
 					RY_CORE_WARN_IF(!multisampled,"We have no multisampled for a {}", magic_enum::enum_name(target));
-						// ::Rynex::Log::Get().GetCoreLogger()->warn("We have no multisampled for a {}", magic_enum::enum_name(target));
 					return GL_TEXTURE_3D;
 				}
 				case TextureTarget::TextureRectAngle:
@@ -412,218 +343,6 @@ namespace Rynex{
 				}
 			}
 		}
-#if 0
-		static void TextureWrapping(TextureSpecification spec, uint32_t renderID)
-		{
-			TextureWrappingMode warping;
-			TextureTarget taget = spec.Target;
-			bool multysample = RY_CHECK_MULTYSAMPLE(spec.Samples);
-			for (int i = 0; i < 3; i++)
-			{	
-				warping = spec.WrappingSpec[i];
-				if ((warping != TextureWrappingMode::None) && (i < 3 || i >= 0))
-					glTextureParameteri(renderID, WrappingDimension(i), WrappingMode(warping));
-			}
-		}
-
-		static void TextureFiltering(TextureSpecification spec, uint32_t renderID)
-		{
-			TextureFilteringMode filering = spec.FilteringMode;
-			TextureCompareModes compareModes = spec.Compare;
-			TextureTarget taget = spec.Target;
-			if(compareModes == TextureCompareModes::Lequal)
-			{
-				glTextureParameteri(renderID, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-				glTextureParameteri(renderID, GL_TEXTURE_COMPARE_FUNC, CompareFunction(compareModes));
-			}
-
-			if (filering == TextureFilteringMode::None) 
-				return;
-
-			for (int i = 0; i < 2; i++)
-			{
-				glTextureParameteri(renderID, FilteringDimensionality(i), FilteringMode(filering));
-			}
-		}
-		
-		static void Texture2DValue(uint32_t id, int samples, TextureTarget target, int midmap, TextureFormat format, uint32_t width, uint32_t height, void* data = nullptr)
-		{
-			GLenum type;
-			GLenum formatGL;
-			GLenum internalFormat;
-			GLenum targetGL = GL_TEXTURE_2D;
-			switch (format)
-			{
-			
-			case TextureFormat::RG8:
-			{
-				type = GL_UNSIGNED_BYTE;
-				formatGL = GL_RGB;
-				internalFormat = GL_RG8;
-				break;
-			}
-			case TextureFormat::RGB8:
-			{
-				type = GL_UNSIGNED_BYTE;
-				formatGL = GL_RGB;
-				internalFormat = GL_RGB8;
-				break;
-			}
-			case TextureFormat::RGBA8:
-			{
-				type = GL_UNSIGNED_BYTE;
-				formatGL = GL_RGBA;
-				internalFormat = GL_RGBA8;
-				break;
-			}
-			
-			
-			case TextureFormat::RGBA32F:
-			{
-				type = GL_UNSIGNED_BYTE;
-				formatGL = GL_RGBA;
-				internalFormat = GL_RGBA32F;
-				break;
-			}
-
-			case TextureFormat::RED_INTEGER:
-			{
-				type = GL_UNSIGNED_BYTE;
-				formatGL = GL_RED_INTEGER;
-				internalFormat = GL_R32I;
-				break;
-			}
-			case TextureFormat::Depth24Stencil8:
-			{
-				
-				// 
-				type = GL_FLOAT;
-				formatGL = GL_DEPTH_STENCIL;
-				internalFormat = GL_DEPTH24_STENCIL8;
-
-				glTexStorage2D(targetGL, 1, internalFormat, width, height);
-				return;
-			}
-			case TextureFormat::Depth32FStencil8:
-			{
-				// glTexStorage2D(targetGL, 1, InternalFormat(format), width, height);
-				// return;
-				formatGL = GL_DEPTH_STENCIL;
-				internalFormat = GL_DEPTH32F_STENCIL8;
-				type = GL_FLOAT;
-				break;
-			}
-			// case TextureFormat::DepthComp:
-			// {
-			// 	// glTexStorage2D(targetGL, 1, InternalFormat(format), width, height);
-			// 	// return;
-			// 	formatGL = GL_DEPTH_COMPONENT;
-			// 	internalFormat = GL_DEPTH_COMPONENT;
-			// 	type = GL_FLOAT;
-			// 	break;
-			// }
-			case TextureFormat::DepthComp16:
-			{
-				// glTexStorage2D(targetGL, 1, InternalFormat(format), width, height);
-				// return;
-				formatGL = GL_DEPTH_COMPONENT;
-				internalFormat = GL_DEPTH_COMPONENT16;
-				type = GL_FLOAT;
-				break;
-			}
-			case TextureFormat::DepthComp24:
-			{
-				// glTexStorage2D(targetGL, 1, InternalFormat(format), width, height);
-				// return;
-				formatGL = GL_DEPTH_COMPONENT;
-				internalFormat = GL_DEPTH_COMPONENT24;
-				type = GL_FLOAT;
-				break;
-			}
-			case TextureFormat::DepthComp32:
-			{
-				// glTexStorage2D(targetGL, 1, InternalFormat(format), width, height);
-				// return;
-				formatGL = GL_DEPTH_COMPONENT;
-				internalFormat = GL_DEPTH_COMPONENT32;
-				type = GL_FLOAT;
-				break;
-			}
-			case TextureFormat::DepthComp32F:
-			{
-				// glTexStorage2D(TexTarget(target, samples > 1), 1, InternalFormat(format), width, height);
-				// return;
-				formatGL = GL_DEPTH_COMPONENT;
-				internalFormat = GL_DEPTH_COMPONENT32F;
-				type = GL_FLOAT;
-				break;
-			}
-
-			default:
-				RY_CORE_ASSERT(false);
-				return;
-			}
-			
-			GLint midmapLevel = midmap;
-			GLenum border = 0;
-
-			glTexImage2D(targetGL, midmapLevel, internalFormat, width, height, 0, formatGL, type, data);
-		}
-
-		static void CreateTexture2D(TextureSpecification spec, uint32_t outID, void* data = nullptr)
-		{
-			int samples = spec.Samples;
-			bool multisampled = RY_CHECK_MULTYSAMPLE(samples);
-			uint32_t width = spec.Width, height = spec.Height;
-			TextureFormat format = spec.Format;
-			TextureTarget target = spec.Target;
-			
-			if (multisampled)
-			{
-				uint32_t width = spec.Width, height = spec.Height;
-				glTexImage2DMultisample(TexTarget(target, multisampled), samples, InternalFormat(format), width, height, GL_FALSE);
-			}
-			else
-			{
-				Texture2DValue(outID, samples, target, spec.GenerateMips, format, width, height, data);
-			}
-		}
-
-		static bool CreateTexture(TextureSpecification spec, uint32_t* outID, void* data = nullptr)
-		{
-			int samples = spec.Samples;
-			bool multisampled = RY_CHECK_MULTYSAMPLE(samples);
-			uint32_t width = spec.Width, height = spec.Height;
-			TextureFormat format = spec.Format;
-			TextureTarget textureTarget = spec.Target;
-			GLenum target = TexTarget(textureTarget, multisampled);
-			
-			glCreateTextures(target, 1, outID);
-			
-
-			RY_GRAFIC_CREATE(*outID, OpenGLTexture);
-			glBindTexture(target, *outID);
-			switch (textureTarget)
-			{
-				// case TextureTarget::None:	return false;
-				// case TextureTarget::Texture1D: break;
-				case TextureTarget::Texture2D:
-				{
-					CreateTexture2D(spec, *outID, data);
-					return true;
-				}
-				// case TextureTarget::Texture3D:
-				// case TextureTarget::TextureRectAngle:
-				// case TextureTarget::TextureBuffer:
-				// case TextureTarget::TextureCubeMap:
-				// case TextureTarget::ImageTexture:
-				// case TextureTarget::FrameBufferTexture:
-				default:
-					return false;
-			}
-			return false;
-		}
-#endif
 
 		static GLenum GetAccesType(Acces acces)
 		{
@@ -652,15 +371,12 @@ namespace Rynex{
 
 	OpenGLTextureStorageModern::OpenGLTextureStorageModern(const TextureSpecification& spec)
 		: m_Object(
-#if RY_ENABLE_OPENGL_TEXTURE_STORAGE_MODERN_PRE_ARG_DEFNITION
 			OpenGLTextureObject(
 				OpenGLTextureObject::ObjectTypeOpenGL(GL_TEXTURE_2D, GL_RGBA8, GL_RGBA, 0u, 1u),
 				OpenGLTextureObject::DimensionOpenGL(1u, 1u, 1u)
 			)
-#endif
 		)
 		, m_Sampler(
-#if RY_ENABLE_OPENGL_TEXTURE_STORAGE_MODERN_PRE_ARG_DEFNITION
 			OpenGLTextureSampler(
 				OpenGLTextureSampler::FilterOpenGL(GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST_MIPMAP_NEAREST),
 				OpenGLTextureSampler::WarpOpenGL(GL_REPEAT, GL_REPEAT, GL_REPEAT),
@@ -668,7 +384,6 @@ namespace Rynex{
 				OpenGLTextureSampler::LodOpenGL(-1000.0f, 1000.0f, 0.0f, 1.0f),
 				std::array<float, 4>{ 0.0f, 0.0f, 0.0f, 0.0f }
 			)
-#endif
 
 		)
 
@@ -685,17 +400,14 @@ namespace Rynex{
 
 	OpenGLTextureStorageModern::OpenGLTextureStorageModern(const TextureSpecification& spec, void* dataPtr, uint32_t size)
 		: m_Object(
-#if RY_ENABLE_OPENGL_TEXTURE_STORAGE_MODERN_PRE_ARG_DEFNITION
 
 			OpenGLTextureObject(
 				OpenGLTextureObject::ObjectTypeOpenGL(GL_TEXTURE_2D, GL_RGBA8, GL_RGBA, 0u, 1u),
 				OpenGLTextureObject::DimensionOpenGL(1u, 1u, 1u)
 			)
 		
-#endif
 		)
 		, m_Sampler(
-#if RY_ENABLE_OPENGL_TEXTURE_STORAGE_MODERN_PRE_ARG_DEFNITION
 			OpenGLTextureSampler(
 				OpenGLTextureSampler::FilterOpenGL(GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST),
 				OpenGLTextureSampler::WarpOpenGL(GL_REPEAT, GL_REPEAT, GL_REPEAT),
@@ -703,7 +415,6 @@ namespace Rynex{
 				OpenGLTextureSampler::LodOpenGL(-1000.0f, 1000.0f, 0.0f, 1.0f),
 				std::array<float, 4>{ 0.0f, 0.0f, 0.0f, 0.0f }
 			)
-#endif
 		)
 		, m_Specification(spec)
 		, m_RendererIDTex(0u)
@@ -726,15 +437,12 @@ namespace Rynex{
 
 	OpenGLTextureStorageModern::OpenGLTextureStorageModern(const TextureSpecification& spec, std::vector<unsigned char>&& data)
 		: m_Object(
-#if RY_ENABLE_OPENGL_TEXTURE_STORAGE_MODERN_PRE_ARG_DEFNITION
 			OpenGLTextureObject(
 				OpenGLTextureObject::ObjectTypeOpenGL(GL_TEXTURE_2D, GL_RGBA8, GL_RGBA, 0u, 1u),
 				OpenGLTextureObject::DimensionOpenGL(1u, 1u, 1u)
 			)
-#endif
 		)
 		, m_Sampler(
-#if RY_ENABLE_OPENGL_TEXTURE_STORAGE_MODERN_PRE_ARG_DEFNITION
 			OpenGLTextureSampler(
 				OpenGLTextureSampler::FilterOpenGL(GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST),
 				OpenGLTextureSampler::WarpOpenGL(GL_REPEAT, GL_REPEAT, GL_REPEAT),
@@ -742,7 +450,6 @@ namespace Rynex{
 				OpenGLTextureSampler::LodOpenGL(-1000.0f, 1000.0f, 0.0f, 1.0f),
 				std::array<float, 4>{ 0.0f, 0.0f, 0.0f, 0.0f }
 			)
-#endif
 		)
 		, m_Specification(spec)
 		, m_RendererIDTex(0u)
@@ -766,11 +473,6 @@ namespace Rynex{
 		RY_CORE_ASSERT(m_BindlesActive, "Bindles Handle Is alrdy Aktve");
 		RY_CORE_ASSERT(0u != m_RendererIDTex);
 
-#if RY_ENABLE_BINDLES_TEXTURE
-		RY_CORE_ASSERT(0u != m_BindlesHandle, "Bindles Handle Handle Invaild!");
-		glMakeTextureHandleResidentARB(m_BindlesHandle);
-		GL_CHECK_LOOP();
-#endif
 		m_BindlesActive = true;
 	}
 
@@ -779,11 +481,6 @@ namespace Rynex{
 		RY_CORE_ASSERT(m_BindlesActive, "Bindles Handle Is was not befor Aktve!");
 		RY_CORE_ASSERT(0u != m_RendererIDTex);
 
-#if RY_ENABLE_BINDLES_TEXTURE
-		RY_CORE_ASSERT(0u != m_BindlesHandle, "Bindles Handle Handle Invaild!");
-		glMakeTextureHandleNonResidentARB(m_BindlesHandle);
-		GL_CHECK_LOOP();
-#endif
 		m_BindlesActive = false;
 	}
 
@@ -835,19 +532,7 @@ namespace Rynex{
 	{
 		RY_CORE_ASSERT(0u != m_RendererIDTex);
 
-#if RY_OPENGL_BIND_RENDER_COMAND
 		OpenGLRenderCommand::BindTextureSlot(slot, m_RendererIDTex);
-#if !(RY_DISABLE_OPENGL_SEPARETE_TEXTURE_SAMPLER)
-		RY_CORE_ASSERT(0u != m_RendererIDSam);
-		OpenGLRenderCommand::BindSamplerSlot(slot, m_RendererIDSam);
-#endif
-#else
-		RY_CORE_ASSERT(!m_BindlesActive, "Bindles Handle Is alrady Active!");
-		glBindTextureUnit(slot, m_RendererIDTex);
-#if !(RY_DISABLE_OPENGL_SEPARETE_TEXTURE_SAMPLER)
-		glBindSampler(slot, m_RendererIDSam);
-#endif
-#endif
 		GL_CHECK_LOOP();
 	}
 
@@ -874,18 +559,8 @@ namespace Rynex{
 	{
 		RY_CORE_ASSERT(0u != m_RendererIDTex);
 		RY_CORE_ASSERT(!m_BindlesActive, "Bindles Handle Is alrady Active!");
-#if RY_OPENGL_BIND_RENDER_COMAND
 		OpenGLRenderCommand::BindTextureSlot(slot, 0u);
-#if !(RY_DISABLE_OPENGL_SEPARETE_TEXTURE_SAMPLER)
-		RY_CORE_ASSERT(0u != m_RendererIDSam);
-		OpenGLRenderCommand::BindSamplerSlot(slot, 0u);
-#endif
-#else
-		glBindTextureUnit(slot, 0);
-#if !(RY_DISABLE_OPENGL_SEPARETE_TEXTURE_SAMPLER)
-		glBindSampler(slot, 0);
-#endif
-#endif
+
 		GL_CHECK_LOOP();
 	}
 
@@ -1128,176 +803,33 @@ namespace Rynex{
 
 	void OpenGLTextureStorageModern::AddParent(OpenGLBindlesTextureArray* openGlBindlesTexPtr)
 	{
-#ifndef RY_USE_PRENT_LINKE
-		Ref<OpenGLBindlesTextureArray> openGLBindlesTextureArrayRef = Asset::GetRefInPlaceType(openGlBindlesTexPtr);
-		for (auto& openGLTextureParentVarientWeek : m_ParentVec)
-		{
-			if (std::visit(
-				[openGLBindlesTextureArrayRef](auto& openGLTextureParentWeek)
-				{
-					if constexpr (std::is_same_v<std::decay_t<decltype(openGLTextureParentWeek)>, Weak<OpenGLBindlesTextureArray>>)
-						return openGLTextureParentWeek.lock() == openGLBindlesTextureArrayRef;
-					return false;
-				}, openGLTextureParentVarientWeek)
-			)
-				return;
-		}
-		m_ParentVec.emplace_back(openGLBindlesTextureArrayRef);
-#else
 		m_ParentVec.Set(openGlBindlesTexPtr);
-#endif
 	}
 
 	void OpenGLTextureStorageModern::RemoveParent(OpenGLBindlesTextureArray* openGlBindlesTextureArrayPtr)
 	{
-#ifndef RY_USE_PRENT_LINKE
-		uint32_t index = 0u;
-		for (auto& openGLTextureParentVarientWeek : m_ParentVec)
-		{
-			if (std::visit(
-				[openGlBindlesTextureArrayPtr](auto& openGLTextureParentWeek)
-				{
-					if constexpr (std::is_same_v<std::decay_t<decltype(openGLTextureParentWeek)>, Weak<OpenGLBindlesTextureArray>>)
-					{
-						Ref<OpenGLBindlesTextureArray> openGLBindlesTextureArray = openGLTextureParentWeek.lock();
-						if (nullptr == openGLBindlesTextureArray)
-							return nullptr == openGLBindlesTextureArray || openGlBindlesTextureArrayPtr == openGLBindlesTextureArray.get();
-					}
-					return false;
-				}, openGLTextureParentVarientWeek)
-				)
-			{
-				break;
-			}
-			index++;
-		}
-		if (index == m_ParentVec.size())
-			return;
-
-		m_ParentVec.erase(m_ParentVec.begin() + index);
-#else
 		m_ParentVec.Remove(openGlBindlesTextureArrayPtr);
-#endif
-
 	}
 
 	void OpenGLTextureStorageModern::AddParent(OpenGLLinkedTextureArray* openGlLinkedTextureArrayPtr)
 	{
-#ifndef RY_USE_PRENT_LINKE
-		Ref<OpenGLLinkedTextureArray> openGLOpenGLLinkedTextureArrayRef = Asset::GetRefInPlaceType(openGlLinkedTextureArrayPtr);
-		
-		for (auto& openGLTextureParentVarientWeek : m_ParentVec)
-		{
-			if (std::visit(
-				[openGLOpenGLLinkedTextureArrayRef](auto& openGLTextureParentWeek)
-				{
-					if constexpr (std::is_same_v<std::decay_t<decltype(openGLTextureParentWeek)>, Weak<OpenGLLinkedTextureArray>>)
-						return openGLTextureParentWeek.lock() == openGLOpenGLLinkedTextureArrayRef;
-					return false;
-				}, openGLTextureParentVarientWeek)
-				)
-			{
-				return;
-			}
-		}
-		m_ParentVec.emplace_back(openGLOpenGLLinkedTextureArrayRef);
-#else
 		m_ParentVec.Set(openGlLinkedTextureArrayPtr);
-#endif
 
 	}
 
 	void OpenGLTextureStorageModern::RemoveParent(OpenGLLinkedTextureArray* openGlLinkedTextureArrayPtr)
 	{
-#ifndef RY_USE_PRENT_LINKE
-		uint32_t index = 0u;
-		for (auto& openGLTextureParentVarientWeek : m_ParentVec)
-		{
-			if (std::visit(
-				[openGlLinkedTextureArrayPtr](auto& openGLTextureParentWeek)
-				{
-					if constexpr (std::is_same_v<std::decay_t<decltype(openGLTextureParentWeek)>, Weak<OpenGLLinkedTextureArray>>)
-					{
-						Ref<OpenGLLinkedTextureArray> linkedTextureArray = openGLTextureParentWeek.lock();
-						if (nullptr == linkedTextureArray)
-							return nullptr == linkedTextureArray || openGlLinkedTextureArrayPtr == linkedTextureArray.get();
-					}
-					return false;
-				}, openGLTextureParentVarientWeek)
-				)
-			{
-				break;
-			}
-			index++;
-		}
-		if (index == m_ParentVec.size())
-			return;
-
-		m_ParentVec.erase(m_ParentVec.begin() + index);
-#else
 		m_ParentVec.Remove(openGlLinkedTextureArrayPtr);
-#endif
 	}
 
 	void OpenGLTextureStorageModern::AddParent(OpenGLFramebuffer* openGlFramebufferPtr)
 	{
-#ifndef RY_USE_PRENT_LINKE
-		Ref<OpenGLFramebuffer> openGLOpenGLFramebufferRef = Asset::GetRefInPlaceType(openGlFramebufferPtr);
-
-		for (auto& openGLTextureParentVarientWeek : m_ParentVec)
-		{
-			if (std::visit(
-				[openGLOpenGLFramebufferRef](auto& openGLTextureParentWeek)
-				{
-					if constexpr (std::is_same_v<std::decay_t<decltype(openGLTextureParentWeek)>, Weak<OpenGLFramebuffer>>)
-					{
-						Ref<OpenGLFramebuffer> openGlFramebufferRef = openGLTextureParentWeek.lock();
-						return openGLOpenGLFramebufferRef == openGLTextureParentWeek.lock();
-					}
-					return false;
-				}, openGLTextureParentVarientWeek)
-				)
-			{
-				return;
-			}
-		}
-		m_ParentVec.emplace_back(openGLOpenGLFramebufferRef);
-#else
 		m_ParentVec.Set(openGlFramebufferPtr);
-#endif
-
 	}
 
 	void OpenGLTextureStorageModern::RemoveParent(OpenGLFramebuffer* openGlFramebufferPtr)
 	{
-#ifndef RY_USE_PRENT_LINKE
-		uint32_t index = 0u;
-		for (auto& openGLTextureParentVarientWeek : m_ParentVec)
-		{
-			if (std::visit(
-				[openGlFramebufferPtr](auto& openGLTextureParentWeek)
-				{
-					if constexpr (std::is_same_v<std::decay_t<decltype(openGLTextureParentWeek)>, Weak<OpenGLFramebuffer>>)
-					{
-						Ref<OpenGLFramebuffer> linkedTextureArray = openGLTextureParentWeek.lock();
-						if (nullptr == linkedTextureArray)
-							return nullptr == linkedTextureArray || openGlFramebufferPtr == linkedTextureArray.get();
-					}
-					return false;
-				}, openGLTextureParentVarientWeek)
-				)
-			{
-				break;
-			}
-			index++;
-		}
-		if (index == m_ParentVec.size())
-			return;
-
-		m_ParentVec.erase(m_ParentVec.begin() + index);
-#else
 		m_ParentVec.Remove(openGlFramebufferPtr);
-#endif
 	}
 
 	uint32_t OpenGLTextureStorageModern::GetByteSize() const
@@ -1316,7 +848,7 @@ namespace Rynex{
 	{
 		Utils::CheckSpecifaictionValuesAorB(m_Specification.FilteringMode, 
 			TextureFilteringMode::LinearMidmapLinear, TextureFilteringMode::Linear,
-			m_Specification.GenerateMips != 0);
+			0 != m_Specification.GenerateMips);
 		Utils::CheckSpecifaictionValues(m_Specification.Target, TextureTarget::Texture2D);
 
 		Utils::CheckSpecifaictionValues(m_Specification.Format, TextureFormat::RGBA8);
@@ -1326,7 +858,7 @@ namespace Rynex{
 		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.S, TextureWrappingMode::Repeate);
 
 		m_Object.SetObjectType({
-			Utils::TexTarget(m_Specification.Target, m_Specification.Samples > 1),
+			Utils::TexTarget(m_Specification.Target, 1 < m_Specification.Samples),
 			Utils::FormatData(m_Specification.Format),
 			Utils::InternalFormat(m_Specification.Format),
 			m_Specification.GenerateMips,
@@ -1384,12 +916,6 @@ namespace Rynex{
 		RY_OPENGL_TEXTURE_ID_SCOPE_LOCK();
 		glCreateTextures(target, 1, &m_RendererIDTex);
 
-#if !(RY_DISABLE_OPENGL_SEPARETE_TEXTURE_SAMPLER)
-		RY_CORE_ASSERT(0u == m_RendererIDSam);
-		glDeleteSamplers(1, &m_RendererIDSam);
-		GL_CHECK();
-#endif
-
 	}
 
 	void OpenGLTextureStorageModern::DestroyID()
@@ -1400,15 +926,7 @@ namespace Rynex{
 			UnBindLessTex();
 
 		RY_OPENGL_TEXTURE_ID_SCOPE_LOCK();
-
-#if !(RY_DISABLE_OPENGL_SEPARETE_TEXTURE_SAMPLER)
-		if (0u != m_RendererIDSam)
-		{
-			glDeleteSamplers(1, &m_RendererIDSam);
-			m_RendererIDSam = 0u;
-			GL_CHECK();
-		}
-#endif	
+	
 		if (0u != m_RendererIDTex)
 		{
 			glDeleteTextures(1, &m_RendererIDTex);
@@ -1420,15 +938,7 @@ namespace Rynex{
 
 	void OpenGLTextureStorageModern::Invalidate()
 	{
-#ifdef RY_OPENGL_MAIN_THREADE
-		if (!OpenGLThreadContext::IsActive())
-		{
-			Application::Get().SubmiteToMainThreedQueueWait(std::bind(&OpenGLTextureStorageModern::Invalidate, this));
-			return;
-		}
-#else
 		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLTextureStorageModern::Invalidate);
-#endif
 		
 
 		const OpenGLTextureObject::ObjectTypeOpenGL& type = m_Object.GetObjectType();
@@ -1450,11 +960,8 @@ namespace Rynex{
 				glGenerateMipmap(m_RendererIDTex);
 			}
 		}
-#if RY_DISABLE_OPENGL_SEPARETE_TEXTURE_SAMPLER
 			const uint32_t& samplerRenderID = m_RendererIDTex;
-#else
-			const uint32_t& samplerRenderID = m_RendererIDSam;
-#endif
+
 
 		if(1u < type.samples)
 		{
@@ -1469,18 +976,12 @@ namespace Rynex{
 
 
 		OnSpecifcationChangeCall();
-#if !(RY_DISABLE_OPENGL_SEPARETE_TEXTURE_SAMPLER)
-		m_BindlesHandle = glGetTextureHandleARB(m_RendererIDTex);
-#endif
 		m_BindlesActive = false;
 
 	}
 
 	void OpenGLTextureStorageModern::SetupFance()
 	{ 
-#if 0
-		m_FanceObject.SetupFence();
-#else
 		if (Asset::CurrentOnMainThread())
 			return;
 
@@ -1490,7 +991,6 @@ namespace Rynex{
 		RY_CORE_INFO("Data OpenGLArrayBuffer Transfered! off {} bytesComplet. Time waiting {} Nanosec", byteSize, pastTime);
 		m_FanceObject.DestroyID();
 		ClearLocaleDataStore();
-#endif
 	}
 
 	void OpenGLTextureStorageModern::ClearLocaleDataStore()
@@ -1557,83 +1057,24 @@ namespace Rynex{
 
 	void OpenGLTextureStorageModern::ChangedDataFromParent(OpenGLFramebuffer* openGlFramebufferPtr)
 	{
-#ifndef RY_USE_PRENT_LINKE
-		for (const auto& openGLTextureParentVarientWeek : m_ParentVec)
-		{
-			if (
-				std::visit([this, openGlFramebufferPtr](auto& openGLTextureParentWeek)
-					{
-						if constexpr (std::is_same_v<std::decay_t<decltype(openGLTextureParentWeek)>, Weak<OpenGLFramebuffer>>)
-						{
-							Ref<OpenGLFramebuffer> openGLBindlesTextureArrayRef = openGLTextureParentWeek.lock();
-
-							return openGLBindlesTextureArrayRef.get() == openGlFramebufferPtr;
-						}
-						return false;
-					}
-					, openGLTextureParentVarientWeek)
-				)
-			{
-				OnDataChangeCall();
-				return;
-			}
-		}
-#else
-
 		if(m_ParentVec.Has(openGlFramebufferPtr))
 			OnDataChangeCall();
 		else
-#endif
 		RY_CORE_ERROR("OpenGLTextureStorageModern dident find his parent!");
 	}
 
 	void OpenGLTextureStorageModern::ChangedSpecifcationFromParent(OpenGLFramebuffer* openGlFramebufferPtr)
 	{
-#ifndef RY_USE_PRENT_LINKE
-		Ref<OpenGLFramebuffer> openGLBindlesTextureArrayRef = Asset::GetRefInPlaceType(openGlFramebufferPtr);
-
-		for (const auto& openGLTextureParentVarientWeek : m_ParentVec)
-		{
-			if (
-				std::visit([this, openGLBindlesTextureArrayRef](auto& openGLTextureParentWeek)
-					{
-						if constexpr (std::is_same_v<std::decay_t<decltype(openGLTextureParentWeek)>, Weak<OpenGLFramebuffer>>)
-						{
-							return openGLBindlesTextureArrayRef == openGLTextureParentWeek.lock();
-						}
-						return false;
-					}
-					, openGLTextureParentVarientWeek)
-				)
-			{
-				OnSpecifcationChangeCall();
-				return;
-			}
-		}
-#else
-
 		if (m_ParentVec.Has(openGlFramebufferPtr))
 			OnSpecifcationChangeCall();
 		else
-#endif
 			RY_CORE_ERROR("OpenGLTextureStorageModern dident find his parent!");
 
 	}
 
 	void OpenGLTextureStorageModern::OnSpecifcationChangeCall()
 	{
-#ifndef RY_USE_PRENT_LINKE
 
-		for (auto& openGLTextureParentVarientWeek : m_ParentVec)
-		{
-			std::visit([this](auto& openGLTextureParentWeek) {
-				if (auto openGLTextureParentRef = openGLTextureParentWeek.lock())
-				{
-					openGLTextureParentRef->OnChildeSpecifcationChange(this);
-				}
-			}, openGLTextureParentVarientWeek);
-		}
-#else
 
 		m_ParentVec.ForEche([this](auto& openGLTextureParentWeek) {
 				if (auto openGLTextureParentRef = openGLTextureParentWeek.lock())
@@ -1644,26 +1085,12 @@ namespace Rynex{
 					}
 				}
 		});
-#endif
 
 	}
 
 	void OpenGLTextureStorageModern::OnDataChangeCall()
 	{
-#ifndef RY_USE_PRENT_LINKE
-		for (auto& openGLTextureParentVarientWeek : m_ParentVec)
-		{
-			std::visit([this](auto& openGLTextureParentWeek)
-			{
-				if constexpr (std::is_same_v<std::decay_t<decltype(openGLTextureParentWeek)>, Weak<OpenGLLinkedTextureArray>>)
-				{
-					if (Ref<OpenGLLinkedTextureArray> openGLLinkedTextureArray = openGLTextureParentWeek.lock())
-						openGLLinkedTextureArray->OnChildeDataChange(this);
-				}
-				
-			}, openGLTextureParentVarientWeek);
-		}
-#else
+
 
 		m_ParentVec.ForEche([this](auto& openGLTextureParentWeek) {
 			if (auto openGLTextureParentRef = openGLTextureParentWeek.lock())
@@ -1675,24 +1102,11 @@ namespace Rynex{
 				}
 			}
 		});
-#endif
 	}
 
 	void OpenGLTextureStorageModern::OnDestroyCall()
 	{
-#ifndef RY_USE_PRENT_LINKE
-		for (auto& openGLTextureParentVarientWeek : m_ParentVec)
-		{
-			std::visit([this](auto& openGLTextureParentWeek)
-			{
-				if (auto openGLLinkedTextureArray = openGLTextureParentWeek.lock())
-				{
-					openGLLinkedTextureArray->OnChildeDestroy(this);
-				}
-			}, openGLTextureParentVarientWeek);
-		}
-		m_ParentVec.clear();
-#else
+
 		m_ParentVec.ForEche([this](auto& openGLTextureParentWeek) {
 			if constexpr (std::is_same_v<std::decay_t<decltype(openGLTextureParentWeek)>, Weak<OpenGLLinkedTextureArray>>)
 			{
@@ -1701,7 +1115,6 @@ namespace Rynex{
 			}
 		});
 		m_ParentVec.Clear();
-#endif
 
 	}
 
@@ -1710,7 +1123,6 @@ namespace Rynex{
 
 #pragma region OpenGLLinkedTextureArray
 
-#if 1
 	OpenGLLinkedTextureArray::OpenGLLinkedTextureArray(const TextureSpecification& spec)
 		: m_LinkedTexturesVec()
 		, m_ChangedTextureInidicesVec()
@@ -2057,15 +1469,7 @@ namespace Rynex{
 
 		RY_CORE_ASSERT(0u != m_RendererIDTex, "Not Vaild Handle");
 
-#if !(RY_DISABLE_OPENGL_SEPARETE_TEXTURE_SAMPLER)
-		RY_CORE_ASSERT(0u == m_RendererIDSam);
 
-		GL_CHECK();
-		glCreateSamplers(1u, &m_RendererIDSam);
-		GL_CHECK();
-
-		RY_CORE_ASSERT(0u != m_RendererIDSam, "Not Vaild Handle");
-#endif	
 	}
 
 	
@@ -2080,16 +1484,7 @@ namespace Rynex{
 			m_RendererIDTex = 0u;
 			GL_CHECK();
 		}
-#if !(RY_DISABLE_OPENGL_SEPARETE_TEXTURE_SAMPLER)
-		if (0u == m_RendererIDSam)
-		{
-			GL_CHECK();
-			glDeleteSamplers(1u, &m_RendererIDSam);
-			m_RendererIDSam = 0u;
-			GL_CHECK();
-		}
-		RY_CORE_ASSERT(0u == m_RendererIDSam);
-#endif
+
 
 		RY_CORE_ASSERT(0u == m_RendererIDTex);
 
@@ -2097,15 +1492,7 @@ namespace Rynex{
 
 	void OpenGLLinkedTextureArray::Invalidate()
 	{
-#ifdef RY_OPENGL_MAIN_THREADE
-		if (!OpenGLThreadContext::IsActive())
-		{
-			Application::Get().SubmiteToMainThreedQueueWait(std::bind(&OpenGLLinkedTextureArray::Invalidate, this));
-			return;
-		}
-#else
 		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLLinkedTextureArray::Invalidate);
-#endif
 		if (m_LinkedTexturesVec.empty())
 			return;
 
@@ -2126,11 +1513,8 @@ namespace Rynex{
 		CreateID(type.target);
 
 		m_Object.Create(m_RendererIDTex);
-#if !(RY_DISABLE_OPENGL_SEPARETE_TEXTURE_SAMPLER)
-		const GLuint& samplerID = m_RendererIDSam;
-#else
+
 		const GLuint& samplerID = m_RendererIDTex;
-#endif
 		if (1u < type.samples)
 		{
 			m_Sampler.CreateSampler(samplerID);
@@ -2157,23 +1541,12 @@ namespace Rynex{
 					m_Specification.Height,
 					m_Specification.Depth
 				);
-#if 0
-				m_Object.CopyFromTextureToTexture(
-					m_RendererIDTex, texutureStorage->m_RendererIDTex
-					, texutureStorage->m_Object
-					, dimension, srcOffset, dstOffset
-				);
-#else
+
 				m_Object.CopyFromTextureToTexture(
 					texutureStorage->m_RendererIDTex, m_RendererIDTex
 					, texutureStorage->m_Object,
 					dimension, dstOffset, srcOffset
 				);
-#endif
-#if 0
-				std::vector<uint8_t> dataTex = texutureStorage->GetCurrentRenderData();
-				m_Object.SetData(m_RendererIDTex, dataTex, dataTex.size(), index);
-#endif
 			}
 			index++;
 		}
@@ -2273,7 +1646,6 @@ namespace Rynex{
 	{
 		RY_CORE_NOT_IMPL();
 	}
-#endif
 #pragma endregion
 	
 	
