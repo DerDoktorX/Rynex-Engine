@@ -28,11 +28,7 @@ namespace Rynex {
 
 		virtual void EraseTexture(const Ref<Texture>& texture) override;
 		virtual void SwapTexture(const Ref<Texture>& fromtexture, const Ref<Texture>& toTexture) override;
-#if 0
-		virtual const MapVector<int64_t, Ref<Texture>>& GetTexturesVec() const override { return m_TexturesMap; }
-#else
 		virtual const MapVectorRef<Texture>& GetTextures() const override { return m_TexturesMap; }
-#endif
 
 
 		virtual uint32_t GetTexturesCount() const override { return m_Count; }
@@ -42,9 +38,6 @@ namespace Rynex {
 		virtual bool HasTextureStoredOn(const Ref<Texture>& texture, int slot) const override;
 		virtual const Ref<Texture>& GetTexture(int slot)const override;
 
-
-		// virtual void Bind(uint32_t slot = 0) const override { RY_CORE_ASSERT(false, "Storage Buffer Not Implemted OpenGLBindlesTextureArray"); }
-		// virtual void UnBind() const override { RY_CORE_ASSERT(false, "Storage Buffer Not Implemted OpenGLBindlesTextureArray"); }
 
 		virtual void SetData(const void* data, uint32_t byteSize) override { RY_CORE_ASSERT(false, "Storage Buffer Not Implemted OpenGLBindlesTextureArray"); }
 		virtual void SetData(const void* data, uint32_t offset, uint32_t byteSize) override { RY_CORE_ASSERT(false, "Storage Buffer Not Implemted OpenGLBindlesTextureArray"); }
@@ -78,16 +71,10 @@ namespace Rynex {
 		void LoadeBindlesHandles();
 
 	private:
-		// s_BufferFlag = GL_DYNAMIC_STORAGE_BIT;
 		static constexpr const uint32_t s_BufferFlag = GL_DYNAMIC_STORAGE_BIT;
-		// s_Target = GL_SHADER_STORAGE_BUFFER;
 		static constexpr const uint32_t s_Target = GL_SHADER_STORAGE_BUFFER;
 	private:
-#if 0
-		MapVector<int64_t, Ref<Texture>> m_TexturesMap;
-#else
 		MapVectorRef<Texture> m_TexturesMap;
-#endif
 		OpenGLShaderStorageBuffer m_Buffer;
 
 		uint32_t m_Count = 0u;
