@@ -7,42 +7,6 @@
 
 
 namespace Rynex {
-#if 0
-	bool Input::IsKeyPressedImpl(KeyCode keycode)
-	{
-		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-		auto state = glfwGetKey(window, keycode);
-		return state == GLFW_PRESS || state == GLFW_REPEAT;
-	}
-
-	bool Input::IsMouseButtenPressdImpl(int botton)
-	{
-
-		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-		auto state = glfwGetMouseButton(window, botton);
-		return state == GLFW_PRESS || state == GLFW_REPEAT;
-	}
-
-	std::pair<float, float> Input::GetMousePostionImpl()
-	{
-
-		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-		double posX, posY;
-		glfwGetCursorPos(window, &posX, &posY);
-
-		return {(float)posX, (float)posY };
-	}
-
-	float Input::GetMouseXImpl()
-	{
-		return GetMousePostionImpl().first;
-	}
-
-	float Input::GetMouseYImpl()
-	{
-		return GetMousePostionImpl().second;
-	}
-#endif
 
 
 	bool Input::IsKeyPressed(const KeyCode key)
