@@ -1221,7 +1221,7 @@ namespace Rynex {
 
 	void EditorAssetManegerThreade::CreateAssetDirectory(const std::filesystem::path& path)
 	{
-		RY_CORE_ASSERT(IsDirectoryInRegistry(path), "Found folder in register alraedy or folder path is a file!");
+		RY_CORE_ASSERT(!IsDirectoryInRegistry(path), "Found folder in register alraedy or folder path is a file!");
 
 		std::filesystem::path folderRelativPath = Project::GenarteProjectRaltivPath(path);
 		std::string pathGenaric = folderRelativPath.generic_string();
