@@ -3,9 +3,9 @@
 
 #include "Entity.h"
 #include "ScriptableEntity.h"
-
-#include <Rynex/Scripting/Mono/ScriptingEngine.h>
-
+#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
+	#include <Rynex/Scripting/Mono/ScriptingEngine.h>
+#endif
 #include <Rynex/Asset/Base/AssetMetadata.h>
 #include <Rynex/Asset/EditorAssetManager.h>
 #include <Rynex/Project/Project.h>
@@ -246,12 +246,14 @@ namespace Rynex {
 
 	Scene::~Scene()
 	{
+#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
 		Scene* scene = ScriptingEngine::GetSceneContext();
 		if (scene == this)
 		{
 			ScriptingEngine::OnRuntimeStop();
 		}
 		OnDisconectToRenderer();
+#endif
 	}
 
 
@@ -571,7 +573,7 @@ namespace Rynex {
 
 	void Scene::OnRuntimStart()
 	{
-
+#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
 		ScriptingEngine::OnRuntimeStart(this);
 		// Instandiat
 
@@ -583,10 +585,12 @@ namespace Rynex {
 			ScriptingEngine::OnCreatEntity(entity);
 				
 		}
+#endif
 	}
 
 	void Scene::OnRuntimStop()
 	{
+#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
 		auto view = m_Registery.view<ScriptComponent>();
 		for (auto e : view)
 		{
@@ -595,6 +599,8 @@ namespace Rynex {
 			ScriptingEngine::OnDestroyEntity(entity);
 		}
 		ScriptingEngine::OnRuntimeStop();
+#endif
+
 	}
 
 
@@ -614,11 +620,13 @@ namespace Rynex {
 				nsc.Instance->OnUpdate(ts.GetSecounds());
 			});
 		
+#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
 		for (entt::entity e : scriptView)
 		{
 			Entity entity = { e, this };
 			ScriptingEngine::OnUpdateEntity(entity, ts.GetSecounds());
 		}
+#endif
 
 
 	}

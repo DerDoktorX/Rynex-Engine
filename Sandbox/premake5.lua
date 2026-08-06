@@ -51,6 +51,7 @@ project "Sandbox"
 	{
 		"RY_SANDBOX"
 	}
+	
 	links
 	{
 		"Rynex"
@@ -61,6 +62,9 @@ project "Sandbox"
 		defines
 		{
 		}
+
+	filter "system:linux"
+		systemversion "latest"
 		
 	
 	filter "configurations:Debug"
@@ -79,9 +83,4 @@ project "Sandbox"
 		optimize "on"
 
 
-	filter "toolset:msc*"
-    	buildoptions { "/utf-8" }
-
-	filter "not toolset:msc*"
-    	buildoptions { "-finput-charset=UTF-8" }
 

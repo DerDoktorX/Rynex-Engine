@@ -21,9 +21,29 @@ workspace "Rynex-Rendering"
 
 
 	multiprocessorcompile "on"
+
+	filter "not toolset:msc*"
+     	buildoptions { "-finput-charset=UTF-8" }
+	 	print('utf-8 set compile NOT MSVC!')
+	 	
+	 filter "toolset:msc*"
+     	buildoptions { "/utf-8" }
+	 	print('utf-8 set compile MSVC!')
+		
+
 	-- conformancemode "Off" -- disable in vs2026 -> /permissive-
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+-- filter "system:windows"
+-- 	defines
+-- 	{
+-- 		"RY_PLATFORM_WINDOWS"
+-- 	}
+-- filter "system:linux"	
+-- 	defines
+-- 	{
+-- 		"RY_PLATFORM_LINUX"
+-- 	}
 defines
 {
 	"RY_PLATFORM_WINDOWS"

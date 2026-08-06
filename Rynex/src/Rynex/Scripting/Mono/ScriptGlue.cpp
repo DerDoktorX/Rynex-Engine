@@ -10,13 +10,16 @@
 #include "Rynex/Scene/Scene.h"
 #include "Rynex/Scene/Entity.h"
 
-#include <mono/metadata/object.h>
-#include <mono/metadata/reflection.h>
-
+#ifdef RY_PLATFORM_WINDOWS
+	#include <mono/metadata/object.h>
+	#include <mono/metadata/reflection.h>
+#endif
 
 #define USE_HASCOMPONET_FUNC_CS 1
 
 #define ENABLE_MATERIL_COMPONET 0 // TODO: ReWhrite Materil CS API
+
+#ifdef RY_PLATFORM_WINDOWS
 
 namespace Rynex {
 
@@ -1998,3 +2001,5 @@ namespace Rynex {
 
 	
 }
+
+#endif

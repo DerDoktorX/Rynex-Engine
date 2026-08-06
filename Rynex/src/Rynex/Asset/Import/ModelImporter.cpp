@@ -4,15 +4,20 @@
 #include "Rynex/Asset/Base/AssetManager.h"
 
 
+#ifdef RY_PLATFORM_WINDOWS
+    #include <assimp/Importer.hpp>
+    #include <assimp/scene.h>
+    #include <assimp/postprocess.h>
+#endif // RY_PLATFORM_WINDOWS
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+
 #include <stb_image.h>
 #include <execution>
 
 #include <future>
 #include <chrono>
+
+#ifdef RY_PLATFORM_WINDOWS
 
 namespace Rynex {
 
@@ -407,3 +412,5 @@ namespace Rynex {
         return false;
     }
 }
+
+#endif

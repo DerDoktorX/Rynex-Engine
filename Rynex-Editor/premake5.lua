@@ -26,14 +26,13 @@ project "Rynex-Editor"
 		"src/**.cpp",
 	}
 
-
 	includedirs
 	{
 		"src",
 		-- Rynex Source Files
 		"%{wks.location}/Rynex/src",	-- Rynex
 		"%{wks.location}/Rynex/vendor",	-- Dependecies
-		
+
 		-- Runtime
 		"%{wks.location}/Rynex/vendor/spdlog/include",
 		-- Math
@@ -51,6 +50,7 @@ project "Rynex-Editor"
 		"%{IncludeDir.ImGui}",
 	}
 
+
 	links
 	{
 		"Rynex"
@@ -60,6 +60,10 @@ project "Rynex-Editor"
 
 	filter "system:windows"
 		systemversion "latest"
+
+	filter "system:linux"
+		systemversion "latest"
+		
 	
 	filter "configurations:Debug"
 		defines "RY_DEBUG"

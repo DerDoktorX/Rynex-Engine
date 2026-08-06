@@ -10,12 +10,11 @@
 #ifdef _WIN32
 
 	#ifdef _WIN64
-#if RY_GOOGLE_TEST
-		#define RY_DEBUG_BREAK() std::abort()
-#else
-		#define RY_DEBUG_BREAK() __debugbreak()
-		
-#endif
+		#if RY_GOOGLE_TEST
+				#define RY_DEBUG_BREAK() std::abort()
+		#else
+				#define RY_DEBUG_BREAK() __debugbreak()
+		#endif
 	#else
 		#error "Rynex only Seports x64 Bit Builds or Platforms (x84 Bit or x32 Bit Builds are not seported and x32 Bit Has no Plans to seport in Futer)"
 		#define RY_DEBUG_BREAK()
@@ -37,9 +36,9 @@
 #elif defined(__ADROID__)
 	#define RY_DEBUG_BREAK()
 	#error "Rynex do not seported Android at Curent Time! (At the monoent they are no Plans to do it in Futer)"
-#elif define(__linux__)
+#elif defined(__linux__)
 	#error "Rynex not seported Linux  at Curent Time!"
-	#define RY_DEBUG_BREAK()
+	#define RY_DEBUG_BREAK() raise(SIGTRAP);
 #else 
 	#error "Rynex not seport Platform! Or Unknown!"
 	#include <signal.h>
@@ -66,6 +65,11 @@
 		#define RYNEX_API
 	#endif // STATIC LINKING
 #endif
+
+#ifdef RY_PLATFORM_LINUX
+	"HI"
+#endif
+
 
 // Bit Operation
 #define BIT(x)						(1 << x)

@@ -76,8 +76,10 @@ project "Rynex"
 		
 		"%{IncludeDir.msdfgen}",
 		"%{IncludeDir.msdf_atlas_gen}"
-
 	}
+
+
+	print('Other Builds then Windows don\'t build use [Mono, Assimp] Curently!')
 
 	links
 	{
@@ -103,8 +105,6 @@ project "Rynex"
 
 	filter "system:windows"
 		systemversion "latest"
-		
-		
 		links
 		{
 			"%{Library.WinSock}",
@@ -126,16 +126,12 @@ project "Rynex"
 			}
 		end
 	--							 ^
-	filter "toolset:msc*"
-    	buildoptions { "/utf-8" }
-
-	filter "not toolset:msc*"
-    	buildoptions { "-finput-charset=UTF-8" }
-
 	filter "configurations:Debug"
 		defines "RY_DEBUG"
 		runtime "Debug"
-		symbols "on"
+		symbols "on"	
+
+	filter {"system:windows", "configurations:Debug"}
 		links
 		{
 			"%{Library.mono_Debug}",
@@ -145,25 +141,29 @@ project "Rynex"
 	filter "configurations:Release"
 		defines "RY_REALSE"
 		runtime "Release"
-		optimize "on"
+		optimize "on"	
+
+	filter {"system:windows", "configurations:Release"}
 		links
 		{
 			"%{Library.mono_Release}",
 			"%{Library.assimp_Release}"
 		}
+		
 
 	filter "configurations:Dist"
 		defines "RY_DIST"
 		runtime "Release"
 		optimize "on"
+
+	filter {"system:windows", "configurations:Dist"}
 		links
 		{
 			"%{Library.mono_Release}",
 			"%{Library.assimp_Release}"
 		}
 
-	filter "toolset:msc*"
-    	buildoptions { "/utf-8" }
+	
 
-	filter "not toolset:msc*"
-    	buildoptions { "-finput-charset=UTF-8" }
+	
+
