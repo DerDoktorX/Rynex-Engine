@@ -1221,30 +1221,28 @@ namespace Rynex {
 
 	void EditorAssetManegerThreade::CreateAssetDirectory(const std::filesystem::path& path)
 	{
-		std::filesystem::path folderRelativPath = Project::GenarteProjectRaltivPath(path);
+		RY_CORE_ASSERT(IsDirectoryInRegistry(path), "Found folder in register alraedy or folder path is a file!");
 
+		std::filesystem::path folderRelativPath = Project::GenarteProjectRaltivPath(path);
 		std::string pathGenaric = folderRelativPath.generic_string();
 		std::string name = folderRelativPath.filename().string();
 
-		if (!IsDirectoryInRegistry(pathGenaric))
-		{
-			{
-				std::lock_guard<std::mutex> lockChang(m_ChangesMutex);
-				std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
+	
+		std::lock_guard<std::mutex> lockChang(m_ChangesMutex);
+		std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
+		if (m_CurentPath == folderRelativPath)
+			m_FileChanges = true;
 
-				m_RegestryChanges = true;
-				m_DirectoryRegistry.GetRefLemda([name, pathGenaric](AssetFileDirectoryThreade& assetFileDirectory)
-				{
-					assetFileDirectory.FolderName = name;
-					assetFileDirectory.FolderPath = pathGenaric;
-				}, pathGenaric);
-				
-			}
-			
+		m_RegestryChanges = true;
 		
-			RY_ASSET_INFO("Add AssetFolder Names {} on location {}", name.c_str(), pathGenaric.c_str());
-		}
+		
+		AssetFileDirectoryThreade assetFileDirectory;
+		assetFileDirectory.FolderName = name;
+		assetFileDirectory.FolderPath = pathGenaric;
 
+		m_DirectoryRegistry.Add(pathGenaric, assetFileDirectory);
+
+		RY_ASSET_INFO("Add AssetFolder Names {} on location {}", name.c_str(), pathGenaric.c_str());
 	}
 
 	void EditorAssetManegerThreade::AddAssetFileToAssetDirectory(const std::filesystem::path& assetPath, const std::string& assetName, const std::string& assetPathString, AssetHandle handle)
@@ -1292,21 +1290,9 @@ namespace Rynex {
 		std::string origenelName = folderRelativPath.filename().string();
 		std::string parentGenaric = folderRelativPath.parent_path().generic_string();
 
-		if (!IsDirectoryInRegistry(origenelGenaric) && !path.has_extension())
+		if (!IsDirectoryInRegistry(origenelGenaric))
 		{
-			std::lock_guard<std::mutex> lockChang(m_ChangesMutex);
-			std::lock_guard<std::mutex> lockPath(m_CurentPathMutex);
-			if(m_CurentPath == parentGenaric)
-				m_FileChanges = true;
-			m_RegestryChanges = true;
-			if(!m_DirectoryRegistry.IsFound(origenelGenaric))
-				m_DirectoryRegistry.Add(origenelGenaric, AssetFileDirectoryThreade());
-			m_DirectoryRegistry.GetRefLemda([origenelName, origenelGenaric](AssetFileDirectoryThreade dirReg)
-				{
-					dirReg.FolderName = origenelName;
-					dirReg.FolderPath = origenelGenaric;
-				}, origenelGenaric);
-			
+			CreateAssetDirectory(origenelGenaric);
 		}
 
 		if (IsDirectoryInRegistry(parentGenaric))
@@ -1343,8 +1329,6 @@ namespace Rynex {
 		else
 		{
 			CreateAssetDirectory(parentGenaric);
-
-			std::lock_guard<std::mutex> lockChang(m_ChangesMutex);
 		}
 	}
 
