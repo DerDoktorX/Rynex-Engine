@@ -75,3 +75,9 @@ project "Rynex-Editor"
 		defines "RY_DIST"
 		runtime "Release"
 		optimize "on"
+
+	filter "toolset:msc*"
+    	buildoptions { "/utf-8" }
+
+	filter "not toolset:msc*"
+    	buildoptions { "-finput-charset=UTF-8" }

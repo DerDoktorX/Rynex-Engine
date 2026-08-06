@@ -78,3 +78,10 @@ project "Sandbox"
 		runtime "Release"
 		optimize "on"
 
+
+	filter "toolset:msc*"
+    	buildoptions { "/utf-8" }
+
+	filter "not toolset:msc*"
+    	buildoptions { "-finput-charset=UTF-8" }
+

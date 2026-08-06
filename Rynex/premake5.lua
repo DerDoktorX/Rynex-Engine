@@ -93,7 +93,8 @@ project "Rynex"
 
 		"msdf-atlas-gen"
 	}
-	
+
+
 	filter "files:vendor/ImGuizmo/**.cpp"
 		enablepch "off"
 
@@ -125,7 +126,12 @@ project "Rynex"
 			}
 		end
 	--							 ^
-	
+	filter "toolset:msc*"
+    	buildoptions { "/utf-8" }
+
+	filter "not toolset:msc*"
+    	buildoptions { "-finput-charset=UTF-8" }
+
 	filter "configurations:Debug"
 		defines "RY_DEBUG"
 		runtime "Debug"
@@ -155,3 +161,9 @@ project "Rynex"
 			"%{Library.mono_Release}",
 			"%{Library.assimp_Release}"
 		}
+
+	filter "toolset:msc*"
+    	buildoptions { "/utf-8" }
+
+	filter "not toolset:msc*"
+    	buildoptions { "-finput-charset=UTF-8" }
