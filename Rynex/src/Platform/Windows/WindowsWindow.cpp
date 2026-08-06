@@ -9,7 +9,6 @@
 #include "Platform/OpenGL/OpenGLContext.h"
 #include "Platform/OpenGL/OpenGLThreadContext.h"
 
-//#include <glad/glad.h>
 
 
 namespace Rynex {
@@ -251,27 +250,11 @@ namespace Rynex {
 
 	void WindowsWindow::Shutdown()
 	{
-
-#if 1
 		if(m_Context->GetMemoryUsage() != 0)
 			RY_CORE_FATAL("Not Deltet Buffer! {} KB", m_Context->GetMemoryUsage());
-#else
 
-		for (int x = 30; x >= 0; x--)
-		{
-			RY_CORE_TRACE("Shut Down in {}s", x);
-			OnSreenRefresh();
-
-			using namespace std::chrono_literals;
-			std::this_thread::sleep_for(0.975s);
-
-		}
-		RY_CORE_INFO("By By");
-
-#endif
 		RY_DESTROY_REF(m_Context);
 		glfwDestroyWindow(m_Window);
-		
 	}
 
 	void WindowsWindow::OnUpdate()
