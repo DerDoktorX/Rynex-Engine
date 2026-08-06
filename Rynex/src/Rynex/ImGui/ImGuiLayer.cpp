@@ -41,8 +41,9 @@ namespace Rynex {
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
        
-         float fontSize = 16.0f * 1.0f;
-         fontSize = 15.0;
+         float fontSize = 16.0f;
+         fontSize = 15.0f;
+
          io.Fonts->AddFontFromFileTTF("../Rynex-Editor/Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
          io.FontDefault=io.Fonts->AddFontFromFileTTF("../Rynex-Editor/Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
         
