@@ -48,9 +48,6 @@ namespace Rynex{
 		virtual void Stop() override
 		{
 			
-#if 0
-			uint32_t threadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
-#endif
 			CurentPastTime();
 			m_Stopped = true;
 		}
@@ -66,20 +63,8 @@ namespace Rynex{
 			TimePoint endTimePoint = std::chrono::high_resolution_clock::now();
 
 			
-#if 1
 			TimeUnit timeNanoSec = std::chrono::duration_cast<TimeUnit>(endTimePoint - m_StartTimepoint);
 			int64_t result = timeNanoSec.count();
-#else
-			using Duration = std::chrono::steady_clock::duration;
-			TimePoint startTime = std::chrono::time_point_cast<TimeUnit>(m_StartTimepoint);
-			Duration startDuration = startTime.time_since_epoch();
-			int64_t start = startDuration.count();
-
-			TimePoint endTime = std::chrono::time_point_cast<std::chrono::microseconds>(endTimePoint);
-			Duration startDuration = endTime.time_since_epoch();
-			int64_t end = startDuration.count();
-			int64_t result = end - start;
-#endif
 			return result;
 		}
 
