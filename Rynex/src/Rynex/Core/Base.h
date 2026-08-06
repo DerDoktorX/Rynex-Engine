@@ -397,7 +397,7 @@ namespace Rynex {
 	}
 
 
-	std::filesystem::path GetPathAsGenaric(std::filesystem::path path)
+	inline std::filesystem::path GetPathAsGenaric(std::filesystem::path path)
 	{
 		std::filesystem::path pathLexically = path.lexically_normal();
 		std::string pathGenericStr = pathLexically.generic_string();
