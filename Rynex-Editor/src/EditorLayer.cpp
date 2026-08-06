@@ -2249,7 +2249,6 @@ case key: \
 
     void EditorLayer::OnAttach()
     {
-        TextureImporter::ExtraxtColorRegionFromImage();
 
         RY_CORE_INFO("EditorLayer::OnAttach Start!");
         RY_PROFILE_FUNCTION();
