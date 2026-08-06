@@ -15,7 +15,7 @@
 #include <FileWatch.h>
 #include <Rynex/Project/Project.h>
 
-#ifdef RY_PLATFORM_WINDOWS
+#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
 
 namespace Rynex {
 

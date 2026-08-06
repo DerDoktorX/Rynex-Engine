@@ -3,15 +3,20 @@
 #include "Rynex/Utils/PlatformUtils.h"
 #include "Rynex/Core/Application.h"
 
-#include <commdlg.h>
+
 #include <GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
+
+
+#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
 #include <ShlObj.h>
+#include <commdlg.h>
+#else
 
-
+#endif
 namespace Rynex {
-
+#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
 	std::string FileDialoges::OpenFile(const char* filter, const char* beginDir)
 	{
 		OPENFILENAMEA ofn;
@@ -106,4 +111,52 @@ namespace Rynex {
 		}
 		RY_CORE_INFO("Programm: '{}' started on {}", filpath.filename().string().c_str(), workingDir ? workingDirectory.string().c_str() : "Default Working Dir");
 	}
+#else
+	void LaunchFile::OpenFileInDefaultApp(const std::filesystem::path& filpath, const std::filesystem::path& workingDirectory)
+	{
+		std::string filePathSize;
+		filePathSize.resize(512);
+		char* charPtr = filePathSize.data();
+		RY_CORE_INFO("OpenFileInDefaultApp");
+		scanf_s("%s", charPtr);
+
+	}
+
+	std::string FileDialoges::OpenFile(const char* filter, const char* beginDir)
+	{
+		
+		RY_CORE_INFO("OpenFile");
+		std::string filePathSize;
+		filePathSize.resize(512);
+		char* charPtr = filePathSize.data();
+
+		scanf_s("%s", charPtr);
+		return filePathSize;
+
+	}
+
+	std::string FileDialoges::SaveFile(const char* filter)
+	{
+		RY_CORE_INFO("SaveFile");
+		std::string filePathSize;
+		filePathSize.resize(256);
+		char* charPtr = filePathSize.data();
+
+		scanf_s("%s", charPtr);
+		return filePathSize;
+
+	}
+
+	std::string FileDialoges::SelectFolder()
+	{
+		RY_CORE_INFO("SelectFolder");
+		std::string filePathSize;
+		filePathSize.resize(256);
+		char* charPtr = filePathSize.data();
+
+		scanf_s("%s", charPtr);
+		return filePathSize;
+
+	}
+#endif
 }
