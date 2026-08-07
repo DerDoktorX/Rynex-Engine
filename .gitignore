@@ -10,19 +10,24 @@ RederDocs/
 Rynex-Test/
 
 # Liberays
-Rynex/vendor/spdlog
-Rynex/vendor/glm
-#Rynex/vendor/GLFW/
-Rynex/vendor/imgui
-Rynex/vendor/ImGuizmo
-Rynex/vendor/msdf-atelas-gen
-Rynex/vendor/meshoptimizer
-Rynex/vendor/gtest
-Rynex/vendor/assimp
 
+# Rynex/vendor/GLFW/
+Rynex/vendor/*
+# Rynex/vendor/ImGuizmo
+# Rynex/vendor/msdf-atelas-gen
+# Rynex/vendor/meshoptimizer
+# Rynex/vendor/gtest
+# Rynex/vendor/assimp
+# GLFW @ 026a148
+# assimp @ f636252
+# gtest @ 79219e2
+# imgui_master @ 781a4ff
+# msdf-atelas-gen @ b50e101
+# yaml-cpp @ b5b07c8
+# glm @ 7590260
 Profile/
 ERRORS/*.txt
-binPreprozesSource/.cpp
+# binPreprozesSource/.cpp
 premake_Srcripts/.lua
 RenderDoc/*.csv
 
