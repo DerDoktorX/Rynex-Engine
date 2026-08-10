@@ -21,7 +21,11 @@ workspace "Rynex-Rendering"
 
 
 	multiprocessorcompile "on"
+	
+	
+	
 
+	
 	filter "not toolset:msc*"
      	buildoptions { "-finput-charset=UTF-8" }
 	 	print('utf-8 set compile NOT MSVC!')
@@ -29,7 +33,7 @@ workspace "Rynex-Rendering"
 	 filter "toolset:msc*"
      	buildoptions { "/utf-8" }
 	 	print('utf-8 set compile MSVC!')
-		
+
 
 	-- conformancemode "Off" -- disable in vs2026 -> /permissive-
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
@@ -122,6 +126,9 @@ Library["WinSock"] = "Ws2_32.lib"
 Library["WinMM"] = "Winmm.lib"
 Library["WinVersion"] = "Version.lib"
 Library["Bcrypt"] = "Bcrypt.lib"
+
+
+Compiler ="msv" -- "msv" | "gcc" | "clang" | "dotnet"
 
 group "Dependencies"
 	include "Rynex/vendor/GLFW"
