@@ -17,7 +17,7 @@ namespace Rynex {
 	{
 	public:
 		inline static constexpr int8_t PATH_MARKER_COUNT = 4; // path marker count
-		inline static constexpr int8_t PATH_MARKER_INDEX = 2; // path marker count
+		inline static constexpr int8_t PATH_MARKER_INDEX = 2; // path valid count marker
 
 		inline static constexpr const char* const Path::PATH_MARKER_STR[PATH_MARKER_COUNT]={
 			"",								// no marker at all
@@ -48,7 +48,7 @@ namespace Rynex {
 		bool IsExisting() const;
 
 		Origne GetMarkerOrigine() const;
-		Origne GetMarkerOrignePath() const;
+		Origne GetExpextedMarkerOrigne() const;
 
 		std::filesystem::path GetAbsolutePath() const;
 		std::filesystem::path GetRelativePath(Origne origne = Origne::Engine) const;
@@ -120,8 +120,8 @@ namespace Rynex {
 
 		static std::filesystem::path GetPathAbsoluteMarker(Origne origne);
 		static Origne GetMarkedPathOrigine(const std::filesystem::path& markedPath);
-		static Origne GetMarkerExpextedPathOrigne(const std::filesystem::path& markedPath);
-
+		static Origne GetPathOrignFromMarkerPath(const std::filesystem::path& markedPath);
+		static Origne GetExpextedOrigineFromPath(const std::filesystem::path& path);
 
 		static void ConvertUniverselPath(std::filesystem::path& path);
 	// --- private constexpr static methodes ----------------------------------------------------------------------------------
