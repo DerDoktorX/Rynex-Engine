@@ -23,6 +23,8 @@
 #include <Rynex/Core/Base.h>
 #include <Rynex/Core/Log.h>
 #include <Rynex/Core/Instrumentor.h>
+#include <Rynex/Project/Path.h>
+
 
 #ifdef  RY_PLATFORM_WINDOWS
 #include <Windows.h>
