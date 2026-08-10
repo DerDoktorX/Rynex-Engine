@@ -12,9 +12,13 @@ namespace Rynex {
 
         static void CreateSetupScriptWin(const std::filesystem::path& pFolder, const std::filesystem::path& rynexRootPermake)
         {
-            RY_CORE_INFO("The SetubProject File is for vs2020 conig");
-            std::filesystem::path filePath = pFolder / "SetubProject.bat";
-            std::string setupFile = "call " + std::filesystem::relative(rynexRootPermake, pFolder).string() + " vs2022\nPAUSE";
+            RY_CORE_INFO("The SetubProject File is for vs2026 conig");
+            std::filesystem::path setubProjectFileName = std::filesystem::path("SetubProject.bat");
+            std::filesystem::path filePath = pFolder / setubProjectFileName;
+            std::filesystem::path relativeFilePath = std::filesystem::relative(rynexRootPermake, pFolder);
+            std::string relativeFilePathStr = relativeFilePath.generic_string();
+
+            std::string setupFile = "call " + relativeFilePathStr + " vs2026\nPAUSE";
             std::ofstream fout(filePath);
             fout << setupFile;
             fout.close();
@@ -53,8 +57,9 @@ namespace Rynex {
                 RY_CORE_ERROR("Error: {}", e.what());
                 return false;
             }
-
-            std::ofstream fout(pFolder/"premake5.lua");
+            std::filesystem::path premakeFileName = std::filesystem::path("premake5.lua");
+            std::filesystem::path premakePath = pFolder / premakeFileName;
+            std::ofstream fout(premakePath);
             fout << projectPremake;
             fout.close();
             return true;
@@ -63,16 +68,23 @@ namespace Rynex {
         static bool BulidScriptingProject(ProjectConfig& pConfig)
         {
             std::filesystem::path rynexRootDir = std::filesystem::absolute(std::filesystem::current_path());
-            if (!CreateProjectScriptPremake(pConfig.ProjectPath, rynexRootDir, rynexRootDir / "SandboxProject\\Assets\\Scripts\\premake5.lua"))
+            std::filesystem::path rynexRootParentDir = rynexRootDir.parent_path();
+
+            std::filesystem::path origePreamke = rynexRootDir / std::filesystem::path("SandboxProject/Assets/Scripts/premake5.lua");
+            if (!CreateProjectScriptPremake(pConfig.ProjectPath, rynexRootDir, origePreamke))
                 return false;
-            RY_CREATE_SETUP_SCRIPT(pConfig.ProjectPath, rynexRootDir.parent_path() / "vendor\\bin\\premake\\premake5.exe");
+            
+            std::filesystem::path premakeDir = std::filesystem::path("vendor/bin/premake/premake5.exe");
+            std::filesystem::path scriptPath = rynexRootParentDir / premakeDir;
+            RY_CREATE_SETUP_SCRIPT(pConfig.ProjectPath, scriptPath);
            
             return true;
         }
 
         static std::filesystem::path SetupFolder(const std::filesystem::path& pFolder,const std::string& name)
         {
-            std::filesystem::path absultPath = pFolder / name;
+            std::filesystem::path pathName = std::filesystem::path(name);
+            std::filesystem::path absultPath = pFolder / pathName;
             try 
             {
                 RY_CORE_ASSERT(std::filesystem::create_directory(absultPath), "Folder Existig alraedy!");
@@ -128,7 +140,9 @@ namespace Rynex {
             std::tm* local_time = std::localtime(&now_c);
             pConfig.LastOpenDate = std::put_time(local_time, "%d.%m.%Y %H:%M:%S")._Fmtfirst;
             pConfig.CreateDate = std::put_time(local_time, "%d.%m.%Y %H:%M:%S")._Fmtfirst;
-            pConfig.AssetRegistryPath = pConfig.ProjectPath / "AssetRegistry.ryr";
+
+            std::filesystem::path assetRegistryFileName = std::filesystem::path("AssetRegistry.ryr");
+            pConfig.AssetRegistryPath = pConfig.ProjectPath / assetRegistryFileName;
 
             pConfig.ProjectRady = true;
             
@@ -630,7 +644,8 @@ namespace Rynex {
         std::filesystem::path projectPath = GetActiveProjectDirectory();
         std::filesystem::path appPath = std::filesystem::current_path();
 
-        std::filesystem::path appPathEngine = appPath / engineRealtive;
+        std::filesystem::path fileNamePath = std::filesystem::path(engineRealtive);
+        std::filesystem::path appPathEngine = appPath / fileNamePath;
         std::string appPathEngineStr = appPathEngine.generic_string();
 
         std::string marker = "";
@@ -700,7 +715,9 @@ namespace Rynex {
         s_ActiveInstancProject = CreateRef<Project>();
         ProjectConfig& pConfig = s_ActiveInstancProject->m_Config;
         Utils::CreateProject(pConfig);
-        Project::SaveActive((pConfig.ProjectPath / (pConfig.Name + ".ryproj")));
+        std::filesystem::path fileNamePath = pConfig.Name + ".ryproj";
+        std::filesystem::path filePath = pConfig.ProjectPath / filePath;
+        Project::SaveActive(filePath);
         Ref<EditorAssetManegerThreade>& editorAssetManager = s_ActiveInstancProject->GetEditorAssetManger();
 
        if (editorAssetManager)
@@ -722,7 +739,10 @@ namespace Rynex {
         Ref<Project> project = CreateRef<Project>();
         ProjectConfig& pConfig = s_ActiveInstancProject->m_Config;
         Utils::CreateProject(pConfig, projectPath, name);
-        Project::SaveActive((pConfig.ProjectPath / (pConfig.Name + ".ryproj")));
+        std::filesystem::path fileNamePath = pConfig.Name + ".ryproj";
+        std::filesystem::path filePath = pConfig.ProjectPath / filePath;
+
+        Project::SaveActive(filePath);
         Ref<EditorAssetManegerThreade>& editorAssetManager = s_ActiveInstancProject->GetEditorAssetManger();
 
 

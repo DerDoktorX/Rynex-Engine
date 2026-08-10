@@ -1,20 +1,9 @@
 #pragma once
-#include <Rynex/Core/Log.h>
-#include <Rynex/Core/Base.h>
-
 #include <Rynex/Asset/RuntimeAssetManager.h>
 #include <Rynex/Scripting/Mono/ScriptingEngine.h>
 
-#define RY_PATH_PROJECT_MARKER_STR "Project#!#"
-#define RY_PATH_ENGINE_MARKER_STR "Engine#!#"
-#define RY_PATH_NO_VAILD_MARKER_STR "#//#NotVaild#//#"
-#define RY_PATH_EXPEXT_ENGINE_RELATIV_START_STR "../Rynex-Editor/Editor-Assets"
-
-#define RY_PATH_PROJECT_MARKER_WSTR L"Project#!#"
-#define RY_PATH_ENGINE_MARKER_WSTR L"Engine#!#"
-#define RY_PATH_NO_VAILD_MARKER_WSTR L"#//#NotVaildMarker#//#"
-#define RY_PATH_EXPEXT_ENGINE_RELATIV_START_WSTR L"../Rynex-Editor/Editor-Assets"
 namespace Rynex {
+
 	class EditorAssetManegerThreade;
 
 	struct ProjectConfig
@@ -31,7 +20,9 @@ namespace Rynex {
 		std::filesystem::path ProjectScriptPremake5 = "premake5.lua";
 		std::filesystem::path ScriptAppPath = "SandboxProject/Assets/Scripts/Binaries/Sanbox.dll";
 		std::filesystem::path ScriptCorePath = "Resources/Scripts/Rynex-ScriptingCore.dll";
-		std::filesystem::path ProjectPath = "C:/dev/Rynex-Enine/Rynex-Editor/SandboxProject";
+		// std::filesystem::path ProjectPath = "C:/dev/Rynex-Enine/Rynex-Editor/SandboxProject";
+		std::filesystem::path ProjectPath = "EMPTY";
+
 		std::string RynexVersion = "In Dev Version Cuurent Date Only";
 		bool ProjectRady = false;
 
