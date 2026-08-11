@@ -22,8 +22,8 @@ namespace Rynex {
 		inline static constexpr const char* const Path::PATH_MARKER_STR[PATH_MARKER_COUNT]={
 			"",								// no marker at all
 			RY_PATH_NO_VAILD_MARKER_STR,	// not vaild marker 
-			RY_PATH_PROJECT_MARKER_STR,		// engine marker 
 			RY_PATH_ENGINE_MARKER_STR		// project marker 
+			RY_PATH_PROJECT_MARKER_STR,		// engine marker 
 		};
 	// --- public enum class --------------------------------------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ namespace Rynex {
 		Path(const char* path);		
 		~Path();
 
-		bool IsMarker() const;
+		bool IsMarked() const;
 		bool IsRealtive() const;
 		bool IsAbsoulte() const;
 		bool IsExisting() const;
@@ -50,8 +50,12 @@ namespace Rynex {
 		Origne GetMarkerOrigine() const;
 		Origne GetExpextedMarkerOrigne() const;
 
+		const std::filesystem::path& GetPath() const; // get proteced acces to Orignal data
 		std::filesystem::path GetAbsolutePath() const;
-		std::filesystem::path GetRelativePath(Origne origne = Origne::Engine) const;
+		std::filesystem::path GetRelativePath() const;
+		std::filesystem::path GetMarkedPath() const;
+
+		std::filesystem::path GetRelativePathFromOrigne(Origne origne) const;
 
 		void SetMarker(Origne origne);
 		void GenertaMarker();
@@ -104,8 +108,12 @@ namespace Rynex {
 	private:
 		void ConvertUniverselPath();
 		std::filesystem::path GetResolveMarkerPath(Origne origne) const;
+		std::filesystem::path GetResolveAbsoluteToMarkedPath(Origne origne) const;
+		std::filesystem::path ClearOringenMarker(Origne origne) const;
 
 	// --- private static methodes --------------------------------------------------------------------------------------------
+		static std::filesystem::path GetResolveReltivePathToAbsoluteFromOrigne(const std::filesystem::path& path, Origne origne);
+		static std::filesystem::path GetResolveAbsoluteToMarkedPath(const std::filesystem::path& path, Origne origne);
 
 		static inline int8_t GetOrigneIndex(Origne origne) { return static_cast<int8_t>(origne); }
 		static uint32_t GetMarkerCarkterCount(Origne origne);
@@ -138,37 +146,74 @@ namespace Rynex {
 	// --- private varibles ---------------------------------------------------------------------------------------------------
 		std::filesystem::path m_Path;
 	// --- private frinds -----------------------------------------------------------------------------------------------------
-		RY_ADD_NONE_MEBER_OPERATOR_FUNC_AS_FRIND(Path, bool, == , m_Path);
-		RY_ADD_NONE_MEBER_OPERATOR_FUNC_AS_FRIND(Path, bool, != , m_Path);
-
-		RY_ADD_NONE_MEBER_OPERATOR_FUNC_AS_FRIND(Path, bool, < , m_Path);
-		RY_ADD_NONE_MEBER_OPERATOR_FUNC_AS_FRIND(Path, bool, <= , m_Path);
-
-		RY_ADD_NONE_MEBER_OPERATOR_FUNC_AS_FRIND(Path, bool, > , m_Path);
-		RY_ADD_NONE_MEBER_OPERATOR_FUNC_AS_FRIND(Path, bool, >= , m_Path);
-
-		friend Path operator/(const Path& a, const Path& b);
+		friend bool operator==(const Path& a, const std::filesystem::path& b);
+		friend bool operator!=(const Path& a, const std::filesystem::path& b);
 		friend Path operator/(const Path& a, const std::filesystem::path& b);
+		friend bool operator==(const std::filesystem::path& a, const Path& b);
+		friend bool operator!=(const std::filesystem::path& a, const Path& b);
+
+		friend bool operator==(const Path& a, const std::string& b);
+		friend bool operator!=(const Path& a, const std::string& b);
 		friend Path operator/(const Path& a, const std::string& b);
+		friend bool operator==(const std::string& a, const Path& b);
+		friend bool operator!=(const std::string& a, const Path& b);
+
+		friend bool operator==(const Path& a, const char* b);
+		friend bool operator!=(const Path& a, const char* b);
 		friend Path operator/(const Path& a, const char* b);
+		friend bool operator==(const char* a, const Path& b);
+		friend bool operator!=(const char* a, const Path& b);
+
+		friend bool operator==(const Path& a, const Path& b);
+		friend bool operator!=(const Path& a, const Path& b);
+		friend Path operator/(const Path& a, const Path& b);
 	};
 
+#pragma region NoneMemberPathOperator
 
-	RY_NONE_MEBER_OPERATOR_BOOL(Path, == , &&, m_Path);
-	RY_NONE_MEBER_OPERATOR_BOOL(Path, != , &&, m_Path);
-	RY_NONE_MEBER_OPERATOR_BOOL(Path, < , &&, m_Path);
-	RY_NONE_MEBER_OPERATOR_BOOL(Path, <= , &&, m_Path);
-	RY_NONE_MEBER_OPERATOR_BOOL(Path, > , &&, m_Path);
-	RY_NONE_MEBER_OPERATOR_BOOL(Path, >= , &&, m_Path);
+#pragma region NoneMemberPathOperator_Path
 
-	inline Path operator / (const Path& a, const Path& b) {
-		std::filesystem::path path = a.m_Path / b.m_Path;
-		return Path(path);
+	inline bool operator == (const Path& a, const Path& b) {
+		bool result = a.m_Path == b.m_Path; 
+		return result;
+	}
+
+	inline bool operator == (const Path& a, const std::filesystem::path& b) {
+		bool result = a.m_Path == b; 
+		return result;
+	}
+
+	inline bool operator != (const Path& a, const std::filesystem::path& b) {
+		bool result = a.m_Path != b; 
+		return result;
 	}
 
 	inline Path operator / (const Path& a, const std::filesystem::path& b) {
 		std::filesystem::path path = a.m_Path / b;
 		return Path(path);
+	}
+	
+	inline bool operator == (const std::filesystem::path& a,const Path& b ) {
+		bool result = a == b.m_Path;
+		return result;
+	}
+
+	inline bool operator != (const std::filesystem::path& a, const Path& b) {
+		bool result = a != b.m_Path;
+		return result;
+	}
+#pragma endregion
+
+#pragma region NoneMemberPathOperator_String
+
+	inline bool operator == (const Path& a, const std::string& b) {
+		bool result = a.m_Path.string() == b;
+		return result;
+	}
+
+	inline bool operator != (const Path& a, const std::string& b) {
+		bool result = a.m_Path.string() != b;
+		return result;
 	}
 
 	inline Path operator / (const Path& a, const std::string& b) {
@@ -176,9 +221,46 @@ namespace Rynex {
 		return Path(path);
 	}
 
+	inline bool operator == (const std::string& a, const Path& b) {
+		bool result = a == b.m_Path.string();
+		return result;
+	}
+
+	inline bool operator != (const std::string& a, const Path& b) {
+		bool result = a != b.m_Path.string();
+		return result;
+	}
+#pragma endregion
+
+#pragma region NoneMemberPathOperator_Char
+
+	inline bool operator == (const Path& a, const char* b) {
+		bool result = a.m_Path.string() == b;
+		return result;
+	}
+
+	inline bool operator != (const Path& a, const char* b) {
+		bool result = a.m_Path.string() != b;
+		return result;
+	}
+
 	inline Path operator / (const Path& a, const char* b) {
 		std::filesystem::path path = a.m_Path / std::filesystem::path(b);
 		return Path(path);
 	}
+
+	inline bool operator == (const char* a, const Path& b) {
+		bool result = a == b.m_Path.string();
+		return result;
+	}
+
+	inline bool operator != (const char* a, const Path& b) {
+		bool result = a != b.m_Path.string();
+		return result;
+	}
+
+#pragma endregion
+
+#pragma endregion
 
 }
