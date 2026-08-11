@@ -97,6 +97,25 @@ namespace Rynex {
 		return relativePath;
 	}
 
+	std::filesystem::path Path::GetMarkedPath() const
+	{
+		if (IsMarked()) {
+			return m_Path;
+		}
+		if (IsAbsoulte()) {
+			Origne origne = GetExpextedOrigineFromAbsoultePath(m_Path);
+			std::filesystem::path markedPath = GetResolveAbsoluteToMarkedPath(origne);
+			return markedPath;
+		}
+
+		
+		Origne origne = GetExpextedOrigineFromRelativePath(m_Path);
+		std::filesystem::path markedPath = GetResolveAbsoluteToMarkedPath(origne);
+		return markedPath;
+		
+
+	}
+
 
 	void Path::SetMarker(Origne origne)
 	{
@@ -112,10 +131,12 @@ namespace Rynex {
 			std::string_view nextMarkerOrigneName = magic_enum::enum_name(origne);
 			RY_CORE_WARN("Marker only removed because {}!", nextMarkerOrigneName);
 			ClearOringenMarker();
-			return;
 		}
+		else if (!IsAbsoulte()) {
+			m_Path = GetAbsolutePath();
+		}
+		m_Path = GetResolveAbsoluteToMarkedPath(origne);
 		
-		RY_CORE_ASSERT(false, "not sultion curently for interpred!");
 	}
 
 	
