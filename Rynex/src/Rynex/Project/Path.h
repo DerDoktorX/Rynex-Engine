@@ -55,10 +55,8 @@ namespace Rynex {
 		std::filesystem::path GetRelativePath() const;
 		std::filesystem::path GetMarkedPath() const;
 
-		std::filesystem::path GetRelativePathFromOrigne(Origne origne) const;
 
 		void SetMarker(Origne origne);
-		void GenertaMarker();
 		void ClearOringenMarker();
 
 
@@ -111,6 +109,7 @@ namespace Rynex {
 		std::filesystem::path GetResolveMarkerPath(Origne origne) const;
 		std::filesystem::path GetResolveAbsoluteToMarkedPath(Origne origne) const;
 		std::filesystem::path ClearOringenMarker(Origne origne) const;
+		std::filesystem::path GetRelativePathFromAbsoultePath() const;
 
 	// --- private static methodes --------------------------------------------------------------------------------------------
 		static std::filesystem::path GetResolveReltivePathToAbsoluteFromOrigne(const std::filesystem::path& path, Origne origne);
