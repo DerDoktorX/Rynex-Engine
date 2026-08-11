@@ -155,7 +155,7 @@ namespace Rynex {
 	std::filesystem::path Path::ClearOringenMarker(Origne origne) const
 	{
 		std::filesystem::path reltivePath = RemovePathMarker(m_Path, origne);
-		std::filesystem::path absolutePath = GetResolveReltivePathToAbsoluteFromOrigne(reltivePath,origne);
+		std::filesystem::path absolutePath = GetResolveReltivePathToAbsoluteFromOrigne(reltivePath, origne);
 		ConvertUniverselPath(absolutePath);
 		return absolutePath;
 	}
