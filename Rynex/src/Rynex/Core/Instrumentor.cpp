@@ -1,6 +1,6 @@
 #include "rypch.h"
 #include <Rynex/Core/Instrumentor.h>
-#include <Platform/Windows/WinowsInstromenter.h>
+#include <Platform/GLFW/WinowsInstromenter.h>
 
 namespace Rynex {
 
