@@ -25,7 +25,7 @@ project "Rynex"
 	
 	pchheader "rypch.h"
 	pchsource "src/rypch.cpp"
-	toolset = Compiler
+
 	files
 	{
 		"src/**.h",

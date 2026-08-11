@@ -123,9 +123,6 @@ Library["WinMM"] = "Winmm.lib"
 Library["WinVersion"] = "Version.lib"
 Library["Bcrypt"] = "Bcrypt.lib"
 
-
-Compiler ="msv" -- "msv" | "gcc" | "clang" | "dotnet"
-
 group "Dependencies"
 	include "Rynex/vendor/GLFW"
 	include "Rynex/vendor/Glad"
