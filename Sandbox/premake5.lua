@@ -76,6 +76,8 @@ project "Sandbox"
 		defines "RY_REALSE"
 		runtime "Release"
 		optimize "on"
+		symbols "on"
+
 
 	filter "configurations:Dist"
 		defines "RY_DIST"

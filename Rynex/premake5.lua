@@ -129,7 +129,6 @@ project "Rynex"
 	filter "configurations:Debug"
 		defines "RY_DEBUG"
 		runtime "Debug"
-		symbols "on"	
 
 	filter {"system:windows", "configurations:Debug"}
 		links
@@ -141,6 +140,7 @@ project "Rynex"
 	filter "configurations:Release"
 		defines "RY_REALSE"
 		runtime "Release"
+		symbols "on"
 		optimize "on"	
 
 	filter {"system:windows", "configurations:Release"}
