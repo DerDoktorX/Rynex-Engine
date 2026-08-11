@@ -118,7 +118,7 @@ namespace Rynex {
 		static inline int8_t GetOrigneIndex(Origne origne) { return static_cast<int8_t>(origne); }
 		static uint32_t GetMarkerCarkterCount(Origne origne);
 		static bool IsPathMarked(const std::filesystem::path& markedPath);
-		static bool IsOrignePathMarked(Origne origne) { return Origne::None != origne; } ;
+		static bool IsOrignePathMarked(Origne origne);
 
 		static std::filesystem::path RemovePathMarker(const std::filesystem::path& markedPath);
 		static std::filesystem::path RemovePathMarker(const std::filesystem::path& markedPath, Origne origne);
@@ -146,120 +146,31 @@ namespace Rynex {
 	// --- private varibles ---------------------------------------------------------------------------------------------------
 		std::filesystem::path m_Path;
 	// --- private frinds -----------------------------------------------------------------------------------------------------
-		friend bool operator==(const Path& a, const std::filesystem::path& b);
-		friend bool operator!=(const Path& a, const std::filesystem::path& b);
-		friend Path operator/(const Path& a, const std::filesystem::path& b);
-		friend bool operator==(const std::filesystem::path& a, const Path& b);
-		friend bool operator!=(const std::filesystem::path& a, const Path& b);
-
-		friend bool operator==(const Path& a, const std::string& b);
-		friend bool operator!=(const Path& a, const std::string& b);
-		friend Path operator/(const Path& a, const std::string& b);
-		friend bool operator==(const std::string& a, const Path& b);
-		friend bool operator!=(const std::string& a, const Path& b);
-
-		friend bool operator==(const Path& a, const char* b);
-		friend bool operator!=(const Path& a, const char* b);
-		friend Path operator/(const Path& a, const char* b);
-		friend bool operator==(const char* a, const Path& b);
-		friend bool operator!=(const char* a, const Path& b);
-
 		friend bool operator==(const Path& a, const Path& b);
 		friend bool operator!=(const Path& a, const Path& b);
 		friend Path operator/(const Path& a, const Path& b);
 	};
 
+
 #pragma region NoneMemberPathOperator
 
-#pragma region NoneMemberPathOperator_Path
-
-	inline bool operator == (const Path& a, const Path& b) {
-		bool result = a.m_Path == b.m_Path; 
+	 inline bool operator == (const Path& a, const Path& b)
+	 {
+		bool result = a.m_Path == b.m_Path;
 		return result;
 	}
 
-	inline bool operator == (const Path& a, const std::filesystem::path& b) {
-		bool result = a.m_Path == b; 
+	 inline bool operator != (const Path& a, const Path& b) 
+	{
+		bool result = a.m_Path != b.m_Path;
 		return result;
 	}
 
-	inline bool operator != (const Path& a, const std::filesystem::path& b) {
-		bool result = a.m_Path != b; 
-		return result;
-	}
-
-	inline Path operator / (const Path& a, const std::filesystem::path& b) {
-		std::filesystem::path path = a.m_Path / b;
+	 inline Path operator / (const Path& a, const Path& b) 
+	{
+		std::filesystem::path path = a.m_Path / b.m_Path;
 		return Path(path);
 	}
-	
-	inline bool operator == (const std::filesystem::path& a,const Path& b ) {
-		bool result = a == b.m_Path;
-		return result;
-	}
-
-	inline bool operator != (const std::filesystem::path& a, const Path& b) {
-		bool result = a != b.m_Path;
-		return result;
-	}
-#pragma endregion
-
-#pragma region NoneMemberPathOperator_String
-
-	inline bool operator == (const Path& a, const std::string& b) {
-		bool result = a.m_Path.string() == b;
-		return result;
-	}
-
-	inline bool operator != (const Path& a, const std::string& b) {
-		bool result = a.m_Path.string() != b;
-		return result;
-	}
-
-	inline Path operator / (const Path& a, const std::string& b) {
-		std::filesystem::path path = a.m_Path / std::filesystem::path(b);
-		return Path(path);
-	}
-
-	inline bool operator == (const std::string& a, const Path& b) {
-		bool result = a == b.m_Path.string();
-		return result;
-	}
-
-	inline bool operator != (const std::string& a, const Path& b) {
-		bool result = a != b.m_Path.string();
-		return result;
-	}
-#pragma endregion
-
-#pragma region NoneMemberPathOperator_Char
-
-	inline bool operator == (const Path& a, const char* b) {
-		bool result = a.m_Path.string() == b;
-		return result;
-	}
-
-	inline bool operator != (const Path& a, const char* b) {
-		bool result = a.m_Path.string() != b;
-		return result;
-	}
-
-	inline Path operator / (const Path& a, const char* b) {
-		std::filesystem::path path = a.m_Path / std::filesystem::path(b);
-		return Path(path);
-	}
-
-	inline bool operator == (const char* a, const Path& b) {
-		bool result = a == b.m_Path.string();
-		return result;
-	}
-
-	inline bool operator != (const char* a, const Path& b) {
-		bool result = a != b.m_Path.string();
-		return result;
-	}
-
-#pragma endregion
 
 #pragma endregion
 
