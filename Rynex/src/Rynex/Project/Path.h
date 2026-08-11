@@ -99,6 +99,7 @@ namespace Rynex {
 
 		inline Path& operator/=(const char* path) {
 			m_Path /= path;
+			ConvertUniverselPath();
 			return *this;
 		}
 	// --- public static methodes ---------------------------------------------------------------------------------------------
@@ -129,7 +130,9 @@ namespace Rynex {
 		static std::filesystem::path GetPathAbsoluteMarker(Origne origne);
 		static Origne GetMarkedPathOrigine(const std::filesystem::path& markedPath);
 		static Origne GetPathOrignFromMarkerPath(const std::filesystem::path& markedPath);
-		static Origne GetExpextedOrigineFromPath(const std::filesystem::path& path);
+		static Origne GetExpextedOrigineFromRelativePath(const std::filesystem::path& path);
+		static Origne GetExpextedOrigineFromAbsoultePath(const std::filesystem::path& path);
+
 
 		static void ConvertUniverselPath(std::filesystem::path& path);
 	// --- private constexpr static methodes ----------------------------------------------------------------------------------
@@ -154,19 +157,19 @@ namespace Rynex {
 
 #pragma region NoneMemberPathOperator
 
-	 inline bool operator == (const Path& a, const Path& b)
-	 {
+	inline bool operator == (const Path& a, const Path& b)
+	{
 		bool result = a.m_Path == b.m_Path;
 		return result;
 	}
-
-	 inline bool operator != (const Path& a, const Path& b) 
+	
+	inline bool operator != (const Path& a, const Path& b) 
 	{
 		bool result = a.m_Path != b.m_Path;
 		return result;
 	}
-
-	 inline Path operator / (const Path& a, const Path& b) 
+	
+	inline Path operator / (const Path& a, const Path& b) 
 	{
 		std::filesystem::path path = a.m_Path / b.m_Path;
 		return Path(path);

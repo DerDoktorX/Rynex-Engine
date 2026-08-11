@@ -81,6 +81,22 @@ namespace Rynex {
 		return GetResolveMarkerPath(origne);
 	}
 
+	std::filesystem::path Path::GetRelativePath() const
+	{
+		if (!IsMarked() && !IsAbsoulte()) {
+			return m_Path;
+		}
+
+		Origne origne = GetMarkerOrigine();
+		if (IsOrignePathMarked(origne)) {
+			std::filesystem::path reltivePath = RemovePathMarker(m_Path, origne);
+			ConvertUniverselPath(reltivePath);
+			return reltivePath;
+		}
+		std::filesystem::path relativePath = GetRelativePathFromAbsoultePath();
+		return relativePath;
+	}
+
 
 	void Path::SetMarker(Origne origne)
 	{
@@ -99,13 +115,10 @@ namespace Rynex {
 			return;
 		}
 		
-		m_Path = GetResolveAbsoluteToMarkedPath(origne);
+		RY_CORE_ASSERT(false, "not sultion curently for interpred!");
 	}
 
-	void Path::GenertaMarker()
-	{
-		RY_CORE_ASSERT(false, "not implement!");
-	}
+	
 
 	void Path::ClearOringenMarker()
 	{
@@ -158,6 +171,14 @@ namespace Rynex {
 		std::filesystem::path absolutePath = GetResolveReltivePathToAbsoluteFromOrigne(reltivePath, origne);
 		ConvertUniverselPath(absolutePath);
 		return absolutePath;
+	}
+
+	std::filesystem::path Path::GetRelativePathFromAbsoultePath() const
+	{
+		Origne origne = GetExpextedOrigineFromAbsoultePath(m_Path);
+		std::filesystem::path absolutePath = GetPathAbsoluteMarker(origne);
+		std::filesystem::path relativePath = std::filesystem::relative(absolutePath, m_Path);
+		return relativePath;
 	}
 
 	std::filesystem::path Path::GetResolveReltivePathToAbsoluteFromOrigne(const std::filesystem::path& path, Origne origne)
@@ -289,25 +310,47 @@ namespace Rynex {
 		return origne;
 	}
 
-	Path::Origne Path::GetExpextedOrigineFromPath(const std::filesystem::path& path)
+	Path::Origne Path::GetExpextedOrigineFromRelativePath(const std::filesystem::path& path)
 	{
-		int8_t i = PATH_MARKER_COUNT - 1;
+		int8_t i = 0;
 		const std::string relativePathSearch[] = {
 			RY_PATH_EXPEXT_ENGINE_RELATIV_START_STR,
 			"",
 		};
-		while (PATH_MARKER_INDEX <= i && !Project::HasStringInPath(path, PATH_MARKER_STR[i]))
+		while ( i < 2 && !Project::HasStringInPath(path, relativePathSearch[i]))
 		{
-			i--;
+			i++;
 		}
-		if (i < PATH_MARKER_INDEX)
+		if (2 <= i)
 		{
 			RY_CORE_ERROR("Diden't found a vaild Marker! {}", i);
 			Origne origne = Origne::None;
 			return origne;
 		}
+		int8_t origneIndex = PATH_MARKER_COUNT - i;
+		Origne origne = static_cast<Origne>(origneIndex);
+		return origne;
+	}
 
-		Origne origne = static_cast<Origne>(i);
+	Path::Origne Path::GetExpextedOrigineFromAbsoultePath(const std::filesystem::path& path)
+	{
+		int8_t i = 0;
+		const std::string absoulutePathSearch[] = {
+			GetProjectDiretory().string(),
+			GetEngineDiretory().string(),
+		};
+		while (i < 2 && !Project::HasStringInPath(path, absoulutePathSearch[i]))
+		{
+			i++;
+		}
+		if ( 2 <= i)
+		{
+			RY_CORE_ERROR("Diden't found a vaild Marker! {}", i);
+			Origne origne = Origne::None;
+			return origne;
+		}
+		int8_t origneIndex = PATH_MARKER_COUNT - i;
+		Origne origne = static_cast<Origne>(origneIndex);
 		return origne;
 	}
 
