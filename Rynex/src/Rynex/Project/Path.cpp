@@ -73,12 +73,15 @@ namespace Rynex {
 		const Origne origne = GetMarkerOrigine();
 		if (IsOrignePathMarked(origne)) {
 			std::filesystem::path absolutePath = ClearOringenMarker(origne);
+			ConvertUniverselPath(absolutePath);
 			return absolutePath;
 		}
 		if (IsAbsoulte()) {
 			return m_Path;
 		}
-		return GetResolveMarkerPath(origne);
+		std::filesystem::path relativePath = GetResolveMarkerPath(origne);
+		ConvertUniverselPath(relativePath);
+		return relativePath;
 	}
 
 	std::filesystem::path Path::GetRelativePath() const
@@ -94,6 +97,7 @@ namespace Rynex {
 			return reltivePath;
 		}
 		std::filesystem::path relativePath = GetRelativePathFromAbsoultePath();
+		ConvertUniverselPath(relativePath);
 		return relativePath;
 	}
 
@@ -105,15 +109,15 @@ namespace Rynex {
 		if (IsAbsoulte()) {
 			Origne origne = GetExpextedOrigineFromAbsoultePath(m_Path);
 			std::filesystem::path markedPath = GetResolveAbsoluteToMarkedPath(origne);
+			ConvertUniverselPath(markedPath);
 			return markedPath;
 		}
 
 		
 		Origne origne = GetExpextedOrigineFromRelativePath(m_Path);
 		std::filesystem::path markedPath = GetResolveAbsoluteToMarkedPath(origne);
+		ConvertUniverselPath(markedPath);
 		return markedPath;
-		
-
 	}
 
 
