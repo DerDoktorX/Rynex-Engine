@@ -32,7 +32,7 @@ namespace Rynex {
 		{
 			return ((profectConfig.Name != Name) &&
 				(profectConfig.CreateDate != CreateDate) &&
-				(profectConfig.LastOpenDate != StartScene) &&
+				(profectConfig.LastOpenDate != LastOpenDate) &&
 				(profectConfig.LastScene != LastScene) &&
 				(profectConfig.AppDirektory != AppDirektory) &&
 				(profectConfig.AssetDirectory != AssetDirectory) &&
