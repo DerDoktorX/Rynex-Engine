@@ -3,16 +3,17 @@
 
 #define RY_PATH_PROJECT_MARKER_STR "Project#!#"
 #define RY_PATH_ENGINE_MARKER_STR "Engine#!#"
-#define RY_PATH_NO_VAILD_MARKER_STR "#//#NotVaild#//#"
+#define RY_PATH_NO_VAILD_MARKER_STR "NotVaild!#"
 #define RY_PATH_EXPEXT_ENGINE_RELATIV_START_STR "../Rynex-Editor/Editor-Assets"
 
 #define RY_PATH_PROJECT_MARKER_WSTR L"Project#!#"
 #define RY_PATH_ENGINE_MARKER_WSTR L"Engine#!#"
-#define RY_PATH_NO_VAILD_MARKER_WSTR L"#//#NotVaildMarker#//#"
+#define RY_PATH_NO_VAILD_MARKER_WSTR L"NotVaild!#"
 #define RY_PATH_EXPEXT_ENGINE_RELATIV_START_WSTR L"../Rynex-Editor/Editor-Assets"
 
 
 namespace Rynex {
+
 	class Path
 	{
 	public:
@@ -22,11 +23,10 @@ namespace Rynex {
 		inline static constexpr const char* const Path::PATH_MARKER_STR[PATH_MARKER_COUNT]={
 			"",								// no marker at all
 			RY_PATH_NO_VAILD_MARKER_STR,	// not vaild marker 
-			RY_PATH_ENGINE_MARKER_STR		// project marker 
-			RY_PATH_PROJECT_MARKER_STR,		// engine marker 
+			RY_PATH_ENGINE_MARKER_STR,		// engine marker 
+			RY_PATH_PROJECT_MARKER_STR		// project marker 
 		};
 	// --- public enum class --------------------------------------------------------------------------------------------------
-
 		enum class Origne : int8_t
 		{
 			None = 0,		// no marker at all
@@ -34,84 +34,114 @@ namespace Rynex {
 			Engine = 2,		// engine marker 
 			Project = 3		// project marker 
 		};
+
+		enum State : int16_t
+		{
+			None = 0,		// no known State
+			Absoulte = BIT(0),
+			Realtive = BIT(1),
+			MarkedState = BIT(2),
+			MarkedInline = BIT(3),
+			MarkedUnknown = BIT(4),
+			MarkedEngine = BIT(5),
+			MarkedProject = BIT(6),
+			Existing = BIT(7),
+			Directory = BIT(8),
+			File = BIT(9),
+			Extension = BIT(10),
+			AssetFileExtension = BIT(11),
+		};
 	// --- public methodes ----------------------------------------------------------------------------------------------------
 
 		Path(const Path& file);
-		Path(const std::string& path);
-		Path(const std::filesystem::path& path);
-		Path(const char* path);		
+		Path(const std::string& path, Origne origne = Origne::None);
+		Path(const std::filesystem::path& path, Origne origne = Origne::None);
+		Path(const char* path, Origne origne = Origne::None);	
+
 		~Path();
 
 		bool IsMarked() const;
 		bool IsRealtive() const;
 		bool IsAbsoulte() const;
 		bool IsExisting() const;
+		bool IsDirectory() const;
+		bool IsFile() const;
+		bool IsAssetExtension() const;
+		uint64_t GetHash() const;
+
+		int16_t GetState() const;
 
 		Origne GetMarkerOrigine() const;
-		Origne GetExpextedMarkerOrigne() const;
+		
 
 		const std::filesystem::path& GetPath() const; // get proteced acces to Orignal data
 		std::filesystem::path GetAbsolutePath() const;
 		std::filesystem::path GetRelativePath() const;
 		std::filesystem::path GetMarkedPath() const;
 
+		std::string GetAbsolutePathString() const;
+		std::string GetRelativePathString() const;
+		std::string GetMarkedPathString() const;
 
 		void SetMarker(Origne origne);
-		void ClearOringenMarker();
 
 
-		inline Path& operator=(const Path& path) {
+		inline Path& operator=(const Path& path) 
+		{
 			m_Path = path.m_Path;
 			return *this;
 		}
 
-		inline Path& operator=(const std::string& pathStr) {
+		inline Path& operator=(const std::string& pathStr) 
+		{
 			m_Path = pathStr;
-			ConvertUniverselPath();
+			ConvertInternalPath();
 			return *this;
 		}
 
-		inline Path& operator=(const std::filesystem::path& pathStr) {
+		inline Path& operator=(const std::filesystem::path& pathStr) 
+		{
 			m_Path = pathStr;
-			ConvertUniverselPath();
+			ConvertInternalPath();
 			return *this;
 		}
 
-		inline Path& operator=(const char* pathCharcter) {
+		inline Path& operator=(const char* pathCharcter) 
+		{
 			m_Path = pathCharcter;
-			ConvertUniverselPath();
+			ConvertInternalPath();
 			return *this;
 		}
 
-		inline Path& operator/=(const std::filesystem::path& path) {
+		inline Path& operator/=(const std::filesystem::path& path) 
+		{
 			m_Path /= path;
-			ConvertUniverselPath();
+			ConvertInternalPath();
 			return *this;
 		}
 
-		inline Path& operator/=(const std::string& path) {
+		inline Path& operator/=(const std::string& path) 
+		{
 			m_Path /= path;
-			ConvertUniverselPath();
+			ConvertInternalPath();
 			return *this;
 		}
 
-		inline Path& operator/=(const char* path) {
+		inline Path& operator/=(const char* path) 
+		{
 			m_Path /= path;
-			ConvertUniverselPath();
+			ConvertInternalPath();
 			return *this;
 		}
 	// --- public static methodes ---------------------------------------------------------------------------------------------
 		static std::filesystem::path GetProjectDiretory();
 		static std::filesystem::path GetEngineDiretory();
 		static std::filesystem::path GetWorkingDiretory();
-	private:
-		void ConvertUniverselPath();
-		std::filesystem::path GetResolveMarkerPath(Origne origne) const;
-		std::filesystem::path GetResolveAbsoluteToMarkedPath(Origne origne) const;
-		std::filesystem::path ClearOringenMarker(Origne origne) const;
-		std::filesystem::path GetRelativePathFromAbsoultePath() const;
+	
+	protected:
+		static int16_t FindeMarkedPathInlineState(const std::filesystem::path& path, Origne origne);
+		static int16_t FindeFilesystemStateState(const std::filesystem::path& noInlineMarkedPath, Origne origne);
 
-	// --- private static methodes --------------------------------------------------------------------------------------------
 		static std::filesystem::path GetResolveReltivePathToAbsoluteFromOrigne(const std::filesystem::path& path, Origne origne);
 		static std::filesystem::path GetResolveAbsoluteToMarkedPath(const std::filesystem::path& path, Origne origne);
 
@@ -145,8 +175,21 @@ namespace Rynex {
 			}
 			return count;
 		}
+	private:
+		void ConvertPathNoMarker();
+		void ConvertAboultePath();
+
+		void ConvertUniverselPath();
+		void ConvertInternalPath();
+
+
+		std::filesystem::path GetResolveMarkerPath(Origne origne) const;
+		std::filesystem::path GetResolveAbsoluteToMarkedPath(Origne origne) const;
+		std::filesystem::path ClearOringenMarker(Origne origne) const;
+		std::filesystem::path GetRelativePathFromAbsoultePath() const;
 	// --- private varibles ---------------------------------------------------------------------------------------------------
 		std::filesystem::path m_Path;
+		Origne m_Origne;
 	// --- private frinds -----------------------------------------------------------------------------------------------------
 		friend bool operator==(const Path& a, const Path& b);
 		friend bool operator!=(const Path& a, const Path& b);
@@ -176,4 +219,30 @@ namespace Rynex {
 
 #pragma endregion
 
+}
+
+namespace robin_hood {
+
+
+	template<>
+	struct hash<Rynex::Path>
+	{
+		std::size_t operator()(const Rynex::Path& path) const
+		{
+			std::size_t hash = path.GetHash();
+			return hash;
+		}
+	};
+}
+
+namespace std {
+	template<>
+	struct hash<Rynex::Path>
+	{
+		std::size_t operator()(const Rynex::Path& path) const
+		{
+			std::size_t hash = path.GetHash();
+			return hash;
+		}
+	};
 }
