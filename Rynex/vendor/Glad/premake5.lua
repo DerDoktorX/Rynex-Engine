@@ -30,7 +30,9 @@ project "Glad"
     
     filter "system:windows"
         systemversion "latest"
-        
+        -- filter { "configurations:Release" }
+        -- buildoptions "/MT"
 
-    --filter { "system:windows", "configurations:Release" }
-    --    buildoptions "/MT"
+    filter "system:linux"
+        systemversion "latest"
+    
