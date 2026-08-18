@@ -31,7 +31,7 @@ namespace Rynex {
 
 		std::filesystem::path RealtivePath = "Not knowing Realative Path";
 		std::filesystem::path AbsolutePath = "Not knowing Absolute Path";
-		std::filesystem::path PathMarker = "#//#NotVaildMarker#//#Not knowing Path";
+		std::filesystem::path PathMarker = RY_PATH_NO_VAILD_MARKER_STR "/Not knowing Path";
 
 		AssetMetadata() = default;
 		AssetMetadata(const AssetMetadata&) = default;
@@ -159,7 +159,7 @@ namespace Rynex {
 			bool isType = Type != AssetType::None;
 			bool isActive = GetActive();
 			bool isChangeTime = ChangeTime != "0000-00-00 00:00:00";
-			return isType && isActive&& isChangeTime;
+			return isType && isActive && isChangeTime;
 		}
 
 		
