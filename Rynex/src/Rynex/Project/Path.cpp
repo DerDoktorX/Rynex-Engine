@@ -2,7 +2,7 @@
 #include "Path.h"
 #include <Rynex/Project/Project.h>
 
-namespace Rynex {
+namespace Rynex::FileSystem {
 	
 
 	Path::Path(const Path& path)
@@ -11,12 +11,19 @@ namespace Rynex {
 	{
 	}
 
-	Path::Path(const std::string& path, Origne origne)
-		: m_Path(path)
+	Path::Path(const std::string& pathStr, Origne origne)
+		: m_Path(pathStr)
 		, m_Origne(origne)
 	{
 		ConvertInternalPath();
 	}
+
+	Path::Path(const std::string_view& pathView, Origne origne)
+		: m_Path(pathView)
+		, m_Origne(origne)
+	{
+	}
+
 
 	Path::Path(const std::filesystem::path& path, Origne origne)
 		: m_Path(path)

@@ -12,7 +12,7 @@
 #define RY_PATH_EXPEXT_ENGINE_RELATIV_START_WSTR L"../Rynex-Editor/Editor-Assets"
 
 
-namespace Rynex {
+namespace Rynex::FileSystem {
 
 	class Path
 	{
@@ -54,7 +54,8 @@ namespace Rynex {
 	// --- public methodes ----------------------------------------------------------------------------------------------------
 
 		Path(const Path& file);
-		Path(const std::string& path, Origne origne = Origne::None);
+		Path(const std::string& pathStr, Origne origne = Origne::None);
+		Path(const std::string_view& pathView, Origne origne = Origne::None);
 		Path(const std::filesystem::path& path, Origne origne = Origne::None);
 		Path(const char* path, Origne origne = Origne::None);	
 
@@ -225,9 +226,9 @@ namespace robin_hood {
 
 
 	template<>
-	struct hash<Rynex::Path>
+	struct hash<Rynex::FileSystem::Path>
 	{
-		std::size_t operator()(const Rynex::Path& path) const
+		std::size_t operator()(const Rynex::FileSystem::Path& path) const
 		{
 			std::size_t hash = path.GetHash();
 			return hash;
@@ -237,9 +238,9 @@ namespace robin_hood {
 
 namespace std {
 	template<>
-	struct hash<Rynex::Path>
+	struct hash<Rynex::FileSystem::Path>
 	{
-		std::size_t operator()(const Rynex::Path& path) const
+		std::size_t operator()(const Rynex::FileSystem::Path& path) const
 		{
 			std::size_t hash = path.GetHash();
 			return hash;
