@@ -80,7 +80,7 @@ namespace Rynex {
 	int16_t Path::GetState() const
 	{
 		int16_t state = FindeMarkedPathInlineState(m_Path, m_Origne);
-		return State();
+		return state;
 	}
 
 	Path::Origne Path::GetMarkerOrigine() const
@@ -165,7 +165,7 @@ namespace Rynex {
 		
 		if (m_Path.empty())
 			return;
-		Origne orignePath = GetMarkedPathOrigine(m_Path);
+		Origne orignePath = GetPathOrignFromMarkerPath(m_Path);
 		std::filesystem::path pathCopy = m_Path;
 		if (!IsOrignePathMarked(orignePath) && IsOrignePathMarked(m_Origne))
 			return;
@@ -215,7 +215,7 @@ namespace Rynex {
 	{
 		bool isAbsolute = m_Path.is_absolute();
 		bool isRelative = m_Path.is_relative();
-		RY_CORE_ASSERT(isAbsolute == isRelative, "Both path shoud never be equeal!");
+		RY_CORE_ASSERT(isAbsolute != isRelative, "Both path shoud never be equeal!");
 		if (!isAbsolute && isRelative)
 		{
 			m_Path = GetResolveReltivePathToAbsoluteFromOrigne(m_Path, m_Origne);
@@ -372,7 +372,7 @@ namespace Rynex {
 		std::filesystem::path marker = std::filesystem::path(PATH_MARKER_STR[index]);
 		std::filesystem::path markeredRelativePath = marker / relativePath;
 		ConvertUniverselPath(markeredRelativePath);
-		return relativePath;
+		return markeredRelativePath;
 	}
 
 	uint32_t Path::GetMarkerCarkterCount(Origne origne)
@@ -471,7 +471,7 @@ namespace Rynex {
 	Path::Origne Path::GetPathOrignFromMarkerPath(const std::filesystem::path& markedPath)
 	{
 		int8_t i = PATH_MARKER_COUNT - 1;
-		while (0 <= i && !Project::HasStringInPath(markedPath, PATH_MARKER_STR[i]))
+		while (1 <= i && !Project::HasStringInPath(markedPath, PATH_MARKER_STR[i]))
 		{
 			i--;
 		}
@@ -531,7 +531,8 @@ namespace Rynex {
 
 	void Path::ConvertUniverselPath(std::filesystem::path& path)
 	{
-		std::string genaricPathStr = path.generic_string();
+		std::filesystem::path normalizedPath = path.lexically_normal();
+		std::string genaricPathStr = normalizedPath.generic_string();
 		path = genaricPathStr;
 	}
 
