@@ -38,7 +38,12 @@ scripts/__pycache__
 **.cap
 **.json
 
-# from Hazel
+
+Rynex-Editor/assimp-vc143-mt.dll
+Rynex-Editor/assimp-vc143-mt.pdb
+Rynex-Editor/assimp-vc143-mtd.dll
+Rynex-Editor/assimp-vc143-mtd.pdb
+
 
 # Binaries
 #Intermediates/
