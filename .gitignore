@@ -31,7 +31,7 @@ ERRORS/*.txt
 premake_Srcripts/.lua
 RenderDoc/*.csv
 
-scripts/__pycache__
+scripts/__pycache__/
 # Files
 **.bat
 **.rdc
@@ -39,11 +39,13 @@ scripts/__pycache__
 **.json
 
 
-*/assimp-vc143-mt.dll
-*/assimp-vc143-mt.pdb
-*/assimp-vc143-mtd.dll
-*/assimp-vc143-mtd.pdb
+**/assimp-vc143-mt.dll
+**/assimp-vc143-mt.pdb
+**/assimp-vc143-mtd.dll
+**/assimp-vc143-mtd.pdb
 
+
+Rynex-Editor/Resources/fonts/Open_Sans/*.ttf
 
 # Binaries
 #Intermediates/
