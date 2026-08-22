@@ -130,7 +130,7 @@ group "Dependencies"
 	include "Rynex/vendor/Glad"
 	include "Rynex/vendor/yaml-cpp"
 	include "Rynex/vendor/imgui"
-	include "Rynex/vendor/implot"
+	
 
 	include "Rynex/vendor/msdf-atelas-gen"
 	include "Rynex/vendor/meshoptimizer"
