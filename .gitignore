@@ -12,7 +12,7 @@ Rynex-Test/
 # Liberays
 
 # Rynex/vendor/GLFW/
-Rynex/vendor/*
+# Rynex/vendor/*
 # Rynex/vendor/ImGuizmo
 # Rynex/vendor/msdf-atelas-gen
 # Rynex/vendor/meshoptimizer
