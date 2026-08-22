@@ -39,22 +39,23 @@ scripts/__pycache__/
 **.json
 
 
-**/assimp-vc143-mt.dll
-**/assimp-vc143-mt.pdb
-**/assimp-vc143-mtd.dll
-**/assimp-vc143-mtd.pdb
 
-
+# Font
 Rynex-Editor/Resources/fonts/Open_Sans/*.ttf
 
 # Binaries
 #Intermediates/
 Intermediates/
-Resources/Binaries/
+Resources/Scripts/
 SandboxProject/Assets/Scripts/Binaries
 SandboxProject/Assets/Scripts/Intermediates
 Rynex-ScriptingCore/bin
 Rynex-ScriptingCore/obj
+**/assimp-vc143-mt.dll
+**/assimp-vc143-mt.pdb
+**/assimp-vc143-mtd.dll
+**/assimp-vc143-mtd.pdb
+**/unit.pdb
 
 # Hazel files
 **.log
