@@ -25,6 +25,11 @@ Rynex-Test/
 # msdf-atelas-gen @ b50e101
 # yaml-cpp @ b5b07c8
 # glm @ 7590260
+
+Rynex/vendor/_ImGuizmo
+Rynex/vendor/_imgui
+Rynex/vendor/_meshoptimizer
+
 Profile/
 ERRORS/*.txt
 # binPreprozesSource/.cpp
