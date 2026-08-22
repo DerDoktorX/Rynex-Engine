@@ -90,7 +90,6 @@ project "Rynex"
 
 		"yaml-cpp",			-- Files
 		"ImGui", 			-- Runtime Visuelle configs
-		"ImPolt",
 
 		"msdf-atlas-gen"
 	}
