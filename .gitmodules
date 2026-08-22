@@ -13,6 +13,3 @@
 [submodule "Rynex/vendor/msdf-atelas-gen"]
 	path = Rynex/vendor/msdf-atelas-gen
 	url = https://github.com/TheCherno/msdf-atlas-gen
-[submodule "Rynex-Test/vendor/gtest"]
-	path = Rynex-Test/vendor/gtest
-	url = https://github.com/google/googletest
