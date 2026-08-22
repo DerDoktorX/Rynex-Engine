@@ -1,25 +1,43 @@
 #include "rypch.h"
 #include "OpenGLBuffer.h"
 
-#include "Rynex/Core/Application.h"
-#include <Platform/OpenGL/OpenGLThreadContext.h>
+#include <Platform/OpenGL/OpenGLBase.h>
+#include <Platform/OpenGL/OpenGLVertexArray.h>
 
-#include <glad/glad.h>
+#define RY_USE_OLD_OPENGL 0
 
-#include <future>
+
 
 namespace Rynex {
-	
 	namespace Utils {
+
+		static void AddMemoryToTracker(uint32_t memory)
+		{
+			Application& app = Application::Get();
+			Window& window = app.GetWindow();
+			GraphicsContext* conext = window.GetGraphicsContext();
+			OpenGLContext* OpenGLconext = static_cast<OpenGLContext*>(conext);
+			OpenGLconext->AddCurentAllocMemory(static_cast<uint64_t>(memory));
+		}
+
+		static void RemoveMemoryToTracker(uint32_t memory)
+		{
+			Application& app = Application::Get();
+			Window& window = app.GetWindow();
+			GraphicsContext* conext = window.GetGraphicsContext();
+			OpenGLContext* OpenGLconext = static_cast<OpenGLContext*>(conext);
+			OpenGLconext->RemoveCurentAllocMemory(static_cast<uint64_t>(memory));
+
+		}
 
 		static GLenum GetBufferDataUsage(BufferDataUsage usage)
 		{
 
 			switch (usage)
 			{
-			case BufferDataUsage::None:			return GL_STATIC_DRAW;
-			case BufferDataUsage::DynamicDraw:	return GL_DYNAMIC_DRAW;
-			case BufferDataUsage::StaticDraw:	return GL_STATIC_DRAW;
+				RY_CASE_RETURN(BufferDataUsage::None, GL_STATIC_DRAW);
+				RY_CASE_RETURN(BufferDataUsage::DynamicDraw, GL_DYNAMIC_DRAW);
+				RY_CASE_RETURN(BufferDataUsage::StaticDraw, GL_STATIC_DRAW);
 			default:
 				RY_CORE_ASSERT(false, "BufferData, GL_STATIC_DRAW");
 				return GL_STATIC_DRAW;
@@ -27,11 +45,30 @@ namespace Rynex {
 			return GL_STATIC_DRAW;
 		}
 
-		static GLenum GetPoliciyType(StorageBuffer::Type type)
+
+
+		static GLenum GetFlagsFromFlagTypes(BufferFlagGPU flag)
 		{
 			return GL_DYNAMIC_STORAGE_BIT;
 		}
-		
+
+		static GLenum GetTarget(BufferType target)
+		{
+			switch (target)
+			{
+				RY_CASE_RETURN(BufferType::None, 0u);
+				RY_CASE_RETURN(BufferType::ShaderStorage, GL_SHADER_STORAGE_BUFFER);
+				RY_CASE_RETURN(BufferType::Index, GL_ELEMENT_ARRAY_BUFFER);
+				RY_CASE_RETURN(BufferType::Vertex, GL_ARRAY_BUFFER);
+				RY_CASE_RETURN(BufferType::DrawIndrirect, GL_DRAW_INDIRECT_BUFFER);
+				RY_CASE_RETURN(BufferType::Uniform, GL_UNIFORM_BUFFER);
+			default:
+				RY_CORE_ASSERT(false, "BufferData, GL_STATIC_DRAW");
+				return 0u;
+			}
+			return 0u;
+		}
+
 		static GLint GetMaxUniforms()
 		{
 			GLint maxUniformBlockSize = 0;
@@ -43,199 +80,251 @@ namespace Rynex {
 
 #pragma region VertexBuffer
 
+
 	OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size)
-		: m_Size(size)
-		, m_Target(GL_ARRAY_BUFFER)
-		, m_Usage(BufferDataUsage::None)
+		: m_Buffer(s_Target, nullptr, size, Utils::GetFlagsFromFlagTypes(BufferFlag::None))
+		, m_Flag(BufferFlag::None)
 	{
-		m_Data.resize(m_Size);
-		if(OpenGLThreadContext::IsActive())
-		{
-			InitAsync();
-		}
-		else
-		{
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-				InitAsync();
-			});
-		}
-
-	}
-
-	OpenGLVertexBuffer::OpenGLVertexBuffer(const void* vertices, uint32_t size, BufferDataUsage usage)
-		: m_Usage(usage)
-		, m_Size(size)
-		, m_Target(GL_ARRAY_BUFFER)
-	{
-		m_Data.resize(m_Size);
-		std::memcpy(m_Data.data(), vertices, m_Size);
-		if (OpenGLThreadContext::IsActive())
-		{
-			InitAsync();
-		}
-		else
-		{
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-				InitAsync();
-			});
-		}
-		
-
 	}
 
 
+	OpenGLVertexBuffer::OpenGLVertexBuffer(const void* vertices, uint32_t size, BufferFlagGPU flag)
+		: m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(vertices), size, Utils::GetFlagsFromFlagTypes(flag))
+		, m_Flag(flag)
+	{
+	}
 
-	OpenGLVertexBuffer::OpenGLVertexBuffer(const void* vertices, uint32_t size, BufferDataUsage usage, const BufferLayout& layout)
-		: m_Usage(usage)
-		, m_Size(size)
-		, m_Target(GL_ARRAY_BUFFER)
+
+	OpenGLVertexBuffer::OpenGLVertexBuffer(const void* vertices, uint32_t size, BufferFlagGPU flag, const BufferLayout& layout)
+		: m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(vertices), size, Utils::GetFlagsFromFlagTypes(flag))
+		, m_Flag(flag)
 		, m_Layout(layout)
 	{
-		m_Data.resize(m_Size);
-		std::memcpy(m_Data.data(), vertices, m_Size);
-		if (OpenGLThreadContext::IsActive())
-		{
-			glGenBuffers(1, &m_RendererID);
-			glBindBuffer(m_Target, m_RendererID);
-			glBufferData(m_Target, size, vertices, Utils::GetBufferDataUsage(m_Usage));
-		}
-		else
-		{
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-				InitAsync();
-			});
-		}
-
 	}
 
-	OpenGLVertexBuffer::OpenGLVertexBuffer(std::vector<unsigned char>&& data, uint32_t size, BufferDataUsage usage, const BufferLayout& layout)
-		: m_Usage(usage)
-		, m_Size(size)
-		, m_Target(GL_ARRAY_BUFFER)
+	OpenGLVertexBuffer::OpenGLVertexBuffer(std::vector<unsigned char>&& data, uint32_t size, BufferFlagGPU flag, const BufferLayout& layout)
+		: m_Buffer(s_Target, std::move(data), Utils::GetFlagsFromFlagTypes(flag))
+		, m_Flag(flag)
 		, m_Layout(layout)
-		, m_Data(std::move(data))
-		
 	{
-
-		RY_CORE_ASSERT(m_Data.size() == m_Size);
-		if(OpenGLThreadContext::IsActive())
-		{
-			InitAsync();
-		}
-		else
-		{
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-				InitAsync();
-			});
-		}
 	}
 
 	
-
 	OpenGLVertexBuffer::OpenGLVertexBuffer(const void* vertices, uint32_t size)
-		: m_Size(size)
-		, m_Target(GL_ARRAY_BUFFER)
-		, m_Usage(BufferDataUsage::None)
+		: m_Buffer(s_Target, nullptr, size, Utils::GetFlagsFromFlagTypes(BufferFlag::None))
+		, m_Flag(BufferFlag::None)
 	{
-		m_Data.resize(m_Size);
-		std::memcpy(m_Data.data(), vertices, m_Size);
-		if (OpenGLThreadContext::IsActive())
-		{
-			InitAsync();
-		}
-		else
-		{
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-				InitAsync();
-			});
-		}
 	}
 
 	
+
 	OpenGLVertexBuffer::~OpenGLVertexBuffer()
 	{
-		if (OpenGLThreadContext::IsActive() && m_RendererID != 0)
-		{
-			glDeleteBuffers(1, &m_RendererID);
-			FreeBufferData();
-		}
-		else
-		{
+		RY_CORE_ASSERT(OpenGLThreadContext::IsActive());
+	}
 
-
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-				glDeleteBuffers(1, &m_RendererID);
-				FreeBufferData();
-				m_RendererID = 0;
-
-				});
-
-
-			while (m_RendererID != 0)
-			{
-				using namespace std::chrono_literals;
-				std::this_thread::sleep_for(500ms);
-			}
-
-		}
-		
+	bool OpenGLVertexBuffer::IsTransferd()
+	{
+		RY_CORE_NOT_IMPL();
+		return false;
 	}
 
 	void OpenGLVertexBuffer::Bind() const
 	{
-		glBindBuffer(m_Target, m_RendererID);
+		m_Buffer.Bind(s_Target);
 	}
 
 	void OpenGLVertexBuffer::UnBind() const
 	{
-		glBindBuffer(m_Target, 0);
-	}
-
-	void OpenGLVertexBuffer::InitAsync()
-	{
-		RY_PROFILE_FUNCTION("Init OpenGL Vertex-Buffer");
-		RY_CORE_ASSERT(m_Size != 0 && m_Data.size() != 0);
-		if(m_RendererID)
-			glDeleteBuffers(1, &m_RendererID);
-		glGenBuffers(1, &m_RendererID);
-		glBindBuffer(m_Target, m_RendererID);
-		glBufferData(m_Target, m_Data.size(), m_Data.data(), Utils::GetBufferDataUsage(m_Usage));
-		
+		m_Buffer.UnBind(s_Target);
 	}
 
 	void OpenGLVertexBuffer::SetData(const void* data, uint32_t byteSize)
 	{
-		RY_CORE_ASSERT(m_RendererID && OpenGLThreadContext::IsActive());
-		
-		m_Size = byteSize;
-		m_Data.resize(m_Size);
-		std::memcpy(m_Data.data(), data, m_Size);
-
-		glBindBuffer(m_Target, m_RendererID);
-		glBufferSubData(m_Target, 0, m_Data.size(), m_Data.data());
+		uint32_t offestByteSize = 0;
+		m_Buffer.SetData(s_Target, reinterpret_cast<const uint8_t*>(data), offestByteSize, byteSize);
+		OnDataChangeCall();
 	}
 
-	const std::vector<unsigned char>& OpenGLVertexBuffer::GetBufferData()
+	void OpenGLVertexBuffer::ResizeBuffer(const void* data, uint32_t byteSize)
 	{
-		RY_CORE_ASSERT(m_RendererID && OpenGLThreadContext::IsActive());
-		if (m_Data.size() == 0)
-			m_Data.resize(m_Size);
+		uint32_t flag = Utils::GetFlagsFromFlagTypes(m_Flag);
+		m_Buffer.ResizeData(s_Target, reinterpret_cast<const uint8_t*>(data), byteSize, flag);
+		OnSpecifcationChangeCall();
+	}
 
-		glBindBuffer(m_Target, m_RendererID);
-		glGetBufferSubData(m_Target, 0, m_Data.size(), m_Data.data());
-		return m_Data;
+	void OpenGLVertexBuffer::CopyData(uint32_t fromPoint, uint32_t toPoint, uint32_t byteSize, Ref<VertexBuffer> vb)
+	{
+		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLVertexBuffer::CopyData, fromPoint, toPoint, byteSize, vb);
+
+		Ref<OpenGLVertexBuffer> vbOpenGL = std::static_pointer_cast<OpenGLVertexBuffer>(vb);
+		uint32_t readVB_ID = vbOpenGL->GetRenderID();
+		uint32_t size = vbOpenGL->GetByteSize();
+		int32_t space = byteSize + fromPoint;
+		RY_CORE_ASSERT(space <= size);
+		int32_t space2 = byteSize + toPoint;
+		RY_CORE_ASSERT(space2 <= m_Buffer.GetByteSize(), "Whrite Buffer is not large enugh");
+
+		uint32_t rendererID = m_Buffer.GetRenderID();
+		glCopyNamedBufferSubData(readVB_ID, rendererID, fromPoint, toPoint, byteSize);
+		m_Buffer.LoadeGPUDataOnCPU();
+
+		RY_CORE_TRACE("Copy Action Finsihed!");
+		OnDataChangeCall();
+	}
+
+	void OpenGLVertexBuffer::AddCopyData( Ref<VertexBuffer> vb)
+	{
+		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLVertexBuffer::AddCopyData, vb);
+
+		Ref<OpenGLVertexBuffer> vbOpenGL = std::static_pointer_cast<OpenGLVertexBuffer>(vb);
+		uint32_t readVB_ID = vbOpenGL->GetRenderID();
+		uint32_t sizeRead = vbOpenGL->GetByteSize();
+		uint32_t oldSizeWrith = m_Buffer.GetByteSize();
+
+		m_Buffer.LoadeGPUDataOnCPU();
+		{
+			std::vector<uint8_t> data = m_Buffer.GetData();
+			RY_CORE_ASSERT(data.size() == oldSizeWrith);
+			uint32_t resizeToByteSize = oldSizeWrith + sizeRead;
+			data.resize(resizeToByteSize);
+
+			uint32_t flag = Utils::GetFlagsFromFlagTypes(m_Flag);
+			uint8_t* dataPtr = data.data();
+			m_Buffer.ResizeData(GL_ARRAY_BUFFER, dataPtr, resizeToByteSize, flag);
+
+			OnSpecifcationChangeCall();
+		}
+		uint32_t rendererID = m_Buffer.GetRenderID();
+		glCopyNamedBufferSubData(readVB_ID, rendererID, 0u, oldSizeWrith, sizeRead);
+		m_Buffer.LoadeGPUDataOnCPU();
+		RY_CORE_TRACE("Add Copy New Data Action Finsihed!");
+		OnDataChangeCall();
+	}
+
+
+
+	const std::vector<unsigned char>& OpenGLVertexBuffer::GetBufferData() const
+	{
+		return m_Buffer.GetData();
 	}
 
 	void OpenGLVertexBuffer::FreeBufferData()
 	{
-		if (m_Data.size())
+		RY_CORE_NOT_IMPL();
+	}
+
+	uint32_t OpenGLVertexBuffer::GetVertexCount() const
+	{
+		uint32_t size = m_Buffer.GetByteSize() / m_Layout.GetStride();
+		return size;
+	}
+
+	void OpenGLVertexBuffer::AddParent(OpenGLVertexArray* vertexArrayPtr)
+	{
+
+
+		Ref<OpenGLVertexArray> openGLVertexArrayRef = Asset::GetRefInPlaceType(vertexArrayPtr);
+		for (auto& parent : m_ParentVec)
 		{
-			m_Data.clear();
+			if (std::visit([&openGLVertexArrayRef](auto& openGLWeak)
+					{
+						if constexpr (std::is_same_v<std::decay_t<decltype(openGLWeak)>, Weak<OpenGLVertexArray>>)
+						{
+							return openGLWeak.lock() == openGLVertexArrayRef;
+						}
+						return false;
+					}, parent))
+			{
+				return;
+			}
+		}
+		m_ParentVec.emplace_back(openGLVertexArrayRef);
+
+	}
+
+	void OpenGLVertexBuffer::RemoveParent(OpenGLVertexArray* vertexArrayPtr)
+	{
+		Ref<OpenGLVertexArray> openGLVertexArrayRef = Asset::GetRefInPlaceType(vertexArrayPtr);
+		uint32_t index = 0u;
+
+		for (auto& parent : m_ParentVec)
+		{
+			if (std::visit([&openGLVertexArrayRef](auto& openGLWeak)
+				{
+					if constexpr (std::is_same_v<std::decay_t<decltype(openGLWeak)>, Weak<OpenGLVertexArray>>)
+					{
+						return openGLWeak.lock() == openGLVertexArrayRef;
+					}
+					return false;
+				}, parent))
+			{
+				break;
+			}
+			index++;
+		}
+		if (m_ParentVec.size() == index)
+			return;
+
+		m_ParentVec.erase(m_ParentVec.begin() + index);
+
+	}
+
+	void OpenGLVertexBuffer::OnSpecifcationChangeCall()
+	{
+		for (auto& parent : m_ParentVec)
+		{
+			std::visit(
+				[vertexBufferClass = this](auto& openGLWeak)
+				{
+					if (auto openGLRef = openGLWeak.lock())
+					{
+						openGLRef->OnChildeSpecifcationChange(vertexBufferClass);
+					}
+				}
+			, parent);
+			
+			
+		}
+
+	}
+
+	void OpenGLVertexBuffer::OnDataChangeCall()
+	{
+		for (auto& parent : m_ParentVec)
+		{
+			std::visit(
+				[vertexBufferClass = this](auto& openGLWeak)
+				{
+					if (auto openGLRef = openGLWeak.lock())
+					{
+						openGLRef->OnChildeDataChange(vertexBufferClass);
+					}
+				}
+			, parent);
+
+
 		}
 	}
 
+	void OpenGLVertexBuffer::OnDestroyCall()
+	{
+		for (auto& parent : m_ParentVec)
+		{
+			std::visit(
+				[vertexBufferClass = this](auto& openGLWeak)
+				{
+					if (auto openGLRef = openGLWeak.lock())
+					{
+						openGLRef->OnChildeDestroy(vertexBufferClass);
+					}
+				}
+			, parent);
 
 
+		}
+	}
+	
 
 #pragma endregion
 
@@ -243,163 +332,223 @@ namespace Rynex {
 #pragma region IndexBuffer
 
 
-
-
-	OpenGLIndexBuffer::OpenGLIndexBuffer(const uint32_t* indices, uint32_t count, BufferDataUsage usage)
-		: m_Count(count)
-		, m_Usage(usage)
-		, m_Target(GL_ELEMENT_ARRAY_BUFFER)
+	OpenGLIndexBuffer::OpenGLIndexBuffer(const uint32_t* indices, uint32_t count, BufferFlagGPU flag)
+		: m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(indices), count * sizeof(uint32_t), Utils::GetFlagsFromFlagTypes(flag))
+		, m_Flag(flag)
 		, m_EllementByte(sizeof(uint32_t))
 	{
-		uint32_t size = m_Count * m_EllementByte;
-		m_Data.resize(size);
-		std::memcpy(m_Data.data(), indices, size);
-		
-		RY_CORE_ASSERT(m_Count != 0 && m_EllementByte != 0 && m_Data.size() != 0);
-		if (OpenGLThreadContext::IsActive())
-		{
-			InitAsync();
-		}
-		else
-		{
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-					InitAsync();
-				});
-		}
 	}
 
-	OpenGLIndexBuffer::OpenGLIndexBuffer(const uint16_t* indices, uint32_t count, BufferDataUsage usage)
-		: m_Count(count)
-		, m_Usage(usage)
-		, m_Target(GL_ELEMENT_ARRAY_BUFFER)
+	OpenGLIndexBuffer::OpenGLIndexBuffer(const uint16_t* indices, uint32_t count, BufferFlagGPU flag)
+		: m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(indices), count * sizeof(uint16_t), Utils::GetFlagsFromFlagTypes(flag))
+		, m_Flag(flag)
 		, m_EllementByte(sizeof(uint16_t))
 	{
-		uint32_t size = m_Count * m_EllementByte;
-		m_Data.resize(size);
-		std::memcpy(m_Data.data(), indices, size);
-		
-		RY_CORE_ASSERT(m_Count != 0 && m_EllementByte != 0 && m_Data.size() != 0);
-		if (OpenGLThreadContext::IsActive())
-		{
-			InitAsync();
-		}
-		else
-		{
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-				InitAsync();
-				});
-		}
+
 	}
 
-	OpenGLIndexBuffer::OpenGLIndexBuffer(std::vector<uint32_t>&& data, uint32_t count, BufferDataUsage usage)
-		: m_Count(count)
-		, m_Usage(usage)
-		, m_Target(GL_ELEMENT_ARRAY_BUFFER)
+
+	OpenGLIndexBuffer::OpenGLIndexBuffer(std::vector<uint32_t>&& data, uint32_t count, BufferFlagGPU flag)
+		: m_Buffer(s_Target, nullptr, count * sizeof(uint32_t), Utils::GetFlagsFromFlagTypes(flag))
+		, m_Flag(flag)
 		, m_EllementByte(sizeof(uint32_t))
-		, m_Data(std::move(data))
 	{
-		RY_CORE_ASSERT(m_Count != 0 && m_EllementByte != 0 && m_Data.size() != 0);
-		if (OpenGLThreadContext::IsActive())
-		{
-			InitAsync();
-		}
-		else
-		{
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-				InitAsync();
-				});
-		}
+		std::vector<uint32_t> dataMove = std::move(data);
+		const uint32_t* indices = dataMove.data();
+		uint32_t offset = 0u;
+		uint32_t bytesSize = count * sizeof(uint32_t);
+		m_Buffer.SetData(s_Target, reinterpret_cast<const uint8_t*>(indices), offset, bytesSize);
+
+
 	}
 
 	
 
 	OpenGLIndexBuffer::~OpenGLIndexBuffer()
 	{
-		if(m_RendererID)
-			glDeleteBuffers(1, &m_RendererID);
+		RY_CORE_ASSERT(OpenGLThreadContext::IsActive());
 	}
 
-	void OpenGLIndexBuffer::InitAsync()
-	{
-		RY_CORE_ASSERT(m_Count != 0 && m_EllementByte != 0 && m_Data.size() != 0);
-		if (m_RendererID)
-			glDeleteBuffers(1, &m_RendererID);
-
-		uint32_t size = m_Count * m_EllementByte;
-		
-		glCreateBuffers(1, &m_RendererID);
-		glBindBuffer(m_Target, m_RendererID);
-		glBufferData(m_Target, size, m_Data.data(), Utils::GetBufferDataUsage(m_Usage));
-
-		RY_CORE_ASSERT(m_RendererID != 0);
-	}
 
 	void OpenGLIndexBuffer::SetData(const uint32_t* indices, uint32_t count)
 	{ 
 		m_EllementByte = sizeof(uint32_t);
-		m_Count = count;
-		uint32_t size = m_Count * m_EllementByte;
-		RY_CORE_ASSERT(m_Count != 0 && m_EllementByte != 0 && m_Data.size() != 0);
+		uint32_t byteSize = count * m_EllementByte;
 
-		m_Data.resize(size);
-		std::memcpy(m_Data.data(), indices, size);
+		if(byteSize <= m_Buffer.GetByteSize())
+		{
+			uint32_t offset = 0u;
+			m_Buffer.SetData(s_Target, reinterpret_cast<const uint8_t*>(indices), offset, byteSize);
 
-		if(m_RendererID)
-			glCreateBuffers(1, &m_RendererID);
-
-		glBindBuffer(m_Target, m_RendererID);
-		glBufferData(m_Target, m_Data.size(), m_Data.data(), Utils::GetBufferDataUsage(m_Usage));
+		}
+		else
+		{
+			GLenum flag = Utils::GetFlagsFromFlagTypes(m_Flag);
+			m_Buffer.ResizeData(s_Target, reinterpret_cast<const uint8_t*>(indices), byteSize, flag);
+		}
+		OnSpecifcationChangeCall();
 	}
 
 	void OpenGLIndexBuffer::SetData(const uint16_t* indices, uint32_t count)
 	{
 		m_EllementByte = sizeof(uint16_t);
-		m_Count = count;
-		uint32_t size = m_Count * m_EllementByte;
-		RY_CORE_ASSERT(m_Count != 0 && m_EllementByte != 0 && m_Data.size() != 0);
+		uint32_t byteSize = count * m_EllementByte;
 
-		m_Data.resize(size);
-		std::memcpy(m_Data.data(), indices, size);
+		if (byteSize <= m_Buffer.GetByteSize())
+		{
+			uint32_t offset = 0u;
+			m_Buffer.SetData(s_Target, reinterpret_cast<const uint8_t*>(indices), offset, byteSize);
+		}
+		else
+		{
+			GLenum flag = Utils::GetFlagsFromFlagTypes(m_Flag);
+			m_Buffer.ResizeData(s_Target, reinterpret_cast<const uint8_t*>(indices), byteSize, flag);
+		}
 
-		if (m_RendererID)
-			glCreateBuffers(1, &m_RendererID);
-
-		glBindBuffer(m_Target, m_RendererID);
-		glBufferData(m_Target, m_Data.size(), m_Data.data(), Utils::GetBufferDataUsage(m_Usage));
+		OnSpecifcationChangeCall();
 	}
 
-	const std::vector<uint32_t> OpenGLIndexBuffer::GetBufferData()
+	void OpenGLIndexBuffer::CopyData(uint32_t fromPoint, uint32_t toPoint, uint32_t byteSize, Ref<IndexBuffer> ib)
 	{
-		RY_CORE_ASSERT(m_RendererID && OpenGLThreadContext::IsActive() && m_EllementByte == sizeof(uint32_t));
-		uint32_t size = m_Count * m_EllementByte;
-		if (m_Data.size() == 0 )
-			m_Data.resize(size);
+		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLIndexBuffer::CopyData, fromPoint, toPoint, byteSize, ib);
+		RY_CORE_ASSERT(0u != m_Buffer.GetRenderID(), "Not set Buffer ID!");
 
-		glBindBuffer(m_Target, m_RendererID);
-		glGetBufferSubData(m_Target, 0, m_Data.size(), m_Data.data());
-		
-		// glGetBufferSubData(m_Target, 0, m_Data.size(), m_Data.data());
+		Ref<OpenGLIndexBuffer> vbOpenGL = std::static_pointer_cast<OpenGLIndexBuffer>(ib);
+		uint32_t readVB_ID = vbOpenGL->GetRenderID();
+		RY_CORE_ASSERT(0u != readVB_ID, "Not set Buffer ID!");
+		uint32_t sizebyteRead = vbOpenGL->GetByteSize();
+		int32_t spaceRead = byteSize + fromPoint;
+		RY_CORE_ASSERT(spaceRead <= sizebyteRead);
+		int32_t spaceWhrit = byteSize + toPoint;
+		RY_CORE_ASSERT(spaceWhrit <= GetByteSize(), "Whrite Buffer is not large enugh");
 
-		return m_Data;
+		glCopyNamedBufferSubData(readVB_ID, m_Buffer.GetRenderID(), fromPoint, toPoint, byteSize);		
+
+		std::vector<uint8_t>& byteVec = m_Buffer.GetData();
+		uint8_t* dataBytePtr = byteVec.data();
+		glGetNamedBufferSubData(m_Buffer.GetRenderID(), 0, GetByteSize(), dataBytePtr);
+
+		RY_CORE_TRACE("Copy Action Finsihed!");
+		OnSpecifcationChangeCall();
+	}
+
+	void OpenGLIndexBuffer::AddCopyData(Ref<IndexBuffer> ib)
+	{
+		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLIndexBuffer::AddCopyData, ib);
+
+		Ref<OpenGLIndexBuffer> vbOpenGL = std::static_pointer_cast<OpenGLIndexBuffer>(ib);
+		uint32_t readVB_ID = vbOpenGL->GetRenderID();
+		RY_CORE_ASSERT(0u != m_Buffer.GetRenderID(), "Not set Buffer ID!");
+		RY_CORE_ASSERT(0u != readVB_ID, "Not set Buffer ID!");
+
+		uint32_t countRead = vbOpenGL->GetCount();
+		uint32_t byteSizeRead = vbOpenGL->GetByteSize();
+		uint32_t oldCountWhrit = GetCount();
+		uint32_t oldByteSizeWhrit = GetByteSize();
+
+		std::vector<uint8_t>& byteVec = m_Buffer.GetData();
+		uint8_t* dataBytePtr = byteVec.data();
+		glGetNamedBufferSubData(m_Buffer.GetRenderID(), 0u, oldByteSizeWhrit, dataBytePtr);
+
+		uint32_t newByteSizeWhrit = GetByteSize();
+
+		glNamedBufferStorage(m_Buffer.GetRenderID(), newByteSizeWhrit, dataBytePtr, Utils::GetFlagsFromFlagTypes(m_Flag));
+		glCopyNamedBufferSubData(readVB_ID, m_Buffer.GetRenderID(), 0u, oldByteSizeWhrit, byteSizeRead);
+		glGetNamedBufferSubData(m_Buffer.GetRenderID(), 0u, GetByteSize(), dataBytePtr);
+
+
+		RY_CORE_TRACE("Add Copy New Data Action Finsihed!");
+		OnSpecifcationChangeCall();
+	}
+
+
+	const std::vector<uint8_t>& OpenGLIndexBuffer::GetBufferData() const
+	{
+		return m_Buffer.GetData();
 	}
 
 	void OpenGLIndexBuffer::FreeBufferData()
 	{
-		if (m_Data.size())
-		{
-			m_Data.clear();
-		}
+		RY_CORE_NOT_IMPL();
+
 	}
 
 
+	bool OpenGLIndexBuffer::IsTransferd()
+	{
+		RY_CORE_NOT_IMPL();
+		return false;
+	}
+
 	void OpenGLIndexBuffer::Bind() const
 	{
-		glBindBuffer(m_Target, m_RendererID);
+		m_Buffer.Bind(s_Target);
 	}
 
 	void OpenGLIndexBuffer::UnBind() const
 	{
-		glBindBuffer(m_Target, 0);
+		m_Buffer.UnBind(GL_ELEMENT_ARRAY_BUFFER);
+	}
+
+	
+
+	void OpenGLIndexBuffer::AddParent(OpenGLVertexArray* vertexArrayPtr)
+	{
+		Ref<OpenGLVertexArray> openGLStorageBufferRef = Asset::GetRefInPlaceType(vertexArrayPtr);
+		for (Weak<OpenGLVertexArray>& openGLStorageBufferWeek : m_ParentVec)
+		{
+			if (openGLStorageBufferWeek.lock() == openGLStorageBufferRef)
+				return;
+		}
+		m_ParentVec.emplace_back(openGLStorageBufferRef);
+	}
+
+	void OpenGLIndexBuffer::RemoveParent(OpenGLVertexArray* vertexArrayPtr)
+	{
+		Ref<OpenGLVertexArray> openGLVertexArrayRef = Asset::GetRefInPlaceType(vertexArrayPtr);
+		uint32_t index = 0u;
+		for (Weak<OpenGLVertexArray>& openGLVertexArrayWeek : m_ParentVec)
+		{
+			if (openGLVertexArrayWeek.lock() == openGLVertexArrayRef)
+				return;
+		}
+		if (index == m_ParentVec.size())
+			return;
+
+		m_ParentVec.erase(m_ParentVec.begin() + index);
+	}
+
+	void OpenGLIndexBuffer::OnSpecifcationChangeCall()
+	{
+		for (Weak<OpenGLVertexArray>& vaoWeak : m_ParentVec)
+		{
+			if (Ref<OpenGLVertexArray> vaoRef = vaoWeak.lock())
+			{
+				vaoRef->OnChildeSpecifcationChange(this);
+			}
+		}
+	}
+
+	void OpenGLIndexBuffer::OnDataChangeCall()
+	{
+		for (Weak<OpenGLVertexArray>& vaoWeak : m_ParentVec)
+		{
+			if (Ref<OpenGLVertexArray> vaoRef = vaoWeak.lock())
+			{
+				vaoRef->OnChildeDataChange(this);
+			}
+		}
+	}
+
+	void OpenGLIndexBuffer::OnDestroyCall()
+	{
+		for (Weak<OpenGLVertexArray>& vaoWeak : m_ParentVec)
+		{
+			if (Ref<OpenGLVertexArray> vaoRef = vaoWeak.lock())
+			{
+				vaoRef->OnChildeDestroy(this);
+			}
+		}
 	}
 
 #pragma endregion
@@ -407,75 +556,99 @@ namespace Rynex {
 
 #pragma region StorageBuffer
 
-	OpenGLStorageBuffer::OpenGLStorageBuffer(uint32_t byteSize, Type type)
-		: m_PolicieType(type)
-		, m_ByteSize(byteSize)
+	OpenGLStorageBuffer::OpenGLStorageBuffer(uint32_t byteSize, BufferFlagGPU flag)
+		: m_FlagTypes(flag)
+		, m_Target(GL_SHADER_STORAGE_BUFFER)
+		, m_Buffer(GL_SHADER_STORAGE_BUFFER, nullptr, byteSize, Utils::GetFlagsFromFlagTypes(flag))
 	{
-		
-		m_Data.resize(m_ByteSize);
-
-		RY_CORE_ASSERT(m_ByteSize != 0  && m_Data.size() != 0);
-		if (OpenGLThreadContext::IsActive())
-		{
-			InitAsync();
-		}
-		else
-		{
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-				InitAsync();
-			});
-		}
 	}
 
-	OpenGLStorageBuffer::OpenGLStorageBuffer(void* data, uint32_t byteSize, Type type)
-		: m_PolicieType(type)
-		, m_ByteSize(byteSize)
+	OpenGLStorageBuffer::OpenGLStorageBuffer(const void* dataPtr, uint32_t byteSize, BufferType buffertype, BufferFlagGPU flag)
+		: m_FlagTypes(flag)
+		, m_Target(Utils::GetTarget(buffertype))
+		, m_Buffer(Utils::GetTarget(buffertype), reinterpret_cast<const uint8_t*>(dataPtr), byteSize, Utils::GetFlagsFromFlagTypes(flag))
 	{
-		m_Data.resize(m_ByteSize);
-		std::memcpy(m_Data.data(), data, m_Data.size());
-		RY_CORE_ASSERT(m_ByteSize != 0 && m_Data.size() != 0);
-		if (OpenGLThreadContext::IsActive())
-		{
-			InitAsync();
-		}
-		else
-		{
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-				InitAsync();
-			});
-		}
 	}
 
-	void OpenGLStorageBuffer::Bind(uint32_t slot) const
+	OpenGLStorageBuffer::OpenGLStorageBuffer(const void* dataPtr, uint32_t byteSize, BufferFlagGPU flag)
+		: m_FlagTypes(flag)
+		, m_Target(GL_SHADER_STORAGE_BUFFER)
+		, m_Buffer(GL_SHADER_STORAGE_BUFFER, reinterpret_cast<const uint8_t*>(dataPtr), byteSize, Utils::GetFlagsFromFlagTypes(flag))
 	{
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_RendererID);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, slot, m_RendererID);
+	}
+	
+	OpenGLStorageBuffer::~OpenGLStorageBuffer()
+	{
+		RY_CORE_ASSERT(OpenGLThreadContext::IsActive());
 	}
 
-	void OpenGLStorageBuffer::UnBind() const
+	bool OpenGLStorageBuffer::IsTransferd()
 	{
-		glBindBuffer(0, m_RendererID);
+		return m_Buffer.IsTransfered();
 	}
 
-	void OpenGLStorageBuffer::InitAsync()
+	void OpenGLStorageBuffer::Bind(uint32_t slot)
 	{
-		glCreateBuffers(1, &m_RendererID);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_RendererID);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, m_Data.size(), m_Data.data(), GL_DYNAMIC_DRAW);
+		m_Buffer.BindSlot(m_Target, slot);
 	}
 
-	void OpenGLStorageBuffer::SetData(const void* data, uint32_t byteSize)
+	void OpenGLStorageBuffer::UnBind(uint32_t slot)
 	{
-		if(byteSize != m_ByteSize)
-		{
-			m_ByteSize = byteSize;
-			m_Data.resize(m_ByteSize);
-		}
-		std::memcpy(m_Data.data(), data, m_Data.size());
-		RY_CORE_ASSERT(m_ByteSize != 0 && m_Data.size() != 0);
+		m_Buffer.UnBindSlot(m_Target, slot);
+	}
 
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_RendererID);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, m_Data.size(), m_Data.data(), GL_DYNAMIC_DRAW);
+
+	
+
+	void OpenGLStorageBuffer::SetData(const void* dataPtr, uint32_t byteSize)
+	{
+		m_Buffer.SetData(m_Target, reinterpret_cast<const uint8_t*>(dataPtr), 0u, byteSize);
+	}
+
+	void OpenGLStorageBuffer::SetData(const void* dataPtr, uint32_t offset, uint32_t byteSize)
+	{
+		m_Buffer.SetData(m_Target, reinterpret_cast<const uint8_t*>(dataPtr), offset, byteSize);
+	}
+
+	void OpenGLStorageBuffer::ResizeBuffer(uint32_t byteSize)
+	{
+		m_Buffer.ResizeData(m_Target, byteSize);
+	}
+
+	void OpenGLStorageBuffer::ResizeBuffer(const void* dataPtr, uint32_t byteSize)
+	{
+		uint32_t falgs = m_Buffer.GetFlags();
+		m_Buffer.ResizeData(m_Target, reinterpret_cast<const uint8_t*>(dataPtr), byteSize, falgs);
+	}
+
+	void OpenGLStorageBuffer::OnChildeSpecifcationChange(OpenGLUniformBuffer* uniformBufferPtr)
+	{
+		RY_CORE_NOT_IMPL();
+	}
+
+	void OpenGLStorageBuffer::OnChildeDataChange(OpenGLUniformBuffer* uniformBufferPtr)
+	{
+		RY_CORE_NOT_IMPL();
+	}
+
+	void OpenGLStorageBuffer::OnChildeDestroy(OpenGLUniformBuffer* uniformBufferPtr)
+	{
+		RY_CORE_NOT_IMPL();
+	}
+
+	void OpenGLStorageBuffer::OnChildeSpecifcationChange(OpenGLVertexBuffer* vertexBufferPtr)
+	{
+		RY_CORE_NOT_IMPL();
+	}
+
+	void OpenGLStorageBuffer::OnChildeDataChange(OpenGLVertexBuffer* vertexBufferPtr)
+	{
+		RY_CORE_NOT_IMPL();
+	}
+
+	void OpenGLStorageBuffer::OnChildeDestroy(OpenGLVertexBuffer* vertexBufferPtr)
+	{
+		RY_CORE_NOT_IMPL();
 	}
 
 #pragma endregion
@@ -483,265 +656,257 @@ namespace Rynex {
 
 #pragma region UniformBuffer
 
-
-	OpenGLUniformBuffer::OpenGLUniformBuffer(std::vector<unsigned char>&& data, const BufferLayout& layout, BufferDataUsage usage, uint32_t binding)
-		: m_Data(std::move(data))
-		, m_Binding(binding)
-		, m_Layout(layout)
-		, m_Target(GL_UNIFORM_BUFFER)
-		, m_Usage(usage)
-		, m_RendererID(0)
-		, m_Size(data.size())
+	OpenGLUniformBuffer::OpenGLUniformBuffer(std::vector<uint8_t>&& data, const BufferLayout& layout, BufferFlagGPU flag)
+		: m_Layout(layout)
+		, m_Buffer(s_Target, std::move(data), Utils::GetFlagsFromFlagTypes(flag))
+		, m_FlagTypes(flag)
 	{
-		RY_CORE_ASSERT(m_Size % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
-
-		if (OpenGLThreadContext::IsActive())
-		{
-			InitAsync();
-		}
-		else
-		{
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-				InitAsync();
-				});
-		}
+		RY_CORE_ASSERT(m_Buffer.GetByteSize() % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
 	}
 
-	OpenGLUniformBuffer::OpenGLUniformBuffer(uint32_t byteSize, uint32_t binding)
-		: m_Binding(binding)
-		, m_Size(byteSize)
-		, m_Target(GL_UNIFORM_BUFFER)
-		, m_Usage(BufferDataUsage::DynamicDraw)
+	OpenGLUniformBuffer::OpenGLUniformBuffer(uint32_t byteSize)
+		: m_Layout()
+		, m_Buffer(s_Target, nullptr,byteSize, Utils::GetFlagsFromFlagTypes(BufferFlag::Dynamic))
+		, m_FlagTypes(BufferFlag::Dynamic)
 	{
 		
-		RY_CORE_ASSERT(m_Size % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
-		
-		m_Data.resize(m_Size);
-		if (OpenGLThreadContext::IsActive())
-		{
-			InitAsync();
-		}
-		else
-		{
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-				InitAsync();
-				});
-		}
+		RY_CORE_ASSERT(m_Buffer.GetByteSize() % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
 	}
 
-	OpenGLUniformBuffer::OpenGLUniformBuffer(const void* data, uint32_t byteSize, uint32_t binding)
-		: m_Binding(binding)
-		, m_Size(byteSize)
-		, m_Data(byteSize)
-		, m_Target(GL_UNIFORM_BUFFER)
-		, m_Usage(BufferDataUsage::DynamicDraw)
+	OpenGLUniformBuffer::OpenGLUniformBuffer(const void* data, uint32_t byteSize)
+		: m_Layout()
+		, m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(data), byteSize, Utils::GetFlagsFromFlagTypes(BufferFlag::Dynamic))
+		, m_FlagTypes(BufferFlag::Dynamic)
+
 	{
-		RY_CORE_ASSERT(m_Size < Utils::GetMaxUniforms(), "to large!");
-		RY_CORE_ASSERT(m_Size % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
+		RY_CORE_ASSERT(m_Buffer.GetByteSize() < Utils::GetMaxUniforms(), "to large!");
+		RY_CORE_ASSERT(m_Buffer.GetByteSize() % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
 		
 		CheckLayout();
-		if (data)
-			std::memcpy(m_Data.data(), data, byteSize);
-		if (OpenGLThreadContext::IsActive())
-		{
-			InitAsync();
-		}
-		else
-		{
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-				InitAsync();
-				});
-		}
-		
 	}
 
-	OpenGLUniformBuffer::OpenGLUniformBuffer(const void* data, uint32_t byteSize, const BufferLayout& layout, uint32_t binding)
-		: m_Binding(binding)
-		, m_Size(byteSize)
-		, m_Data(byteSize)
-		, m_Target(GL_UNIFORM_BUFFER)
-		, m_Usage(BufferDataUsage::DynamicDraw)
-		, m_Layout(layout)
+	OpenGLUniformBuffer::OpenGLUniformBuffer(const void* data, uint32_t byteSize, const BufferLayout& layout)
+		: m_Layout(layout)
+		, m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(data), byteSize, Utils::GetFlagsFromFlagTypes(BufferFlag::Dynamic))
+		, m_FlagTypes(BufferFlag::Dynamic)
 	{
-		RY_CORE_ASSERT(m_Size % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
-		if(data)
-			std::memcpy(m_Data.data(), data, m_Data.size());
-		if (OpenGLThreadContext::IsActive())
-		{
-			InitAsync();
-		}
-		else
-		{
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-				InitAsync();
-				});
-		}
+		RY_CORE_ASSERT(m_Buffer.GetByteSize() % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
 	}
 
-	OpenGLUniformBuffer::OpenGLUniformBuffer(const void* data, uint32_t byteSize, const BufferLayout& layout, BufferDataUsage usage, uint32_t binding)
-		: m_Binding(binding)
-		, m_Size(byteSize)
-		, m_Layout(layout)
-		, m_Target(GL_UNIFORM_BUFFER)
-		, m_Usage(usage)
+	OpenGLUniformBuffer::OpenGLUniformBuffer(const void* data, uint32_t byteSize, const BufferLayout& layout, BufferFlagGPU flag)
+		: m_Layout(layout)
+		, m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(data), byteSize, Utils::GetFlagsFromFlagTypes(flag))
+		, m_FlagTypes(flag)
 	{
-		RY_CORE_ASSERT(m_Size % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
-		std::memcpy(m_Data.data(), data, byteSize);
-		if (OpenGLThreadContext::IsActive())
-		{
-			InitAsync();
-		}
-		else
-		{
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-				InitAsync();
-				});
-		}
+		RY_CORE_ASSERT(m_Buffer.GetByteSize() % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
+	}
+
+	OpenGLUniformBuffer::OpenGLUniformBuffer(const Ref<OpenGLUniformBuffer>& uniformBufferOpenGL)
+		: m_Layout(uniformBufferOpenGL->m_Layout)
+		, m_Buffer(s_Target, uniformBufferOpenGL->m_Buffer)
+		, m_FlagTypes(uniformBufferOpenGL->m_FlagTypes)
+	{
 	}
 
 	OpenGLUniformBuffer::~OpenGLUniformBuffer()
 	{
-		if(OpenGLThreadContext::IsActive() )
-		{
-			if (m_OnDelete)
-				m_OnDelete();
-
-			if (m_RendererID)
-				glDeleteBuffers(1, &m_RendererID);
-			m_Data.clear();
-		}
-		else
-		{
-			
-			
-			Application::Get().SubmiteToMainThreedQueue([this]() {
-				if (m_OnDelete)
-					m_OnDelete();
-
-				if (m_RendererID)
-					glDeleteBuffers(1, &m_RendererID);
-				m_Data.clear();
-				m_RendererID = 0;
-				
-			});
-			
-
-			while (m_RendererID != 0)
-			{
-				using namespace std::chrono_literals;
-				std::this_thread::sleep_for(500ms);
-			}
-		
-		}
+		RY_CORE_ASSERT(OpenGLThreadContext::IsActive());
 	}	
 	
-	void OpenGLUniformBuffer::SetOnDelete(std::function<void()> onDelete)
+
+	bool OpenGLUniformBuffer::IsTransferd()
 	{
-		m_OnDelete = onDelete;
+		return m_Buffer.IsTransfered();
 	}
 
-	void OpenGLUniformBuffer::InitAsync()
-	{
-		RY_CORE_ASSERT(m_Size < Utils::GetMaxUniforms());
-		
-		CheckLayout();
-		glCreateBuffers(1, &m_RendererID);
-		glNamedBufferData(m_RendererID, m_Size, m_Data.data(), Utils::GetBufferDataUsage(m_Usage));
-	}
 
 	void OpenGLUniformBuffer::Bind(uint32_t slot)
 	{
+		m_Buffer.BindSlot(s_Target, slot);
+	}
 
-#if 1
-		if (m_RendererID && m_ChangeSize != 0)
-		{
-			
-			glNamedBufferSubData(m_RendererID, m_ChangeOffset, m_ChangeSize, m_Data.data());
-			m_ChangeSize = 0;
-			m_ChangeOffset = 0;
-		}
-#endif
-		glBindBufferBase(m_Target, slot != 15 ? slot : m_Binding , m_RendererID);
-		
+	void OpenGLUniformBuffer::UnBind(uint32_t slot)
+	{
+		m_Buffer.BindSlot(s_Target, slot);
 	}
 
 	void OpenGLUniformBuffer::SetData(const void* data, uint32_t byteSize)
 	{
-		RY_CORE_ASSERT(m_Size == byteSize);
-		std::memcpy(m_Data.data(), data, m_Size);
-		glNamedBufferSubData(m_RendererID, 0, m_Size, m_Data.data());
-		m_ChangeOffset = 0;
-		m_ChangeSize = 0;
+		SetData(data, 0u, byteSize);
 	}
 
 	void OpenGLUniformBuffer::SetData(const void* data, uint32_t offset, uint32_t byteSize)
 	{
-		if ((offset + byteSize) > m_Size)
-		{
-			RY_CORE_ASSERT(false);
-		}
-		else
-		{
-			std::memcpy(m_Data.data() + offset, data, byteSize);
-			glNamedBufferSubData(m_RendererID, offset, byteSize, m_Data.data()+ offset);
-			
-		}
+		m_Buffer.SetData(s_Target, reinterpret_cast<const uint8_t*>(data), offset, byteSize);
 	}
 
-#if 1
-	void OpenGLUniformBuffer::SetLocelData(const BufferElement& ellement, const void* data, uint32_t byteSize)
+	const std::vector<uint8_t>& OpenGLUniformBuffer::GetBufferData()const
 	{
-		
-		for(const BufferElement& elem : m_Layout)
-		{
-			if (elem == ellement)
-			{
-				if (elem.Size == byteSize)
-				{
-					std::memcpy(m_Data.data() + elem.Offset, data, elem.Size);
-					uint32_t begin, end, endNew;
-					begin = m_ChangeOffset;
-					end = m_ChangeSize + begin;
-					endNew = elem.Offset + elem.Size;
-				
-					m_ChangeOffset = begin < elem.Offset ? begin : elem.Offset;
-					m_ChangeSize = end > endNew ? end - m_ChangeOffset : endNew - m_ChangeOffset;
-					
-					
-				}
-				else
-					RY_CORE_ASSERT(false);
-			}
-		}
-	}
-#endif
-	
-
-	const std::vector<unsigned char>& OpenGLUniformBuffer::GetBufferData()
-	{
-		
-		return m_Data;
+		return m_Buffer.GetData();
 	}
 
 	void OpenGLUniformBuffer::FreeBufferData()
 	{
-		m_Data.clear();
+		auto& vecData = m_Buffer.GetData();
+		vecData.clear();
 	}
 
 
+	void OpenGLUniformBuffer::AddParent(OpenGLStorageBuffer* storageBufferPtr)
+	{	
+		Ref<OpenGLStorageBuffer> openGLStorageBufferRef = Asset::GetRefInPlaceType(storageBufferPtr);
+		for (Weak<OpenGLStorageBuffer>& openGLStorageBufferWeek : m_ParentVec)
+		{
+			if (openGLStorageBufferWeek.lock() == openGLStorageBufferRef)
+				return;
+		}
+		m_ParentVec.emplace_back(openGLStorageBufferRef);
+
+	}
+
 	
+
+	void OpenGLUniformBuffer::RemoveParent(OpenGLStorageBuffer* storageBufferPtr)
+	{
+		Ref<OpenGLStorageBuffer> openGLStorageBufferRef = Asset::GetRefInPlaceType(storageBufferPtr);
+		uint32_t index = 0u;
+		for (Weak<OpenGLStorageBuffer>& openGLStorageBufferWeek : m_ParentVec)
+		{
+			if (openGLStorageBufferWeek.lock() == openGLStorageBufferRef)
+				break;
+			index++;
+		}
+		if (index == m_ParentVec.size())
+			return;
+
+		m_ParentVec.erase(m_ParentVec.begin() + index);
+	}
 
 	void OpenGLUniformBuffer::CheckLayout()
 	{
 		uint32_t size = 0ul;
 		for (const BufferElement& element : m_Layout)
 		{
-			size += element.Size;
+			size += element.size;
 			uint8_t size16 = size % 16;
-      		RY_CORE_ASSERT(!(element.Size > 16 && size16 != 0));
+      		RY_CORE_ASSERT(!(element.size > 16 && size16 != 0));
 
 		}
 	}
 
 #pragma endregion
+
+#pragma region IndrectBuffer
+
+	OpenGLIndriectBuffer::OpenGLIndriectBuffer(uint32_t byteSize)
+		: m_Buffer(s_Target, nullptr, byteSize, s_FlagsOptimz)
+		, m_Layout({
+			{ShaderDataType::Uint, "Count"},
+			{ShaderDataType::Uint, "InstanceCount"},
+			{ShaderDataType::Uint, "FirstIndex"},
+			{ShaderDataType::Int, "BaseVertex"},
+			{ShaderDataType::Uint, "BaseInstance"}
+		}, 0u)
+	{
+		uint32_t byteSizeBuffer = GetByteSize();
+		uint32_t stride = m_Layout.GetStride();
+		uint32_t byteModuleStride = byteSizeBuffer % stride;
+		RY_CORE_ASSERT(16u <= byteSizeBuffer, "OpenGL IndriectBuffer need to be 16 bytes (or more)");
+		RY_CORE_ASSERT(0u == byteModuleStride, "OpenGL IndriectBuffer");
+
+	}
+
+	OpenGLIndriectBuffer::OpenGLIndriectBuffer(uint32_t byteSize, const BufferLayout& layout)
+		: m_Buffer(s_Target, nullptr, byteSize, s_FlagsOptimz)
+		, m_Layout(layout)
+	{
+		uint32_t byteSizeBuffer = GetByteSize();
+		uint32_t stride = m_Layout.GetStride();
+		uint32_t byteModuleStride = byteSizeBuffer % stride;
+		RY_CORE_ASSERT(16u <= byteSizeBuffer, "OpenGL IndriectBuffer need to be 16 bytes (or more)");
+		RY_CORE_ASSERT(0u == byteModuleStride, "OpenGL IndriectBuffer");
+
+	}
+
+	OpenGLIndriectBuffer::OpenGLIndriectBuffer(const void* data, uint32_t byteSize)
+		: m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(data), byteSize, s_FlagsOptimz)
+		, m_Layout({
+			{ShaderDataType::Uint, "Count"},
+			{ShaderDataType::Uint, "InstanceCount"},
+			{ShaderDataType::Uint, "FirstIndex"},
+			{ShaderDataType::Int, "BaseVertex"},
+			{ShaderDataType::Uint, "BaseInstance"}
+		}, 0u)
+	{
+		uint32_t byteSizeBuffer = GetByteSize();
+		uint32_t stride = m_Layout.GetStride();
+		uint32_t byteModuleStride = byteSizeBuffer % stride;
+		RY_CORE_ASSERT(16u <= byteSizeBuffer, "OpenGL IndriectBuffer need to be 16 bytes (or more)");
+		RY_CORE_ASSERT(0u == byteModuleStride, "OpenGL IndriectBuffer");
+	}
+
+	OpenGLIndriectBuffer::OpenGLIndriectBuffer(const void* data, uint32_t byteSize, const BufferLayout& layout)
+		: m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(data), byteSize, s_FlagsOptimz)
+		, m_Layout(layout)
+	{
+		uint32_t byteSizeBuffer = GetByteSize();
+		uint32_t stride = m_Layout.GetStride();
+		uint32_t byteModuleStride = byteSizeBuffer % stride;
+		RY_CORE_ASSERT(16u <= byteSizeBuffer, "OpenGL IndriectBuffer need to be 16 bytes (or more)");
+		RY_CORE_ASSERT(0u == byteModuleStride, "OpenGL IndriectBuffer");
+	}
+
+	OpenGLIndriectBuffer::~OpenGLIndriectBuffer()
+	{
+	}
+
+	bool OpenGLIndriectBuffer::IsTransferd()
+	{
+		return m_Buffer.IsTransfered();
+	}
+
+	void OpenGLIndriectBuffer::Bind() const
+	{
+		m_Buffer.Bind(s_Target);
+	}
+
+	void OpenGLIndriectBuffer::UnBind() const
+	{
+		m_Buffer.UnBind(s_Target);
+	}
+
+	
+
+	void OpenGLIndriectBuffer::SetData(const void* data, uint32_t byteSize)
+	{
+		const uint8_t* byteDataPtr = reinterpret_cast<const uint8_t*>(data);
+		m_Buffer.SetData(s_Target, byteDataPtr, 0u, byteSize);
+	}
+
+
+
+	void OpenGLIndriectBuffer::ResizeBuffer(uint32_t byteSize)
+	{
+		m_Buffer.ResizeData(s_Target, byteSize);
+	}
+
+	void OpenGLIndriectBuffer::ResizeBuffer(const void* data, uint32_t byteSize)
+	{
+		const uint8_t* byteDataPtr = reinterpret_cast<const uint8_t*>(data);
+		m_Buffer.ResizeData(s_Target, byteDataPtr, byteSize, s_FlagsOptimz);
+	}
+
+	void OpenGLIndriectBuffer::SetLayout(const BufferLayout& layout)
+	{
+		m_Layout = layout;
+		uint32_t byteSizeBuffer = GetByteSize();
+		uint32_t stride = m_Layout.GetStride();
+		uint32_t byteModuleStride = byteSizeBuffer % stride;
+		RY_CORE_ASSERT(16u <= byteSizeBuffer, "OpenGL IndriectBuffer need to be 16 bytes (or more)");
+		RY_CORE_ASSERT(0u == byteModuleStride, "OpenGL IndriectBuffer");
+	}
+
+
+#pragma endregion
+	
 }

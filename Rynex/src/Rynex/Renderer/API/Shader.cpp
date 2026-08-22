@@ -1,9 +1,9 @@
 #include "rypch.h"
 #include "Shader.h"
 
-#include "Rynex/Renderer/Rendering/Renderer.h"
-#include "Platform/OpenGL/OpenGLShader.h"
-#include "Rynex/Asset/Base/AssetManager.h"
+#include <Rynex/Renderer/Rendering/Renderer.h>
+#include <Platform/OpenGL/OpenGLShader.h>
+#include <Rynex/Asset/Base/AssetManager.h>
 
 
 namespace Rynex {
@@ -55,9 +55,6 @@ namespace Rynex {
 	
 	
 
-	////////////////////////////////////////////////////////////////////////////
-	//////// ShaderLibary //////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////
 
 	void ShaderLibary::Add(const std::string& name,const Ref<Shader>& shader)
 	{

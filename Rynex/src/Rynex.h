@@ -21,7 +21,7 @@
 // Platform header
 #include "Rynex/Utils/PlatformUtils.h"
 
-//----- AssetManger ---------------------
+// ----- AssetManger ---------------------
 #include "Rynex/Asset/Base/Asset.h"
 #include "Rynex/Asset/Base/AssetImporter.h"
 #include "Rynex/Asset/Base/AssetManager.h"
@@ -31,29 +31,22 @@
 #include "Rynex/Asset/Import/SceneImporter.h"
 #include "Rynex/Asset/Import/TextureImporter.h"
 #include "Rynex/Asset/Import/ShaderImporter.h"
-#include "Rynex/Asset/Import/FramebufferImporter.h"
+
 
 #include "Rynex/Asset/RuntimeAssetManager.h"
 #include "Rynex/Asset/EditorAssetManager.h"
-// #include "Rynex/Asset/EditorAssetManegerThreade.h"
 
 
-//------ entity -------------------------
+// ------ entity -------------------------
 #include "Rynex/Scene/Scene.h"
 #include "Rynex/Scene/Components.h"
 #include "Rynex/Scene/Entity.h"
 #include "Rynex/Scene/ScriptableEntity.h"
 
-//----- Renderer ------------------------
-#include "Rynex/Renderer/Rendering/Renderer.h"
-#include "Rynex/Renderer/Rendering/Renderer2D.h"
-#include "Rynex/Renderer/Rendering/Renderer3D.h"
+// ----- Renderer ------------------------
 #include "Rynex/Renderer/RenderCommand.h"
 
 #include "Rynex/Renderer/Text/Font.h"
-#include "Rynex/Renderer/Objects/Model.h"
-#include "Rynex/Renderer/Objects/Mesh.h"
-#include "Rynex/Renderer/Objects/Geomtrys.h"
 
 #include "Rynex/Renderer/API/Buffer.h"
 #include "Rynex/Renderer/API/Shader.h"
@@ -63,8 +56,5 @@
 
 #include "Rynex/Renderer/Camera/OrthograficCamera.h"
 #include "Rynex/Renderer/Camera/CamerController.h"
-//---------------------------------------
+// ---------------------------------------
 
-//-----EnryPoint-------------------------
-// #include "Rynex/Core/EntryPoint.h"
-//---------------------------------------

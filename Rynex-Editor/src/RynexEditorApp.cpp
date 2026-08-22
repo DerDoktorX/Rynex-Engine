@@ -22,6 +22,7 @@ namespace Rynex {
 
 		~RynexEditor()
 		{
+			RY_CORE_INFO("RynexEditor App Delete!");
 		}
 		
 	};

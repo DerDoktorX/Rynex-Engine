@@ -1,5 +1,4 @@
 #pragma once
-#include "PopUp/FrambufferWindow.h"
 
 #include <Rynex/Renderer/API/Framebuffer.h>
 #include <Rynex/Renderer/API/Texture.h>
@@ -65,10 +64,12 @@ namespace Rynex {
 
 		void OnImGuiRender();
 		void OnAtache();
+		void OnDetache();
 		void OpenAssetPannel();
 		void OpenRegestriyPannel();
 
 		static void AssetFileWatcher();
+
 #if RY_EDITOR_ASSETMANGER_THREADE-1
 		static void SetAssetRegestriy(const std::filesystem::path& curentPath, Ref<EditorAssetManager>& assetManager);
 #endif
@@ -76,6 +77,7 @@ namespace Rynex {
 	private:
 		void BrowserPannel();
 		void AssetPannel();
+		void ImGuiAssetFile(AssetBrowserDataThreade& data, float thumbernailSize);
 		void AssetRegestriyPannel();
 
 		void GetFileList(const std::filesystem::path& curentPath);
@@ -97,13 +99,13 @@ namespace Rynex {
 		void DelateFolder();
 
 		static void InitAssetFileWatcher();
-		
+		static void DestroyAssetFileWatcher();
+
 		void OnloadeAssetsList();
 		void OnLoadeAsset(AssetHandle handle);
 
 	private:
 		Ref<Project> m_Project;
-		Ref<FrambufferWindow> m_FrambufferWindow;
 		std::filesystem::path m_BaseDirectory;
 		std::filesystem::path m_CurrentDirectory;
 

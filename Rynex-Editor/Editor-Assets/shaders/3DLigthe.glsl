@@ -5,6 +5,7 @@ layout(location = 0) in vec3 a_Postion;
 layout(location = 1) in vec2 a_UV;
 layout(location = 2) in vec3 a_Normals;
 
+
 struct OutPut
 {
 	vec3 Position;	        // 12

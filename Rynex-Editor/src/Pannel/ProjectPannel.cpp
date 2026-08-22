@@ -50,42 +50,47 @@ namespace Rynex {
             if (ImGui::Button("...", {30,22.5}))
             {
                 switch (pathDLG)
-                    {
+                {
                     case ProjectPannel::ProjectPathSelectDialog::Directory:
                     {
-                        std::string result = FileDialoges::SelectFolder();
-                        value = result != "" ? result : value;
+                        std::string resultStr = FileDialoges::SelectFolder();
+                        result = !resultStr.empty();
+                        value = result ? resultStr : value;
                         break;
                     }
                     case ProjectPannel::ProjectPathSelectDialog::ProjectFile:
                     {
-                        std::string result = FileDialoges::OpenFile("Rynex Project (*.rproj)\0*.rproj\0");
-                        value = result != "" ? result : value;
+                        std::string resultStr = FileDialoges::OpenFile("Rynex Project (*.ryproj)\0*.ryproj\0");
+                        result = !resultStr.empty();
+                        value = result ? resultStr : value;
                         break;
                     }
                     case ProjectPannel::ProjectPathSelectDialog::ScriptFile:
                     {
-                        std::string result = FileDialoges::OpenFile("Scripting Binaries (*.dll)\0*.dll\0");
-                        value = result != "" ? result : value;
+                        std::string resultStr = FileDialoges::OpenFile("Scripting Binaries (*.dll)\0*.dll\0");
+                        result = !resultStr.empty();
+                        value = result ? resultStr : value;
                         break;
                     }
                     case ProjectPannel::ProjectPathSelectDialog::AssetRegestry:
                     {
-                        std::string result = FileDialoges::OpenFile("Asset Registry(*.ryr)\0*.ryr\0");
-                        value = result != "" ? result : value;
+                        std::string resultStr = FileDialoges::OpenFile("Asset Registry(*.ryr)\0*.ryr\0");
+                        result = !resultStr.empty();
+                        value = result ? resultStr : value;
                         break;
                     }
                     case ProjectPannel::ProjectPathSelectDialog::SceneAsset:
                     {
 
-                        std::string result = FileDialoges::OpenFile("Asset Registry(*.ryscene)\0*.ryscene\0");
-                        value = result != "" ? result : value;
+                        std::string resultStr = FileDialoges::OpenFile("Asset Registry(*.rynexscene)\0*.rynexscene\0");
+                        result = !resultStr.empty();
+                        value = result ? resultStr : value;
                         break;
                     }
                     default:
                         RY_CORE_ERROR("No such Project Selcter Avible");
                         break;
-                    }
+                }
                 
             }
             if (!aktive)
@@ -167,40 +172,44 @@ namespace Rynex {
                 {
                 case ProjectPannel::ProjectPathSelectDialog::Directory:
                 {
-                    std::string result = FileDialoges::SelectFolder();
-                    value = result != "" ? result : value;
+                    std::string resultStr = FileDialoges::SelectFolder();
+                    result = !resultStr.empty();
+                    value = result ? resultStr : value;
                     break;
                 }
                 case ProjectPannel::ProjectPathSelectDialog::ProjectFile:
                 {
-                    std::string result = FileDialoges::OpenFile("Rynex Project (*.rproj)\0*.rproj\0");
-                    value = result != "" ? result : value;
+                    std::string resultStr = FileDialoges::OpenFile("Rynex Project (*.ryproj)\0*.ryproj\0");
+                    result = !resultStr.empty();
+                    value = result ? resultStr : value;
                     break;
                 }
                 case ProjectPannel::ProjectPathSelectDialog::ScriptFile:
                 {
-                    std::string result = FileDialoges::OpenFile("Scripting Binaries (*.dll)\0*.dll\0");
-                    value = result != "" ? result : value;
+                    std::string resultStr = FileDialoges::OpenFile("Scripting Binaries (*.dll)\0*.dll\0");
+                    result = !resultStr.empty();
+                    value = result ? resultStr : value;
                     break;
                 }
                 case ProjectPannel::ProjectPathSelectDialog::AssetRegestry:
                 {
-                    std::string result = FileDialoges::OpenFile("Asset Registry(*.ryr)\0*.ryr\0");
-                    value = result != "" ? result : value;
+                    std::string resultStr = FileDialoges::OpenFile("Asset Registry(*.ryr)\0*.ryr\0");
+                    result = !resultStr.empty();
+                    value = result ? resultStr : value;
                     break;
                 }
                 case ProjectPannel::ProjectPathSelectDialog::SceneAsset:
                 {
 
-                    std::string result = FileDialoges::OpenFile("Asset Registry(*.ryscene)\0*.ryscene\0");
-                    value = result != "" ? result : value;
+                    std::string resultStr = FileDialoges::OpenFile("Asset Registry(*.rynexscene)\0*.rynexscene\0");
+                    result = !resultStr.empty();
+                    value = result ? resultStr : value;
                     break;
                 }
                 default:
                     RY_CORE_ERROR("No such Project Selcter Avible");
                     break;
                 }
-
             }
 
             if (!aktive)
@@ -232,6 +241,7 @@ namespace Rynex {
     void ProjectPannel::OnDetache()
     {
         m_EditorLayer = nullptr;
+        m_CurentProject.reset();
     }
 
     void ProjectPannel::OnEvent(Event& e)
@@ -310,7 +320,8 @@ namespace Rynex {
         m_ScriptCorePath = config.ScriptCorePath.string();
         m_ScriptAppPath = config.ScriptAppPath.string();
         m_AssetPath = config.AssetDirectory.string();
-        m_AssetRegeistry = config.AssetRegistryPath.string();        m_ChangeValue = 0;
+        m_AssetRegeistry = config.AssetRegistryPath.string();        
+        m_ChangeValue = 0;
         m_Change = false;
     }
 

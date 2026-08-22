@@ -6,7 +6,8 @@ namespace Rynex {
 
     using AssetMap = std::map<AssetHandle, Ref<Asset>>;
 
-    class AssetManagerBase
+    class 
+        AssetManagerBase
     {
     public: 
         virtual void OnAttach() = 0;
@@ -19,11 +20,15 @@ namespace Rynex {
         virtual bool IsAssetLoaded(AssetHandle handle) const = 0;
         virtual bool IsAssetLoaded(const std::filesystem::path& path) const = 0;
 
-        virtual Ref<Asset> GetAsset(AssetHandle handle, bool async) = 0;
+        virtual Ref<Asset> GetAsset(AssetHandle handle) = 0;
         virtual Ref<Asset> GetAssetAsync(AssetHandle handle) = 0;
         virtual Ref<Asset> GetAsset(const std::filesystem::path& path) = 0;
         virtual Ref<Asset> GetAssetAsync(const std::filesystem::path& path) = 0;
 
+        virtual const AssetHandle GetAssetHandle(const std::filesystem::path& path) const = 0;
+
+        virtual const AssetMetadata GetMetadata(AssetHandle handle) const = 0;
+        virtual const AssetMetadata GetMetadata(const std::filesystem::path& path) const = 0;
 
         virtual void CreatLocaleAsset(Ref<Asset> asset, AssetMetadata& metadata, AssetHandle handle) = 0;
         virtual AssetHandle CreatLocaleAsset(Ref<Asset> asset, AssetMetadata& metadata) = 0;

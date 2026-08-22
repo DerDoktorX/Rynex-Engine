@@ -13,10 +13,13 @@ namespace Rynex {
 
 		const MSDFData* GetMSDFData() const { return m_Data; }
 		Ref<Texture> GetAtlasTexture() { return m_AtlasTexture; }
+		static void ResetDefault();
 		static Ref<Font> GetDefault();
+
 	private:
 		MSDFData* m_Data;
 		Ref<Texture> m_AtlasTexture;
+		inline static Ref<Font> m_Default;
 	};
 
 }

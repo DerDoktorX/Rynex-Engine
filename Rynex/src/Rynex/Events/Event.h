@@ -18,7 +18,7 @@ namespace Rynex {
 
 	enum EventCategory
 	{
-		None = 0,
+		EventCategory_None = 0,
 		EventCategoryApplication		 = BIT(0),
 		EventCategoryInput				 = BIT(1),
 		EventCategoryKeyBord			 = BIT(2),

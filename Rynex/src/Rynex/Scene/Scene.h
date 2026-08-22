@@ -1,106 +1,78 @@
 #pragma once
 
-#include "Rynex/Core/TimeStep.h"
-#include "Rynex/Core/UUID.h"
-#include "Rynex/Asset/Base/Asset.h"
-#include "Rynex/Renderer/Camera/EditorCamera.h"
-#include "Rynex/Renderer/API/Framebuffer.h"
-#include "Rynex/Renderer/Objects/Model.h"
-
+#include <Rynex/Core/TimeStep.h>
+#include <Rynex/Core/UUID.h>
+#include <Rynex/Asset/Base/Asset.h>
+#include <Rynex/Renderer/Camera/EditorCamera.h>
+#include <Rynex/Renderer/API/Framebuffer.h>
+#include <Rynex/Scene/ScenePrototyps.h>
+#include <Rynex/Core/LodePromis.h>
 
 #include <entt.hpp>
 
+#include <Rynex/Renderer/Rendering/Renderer.h>
 namespace Rynex {
-
-#pragma region PrototypenComponents
-
-	class Entity;
-
-	struct CameraComponent;
-	struct SpriteRendererComponent;
-	struct MaterialComponent;
-	struct GeomtryComponent;
-	struct ScriptComponent;
-	struct FrameBufferComponent;
-	struct StaticMeshComponent;
-	struct DynamicMeshComponent;
-	struct RealtionShipComponent;
 	
-	struct AmbientLigthComponent;
-	struct DrirektionleLigthComponent;
-	struct PointLigthComponent;
-	struct SpotLigthComponent;
-	struct ParticelComponente;
-	struct TextComponent;
-	struct ViewMatrixComponent;
-	struct ProjtionViewMatrixComponent;
-	struct InverseProjtionViewMatrixComponent;
-	struct WorldViewFustrumComponent;
+#pragma region PrototypenComponents
+	template<typename ...Args>
+	using EnttViewComponents = entt::basic_view< enum entt::entity, entt::exclude_t<>, Args...>;
 
-	struct TransformComponent;
-	struct ModelMatrixComponent;
+	using EnttRender2DView				= EnttViewComponents<ModelMatrixComponent, SpriteRendererComponent>;
+	using EnttRenderTextView			= EnttViewComponents<ModelMatrixComponent, TextComponent>;
+	using EnttRender3DDynamicModelView	= EnttViewComponents<ModelMatrixComponent, DynamicMeshComponent>;
+	using EnttRender3DStaticModelView	= EnttViewComponents<ModelMatrixComponent, ModelMangerComponent>;
+	using EnttRender3DSingleStaticModelView	= EnttViewComponents<ModelMatrixComponent, StaticMeshComponent>;
 
-	using EnttRender2DView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, SpriteRendererComponent>;
-	using EnttRenderTextView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, TextComponent>;
-	using EnttRender3DEditeView = entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, MaterialComponent, GeomtryComponent>;
-	using EnttRender3DDynamicModelView = entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, DynamicMeshComponent>;
-	using EnttRender3DStaticModelView = entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, StaticMeshComponent>;
-
-	using EnttFrameBufferView	= entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, CameraComponent, FrameBufferComponent>;
-	using EnttCameraView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, CameraComponent>;
-	using EnttPartikelView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, ParticelComponente>;
+	using EnttFrameBufferView	= EnttViewComponents<ModelMatrixComponent, CameraComponent, FrameBufferComponent>;
+	using EnttCameraView		= EnttViewComponents<ModelMatrixComponent, CameraComponent>;
+	using EnttPartikelView		= EnttViewComponents<ModelMatrixComponent, ParticelComponente>;
 	
 	// Ligthts
-	using EnttAmbientLView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, AmbientLigthComponent>;
-	using EnttDrirektionLeLView = entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, DrirektionleLigthComponent>;
-	using EnttPointLView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, PointLigthComponent>;
-	using EnttSpotLView			= entt::basic_view<enum entt::entity, entt::exclude_t<>, ModelMatrixComponent, SpotLigthComponent>;
+	using EnttDrirektionLigthView	= EnttViewComponents<ModelMatrixComponent, DrirectionleLigthComponent>;
+	using EnttPointLigthView		= EnttViewComponents<ModelMatrixComponent, PointLigthComponent>;
+	using EnttSpotLigthView			= EnttViewComponents<ModelMatrixComponent, SpotLigthComponent>;
+	using EnttScriptView			= EnttViewComponents<ScriptComponent>;
+	using EnttRenderTargetView		= EnttViewComponents<RenderTargetComponent, CameraComponent, ModelMatrixComponent>;
 
-	using EnttScriptView		= entt::basic_view<enum entt::entity, entt::exclude_t<>, ScriptComponent>;
-	using EnttEntity			= entt::entity;
-
-	using RenderFunc = std::function<void(const glm::mat4&, const Ref<Mesh>&, const Ref<Material>&, int)>;
 #pragma endregion
-
 
 	struct EnttViewLigths
 	{
-		EnttAmbientLView AmbientLCV;
-		EnttDrirektionLeLView DrirektionLCV;
-		EnttPointLView PointLCV;
-		EnttSpotLView SpotLCV;
-
+		EnttDrirektionLigthView drirektionLCV;
+		EnttPointLigthView pointLCV;
+		EnttSpotLigthView spotLCV;
 	};
 
 	struct EnttView3D
 	{
-		EnttRender3DDynamicModelView DynamicModelCV;
-		EnttRender3DStaticModelView StaticCV;
-		EnttRender3DEditeView EditeCV;
-
-	
+		EnttRender3DDynamicModelView dynamicModelCV;
+		EnttRender3DStaticModelView staticCV;
+		EnttRender3DSingleStaticModelView singleStaticCV;
 	};
 
 	struct EnttView2D
 	{
-		EnttRender2DView Renderer2DCV;
-		EnttRenderTextView RendererTextCV;
-		
+		EnttRender2DView renderer2DCV;
+		EnttRenderTextView rendererTextCV;
 	};
+	
+	class SceneRenderer;
 
 	class RYNEX_API Scene : public Asset
 	{
+		
 	public:
 		Scene();
 		~Scene();
 
 		static Ref<Scene> Copy(Ref<Scene> other);
-
-		virtual AssetType GetType() const { return AssetType::Scene; }
+		static void CopyComponentToEntity(Entity dst, Entity src);
+		static void SwapComponentFromEntitys(Entity a, Entity b);
+		virtual AssetType GetType() const override { return AssetType::Scene; }
 
 		Entity CreateEntity(const std::string& name = std::string(""));
 		Entity CreateEntityWitheUUID(UUID uuid, const std::string& name = std::string(""), int index = -1);
-
+		int64_t Get3DSubmitTime() const { return m_TimeElpassed3DSubmit; }
 		void OnRuntimStart();
 		void OnRuntimStop();
 
@@ -138,80 +110,114 @@ namespace Rynex {
 		bool IsWindowResize() const { return m_Resized; }
 		bool IsCameraEntityViewFustrum();
 
-		uint32_t GetEntityCount() const { return (uint32_t)m_Registery.size(); }
+		uint32_t GetEntityCount() const { return static_cast<uint32_t>(m_Registery.size()); }
 
 		template<typename... Components>
 		auto GetAllEntitiesWith()
 		{
 			return m_Registry.view<Components...>();
 		}
+		
+		void SetFuncSubmit3DSceneDrawListToFrame(const std::function<void()>& func);
 
-		void RenderSingleEntityLikeDefault(Entity entity, Camera& camera, const glm::mat4& viewMatrix, const glm::vec4& backGroundColor);
-		void RenderSingleEntityLikeDefault(Entity entity, Entity Camera, const glm::vec4& backGroundColor);
 
+		void OnConectToRenderer();
+		void OnDisconectToRenderer();
 
-		// This Funktion Renderer on the Frambuffer and use Chep Shaders for edge Ditection
-		void RenderSingleEntityEdgeDitection(Entity entity, Camera& camera, const glm::mat4& viewMatrix, const glm::vec4& backGroundColor, const Ref<Framebuffer> frameBuffer);
-
+		static Ref<Scene> GetRefInPlace(Scene* scenePtr);
 	private:
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);		
 		
+		static void Submit2DCamerIcons(EnttCameraView& cameraView);
+		static void Submit2DDrirectionLigthIcons(EnttDrirektionLigthView& drirektionLigthView);
+		static void Submit2DPointLigthIcons(EnttPointLigthView& pointLigthView);
+		static void Submit2DSpotLigthIcons(EnttSpotLigthView& spotLigthView);
 
-		static void Render3DSceneViewPortScene(Camera& camera, glm::mat4& viewMatrix, EnttView3D& enttView3D);
-		void Render3DSceneFrambufferScene(Camera& camera, glm::mat4& viewMatrix, EnttView3D& enttView3D, uint32_t framebufferIndex);
-		static void Render3DSceneShadowScene(EnttView3D& enttView3D);
+		static void Submit2DEntitys(EnttRender2DView& view2dQuads);
+		static void Submit2DTextEntitys(EnttRenderTextView& view2dText);
 
-		static void RenderScene3DDraw(EnttView3D& enttView3D, RenderFunc func);
-		static void RenderScene3DSubmit(EnttView3D& enttView3D, RenderFunc func);
-		static void RenderScene2D(Camera& camera, glm::mat4& viewMatrix, EnttView2D& enttView3D);
-		
-#if 0
-		void SubmiteScene2D(EnttView2D& enttView2D);
-		void SubmiteScene3D(EnttView3D& enttView3D);
-		void SubmiteLigthsRuntime(EnttViewLigths& enttViewLigths);
-		void SubmiteLigthsEditor(EnttViewLigths& enttViewLigths);
-		
-		static void RenderScene(Camera& camera, glm::mat4& transform, const Ref<Framebuffer>& frameBuffer);
-#endif
+		static void Submit3DPointLigth(EnttPointLigthView& pointLigthView);
+		static void Submit3DSpotLigth(EnttSpotLigthView& spotLigthView);
+		static void Submit3DDrirectionLigth(EnttDrirektionLigthView& drirektionLigthView);
 
-		void RenderFrambuffers( EnttView3D& enttView3D, EnttView2D& enttView2D, EnttCameraView& enttCameraView);
-		void SetLigthsRuntime(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D, Camera& camera, const glm::mat4& viewMatrix, const glm::vec3& viewCenter);
-		void SetLigthsEditor(EnttViewLigths& enttViewLigths, EnttView3D& enttView3D, Camera& camera, const glm::mat4& viewMatrix, const glm::vec3& viewCenter, const glm::uvec2& viewPortSize);
+		static void SubmitLigtheViews(EnttViewLigths& ligths);
+		static void RenderRenderTaregtView(EnttRenderTargetView& renderTargetView, EnttRender3DStaticModelView& view3dStaticMesh);
+		static void SubmitRenderTaregtCurent(Camera& camera, const glm::mat4& model, RenderTargetComponent& targetC);
+		static void SubmitRenderTaregtMain(Camera& camera, const glm::mat4& model, RenderTargetComponent& targetC);
 
-		// void RenderScene3DShadows( EnttView3D& enttView3D);
+		void RenderNowMain();
+		static void RenderNowCurent();
+		void ResetRenderTaregtMain();
+		static void ResetRenderTaregtCurent();
 
-		void EditorFilterSreene();
+
+		static void Submit3DStaticeEntitysRenderProxy(EnttRender3DStaticModelView& view3dStaticMesh);
+
+
+		static void Submit3DStaticeEntitys(EnttRender3DStaticModelView& view3dStaticMesh, int64_t* timerPtr);
+		static void Submit3DStaticeEntitysMain(EnttRender3DStaticModelView& view3dStaticMesh, int64_t* timerPtr);
+		static void Submit3DStaticeEntitysCurent(EnttRender3DStaticModelView& view3dStaticMesh);
+
+		static void Submit3DSingleStaticeEntitys(EnttRender3DSingleStaticModelView& view3dSingleStaticMesh, int64_t* timerPtr);
+
+		static void Submit3DDataStaticeEntitys(EnttRender3DStaticModelView& view3dStaticMesh, int64_t* timerPtr);
+		static void Submit3DDataSingleStaticeEntitys(EnttRender3DSingleStaticModelView& view3dSingleStaticMesh, int64_t* timerPtr);
+
+		static void Submit3DDynamicEntitys(EnttRender3DDynamicModelView& view3dDynamicMesh);
+
+
 		void ClearAll();
+		
+
+		static void OnEntityModelMatrixCreate(entt::registry& registry, entt::entity entity);
+		static void OnEntityModelMatrixChanged(entt::registry& registry, entt::entity entity);
+		static void OnEntityModelMatrixDestroy(entt::registry& registry, entt::entity entity);
+
+		static void OnEntityStaticMeshCreate(entt::registry& registry, entt::entity entity);
+		static void OnEntityStaticMeshChanged(entt::registry& registry, entt::entity entity);
+		static void OnEntityStaticMeshDestroy(entt::registry& registry, entt::entity entity);
+
+		static void OnEntityStaticSingleMeshCreate(entt::registry& registry, entt::entity entity);
+		static void OnEntityStaticSingleMeshChanged(entt::registry& registry, entt::entity entity);
+		static void OnEntityStaticSingleMeshDestroy(entt::registry& registry, entt::entity entity);
+
 	private:
 		entt::registry m_Registery;
-		uint32_t m_ViewPortWithe = 1, m_ViewPortHeigth = 1;
+
+		std::vector<Ref<LodePromis<Scene>>> m_LodingPromisVec;
+		Ref<RenderTarget> m_MainTartget;
+
+		
 		glm::vec2 m_MausPixlePos = { -1.0, -1.0 };
-		bool m_Hovered = false;
-		bool m_Resized = false;
+		glm::vec4 m_BackGround = { 0.45,0.45f, 0.45f,1.0f };
 
+		int64_t m_TimeElpassed3DSubmit;
+		uint32_t m_ViewPortWithe;
+		uint32_t m_ViewPortHeigth;
 
-		bool m_IsRunning = false;
-		bool m_IsPaused = false;
-		int m_StepFrames = 0;
-		int m_EntityLeangth = 0;
-		// Ref<Framebuffer>	m_RendererFramebuffer;
-		int m_RedererDefaultModeFlags = 0;
-		//b2World* m_PhysicsWorld = nullptr;
+		int m_StepFrames;
+		int m_EntityLeangth;
+		int m_RedererDefaultModeFlags;
 
 		entt::entity m_ViewPortSelected;
+		
 
-		std::unordered_map<UUID, entt::entity> m_EntityMapID;
-		// std::map<std::string, Ref<Framebuffer>> m_RenderFrambuffer;
-		std::map<std::string, entt::entity> m_EntityMapTag;
-		glm::vec4 m_BackGround = { 0.1,0.1f,0.1f,1.0f };
+
+
+		bool m_Hovered;
+		bool m_Resized;
+
+
+		bool m_Running;
+		bool m_Paused;
+	private:
 
 		friend class Entity;
 		friend class SceneSerializer;
 		friend class SceneHierachyPannel;
+		friend class SceneRenderer;
 	};
-
-	
 
 }
 

@@ -12,6 +12,9 @@
 #include "Pannel/RendererPannel.h"
 #include "Pannel/MenuBarPannel.h"
 #include "Pannel/ProjectPannel.h"
+#include "Pannel/MeshPannel.h"
+
+
 
 struct ImVec2;
 #define CHECK_FOR_ERRORS 0
@@ -19,7 +22,7 @@ struct ImVec2;
 
 namespace Rynex{
 	// TODO: Make The System Worke CHECK_FOR_ERRORS
-
+	
 	enum class SceneState
 	{
 		Edit = 0, Play = 1, Simulate = 2
@@ -43,12 +46,16 @@ namespace Rynex{
 
 		
 
+		
+		//-- Open Pannel -----------------
 		void OpenRenderPannel();
 		void OpenAssetPannel();
 		void OpenRegestriyPannel();
 		void OpenSceneHierachyPannel();
 		void OpenPropertiesPannel();
 		void OpenProjectPannel();
+		void OpenViewPortTexture();
+		void OpenMeshPannel();
 
 		//-- Task -------------------
 		void NewProject();
@@ -65,7 +72,7 @@ namespace Rynex{
 		void SaveSceneAs();
 		void SaveCurentScene();
 
-
+		void SaveImagViewPort();
 		//-- ImGui ------------------
 		virtual void OnImGuiRender() override;
 
@@ -75,27 +82,12 @@ namespace Rynex{
 		int* GetPtrGizmoType();
 
 		const Ref<Scene>& GetAktivScene() { return m_AktiveScene; }
-
+		const Ref<EditorCamera>& GetEditorCamera() const { return m_EditorCamera; }
 		void SetSelectedEntity(Entity enitiy) { return m_Scene_HPanel.SetSelectedEntity(enitiy); }
 
 		//--- Layoute ----------------
 
 		// ViewPort 
-
-#if RY_VIEW_PORT_FUNKTION
-
-		void ImGuiViewPort();
-		void ImGuiSecundaryViewPort(const Ref<Framebuffer>& framebuffer, uint32_t id = 0, float width = 12.8f, float height = 7.2f);
-		void ImGuiContentBrowserViewPort();
-		void ImGuiViewPortResize( ImVec2 vPSize);
-		void ImGuiSetMausPosInViewPort( ImVec2 vpOffset);
-		void ImGizmoInViewPort();
-
-#endif
-
-		void RenderSelectedEntity(Entity slelcted);
-		void RenderHoveredEntity(Entity hovered);
-		void FinaleImgaeFilterEditor();
 
 		void ImGuiSettings(bool renderPannnel);
 		void ImGuiPlayButten();
@@ -111,7 +103,21 @@ namespace Rynex{
 		void ImGuiEdit();
 		void ImGuiView();
 		void ImGuiHelp();
+
+		int64_t GetTimerUpdateViewPort() const { return m_ViewPortUpdateTime; }
+		int64_t GetTimerRenderViewPort() const { return m_ViewPortRenderTime; }
+		int64_t GetTimerScene3DSubmit() const { return m_AktiveScene->Get3DSubmitTime(); }
 	private:
+		RendererPannel* GetRendererPannel() { return &m_RendererPannel; }
+		SceneHierachyPannel* GetSceneHierachyPannel() { return &m_Scene_HPanel; }
+		ContentBrowserPannel* GetContentBrowserPannel() { return &m_Content_BPannel; }
+		MenuBarPannel* GetMenuBarPannel() { return &m_MenuBarPannel; }
+		ProjectPannel* GetProjectPannel() { return &m_ProjectPannel; }
+		ViewPortPannel* GetViewPortPannel() { return &m_ViewPortPannel; }
+		MeshPannel* GetMeshPannel() { return &m_MeshPannel; }
+
+	private:
+
 		Ref<EditorCamera> m_EditorCamera;
 		OrthograficCameraController	m_CameraController;
 		
@@ -119,12 +125,6 @@ namespace Rynex{
 		Ref<Scene>				m_AktiveScene;
 		Ref<Scene>				m_EditorScene;
 		Ref<Scene>				m_NextScene = nullptr;
-
-#if 0
-		Ref<Framebuffer>		m_Framebuffer;
-		Ref<Framebuffer>		m_SelectedFramebuffer;
-		Ref<Framebuffer>		m_HoveredFramebuffer;
-#endif
 
 		Ref<Shader>				m_Filtering;
 		Ref<Texture>			m_FinaleImage;
@@ -159,7 +159,7 @@ namespace Rynex{
 		MenuBarPannel							m_MenuBarPannel;
 		ProjectPannel							m_ProjectPannel;
 		ViewPortPannel							m_ViewPortPannel;
-
+		MeshPannel								m_MeshPannel;
 		// Paths
 		std::filesystem::path	m_EditorScenePath;
 
@@ -169,11 +169,14 @@ namespace Rynex{
 		std::mutex						s_WorkingThreadMutex;
 		std::vector<std::future<void>>	s_WorkingThread;
 
-#if RY_EDITOR_ASSETMANGER_THREADE
 		Ref<EditorAssetManegerThreade> m_AssetManger;
-#else
-		Ref<EditorAssetManager> m_AssetManger;
-#endif
+
+		int64_t m_ViewPortUpdateTime;
+		int64_t m_ViewPortRenderTime;
+
+	private:
+		friend class RendererPannel;
+		friend class MenuBarPannel;
 	};
 }
 

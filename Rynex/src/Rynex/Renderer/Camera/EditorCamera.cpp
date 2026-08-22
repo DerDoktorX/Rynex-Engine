@@ -2,9 +2,9 @@
 #include "EditorCamera.h"
 
 
-#include "Rynex/Core/Input.h"
-#include "Rynex/Core/KeyCodes.h"
-#include "Rynex/Core/MouseCodes.h"
+#include <Rynex/Core/Input.h>
+#include <Rynex/Core/KeyCodes.h>
+#include <Rynex/Core/MouseCodes.h>
 
 #include <glfw/glfw3.h>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -13,7 +13,12 @@
 namespace Rynex {
 
 	EditorCamera::EditorCamera(float fov, float aspectRatio, float nearClip, float farClip)
-		: m_FOV(fov), m_AspectRatio(aspectRatio), m_NearClip(nearClip), m_FarClip(farClip), Camera(glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip))
+		: m_FOV(fov)
+		, m_AspectRatio(aspectRatio)
+		, m_NearClip(nearClip)
+		, m_FarClip(farClip)
+		, m_VilocityLookAtPointMove(0.0f,0.0f,0.0f)
+		, Camera(glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip))
 	{
 		UpdateView();
 	}
@@ -28,7 +33,6 @@ namespace Rynex {
 
 	void EditorCamera::UpdateView()
 	{
-		// m_Yaw = m_Pitch = 0.0f; // Lock the camera's rotation
 		m_Position = CalculatePosition();
 
 		glm::quat orientation = GetOrientation();
@@ -75,6 +79,41 @@ namespace Rynex {
 			MouseZoom(delta.y);
 	}
 
+	void EditorCamera::RaltiveMoveFocusePointDir(const glm::vec3& direction)
+	{
+		RaltiveMoveFocusePointDrag();
+		const float sumVec = direction.x + direction.y + direction.z;
+		if (sumVec == 0.0f)
+			return;
+
+		const float dirctionVilocityForceStrength = 1.0f;
+		const float maxVilocitySpeed = 10.0f;
+		const glm::vec3 dir = glm::normalize(direction);
+		
+		const glm::vec3 dirVilocityForce = dir * dirctionVilocityForceStrength;
+		const glm::vec3 vilocity = m_VilocityLookAtPointMove + dirVilocityForce;
+		const glm::vec3 vilocityDir = glm::normalize(vilocity);
+
+		const float speedCurentDir = glm::length(vilocity);
+		m_VilocityLookAtPointMove = (maxVilocitySpeed < speedCurentDir) ? (vilocityDir * maxVilocitySpeed) : vilocity;
+	}
+
+	void EditorCamera::UpdateFocusePoint(TimeStep ts)
+	{
+		m_FocalPoint = m_VilocityLookAtPointMove * ts.GetSecounds();
+	}
+
+	void EditorCamera::RaltiveMoveFocusePointDrag()
+	{
+		const float dirctionVilocityDragStrength = 0.85f;
+		const float speedCurentDir = glm::length(m_VilocityLookAtPointMove);
+		const float speedCurentDirtion = (speedCurentDir * dirctionVilocityDragStrength);
+		// const glm::vec3 moveDirDrag = m_VilocityLookAtPointMove * speedCurentDirtion;
+		m_VilocityLookAtPointMove *= speedCurentDirtion;
+	}
+
+	
+
 	std::pair<float, float> EditorCamera::PanSpeed() const
 	{
 		float x = std::min(m_ViewportWidth / 1000.0f, 2.4f); // max = 2.4f
@@ -109,8 +148,24 @@ namespace Rynex {
 			else
 				m_FreeCamerMove = m_FreeCamerMove ? false : true;
 		}
-			
-		
+		glm::vec3 forceDir = { 0.0f, 0.0f, 0.0f };
+
+		if (Input::IsKeyPressed(Key::W))
+			forceDir.x += 1.0f;
+		if (Input::IsKeyPressed(Key::S))
+			forceDir.x -= 1.0f;
+		if (Input::IsKeyPressed(Key::D))
+			forceDir.z += 1.0f;
+		if (Input::IsKeyPressed(Key::A))
+			forceDir.z -= 1.0f;
+
+		if (Input::IsKeyPressed(Key::Space))
+			forceDir.y += 1.0f;
+		if (Input::IsKeyPressed(Key::LeftControl) && Input::IsKeyPressed(Key::RightControl))
+			forceDir.y -= 1.0f;
+
+		// RaltiveMoveFocusePointDir(forceDir);
+		// UpdateFocusePoint(ts);
 		if (m_FreeCamerMove)
 			FreeCameraUpdate();
 
@@ -121,15 +176,16 @@ namespace Rynex {
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<MouseSrolledEvent>(RY_BIND_EVENT_FN(EditorCamera::OnMouseScroll));
+
 	}
 
 	bool EditorCamera::OnMouseScroll(MouseSrolledEvent& e)
 	{
 		float delta = e.GetYOffset() * 0.1f;
 		MouseZoom(delta);
-		UpdateView();
 		return false;
 	}
+
 
 	void EditorCamera::MousePan(const glm::vec2& delta)
 	{
@@ -166,13 +222,17 @@ namespace Rynex {
 	}
 
 	glm::vec3 EditorCamera::GetForwardDirection() const
-	{
-		return glm::rotate(GetOrientation(), glm::vec3(0.0f, 0.0f, -1.0f));
+	{ 
+		glm::vec3 dirOrient = glm::rotate(GetOrientation(), glm::vec3(0.0f, 0.0f, -1.0f));
+		return dirOrient;
 	}
 
 	glm::vec3 EditorCamera::CalculatePosition() const
 	{
-		return m_FocalPoint - GetForwardDirection() * m_Distance;
+
+		glm::vec3 focusPointOffset = GetForwardDirection() * m_Distance;
+		glm::vec3 camerPostion = m_FocalPoint - focusPointOffset;
+		return camerPostion;
 	}
 
 	glm::quat EditorCamera::GetOrientation() const

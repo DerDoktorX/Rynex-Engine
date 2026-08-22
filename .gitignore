@@ -1,8 +1,6 @@
 .vs/
-bin/
-bin-int/
-
-
+**/bin/
+**/bin-int/
 
 
 # Nor realvent
@@ -12,38 +10,67 @@ RederDocs/
 Rynex-Test/
 
 # Liberays
-Rynex/vendor/spdlog/
-Rynex/vendor/glm/
-#Rynex/vendor/GLFW/
-Rynex/vendor/imgui/
-Rynex/vendor/ImGuizmo/
+
+# Rynex/vendor/GLFW/
+# Rynex/vendor/*
+# Rynex/vendor/ImGuizmo
+# Rynex/vendor/msdf-atelas-gen
+# Rynex/vendor/meshoptimizer
+# Rynex/vendor/gtest
+# Rynex/vendor/assimp
+# GLFW @ 026a148
+# assimp @ f636252
+# gtest @ 79219e2
+# imgui_master @ 781a4ff
+# msdf-atelas-gen @ b50e101
+# yaml-cpp @ b5b07c8
+# glm @ 7590260
+
+Rynex/vendor/_ImGuizmo
+Rynex/vendor/_imgui
+Rynex/vendor/_meshoptimizer
+
 Profile/
+ERRORS/*.txt
+# binPreprozesSource/.cpp
+premake_Srcripts/.lua
+RenderDoc/*.csv
 
-
-
+scripts/__pycache__/**.pyc
 # Files
-*.bat
-*.rdc
-*.cap
-*.json
+**.bat
+**.rdc
+**.cap
+**.json
 
-# from Hazel
+
+
+# Font
+Rynex-Editor/Resources/fonts/Open_Sans/*.ttf
 
 # Binaries
 #Intermediates/
 Intermediates/
-Resources/Binaries/
+Rynex-Editor/Resources/Scripts/
 SandboxProject/Assets/Scripts/Binaries
 SandboxProject/Assets/Scripts/Intermediates
+Rynex-ScriptingCore/bin
+Rynex-ScriptingCore/obj
+**/assimp-vc143-mt.dll
+**/assimp-vc143-mt.pdb
+**/assimp-vc143-mtd.dll
+**/assimp-vc143-mtd.pdb
+**/unit.pdb
 
 # Hazel files
-*.log
+**.log
 
 
 # Visual Studio files and folder
-*.sln
+**.slnx
+**.sln
 *.vcxproj
 **.vcxproj.filters
 **.vcxproj.user
-*.csproj
+**.csproj
 **.csproj.user

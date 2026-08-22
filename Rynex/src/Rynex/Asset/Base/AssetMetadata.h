@@ -22,11 +22,16 @@ namespace Rynex {
 		AssetType Type = AssetType::None;
 		std::filesystem::path FilePath = "Not knowing Path";
 		AssetState State = AssetState::None;
-		std::string Name = std::string("Unkowne");				//FilenameDefault
+		std::string Name = std::string("Unkowne");				// FilenameDefault
+
 		std::chrono::time_point<std::chrono::steady_clock> LoadingInTime = std::chrono::time_point<std::chrono::steady_clock>::min();
 		std::vector<AssetHandle> ChildrenAssets;
 		int Flags = 0;
-		
+		std::string ChangeTime = "0000-00-00 00:00:00";
+
+		std::filesystem::path RealtivePath = "Not knowing Realative Path";
+		std::filesystem::path AbsolutePath = "Not knowing Absolute Path";
+		std::filesystem::path PathMarker = RY_PATH_NO_VAILD_MARKER_STR "/Not knowing Path";
 
 		AssetMetadata() = default;
 		AssetMetadata(const AssetMetadata&) = default;
@@ -38,8 +43,17 @@ namespace Rynex {
 			FilePath = metadat.FilePath;
 			Name = metadat.Name;
 			LoadingInTime = metadat.LoadingInTime;
+			PathMarker = metadat.PathMarker;
+			AbsolutePath = metadat.AbsolutePath;
+			RealtivePath = metadat.RealtivePath;
+
 			SetState(state);
 		}	
+
+		void SetFilePath(const std::filesystem::path& path);
+		void SetMarkedFilePath(const std::filesystem::path& markedPath);
+		void SetMarkedFilePath(const std::filesystem::path& markedPath, const std::filesystem::path& path);
+		
 
 		void SetChildeHandleMaxIndex(uint32_t maxIndex)
 		{
@@ -61,7 +75,6 @@ namespace Rynex {
 		{
 			State = state;
 		}
-		
 
 		void SetActive(bool v)
 		{
@@ -70,6 +83,7 @@ namespace Rynex {
 			else
 				Flags &= ~BIT(0);
 		}
+
 		bool GetActive() const
 		{
 			return BIT_EQUAL(Flags, BIT(0));
@@ -82,6 +96,7 @@ namespace Rynex {
 			else
 				Flags &= ~BIT(1);
 		}
+
 		bool GetIntern() const
 		{
 			return BIT_EQUAL(Flags, BIT(1));
@@ -94,6 +109,7 @@ namespace Rynex {
 			else
 				Flags &= ~BIT(2);
 		}
+
 		bool GetDisc() const
 		{
 			return BIT_EQUAL(Flags, BIT(2));
@@ -106,6 +122,7 @@ namespace Rynex {
 			else
 				Flags &= ~BIT(3);
 		}
+
 		bool GetParent() const
 		{
 			return BIT_EQUAL(Flags, BIT(3));
@@ -118,6 +135,7 @@ namespace Rynex {
 			else
 				Flags &= ~BIT(4);
 		}
+
 		bool GetChildren() const
 		{
 			return BIT_EQUAL(Flags, BIT(4));
@@ -130,12 +148,19 @@ namespace Rynex {
 			else
 				Flags &= ~BIT(5);
 		}
+
 		bool GetScript() const
 		{
 			return BIT_EQUAL(Flags, BIT(5));
 		}
 
-		operator bool() const { return Type != AssetType::None && GetActive(); }
+		operator bool() const 
+		{ 
+			bool isType = Type != AssetType::None;
+			bool isActive = GetActive();
+			bool isChangeTime = ChangeTime != "0000-00-00 00:00:00";
+			return isType && isActive && isChangeTime;
+		}
 
 		
 	};

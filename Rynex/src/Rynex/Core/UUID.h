@@ -2,7 +2,7 @@
 
 namespace Rynex {
 
-	enum class RYNEX_API ResurceType
+	enum class ResurceType
 	{
 		None = 0,
 		Texture, Texture2D,
@@ -10,10 +10,8 @@ namespace Rynex {
 		Value, Vector2, Vector3, Vector4, Matrix3x3, Matrix4x4,
 		Entity, Scene, SceneCamera,
 		FrameBuffer,
-		VertexBuffer, IndexBuffer, Uniform,
+		VertexBuffer, IndexBuffer, Uniform
 	};
-
-	
 
 	class UUID
 	{
@@ -23,11 +21,13 @@ namespace Rynex {
 		UUID(const UUID&) = default;
 
 		operator uint64_t() const { return m_UUID; }
+
+
 	private:
 		uint64_t m_UUID;
 	};
 
-
+	
 }
 
 namespace std {

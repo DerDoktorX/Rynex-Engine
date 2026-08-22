@@ -28,7 +28,7 @@ namespace Rynex {
         return m_AssetRegistry.IsAssetInteral(handle);
     }
 
-    Ref<Asset> RuntimeAssetManager::GetAsset(AssetHandle handle, bool async)
+    Ref<Asset> RuntimeAssetManager::GetAsset(AssetHandle handle)
     {
         if (m_AssetRegistry.IsAssetInRegistry(handle))
         {
@@ -41,7 +41,7 @@ namespace Rynex {
             {
                 AssetMetadata& metadata = m_AssetRegistry.GetMetadata(handle);
                 metadata.State = AssetState::Loading;
-                asset = AssetImporter::ImportAsset(handle, metadata, async);
+                asset = AssetImporter::ImportAsset(handle, metadata);
                 metadata.State = AssetState::Ready;
                 asset->Handle = handle;
                 if (!asset) {}
@@ -81,6 +81,22 @@ namespace Rynex {
         return GetAsset(m_AssetRegistry.GetAssetHandle(path));
     }
 
+    const AssetHandle RuntimeAssetManager::GetAssetHandle(const std::filesystem::path& path) const
+    {
+        return m_AssetRegistry.GetAssetHandleConst(path);
+    }
+
+    const AssetMetadata RuntimeAssetManager::GetMetadata(AssetHandle handle) const
+    {
+        return GetMetadata(m_AssetRegistry.IsAssetInRegistry(handle));
+    }
+
+    const AssetMetadata RuntimeAssetManager::GetMetadata(const std::filesystem::path& path) const
+    {
+        RY_CORE_ERROR("This Funktion 'RuntimeAssetManager::IsAssetLoaded' Don't need to Exist in Runtime!");
+        return GetMetadata(m_AssetRegistry.IsAssetInRegistry(path));
+    }
+
     bool RuntimeAssetManager::IsAssetLoaded(AssetHandle handle) const
     {
         return m_LoadedAssets.find(handle) != m_LoadedAssets.end();
@@ -89,7 +105,11 @@ namespace Rynex {
     bool RuntimeAssetManager::IsAssetLoaded(const std::filesystem::path& filepath) const 
     {
         RY_CORE_ERROR("This Funktion 'RuntimeAssetManager::IsAssetLoaded' Don't need to Exist in Runtime!");
-        return IsAssetLoaded(m_AssetRegistry.IsAssetInRegistry(filepath));
+        if (!m_AssetRegistry.IsAssetInRegistry(filepath))
+            return false;
+
+        AssetHandle handle = m_AssetRegistry.GetAssetHandleConst(filepath);
+        return IsAssetLoaded(handle);
     }
 
     void RuntimeAssetManager::CreatLocaleAsset(Ref<Asset> asset, AssetMetadata& metadata, AssetHandle handle)
