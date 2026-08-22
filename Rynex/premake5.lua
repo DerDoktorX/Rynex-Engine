@@ -86,12 +86,15 @@ project "Rynex"
 		"Glad",
 		"GLFW",
 		"meshoptimizer",
+		"assimp",
 		"opengl32.lib",	
 
 		"yaml-cpp",			-- Files
 		"ImGui", 			-- Runtime Visuelle configs
 
 		"msdf-atlas-gen"
+
+		
 	}
 
 
@@ -132,7 +135,7 @@ project "Rynex"
 		links
 		{
 			"%{Library.mono_Debug}",
-			"%{Library.assimp_Debug}"
+			-- "%{Library.assimp_Debug}"
 		}
 
 	filter "configurations:Release"
@@ -145,7 +148,7 @@ project "Rynex"
 		links
 		{
 			"%{Library.mono_Release}",
-			"%{Library.assimp_Release}"
+			-- "%{Library.assimp_Release}"
 		}
 		
 
@@ -158,7 +161,7 @@ project "Rynex"
 		links
 		{
 			"%{Library.mono_Release}",
-			"%{Library.assimp_Release}"
+			-- "%{Library.assimp_Release}"
 		}
 
 	
