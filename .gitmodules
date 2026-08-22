@@ -19,6 +19,3 @@
 [submodule "Rynex/vendor/GLFW"]
 	path = Rynex/vendor/GLFW
 	url = https://github.com/DerDoktorX/glfw
-[submodule "Rynex/vendor/assimp"]
-	path = Rynex/vendor/assimp
-	url = https://github.com/assimp/assimp
