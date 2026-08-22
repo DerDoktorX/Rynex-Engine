@@ -19,6 +19,3 @@
 [submodule "Rynex-Test/vendor/gtest"]
 	path = Rynex-Test/vendor/gtest
 	url = https://github.com/google/googletest
-[submodule "Rynex/vendor/meshoptimizer"]
-	path = Rynex/vendor/meshoptimizer
-	url = https://github.com/zeux/meshoptimizer
