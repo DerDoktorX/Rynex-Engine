@@ -76,7 +76,6 @@ IncludeDir["meshoptimizer"] = "%{wks.location}/Rynex/vendor/meshoptimizer/src"
 IncludeDir["magic_enum"] = "%{wks.location}/Rynex/vendor/magic_enum"
 -- Runtime Visuelle configs
 IncludeDir["ImGui"] 	= "%{wks.location}/Rynex/vendor/imgui"
-IncludeDir["ImPolt"] 	= "%{wks.location}/Rynex/vendor/implot"
 
 IncludeDir["ImGuizmo"] 	= "%{wks.location}/Rynex/vendor/ImGuizmo"
 

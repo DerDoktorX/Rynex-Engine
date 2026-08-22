@@ -72,7 +72,6 @@ project "Rynex"
 		-- Runtime Visuelle configs
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.ImGuizmo}",
-		"%{IncludeDir.ImPolt}",
 		
 		"%{IncludeDir.msdfgen}",
 		"%{IncludeDir.msdf_atlas_gen}"
