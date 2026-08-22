@@ -39,10 +39,10 @@ scripts/__pycache__
 **.json
 
 
-Rynex-Editor/assimp-vc143-mt.dll
-Rynex-Editor/assimp-vc143-mt.pdb
-Rynex-Editor/assimp-vc143-mtd.dll
-Rynex-Editor/assimp-vc143-mtd.pdb
+*/assimp-vc143-mt.dll
+*/assimp-vc143-mt.pdb
+*/assimp-vc143-mtd.dll
+*/assimp-vc143-mtd.pdb
 
 
 # Binaries
