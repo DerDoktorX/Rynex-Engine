@@ -31,7 +31,7 @@ ERRORS/*.txt
 premake_Srcripts/.lua
 RenderDoc/*.csv
 
-scripts/__pycache__/
+scripts/__pycache__/**.pyc
 # Files
 **.bat
 **.rdc
@@ -46,7 +46,7 @@ Rynex-Editor/Resources/fonts/Open_Sans/*.ttf
 # Binaries
 #Intermediates/
 Intermediates/
-Resources/Scripts/
+Rynex-Editor/Resources/Scripts/
 SandboxProject/Assets/Scripts/Binaries
 SandboxProject/Assets/Scripts/Intermediates
 Rynex-ScriptingCore/bin
