@@ -133,7 +133,11 @@ group "Dependencies"
 	include "Rynex/vendor/Glad"
 	include "Rynex/vendor/yaml-cpp"
 	include "Rynex/vendor/imgui"
-	include "Rynex/vendor/assimp"
+	
+	-- notiz: it is nassary for a sucesfull build withe the curent setub to generate the broject withe camke one time in the ./vendor/assimp/ folder.
+	-- NOT in a ./vendor/assimp/build!
+	-- the include assimp/config.h and some other also don't work! becaouse CMakeList.txt generats from  ./vendor/assimp/inlcude/assimp/config.h.in the needed assimp/config.h file.
+	include "Rynex/vendor/assimp" 
 
 	include "Rynex/vendor/msdf-atelas-gen"
 	include "Rynex/vendor/meshoptimizer"
