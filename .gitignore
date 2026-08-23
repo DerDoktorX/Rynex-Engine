@@ -30,7 +30,7 @@ ERRORS/*.txt
 # binPreprozesSource/.cpp
 premake_Srcripts/.lua
 RenderDoc/*.csv
-
+.claude/
 scripts/__pycache__
 # Files
 **.bat
