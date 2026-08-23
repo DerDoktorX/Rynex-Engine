@@ -76,7 +76,6 @@ IncludeDir["meshoptimizer"] = "%{wks.location}/Rynex/vendor/meshoptimizer/src"
 IncludeDir["magic_enum"] = "%{wks.location}/Rynex/vendor/magic_enum"
 -- Runtime Visuelle configs
 IncludeDir["ImGui"] 	= "%{wks.location}/Rynex/vendor/imgui"
-IncludeDir["ImPolt"] 	= "%{wks.location}/Rynex/vendor/implot"
 
 IncludeDir["ImGuizmo"] 	= "%{wks.location}/Rynex/vendor/ImGuizmo"
 
@@ -98,13 +97,12 @@ Library["mono_Release"] = "%{LibraryDir.mono_Release}/libmono-static-sgen.lib"
 Library["mono_Debug"] = "%{LibraryDir.mono_Debug}/libmono-static-sgen.lib"
 
 
-	LibraryDir["assimp"] 	= "%{wks.location}/Rynex/vendor/assimp/lib/%{cfg.buildcfg}"
-	LibraryDir["assimp_Debug"] 	= "%{wks.location}/Rynex/vendor/assimp/lib/Debug"
-	LibraryDir["assimp_Release"] 	= "%{wks.location}/Rynex/vendor/assimp/lib/Release"
-
-	Library["assimp"] = "%{LibraryDir.assimp}/assimp-vc143-mtd.lib"
-	Library["assimp_Debug"] = "%{LibraryDir.assimp_Debug}/assimp-vc143-mtd.lib"
-	Library["assimp_Release"] = "%{LibraryDir.assimp_Release}/assimp-vc143-mt.lib"
+	-- LibraryDir["assimp"] 	= "%{wks.location}/Rynex/vendor/assimp/lib/%{cfg.buildcfg}"
+	-- LibraryDir["assimp_Debug"] 	= "%{wks.location}/Rynex/vendor/assimp/lib/Debug"
+	-- LibraryDir["assimp_Release"] 	= "%{wks.location}/Rynex/vendor/assimp/lib/Release"
+	-- Library["assimp"] = "%{LibraryDir.assimp}/assimp-vc143-mtd.lib"
+	-- Library["assimp_Debug"] = "%{LibraryDir.assimp_Debug}/assimp-vc143-mtd.lib"
+	-- Library["assimp_Release"] = "%{LibraryDir.assimp_Release}/assimp-vc143-mt.lib"
 
 
 
@@ -131,7 +129,7 @@ group "Dependencies"
 	include "Rynex/vendor/Glad"
 	include "Rynex/vendor/yaml-cpp"
 	include "Rynex/vendor/imgui"
-	include "Rynex/vendor/implot"
+	include "Rynex/vendor/assimp"
 
 	include "Rynex/vendor/msdf-atelas-gen"
 	include "Rynex/vendor/meshoptimizer"

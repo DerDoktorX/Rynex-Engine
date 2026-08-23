@@ -47,7 +47,6 @@ project "Rynex-Editor"
 		"%{IncludeDir.robin_hood_hashing}", -- has map
 		-- Runtime Visuelle configs
 		"%{IncludeDir.ImGuizmo}",
-		"%{IncludeDir.ImPlot}",
 		"%{IncludeDir.ImGui}",
 	}
 

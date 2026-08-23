@@ -12,7 +12,7 @@ Rynex-Test/
 # Liberays
 
 # Rynex/vendor/GLFW/
-Rynex/vendor/*
+# Rynex/vendor/*
 # Rynex/vendor/ImGuizmo
 # Rynex/vendor/msdf-atelas-gen
 # Rynex/vendor/meshoptimizer
@@ -25,29 +25,43 @@ Rynex/vendor/*
 # msdf-atelas-gen @ b50e101
 # yaml-cpp @ b5b07c8
 # glm @ 7590260
+
+Rynex/vendor/_ImGuizmo
+Rynex/vendor/_imgui
+Rynex/vendor/_meshoptimizer
+.claude/
+
 Profile/
 ERRORS/*.txt
 # binPreprozesSource/.cpp
 premake_Srcripts/.lua
 RenderDoc/*.csv
-.claude/
-scripts/__pycache__
+
+scripts/__pycache__/**.pyc
 # Files
 **.bat
 **.rdc
 **.cap
 **.json
 
-# from Hazel
+
+
+# Font
+Rynex-Editor/Resources/fonts/Open_Sans/*.ttf
 
 # Binaries
 #Intermediates/
 Intermediates/
-Resources/Binaries/
+Rynex-Editor/Resources/Scripts/
 SandboxProject/Assets/Scripts/Binaries
 SandboxProject/Assets/Scripts/Intermediates
 Rynex-ScriptingCore/bin
 Rynex-ScriptingCore/obj
+**/assimp-vc143-mt.dll
+**/assimp-vc143-mt.pdb
+**/assimp-vc143-mtd.dll
+**/assimp-vc143-mtd.pdb
+**/unit.pdb
 
 # Hazel files
 **.log
