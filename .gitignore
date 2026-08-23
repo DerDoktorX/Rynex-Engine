@@ -29,6 +29,7 @@ Rynex-Test/
 Rynex/vendor/_ImGuizmo
 Rynex/vendor/_imgui
 Rynex/vendor/_meshoptimizer
+.claude/
 
 Profile/
 ERRORS/*.txt
