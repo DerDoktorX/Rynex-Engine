@@ -14,7 +14,7 @@ namespace Rynex {
 		RynexEditor(const ApplicationSpecification& spec)
 			: Application(spec)
 		{
-			if(spec.CommandLineArgs.Count > 1)
+			if(1 < spec.CommandLineArgs.Count)
 				PushLayer(new EditorLayer());
 			else
 				PushLayer(new LauncherLayer());

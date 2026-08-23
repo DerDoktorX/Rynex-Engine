@@ -38,6 +38,7 @@
 	#error "Rynex do not seported Android at Curent Time! (At the monoent they are no Plans to do it in Futer)"
 #elif defined(__linux__)
 	#error "Rynex not seported Linux  at Curent Time!"
+	#include <signal.h>
 	#define RY_DEBUG_BREAK() raise(SIGTRAP);
 #else 
 	#error "Rynex not seport Platform! Or Unknown!"
@@ -67,7 +68,15 @@
 #endif
 
 #ifdef RY_PLATFORM_LINUX
-	"HI"
+	#if RY_DYNAMIC_LINK
+		#ifdef RY_BUILD_DLL
+			#define RYNEX_API __attribute__((visibility("default")))
+	#else
+		#define RYNEX_API __attribute__((visibility("default")))
+	#endif
+#else
+	#define RYNEX_API
+	#endif
 #endif
 
 

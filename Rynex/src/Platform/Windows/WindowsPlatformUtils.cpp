@@ -118,7 +118,7 @@ namespace Rynex {
 		filePathSize.resize(512);
 		char* charPtr = filePathSize.data();
 		RY_CORE_INFO("OpenFileInDefaultApp");
-		scanf_s("%s", charPtr);
+		scanf("%s", charPtr);("%s", charPtr);
 
 	}
 
@@ -130,7 +130,7 @@ namespace Rynex {
 		filePathSize.resize(512);
 		char* charPtr = filePathSize.data();
 
-		scanf_s("%s", charPtr);
+		scanf("%s", charPtr);
 		return filePathSize;
 
 	}
@@ -142,7 +142,7 @@ namespace Rynex {
 		filePathSize.resize(256);
 		char* charPtr = filePathSize.data();
 
-		scanf_s("%s", charPtr);
+		scanf("%s", charPtr);
 		return filePathSize;
 
 	}
@@ -154,7 +154,7 @@ namespace Rynex {
 		filePathSize.resize(256);
 		char* charPtr = filePathSize.data();
 
-		scanf_s("%s", charPtr);
+		scanf("%s", charPtr);
 		return filePathSize;
 
 	}

@@ -3,19 +3,17 @@
 #include "ScriptGlue.h"
 
 #include "Rynex/Core/Application.h"
-#ifdef RY_PLATFORM_WINDOWS
-	#include <mono/jit/jit.h>
-	#include <mono/metadata/assembly.h>
-	#include <mono/metadata/object.h>
-	#include <mono/metadata/tabledefs.h>
-	#include <mono/metadata/mono-debug.h>
-	#include <mono/metadata/threads.h>
-#endif
+
+#include <mono/jit/jit.h>
+#include <mono/metadata/assembly.h>
+#include <mono/metadata/object.h>
+#include <mono/metadata/tabledefs.h>
+#include <mono/metadata/mono-debug.h>
+#include <mono/metadata/threads.h>
 
 #include <FileWatch.h>
 #include <Rynex/Project/Project.h>
 
-#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
 
 namespace Rynex {
 
@@ -645,4 +643,3 @@ namespace Rynex {
 
 }
 
-#endif

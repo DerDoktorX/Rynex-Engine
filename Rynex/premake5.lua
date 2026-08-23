@@ -106,12 +106,13 @@ project "Rynex"
 
 	filter "system:windows"
 		systemversion "latest"
+		links { "opengl32.lib"}
 		links
 		{
-			"%{Library.WinSock}",
-			"%{Library.WinMM}",
-			"%{Library.WinVersion}",
-			"%{Library.Bcrypt}",
+			"%{Library_WIN.WinSock}",
+			"%{Library_WIN.WinMM}",
+			"%{Library_WIN.WinVersion}",
+			"%{Library_WIN.Bcrypt}",
 		}
 	-- For Compile Rynex in .dll |
 	--							 V
@@ -127,16 +128,28 @@ project "Rynex"
 			}
 		end
 	--							 ^
+
+
+	filter "system:linux"
+    	systemversion "latest"
+    	pic "On"
+    	links
+    	{
+    	    "GL",
+    	    "dl",
+    	    "pthread",
+    	    "X11",
+    	    "Xrandr",
+    	    "Xi",
+    	    "Xxf86vm",
+    	    "Xcursor",
+    	    "Xinerama",
+    	}
+
+
 	filter "configurations:Debug"
 		defines "RY_DEBUG"
 		runtime "Debug"
-
-	filter {"system:windows", "configurations:Debug"}
-		links
-		{
-			"%{Library.mono_Debug}",
-			-- "%{Library.assimp_Debug}"
-		}
 
 	filter "configurations:Release"
 		defines "RY_REALSE"
@@ -144,25 +157,30 @@ project "Rynex"
 		symbols "on"
 		optimize "on"	
 
-	filter {"system:windows", "configurations:Release"}
-		links
-		{
-			"%{Library.mono_Release}",
-			-- "%{Library.assimp_Release}"
-		}
-		
-
 	filter "configurations:Dist"
 		defines "RY_DIST"
 		runtime "Release"
 		optimize "on"
 
+
+	filter {"system:windows", "configurations:Debug"}
+		links { "%{Library_WIN.mono_Debug}" }
+
+	filter {"system:windows", "configurations:Release"}
+		links { "%{Library_WIN.mono_Release}" }
+
 	filter {"system:windows", "configurations:Dist"}
-		links
-		{
-			"%{Library.mono_Release}",
-			-- "%{Library.assimp_Release}"
-		}
+		links { "%{Library_WIN.mono_Release}" }
+		
+
+	filter { "system:linux", "configurations:Debug" }
+		links { "%{Library_LINUX.mono_Debug}", }
+
+	filter { "system:linux", "configurations:Release" }
+		links { "%{Library_LINUX.mono_Release}", }
+
+	filter { "system:linux", "configurations:Dist" }
+		links { "%{Library_LINUX.mono_Release}", }
 
 	
 

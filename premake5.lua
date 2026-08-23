@@ -86,16 +86,20 @@ IncludeDir["freetype"] 	= "%{wks.location}/Rynex/vendor/msdf-atelas-gen/msdfgen/
 IncludeDir["gtest"] = "%{wks.location}/Rynex-Test/vendor/gtest/googletest/include"
 
 LibraryDir = {}
-Library = {}
+Library_WIN = {}
+Library_LINUX = {}
 
 LibraryDir["mono"] = "%{wks.location}/Rynex/vendor/mono/lib/%{cfg.buildcfg}"
 LibraryDir["mono_Release"] = "%{wks.location}/Rynex/vendor/mono/lib/Release"
 LibraryDir["mono_Debug"] = "%{wks.location}/Rynex/vendor/mono/lib/Debug"
 
-Library["mono"] = "%{LibraryDir.mono}/libmono-static-sgen.lib"
-Library["mono_Release"] = "%{LibraryDir.mono_Release}/libmono-static-sgen.lib"
-Library["mono_Debug"] = "%{LibraryDir.mono_Debug}/libmono-static-sgen.lib"
+Library_WIN["mono"] = "%{LibraryDir.mono}/libmono-static-sgen.lib"
+Library_WIN["mono_Release"] = "%{LibraryDir.mono_Release}/libmono-static-sgen.lib"
+Library_WIN["mono_Debug"] = "%{LibraryDir.mono_Debug}/libmono-static-sgen.lib"
 
+Library_LINUX["mono"] = "%{LibraryDir.mono}/libmono-static-sgen.a"
+Library_LINUX["mono_Release"] = "%{LibraryDir.mono_Release}/libmono-static-sgen.a"
+Library_LINUX["mono_Debug"] = "%{LibraryDir.mono_Debug}/libmono-static-sgen.a"
 
 	-- LibraryDir["assimp"] 	= "%{wks.location}/Rynex/vendor/assimp/lib/%{cfg.buildcfg}"
 	-- LibraryDir["assimp_Debug"] 	= "%{wks.location}/Rynex/vendor/assimp/lib/Debug"
@@ -110,16 +114,16 @@ LibraryDir["gtest"] 	= "%{wks.location}/Rynex/vendor/gtest/lib/%{cfg.buildcfg}"
 LibraryDir["gtest_Debug"] 	= "%{wks.location}/Rynex/vendor/gtest/lib/Debug"
 LibraryDir["gtest_Release"] 	= "%{wks.location}/Rynex/vendor/gtest/lib/Release"
 
-Library["gtest"] = "%{LibraryDir.gtest}/gtest.lib"
-Library["gtest_Debug"] = "%{LibraryDir.gtest_Debug}/gtest_main.lib"
-Library["gtest_Release"] = "%{LibraryDir.gtest_Release}/gtest_main.lib"
+Library_WIN["gtest"] = "%{LibraryDir.gtest}/gtest.lib"
+Library_WIN["gtest_Debug"] = "%{LibraryDir.gtest_Debug}/gtest_main.lib"
+Library_WIN["gtest_Release"] = "%{LibraryDir.gtest_Release}/gtest_main.lib"
 
 
 -- Windows only
-Library["WinSock"] = "Ws2_32.lib"
-Library["WinMM"] = "Winmm.lib"
-Library["WinVersion"] = "Version.lib"
-Library["Bcrypt"] = "Bcrypt.lib"
+Library_WIN["WinSock"] = "Ws2_32.lib"
+Library_WIN["WinMM"] = "Winmm.lib"
+Library_WIN["WinVersion"] = "Version.lib"
+Library_WIN["Bcrypt"] = "Bcrypt.lib"
 
 
 Compiler ="msv" -- "msv" | "gcc" | "clang" | "dotnet"
