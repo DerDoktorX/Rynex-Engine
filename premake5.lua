@@ -57,7 +57,7 @@ end
 
 IncludeDir = {}
 -- Runtime
-IncludeDir["entt"] 		= "%{wks.location}/Rynex/vendor/entt_single_header/include"
+IncludeDir["entt"] 		= "%{wks.location}/Rynex/vendor/entt"
 IncludeDir["robin_hood_hashing"] 		= "%{wks.location}/Rynex/vendor/robin-hood-hashing/include"
 
 IncludeDir["mono"] 	= "%{wks.location}/Rynex/vendor/mono/include"
