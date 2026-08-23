@@ -34,20 +34,18 @@ workspace "Rynex-Rendering"
 	-- conformancemode "Off" -- disable in vs2026 -> /permissive-
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
--- filter "system:windows"
--- 	defines
--- 	{
--- 		"RY_PLATFORM_WINDOWS"
--- 	}
--- filter "system:linux"	
--- 	defines
--- 	{
--- 		"RY_PLATFORM_LINUX"
--- 	}
-defines
-{
-	"RY_PLATFORM_WINDOWS"
-}
+filter "system:windows"
+	defines
+	{
+		"RY_PLATFORM_WINDOWS"
+	}
+filter "system:linux"	
+	defines
+	{
+		"RY_PLATFORM_LINUX"
+	}
+filter {}
+
 if BuildProjectConf == "Dynamic" then
 defines
 {
@@ -57,7 +55,7 @@ end
 
 IncludeDir = {}
 -- Runtime
-IncludeDir["entt"] 		= "%{wks.location}/Rynex/vendor/entt"
+IncludeDir["entt"] 		= "%{wks.location}/Rynex/vendor/entt/include"
 IncludeDir["robin_hood_hashing"] 		= "%{wks.location}/Rynex/vendor/robin-hood-hashing/include"
 
 IncludeDir["mono"] 	= "%{wks.location}/Rynex/vendor/mono/include"
@@ -126,8 +124,10 @@ Library_WIN["WinVersion"] = "Version.lib"
 Library_WIN["Bcrypt"] = "Bcrypt.lib"
 
 
-Compiler ="msv" -- "msv" | "gcc" | "clang" | "dotnet"
-
+Compiler = "msv" -- "msv" | "gcc" | "clang" | "dotnet"
+filter "system:linux"
+	Compiler = "gcc"
+filter {}
 group "Dependencies"
 	include "Rynex/vendor/GLFW"
 	include "Rynex/vendor/Glad"

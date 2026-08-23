@@ -87,14 +87,10 @@ project "Rynex"
 		"GLFW",
 		"meshoptimizer",
 		"assimp",
-		"opengl32.lib",	
 
 		"yaml-cpp",			-- Files
 		"ImGui", 			-- Runtime Visuelle configs
-
 		"msdf-atlas-gen"
-
-		
 	}
 
 
@@ -106,9 +102,9 @@ project "Rynex"
 
 	filter "system:windows"
 		systemversion "latest"
-		links { "opengl32.lib"}
 		links
 		{
+			"opengl32.lib",
 			"%{Library_WIN.WinSock}",
 			"%{Library_WIN.WinMM}",
 			"%{Library_WIN.WinVersion}",
