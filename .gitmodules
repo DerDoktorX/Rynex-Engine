@@ -22,6 +22,6 @@
 [submodule "Rynex/vendor/assimp"]
 	path = Rynex/vendor/assimp
 	url = https://github.com/DerDoktorX/assimp
-[submodule "Rynex/vendor/meshoptimizer"]
-	path = Rynex/vendor/meshoptimizer
+[submodule "Rynex/vendor/hidenSubmodule"]
+	path = Rynex/vendor/hidenSubmodule
 	url = https://github.com/DerDoktorX/meshoptimizer
