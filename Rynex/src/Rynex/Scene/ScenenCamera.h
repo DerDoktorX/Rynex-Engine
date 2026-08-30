@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Rynex/Renderer/Camera/Camera.h"
-#include "Rynex/Renderer/Objects/BoxAABB.h"
+#include "Rynex/Renderer/Objects/BoundingVolume.h"
 
 namespace Rynex{
 
@@ -23,7 +23,7 @@ namespace Rynex{
 	class RYNEX_API SceneCamera : public Camera
 	{
 	public:
-		enum class ProjectionType { Perspectiv = 0, Orthographic = 1 };
+		enum class ProjectionType : uint8_t { Perspectiv = 0, Orthographic = 1 };
 	public:
 		SceneCamera();
 		virtual ~SceneCamera() = default;
@@ -51,8 +51,9 @@ namespace Rynex{
 		float GetPerspectivVerticleFOV() const { return m_PerspectivFOV; }
 		float GetPerspectivNearClipe() const { return m_PerspectivNear; }
 		float GetPerspectivFarClipe() const { return m_PerspectivFar; }
-
-
+		float GetAspectRotatio() const { return m_AspectRotatio; }
+		glm::ivec2 GetViewAsspect() const { return m_ViewAsspect; }
+		
 		ProjectionType GetProjectionType() const{ return m_ProjektionType; }
 		void SetProjectionType(ProjectionType type) { m_ProjektionType = type; RecalulateProjection(); }
 
@@ -64,7 +65,7 @@ namespace Rynex{
 
 		static const std::array<glm::vec4, 8>& GetViewFustrum() { return m_ViewFustrum; }
 		std::array<glm::vec4, 8> GetViewFustrumWorld(const glm::mat4& view)const;
-
+		static float GetWorldViewFustrumRaidus(const glm::mat4& view);
 		static std::array<glm::vec4, 8> GetViewFustrumWorld(const glm::mat4& view, const glm::mat4& projetion);
 		static std::array<glm::vec4, 8> GetViewProjetionFustrumWorld(const glm::mat4& viewProjetion);
 		static std::array<glm::vec4, 8> GetInverseViewProjetionFustrumWorld(const glm::mat4& inverseViewProjetion);
@@ -84,8 +85,8 @@ namespace Rynex{
 		float m_PerspectivFOV = glm::radians(45.0f);
 		float m_PerspectivNear = 0.01f, m_PerspectivFar = 1000.0f;
 
-		float m_AspectRotatio = 0.0f;
-		
+		float m_AspectRotatio = 1.0f;
+		glm::ivec2 m_ViewAsspect = glm::ivec2{ 1, 1 };
 		glm::vec3 m_Min;
 		glm::vec3 m_Max;
 		static std::array<glm::vec4, 8> m_ViewFustrum;

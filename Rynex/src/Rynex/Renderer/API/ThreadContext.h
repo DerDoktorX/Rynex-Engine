@@ -1,7 +1,6 @@
 #pragma once
-#include "Rynex/Asset/Base/Asset.h"
-
-#include "Rynex/Renderer/RendererAPI.h"
+#include <Rynex/Asset/Base/Asset.h>
+#include <Rynex/Renderer/RendererAPI.h>
 
 namespace Rynex {
 	class Window;

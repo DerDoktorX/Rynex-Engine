@@ -9,26 +9,38 @@ namespace Rynex {
 	class OpenGLShader : public Shader
 	{
 	public:
-		//OpenGLShader(const std::string& filePath);
-#if 1
-		OpenGLShader() = default;
-#endif // TODO: after test dealating!
+		static constexpr const char* g_VertexShaderToken = "Vertex";
+		static constexpr const char* g_FragementShaderToken[2] = { "Fragment", "Pixel"};
+		static constexpr const char* g_TeseltionControllShaderToken = "TessControl";
+		static constexpr const char* g_TeseltionEvalutionShaderToken = "TessEvalution";
+		static constexpr const char* g_GemotryShaderToken = "Geomtry";
+		static constexpr const char* g_ComputeShaderToken = "Compute";
+		static constexpr const char* g_ShaderTokenList[7] = {
+			g_VertexShaderToken
+			, g_FragementShaderToken[0]
+			, g_FragementShaderToken[1]
+			, g_TeseltionControllShaderToken
+			, g_TeseltionEvalutionShaderToken
+			, g_GemotryShaderToken
+			, g_ComputeShaderToken
+		};
+	public:
+		using ShaderDefine = std::pair<std::string, std::string>;
+		using ShaderDefineVec = std::vector<ShaderDefine>;
 
 		OpenGLShader(std::string&& source);
 		OpenGLShader(const std::string& source, const std::string& name);
 		OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
 		virtual ~OpenGLShader();
 
-		virtual void ReganrateShader(const std::string& source) override;
+		virtual void ReganrateShader(std::string& source) override;
 		virtual void ReganrateShader(std::string&& source) override;
 
 		virtual void Bind() const override;
 		virtual void UnBind() const override;
 
-		virtual void InitAsync() override;
 
-
-		virtual void AddShader(const std::string& shader, Type shaderType) override;
+		virtual void AddShader(const std::string& shader, ShaderType::ShaderType shaderType) override;
 		virtual void SetPatcheVertecies(uint32_t count) override;
 
 		virtual void SetUniformValue(const std::string& name, void* value, ShaderDataType type);
@@ -53,6 +65,7 @@ namespace Rynex {
 		virtual void SetInt4(const std::string& name, const glm::ivec4& value) override;
 		virtual void SetInt4Array(const std::string& name, int32_t* value, uint32_t count) override;
 
+
 		virtual void SetFloat(const std::string& name, float value) override;
 		virtual void SetFloatArray(const std::string& name, float* value, uint32_t count) override;
 		virtual void SetFloat2(const std::string& name, const glm::vec2& value) override;
@@ -67,9 +80,17 @@ namespace Rynex {
 		virtual void SetMat4(const std::string& name, const glm::mat4& value) override;
 		virtual void SetMat4Array(const std::string& name, float* value, uint32_t count) override;
 
-		virtual std::map<std::string, std::string>& GetUniformLayoute() override { return m_sUniformLayoute; }
+		virtual void SetDefine(const std::string& name) override;
+		virtual void SetDefine(const std::string& name, const std::string& value) override;
+		virtual void RemoveDefine(const std::string& name) override;
 
-		virtual const std::map<Type, std::string>& GetShaderMap() const override { return m_ShaderMap; }
+		virtual const std::vector<ShaderDefine>& GetShaderDefineVec() const override { return m_ShaderDefineVec; }
+		virtual std::map<std::string, std::string>& GetUniformLayoute() override { return m_sUniformLayoute; }
+		virtual const std::map<ShaderType::ShaderType, std::string>& GetShaderMap() const override { return m_ShaderMap; }
+
+		virtual const BufferLayout& GetOutPut() const { return m_OutPutLayout; }
+		virtual const BufferLayout& GetInPut() const { return m_InPutLayout; }
+
 
 		virtual const std::string& GetName() const override { return m_Name;  }
 
@@ -79,9 +100,14 @@ namespace Rynex {
 		};
 
 	private:
-		std::unordered_map<uint32_t, std::string> PreProcess(const std::string& source);
-		void Compile(std::unordered_map<uint32_t, std::string>& shaderSources);
-
+		void Invalidate(std::string& shaderSounrce);
+		void CreateID();
+		void DestroyID();
+		uint32_t CreateLodingRenderID();
+		void CreateIDFromLodingRenderID(uint32_t renderID);
+		ShaderTypeType PreProcess(const std::string& source, std::map<uint32_t, std::string>& shaderSource, std::map<ShaderType::ShaderType, std::string>& shaderMap) const;
+		bool Compile(std::map<uint32_t, std::string>& shaderSources);
+		
 		void UploadUniformUint(const std::string& name, uint32_t value);
 		void UploadUniformUint(const std::string& name, void* value);
 		void UploadUniformUintArray(const std::string& name, uint32_t* value, uint32_t count);
@@ -107,9 +133,7 @@ namespace Rynex {
 		void UploadUniformInt(const std::string& name, int value);
 		void UploadUniformInt(const std::string& name, void* value);
 		void UploadUniformIntArray(const std::string& name, int32_t* value, uint32_t count);
-#if 0
 		void UploadUniformIntArray(const std::string& name, void* value, uint32_t count);
-#endif	
 
 		void UploadUniformInt2(const std::string& name, const glm::ivec2& value);
 		void UploadUniformInt2(const std::string& name, void* value);
@@ -159,16 +183,19 @@ namespace Rynex {
 
 		inline int32_t GetLocation(const std::string& name);
 	private:
-		uint32_t m_RendererID = 0;
+		uint32_t m_RendererID = 0u;
 		std::string m_Name = "";
 		std::string m_Source = "";
 		std::unordered_map<std::string, int32_t> m_UnifromLocation;
-		std::map<Type, std::string> m_ShaderMap;
+		std::map<ShaderType::ShaderType, std::string> m_ShaderMap;
 		std::map<std::string, std::string> m_sUniformLayoute;
-		std::unordered_map<uint32_t, std::string> m_ShaderSources;
-		BufferLayout m_BufferLayout;
-		int m_ShaderType = 0;
+		std::map<uint32_t, std::string> m_ShaderSources;
+		ShaderDefineVec m_ShaderDefineVec;
+		BufferLayout m_OutPutLayout;
+		BufferLayout m_InPutLayout;
 
+		ShaderTypeType m_ShaderType;
+		static uint32_t s_LastBindShaderID;
 	};
 }
 

@@ -23,12 +23,16 @@ namespace Rynex {
         virtual bool IsAssetLoaded(AssetHandle handle) const override;
         virtual bool IsAssetLoaded(const std::filesystem::path& filepath) const override;
 
-        virtual Ref<Asset> GetAsset(AssetHandle handle, bool async = false) override;
+        virtual Ref<Asset> GetAsset(AssetHandle handle) override;
         virtual Ref<Asset> GetAsset(const std::filesystem::path& filepath) override;
         virtual Ref<Asset> GetAssetAsync(AssetHandle handle) override;
         virtual Ref<Asset> GetAssetAsync(const std::filesystem::path& path) override;
 
-        
+        virtual const AssetHandle GetAssetHandle(const std::filesystem::path& path) const override;
+
+        virtual const AssetMetadata GetMetadata(AssetHandle handle) const override;
+        virtual const AssetMetadata GetMetadata(const std::filesystem::path& path) const override;
+
         virtual void CreatLocaleAsset(Ref<Asset> asset, AssetMetadata& metadata, AssetHandle handle) override;
         virtual AssetHandle CreatLocaleAsset(Ref<Asset> asset, AssetMetadata& metadata) override;
 

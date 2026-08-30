@@ -1,5 +1,0 @@
-Project:
-  Name: SandboxProject
-  StartScene: "scenes/Example.rynexscene"
-  AssetDirectory: "Assets"
-  ScriptModulePath: ""

@@ -1,5 +1,5 @@
 #pragma once
-#include "Rynex/Renderer/API/ThreadContext.h"
+#include <Rynex/Renderer/API/ThreadContext.h>
 
 struct GLFWwindow;
 
@@ -18,10 +18,10 @@ namespace Rynex {
 		virtual void Create(Window* parent) override;
 
 		static bool IsActive();
-
 	private:
 		GLFWwindow* m_ThreadHandle;
 		std::chrono::time_point<std::chrono::steady_clock> m_BeginPoint;
+
 	};
 
 }

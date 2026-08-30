@@ -9,7 +9,10 @@ namespace Rynex {
 	LayerStack::~LayerStack()
 	{
 		for (Layer* layer : m_Layers)
+		{
 			delete layer;
+			layer = nullptr;
+		}
 	}
 
 	void LayerStack::PushLayer(Layer* layer)

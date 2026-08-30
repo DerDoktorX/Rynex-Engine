@@ -1,17 +1,14 @@
 #include "rypch.h"
 #include "Application.h"
 
-#include "Rynex/Core/Log.h"
-#include "Input.h"
-#include "Rynex/Renderer/Rendering/Renderer.h"
-#include "Rynex/Scripting/ScriptingEngine.h"
+#include <Rynex/Core/Log.h>
+#include <Rynex/Core/Input.h>
+#include <Rynex/Renderer/Rendering/Renderer.h>
+#include <Rynex/Scripting/Mono/ScriptingEngine.h>
 
 #include <GLFW/glfw3.h>
 
 
-#if RY_TODO_APPLICATION_REMABER
-
-#endif // TODO: Remeber what was that! then decide and Dealet?
 
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
@@ -23,9 +20,40 @@ namespace Rynex {
 
 	Application::Application(const ApplicationSpecification& specification)
 		: m_Specification(specification)
+		, m_MaxMainThread(RY_MAX_QUEUE_PER_FRAME)
+		, m_LastFrameTime(0.0f)
+		, m_ThreadPool(RY_MAX_THREAD_IN_USE)
+		, m_MainThreedQueueMutex()
+		, m_Running(true)
+		, m_Minmized(false)
+		, m_QueueTimer(nullptr)
+		, m_LayerStack()
+		, m_ImGuiLayer(nullptr)
+		, m_ImGuiTimeFrame(1ull)
+		, m_MaxQueueMainThreadTime(0ull)
+		, m_QueuePastTime(0ull)
+		, m_QueueDivedFrameTime(8ull)
+		, m_RenderThread()
+		, m_RenderThreadMutex()
 	{
+		m_QueueTimer = PlatformTimer::Create(&m_QueuePastTime);
+		int64_t multyply = 1000ll;	// move from sec in milsec
+		multyply *= 1000ll;			// move from milsec in microsec
+		multyply *= 1000ll;			// move from microsec in nanosec
+		multyply *= 10ll;			// move from 1/60 in 10/6
+		
+		int64_t frameTime60up = 1ll * multyply;
+		int64_t frameTime60down = 6ll;
+		int64_t up = 1;
+		int64_t down = m_QueueDivedFrameTime;
+		int64_t frameTime60By1DivedBy8up = frameTime60up * up;
+		int64_t frameTime60By1DivedBy8down = frameTime60down * down;
+		m_MaxQueueMainThreadTime = frameTime60By1DivedBy8up / frameTime60By1DivedBy8down;
+		
+
 		RY_CORE_INFO("Application::Application Start!");
 		RY_CORE_ASSERT(!s_Instance, "Applicationse allrady exists!");
+
 		s_Instance = this;
 
 		if (!m_Specification.WorkingDirectory.empty())
@@ -33,18 +61,37 @@ namespace Rynex {
 
 		m_Window = Window::Create(WindowProps(m_Specification.Name));
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
-
 		m_ImGuiLayer = new ImGuiLayer();
-		RY_CORE_MEMORY_ALICATION("m_ImGuiLayer", "Application::Application", ImGuiLayer);
 		PushOverlay(m_ImGuiLayer);
 		RY_CORE_INFO("Application::Application Finished!");
+
+
 	}
 
 	Application::~Application()
-	{
+	{		
+		ExecuteAllMainThreedQueue();
+		m_ThreadPool.~ThreadPool();
+		ExecuteAllMainThreedQueue();
 
 		for (Layer* layer : m_LayerStack)
-			layer->OnDetach();
+		{
+				layer->OnDetach();
+		}
+
+		
+		for (Ref<ThreadContext>& layer : m_ThreadContextVec)
+		{
+			RY_DESTROY_REF(layer);
+		}
+		m_ThreadContextVec.clear();
+		
+		
+		RY_DESTROY_REF(m_Window);
+
+		if(s_Instance == this)
+			s_Instance = nullptr;
+
 	}
 
 	void Application::OnEvent(Event& e)
@@ -52,8 +99,6 @@ namespace Rynex {
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowCloseEvent));
 		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));
-
-		// RY_CORE_TRACE("{0}", e.ToString());
 
 		for ( std::vector<Rynex::Layer*>::iterator it = m_LayerStack.end(); it != m_LayerStack.begin(); )
 		{
@@ -76,17 +121,18 @@ namespace Rynex {
 		layer->OnAttach();
 	}
 	
-	void Application::PopLayer(Layer* rlayer)
+	void Application::PopLayer(Layer* layer)
 	{
 		
-		rlayer->OnDetach();
-		m_LayerStack.PopLayer(rlayer);
+		layer->OnDetach();
+		m_LayerStack.PopLayer(layer);
 	}
 
 	void Application::Close()
 	{
 		m_Running = false;
 	}
+
 
 
 
@@ -97,28 +143,34 @@ namespace Rynex {
 		{	
 			RY_PROFILE_SCOPE("Main UpdateLoop");
 			double time = glfwGetTime();
-			TimeStep timestep((float)time - m_LastFrameTime, time);
-			m_LastFrameTime = (float)time;
+			
+			TimeStep timestep(static_cast<float>(time) - m_LastFrameTime, static_cast<float>(time));
+			m_LastFrameTime = static_cast<float>(time);
 
 			// Thread!
 			ExecuteMainThreedQueue();
 
-			if (!m_Mineized) 
+			if (!m_Minmized)
 			{
 				RY_PROFILE_SCOPE("Update Render!");
+				RY_SCOPE_TIMER(m_LayerTimeFrame);
 				for (Layer* layer : m_LayerStack)
 					layer->OnUpdate(timestep);
 			}
 
+#if RY_ENABLE_IMGUI
 			{
 				RY_PROFILE_SCOPE("ImGui Render!");
-				m_ImGuiLayer->Begin();
-				for (Layer* layer : m_LayerStack)
-					layer->OnImGuiRender();
-				m_ImGuiLayer->End();
+				RY_SCOPE_TIMER(m_ImGuiTimeFrame);
+				if(nullptr != m_ImGuiLayer)
+				{
+					m_ImGuiLayer->Begin();
+					for (Layer* layer : m_LayerStack)
+						layer->OnImGuiRender();
+					m_ImGuiLayer->End();
+				}
 			}
-
-
+#endif
 
 			{
 				RY_PROFILE_SCOPE("Windows Update!");
@@ -141,127 +193,105 @@ namespace Rynex {
 		//m_win
 		if (e.GetWidth() == 0 || e.GetHeight() == 0)
 		{
-			m_Mineized = true;
+			m_Minmized = true;
 			return false;
 		}
-		m_Mineized = false;
+		m_Minmized = false;
 		Renderer::OnWindowsResize(e.GetWidth(), e.GetHeight());
 
 		return false;
 	}
 
-	///////////////////////////////////////////////////
-	//// Thread ///////////////////////////////////////
-	///////////////////////////////////////////////////
 	
 	
 
 	void Application::SubmiteToMainThreedQueue(const std::function<void()>& func)
 	{
-		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
-#if RY_MAX_MAIN_THREAD_QUEUE_PER_FRAME
-		if(m_MainThreedQueue.size() < m_MaxMainThread)
-
-			m_MainThreedQueue.emplace_back(func);
+		if (m_Running)
+		{
+			SubmiteToMainThreedQueuePush(func, nullptr);
+		}
 		else
 		{
-			m_MainThreedQueueWaiting.emplace_back(func);
+			func();
 		}
-#else
-		m_MainThreedQueue.emplace_back(func);
-#endif
 	}
 
-	void Application::SubmiteToMainThreedQueueCreateObject(const std::function<void()>& func)
-	{
-		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
-		m_MainThreedQueueWaitingCreateObject.emplace_back(func);
+	void Application::SubmiteToMainThreedQueueWait(const std::function<void()>& func)
+	{	
+		if (!m_Running)
+			return;	
+
+		std::mutex mutex;
+		std::condition_variable cv;
+		std::unique_lock lockWait(mutex);	
+		RY_CORE_TRACE("Submit funtion to main thread an wait!");
+		SubmiteToMainThreedQueuePush(func, &cv);
+		cv.wait(lockWait);
+		RY_CORE_TRACE("Resume Exexution to main thread!");
 	}
 
-	void Application::SubmiteToMainThreedQueueDestroyObject(const std::function<void()>& func)
+	
+	void Application::SubmiteToMainThreedQueuePush(const std::function<void()>& func, std::condition_variable* cvPtr)
 	{
 		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
-		m_MainThreedQueueWaitingCreateObject.emplace_back(func);
+		MainThreadExe mainThreadExe = MainThreadExe(func, cvPtr);
+		m_MainThreedQueue.push(mainThreadExe);
 	}
 
 
 	void Application::ExecuteMainThreedQueue()
 	{
-#if RY_TODO_APPLICATION_MULTI_THREAD
-		std::vector<std::function<void()>> copy;
-		{
-			std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
-			copy = m_MainThreedQueue;
-			m_MainThreedQueue.clear();
-#if RY_MAX_MAIN_THREAD_QUEUE_PER_FRAME
-			uint32_t i = 0;
-			if (m_MainThreedQueueWaitingCreateObject.size() > 0)
-			{
-				
-				std::vector<std::function<void()>>::iterator itFunc = m_MainThreedQueueWaitingCreateObject.begin();
-				std::vector<std::function<void()>>::iterator itend = m_MainThreedQueueWaitingCreateObject.end();
-				std::vector<std::function<void()>>::const_iterator itBegin = itFunc;
-				for (; itFunc != itend; ++itFunc, i++)
-				{
-					std::function<void()>& func = *itFunc;
-					if (i >= m_MaxMainThread)
-						break;
-
-					m_MainThreedQueue.emplace_back(func);
-
-				}
-
-				m_MainThreedQueueWaitingCreateObject.erase(itBegin, itFunc);
-			}
-
-			if (m_MainThreedQueueWaitingDestroyObject.size() > 0 && i >= m_MaxMainThread)
-			{
-				std::vector<std::function<void()>>::iterator itFunc = m_MainThreedQueueWaitingDestroyObject.begin();
-				std::vector<std::function<void()>>::iterator itend = m_MainThreedQueueWaitingDestroyObject.end();
-				std::vector<std::function<void()>>::const_iterator itBegin = itFunc;
-				for (; itFunc != itend; ++itFunc, i++)
-				{
-					std::function<void()>& func = *itFunc;
-					if (i >= m_MaxMainThread)
-						break;
-
-					m_MainThreedQueue.emplace_back(func);
-
-				}
-			}
-
-
-			 if(m_MainThreedQueueWaiting.size() > 0&& i >= m_MaxMainThread)
-			 {
-			 	std::vector<std::function<void()>>::iterator itFunc = m_MainThreedQueueWaiting.begin();
-			 	std::vector<std::function<void()>>::iterator itend = m_MainThreedQueueWaiting.end();
-			 	std::vector<std::function<void()>>::const_iterator itBegin = itFunc;
-			 	for (; itFunc != itend; ++itFunc, i++)
-			 	{
-			 		std::function<void()>& func = *itFunc;
-			 		if (i >= m_MaxMainThread)
-			 			break;
-			 
-			 		m_MainThreedQueue.emplace_back(func);
-			 
-			 	}
-			 
-			 	m_MainThreedQueueWaiting.erase(itBegin, itFunc);
-			 }
-#endif
-		}
-
-
-		for (std::function<void()>& func : copy)
-			func();
-#else
 		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
+		
+		m_QueueTimer->Stop();
+		m_MaxQueueMainThreadTime = m_QueuePastTime / m_QueueDivedFrameTime;
+		m_QueueTimer->Start();
+		m_QueueTimer->CurentPastTime();
 
-		for (std::function<void()>& func : m_MainThreedQueue)
+		while(!m_MainThreedQueue.empty() && m_QueuePastTime < m_MaxQueueMainThreadTime)
+		{
+			MainThreadExe& mainThreadexe = m_MainThreedQueue.front();
+			std::function<void()>& func = mainThreadexe.first;
+			std::condition_variable* cvPtr = mainThreadexe.second;
 			func();
+			if (nullptr != cvPtr)
+			{
+				RY_CORE_TRACE("Waiting thread resume his Exution Now!");
+				cvPtr->notify_one();
+			}
+			m_MainThreedQueue.pop();
+			m_QueueTimer->CurentPastTime();
+		}
+		
+	}
 
-		m_MainThreedQueue.clear();
-#endif		
+	void Application::ExecuteAllMainThreedQueue()
+	{
+		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
+		while (!m_MainThreedQueue.empty())
+		{
+			MainThreadExe& mainThreadexe = m_MainThreedQueue.front();
+			std::function<void()>& func = mainThreadexe.first;
+			std::condition_variable* cvPtr = mainThreadexe.second;
+			func();
+			if (nullptr != cvPtr)
+			{
+				RY_CORE_TRACE("Waiting thread resume his Exution Now!");
+				cvPtr->notify_one();
+			}
+			m_MainThreedQueue.pop();
+		}
+	}
+
+	void Application::SubmitThreadTask(const std::function<void()>& task, const std::string& taskDiscription)
+	{
+		m_ThreadPool.SubmitEnqueue(task, taskDiscription);
+	}
+
+	bool Application::ExecuteTaskFromThread()
+	{
+		return m_ThreadPool.ExecuteWorkeOnCurentThread();
 	}
 
 	

@@ -7,28 +7,28 @@
 
 namespace Rynex {
 
-	Ref<Scene> SceneImporter::ImportScene(AssetHandle handle, const AssetMetadata& metadata, bool async)
+	Ref<Scene> SceneImporter::ImportScene(AssetHandle handle, const AssetMetadata& metadata)
 	{
-		return LoadScene((Project::GetActiveProjectDirectory()/metadata.FilePath).string(), async);
+		std::filesystem::path filePath = metadata.AbsolutePath;
+		return LoadScene(filePath);
 	}
 
-	Ref<Scene> SceneImporter::LoadScene(const std::filesystem::path& path, bool async)
+	Ref<Scene> SceneImporter::LoadScene(const std::filesystem::path& path)
 	{
 		Ref<Scene> scene = CreateRef<Scene>();
 		SceneSerializer serializer(scene);
-		serializer.Deserialize(path.string(), async);
+		serializer.Deserialize(path.string());
 		return scene;
 	}
 
-	void SceneImporter::ReLoadingScene(AssetHandle handle, const std::filesystem::path& path, bool async)
+	bool SceneImporter::ReLoadingScene(AssetHandle handle, const std::filesystem::path& path)
 	{
-		SceneSerializer serializer(AssetManager::GetAsset<Scene>(handle));
-		serializer.Deserialize((Project::GetActiveProjectDirectory()/path).string(), async);
+		Ref<Scene> scene = AssetManager::GetAsset<Scene>(handle);
+		SceneSerializer serializer(scene);
+		
+		return serializer.Deserialize(path);
+		 
 	}
 
-	
-
-
-	
 
 }

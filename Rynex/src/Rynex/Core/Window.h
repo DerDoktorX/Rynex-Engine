@@ -18,9 +18,9 @@ namespace Rynex {
 
 
 		WindowProps(const std::string& title = "Rynex Engine",
-			uint32_t width = 1600 ,
-			uint32_t height = 900 )
-			: Title(title), Width(width), Height(height)
+			uint32_t width = 1600u ,
+			uint32_t height = 900u )
+			: Title(title), Width(width), Height(height), PosX(0u), PosY(0u)
 		{
 
 		}
@@ -33,6 +33,7 @@ namespace Rynex {
 
 		virtual ~Window() {}
 
+		virtual void OnSreenRefresh() = 0;
 		virtual void OnUpdate() = 0;
 
 		virtual uint32_t GetWidth() const = 0;
@@ -49,6 +50,7 @@ namespace Rynex {
 		virtual bool IsVSync() const = 0;
 		virtual bool IsFocused() const = 0;
 		virtual void* GetNativeWindow() const = 0;
+		virtual int64_t GetRenderTime() const = 0;
 
 		virtual GraphicsContext* GetGraphicsContext() = 0;
 

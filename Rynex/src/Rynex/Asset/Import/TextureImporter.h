@@ -8,9 +8,11 @@ namespace Rynex {
 	class TextureImporter
 	{
 	public:
-		static Ref<Texture> ImportTexture(AssetHandle handle, const AssetMetadata& metadata, bool async);
-		static Ref<Texture> LoadTexture(const std::filesystem::path& path, bool async);
-		static void ReLoadeTexture(AssetHandle handle, const std::filesystem::path& path, bool async);
+		static Ref<Texture> ImportTexture(AssetHandle handle, const AssetMetadata& metadata);
+		static Ref<Texture> LoadTexture(const std::filesystem::path& path);
+		static bool ReLoadeTexture(AssetHandle handle, const std::filesystem::path& path);
+		static bool SaveTexture(const Ref<Texture>& tex, const std::filesystem::path& path);
+
 	};
 
 }

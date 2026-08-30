@@ -10,62 +10,62 @@ namespace Rynex {
 		{
 			// From glfw3.h
 			Space = 32,
-			Apostrophe = 39, /* ' */
-			Comma = 44, /* , */
-			Minus = 45, /* - */
-			Period = 46, /* . */
-			Slash = 47, /* / */
+			Apostrophe = 39, // '
+			Comma = 44, // ,
+			Minus = 45, // -
+			Period = 46, // .
+			Slash = 47, // /
 
-			D0 = 48, /* 0 */
-			D1 = 49, /* 1 */
-			D2 = 50, /* 2 */
-			D3 = 51, /* 3 */
-			D4 = 52, /* 4 */
-			D5 = 53, /* 5 */
-			D6 = 54, /* 6 */
-			D7 = 55, /* 7 */
-			D8 = 56, /* 8 */
-			D9 = 57, /* 9 */
+			D0 = 48, // 0 
+			D1 = 49, // 1 
+			D2 = 50, // 2 
+			D3 = 51, // 3 
+			D4 = 52, // 4 
+			D5 = 53, // 5 
+			D6 = 54, // 6 
+			D7 = 55, // 7 
+			D8 = 56, // 8 
+			D9 = 57, // 9 
 
-			Semicolon = 59, /* ; */
-			Equal = 61, /* = */
+			Semicolon = 59, // ;
+			Equal = 61, // =
 
-			A = 65,
-			B = 66,
-			C = 67,
-			D = 68,
-			E = 69,
-			F = 70,
-			G = 71,
-			H = 72,
-			I = 73,
-			J = 74,
-			K = 75,
-			L = 76,
-			M = 77,
-			N = 78,
-			O = 79,
-			P = 80,
-			Q = 81,
-			R = 82,
-			S = 83,
-			T = 84,
-			U = 85,
-			V = 86,
-			W = 87,
-			X = 88,
-			Y = 89,
-			Z = 90,
+			A = 65, // A
+			B = 66,	// B
+			C = 67,	// C
+			D = 68,	// D
+			E = 69,	// E
+			F = 70,	// F
+			G = 71,	// G
+			H = 72,	// H
+			I = 73,	// I
+			J = 74,	// J
+			K = 75,	// K
+			L = 76,	// L
+			M = 77,	// M
+			N = 78,	// N
+			O = 79,	// O
+			P = 80,	// P
+			Q = 81,	// Q
+			R = 82,	// R
+			S = 83,	// S
+			T = 84,	// T
+			U = 85,	// U
+			V = 86,	// V
+			W = 87,	// W
+			X = 88,	// X
+			Y = 89,	// Y
+			Z = 90,	// Z
 
-			LeftBracket = 91,  /* [ */
-			Backslash = 92,  /* \ */
-			RightBracket = 93,  /* ] */
-			GraveAccent = 96,  /* ` */
+			LeftBracket = 91,  // [
+			Backslash = 92,  /* \ */ 
+			RightBracket = 93,  // ]
+			GraveAccent = 96,  // 
 
-			World1 = 161, /* non-US #1 */
-			World2 = 162, /* non-US #2 */
+			World1 = 161, // non-US #1
+			World2 = 162, // non-US #2
 
-			/* Function keys */
+			// Function keys
 			Escape = 256,
 			Enter = 257,
 			Tab = 258,
@@ -112,23 +112,23 @@ namespace Rynex {
 			F25 = 314,
 
 			/* Keypad */
-			KP0 = 320,
-			KP1 = 321,
-			KP2 = 322,
-			KP3 = 323,
-			KP4 = 324,
-			KP5 = 325,
-			KP6 = 326,
-			KP7 = 327,
-			KP8 = 328,
-			KP9 = 329,
-			KPDecimal = 330,
-			KPDivide = 331,
-			KPMultiply = 332,
-			KPSubtract = 333,
-			KPAdd = 334,
-			KPEnter = 335,
-			KPEqual = 336,
+			KP0 = 320,  // 0 
+			KP1 = 321,  // 1 
+			KP2 = 322,  // 2 
+			KP3 = 323,  // 3 
+			KP4 = 324,  // 4 
+			KP5 = 325,  // 5 
+			KP6 = 326,  // 6 
+			KP7 = 327,  // 7 
+			KP8 = 328,  // 8 
+			KP9 = 329,  // 9 
+			KPDecimal = 330,	// ,
+			KPDivide = 331,		// /
+			KPMultiply = 332,	// *
+			KPSubtract = 333,	// -
+			KPAdd = 334,		// +
+			KPEnter = 335,		
+			KPEqual = 336,		// =
 
 			LeftShift = 340,
 			LeftControl = 341,

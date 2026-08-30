@@ -9,12 +9,20 @@ layout(location = 2) in vec2	a_TexCoord;
 layout(location = 3) in int		a_TexIndex;
 layout(location = 4) in int		a_EntityID;
 
-uniform mat4 u_ViewProjection;
-
 layout(location = 0)      out vec2	v_TexCoord;
 layout(location = 1)	  out vec4	v_Color;
 layout(location = 2) flat out int	v_TexIndex;
 layout(location = 3) flat out int	v_EntityID;
+
+
+layout(shared, binding = 0) uniform CameraData
+{
+	mat4 ViewProjectionMatrix;	// 16
+	mat4 ViewMatrix;			// 32
+	mat4 ProjectionMatrix;		// 48
+	vec3 CamerPosition;			// 60
+	int Empty;					// 64
+} Camera; 
 
 void main()
 {
@@ -23,7 +31,7 @@ void main()
 	v_TexCoord = a_TexCoord;
 	v_Color = a_Color;
 	v_TexIndex = a_TexIndex;
-	gl_Position = u_ViewProjection * vec4(a_Position,1.);
+	gl_Position = Camera.ViewProjectionMatrix * vec4(a_Position,1.);
 }
 
 #type Fragment

@@ -1,7 +1,17 @@
-project "Glad"
+project "Glad"    
+    if BuildProjectConf == "Static" or BuildProjectConf == "StaticLib" then
+		-- staticruntime "on" -- orig
+		staticruntime "on" 
+	end
+	if BuildProjectConf == "Static2" or BuildProjectConf == "Static2Lib" then
+		staticruntime "on" -- orig
+	end
+	if BuildProjectConf == "Dynamic" then
+		 staticruntime "off"
+	end
     kind "StaticLib"
     language "C"
-    staticruntime "on"
+
     
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -20,7 +30,9 @@ project "Glad"
     
     filter "system:windows"
         systemversion "latest"
-        
+        -- filter { "configurations:Release" }
+        -- buildoptions "/MT"
 
-    --filter { "system:windows", "configurations:Release" }
-    --    buildoptions "/MT"
+    filter "system:linux"
+        systemversion "latest"
+    

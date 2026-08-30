@@ -2,9 +2,10 @@
 
 #include "Camera.h"
 
-#include "Rynex/Core/Timestep.h"
-#include "Rynex/Events/Event.h"
-#include "Rynex/Events/MouseEvent.h"
+#include <Rynex/Core/Timestep.h>
+#include <Rynex/Events/Event.h>
+#include <Rynex/Events/MouseEvent.h>
+#include <Rynex/Events/KeyEvent.h>
 
 #include <glm/glm.hpp>
 
@@ -20,7 +21,10 @@ namespace Rynex {
 		void OnEvent(Event& e);
 
 		inline float GetDistance() const { return m_Distance; }
-		inline void SetDistance(float distance) { m_Distance = distance; }
+		inline void SetDistance(float distance) { m_Distance = distance; UpdateView();}
+
+		inline void SetYaw(float yaw) { m_Yaw = yaw; UpdateView();}
+		inline void SetPitch(float pitch) { m_Pitch = pitch; UpdateView();}
 
 		inline void SetViewportSize(float width, float height) { m_ViewportWidth = width; m_ViewportHeight = height; UpdateProjection(); }
 
@@ -30,7 +34,7 @@ namespace Rynex {
 		glm::vec3 GetUpDirection() const;
 		glm::vec3 GetRightDirection() const;
 		glm::vec3 GetForwardDirection() const;
-		glm::vec3 GetPosition() const { return glm::vec3(m_ViewMatrix[3].x, m_ViewMatrix[3].y, m_ViewMatrix[3].z); }
+		glm::vec3 GetPosition() const { glm::mat4 model = glm::inverse(m_ViewMatrix); return glm::vec3(model[3].x, model[3].y, model[3].z); }
 		glm::quat GetOrientation() const;
 		const glm::vec4& GetWorldPostionCenterView() const { return m_Center; }
 		const std::array<glm::vec3, 8>& GetViewFustrem() const { return m_ViewFustrum; }
@@ -39,6 +43,8 @@ namespace Rynex {
 
 		void SetModeFreeCamerMove(bool mode = false) { m_FreeCamerMove = mode; }
 		void SetModeOnlyOnPressed(bool mode = false) { m_OnlyOnPressed = mode; }
+
+		
 	private:
 		void UpdateProjection();
 		void UpdateView();
@@ -46,7 +52,9 @@ namespace Rynex {
 		void UpdateAABB();
 
 		void FreeCameraUpdate();
-
+		void RaltiveMoveFocusePointDir(const glm::vec3& direction);
+		void UpdateFocusePoint(TimeStep ts);
+		void RaltiveMoveFocusePointDrag();
 		bool OnMouseScroll(MouseSrolledEvent& e);
 
 		void MousePan(const glm::vec2& delta);
@@ -66,10 +74,10 @@ namespace Rynex {
 		glm::vec3 m_FocalPoint = { 0.0f, 0.0f, 0.0f };
 		glm::vec4 m_Center;
 		glm::vec2 m_InitialMousePosition = { 0.0f, 0.0f };
+		glm::vec3 m_VilocityLookAtPointMove ={ 0.0f, 0.0f, 0.0f };
 
 		float m_Distance = 10.0f;
 		float m_Pitch = 0.0f, m_Yaw = 0.0f;
-
 		float m_ViewportWidth = 1280, m_ViewportHeight = 720;
 
 		bool m_FreeCamerMove = false;

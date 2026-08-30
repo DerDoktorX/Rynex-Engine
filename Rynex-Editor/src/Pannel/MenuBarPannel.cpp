@@ -6,7 +6,7 @@
 #if RY_SCRIPTING_HAZEL
 	#include <Rynex/Scripting/HazelScripting/ScriptEngine.h> 
 #else
-	#include <Rynex/Scripting/ScriptingEngine.h>
+	#include <Rynex/Scripting/Mono/ScriptingEngine.h>
 #endif
 #include <imgui/imgui.h>
 
@@ -25,6 +25,7 @@ namespace Rynex {
 
 	MenuBarPannel::~MenuBarPannel()
 	{
+		RY_CORE_ASSERT(!m_EditorLayer);
 	}
 
 	void MenuBarPannel::OnAttache(EditorLayer* editorLayer)
@@ -35,6 +36,7 @@ namespace Rynex {
 	void MenuBarPannel::OnDetache()
 	{
 		m_EditorLayer = nullptr;
+		
 	}
 
 	void MenuBarPannel::OnEvent(Event& e)
@@ -92,23 +94,24 @@ namespace Rynex {
 
 	void MenuBarPannel::Project()
 	{
-		if (ImGui::BeginMenu("Project"))
-		{
-			// Disabling fullscreen would allow the window to be moved to the front of other windows,
-			// which we can't undo at the moment without finer window depth/z control.
+		if (!ImGui::BeginMenu("Project"))
+			return;
+		// Disabling fullscreen would allow the window to be moved to the front of other windows,
+		// which we can't undo at the moment without finer window depth/z control.
 
-			if (ImGui::MenuItem("New Scene", NULL, false))
-				m_EditorLayer->NewScene();
+		if (ImGui::MenuItem("New Scene", NULL, false))
+			m_EditorLayer->NewScene();
 
-			if (ImGui::MenuItem("Open Scene...", "Crtl+O"))
-				m_EditorLayer->OpenScene();
+		if (ImGui::MenuItem("Open Scene...", "Crtl+O"))
+			m_EditorLayer->OpenScene();
 
-			if (ImGui::MenuItem("SaveAs Scene...", "Crtl+S"))
-				m_EditorLayer->SaveSceneAs();
+		if (ImGui::MenuItem("SaveAs Scene...", "Crtl+S"))
+			m_EditorLayer->SaveSceneAs();
 
+		if (ImGui::MenuItem("Save View Port ScreenShoot", NULL, false))
+			m_EditorLayer->SaveImagViewPort();
 
-			ImGui::EndMenu();
-		}
+		ImGui::EndMenu();
 	}
 
 	void MenuBarPannel::Script()
@@ -150,6 +153,10 @@ namespace Rynex {
 				m_EditorLayer->OpenPropertiesPannel();
 			if (ImGui::MenuItem("Project"))
 				m_EditorLayer->OpenProjectPannel();
+			if (ImGui::MenuItem("Texture-Debug"))
+				m_EditorLayer->OpenViewPortTexture();
+			if (ImGui::MenuItem("Mesh-Pannel"))
+				m_EditorLayer->OpenMeshPannel();
 			Utils::ExiteButten();
 			ImGui::EndMenu();
 		}
