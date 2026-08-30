@@ -118,11 +118,9 @@ namespace Rynex {
 		virtual ~Material() {};
 
 		virtual void SetColor(const glm::vec3& color) = 0;
-		virtual glm::vec3& GetColor() = 0;
-		virtual const glm::vec3& GetColor() const = 0;
+		virtual glm::vec3 GetColor() const = 0;
 
 		virtual void SetAlpha(float v) = 0;
-		virtual float& GetAlpha() = 0;
 		virtual float GetAlpha() const = 0;
 
 		virtual int GetShadeRenderMode() const;

@@ -395,13 +395,13 @@ namespace Rynex {
 	typedef std::map<std::string, ElementViewPassStorage> MapRefVectorViewPassStorage;
 
 	struct ObjectRendereIndex {
-		uint32_t BatchIndex = 0xFFFFFFFFui32;
-		uint32_t PiplineIndex = 0xFFFFFFFFui32;
+		uint32_t BatchIndex = 0xFFFFFFFFu;
+		uint32_t PiplineIndex = 0xFFFFFFFFu;
 
 		void Reset()
 		{
-			BatchIndex = 0xFFFFFFFFui32;
-			PiplineIndex = 0xFFFFFFFFui32;
+			BatchIndex = 0xFFFFFFFFu;
+			PiplineIndex = 0xFFFFFFFFu;
 		}
 	};
 
@@ -413,7 +413,7 @@ namespace Rynex {
 		SingleMeshRender()
 			: IndexVec()
 			, GlobelNodeMatrix(glm::mat4(1.0f))
-			, MeshStatic::SingleObjectMeshData(nullptr, nullptr, glm::mat4(0.0f), "Default-Name", 0xFFFFFFFFui32, 0xFFFFFFFFui32)
+			, MeshStatic::SingleObjectMeshData(nullptr, nullptr, glm::mat4(0.0f), "Default-Name", 0xFFFFFFFFu, 0xFFFFFFFFu)
 
 		{
 
@@ -430,7 +430,7 @@ namespace Rynex {
 		SingleMeshRender(const Ref<MeshSingle>& meshSingle, const Ref<Material>& materiel, const glm::mat4& localeMatrix)
 			: IndexVec()
 			, GlobelNodeMatrix(glm::mat4(0.0f))
-			, MeshStatic::SingleObjectMeshData(meshSingle, materiel, localeMatrix, "Set-No-Same", 0xFFFFFFFFui32, 0xFFFFFFFFui32)
+			, MeshStatic::SingleObjectMeshData(meshSingle, materiel, localeMatrix, "Set-No-Same", 0xFFFFFFFFu, 0xFFFFFFFFu)
 		{
 		}
 

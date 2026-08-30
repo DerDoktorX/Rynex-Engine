@@ -1,6 +1,6 @@
 #pragma once
 #include <rypch.h>
-
+#include <Rynex/Asset/Base/Asset.h>
 
 namespace Rynex {
 
@@ -19,7 +19,7 @@ namespace Rynex {
 			// static_assert((std::is_base_of_v<std::enable_shared_from_this<typename Args>, typename Args> && ...)
 			// 	,"All Typs need to drive from std::enable_shared_from_this<T>.");
 			
-			using ValueTypesVarientWeak = typename std::variant<typename Weak<typename Args> ...>;
+			using ValueTypesVarientWeak = typename std::variant<Weak<Args> ...>;
 
 			using HashType = uint64_t;
 			using SizeType = size_t;
@@ -32,16 +32,13 @@ namespace Rynex {
 
 				Item() = delete;				
 				Item(Item&&) = default;
+				Item(const Item&) = default;
 
-				Item(const Item& item)
-					: hash(item.hash)
-					, weakPtrVarients(item.weakPtrVarients)
-				{
 
-				}
+
 
 				template<typename T>
-				Item(T* value)
+				explicit Item(T* value)
 				{					
 					static_assert(is_one_of_v<T, Args...>, "Typ T need to exist in Template-Typeliste");
 
@@ -49,11 +46,7 @@ namespace Rynex {
 					weakPtrVarients = Asset::GetWeakInPlaceType<T>(value);
 				}
 
-				void operator=(const Item& item)
-				{
-					hash = item.hash;
-					weakPtrVarients = item.weakPtrVarients;
-				}
+				Item& operator=(const Item& item) = default;
 
 				bool operator==(const Item& item) const
 				{
@@ -86,12 +79,12 @@ namespace Rynex {
 				}
 
 				
-				HashType Hash() const
+				[[nodiscard]] HashType Hash() const
 				{
 					return hash;
 				}
 
-				bool IsVaild() const
+				[[nodiscard]] bool IsVaild() const
 				{
 					
 					return std::visit([](auto& weakPtr) { return !weakPtr.expired(); }, weakPtrVarients);
@@ -119,7 +112,7 @@ namespace Rynex {
 				}
 			};
 		public:
-			using Container = typename std::vector<typename Item>;
+			using Container = typename std::vector<Item>;
 			using ContainerIt = typename Container::iterator;
 			using ContainerItConst = typename Container::const_iterator;
 
@@ -150,11 +143,11 @@ namespace Rynex {
 
 				if (pos != end && pos->Hash() == item.Hash())
 				{
-					RY_CORE_ERROR("valuePtr is alrady in container!");
+					RY_CORE_ERROR("valuePtr is already in container!");
 					return std::numeric_limits<SizeType>::max();
 				}
-				DifernzType index = pos._Ptr != nullptr ? pos._Ptr - begin._Ptr : 0;
-				RY_CORE_ASSERT(0 <= index && index <= m_Container.size(), "index is negetiv and (not to be Postive)!");
+				DifernzType index = ContainerIt() != pos ? pos - begin : 0;
+				RY_CORE_ASSERT(0 <= index && index <= m_Container.size(), "index is negative and (not to be Positive)!");
 				m_Container.insert(pos, item);
 				
 				SizeType indexSize = static_cast<SizeType>(index);
@@ -164,18 +157,18 @@ namespace Rynex {
 			}
 
 			template<typename T>
-			typename ContainerIt Finde(const Item& item)
+			ContainerIt Finde(const Item& item)
 			{
 				static_assert(is_one_of_v<T, Args...>, "Typ T need to exist in Template-Typeliste");
 				return std::lower_bound(m_Container.begin(), m_Container.end(), item);
 			}
 
 			template<typename T>
-			typename ContainerIt Finde(T* valuePtr)
+			ContainerIt Finde(T* valuePtr)
 			{
 				static_assert(is_one_of_v<T, Args...>, "Typ T need to exist in Template-Typeliste");
 				Item item = Item(valuePtr);
-				RY_CORE_ASSERT(hasItem.IsVaild(), "tried to set a Nullptr Value!");
+				RY_CORE_ASSERT(item.IsVaild(), "tried to set a Nullptr Value!");
 
 				return Finde(item);
 			}
@@ -216,7 +209,8 @@ namespace Rynex {
 				SizeType count = m_Container.size();
 				RY_CORE_ASSERT(index < count, "tried to set a Nullptr Value!");
 				const Item& item = m_Container.at(index);
-				Ref<T> valueRef = item.Get<T>();
+				Ref<T> valueRef;
+				valueRef = item.template Get<T>();
 				return valueRef;
 			}
 
@@ -229,7 +223,7 @@ namespace Rynex {
 				SizeType count = m_Container.size();
 				RY_CORE_ASSERT(index < count, "tried to set a Nullptr Value!");
 				Item& item = m_Container.at(index);
-				Ref<T> valueRef = item.Get<T>();
+				Ref<T> valueRef = item.Get();
 				return valueRef;
 			}
 

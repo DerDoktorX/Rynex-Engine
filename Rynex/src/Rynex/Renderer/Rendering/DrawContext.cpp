@@ -95,7 +95,7 @@ namespace Rynex {
 		BufferKey bufferKey = BufferKey( scopeName );
 
 		ConstItHashMapRenderBuffer it = m_HashMapRenderBuffer.find(bufferKey);
-		if (it == m_HashMapRenderBuffer.end())
+		if (m_HashMapRenderBuffer.end() == it)
 			return Ref<IndexBuffer>(nullptr);
 
 		const RenderBufferGPU& renderBufferGPU = it->second;

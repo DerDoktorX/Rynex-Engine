@@ -7,10 +7,10 @@ namespace Rynex {
 		class StoreSubmite
 		{
 		public:
-			using Iterator = typename std::vector<typename T>::iterator;
-			using ConstIterator = typename std::vector<typename T>::const_iterator;
-			using DifferenceType = typename std::vector<typename T>::difference_type; // type for using store ptr as numbers
-			using SizeType = typename std::vector<typename T>::size_type;
+			using Iterator = typename std::vector<T>::iterator;
+			using ConstIterator = typename std::vector<T>::const_iterator;
+			using DifferenceType = typename std::vector<T>::difference_type; // type for using store ptr as numbers
+			using SizeType = typename std::vector<T>::size_type;
 
 		public:
 			StoreSubmite()
@@ -138,14 +138,14 @@ namespace Rynex {
 #pragma endregion
 			
 
-			T* const GetDataEndPtr()
+			T* GetDataEndPtr()
 			{
 				RY_CORE_ASSERT(IsCurentPosEndVaild(), "We Overflow the Ptr Data or don't even set them!");
 				return m_EndPtr;
 			}
 			
 			template<typename N>
-			T* const GetDataEndPtr(N& storeIndex)
+			T* GetDataEndPtr(N& storeIndex)
 			{
 				DifferenceType offsetCount = GetCurentCount();
 				DifferenceType storeIndexDiff = CastSafeFunc<DifferenceType>(storeIndex);
@@ -238,31 +238,31 @@ namespace Rynex {
 				return m_FirstPtr == m_EndPtr;
 			}
 
-			typename Iterator begin() noexcept
+			Iterator begin() noexcept
 			{
-				typename Iterator itBeginn = m_DataVec.begin();
+				Iterator itBeginn = m_DataVec.begin();
 				return itBeginn;
 			}
 
-			typename Iterator end() noexcept
+			Iterator end() noexcept
 			{
-				typename Iterator itBeginn = m_DataVec.begin();
+				Iterator itBeginn = m_DataVec.begin();
 				uint32_t offsetValue = GetCurentCount();
-				typename Iterator itEnde = itBeginn + offsetValue;
+				Iterator itEnde = itBeginn + offsetValue;
 				return itEnde;
 			}
 
-			typename ConstIterator begin() const noexcept
+			ConstIterator begin() const noexcept
 			{
-				typename ConstIterator itBeginn = m_DataVec.begin();
+				ConstIterator itBeginn = m_DataVec.begin();
 				return itBeginn;
 			}
 
-			typename ConstIterator end() const noexcept
+			ConstIterator end() const noexcept
 			{
-				typename ConstIterator itBeginn = m_DataVec.begin();
+				ConstIterator itBeginn = m_DataVec.begin();
 				uint32_t offsetValue = GetCurentCount();
-				typename ConstIterator itEnde = itBeginn + offsetValue;
+				ConstIterator itEnde = itBeginn + offsetValue;
 				return itBeginn;
 			}
 
@@ -294,7 +294,7 @@ namespace Rynex {
 
 
 			// offset = ptr - first
-			inline typename DifferenceType GetDiferenzBetweenPtrAndFirstPtr(const T *const ptr) const
+			inline DifferenceType GetDiferenzBetweenPtrAndFirstPtr(const T *const ptr) const
 			{
 				DifferenceType offset = ptr - m_FirstPtr;
 				return offset;
@@ -302,14 +302,14 @@ namespace Rynex {
 
 
 			// offset = last - ptr
-			inline typename DifferenceType GetDiferenzBetweenLastPtrAndPtr(const T *const ptr) const
+			DifferenceType GetDiferenzBetweenLastPtrAndPtr(const T *const ptr) const
 			{
 				DifferenceType offset = static_cast<DifferenceType>(m_LastPtr - ptr);
 				return offset;
 			}
 
 			// offset = (last - 1) - ptr
-			inline typename DifferenceType GetVaildPlaces(const T *const ptr) const
+			DifferenceType GetVaildPlaces(const T *const ptr) const
 			{
 				DifferenceType offset = static_cast<DifferenceType>((m_LastPtr - 1) - ptr);
 				return offset;
@@ -348,12 +348,12 @@ namespace Rynex {
 			std::vector<T> m_DataVec;
 		};
 
-
+#if 0
 		template<typename T>
 		class StoreSubmiteCurentPtr : public StoreSubmite<T>
 		{
 		public:
-			using Parent = typename StoreSubmite<typename T>;
+			using Parent = StoreSubmite<T>;
 			using Iterator =  Parent::Iterator;
 			using ConstIterator = Parent::ConstIterator;
 			using DifferenceType = Parent::DifferenceType; // type for using store ptr as numbers
@@ -386,7 +386,8 @@ namespace Rynex {
 			{
 				if (IsInVaildRange())
 					return;
-				SizeType count = m_DataVec.size();
+
+				SizeType count = this->m_DataVec.size();
 				SizeType n = 3;
 				SizeType lastCountDivadeByN = count / n;
 				SizeType lastCountDivadeByNAndAddByOne = lastCountDivadeByN + 1;
@@ -405,7 +406,7 @@ namespace Rynex {
 
 			inline bool IsInVaildRange() const
 			{
-				T* endPtr = GetEndPtr();
+				T* endPtr = this->GetEndPtr();
 				return Parent::IsPtrInVaildRange(endPtr) && Parent::IsPtrInVaildRange(m_UsePtr);
 			}
 
@@ -416,20 +417,20 @@ namespace Rynex {
 
 			T* GetDataUse()
 			{
-				RY_CORE_ASSERT(IsCurentPosVaild(), "We Overflow the Ptr Data or don't even set them!");
+				RY_CORE_ASSERT(this->IsCurentPosVaild(), "We Overflow the Ptr Data or don't even set them!");
 				return m_UsePtr;
 			}
 
 			template<typename N>
 			T* GetDataUse(N& storeIndex)
 			{
-				DifferenceType curentCount = GetCurentCount();
+				DifferenceType curentCount = this->GetCurentCount();
 				DifferenceType storeIndexDiff = CastSafeFunc<DifferenceType>(storeIndex);
 				if (offsetCount != storeIndexDiff)
 				{
 					storeIndex = CastSafeFunc<N>(offsetCount);
 				}
-				RY_CORE_ASSERT(IsUsePosVaild(), "We Overflow the Ptr Data or don't even set them!");
+				RY_CORE_ASSERT(this->IsUsePosVaild(), "We Overflow the Ptr Data or don't even set them!");
 				return m_UsePtr;
 			}
 
@@ -442,7 +443,7 @@ namespace Rynex {
 			T* m_UsePtr;
 
 		};
-
+#endif
 		
 
 	}

@@ -20,7 +20,7 @@ namespace Rynex {
 		static bool IsActive();
 	private:
 		GLFWwindow* m_ThreadHandle;
-		std::chrono::time_point<std::chrono::steady_clock> m_BeginPoint;
+		std::chrono::time_point<std::chrono::high_resolution_clock> m_BeginPoint;
 
 	};
 

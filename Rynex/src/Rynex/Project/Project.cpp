@@ -124,7 +124,15 @@ namespace Rynex {
             return result;
         }
 
-        
+        static std::string ConvertTimeAsStringTimePoint(std::time_t time)
+        {
+            std::tm* localTimePtr = std::localtime(&time);
+            std::ostringstream oss;
+            char buffer[80];
+            std::strftime(buffer, sizeof(buffer), "%d.%m.%Y %H:%M:%S", localTimePtr);
+            std::string timePoint = buffer;
+            return timePoint;
+        }
 
         static void CreateProject(ProjectConfig& pConfig, std::filesystem::path pFolder = "", const std::string& name = "")
         {
@@ -137,9 +145,10 @@ namespace Rynex {
 
             auto now = std::chrono::system_clock::now();
             std::time_t now_c = std::chrono::system_clock::to_time_t(now);
-            std::tm* local_time = std::localtime(&now_c);
-            pConfig.LastOpenDate = std::put_time(local_time, "%d.%m.%Y %H:%M:%S")._Fmtfirst;
-            pConfig.CreateDate = std::put_time(local_time, "%d.%m.%Y %H:%M:%S")._Fmtfirst;
+            pConfig.LastOpenDate = ConvertTimeAsStringTimePoint(now_c);
+            pConfig.CreateDate = ConvertTimeAsStringTimePoint(now_c);
+
+           
 
             std::filesystem::path assetRegistryFileName = std::filesystem::path("AssetRegistry.ryr");
             pConfig.AssetRegistryPath = pConfig.ProjectPath / assetRegistryFileName;
@@ -718,7 +727,7 @@ namespace Rynex {
         std::filesystem::path fileNamePath = pConfig.Name + ".ryproj";
         std::filesystem::path filePath = pConfig.ProjectPath / filePath;
         Project::SaveActive(filePath);
-        Ref<EditorAssetManegerThreade>& editorAssetManager = s_ActiveInstancProject->GetEditorAssetManger();
+        Ref<EditorAssetManegerThreade> editorAssetManager = s_ActiveInstancProject->GetEditorAssetManger();
 
        if (editorAssetManager)
        {
@@ -743,7 +752,7 @@ namespace Rynex {
         std::filesystem::path filePath = pConfig.ProjectPath / filePath;
 
         Project::SaveActive(filePath);
-        Ref<EditorAssetManegerThreade>& editorAssetManager = s_ActiveInstancProject->GetEditorAssetManger();
+        Ref<EditorAssetManegerThreade> editorAssetManager = s_ActiveInstancProject->GetEditorAssetManger();
 
 
 

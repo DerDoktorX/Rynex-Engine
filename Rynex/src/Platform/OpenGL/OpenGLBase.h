@@ -116,8 +116,25 @@
 	#define RY_OPENGL_ALL_ID_OPERTIONS_SCOPE_LOCK()
 
 
-	#define RY_EXE_ON_MAIN_THREAD_FUNCTION(func, ...)		::OpenGL::ExecuteFunctionOnMainThread( RY_BIND_MEMBER_FN(::Rynex::##func, __VA_ARGS__), #func)
-	#define RY_EXE_ON_MAIN_THREAD_RESUME(func, ...)			if(::OpenGL::ExecuteResumeOnMainThread( RY_BIND_MEMBER_FN(::Rynex::##func, __VA_ARGS__) , #func)) return
+	#define RY_EXE_ON_MAIN_THREAD_FUNCTION(func)		::OpenGL::ExecuteFunctionOnMainThread( RY_BIND_MEMBER_FN(::Rynex:: func), #func)
+	
+	#define RY_EXE_ON_MAIN_THREAD_RESUME_ARGS(func, ...)\
+		if(\
+			::OpenGL::ExecuteResumeOnMainThread( \
+				RY_BIND_MEMBER_FN_ARGS(::Rynex:: func, __VA_ARGS__ ) \
+				, #func \
+			) \
+		) \
+			return
+
+	#define RY_EXE_ON_MAIN_THREAD_RESUME(func)\
+		if(\
+			::OpenGL::ExecuteResumeOnMainThread( \
+				RY_BIND_MEMBER_FN(::Rynex:: func ) \
+				, #func \
+			) \
+		) \
+			return
 
 #endif
 

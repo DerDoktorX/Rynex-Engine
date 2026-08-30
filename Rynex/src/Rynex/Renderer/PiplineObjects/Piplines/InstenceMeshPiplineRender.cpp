@@ -74,7 +74,7 @@ namespace Rynex {
 		RY_DESTROY_REF(m_VertexArray);
 	}
 
-	const BufferLayout& InstenceMeshPiplineRenderBase::GetExpetedOutput() const
+	BufferLayout InstenceMeshPiplineRenderBase::GetExpetedOutput() const
 	{
 		return m_OutPut;
 	}

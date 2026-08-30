@@ -7,9 +7,9 @@ namespace Rynex {
 	class ParentEventFuncs
 	{
 	public:
-		using WeakPtr = typename T*;
-		using Func = typename std::function<void(WeakPtr)>;
-	public:
+		using WeakPtr = T*;
+		using Func = std::function<void(WeakPtr)>;
+	// --- public member methods ----------------------------------------------------------------------------------------------
 		ParentEventFuncs()
 			: m_OnChange(nullptr)
 			, m_OnDestroy(nullptr)

@@ -297,7 +297,8 @@ namespace Rynex {
 			return pass.texturesVec;
 		}
 		RY_CORE_ASSERT(false);
-		return std::vector<Ref<Texture>>();
+		std::vector<Ref<Texture>> vec;
+		return vec;
 	}
 
 	const Ref<Shader>& DefaultMaterial::GetShaderForDraw(const BufferLayout& layout, int lodTier) const

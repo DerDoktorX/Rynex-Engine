@@ -12,13 +12,13 @@ namespace Rynex {
 		class VectorData
 		{
 		public:
-			using ValueType = typename T;
-			using Container = typename VectorData2D<typename ValueType>::Container;
+			using ValueType = T;
+			using Container = typename VectorData2D<ValueType>::Container;
 			
-			using SizeType = typename VectorData2D<typename ValueType>::SizeType;
-			using DifferenceType = typename VectorData2D<typename ValueType>::DifferenceType;
+			using SizeType = typename VectorData2D<ValueType>::SizeType;
+			using DifferenceType = typename VectorData2D<ValueType>::DifferenceType;
 		public:
-			VectorData(VectorData2D<typename ValueType>& refData, SizeType dymension)
+			VectorData(VectorData2D<ValueType>& refData, SizeType dymension)
 				: m_DataRef(refData)
 				, m_Dimension(dymension)
 			{
@@ -93,7 +93,7 @@ namespace Rynex {
 			}
 
 		private:
-			VectorData2D<typename ValueType>& m_DataRef;
+			VectorData2D<ValueType>& m_DataRef;
 			const SizeType m_Dimension;
 		};
 
@@ -101,8 +101,8 @@ namespace Rynex {
 		class VectorData2D
 		{
 		public:
-			using ValueType = typename T;
-			using Container = typename std::vector<typename ValueType>;
+			using ValueType = T;
+			using Container = std::vector<ValueType>;
 			using SizeType = typename Container::size_type;
 			using DifferenceType = typename Container::difference_type;
 		public:
@@ -126,7 +126,7 @@ namespace Rynex {
 				if (IsValue())
 				{
 					pos = m_CurentPtr - m_Vector.data();
-					auto&[xCount, yCount] = GetIndexDimensions(pos);
+					auto[xCount, yCount] = GetIndexDimensions(pos);
 					SizeType xIndex = xCount % sizeX;
 					SizeType yIndex = yCount % sizeY;
 					pos = yIndex + (yIndex * xIndex);
@@ -243,26 +243,26 @@ namespace Rynex {
 				return std::pair<SizeType, SizeType>(countIndexX, countIndexY);
 			}
 
-			const VectorData<typename ValueType> At(SizeType indexX) const
+			const VectorData<ValueType> At(SizeType indexX) const
 			{
 				RY_CORE_ASSERT(indexX < m_SizeX, "X dimension offerflow!");
-				return VectorData<typename ValueType>(*this, indexX);
+				return VectorData<ValueType>(*this, indexX);
 			}
 
-			VectorData<typename ValueType> At(SizeType indexX)
+			VectorData<ValueType> At(SizeType indexX)
 			{
 				RY_CORE_ASSERT(indexX < m_SizeX, "X dimension offerflow!");
-				return VectorData<typename ValueType>(*this, indexX);
+				return VectorData<ValueType>(*this, indexX);
 			}
 
-			const VectorData<typename ValueType> operator[](SizeType indexX) const
+			const VectorData<ValueType> operator[](SizeType indexX) const
 			{
-				return VectorData<typename ValueType>(*this, indexX);
+				return VectorData<ValueType>(*this, indexX);
 			}
 
-			VectorData<typename ValueType> operator[](SizeType indexX)
+			VectorData<ValueType> operator[](SizeType indexX)
 			{
-				return VectorData<typename ValueType>(*this, indexX);
+				return VectorData<ValueType>(*this, indexX);
 			}
 
 
@@ -277,7 +277,7 @@ namespace Rynex {
 				return m_CurentPtr;
 			}
 
-			const ValueType const* GetPtr() const
+			const ValueType* const GetPtr() const
 			{
 				return m_CurentPtr;
 			}

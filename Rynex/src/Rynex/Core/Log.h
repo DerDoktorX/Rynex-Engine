@@ -51,16 +51,16 @@ namespace Rynex {
 		template<typename ...Args>
 		inline static constexpr void LoggerMessage(std::shared_ptr<spdlog::logger>& logger, bool checks, spdlog::level::level_enum levelType, spdlog::format_string_t<Args...> fmt, Args&& ... args)
 		{
-			if(!check)
+			if(!checks)
 			{
-				LoggerMessage(logger, levelType, fmt, std::forward<Args>(args)...)
+				LoggerMessage(logger, levelType, fmt, std::forward<Args>(args)...);
 			}
 		}
 		
 		template<typename T>
 		inline static constexpr void LoggerMessage(std::shared_ptr<spdlog::logger>& logger, bool checks, spdlog::level::level_enum levelType, const T& msg)
 		{
-			if (!check)
+			if (!checks)
 			{
 				LoggerMessage<T>(logger, levelType, msg);
 			}

@@ -105,7 +105,7 @@ namespace Rynex {
 
 	};
 
-	using BatchingMeshArray = typename RenderResourceList<MeshStatic, DrawContent>;
+	using BatchingMeshArray = RenderResourceList<MeshStatic, DrawContent>;
 
 	struct BatchingMeshArrayStorage
 	{
@@ -502,8 +502,8 @@ namespace Rynex {
 			
 			const std::vector<MeshStatic::SingleObjectMeshData>& meshSingleVec = mesh->GetSingleObjectMesDataVec();
 			uint32_t count = meshSingleVec.size();
-			
-			objectRendereIndexPiplineVec2.Resize2D(1+objectRendereIndexPiplineVec2.SizeDX(), count);
+			uint32_t nextIndex = objectRendereIndexPiplineVec2.SizeDX() + 1;
+			objectRendereIndexPiplineVec2.Resize2D(nextIndex, count);
 		}
 
 		Memory::VectorData<ObjectRendereIndex> objectRendereIndexPiplineVec = objectRendereIndexPiplineVec2.At(piplineIndex);
@@ -1603,7 +1603,7 @@ namespace Rynex {
 #endif
 		
 #else
-			Ref<PiplineRenderBase>& piplineRef = piplineBaseVec.GetPiplineType<InstenceMeshPiplineRenderDepth>(i);
+			Ref<PiplineRenderBase> piplineRef = piplineBaseVec.GetPiplineType<InstenceMeshPiplineRenderDepth>(i);
 			if (nullptr == piplineRef)
 				piplineRef = CreateRef<InstenceMeshPiplineRenderDepth>();
 			result = piplineRef->SubmitEntityMeshObject(meshObject, shader, model, instenceIndex, entityID);
@@ -1636,7 +1636,7 @@ namespace Rynex {
 		const uint32_t countPiplines = piplineBaseVec.GetIndexSize();
 
 
-		uint32_t instenceIndex = 0xFFFFFFFFFui32;
+		uint32_t instenceIndex = 0xFFFFFFFFu;
 		uint32_t i = 0;
 		while (checkResult == 0 && i <= countPiplines)
 		{
@@ -2030,7 +2030,8 @@ namespace Rynex {
 		RY_REMBER_FUNC_CHANGE("Remove the function, maybe we don't need anmory in futer! (The Concept off Rendering Mesh Batches for indrect Rendering)");
 
 		CheckMesh(meshStatic);
-		DrawContent& content = s_Storarage3D.BatchedMesh.MeshArray->GetData(meshStatic);
+
+		DrawContent content = s_Storarage3D.BatchedMesh.MeshArray->GetData(meshStatic);
 		return glm::uvec2{ content.BaseVertex, content.FirstIndex };
 	}
 
@@ -2143,9 +2144,11 @@ namespace Rynex {
 		uint64_t hashNumber = 0ull;
 		uint64_t meshNumber = reinterpret_cast<uint64_t>(meshSingle.get());
 		uint64_t materielNumber = reinterpret_cast<uint64_t>(meshSingle.get());
-		constexpr uint64_t hashBitsOffset = 64ull;
-		hashNumber |= meshNumber << (1 * hashBitsOffset);
-		hashNumber |= materielNumber << (2 * hashBitsOffset);
+		constexpr uint64_t hashBitsOffset = 16ull;
+		constexpr uint64_t meshHashBitsOffset = 1 * hashBitsOffset;
+		constexpr uint64_t materielHashBitsOffset = 2 * hashBitsOffset;
+		hashNumber |= meshNumber << meshHashBitsOffset;
+		hashNumber |= materielNumber << materielHashBitsOffset;
 
 		uint32_t index = Renderer::GetCurentIndex();
 		std::unordered_map<uint64_t, Weak<PiplineRenderBase>>& hashMapPipline = s_Storarage3D.RenderPiplinesHashMap.at(index);

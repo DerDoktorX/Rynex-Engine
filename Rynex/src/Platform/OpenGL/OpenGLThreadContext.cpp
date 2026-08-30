@@ -53,7 +53,7 @@ namespace Rynex {
 #endif
 
 			GLenum result;
-			std::chrono::time_point<std::chrono::steady_clock> startPoint = std::chrono::high_resolution_clock::now();
+			std::chrono::time_point<std::chrono::high_resolution_clock> startPoint = std::chrono::high_resolution_clock::now();
 
 #if RY_ENABLE_LODING_THREADE_FANCE
 			uint32_t loopCount = 0;
@@ -67,7 +67,7 @@ namespace Rynex {
 			using namespace std::chrono_literals;
 			std::this_thread::sleep_for(10s);
 #endif
-			std::chrono::time_point<std::chrono::steady_clock> endePoint = std::chrono::high_resolution_clock::now();
+			std::chrono::time_point<std::chrono::high_resolution_clock> endePoint = std::chrono::high_resolution_clock::now();
 			int64_t pastTime = std::chrono::time_point_cast<std::chrono::microseconds>(endePoint).time_since_epoch().count()
 				- std::chrono::time_point_cast<std::chrono::microseconds>(startPoint).time_since_epoch().count();
 			int64_t pastThreadTime = std::chrono::time_point_cast<std::chrono::microseconds>(endePoint).time_since_epoch().count()

@@ -9,6 +9,13 @@ namespace Rynex {
 		union { int Last, y; };
 		Range() = default;
 		Range(const Range&) = default;
+
+		Range(const Range& range, int index)
+			: First( range.First < index ? index : range.First )
+			, Last(index < range.Last ? index : range.Last)
+		{
+		}
+
 		Range(int first, int last)
 			: First(first)
 			, Last(last)

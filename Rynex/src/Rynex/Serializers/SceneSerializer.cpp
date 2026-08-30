@@ -554,7 +554,7 @@ namespace Utils {
 			uint32_t index = 0;
 			const std::vector<BufferElement>& elements = layout.GetElements();
 			uint32_t elementsSize = elements.size();
-			for (YAML::detail::iterator_value& element : node)
+			for (YAML::detail::iterator_value element : node)
 			{
 				switch (elements[(index % elementsSize)].type)
 				{
@@ -631,9 +631,9 @@ namespace Utils {
 
 			std::string path = "";
 			std::string makredPath = "";
-			if (YAML::Node& nodeAtribut = nodeE["Path"])
+			if (YAML::Node nodeAtribut = nodeE["Path"])
 				path = nodeAtribut.as<std::string>();
-			if (YAML::Node& nodeAtribut = nodeE["Path-ProjectMarker"])
+			if (YAML::Node nodeAtribut = nodeE["Path-ProjectMarker"])
 				makredPath = nodeAtribut.as<std::string>();
 
 			AssetHandle handle = nodeE["Handle"].as<uint64_t>();
@@ -652,9 +652,9 @@ namespace Utils {
 
 			std::string path = "";
 			std::string makredPath = "";
-			if (YAML::Node& nodeAtribut = nodeE["Path"])
+			if (YAML::Node nodeAtribut = nodeE["Path"])
 				path = nodeAtribut.as<std::string>();
-			if (YAML::Node& nodeAtribut = nodeE["Path-ProjectMarker"])
+			if (YAML::Node nodeAtribut = nodeE["Path-ProjectMarker"])
 				makredPath = nodeAtribut.as<std::string>();
 			AssetHandle handle = nodeE["Handle"].as<uint64_t>();
 
@@ -791,10 +791,10 @@ namespace Utils {
 					else if(realtionShipComponent["ParentID"])
 					{
 						rSc.parent = realtionShipComponent["ParentID"].as<uint64_t>();
-						YAML::Node& childNodes = realtionShipComponent["ChildrenIDs"];
+						YAML::Node childNodes = realtionShipComponent["ChildrenIDs"];
 						uint32_t size = childNodes.size();
 						rSc.childrens.reserve(size);
-						for (YAML::Node& childsIDsNode : childNodes)
+						for (YAML::Node childsIDsNode : childNodes)
 						{
 							rSc.childrens.push_back(childsIDsNode.as<uint64_t>());
 						}
@@ -807,7 +807,7 @@ namespace Utils {
 				{
 					CameraComponent& cc = deserializedEntity.AddComponent<CameraComponent>();
 
-					YAML::Node& cameraProps = cameraComponent["Camera"];
+					YAML::Node cameraProps = cameraComponent["Camera"];
 					cc.Camera = cameraProps.as<SceneCamera>();
 					cc.Primary = cameraComponent["Primary"].as<bool>();
 					cc.FixedAspectRotaion = cameraComponent["FixedAspectRotaion"].as<bool>();
@@ -823,8 +823,8 @@ namespace Utils {
 				{
 					SpriteRendererComponent& sc = deserializedEntity.AddComponent<SpriteRendererComponent>();
 					sc.Color = spriteRendererComponent["Color"].as<glm::vec4>();
-
-					RefSceneLodePromisType<Texture> promis = Utils::Deserialize::DeserializeAssetFormate<SpriteRendererComponent, Texture>(spriteRendererComponent["Texture"], deserializedEntity, AssetType::Texture2D);
+YAML::Node spriteRendererComponentTexture = spriteRendererComponent["Texture"];
+					RefSceneLodePromisType<Texture> promis = Utils::Deserialize::DeserializeAssetFormate<SpriteRendererComponent, Texture>(spriteRendererComponentTexture, deserializedEntity, AssetType::Texture2D);
 					if (nullptr != promis)
 						lodingPromisVec.emplace_back(promis);
 				}
@@ -861,7 +861,8 @@ namespace Utils {
 				if (YAML::Node staticMeshComponent = entity["StaticMeshComponent"])
 				{
 					ModelMangerComponent& smc = deserializedEntity.AddComponent<ModelMangerComponent>();
-					RefSceneLodePromisType<MeshStatic> promis = Utils::Deserialize::DeserializeAssetFormate<ModelMangerComponent, MeshStatic>(staticMeshComponent["StaticMesh"], deserializedEntity, AssetType::MeshStatic);
+					YAML::Node staticMeshComponentStaticMesh = staticMeshComponent["StaticMesh"];
+					RefSceneLodePromisType<MeshStatic> promis = Utils::Deserialize::DeserializeAssetFormate<ModelMangerComponent, MeshStatic>(staticMeshComponentStaticMesh, deserializedEntity, AssetType::MeshStatic);
 					if(nullptr != promis)
 						lodingPromisVec.emplace_back(promis);
 				}

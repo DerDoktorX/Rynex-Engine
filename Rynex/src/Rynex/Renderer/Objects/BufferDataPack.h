@@ -3,16 +3,18 @@
 #include <Rynex/Core/Range.h>
 #include <Rynex/Core/MapVector.h>
 #include <Rynex/Core/VectorMapElementRef.h>
+
 namespace Rynex {
 
 #define RY_BUFFER_PACKEGE_WARN_BLOCK 0
+
 
 	template<typename T, typename N>
 	class BufferDataPackage
 	{
 	public:
-		using SizeType = typename uint32_t;
-		using BindSlotType = typename uint32_t;
+		using SizeType = uint32_t;
+		using BindSlotType = uint32_t;
 
 	public:
 		BufferDataPackage(const BufferDataPackage& p)
@@ -77,7 +79,7 @@ namespace Rynex {
 		}
 
 
-		void SetData(const void* dataPtr, SizeType offsetByteSize, SizeType byteSize)
+		void SetData(const char* dataPtr, SizeType offsetByteSize, SizeType byteSize)
 		{
 			SizeType bufferSizeExpectSize = offsetByteSize + byteSize;
 
@@ -86,7 +88,7 @@ namespace Rynex {
 			SizeType copyByteSize = byteSize - offsetByteSize;
 
 			m_Update = true;
-			const void* offsetDataPtr = dataPtr + offset;
+			const void* offsetDataPtr = dataPtr + byteSize;
 			N* offsetMemeberDataPtr = &m_Data;
 
 			std::memcpy(offsetMemeberDataPtr, offsetDataPtr, copyByteSize);
@@ -141,18 +143,18 @@ namespace Rynex {
 
 	};
 
-
+#if 1
 	template<typename T, typename N /*, typename Array = std::vector<N>*/ >
 	class BufferArrayPackage
 	{
 	public:
-		using _T = typename T;
-		using _N = typename N;
+		using _T = T;
+		using _N = N;
 
-		using SizeType = typename uint32_t;
-		using DifferenceType = typename int32_t;
+		using SizeType = uint32_t;
+		using DifferenceType = int32_t;
 
-		using Array = typename std::vector<typename N>;
+		using Array = std::vector<N>;
 		using ArrayIterator = typename Array::iterator;
 		using ArrayConstIterator = typename Array::const_iterator;
 	public:
@@ -167,7 +169,7 @@ namespace Rynex {
 		BufferArrayPackage()
 			: m_Buffer(nullptr)
 			, m_ArrayData()
-			, m_Range(MaxRange())
+			, m_Range(Range::MaxRange())
 			, m_Update(true)
 		{
 		}
@@ -175,7 +177,7 @@ namespace Rynex {
 		BufferArrayPackage(const Ref<_T>& buffer)
 			: m_Buffer(buffer)
 			, m_ArrayData()
-			, m_Range(MaxRange())
+			, m_Range(Range::MaxRange())
 			, m_Update(true)
 		{
 		}
@@ -193,7 +195,7 @@ namespace Rynex {
 		BufferArrayPackage(const Ref<_T>& buffer, const Array& arrayData, bool update)
 			: m_Buffer(buffer)
 			, m_ArrayData(arrayData)
-			, m_Range(MaxRange())
+			, m_Range(Range::MaxRange())
 			, m_Update(update)
 		{
 			if(m_Update)
@@ -203,7 +205,7 @@ namespace Rynex {
 		BufferArrayPackage(const Array& arrayData)
 			: m_Buffer(nullptr)
 			, m_ArrayData(arrayData)
-			, m_Range(MaxRange())
+			, m_Range(Range::MaxRange())
 			, m_Update(true)
 		{
 			ArrayRange();
@@ -214,8 +216,8 @@ namespace Rynex {
 			DestroyPackege();
 		}
 
-		bool NeedUpdated() const { return m_Range != MaxRange(); }
-		bool NeedNotUpdated() const { return m_Range == MaxRange(); }
+		bool NeedUpdated() const { return m_Range != Range::MaxRange(); }
+		bool NeedNotUpdated() const { return m_Range == Range::MaxRange(); }
 		bool HasBuffer() const { return nullptr != m_Buffer; }
 		bool HasNoBuffer() const { return nullptr == m_Buffer; }
 		bool IsRady() const { return (NeedNotUpdated() && HasBuffer()); }
@@ -223,7 +225,7 @@ namespace Rynex {
 		bool EmptyArray() const { return m_ArrayData.empty(); }
 		operator bool() const { return !IsRady(); }
 
-		typename const Ref<typename _T>& GetBuffer() const { return m_Buffer; }
+		const Ref<_T>& GetBuffer() const { return m_Buffer; }
 		const Array& GetArrayData() const { return m_ArrayData; }
 
 		const N& GetElementData(SizeType index) const { return m_ArrayData.at(index); }
@@ -246,7 +248,7 @@ namespace Rynex {
 		}
 
 
-		void SetData(const void* dataPtr, SizeType offsetByteSize, SizeType byteSize)
+		void SetData(const char* dataPtr, SizeType offsetByteSize, SizeType byteSize)
 		{
 			int bufferSizeExpectSize = offsetByteSize + byteSize;
 
@@ -259,8 +261,8 @@ namespace Rynex {
 			RY_CORE_ASSERT(elmentByteSize >= bufferSizeExpectSize, "Buffer Overfolwe by {} Bytes too large", (-differenz));
 			SizeType copyByteSize = byteSize - offsetByteSize;
 
-			const void* offsetDataPtr = dataPtr + offsetByteSize;
-			void* offsetMemeberDataPtr = m_ArrayData.data();
+			const char* offsetDataPtr = dataPtr + offsetByteSize;
+			char* offsetMemeberDataPtr = m_ArrayData.data();
 
 			SizeType ellmentOffset = ByteSizeInElementCount(offsetByteSize);
 			SizeType ellmentCount = ByteSizeInElementCount(byteSize);
@@ -375,6 +377,7 @@ namespace Rynex {
 			ResetRange();
 		}
 
+
 	private:
 		SizeType ByteSizeInElementCount(SizeType byteSize)
 		{
@@ -435,7 +438,7 @@ namespace Rynex {
 			SizeType byteArraySize = arrayCount * byteSizeEllemnt;
 			DifferenceType ellmentByteSizeDifferz = byteArraySize - byteRange;
 
-			RY_CORE_ASSERT(byteRange < byteArraySize, "Overflow on Index Size with {}", index);
+			RY_CORE_ASSERT(byteRange < byteArraySize, "Overflow on Index Size with {}", byteOffset);
 			RY_CORE_ASSERT(ellmentByteSizeDifferz <= 1, "Overflow buffer size by {} elements", -(ellmentByteSizeDifferz));
 		}
 
@@ -443,6 +446,7 @@ namespace Rynex {
 		{
 			m_Update = true;
 			Range(m_Range, index);
+
 		}
 
 		void SetRange(SizeType begin, SizeType ende)
@@ -473,6 +477,24 @@ namespace Rynex {
 			SetRange(begin, ende);
 		}
 
+		static std::string GetBufferName()
+		{
+			std::string str = "Ref<";
+			std::string typeName = typeid(T).name();
+			typeName.erase(typeName.begin(), typeName.begin() + 6);
+			str += typeName;
+			str += ">";
+			return str;
+		}
+
+		static std::string GetDataName()
+		{
+			std::string str = typeid(N).name();
+			if (str.size() > 7)
+				str.erase(str.begin(), str.begin() + 7);
+			return str;
+		}
+
 		void LoadeDataUpOffset()
 		{
 			const void* dataPtr = m_ArrayData.data();
@@ -495,7 +517,7 @@ namespace Rynex {
 				SizeType arrayCount = m_ArrayData.size();
 				SizeType copyByteSize = arrayCount * elmentByteSize;
 
-				m_Buffer->Resize2D(dataPtr, byteCopySize);
+				m_Buffer->Resize2D(dataPtr, copyByteSize);
 			}
 			
 			ResetRange();
@@ -525,9 +547,13 @@ namespace Rynex {
 		Array m_ArrayData;
 		Range m_Range;
 
+		inline static std::string s_BufferNameStr = GetBufferName();
+		inline static std::string s_DataNameStr = GetDataName();
 	};
 
+#endif
 
+#if 0
 	template<typename T, typename _Key,typename N /*, typename Array = std::vector<N>*/ >
 	class BufferArrayMapPackage
 	{
@@ -841,7 +867,7 @@ namespace Rynex {
 			return rangeMax;
 		}
 
-		static void Range(glm::uvec2& range, uint32_t index)
+		static void RangeVec2(glm::uvec2& range, uint32_t index)
 		{
 			uint32_t x = range.x > index ? index : range.x;
 			uint32_t iAdd = index + 1u;
@@ -1022,9 +1048,9 @@ namespace Rynex {
 		inline static std::string s_DataNameStr = GetDataName();
 	};
 	
-	
+#endif
 
-
+#if 0
 	template<typename T, typename _Key, typename N /*, typename Array = std::vector<N> */>
 	class BufferArrayMapElementPtrPackage
 	{
@@ -1502,38 +1528,38 @@ namespace Rynex {
 		inline static std::string s_BufferNameStr = GetBufferName();
 		inline static std::string s_DataNameStr = GetDataName();
 	};
-
+#endif
 	
+#if 1
+	template<typename T>
+	using UniformArrayPackage = BufferArrayPackage<UniformBuffer, T>;
 
 	template<typename T>
-	using UniformArrayPackage = typename BufferArrayPackage<UniformBuffer, T>;
+	using StorageArrayPackage = BufferArrayPackage<StorageBuffer, T>;
 
 	template<typename T>
-	using StorageArrayPackage = typename BufferArrayPackage<StorageBuffer, T>;
+	using IndriectArrayPackage = BufferArrayPackage<IndirectBuffer, T>;
 
 	template<typename T>
-	using IndriectArrayPackage = typename BufferArrayPackage<IndirectBuffer, T>;
-
-	template<typename T>
-	using IndexArrayPackage = typename BufferArrayPackage<IndexBuffer, T>;
+	using IndexArrayPackage = BufferArrayPackage<IndexBuffer, T>;
 
 
 	template<typename T>
-	using UniformDataPackage = typename BufferDataPackage<UniformBuffer, T>;
+	using UniformDataPackage = BufferDataPackage<UniformBuffer, T>;
 
 	template<typename T>
-	using StorageDataPackage = typename BufferDataPackage<StorageBuffer, T>;
+	using StorageDataPackage = BufferDataPackage<StorageBuffer, T>;
 
 	template<typename T>
-	using IndriectDataPackage = typename BufferDataPackage<IndirectBuffer, T>;
+	using IndriectDataPackage = BufferDataPackage<IndirectBuffer, T>;
 
 	template<typename T>
-	using IndexDataPackage = typename BufferDataPackage<IndexBuffer, T>;
-	
+	using IndexDataPackage = BufferDataPackage<IndexBuffer, T>;
+#endif
 
-
+#if 0
 	template< typename _Key, typename T>
-	using StorageMapPackage = typename BufferArrayMapPackage<StorageBuffer, _Key, T>;
+	using StorageMapPackage = BufferArrayMapPackage<StorageBuffer, _Key, T>;
 	
 	
 	template< typename _Key, typename T>
@@ -1547,4 +1573,6 @@ namespace Rynex {
 
 	template< typename _Key, typename T>
 	using IndexArrayElementPtrPackage = typename BufferArrayMapElementPtrPackage<IndexBuffer, _Key, T>;
+#endif
+
 }

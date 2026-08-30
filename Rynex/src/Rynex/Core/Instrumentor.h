@@ -147,10 +147,10 @@ namespace Rynex {
 	class LifeTimer 
 	{
 	public:
-		using TimePoint = typename std::chrono::steady_clock::time_point;
-		using TimeUnit = typename std::chrono::nanoseconds;
+		using TimePoint = std::chrono::time_point< std::chrono::high_resolution_clock>;
+		using TimeUnit = std::chrono::nanoseconds;
 
-	// --- public member funktion ---------------------------------------------------------------------------------------------
+	// --- public member methods ----------------------------------------------------------------------------------------------
 		LifeTimer()
 			: m_Stopped(false)
 		{
@@ -201,8 +201,12 @@ namespace Rynex {
 	class InstrumentationTimer
 	{
 	public:
-		using TimePoint = typename std::chrono::steady_clock::time_point;
-		using TimeUnit = typename std::chrono::nanoseconds;
+		using TimeUnit = std::chrono::nanoseconds;
+		template<typename Duration>
+		using SystemTime = std::chrono::time_point<std::chrono::high_resolution_clock, Duration>;
+		using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
+
+
 	// --- public member funktion ---------------------------------------------------------------------------------------------
 		InstrumentationTimer(const char* name)
 			: m_Name(name)
@@ -218,11 +222,11 @@ namespace Rynex {
 		}
 
 		template<typename _TimeUint = TimeUnit>
-		int64_t GetTime() const
+		[[nodiscard]] int64_t GetTime() const
 		{
-			static_assert(Memory::is_one_of_v<_TimeUint, std::chrono::nanoseconds, std::chrono::seconds, std::chrono::milliseconds, std::chrono::microseconds>, "Typ _TimeUint need to be in (secounds) uint from std::chrono");
+			static_assert(Memory::is_one_of_v<_TimeUint, std::chrono::nanoseconds, std::chrono::microseconds, std::chrono::seconds, std::chrono::milliseconds>, "Typ _TimeUint need to be in (secounds) uint from std::chrono");
 
-			TimePoint endTimePoint = std::chrono::high_resolution_clock::now();
+			SystemTime<TimeUnit> endTimePoint = std::chrono::high_resolution_clock::now();
 
 			_TimeUint timeNanoSec = std::chrono::duration_cast<_TimeUint>(endTimePoint - m_StartTimepoint);
 			int64_t result = timeNanoSec.count();
@@ -232,7 +236,7 @@ namespace Rynex {
 
 		void Stop()
 		{
-			using NanoSec = std::chrono::nanoseconds;
+
 			TimePoint endTimePoint = std::chrono::high_resolution_clock::now();
 
 			int64_t start = std::chrono::time_point_cast<TimeUnit>(m_StartTimepoint).time_since_epoch().count();

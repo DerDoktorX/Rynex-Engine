@@ -1,7 +1,7 @@
 #pragma once
 #include "Rynex/Core/TimeStep.h"
-#include "Rynex/Events/ApplicationEvent.h";
-#include "Rynex/Events/MouseEvent.h";
+#include "Rynex/Events/ApplicationEvent.h"
+#include "Rynex/Events/MouseEvent.h"
 #include "Rynex/Renderer/Camera/OrthograficCamera.h"
 
 namespace Rynex {

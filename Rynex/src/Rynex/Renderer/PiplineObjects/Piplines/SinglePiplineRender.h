@@ -100,11 +100,13 @@ namespace Rynex {
 		virtual void SubmitRenderTargetResurcesReadImg(const Ref<Texture>& texture) override;
 		virtual void SubmitRenderTargetResurcesReadUB(const Ref<UniformBuffer>& buffer)override;
 
-		virtual const BufferLayout& GetExpetedOutput() const override {
+		virtual BufferLayout GetExpetedOutput() const override
+		{
 			RY_REMBER_FUNC_CHANGE("Implemnt function check if the out put layout matches the out put layout from shader!");
 			return BufferLayout();
 		}
-		virtual void SetExpetedOutput(const BufferLayout& output) override {
+		virtual void SetExpetedOutput(const BufferLayout& output) override
+		{
 			RY_REMBER_FUNC_CHANGE("Implemnt function check if the out put layout matches the out put layout from shader!");
 		}
 
@@ -275,11 +277,14 @@ namespace Rynex {
 		virtual void SubmitRenderTargetResurcesReadUB(const Ref<UniformBuffer>& buffer)override {};
 		virtual void SubmitRenderTargetResurcesReadImg(const Ref<Texture>& texture) override {};
 
-		virtual const BufferLayout& GetExpetedOutput() const override {
+		virtual BufferLayout GetExpetedOutput() const override
+		{
 			RY_REMBER_FUNC_CHANGE("Implemnt function check if the out put layout matches the out put layout from shader!");
 			return BufferLayout();
 		}
-		virtual void SetExpetedOutput(const BufferLayout& output) override {
+
+		virtual void SetExpetedOutput(const BufferLayout& output) override
+		{
 			RY_REMBER_FUNC_CHANGE("Implemnt function check if the out put layout matches the out put layout from shader!");
 		}
 		

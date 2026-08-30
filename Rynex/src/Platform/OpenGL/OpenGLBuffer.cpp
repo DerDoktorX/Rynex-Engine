@@ -155,7 +155,7 @@ namespace Rynex {
 
 	void OpenGLVertexBuffer::CopyData(uint32_t fromPoint, uint32_t toPoint, uint32_t byteSize, Ref<VertexBuffer> vb)
 	{
-		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLVertexBuffer::CopyData, fromPoint, toPoint, byteSize, vb);
+		RY_EXE_ON_MAIN_THREAD_RESUME_ARGS(OpenGLVertexBuffer::CopyData, fromPoint, toPoint, byteSize, vb);
 
 		Ref<OpenGLVertexBuffer> vbOpenGL = std::static_pointer_cast<OpenGLVertexBuffer>(vb);
 		uint32_t readVB_ID = vbOpenGL->GetRenderID();
@@ -175,7 +175,7 @@ namespace Rynex {
 
 	void OpenGLVertexBuffer::AddCopyData( Ref<VertexBuffer> vb)
 	{
-		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLVertexBuffer::AddCopyData, vb);
+		RY_EXE_ON_MAIN_THREAD_RESUME_ARGS(OpenGLVertexBuffer::AddCopyData, vb);
 
 		Ref<OpenGLVertexBuffer> vbOpenGL = std::static_pointer_cast<OpenGLVertexBuffer>(vb);
 		uint32_t readVB_ID = vbOpenGL->GetRenderID();
@@ -410,7 +410,7 @@ namespace Rynex {
 
 	void OpenGLIndexBuffer::CopyData(uint32_t fromPoint, uint32_t toPoint, uint32_t byteSize, Ref<IndexBuffer> ib)
 	{
-		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLIndexBuffer::CopyData, fromPoint, toPoint, byteSize, ib);
+		RY_EXE_ON_MAIN_THREAD_RESUME_ARGS(OpenGLIndexBuffer::CopyData, fromPoint, toPoint, byteSize, ib);
 		RY_CORE_ASSERT(0u != m_Buffer.GetRenderID(), "Not set Buffer ID!");
 
 		Ref<OpenGLIndexBuffer> vbOpenGL = std::static_pointer_cast<OpenGLIndexBuffer>(ib);
@@ -434,7 +434,7 @@ namespace Rynex {
 
 	void OpenGLIndexBuffer::AddCopyData(Ref<IndexBuffer> ib)
 	{
-		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLIndexBuffer::AddCopyData, ib);
+		RY_EXE_ON_MAIN_THREAD_RESUME_ARGS(OpenGLIndexBuffer::AddCopyData, ib);
 
 		Ref<OpenGLIndexBuffer> vbOpenGL = std::static_pointer_cast<OpenGLIndexBuffer>(ib);
 		uint32_t readVB_ID = vbOpenGL->GetRenderID();

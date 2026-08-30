@@ -115,7 +115,7 @@ namespace Rynex {
 		template<typename... Components>
 		auto GetAllEntitiesWith()
 		{
-			return m_Registry.view<Components...>();
+			return this->m_Registery.view<Components...>();
 		}
 		
 		void SetFuncSubmit3DSceneDrawListToFrame(const std::function<void()>& func);

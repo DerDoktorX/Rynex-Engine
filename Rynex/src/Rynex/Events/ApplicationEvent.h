@@ -12,10 +12,10 @@ namespace Rynex {
 		WindowResizeEvent(unsigned int withe, unsigned int heigth)
 			: m_Width(withe), m_Height(heigth) {}
 
-		inline unsigned int GetWidth() const { return m_Width; }
-		inline unsigned int GetHeight() const { return m_Height; }
+		[[nodiscard]] inline unsigned int GetWidth() const { return m_Width; }
+		[[nodiscard]] inline unsigned int GetHeight() const { return m_Height; }
 
-		std::string ToString() const override
+		[[nodiscard]] std::string ToString() const override
 		{
 			std::stringstream ss;
 			ss << "WindowResizeEvent: " << m_Width << ", " << m_Height;
@@ -35,10 +35,10 @@ namespace Rynex {
 		WindowMovedEvent(unsigned int posX, unsigned int posY)
 			: m_PosX(posX), m_PosY(posY) {}
 
-		inline unsigned int GetPosX() const { return m_PosX; }
-		inline unsigned int GetPosY() const { return m_PosY; }
+		[[nodiscard]] inline unsigned int GetPosX() const { return m_PosX; }
+		[[nodiscard]] inline unsigned int GetPosY() const { return m_PosY; }
 
-		std::string ToString() const override
+		[[nodiscard]] std::string ToString() const override
 		{
 			std::stringstream ss;
 			ss << "WindowMoved: " << m_PosX << ", " << m_PosY;
@@ -55,9 +55,9 @@ namespace Rynex {
 	class RYNEX_API WindowCurserEnterEvent : public Event
 	{
 	public:
-		WindowCurserEnterEvent() {}
+		WindowCurserEnterEvent() = default;
 
-		std::string ToString() const override
+		[[nodiscard]] std::string ToString() const override
 		{
 			std::stringstream ss;
 			ss << "WindowCurserEnter!";
@@ -71,9 +71,9 @@ namespace Rynex {
 	class RYNEX_API WindowCurserLeaveEvent : public Event
 	{
 	public:
-		WindowCurserLeaveEvent() {}
+		WindowCurserLeaveEvent() = default;
 
-		std::string ToString() const override
+		[[nodiscard]] std::string ToString() const override
 		{
 			std::stringstream ss;
 			ss << "WindowCurserLeave!";
@@ -87,9 +87,9 @@ namespace Rynex {
 	class RYNEX_API WindowFocuseEvent : public Event
 	{
 	public:
-		WindowFocuseEvent() {}
+		WindowFocuseEvent() = default;
 
-		std::string ToString() const override
+		[[nodiscard]] std::string ToString() const override
 		{
 			std::stringstream ss;
 			ss << "WindowFocuse!";
@@ -103,9 +103,9 @@ namespace Rynex {
 	class RYNEX_API WindowLostFocuseEvent : public Event
 	{
 	public:
-		WindowLostFocuseEvent() {}
+		WindowLostFocuseEvent() = default;
 
-		std::string ToString() const override
+		[[nodiscard]] std::string ToString() const override
 		{
 			std::stringstream ss;
 			ss << "WindowLostFocuse!";
@@ -120,7 +120,7 @@ namespace Rynex {
 	class RYNEX_API WindowCloseEvent : public Event
 	{
 	public:
-		WindowCloseEvent() {}
+		WindowCloseEvent() = default;
 
 		EVENT_CLASS_TYPE(WindowClose)
 		EVENT_CLASS_CATEYGORY(EventCategoryApplication)

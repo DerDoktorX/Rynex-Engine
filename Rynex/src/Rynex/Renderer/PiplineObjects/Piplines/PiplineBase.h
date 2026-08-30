@@ -113,7 +113,7 @@ namespace Rynex {
 
 		virtual ~PiplineRenderBase() {}
 
-		virtual const BufferLayout& GetExpetedOutput() const = 0;
+		virtual BufferLayout GetExpetedOutput() const = 0;
 		virtual void SetExpetedOutput(const BufferLayout& input) = 0;
 
 		// withe This Function you submit Some Resurce From the Rendertaget to the Pipline, 

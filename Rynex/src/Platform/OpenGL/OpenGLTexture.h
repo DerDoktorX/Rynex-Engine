@@ -149,7 +149,7 @@ namespace Rynex {
 		virtual void SetTextureToArray(int index, const Ref<Texture>& texture, bool instandGPUploade = false) override;
 		virtual void SetTextureToArray(int index, std::nullptr_t, bool instandGPUploade = false) override;
 
-		virtual const Ref<Texture>& GetTextureToArray(int index) override;
+		virtual Ref<Texture> GetTextureToArray(int index) override;
 
 		virtual void ResizeTextureArray(int size, bool instandGPUploade = false) override;
 

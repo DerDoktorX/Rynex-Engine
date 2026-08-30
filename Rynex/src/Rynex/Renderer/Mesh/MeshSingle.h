@@ -25,7 +25,7 @@ namespace Rynex {
 		const Mesh::PerDrawObject& GetShadePerDrawObjectIndrect() const { return m_ShadePDOIndrect; }
 		const Mesh::PerDrawObject& GetDepthPerDrawObjectIndrect() const { return m_DepthPDOIndrect; }
 
-		const Ref<MeshSource>& GetSourceMesh() const 
+		Ref<MeshSource> GetSourceMesh() const 
 		{ 
 			Ref<MeshSource> source = m_Source.lock();
 			return source;

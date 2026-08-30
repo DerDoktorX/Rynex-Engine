@@ -1306,7 +1306,7 @@ namespace Rynex{
 		using It = std::vector<int>::iterator;
 		It end = m_ChangedTextureInidicesVec.end();
 		It pos = std::lower_bound(m_ChangedTextureInidicesVec.begin(), end, index);
-		if (pos != end && *pos._Ptr == index)
+		if (pos != end && *pos == index)
 			return;
 		m_ChangedTextureInidicesVec.insert(pos, index);
 		m_DataUpdatedGPU = false;
@@ -1317,7 +1317,8 @@ namespace Rynex{
 		using It = std::vector<int>::iterator;
 		It end = m_ChangedTextureInidicesVec.end();
 		It pos = std::lower_bound(m_ChangedTextureInidicesVec.begin(), end, index);
-		if (pos == end || *pos._Ptr != index)
+
+		if (pos == end || *pos != index)
 			return;
 		m_ChangedTextureInidicesVec.erase(pos);
 	}
@@ -1375,7 +1376,7 @@ namespace Rynex{
 			RY_CORE_ERROR("Specifction are not equal!");
 		}
 		Weak<Texture>& textureIndexWeak = m_LinkedTexturesVec.at(index);
-		if (Ref<Texture>& textureIndex = textureIndexWeak.lock())
+		if (Ref<Texture> textureIndex = textureIndexWeak.lock())
 		{
 			if (textureIndex != texture)
 			{
@@ -1404,7 +1405,7 @@ namespace Rynex{
 		RY_CORE_ASSERT(index < m_LinkedTexturesVec.size());
 
 		Weak<Texture>& textureIndexWeak = m_LinkedTexturesVec.at(index);
-		if (Ref<Texture>& textureIndex = textureIndexWeak.lock())
+		if (Ref<Texture> textureIndex = textureIndexWeak.lock())
 		{
 			if (!HasTextureMoreThenOnce(textureIndex))
 			{
@@ -1419,7 +1420,7 @@ namespace Rynex{
 			RemovedTextureIndexFromChangeVec(index);
 	}
 
-	const Ref<Texture>& OpenGLLinkedTextureArray::GetTextureToArray(int index)
+	Ref<Texture> OpenGLLinkedTextureArray::GetTextureToArray(int index)
 	{
 		return m_LinkedTexturesVec.at(index).lock();
 	}

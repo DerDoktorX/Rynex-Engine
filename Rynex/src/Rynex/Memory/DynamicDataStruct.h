@@ -53,12 +53,12 @@ namespace Rynex {
 			}
 
 			template<typename T>
-			T* const GetPtr(const std::string& name, SizeType index)
+			T* GetPtr(const std::string& name, SizeType index)
 			{
 				SizeType offsetPos = DynamicDataStruct::GetBytesSizeOffset<T>(name, index);
 				ContainerValueTypePtr valuePtr = GetOffsetDataPosPtr<T>(offsetPos);
-				T* valuePtr = reinterpret_cast<T*>(valuePtr);
-				T* const valuePtrConst = const_cast<T* const>(valuePtr);
+				T* valueTypePtr = reinterpret_cast<T*>(valuePtr);
+				T* valuePtrConst = const_cast<T* const>(valueTypePtr);
 				return valuePtrConst;
 			}
 			
@@ -105,8 +105,8 @@ namespace Rynex {
 			{
 				SizeType offsetPos = DynamicDataStruct::GetBytesSizeOffset<T>(elementIndex, arrayIndex);
 				ContainerValueTypePtr valuePtr = DynamicDataStruct::GetOffsetDataPosPtr<T>(offsetPos);
-				T* valuePtr = reinterpret_cast<T*>(valuePtr);
-				const T* const constValuePtrConst = const_cast<const T* const>(valuePtr);
+				T* valueTypePtr = reinterpret_cast<T*>(valuePtr);
+				const T* const constValuePtrConst = const_cast<const T* const>(valueTypePtr);
 
 				return constValuePtrConst;
 			}

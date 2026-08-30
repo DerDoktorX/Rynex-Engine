@@ -14,14 +14,14 @@
 namespace Rynex {
 
 	namespace SyntaxGlsl {
-		constexpr char* COMMENT_LINE = "//";
-		constexpr char* COMMENT_FIST = "/*";
-		constexpr char* COMMENT_END = "*/";
+		constexpr const char* COMMENT_LINE = "//";
+		constexpr const char* COMMENT_FIST = "/*";
+		constexpr const char* COMMENT_END = "*/";
 
-		constexpr char* MACRO_DEFINE = "#define ";
-		constexpr char* MACRO_IF = "#if ";
-		constexpr char* MACRO_IFDEF = "#ifdef ";
-		constexpr char* MACRO_ENDIF = "#endif";
+		constexpr const char* MACRO_DEFINE = "#define ";
+		constexpr const char* MACRO_IF = "#if ";
+		constexpr const char* MACRO_IFDEF = "#ifdef ";
+		constexpr const char* MACRO_ENDIF = "#endif";
 	}
 
 	namespace Utils {
@@ -718,22 +718,18 @@ namespace Rynex {
 				isAfterNotAfterLine;
 
 			} while (isBeforMyLine && isAfterNotAfterLine);
-
+			return pos;
 		}
 
-		static bool FindeTypeOnLine(std::string& shaderCode, size_t beginLine, size_t endLine, const std::string& typeName, const std::string& varibleName)
-		{
-
-		}
 
 		static void AddDefineVecToShaderCode(const OpenGLShader::ShaderDefineVec& shaderDefineVec, std::string& shaderCode)
 		{			
 			RY_REMBER_FUNC_CHANGE("Fix at some point the define finding situation! Space");
 			using ShaderDefine = OpenGLShader::ShaderDefine;
 			using StringPtrDiffernz = std::string::difference_type;
-			constexpr char* versionStr = "#version";
-			constexpr char* lineEnd = "\n";
-			constexpr char* emptyStr = "";
+			constexpr const char* versionStr = "#version";
+			constexpr const char* lineEnd = "\n";
+			constexpr const char* emptyStr = "";
 
 
 			size_t pos = shaderCode.find(versionStr);
@@ -744,10 +740,10 @@ namespace Rynex {
 
 			for (const ShaderDefine& shaderDefine : shaderDefineVec)
 			{
-				constexpr char* typeChar = "#define";
-				constexpr char* betweenTypeAndName = " ";
+				constexpr const char* typeChar = "#define";
+				constexpr const char* betweenTypeAndName = " ";
 				const std::string& nameDefine = shaderDefine.first;
-				constexpr char* betweenNameAndValue = " ";
+				constexpr const char* betweenNameAndValue = " ";
 				const std::string& valueDefine = shaderDefine.second;
 
 				defineLine.clear();
@@ -986,7 +982,7 @@ namespace Rynex {
 			return;
 		}
 
-		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLShader::Invalidate, std::string(shaderSounrce));
+		RY_EXE_ON_MAIN_THREAD_RESUME_ARGS(OpenGLShader::Invalidate, std::string(shaderSounrce));
 		constexpr int resetShaderType = 0;
 		std::map<uint32_t, std::string> shaderSource;
 		std::map<ShaderType::ShaderType, std::string> shaderMap;
@@ -1166,7 +1162,7 @@ namespace Rynex {
 			size_t nextLinePos = source.find_first_of("\r\n",eol);
 			pos = source.find(typeToken, nextLinePos);
 			size_t shaderCharCount = pos - (std::string::npos == nextLinePos? source.size() - 1 : nextLinePos);
-			std::string& shader = source.substr(nextLinePos, shaderCharCount);
+			std::string shader = source.substr(nextLinePos, shaderCharCount);
 			Utils::AddDefineVecToShaderCode(m_ShaderDefineVec, shader);
 			ShaderType::ShaderType shaderType = Utils::ShaderTypeEnumFromString(type);
 			shaderMap[shaderType] = shader;

@@ -177,7 +177,7 @@ namespace Rynex {
 
 	void OpenGLShaderStorageBuffer::InvalideData(uint32_t target)
 	{
-		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLShaderStorageBuffer::InvalideData, target);
+		RY_EXE_ON_MAIN_THREAD_RESUME_ARGS(OpenGLShaderStorageBuffer::InvalideData, target);
 		RY_CORE_ASSERT(0u != m_ByteSize);
 
 		RY_CORE_ASSERT(m_ByteSize == m_Data.size());

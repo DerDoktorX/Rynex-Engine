@@ -102,10 +102,10 @@ namespace Rynex {
 		template<typename T, typename N>
 		static Weak<N> GetWeakInPlaceType(T* assetPtr)
 		{
-			Weak<T> assetWeakT = Asset::GetWeakInPlace<T>(assetPtr);
+			Weak<T> assetWeakT = Asset::GetWeakInPlaceType<T>(assetPtr);
 			Weak<N> assetWeakN = nullptr;
 
-			if(Ref<T> assetRefT  = assetWeak.lock())
+			if(Ref<T> assetRefT  = assetWeakT.lock())
 			{
 				Ref<T> assetRefN = std::static_pointer_cast<N, T>(assetRefT);
 				assetWeakN = assetRefN;

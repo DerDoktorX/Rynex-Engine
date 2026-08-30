@@ -11,9 +11,9 @@ namespace Rynex {
 	{
 	public:
 
-		using TypeT = typename T;
-		using _N = typename N;
-		using ResourceT = typename Ref<TypeT>;
+		using TypeT = T;
+		using _N = N;
+		using ResourceT = Ref<TypeT>;
 		
 		struct InfoData
 		{
@@ -27,7 +27,7 @@ namespace Rynex {
 			Ref<TypeT> Resource;
 		};
 
-		using _InfoDataNT = typename InfoData;
+		using _InfoDataNT = InfoData;
 	public:
 		RenderResourceList()
 		{
@@ -49,7 +49,7 @@ namespace Rynex {
 				_N& dataRef = m_Data.emplace_back<_N>(_N{ data });
 #endif
 
-				_InfoDataNT& info = m_Infos.emplace_back<_InfoDataNT>(
+				_InfoDataNT& info = m_Infos.template emplace_back<_InfoDataNT>(
 					_InfoDataNT{
 						1u,
 #if RY_RENDER_RESOURCE_DATA_ARRAY
@@ -89,9 +89,10 @@ namespace Rynex {
 			return Add(resource, _N());
 		}
 
-		_InfoDataNT& GetInfo(const ResourceT& resource)
+		_InfoDataNT GetInfo(const ResourceT& resource)
 		{
-			const std::unordered_map<UUID, uint32_t>::const_iterator& it = m_ResourceFinder.find(resource->Handle);
+			using ItConst = std::unordered_map<UUID, uint32_t>::iterator;
+			ItConst it = m_ResourceFinder.find(resource->Handle);
 			if (it != m_ResourceFinder.end())
 			{
 				uint32_t index = it->second;
@@ -102,14 +103,18 @@ namespace Rynex {
 				return info;
 			}
 			RY_CORE_ASSERT(false);
-			return _InfoDataNT{ 0u, _N(), nullptr };
+			_InfoDataNT infoDataNT{
+				0u, _N(), nullptr
+			};
+
+			return infoDataNT;
 		}
 
 		
 
-		_N& GetData(const ResourceT& resource)
+		_N GetData(const ResourceT& resource)
 		{
-			_InfoDataNT& resourceData = GetInfo(resource);
+			_InfoDataNT resourceData = GetInfo(resource);
 			return resourceData.Data;
 		}
 
@@ -136,7 +141,8 @@ namespace Rynex {
 
 		bool Has(const ResourceT& resource)
 		{
-			std::unordered_map<UUID, uint32_t>::const_iterator it = m_ResourceFinder.find(resource->Handle);
+			using ItConst = std::unordered_map<UUID, uint32_t>::iterator;
+			ItConst it = m_ResourceFinder.find(resource->Handle);
 			return it != m_ResourceFinder.end();
 		}
 
@@ -156,7 +162,8 @@ namespace Rynex {
 
 			m_ResourceFinder.clear();
 
-			std::vector<_InfoDataNT>::iterator& itInfoBegin = m_Infos.begin();
+			using It = typename std::vector<_InfoDataNT>::iterator;
+			It itInfoBegin = m_Infos.begin();
 			m_Infos.erase(itInfoBegin + index);
 			std::vector<_InfoDataNT> resoureData = m_Infos;
 			m_Infos.clear();
@@ -174,7 +181,7 @@ namespace Rynex {
 				_N& dataRef = m_Data.emplace_back<_N>(_N{ data.at(i)});
 				m_Infos.emplace_back<InfoData>(InfoData{ res.Count,  ,res.Resource});
 #endif
-				m_Infos.emplace_back<_InfoDataNT>(_InfoDataNT{ res });
+				m_Infos.template emplace_back<_InfoDataNT>(_InfoDataNT{ res });
 				m_ResourceFinder[res.Resource->Handle] = i;
 				i++;
 			}

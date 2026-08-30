@@ -26,15 +26,15 @@ namespace Rynex {
 		EventCategoryMouseBord			 = BIT(4)
 	};
 
-#define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::##type;}\
-								virtual EventType GetEventType() const override { return GetStaticType(); }\
-								virtual const char* GetName() const override {return #type;} 
+#define EVENT_CLASS_TYPE(type) \
+	static EventType GetStaticType() { return EventType::type; }\
+	virtual EventType GetEventType() const override { return GetStaticType(); }\
+	virtual const char* GetName() const override {return #type;}
 
 #define EVENT_CLASS_CATEYGORY(category) virtual int GetCategoryFlags() const override { return category; } 
 
 	class RYNEX_API Event
 	{
-		friend class EventDispatcher;
 	public:
 		bool Handled = false;
 
@@ -47,7 +47,8 @@ namespace Rynex {
 		{
 			return GetCategoryFlags() & category;
 		}
-
+	private:
+		friend class EventDispatcher;
 	};
 
 	class EventDispatcher

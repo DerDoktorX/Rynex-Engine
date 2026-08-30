@@ -20,7 +20,7 @@ namespace Rynex {
 	class LodePromisType : public LodePromis<N>
 	{
 	public:
-		using _Func = typename std::function<void(Ref<typename T>, Ref<typename N>, typename Args...)>;
+		using _Func = std::function<void(Ref<T>, Ref<N>, Args...)>;
 	// --- public member funktion ---------------------------------------------------------------------------------------------
 
 		template<typename ...Vars>
@@ -36,12 +36,9 @@ namespace Rynex {
 
 		LodePromisType(const LodePromisType& promis)
 			: m_ObjectVec(promis.m_ObjectVec)
-			, m_Mutex(promis.m_Mutex)
 			, m_StaticFunc(promis.m_StaticFunc)
-			, m_WaitMutex(promis.m_WaitMutex)
 			, m_FuncArgs(promis.m_FuncArgs)
 			, m_TransferComplet(promis.m_TransferComplet)
-			, m_CV(promis.m_CV)
 		{
 			RY_CORE_WARN("Copy a Promis is not somthing we Recomand doing!");
 		}
@@ -151,9 +148,9 @@ namespace Rynex {
 		{
 			std::lock_guard<std::mutex> lock(m_Mutex);
 			uint32_t index = 0;
-			for (Weak<typename N>& weakObject : m_ObjectVec)
+			for (Weak<N>& weakObject : m_ObjectVec)
 			{
-				if (Ref<typename N> refObject = weakObject.lock())
+				if (Ref<N> refObject = weakObject.lock())
 				{
 					const N* ptrObject = refObject.get();
 
@@ -165,8 +162,8 @@ namespace Rynex {
 			uint32_t count = m_ObjectVec.size();
 			if (index < count)
 			{
-				std::vector<typename Weak<typename N>>::const_iterator itBegin = m_ObjectVec.begin();
-				std::vector<typename Weak<typename N>>::const_iterator it = itBegin + index;
+				typename std::vector<Weak<N>>::const_iterator itBegin = m_ObjectVec.begin();
+				typename std::vector<Weak<N>>::const_iterator it = itBegin + index;
 				m_ObjectVec.erase(it);
 			}
 		}
@@ -190,9 +187,9 @@ namespace Rynex {
 		{
 			// Difernz ?
 			std::lock_guard<std::mutex> lock(m_Mutex);
-			for (Weak<typename N>& weakObject : m_ObjectVec)
+			for (Weak<N>& weakObject : m_ObjectVec)
 			{
-				if (Ref<typename N> refObject = weakObject.lock())
+				if (Ref<N> refObject = weakObject.lock())
 				{
 					RY_CORE_INFO("Promis Object Still in Place");
 
@@ -217,11 +214,11 @@ namespace Rynex {
 		}
 		
 	// --- private member varibles --------------------------------------------------------------------------------------------
-		std::vector<typename Weak<typename N>> m_ObjectVec;
+		std::vector<Weak<N>> m_ObjectVec;
 		_Func m_StaticFunc;
 		mutable std::mutex m_Mutex;
 		std::mutex m_WaitMutex;
-		std::tuple<typename Args ...> m_FuncArgs;
+		std::tuple<Args ...> m_FuncArgs;
 		std::condition_variable m_CV;
 		bool m_TransferComplet;
 	};

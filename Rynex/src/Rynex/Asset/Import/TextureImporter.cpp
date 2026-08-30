@@ -131,7 +131,7 @@ namespace Rynex{
 			&& ".hdr" != extension)
 		{
 			RY_CORE_ASSERT(false, "ERROR: TextureImporter::LoadTexture! not sepoted extension {}", extension);
-			return nullptr;
+			return false;
 		}
 
 		RY_CORE_WARN("In Dev Funktion: ReLoadeTexture2D!");

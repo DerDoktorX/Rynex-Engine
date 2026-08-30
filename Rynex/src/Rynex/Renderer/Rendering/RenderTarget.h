@@ -459,7 +459,7 @@ namespace Rynex {
 
 
 	template<typename ... Args>
-	inline constexpr ShaderDrawResource CreateShaderDrawResource(Args&& ... args)
+	inline static ShaderDrawResource CreateShaderDrawResource(Args&& ... args)
 	{
 		return ShaderDrawList(std::forward<Args>(args)...);
 	}
@@ -534,7 +534,7 @@ namespace Rynex {
 #ifdef RY_SHADER_DRAW_LIST_SHEARD_PTR
 		bool HasDrawPass(Const_ShaderDrawResource_RefPtr drawList);
 #endif
-		bool HasDrawPass(Const_ShaderDrawResourceWeak_Ref drawList);
+		static bool HasDrawPass(Const_ShaderDrawResourceWeak_Ref drawList);
 		bool HasDrawPass(const Ref<Shader>& shader, uint32_t index) const;
 		ShaderDrawResourceWeak_Ref GetDrawPass(uint32_t index);
 		uint32_t AddNewDrawPass(const Ref<Shader>& shader, Const_ShaderDrawResourceWeak_Ref shaderDrawList);
@@ -664,7 +664,7 @@ namespace Rynex {
 	};
 #ifdef RY_SSBO_VARIENTS
 	template<>
-	constexpr static glm::u64vec2 RenderTarget::SortRenderListChangeBindBointCount<std::variant<Ref<StorageBuffer>, Ref<BindlesTextureArray>>, g_StorageBindArrayCount>(
+	inline glm::u64vec2 RenderTarget::SortRenderListChangeBindBointCount<std::variant<Ref<StorageBuffer>, Ref<BindlesTextureArray>>, g_StorageBindArrayCount>(
 		const StorageBindArray& aBindArray, const StorageBindArray& bBindArray)
 	{
 		size_t equalNotCount = 0ull;

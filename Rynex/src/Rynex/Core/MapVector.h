@@ -100,7 +100,7 @@ namespace Rynex {
 		T& AddData(const _Key& key, const T& data)
 		{
 			_Unit index = Size();
-			T& dataVec = m_Vector.emplace_back<T>(T{ data });
+			T& dataVec = m_Vector.template emplace_back<T>(T{ data });
 			m_Map[key] = index;
 			CheckeSize();
 			return dataVec;
@@ -255,7 +255,7 @@ namespace Rynex {
 				if (index < indexVec)
 					indexVec--;
 			}
-			RY_CORE_ASSERT(!HasKey(key), "Key Exíst, shoud by destoyed!");
+			RY_CORE_ASSERT(!HasKey(key), "Key Exï¿½st, shoud by destoyed!");
 		}
 
 		void EraseFromIndex(_Unit index)
@@ -329,7 +329,7 @@ namespace Rynex {
 	class MapVectorObjectPtr : public MapVector<int64_t, _T>
 	{
 	private:
-		using _MapVectorObjectPtr = typename MapVector<int64_t, typename _T>;
+		using _MapVectorObjectPtr = MapVector<int64_t, _T>;
 	public:		
 
 		MapVectorObjectPtr(std::function<int64_t(const _T&)> getKeyFromPtrFunc)
@@ -418,11 +418,11 @@ namespace Rynex {
 #undef RY_INTERNALE_MAP_VECTOR_OBJECT_PTR_KEY_OBJECT
 
 	template<typename T>
-	class MapVectorRef : public MapVectorObjectPtr<typename Ref<typename T>>
+	class MapVectorRef : public MapVectorObjectPtr<Ref<T>>
 	{
 	private:
-		using _ObjectPtr = typename Ref<typename T>;
-		using _MapVectorObjectPtr = typename MapVectorObjectPtr<typename _ObjectPtr>;
+		using _ObjectPtr = Ref<T>;
+		using _MapVectorObjectPtr = MapVectorObjectPtr<_ObjectPtr>;
 	public:
 		inline MapVectorRef()
 			: _MapVectorObjectPtr(MapVectorRef::GetKeyFromPtr)
@@ -446,11 +446,10 @@ namespace Rynex {
 
 
 	template<typename T>
-	class MapVectorWeak : public MapVectorObjectPtr<typename Weak<typename T>>
+	class MapVectorWeak : public MapVectorObjectPtr<Weak<T>>
 	{
-	private:
-		using _ObjectPtr= typename Weak<typename T>;
-		using _MapVectorObjectPtr = typename MapVectorObjectPtr<typename _ObjectPtr>;
+		using _ObjectPtr= Weak<T>;
+		using _MapVectorObjectPtr = MapVectorObjectPtr<_ObjectPtr>;
 	public:
 		MapVectorWeak()
 			: _MapVectorObjectPtr(GetKeyFromPtr)
@@ -479,11 +478,11 @@ namespace Rynex {
 
 	
 	template<typename T>
-	class MapVectorScope : public MapVectorObjectPtr<typename Scope<typename T>>
+	class MapVectorScope : public MapVectorObjectPtr<Scope<T>>
 	{
 	private:
-		using _ObjectPtr = typename Scope<typename T>;
-		using _MapVectorObjectPtr = typename MapVectorObjectPtr<typename _ObjectPtr>;
+		using _ObjectPtr = Scope<T>;
+		using _MapVectorObjectPtr = MapVectorObjectPtr<_ObjectPtr>;
 	public:
 		MapVectorScope()
 			: _MapVectorObjectPtr(GetKeyFromPtr)

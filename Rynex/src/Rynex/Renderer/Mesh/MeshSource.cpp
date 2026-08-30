@@ -371,7 +371,7 @@ namespace Rynex {
 					uint64_t key = (static_cast<uint64_t>(e.First) << 32) | e.Second;
 					return std::hash<uint64_t>{}(key);
 
-					// Alternative für 32-Bit-Systeme:
+					// Alternative fï¿½r 32-Bit-Systeme:
 					// return std::hash<uint32_t>{}(e.first) ^ (std::hash<uint32_t>{}(e.second) << 1);
 				}
 			};
@@ -384,7 +384,7 @@ namespace Rynex {
 				}
 			};
 
-			using EdgeHashMap = typename std::unordered_map<typename Edge, typename std::vector<typename uint32_t>, typename EdgeHash, typename EdgeEqual>;
+			using EdgeHashMap = std::unordered_map<Edge, std::vector<uint32_t>, EdgeHash, EdgeEqual>;
 
 			static std::vector<Triangle> CreateTringleIndieces(const std::vector<uint32_t>& indices)
 			{
@@ -462,7 +462,7 @@ namespace Rynex {
 					const Triangle& tri = triangles[current];
 					component.push_back(current);
 
-					// Nachbarn über Kanten finden
+					// Nachbarn ï¿½ber Kanten finden
 
 
 					std::array<Edge, 3> tri_edges = {

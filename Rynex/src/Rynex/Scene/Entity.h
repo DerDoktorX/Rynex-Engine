@@ -246,7 +246,7 @@ namespace Rynex {
 	template<typename T, typename N>
 	void Entity::SetLodedAsset(Ref<N> asset)
 	{
-		static_cast(false, "not set types");
+		static_assert(false, "not set types");
 	}
 	
 	template<>

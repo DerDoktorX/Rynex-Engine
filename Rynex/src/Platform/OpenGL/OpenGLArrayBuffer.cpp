@@ -134,7 +134,7 @@ namespace Rynex {
 			return;
 		}
 #else
-		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLArrayBuffer::InvalideData, target);
+		RY_EXE_ON_MAIN_THREAD_RESUME_ARGS(OpenGLArrayBuffer::InvalideData, target);
 #endif
 		RY_CORE_ASSERT(0u != m_ByteSize);
 		CreateID(target);

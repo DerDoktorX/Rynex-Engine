@@ -27,7 +27,7 @@ namespace Rynex {
 #ifdef RY_SSBO_VARIENTS
 
         template<>
-        static bool EmplaceSet(const Ref<StorageBuffer>& resourceSet, StorageBindArray& resourceArray)
+        bool EmplaceSet(const Ref<StorageBuffer>& resourceSet, StorageBindArray& resourceArray)
         {
             for (auto& resource : resourceArray)
             {
@@ -41,7 +41,7 @@ namespace Rynex {
         }
 
         template<>
-        static bool EmplaceSet(const Ref<BindlesTextureArray>& resourceSet, StorageBindArray& resourceArray)
+        bool EmplaceSet(const Ref<BindlesTextureArray>& resourceSet, StorageBindArray& resourceArray)
         {
             for (auto& resource : resourceArray)
             {
@@ -57,7 +57,7 @@ namespace Rynex {
 
 #ifdef RY_TEXTURE_VARIENTS
         template<>
-        static bool EmplaceSet(const Ref<Texture>& resourceSet, TextureBindArray& resourceArray)
+        bool EmplaceSet(const Ref<Texture>& resourceSet, TextureBindArray& resourceArray)
         {
             for (auto& resource : resourceArray)
             {
@@ -76,7 +76,7 @@ namespace Rynex {
         }
 
         template<>
-        static bool EmplaceSet(const Ref<LinkedTextureArray>& resourceSet, TextureBindArray& resourceArray)
+        bool EmplaceSet(const Ref<LinkedTextureArray>& resourceSet, TextureBindArray& resourceArray)
         {
             for (auto& resource : resourceArray)
             {
@@ -106,7 +106,7 @@ namespace Rynex {
         }
 #ifdef RY_SSBO_VARIENTS
         template<>
-        static void FindEmptyAndEmplaceSet<StorageBindArray>(const StorageBindArray& resourceEmptyFind, StorageBindArray& resourceArray)
+        void FindEmptyAndEmplaceSet<StorageBindArray>(const StorageBindArray& resourceEmptyFind, StorageBindArray& resourceArray)
         {
             for (const auto& resource : resourceEmptyFind)
             {
@@ -123,7 +123,7 @@ namespace Rynex {
 
 #ifdef RY_TEXTURE_VARIENTS
         template<>
-        static void FindEmptyAndEmplaceSet<TextureBindArray>(const TextureBindArray& resourceEmptyFind, TextureBindArray& resourceArray)
+        void FindEmptyAndEmplaceSet<TextureBindArray>(const TextureBindArray& resourceEmptyFind, TextureBindArray& resourceArray)
         {
             for (const auto& resource : resourceEmptyFind)
             {
@@ -223,7 +223,7 @@ namespace Rynex {
 
 #ifdef RY_TEXTURE_VARIENTS
         template<>
-        static void UnBindOnArrayIndex<TextureBindArray>(TextureBindArray& bindArray)
+        void UnBindOnArrayIndex<TextureBindArray>(TextureBindArray& bindArray)
         {
             uint32_t index = 0u;
             for (const auto& resource : bindArray)
@@ -242,7 +242,7 @@ namespace Rynex {
         }
 
         template<>
-        static void BindOnArrayIndex<TextureBindArray>(TextureBindArray& bindArray)
+        void BindOnArrayIndex<TextureBindArray>(TextureBindArray& bindArray)
         {
 
             uint32_t index = 0u;
@@ -259,7 +259,7 @@ namespace Rynex {
         }
 
         template<>
-        static void BindOnArrayIndexOrder<TextureBindArray>(const TextureBindArray& bindArray)
+        void BindOnArrayIndexOrder<TextureBindArray>(const TextureBindArray& bindArray)
         {
             uint32_t index = 0u;
             for (const auto& resource : bindArray)
@@ -280,7 +280,7 @@ namespace Rynex {
 
 #ifdef RY_SSBO_VARIENTS
         template<>
-        static void UnBindOnArrayIndex<StorageBindArray>(StorageBindArray& bindArray)
+        void UnBindOnArrayIndex<StorageBindArray>(StorageBindArray& bindArray)
         {
             uint32_t index = 0u;
             for (const auto& resource : bindArray)
@@ -303,7 +303,7 @@ namespace Rynex {
         }
 
         template<>
-        static void BindOnArrayIndex<StorageBindArray>(StorageBindArray& bindArray)
+        void BindOnArrayIndex<StorageBindArray>(StorageBindArray& bindArray)
         {
 
             uint32_t index = 0u;
@@ -328,7 +328,7 @@ namespace Rynex {
         }
 
         template<>
-        static void BindOnArrayIndexOrder<StorageBindArray>(const StorageBindArray& bindArray)
+        void BindOnArrayIndexOrder<StorageBindArray>(const StorageBindArray& bindArray)
         {
             uint32_t index = 0u;
             for (const auto& resource : bindArray)

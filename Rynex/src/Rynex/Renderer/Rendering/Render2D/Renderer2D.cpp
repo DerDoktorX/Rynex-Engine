@@ -389,12 +389,14 @@ namespace Rynex {
 	void Renderer2D::SubmitQuadSingle(const glm::mat4& transform, const Ref<Texture>& texture, int entityID)
 	{
 		int textureIndex = nullptr == texture ? 0 : s_Storarage2D.QuadesSingle.AddTexture(texture);
-		s_Storarage2D.QuadesSingle.Emplace_Back_Push(ObjectData{
-				transform,
-				glm::vec4{1.0f, 1.0f, 1.0f, 1.0f},
-				textureIndex,
-				entityID
-			});
+
+		ObjectData objectData{
+			transform,
+			glm::vec4{1.0f, 1.0f, 1.0f, 1.0f},
+			textureIndex,
+			entityID
+		};
+		s_Storarage2D.QuadesSingle.Emplace_Back_Push(objectData);
 	}
 	
 	void Renderer2D::SubmitRenderDrawList()
@@ -457,13 +459,13 @@ namespace Rynex {
 	{
 		const int textureIndex = 0;
 #if RY_RENDER2D_TEST_BATCHING_SBO
-
-		s_Storarage2D.QuadesT.Emplace_Back_Push(ObjectData{
+		ObjectData objectData{
 				transfrom,
 				color,
 				textureIndex,
 				entityID
-		});
+		};
+		s_Storarage2D.QuadesT.Emplace_Back_Push(objectData);
 #else
 		constexpr size_t quadVertexCount = 4;
 
@@ -484,9 +486,9 @@ namespace Rynex {
 	
 		for (size_t i = 0; i < quadVertexCount; i++)
 		{
-			glm::vec3 postion = transfrom * vertexPos[i];
+			glm::vec3 position = transfrom * vertexPos[i];
 			s_Storarage2D.Quades.Emplace_Back_Push(QuadVertex{
-					postion,
+					position,
 					color,
 					texCoord[i],
 					(int)textureIndex,
@@ -502,13 +504,13 @@ namespace Rynex {
 		
 #if RY_RENDER2D_TEST_BATCHING_SBO
 		int textureIndex = s_Storarage2D.QuadesT.AddTexture(texture);
-		
-		s_Storarage2D.QuadesT.Emplace_Back_Push(ObjectData{
+		ObjectData objectData{
 				transfrom,
 				glm::vec4{1.,1.,1.,1.},
 				textureIndex,
 				entityID
-		});
+		};
+		s_Storarage2D.QuadesT.Emplace_Back_Push(objectData);
 
 #else
 		int textureIndex = s_Storarage2D.Quades.AddTexture(texture);

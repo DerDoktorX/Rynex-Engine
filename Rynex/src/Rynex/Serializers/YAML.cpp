@@ -997,9 +997,9 @@ namespace Deserialize {
 
 		std::string path = "";
 		std::string makredPath = "";
-		if (YAML::Node& nodeAtribut = nodeE["Path"])
+		if (YAML::Node nodeAtribut = nodeE["Path"])
 			path = nodeAtribut.as<std::string>();
-		if (YAML::Node& nodeAtribut = nodeE["Path-ProjectMarker"])
+		if (YAML::Node nodeAtribut = nodeE["Path-ProjectMarker"])
 			makredPath = nodeAtribut.as<std::string>();
 
 		Rynex::AssetHandle handle = nodeE["Handle"].as<uint64_t>();
@@ -1017,9 +1017,9 @@ namespace Deserialize {
 
 		std::string path = "";
 		std::string makredPath = "";
-		if (YAML::Node& nodeAtribut = nodeE["Path"])
+		if (YAML::Node nodeAtribut = nodeE["Path"])
 			path = nodeAtribut.as<std::string>();
-		if (YAML::Node& nodeAtribut = nodeE["Path-ProjectMarker"])
+		if (YAML::Node nodeAtribut = nodeE["Path-ProjectMarker"])
 			makredPath = nodeAtribut.as<std::string>();
 
 		Rynex::AssetHandle handle = nodeE["Handle"].as<uint64_t>();

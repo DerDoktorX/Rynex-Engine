@@ -494,7 +494,7 @@ namespace Rynex {
 		glm::vec3 color = { 1.0f, 1.0f, 1.0f };
 		float intensitie = 0.5f;
 
-		uint32_t batchIndex = 0xFFFFFFFFui32;
+		uint32_t batchIndex = 0xFFFFFFFFu;
 
 		DrirectionleLigthComponent() = default;
 		DrirectionleLigthComponent(const DrirectionleLigthComponent&) = default;
@@ -511,7 +511,7 @@ namespace Rynex {
 		float linear =  0.022f;
 		float quadratic = 0.0019f;
 
-		uint32_t batchIndex = 0xFFFFFFFFui32;
+		uint32_t batchIndex = 0xFFFFFFFFu;
 
 		PointLigthComponent() = default;
 		PointLigthComponent(const PointLigthComponent&) = default;
@@ -526,7 +526,7 @@ namespace Rynex {
 		float inner = 0.95f;
 		float outer = 0.9f;
 
-		uint32_t batchIndex = 0xFFFFFFFFui32;
+		uint32_t batchIndex = 0xFFFFFFFFu;
 
 		SpotLigthComponent() = default;
 		SpotLigthComponent(const SpotLigthComponent&) = default;

@@ -19,10 +19,12 @@ namespace Rynex {
     class DefaultMaterial : public Material
     {
     public:
-        using PackageArrayMap = typename StorageMapPackage<Ref<Material>, MaterielShaderData>;
-        using PackageArrayDynamic = typename StorageArrayPackage<MaterielShaderData>;
-        using PackageArrayStatic = typename UniformArrayPackage<MaterielShaderData>;
-        using Package = typename UniformDataPackage<MaterielShaderData>;
+#if 0
+        using PackageArrayMap = StorageMapPackage<Ref<Material>, MaterielShaderData>;
+        using PackageArrayDynamic = StorageArrayPackage<MaterielShaderData>;
+        using PackageArrayStatic = UniformArrayPackage<MaterielShaderData>;
+        using Package = UniformDataPackage<MaterielShaderData>;
+#endif
     public:
         DefaultMaterial();
         DefaultMaterial(const MaterielShaderData& data, const std::vector<Pass>& vec);
@@ -32,11 +34,10 @@ namespace Rynex {
         virtual ~DefaultMaterial();
 
         virtual void SetColor(const glm::vec3& color) override { m_Change = true; m_BufferData.Color = color; }
-        virtual glm::vec3& GetColor() override { m_Change = true; return m_BufferData.Color; }
-        virtual const glm::vec3& GetColor() const override { return m_BufferData.Color; }
+
+        virtual glm::vec3 GetColor() const override { return m_BufferData.Color; }
 
         virtual void SetAlpha(float v) override { m_Change = true; m_BufferData.Alpha = v; }
-        virtual float& GetAlpha() override { m_Change = true; return m_BufferData.Alpha; }
         virtual float GetAlpha() const override { return m_BufferData.Alpha; }
        
 

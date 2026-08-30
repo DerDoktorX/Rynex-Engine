@@ -94,13 +94,27 @@ namespace Rynex {
 	void LaunchFile::OpenFileInDefaultApp(const std::filesystem::path& filpath, const std::filesystem::path& workingDirectory)
 	{
 		RY_CORE_ASSERT(filpath.has_filename(), "No File Name Found");
-		bool workingDir = workingDirectory != "";
+		bool workingDir = workingDirectory.empty();
 		STARTUPINFO si;
 		PROCESS_INFORMATION pi;
 		ZeroMemory(&si, sizeof(si));
 		si.cb = sizeof(si);
 		ZeroMemory(&pi, sizeof(pi));
-		if (CreateProcess(NULL, filpath.wstring().data(), NULL, NULL, FALSE, 0, NULL, workingDir ? workingDirectory.wstring().data() : NULL, &si, &pi))
+
+#if UNICODE
+		std::wstring pathWstr = filpath.wstring();
+		std::wstring workingDirWstr = filpath.wstring();
+		wchar_t* filePathCharPtr = reinterpret_cast<wchar_t*>(pathWstr.data());
+		const wchar_t* workingDirCharPtr = reinterpret_cast<const wchar_t*>(workingDir ? workingDirWstr.data() : NULL);
+#else
+		std::string pathStr = filpath.string();
+		std::string workingDirStr = filpath.string();
+
+		char* filePathCharPtr = reinterpret_cast<char*>(pathStr.data());
+		const char* workingDirCharPtr = reinterpret_cast<const char*>(workingDir ? workingDirStr.data() : NULL);
+#endif
+
+		if (CreateProcess(NULL, filePathCharPtr, NULL, NULL, FALSE, 0, NULL, workingDirCharPtr, &si, &pi))
 		{
 			CloseHandle(pi.hProcess);
 			CloseHandle(pi.hThread);

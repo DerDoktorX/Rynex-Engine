@@ -187,7 +187,7 @@ namespace Rynex {
 		const void* dataPtr = vecOffsetObject.data();
 
 	}
-
+#if 0
 	void MeshStatic::SetubeDefaultMaterialPackage(MapVector<UUID, MaterielShaderData>& defaultMaterielMap)
 	{
 		std::vector<MaterielShaderData>& vecDefaultMateriel = defaultMaterielMap.GetVector();
@@ -199,7 +199,7 @@ namespace Rynex {
 		Ref<StorageBuffer> materielBuffer = StorageBuffer::Create(dataPtr, byteSize, BufferFlag::None);
 		m_DefaultMaterialPackage = CreateRef<DefaultMaterial::PackageArrayDynamic>(materielBuffer, vecDefaultMateriel);
 	}
-
+#endif
 	void MeshStatic::SetubePerDrawObjectPackage(MapVector<UUID, Mesh::PerDrawObject>& drawObjectMap)
 	{
 		std::vector<Mesh::PerDrawObject>& vecDrawObjectMap = drawObjectMap.GetVector();
@@ -213,7 +213,9 @@ namespace Rynex {
 	void MeshStatic::DestroyPackeges()
 	{
 		RY_DESTROY_REF(m_BindlesAlbedoTextureArray);
+#if 0
 		RY_DESTROY_REF(m_DefaultMaterialPackage);
+#endif
 	}
 
 	void MeshStatic::Create(const Ref<MeshSource>& source, const std::vector<SingleObjectMeshData>& singleMeshDatas)
@@ -286,7 +288,7 @@ namespace Rynex {
 	template<typename T, typename N>
 	void MeshStatic::SetMeshData(const SingleObjectMeshData& singleMeshData, MapVector<T, N>& map)
 	{
-		static_cast(false);
+		static_assert(false);
 	}
 
 	template<>

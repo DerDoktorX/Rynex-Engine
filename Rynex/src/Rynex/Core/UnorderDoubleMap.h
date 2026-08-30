@@ -7,9 +7,9 @@ namespace Rynex {
 	class UnorderDoubleMap
 	{
 	public:
-		using StoreValue = typename std::pair<typename T, typename uint32_t>;
-		using FirstMapType = typename std::unordered_map<_Key1, typename StoreValue>;
-		using SecondMapType = typename std::unordered_map<_Key2, _Key1>;
+		using StoreValue = std::pair<T, uint32_t>;
+		using FirstMapType = std::unordered_map<_Key1, StoreValue>;
+		using SecondMapType = std::unordered_map<_Key2, _Key1>;
 
 		constexpr UnorderDoubleMap()
 			: m_FirstMap()

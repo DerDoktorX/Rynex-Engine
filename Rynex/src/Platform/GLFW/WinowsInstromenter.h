@@ -7,7 +7,7 @@ namespace Rynex{
 	class WinowsInstromenterTimer : public PlatformTimer
 	{
 	private:
-		using TimePoint = std::chrono::steady_clock::time_point;
+		using TimePoint = std::chrono::time_point< std::chrono::high_resolution_clock>;
 		using TimeUnit = std::chrono::nanoseconds;
 
 	public:

@@ -20,7 +20,7 @@ namespace Rynex::FileSystem {
 		inline static constexpr int8_t PATH_MARKER_COUNT = 4; // path marker count
 		inline static constexpr int8_t PATH_MARKER_INDEX = 2; // path valid count marker
 
-		inline static constexpr const char* const Path::PATH_MARKER_STR[PATH_MARKER_COUNT]={
+		inline static constexpr const char* const PATH_MARKER_STR[PATH_MARKER_COUNT]={
 			"",								// no marker at all
 			RY_PATH_NO_VAILD_MARKER_STR,	// not vaild marker 
 			RY_PATH_ENGINE_MARKER_STR,		// engine marker 
@@ -75,14 +75,14 @@ namespace Rynex::FileSystem {
 		Origne GetMarkerOrigine() const;
 		
 
-		const std::filesystem::path& GetPath() const; // get proteced acces to Orignal data
-		std::filesystem::path GetAbsolutePath() const;
-		std::filesystem::path GetRelativePath() const;
-		std::filesystem::path GetMarkedPath() const;
+		[[nodiscard]] const std::filesystem::path& GetPath() const; // get proteced acces to Orignal data
+		[[nodiscard]] std::filesystem::path GetAbsolutePath() const;
+		[[nodiscard]] std::filesystem::path GetRelativePath() const;
+		[[nodiscard]] std::filesystem::path GetMarkedPath() const;
 
-		std::string GetAbsolutePathString() const;
-		std::string GetRelativePathString() const;
-		std::string GetMarkedPathString() const;
+		[[nodiscard]]std::string GetAbsolutePathString() const;
+		[[nodiscard]] std::string GetRelativePathString() const;
+		[[nodiscard]] std::string GetMarkedPathString() const;
 
 		void SetMarker(Origne origne);
 

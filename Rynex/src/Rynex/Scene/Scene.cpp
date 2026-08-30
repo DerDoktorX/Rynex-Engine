@@ -19,8 +19,6 @@
 #define RENDERER_2D						1
 #define RENDERER_3D						1
 #define QUADS_DRAW						1
-#define CIRCLE_DRAW						1
-#define CIRCLE_DRAW						0
 #define TEXT_DRAW						0
 #define ENTITY_SCRIPT					1
 #define NATIVE_SCRIPT					1
@@ -199,12 +197,27 @@ namespace Rynex {
 
 		inline static void CalculatePointShadowMapsCameras(const glm::vec3& position, glm::mat4* viewProjtion, float farClip)
 		{
-			viewProjtion[0] = Utils::CalculatePointShadowMapsCamera(position, glm::vec3(  1.0f,  0.0f,  0.0f ), glm::vec3(  0.0f, -1.0f,  0.0f ), farClip);
-			viewProjtion[1] = Utils::CalculatePointShadowMapsCamera(position, glm::vec3( -1.0f,  0.0f,  0.0f ), glm::vec3(  0.0f, -1.0f,  0.0f ), farClip);
-			viewProjtion[2] = Utils::CalculatePointShadowMapsCamera(position, glm::vec3(  0.0f,  1.0f,  0.0f ), glm::vec3(  0.0f,  0.0f,  1.0f ), farClip);
-			viewProjtion[3] = Utils::CalculatePointShadowMapsCamera(position, glm::vec3(  0.0f, -1.0f,  0.0f ), glm::vec3(  0.0f,  0.0f, -1.0f ), farClip);
-			viewProjtion[4] = Utils::CalculatePointShadowMapsCamera(position, glm::vec3(  0.0f,  0.0f, -1.0f ), glm::vec3(  0.0f, -1.0f,  0.0f ), farClip);
-			viewProjtion[5] = Utils::CalculatePointShadowMapsCamera(position, glm::vec3(  0.0f,  0.0f,  1.0f ), glm::vec3(  0.0f, -1.0f,  0.0f ), farClip);
+			glm::vec3 cameraDirection[] = {
+				glm::vec3(  1.0f,  0.0f,  0.0f ),
+				glm::vec3( -1.0f,  0.0f,  0.0f ),
+				glm::vec3(  0.0f,  1.0f,  0.0f ),
+				glm::vec3(  0.0f, -1.0f,  0.0f ),
+				glm::vec3(  0.0f,  0.0f, -1.0f ),
+				glm::vec3(  0.0f,  0.0f,  1.0f )
+			};
+			glm::vec3 cameraUp[] = {
+				glm::vec3(  0.0f, -1.0f,  0.0f ),
+				glm::vec3(  0.0f, -1.0f,  0.0f ),
+				glm::vec3(  0.0f,  0.0f,  1.0f ),
+				glm::vec3(  0.0f,  0.0f, -1.0f ),
+				glm::vec3(  0.0f, -1.0f,  0.0f ),
+				glm::vec3(  0.0f, -1.0f,  0.0f )
+			};
+
+			for (uint32_t i = 0; i < 8; i++)
+			{
+				viewProjtion[i] = Utils::CalculatePointShadowMapsCamera(position,cameraDirection[0] , cameraUp[i], farClip);
+			}
 		}
 	
 		template<typename T>
@@ -376,8 +389,9 @@ namespace Rynex {
 		m_Registery.on_construct<StaticMeshComponent>().connect<&Scene::OnEntityStaticSingleMeshCreate>();
 		m_Registery.on_update<StaticMeshComponent>().connect<&Scene::OnEntityStaticSingleMeshChanged>();
 		m_Registery.on_destroy<StaticMeshComponent>().connect<&Scene::OnEntityStaticSingleMeshDestroy>();
-		
-		Submit3DStaticeEntitysRenderProxy(m_Registery.view<ModelMatrixComponent, ModelMangerComponent>());
+
+		EnttRender3DStaticModelView view = m_Registery.view<ModelMatrixComponent, ModelMangerComponent>();
+		Submit3DStaticeEntitysRenderProxy(view);
 		
 	}
 
@@ -656,7 +670,7 @@ namespace Rynex {
 
 		for (entt::entity camerE : cameraView)
 		{
-			auto& [modelC, camerC] = cameraView.get<ModelMatrixComponent, CameraComponent>(camerE);
+			auto [modelC, camerC] = cameraView.get<ModelMatrixComponent, CameraComponent>(camerE);
 			if (camerC.Primary)
 			{
 				cameraPtr = &camerC.Camera;
@@ -717,8 +731,8 @@ namespace Rynex {
 			m_Registery.view<ModelMatrixComponent, PointLigthComponent>(),
 			m_Registery.view<ModelMatrixComponent, SpotLigthComponent>()
 		};
-		
-		Camera& mainCamera = static_cast<Camera>(editorCamera->GetProjektion());
+
+		Camera mainCamera = Camera(editorCamera->GetProjektion());
 		const glm::mat4& viewMatrix = editorCamera->GetViewMatrix();
 		const glm::vec3& worldPostionCenterView = editorCamera->GetWorldPostionCenterView();
 
@@ -726,7 +740,7 @@ namespace Rynex {
 		glm::mat4 modelCamera = glm::inverse(viewMatrix);
 		Utils::RenderDataMain(mainCamera, viewMatrix, modelCamera, framebuffer, m_BackGround, m_MainTartget);
 		EnttRender3DStaticModelView& enttRender3DStaticModelView = enttView3D.staticCV;
-		EnttRenderTargetView& renderTargetView = m_Registery.view<RenderTargetComponent, CameraComponent, ModelMatrixComponent>();
+		EnttRenderTargetView renderTargetView = m_Registery.view<RenderTargetComponent, CameraComponent, ModelMatrixComponent>();
 		RenderRenderTaregtView(renderTargetView, enttRender3DStaticModelView);
 
 
@@ -1187,7 +1201,7 @@ namespace Rynex {
 		Ref<PlatformTimer> timer = PlatformTimer::Create(timerPtr);
 		for (entt::entity render3dE : view3dStaticMesh)
 		{
-			auto& [transformC, meshC] = view3dStaticMesh.get<ModelMatrixComponent, ModelMangerComponent>(render3dE);
+			auto [transformC, meshC] = view3dStaticMesh.get<ModelMatrixComponent, ModelMangerComponent>(render3dE);
 			Renderer3D::MeshCompontSetData(transformC.Globle, meshC, static_cast<int>(render3dE));
 
 		}
@@ -1200,7 +1214,7 @@ namespace Rynex {
 		Ref<PlatformTimer> timer = PlatformTimer::Create(timerPtr);
 		for (entt::entity render3dE : view3dSingleStaticMesh)
 		{
-			auto& [transformC, meshC] = view3dSingleStaticMesh.get<ModelMatrixComponent, StaticMeshComponent>(render3dE);
+			auto [transformC, meshC] = view3dSingleStaticMesh.get<ModelMatrixComponent, StaticMeshComponent>(render3dE);
 			Renderer3D::MeshCompontSetData(transformC.Globle, meshC, static_cast<int>(render3dE));
 		}
 		Renderer3D::SubmitShadeDataMeshObjectToPipline();

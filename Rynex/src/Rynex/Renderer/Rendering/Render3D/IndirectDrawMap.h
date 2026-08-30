@@ -55,7 +55,7 @@ namespace Rynex {
 	class MeshRenderData
 	{
 	public:
-		using _RenderObjectData = typename T;
+		using _RenderObjectData = T;
 
 	private:
 		struct MeshObjectRenderData
@@ -82,7 +82,7 @@ namespace Rynex {
 
 		void AddMeshObjectRenderData(int localeMeshesOffset, int entityID, const _RenderObjectData& instenceData)
 		{
-			m_InstenceData.emplace_back<MeshObjectRenderData>(MeshObjectRenderData{
+			m_InstenceData.emplace_back(MeshObjectRenderData{
 				entityID,
 				static_cast<uint32_t>(-1),
 				instenceData
@@ -95,9 +95,10 @@ namespace Rynex {
 
 		uint32_t RemoveMeshObjectRenderData(int localeMeshesOffset, int enitityID)
 		{
+			using It = typename std::vector<MeshObjectRenderData>::iterator;
 			uint32_t index = FindeIndex(enitityID);
 			m_Count--;
-			std::vector<MeshObjectRenderData>::iterator itIndex = m_InstenceData.begin() + index;
+			It itIndex = m_InstenceData.begin() + index;
 			m_InstenceData.erase(itIndex);
 
 			m_MeshIndrect.InstancesCount = m_MeshIndrectOrig.InstancesCount * m_Count;
@@ -153,7 +154,8 @@ namespace Rynex {
 
 		static void InsertRenderDataToVector(_RenderObjectData& objectData, std::vector<_RenderObjectData>& renderObjectData)
 		{
-			std::vector<_RenderObjectData>::const_iterator itEnd = renderObjectData.end();
+			using ItConst = typename std::vector<MeshObjectRenderData>::iterator;
+			ItConst itEnd = renderObjectData.end();
 			renderObjectData.insert(itEnd, objectData);
 		}
 
@@ -166,7 +168,8 @@ namespace Rynex {
 		uint32_t InsertDrawBufferObjectToVector(std::vector<Mesh::PerDrawObject>& indrectMeshDraw) const
 		{
 			uint32_t index = indrectMeshDraw.size();
-			std::vector<Mesh::PerDrawObject>::const_iterator itEnd = indrectMeshDraw.end();
+			using ItConst = typename std::vector<MeshObjectRenderData>::iterator;
+			ItConst itEnd = indrectMeshDraw.end();
 			indrectMeshDraw.insert(itEnd, m_MeshIndrect);
 			return index;
 		}
@@ -189,10 +192,10 @@ namespace Rynex {
 	class IndirectDrawMap
 	{
 	public:
-		using _ObjectRenderData = typename T;
-		using Vector_ObjectRenderData = typename std::vector<typename _ObjectRenderData>;
-		using _MeshRenderData = typename MeshRenderData<typename _ObjectRenderData>;
-		using Vector_MeshRenderData = typename std::vector<typename _MeshRenderData>;
+		using _ObjectRenderData = T;
+		using Vector_ObjectRenderData = std::vector<_ObjectRenderData>;
+		using _MeshRenderData = MeshRenderData<_ObjectRenderData>;
+		using Vector_MeshRenderData = std::vector<_MeshRenderData>;
 	private:
 		struct DrawData
 		{
@@ -314,7 +317,8 @@ namespace Rynex {
 	private:
 		uint32_t FindMeshesDataIndex(const UUID& handle)
 		{
-			std::unordered_map<UUID, uint32_t>::const_iterator it = m_MeshObject.find(handle);
+			using ITConst = std::unordered_map<UUID, uint32_t>::const_iterator;
+			ITConst it = m_MeshObject.find(handle);
 			if (it != m_MeshObject.end())
 				return it->second;
 			uint32_t& index = m_MeshObject[handle];

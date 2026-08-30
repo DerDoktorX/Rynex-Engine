@@ -9,9 +9,9 @@ namespace Rynex {
 	class CamerRenderPackages
 	{
 	public:
-		using CamerPackage = typename UniformDataPackage<typename CameraData>;
-		using DisplayPackage = typename UniformDataPackage<typename DisplayData>;
-		using DebugCamerPackage = typename UniformDataPackage<typename glm::mat4>;
+		using CamerPackage = UniformDataPackage<CameraData>;
+		using DisplayPackage = UniformDataPackage<DisplayData>;
+		using DebugCamerPackage = UniformDataPackage<glm::mat4>;
 	public:
 		CamerRenderPackages();
 		CamerRenderPackages(const Ref<Framebuffer>& fb, const glm::ivec4& display, const glm::mat4& model, const glm::mat4& projection);
@@ -28,14 +28,11 @@ namespace Rynex {
 		DisplayPackage& GetDisplayPackage() { UpdateBuffers();  return m_DisplayPackage; }
 		DebugCamerPackage& GetDebugPackage() { UpdateBuffers(); return m_DebugePackage; }
 
-		const glm::vec4& GetViewSpace() const { return m_DisplayPackage.GetData().ViewPortConf; }
+		[[nodiscard]] glm::vec4 GetViewSpace() const { return m_DisplayPackage.GetData().ViewPortConf; }
 		
 
 
 		void SetFromViewPass(const ViewPassData& viewPass);
-		void SetCamerPackage(const CamerPackage& cameraBuffer) { m_CamerPackage = cameraBuffer; }
-		void SetDisplayPackage(const DisplayPackage& diplayBuffer) { m_DisplayPackage = diplayBuffer; }
-		void SetDebugCamerPackage(const DebugCamerPackage& debugeBuffer) { m_DebugePackage = debugeBuffer; }
 		void SetShadeRenderTarget(const RenderTarget& rendertarget) { m_RenderTarget = rendertarget; }
 		void SetFrambuffer(const Ref<Framebuffer>& fb) { m_RenderTarget.SetFramebuffer(fb); }
 

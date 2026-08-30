@@ -11,7 +11,7 @@ namespace Rynex {
 	class Vector
 	{
 	public:
-		using Data = typename T;
+		using Data = T;
 	public:
 		Vector()
 			: m_Begin(nullptr)

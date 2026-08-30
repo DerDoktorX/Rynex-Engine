@@ -1,24 +1,26 @@
 #pragma once
 #include <rypch.h>
 namespace Rynex {
-
+#if 0
 	template<typename _Key, typename T, typename _Unit = uint32_t>
 	class MapVectorElementPtr;
 
+#if 0
 	template<typename T, size_t _Size, typename _Unit = uint32_t>
 	class ArrayElementPtr;
+#endif
 
-	template<typename T, typename _Unit = uint32_t, typename _StoreStruct = std::vector<typename T>>
+	template<typename T, typename _Unit = uint32_t, typename _StoreStruct = std::vector<T>>
 	class ElementVecPtr
 	{
 	public:
 		
-		using ChangeFunc = typename std::function<void(typename _Unit)>;
+		using ChangeFunc = typename std::function<void(_Unit)>;
 
-		using StoreStruct = typename std::vector<typename T>;
-		using RefStoreStruct = typename Ref<typename StoreStruct>;
+		using StoreStruct = typename std::vector< T>;
+		using RefStoreStruct = Ref<StoreStruct>;
 
-	public:
+	// --- public member methods ----------------------------------------------------------------------------------------------
 		ElementVecPtr() = delete;
 		ElementVecPtr(RefStoreStruct vecPtr, _Unit index, const std::function<void(_Unit index)>& destroyFunc)
 			: m_StoreStructPtr(vecPtr)
@@ -136,16 +138,17 @@ namespace Rynex {
 		{
 			m_DestroyFunc = destroyFunc;
 		}
-	private:
+	// --- private member variables -------------------------------------------------------------------------------------------
 		Ref<StoreStruct> m_StoreStructPtr;
 		_Unit m_Index;
 
 		std::vector<std::function<void(_Unit index)>> m_ChangeValueFunc;
 		std::function<void(_Unit index)> m_DestroyFunc;
-
-	private:
-		friend MapVectorElementPtr;
-		friend ArrayElementPtr;
+	// --- private friend -----------------------------------------------------------------------------------------------------
+		friend MapVectorElementPtr<>;
+#if 0
+		friend ArrayElementPtr<T, >;
+#endif
 	};
 
 	template<typename _Key, typename T, typename _Unit = uint32_t>
@@ -153,17 +156,17 @@ namespace Rynex {
 	{
 	public:
 		 
-		using MapValue = typename Weak<ElementVecPtr<typename T , typename _Unit>>;
-		using MapValueRef = typename Ref<ElementVecPtr<typename T, typename _Unit>>;
+		using MapValue = Weak<ElementVecPtr< T ,  _Unit>>;
+		using MapValueRef = Ref<ElementVecPtr<T, _Unit>>;
 
-		using MapKeyType = typename std::unordered_map<typename _Key, typename MapValue>;
+		using MapKeyType = std::unordered_map<_Key, MapValue>;
 		using MapKeyTypeIterartor = typename MapKeyType::iterator;
 		using MapKeyTypeIterartor_Const = typename MapKeyType::const_iterator;
 		using PairMapKeyType = typename MapKeyType::value_type;
-		using _PairMapKeyType = typename std::pair<const typename _Key, typename MapValue>;
+		using _PairMapKeyType = std::pair<const _Key, MapValue>;
 
-		using VectorValueType = typename std::vector<T>;
-		using RefVectorValueType = typename Ref<VectorValueType>;
+		using VectorValueType = std::vector<T>;
+		using RefVectorValueType = Ref<VectorValueType>;
 		using VectorValueTypeIterartor = typename VectorValueType::iterator;
 		using VectorValueTypeIterartor_Const = typename VectorValueType::const_iterator;
 	public:
@@ -196,13 +199,13 @@ namespace Rynex {
 		}
 
 
-		typename MapKeyTypeIterartor_Const FindKey(const _Key& key) const { return m_Map.find(key); }
+		MapKeyTypeIterartor_Const FindKey(const _Key& key) const { return m_Map.find(key); }
 
-		typename MapKeyTypeIterartor BeginKey() { return m_Map.begin(); }
-		typename MapKeyTypeIterartor EndeKey() { return m_Map.end(); }
+		MapKeyTypeIterartor BeginKey() { return m_Map.begin(); }
+		MapKeyTypeIterartor EndeKey() { return m_Map.end(); }
 
-		typename MapKeyTypeIterartor_Const BeginKey() const { return m_Map.begin(); }
-		typename MapKeyTypeIterartor_Const EndeKey() const { return m_Map.end(); }
+		MapKeyTypeIterartor_Const BeginKey() const { return m_Map.begin(); }
+		MapKeyTypeIterartor_Const EndeKey() const { return m_Map.end(); }
 
 		bool HasKey(const _Key& key) const { return m_Map.find(key) != m_Map.end(); }
 
@@ -387,22 +390,22 @@ namespace Rynex {
 			EraseFromIndexKey(index, key);
 		}
 
-		typename VectorValueTypeIterartor begin()
+		VectorValueTypeIterartor begin()
 		{
 			return m_Vector->begin();
 		}
 
-		typename VectorValueTypeIterartor end()
+		VectorValueTypeIterartor end()
 		{
 			return m_Vector->end();
 		}
 
-		typename VectorValueTypeIterartor_Const begin() const
+		VectorValueTypeIterartor_Const begin() const
 		{
 			return m_Vector->begin();
 		}
 
-		typename VectorValueTypeIterartor_Const end()const
+		VectorValueTypeIterartor_Const end()const
 		{
 			return m_Vector->end();
 		}
@@ -432,7 +435,7 @@ namespace Rynex {
 			{
 				value->Clear();
 			}
-			typename VectorValueTypeIterartor_Const it = m_Vector->begin() + index;
+			VectorValueTypeIterartor_Const it = m_Vector->begin() + index;
 			m_Map.erase(key);
 			m_Vector->erase(it);
 			for (PairMapKeyType& pair : m_Map)
@@ -452,7 +455,7 @@ namespace Rynex {
 		void RemoveIndexAndEmptyKey(_Unit index)
 		{
 
-			typename VectorValueTypeIterartor_Const it = m_Vector->begin() + index;
+			VectorValueTypeIterartor_Const it = m_Vector->begin() + index;
 			m_Vector->erase(it);
 
 			RemoveEmptyKeys();
@@ -503,6 +506,6 @@ namespace Rynex {
 		MapKeyType m_Map;
 		RefVectorValueType m_Vector;
 	};
-
+#endif
 	
 }

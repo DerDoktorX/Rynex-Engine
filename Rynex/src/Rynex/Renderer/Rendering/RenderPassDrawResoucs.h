@@ -14,13 +14,13 @@ namespace Rynex {
 		using DrawSpec = std::variant<Mesh::PerDrawObject, Ref<IndirectBuffer>>;
 
 		template<typename ...Args>
-		using BindRes = typename std::pair<uint32_t, typename std::variant<typename Args...>>;
+		using BindRes = std::pair<uint32_t, std::variant<Args...>>;
 #if RY_BIND_RESOURCES_TYPE_VEC
 		typedef BindRes<Ref<Texture>, Ref<BindlesTextureArray>> BindTexture;
 		typedef BindRes<Ref<UniformBuffer>> BindUniform;
 		typedef BindRes<Ref<StorageBuffer>> BindSSBO;
 #else
-		using BindAll = typename BindRes<typename Ref<typename Texture>, typename Ref<typename BindlesTextureArray>, typename Ref<typename UniformBuffer>, typename Ref<typename StorageBuffer>>;
+		using BindAll = BindRes<Ref<Texture>, Ref<BindlesTextureArray>, Ref<UniformBuffer>, Ref<StorageBuffer>>;
 #endif
 		template<typename T>
 		struct PerBatch 
@@ -41,7 +41,7 @@ namespace Rynex {
 			std::vector<BindUniform> uniformVec;
 #else
 #if 1
-			std::vector<typename BindAll> resourceVec;
+			std::vector<BindAll> resourceVec;
 #else
 			std::vector<std::pair<uint32_t, std::variant<typename Ref<typename Texture>, typename Ref<typename BindlesTextureArray>, typename Ref<typename UniformBuffer>, typename Ref<typename StorageBuffer>>>> resourceVec;
 #endif

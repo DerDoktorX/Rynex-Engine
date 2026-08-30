@@ -57,7 +57,12 @@ namespace Rynex {
 		void SetLastSceneAsset(const std::filesystem::path& sceneAsset) { s_ActiveInstancProject->m_Config.LastScene = sceneAsset; }
 		
 		// TODO(Yan): move to asset manager when we have one
-		const std::filesystem::path& GetAssetFileSystemPath(const std::filesystem::path& path) { return GetAssetDirectory() / path; }
+		std::filesystem::path GetAssetFileSystemPath(const std::filesystem::path& path)
+		{
+			std::filesystem::path assetDiretoryPath = GetAssetDirectory() / path;
+			return assetDiretoryPath;
+		}
+
 		std::filesystem::path& GetAppDirektory() { return s_ActiveInstancProject->m_Config.AppDirektory; }
 
 		static const std::filesystem::path& GetActiveProjectDirectory()
@@ -129,7 +134,7 @@ namespace Rynex {
 			return s_ActiveInstancProject->GetAssetDirectory();
 		}
 
-		static const std::filesystem::path& GetActiveAssetFileSystemPath(const std::filesystem::path& path)
+		static std::filesystem::path GetActiveAssetFileSystemPath(const std::filesystem::path& path)
 		{
 			RY_CORE_ASSERT(s_ActiveInstancProject, "Erroe: Project::GetAssetDirectory()");
 			return s_ActiveInstancProject->GetAssetFileSystemPath(path);

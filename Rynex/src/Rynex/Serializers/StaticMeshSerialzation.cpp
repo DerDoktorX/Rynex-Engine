@@ -115,9 +115,9 @@ namespace Rynex {
 			std::string markedPath = "";
 			std::string path = "";
 
-			if(YAML::Node& nodeAtribut = nodeE["Path-ProjectMarker"])
+			if(YAML::Node nodeAtribut = nodeE["Path-ProjectMarker"])
 				markedPath = nodeAtribut.as<std::string>();
-			if (YAML::Node& nodeAtribut = nodeE["Path"])
+			if (YAML::Node nodeAtribut = nodeE["Path"])
 				path = nodeAtribut.as<std::string>();
 			AssetHandle handle = nodeE["Handle"].as<uint64_t>();
 
@@ -332,7 +332,8 @@ namespace Rynex {
 		
 
 		Ref<MeshSource> meshSource = nullptr;
-		if (!Utils::DeserializeAssetFormate(data["Source-Mesh"], meshSource))
+		YAML::Node sourceMesh = data["Source-Mesh"];
+		if (!Utils::DeserializeAssetFormate(sourceMesh, meshSource))
 		{
 			return false;
 		}

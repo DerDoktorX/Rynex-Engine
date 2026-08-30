@@ -45,9 +45,33 @@
 	#include <signal.h>
 	#define RY_DEBUG_BREAK() raise(SIGTRAP)
 #endif
-// This Error Masseges are written from 21.07.2024
-// TDOD: Check if State mants to Seport or not Seport has change
+// This Error Messages are written from 21.07.2024
+// TODD: Check if State mans to Seport or not Seport has change
 
+// check valid compile flags
+#ifdef RY_DEBUG
+	#ifdef RY_DIST
+		#ifdef RY_RELEASE
+			#error "RY_DIST is defined also RY_DEBUG and RY_RELEASE"
+		#elif defined(RY_DIST)
+			#error "RY_DIST is defined also RY_DEBUG"
+		#endif
+	#elif defined(RY_RELEASE)
+		#error "RY_DEBUG is defined also RY_RELEASE"
+	#endif
+#elif defined(RY_RELEASE)
+	#ifdef RY_DIST
+		#error "RY_RELEASE is defined also RY_DIST"
+	#elif defined(RY_DEBUG)
+		#error "RY_RELEASE is defined also RY_DEBUG"
+	#endif
+#elif defined(RY_DIST)
+	#ifdef RY_DEBUG
+		#error "RY_DIST is defined also RY_DIST"
+	#elif defined(RY_RELEASE)
+		#error "RY_DIST is defined also RY_RELEASE"
+	#endif
+#endif
 
 // Platforms specific Definse
 
@@ -169,8 +193,9 @@
 
 #pragma region BindMemberFuncMacros
 
-#define RY_BIND_EVENT_FN(func)			std::bind(&func, this, std::placeholders::_1)
-#define RY_BIND_MEMBER_FN(func, ...)	std::bind(&func, this, __VA_ARGS__)
+#define RY_BIND_EVENT_FN(func)				std::bind(&func, this, std::placeholders::_1)
+#define RY_BIND_MEMBER_FN(func)				std::bind(&func, this)
+#define RY_BIND_MEMBER_FN_ARGS(func, ...)	std::bind(&func, this, __VA_ARGS__)
 
 
 #define RY_BIND_MEMBER_FUNC_INTERNALE_ARGS_PLACEHOLDER(macro)				RY_COMBINE_MOAKRO( std::placeholders::_, macro ) 
@@ -521,12 +546,13 @@ namespace std {
 		{
 			if (Rynex::Ref<T> ptrObjectRef = ptrObjectWeak.lock())
 			{
-				T* ptrObject = ptrObject.get();
+				T* ptrObject = ptrObjectRef.get();
 				uint64_t ptrAdresse = static_cast<uint64_t>(ptrObject);
 				return ptrAdresse;
 			}
 			std::string_view strView = typeid(T).name();
-			RY_CORE_ASSERT(false, "This Weak ptr has no referen object avible!", strView.data());
+			RY_CORE_ERROR("Failed Type: {}", strView);
+			RY_CORE_ASSERT(false, "This Weak ptr has no reference object available!");
 			return 0ull;
 		}
 	};

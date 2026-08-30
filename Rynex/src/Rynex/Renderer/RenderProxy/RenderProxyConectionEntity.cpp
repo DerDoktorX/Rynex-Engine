@@ -109,21 +109,21 @@ namespace Rynex {
 
 		{
 
-			bool isVaildInsideRange = nullptr != itPos._Ptr && itPos < subMeshIniciesVec.end();
-			bool hasSameSubMesh = isVaildInsideRange ? itPos._Ptr->subMesh == subMesh : false;
-			bool hasNotSameIndexOrOutSideVaildRange = isVaildInsideRange ? itPos._Ptr->proxyIndex != proxyIndex : true;
+			bool isVaildInsideRange = ItInsert() != itPos && itPos < subMeshIniciesVec.end();
+			bool hasSameSubMesh = isVaildInsideRange ? itPos->subMesh == subMesh : false;
+			bool hasNotSameIndexOrOutSideVaildRange = isVaildInsideRange ? itPos->proxyIndex != proxyIndex : true;
 			if (hasSameSubMesh && hasNotSameIndexOrOutSideVaildRange)
 			{
 				RY_CORE_WARN(" Submesh {} From Entity {} tried to add again! Abourt Add and removed the new Proxy Again, and instand Trede it like a Update off all proxy Data", subMesh, entity);
-				uint32_t oldProxyIndex = itPos._Ptr->proxyIndex;
-				uint32_t oldRenderProxyKey = itPos._Ptr->renderProxyKey;
+				uint32_t oldProxyIndex = itPos->proxyIndex;
+				uint32_t oldRenderProxyKey = itPos->renderProxyKey;
 #ifdef RY_SORT_KEY
 				renderProxySortedProxyVec.Remove(oldProxyIndex, oldRenderProxyKey);
 #else
 				renderProxySortedProxyVec.Remove(oldProxyIndex, oldRenderProxyKey);
 #endif
 
-				itPos._Ptr->proxyIndex = proxyIndex;
+				itPos->proxyIndex = proxyIndex;
 				return;
 			}
 			else if (hasNotSameIndexOrOutSideVaildRange)
@@ -169,7 +169,7 @@ namespace Rynex {
 			ItInsert it = Memory::GetSortedElementIteratorVector(subMeshIniciesVec, element, sortFunc);
 
 			uint32_t oldProxyIndex = it->proxyIndex;
-			uint32_t oldRenderProxyKey = it._Ptr->renderProxyKey;
+			uint32_t oldRenderProxyKey = it->renderProxyKey;
 			renderProxySortedProxyVec.Remove(oldProxyIndex, oldRenderProxyKey);
 			it->proxyIndex = element.proxyIndex;
 		}
@@ -206,7 +206,7 @@ namespace Rynex {
 			ItInsert it = Memory::GetSortedElementIteratorVector(subMeshIniciesVec, element, sortFunc);
 
 			uint32_t oldProxyIndex = it->proxyIndex;
-			uint32_t oldRenderProxyKey = it._Ptr->renderProxyKey;
+			uint32_t oldRenderProxyKey = it->renderProxyKey;
 			renderProxyMapProxyVec.Remove(oldProxyIndex, oldRenderProxyKey);
 			it->proxyIndex = element.proxyIndex;
 		}

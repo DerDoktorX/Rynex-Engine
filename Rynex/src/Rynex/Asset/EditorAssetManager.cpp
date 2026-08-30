@@ -69,9 +69,9 @@ namespace Rynex {
 			{
 				size_t pos = extension.find("-", 0)- extension.size();
 
-				std::string& pathGenaric = path.generic_string();
+				std::string pathGenaric = path.generic_string();
 				
-				std::string& parentGenaric = pathGenaric.substr(0, pathGenaric.size() - 2);
+				std::string parentGenaric = pathGenaric.substr(0, pathGenaric.size() - 2);
 				if (IsDirectoryInRegistry(parentGenaric))
 				{
 					AssetFileDirectory& assetFileDirectory = m_DirectoryRegistry[parentGenaric];
@@ -88,7 +88,7 @@ namespace Rynex {
 			}
 			else
 			{
-				std::string& parentGenaric = path.parent_path().generic_string();
+				std::string parentGenaric = path.parent_path().generic_string();
 				if (IsDirectoryInRegistry(parentGenaric))
 				{
 					AssetFileDirectory& assetFileDirectory = m_DirectoryRegistry[parentGenaric];
@@ -119,7 +119,9 @@ namespace Rynex {
 	AssetHandle AssetRegistry::CreatLocaleAsset(Ref<Asset>& asset, AssetMetadata& metadata)
 	{
 		while (asset->Handle == 0 && IsAssetInRegistry(asset->Handle))
+		{
 			asset->Handle = AssetHandle();
+		}
 
 		metadata.SetIntern(true);
 
@@ -132,7 +134,7 @@ namespace Rynex {
 
 	bool AssetRegistry::AddDirectoryToParent(const std::filesystem::path& path)
 	{
-		std::string& parentGenaric = path.parent_path().generic_string();
+		std::string parentGenaric = path.parent_path().generic_string();
 		if (IsDirectoryInRegistry(parentGenaric))
 		{
 			
@@ -166,7 +168,7 @@ namespace Rynex {
 
 	AssetHandle AssetRegistry::GetAssetHandle(const std::filesystem::path& path)
 	{
-		std::string& pathGenaric = path.generic_string();
+		std::string pathGenaric = path.generic_string();
 		if (IsAssetInRegistry(pathGenaric))
 		{
 			return m_PathRegistry[pathGenaric];
@@ -188,7 +190,7 @@ namespace Rynex {
 
 	AssetHandle AssetRegistry::GetAssetHandleConst(const std::filesystem::path& path) const
 	{
-		std::string& pathGenaric = path.generic_string();
+		std::string pathGenaric = path.generic_string();
 		if (!IsAssetInRegistry(pathGenaric))
 			return AssetHandle(0);
 
@@ -203,15 +205,17 @@ namespace Rynex {
 			m_Changes = true;
 			return m_HandleRegistry[handle];
 		}
-		
-		return AssetMetadata();
+		AssetMetadata metadata;
+		return metadata;
 	}
 
 	const AssetMetadata& AssetRegistry::GetMetadataConst(AssetHandle handle) const
 	{
 		if (IsAssetInRegistry(handle))
 			return m_HandleRegistry.at(handle);
-		return AssetMetadata();
+
+		AssetMetadata metadata;
+		return metadata;
 	}
 
 	AssetMetadata& AssetRegistry::GetMetadata(const std::filesystem::path& path)

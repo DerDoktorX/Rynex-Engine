@@ -36,7 +36,7 @@ namespace Rynex {
 		virtual void SubmitRenderTargetResurcesReadImg(const Ref<Texture>&texture) = 0;
 		virtual void SubmitRenderTargetResurcesReadUB(const Ref<UniformBuffer>&buffer) = 0;
 
-		virtual const BufferLayout& GetExpetedOutput() const override;
+		virtual BufferLayout GetExpetedOutput() const override;
 		virtual void SetExpetedOutput(const BufferLayout& output) override;
 
 		virtual void SetCameraUniformBuffer(Ref<UniformBuffer> camerbuffer) override;

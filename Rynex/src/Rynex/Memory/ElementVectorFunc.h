@@ -68,7 +68,7 @@ namespace Rynex {
 		template<typename T, typename N>
 		constexpr bool HasElementVector(std::vector<T>& vec, const T& element)
 		{
-			size_t index= GetElementIndexVector<T>(vec, element, );
+			size_t index = GetElementIndexVector<T>(vec, element);
 			constexpr size_t max = std::numeric_limits<size_t>::max();
 			return index != max;
 		}
@@ -76,13 +76,14 @@ namespace Rynex {
 		template<typename T, typename N, typename Func>
 		constexpr bool RemoveElementVector(std::vector<T>& vec, const N& element, Func func)
 		{
+			using It = typename std::vector<T>::iterator;
 			size_t index = GetElementIndexVector<T>(vec, element, func);
 			constexpr size_t max = std::numeric_limits<size_t>::max();
 
 			if (index == max)
 				return false;
 
-			std::vector<T>::iterator it = vec.begin() + index;
+			It it = vec.begin() + index;
 			vec.erase(it);
 			return true;
 		}

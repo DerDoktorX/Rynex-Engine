@@ -39,6 +39,8 @@ namespace Rynex {
 				case ShaderDataType::Uint4:
 					return GL_UNSIGNED_INT;
 			}
+			RY_CORE_ASSERT(false, "No, Valid enum Type!");
+			return GL_UNSIGNED_INT;
 		}
 
 		static bool ShaderDaterTypeSameType(ShaderDataType typeA, ShaderDataType typeB)
@@ -261,7 +263,7 @@ namespace Rynex {
 			return;
 		}
 #else
-		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLVertexArray::AddVertexBufferToList, vb, layout);
+		RY_EXE_ON_MAIN_THREAD_RESUME_ARGS(OpenGLVertexArray::AddVertexBufferToList, vb, layout);
 #endif
 		
 		RY_CORE_ASSERT(0u != m_RendererID);
@@ -428,7 +430,7 @@ namespace Rynex {
 			return;
 		}
 #else
-		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLVertexArray::AddVertexBufferToList, vb, layout);
+		RY_EXE_ON_MAIN_THREAD_RESUME_ARGS(OpenGLVertexArray::AddVertexBufferToList, vb, layout);
 #endif
 
 		RY_CORE_ASSERT(0u != m_RendererID);
@@ -450,7 +452,7 @@ namespace Rynex {
 			return;
 		}
 #else
-		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLVertexArray::SetIndexBuffer, indexBuffer);
+		RY_EXE_ON_MAIN_THREAD_RESUME_ARGS(OpenGLVertexArray::SetIndexBuffer, indexBuffer);
 #endif
 
 		RY_CORE_ASSERT(0u != m_RendererID);
@@ -499,7 +501,7 @@ namespace Rynex {
 			return;
 		}
 #else
-		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLVertexArray::SetVertexBufferNew, vertexBuffer);
+		RY_EXE_ON_MAIN_THREAD_RESUME_ARGS(OpenGLVertexArray::SetVertexBufferNew, vertexBuffer);
 #endif
 		RY_CORE_ASSERT(0u != m_RendererID);
 
@@ -563,7 +565,7 @@ namespace Rynex {
 			return;
 		}
 #else
-		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLVertexArray::SetBoxAABB, postionElement);
+		RY_EXE_ON_MAIN_THREAD_RESUME_ARGS(OpenGLVertexArray::SetBoxAABB, postionElement);
 #endif
 		RY_CORE_ASSERT(0u != m_RendererID);
 

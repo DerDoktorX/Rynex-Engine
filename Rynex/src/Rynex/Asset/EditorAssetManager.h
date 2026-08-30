@@ -79,7 +79,7 @@ namespace Rynex {
 		bool IsAssetInteral(AssetHandle handle) const;
 
 		void CreateAsset(const std::filesystem::path& path, AssetHandle handle = AssetHandle(), AssetMetadata metadata = AssetMetadata(), bool findDirectOnDisc = true);
-		AssetHandle CreatLocaleAsset(Ref<Asset>& asset, AssetMetadata& metadata = AssetMetadata());
+		AssetHandle CreatLocaleAsset(Ref<Asset>& asset, AssetMetadata& metadata);
 
 		bool UpdateAssetData(AssetHandle handle, AssetMetadata metadata);
 		bool AddDirectoryToParent(const std::filesystem::path& parentPath);
@@ -150,7 +150,7 @@ namespace Rynex {
 
 	struct AssetRigestriyPannel
 	{
-		AssetHandle Handle = 0ui64;
+		AssetHandle Handle = 0ull;
 		AssetMetadata Metadata = AssetMetadata();
 		std::string FileAssetPath = "";
 

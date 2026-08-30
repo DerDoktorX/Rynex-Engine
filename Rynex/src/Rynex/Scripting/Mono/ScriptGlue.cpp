@@ -10,10 +10,10 @@
 #include "Rynex/Scene/Scene.h"
 #include "Rynex/Scene/Entity.h"
 
-#ifdef RY_PLATFORM_WINDOWS
-	#include <mono/metadata/object.h>
-	#include <mono/metadata/reflection.h>
-#endif
+
+#include <mono/metadata/object.h>
+#include <mono/metadata/reflection.h>
+
 
 #define USE_HASCOMPONET_FUNC_CS 1
 
@@ -45,8 +45,8 @@ namespace Rynex {
 	static std::unordered_map<MonoType*, std::function<void(Entity)>> s_EntityRemoveComponentFuncs;
 
 
-#define RY_ADD_INTERNAL_CALL(Name) mono_add_internal_call("Rynex.InternalCalls::" #Name, Name)
-
+// #define RY_ADD_INTERNAL_CALL(Name) mono_add_internal_call("Rynex.InternalCalls::" #Name, &Name)
+#define RY_ADD_INTERNAL_CALL(Name)
 
 	template<typename T>
 	static T GetFromEntityComponent(Entity entity)

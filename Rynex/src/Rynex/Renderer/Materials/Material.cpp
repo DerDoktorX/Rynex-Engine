@@ -17,7 +17,7 @@ namespace Rynex {
 
 
 
-	const glm::vec3& Material::GetColor() const
+	glm::vec3 Material::GetColor() const
 	{
 		RY_CORE_WARN("Material default Impl!");
 		return glm::vec3(-1.0f, 0.0f, -1.0f);
@@ -53,13 +53,13 @@ namespace Rynex {
 	
 
 	template<typename T>
-	static T Material::GetMaterielDataFromMateriel(const Ref<Material>& material)
+	T Material::GetMaterielDataFromMateriel(const Ref<Material>& material)
 	{
 		static_assert(false, "No Default GetMaterielDataFromMateriel");
 	}
 
 	template<>
-	static MaterielShaderData Material::GetMaterielDataFromMateriel<MaterielShaderData>(const Ref<Material>& material)
+	MaterielShaderData Material::GetMaterielDataFromMateriel<MaterielShaderData>(const Ref<Material>& material)
 	{
 		const void* ptr = material->GetMaterielDataPtr();
 		const MaterielShaderData* dataPtr = reinterpret_cast<const MaterielShaderData*>(ptr);
@@ -70,7 +70,7 @@ namespace Rynex {
 	template<typename T>
 	void Material::SetupMaterielObject(T& materielDataObject, int texureAlbedoIndex, int texureSpecularIndex, int texureHeigthIndex)
 	{
-		static_cast(false);
+		static_assert(false);
 	}
 
 	template<>

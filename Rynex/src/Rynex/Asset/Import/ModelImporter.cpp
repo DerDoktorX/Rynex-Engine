@@ -368,8 +368,8 @@ namespace Rynex {
     {
        
         RY_PROFILE_FUNCTION();
-        std::chrono::time_point<std::chrono::steady_clock> startTimePoint;
-        std::chrono::time_point<std::chrono::steady_clock> endeTimePoint;
+        std::chrono::time_point<std::chrono::high_resolution_clock> startTimePoint;
+        std::chrono::time_point<std::chrono::high_resolution_clock> endeTimePoint;
         RY_CORE_INFO("Beginn Loding Moddel {}", path.string());
         startTimePoint = std::chrono::high_resolution_clock::now();
 

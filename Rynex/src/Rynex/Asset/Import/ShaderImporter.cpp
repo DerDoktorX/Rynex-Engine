@@ -15,8 +15,10 @@ namespace Rynex {
 	{
 		std::string result;
 		try
-		{		
-			std::ifstream in(path, std::ios::in, std::ios::binary);
+		{
+			std::string filePath = path.string();
+			auto fileFlag = std::ios::binary | std::ios::in;
+			std::ifstream in(filePath, fileFlag);
 
 			if (in)
 			{
@@ -61,8 +63,9 @@ namespace Rynex {
 		std::string result;
 
 		try {
-			
-			std::ifstream in(path, std::ios::in, std::ios::binary);
+			std::string filePath = path.string();
+			auto fileFlag = std::ios::binary | std::ios::in;
+			std::ifstream in(filePath, fileFlag);
 		
 			if (in)
 			{
@@ -81,7 +84,12 @@ namespace Rynex {
 					RY_CORE_FATAL("Logical error on i/o operation '{}'", mes);
 				if(in.bad())
 					RY_CORE_FATAL("Read/write error on i/o operation '{}'", mes);
-				RY_CORE_ERROR("Coud not open file '{0}' filepath. (ReLoadeShader)  Error Flage: {1}", path.string(), in.rdstate());
+				std::string mesStr = path.string();
+				std::ios_base::iostate rdState = in.rdstate();
+
+				RY_CORE_WARN_IF(std::ios_base::goodbit != rdState, "Coud not open file '{0}' filepath. (ReLoadeShader)  Error Flage: goodbit", mesStr);
+				RY_CORE_ERROR_IF(std::ios_base::badbit != rdState, "Coud not open file '{0}' filepath. (ReLoadeShader)  Error Flage: badbit", mesStr);
+				RY_CORE_FATAL_IF(std::ios_base::failbit != rdState,"Coud not open file '{0}' filepath. (ReLoadeShader)  Error Flage: failbit", mesStr);
 				return false;
 			}
 		}

@@ -290,7 +290,7 @@ namespace Rynex {
 		virtual void SetTextureToArray(int index, const Ref<Texture>& texture, bool instandGPUploade = false) = 0;
 		virtual void SetTextureToArray(int index, std::nullptr_t, bool instandGPUploade = false) = 0;
 
-		virtual const Ref<Texture>& GetTextureToArray(int index) = 0;
+		virtual Ref<Texture> GetTextureToArray(int index) = 0;
 		virtual void ResizeTextureArray(int size, bool instandGPUploade = false) = 0;
 
 		virtual const std::vector<Weak<Texture>>& GetTextureVec() const = 0;

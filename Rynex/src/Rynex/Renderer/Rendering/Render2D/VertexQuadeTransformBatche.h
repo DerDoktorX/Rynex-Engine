@@ -336,8 +336,8 @@ namespace Rynex {
 		const Ref<Shader>& GetShader() { return m_Shader; }
 
 		void SetVertexArray(const Ref<VertexArray>& va) { m_VAA = va; }
-		void SetStorageBuffer(const Ref<StorageBuffer>& sb) { return m_TransformStroageBuffer = sb; }
-		void SetShader(const Ref<StorageBuffer>& shader) { return m_Shader = shader; }
+		void SetStorageBuffer(const Ref<StorageBuffer>& sb) { m_TransformStroageBuffer = sb; }
+		void SetShader(const Ref<Shader>& shader) { m_Shader = shader; }
 
 		const int32_t* GetSampler() { return m_Samplers; }
 		const uint32_t GetMaxSampler() { return MaxTex; }

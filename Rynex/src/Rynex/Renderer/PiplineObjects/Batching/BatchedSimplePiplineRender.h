@@ -4,18 +4,18 @@
 namespace Rynex {
 
 	namespace BatchedRender {
-		static void SetBufferData(Ref<VertexBuffer>& buffer, const void *const dataPtr, uint32_t byteSize);
-		static void SetBufferData(Ref<IndexBuffer>& buffer, const uint32_t *const dataPtr, uint32_t byteSize);
-		static void SetBufferData(Ref<IndexBuffer>& buffer, const uint16_t *const dataPtr, uint32_t byteSize);
-		static void SetBufferData(Ref<UniformBuffer>& buffer, const void *const dataPtr, uint32_t byteSize);
-		static void SetBufferData(Ref<IndirectBuffer>& buffer, const void *const dataPtr, uint32_t byteSize);
-		static void SetBufferData(Ref<StorageBuffer>& buffer, const void *const dataPtr, uint32_t byteSize);
+		static void SetBufferData(Ref<VertexBuffer>& buffer, const char* const dataPtr, uint32_t byteSize);
+		static void SetBufferData(Ref<IndexBuffer>& buffer, const uint32_t* const dataPtr, uint32_t byteSize);
+		static void SetBufferData(Ref<IndexBuffer>& buffer, const uint16_t* const dataPtr, uint32_t byteSize);
+		static void SetBufferData(Ref<UniformBuffer>& buffer, const char* const dataPtr, uint32_t byteSize);
+		static void SetBufferData(Ref<IndirectBuffer>& buffer, const char* const dataPtr, uint32_t byteSize);
+		static void SetBufferData(Ref<StorageBuffer>& buffer, const char* const dataPtr, uint32_t byteSize);
 
 
-		static void ResizeBufferData(Ref<VertexBuffer>& buffer, const void *const dataPtr, uint32_t byteSize);
-		static void ResizeBufferData(Ref<UniformBuffer>& buffer, const void *const dataPtr, uint32_t byteSize);
-		static void ResizeBufferData(Ref<IndirectBuffer>& buffer, const void *const dataPtr, uint32_t byteSize);
-		static void ResizeBufferData(Ref<StorageBuffer>& buffer, const void *const dataPtr, uint32_t byteSize);
+		static void ResizeBufferData(Ref<VertexBuffer>& buffer, const char* const dataPtr, uint32_t byteSize);
+		static void ResizeBufferData(Ref<UniformBuffer>& buffer, const char* const dataPtr, uint32_t byteSize);
+		static void ResizeBufferData(Ref<IndirectBuffer>& buffer, const char* const dataPtr, uint32_t byteSize);
+		static void ResizeBufferData(Ref<StorageBuffer>& buffer, const char* const dataPtr, uint32_t byteSize);
 
 	}
 
@@ -68,7 +68,7 @@ namespace Rynex {
 	template<typename T>
 	inline void BatchedRenderData<T>::SetMaxStoreData(uint32_t count)
 	{
-		uint32_t allocCount = m_DataStore.GetAllocCount<uint32_t>();
+		uint32_t allocCount = m_DataStore.template GetAllocCount<uint32_t>();
 		if (allocCount != count)
 		{
 			m_DataStore.Resize2D(count);
@@ -82,7 +82,7 @@ namespace Rynex {
 		if(!m_DataStore.IsCurentPosEndVaild())
 			return false;
 
-		T& storeData = m_DataStore.GetDataRef<uint32_t>(storeIndex);
+		T& storeData = m_DataStore.template GetDataRef<uint32_t>(storeIndex);
 		if (data != storeData)
 		{
 			storeData = data;
@@ -97,7 +97,7 @@ namespace Rynex {
 		if (!m_DataStore.IsCurentPosEndVaild())
 			return false;
 
-		T& storeData = m_DataStore.GetDataRef<uint32_t>(storeIndex);
+		T& storeData = m_DataStore.template GetDataRef<uint32_t>(storeIndex);
 		storeData = data;
 		m_Changed = true;
 		m_DataStore.Incroment();
@@ -112,7 +112,7 @@ namespace Rynex {
 	template<typename T>
 	inline uint32_t BatchedRenderData<T>::GetCounter() const
 	{
-		uint32_t count = m_DataStore.GetCurentCount<uint32_t>()
+		uint32_t count = m_DataStore.template GetCurentCount<uint32_t>();
 		return count;
 	}
 	
@@ -121,9 +121,9 @@ namespace Rynex {
 	{		
 		constexpr uint32_t elmentByteSize = sizeof(T);
 
-		uint32_t byteSize = m_DataStore.GetCurentByteSize<uint32_t>();
+		uint32_t byteSize = m_DataStore.template GetCurentByteSize<uint32_t>();
 
-		uint32_t count = m_DataStore.GetCurentCount<uint32_t>()
+		uint32_t count = m_DataStore.template GetCurentCount<uint32_t>();
 		uint32_t byteSize2 = count * elmentByteSize;
 		RY_CORE_ASSERT(byteSize == byteSize2, "difernt ByteSize!");
 
@@ -131,7 +131,7 @@ namespace Rynex {
 	}
 	
 	template<typename T>
-	inline void Reset()
+	inline void BatchedRenderData<T>::Reset()
 	{
 		m_DataStore.Reset();
 	}
@@ -164,6 +164,7 @@ namespace Rynex {
 	inline bool BatchedRenderData<T>::SetUpdated()
 	{
 		m_Changed = true;
+		return false;
 	}
 
 
@@ -175,6 +176,7 @@ namespace Rynex {
 		if (nullptr == buffer)
 			return false;
 		uint32_t bufferByteSize = buffer->GetByteSize();
+		const T* dataPtr = GetDataPtr();
 		uint32_t byteSize = GetByteSize();
 		if constexpr (!std::is_same_v<N, IndexBuffer>)
 		{

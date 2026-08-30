@@ -197,6 +197,7 @@ namespace Rynex {
 	void OpenGLBindlesTextureArray::InvalideData()
 	{
 		RY_EXE_ON_MAIN_THREAD_RESUME(OpenGLBindlesTextureArray::InvalideData);
+
 		LoadeBindlesHandles();
 	}
 

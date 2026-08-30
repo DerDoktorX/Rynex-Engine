@@ -73,8 +73,9 @@ namespace Rynex {
 		const std::vector<Ref<VertexBuffer>>& GetVertexBufferVec() const { return m_VABvec; }
 		const std::vector<Ref<IndexBuffer>>& GetShadeIndexBufferVec() const { return m_ShadeIABvec; }
 		const std::vector<Ref<IndexBuffer>>& GetDepthIndexBufferVec() const { return m_DepthIABvec; }
-
+#if 0
 		const Ref<StorageBuffer>& GetDefaultMaterialBuffer() const { return m_DefaultMaterialPackage->GetBuffer(); }
+#endif
 		const Ref<BindlesTextureArray>& GetBindlesTexureArray() const { return m_BindlesAlbedoTextureArray; }
 
 		const std::vector<MeshStatic::SingleObjectMeshData>& GetSingleObjectMesDataVec() const { return m_SingleObjectDataVec; }
@@ -89,41 +90,6 @@ namespace Rynex {
 
 		uint32_t GetSingleMeshObjectCount() const { return m_SingleObjectDataVec.size(); }
 
-		template<typename T, typename N>
-		inline void UpdateDataStruct(uint32_t offset, uint32_t size, uint32_t steps, std::vector<T>& globleChildrenMat, const N& dataBuffer, std::function<void(uint32_t, const N&, T&)> func) const
-		{
-			uint32_t sizeChi = m_LocaleChildrenMat.size();
-			RY_CORE_ASSERT(size == sizeChi);
-
-			int32_t givenSize = static_cast<int32_t>(globleChildrenMat.size()) - static_cast<int32_t>(offset);
-			int32_t requayerSize = static_cast<int32_t>(size * steps);
-			if (givenSize <= requayerSize)
-			{
-				uint32_t resizeSize = (offset)+(size * steps);
-				RY_CORE_WARN("Need Resizeing Vector to {}", resizeSize);
-				globleChildrenMat.resize(resizeSize);
-			}
-			uint32_t sizeGlo = globleChildrenMat.size();
-			T* itBuffer = globleChildrenMat.data() + offset;
-			T* endBuffer = globleChildrenMat.data() + sizeGlo;
-			uint32_t index = 0u;
-			for (const glm::mat4& matL : m_LocaleChildrenMat)
-			{
-				RY_CORE_ASSERT(itBuffer != endBuffer)
-				func(index, dataBuffer, *itBuffer);
-				itBuffer->Matrix = glm::mat4{ dataBuffer.Matrix * matL };
-				itBuffer += steps;
-				index++;
-			}
-		};
-		
-		template<typename T, typename N>
-		inline void UpdateDataStruct(uint32_t offset, uint32_t size, uint32_t steps, std::vector<T>& globleChildrenMat, const N& dataBuffer) const
-		{
-			UpdateDataStruct<T, N>(offset, size, steps, globleChildrenMat, dataBuffer, [](uint32_t index, const N& dataBuffer, T& globleElment){});
-		};
-
-		
 		void UpdateData(uint32_t offset, uint32_t size, uint32_t steps, std::vector<glm::mat4>& globleChildrenMat, const glm::mat4& loaleMat) const;
 
 		void UpdateBuffer(Ref<StorageBuffer>& buffer, std::vector<glm::mat4>& globleChildrenMat, const glm::mat4& loaleMat) const;
@@ -140,7 +106,7 @@ namespace Rynex {
 			return source; 
 		}
 	private:
-		using MaterielShaderDataMap = typename MapVector<typename UUID, typename MaterielShaderData>;
+		using MaterielShaderDataMap = MapVector<UUID, MaterielShaderData>;
 	private:
 		void Generator();
 
@@ -171,8 +137,9 @@ namespace Rynex {
 		std::vector<Ref<IndexBuffer>>					m_DepthIABvec;
 		std::vector<Ref<IndexBuffer>>					m_ShadeIABvec;
 		std::vector<SingleObjectMeshData>	m_SingleObjectDataVec;
-
+#if 0
 		Ref<DefaultMaterial::PackageArrayDynamic>	m_DefaultMaterialPackage;
+#endif
 		Ref<BindlesTextureArray>					m_BindlesAlbedoTextureArray;
 
 
