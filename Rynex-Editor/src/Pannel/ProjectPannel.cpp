@@ -135,11 +135,11 @@ namespace Rynex {
                         const AssetMetadata metadata = editorAssetManager->GetMetadata(*(AssetHandle*)payload->Data);
 #else
                         Ref<EditorAssetManager> editorAssetManager = project->GetEditorAssetManger();
-                        AssetMetadata& metadata = editorAssetManager->GetMetadata(*(AssetHandle*)payload->Data);
+                        AssetMetadata metadata = editorAssetManager->GetMetadata(*(AssetHandle*)payload->Data);
 #endif
                         
                         const std::filesystem::path& path = metadata.FilePath;
-                        std::string& pathStr = path.string();
+                        std::string pathStr = path.string();
                         value = pathStr.c_str();
                         result = true;
                     }

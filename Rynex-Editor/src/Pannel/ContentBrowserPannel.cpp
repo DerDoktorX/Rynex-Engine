@@ -353,8 +353,10 @@ namespace Rynex {
 
 		AssetState& state = data.State;
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+		uint32_t renderID = texture->GetRenderID();
+		ImTextureID imTextureID = ImTextureID(renderID);
 		ImGui::ImageButton(
-			(ImTextureID)texture->GetRenderID(),
+			imTextureID,
 			{ thumbernailSize , thumbernailSize },
 			{ 0, 1 },
 			{ 1, 0 },
@@ -401,12 +403,12 @@ namespace Rynex {
 
 		if (ImGui::BeginDragDropSource())
 		{
-			const AssetHandle* handle = &m_AssetManger->GetAssetHandle(path);
-			ImGui::SetDragDropPayload(typeString.c_str(), handle, sizeof(AssetHandle));
+			const AssetHandle handle = m_AssetManger->GetAssetHandle(path);
+			const AssetHandle* handlePtr = &handle;
+			ImGui::SetDragDropPayload(typeString.c_str(), handlePtr, sizeof(AssetHandle));
 			ImGui::EndDragDropSource();
 		}
 
-		//RY_CORE_INFO("after drag drop ContentBrowserPannel");
 		ImGui::PopStyleColor();
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 		{

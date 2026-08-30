@@ -146,7 +146,7 @@ case key: \
 
     static void CreateStaticMeshEntity(const std::string& name, Ref<Scene> scene, const glm::mat4& matrix, Ref<MeshStatic> meshStatic)
     {
-        Entity& entiy = scene->CreateEntity(name);
+        Entity entiy = scene->CreateEntity(name);
         ModelMangerComponent& staticMesh = entiy.AddComponent<ModelMangerComponent>();
         staticMesh.meshStatic = meshStatic;
 
@@ -198,7 +198,7 @@ case key: \
             const glm::mat4& matrix = meshSingle.LocaleCildrenMatrix;
             const std::string& name = meshSingle.NodeName;
 
-            Entity& e = entiy.AddChildrenEntity(name);
+            Entity e = entiy.AddChildrenEntity(name);
             meshSingleChildrenVec.emplace_back(e.GetUUID());
             StaticMeshComponent& singleStaticMesh = 
                 e.AddComponent<StaticMeshComponent>(
@@ -216,7 +216,7 @@ case key: \
 
     static void CreateStaticMeshEntity(const std::string& name, Entity& e, const glm::mat4& matrix, Ref<MeshStatic> meshStatic)
     {
-        Entity& entiy = e.AddChildrenEntity(name);
+        Entity entiy = e.AddChildrenEntity(name);
         ModelMangerComponent& staticMesh = entiy.AddComponent<ModelMangerComponent>();
         staticMesh.meshStatic = meshStatic;
 
@@ -248,7 +248,7 @@ case key: \
             const glm::mat4& matrix = meshSingle.LocaleCildrenMatrix;
             const std::string& name = meshSingle.NodeName;
 
-            Entity& e = entiy.AddChildrenEntity(name);
+            Entity e = entiy.AddChildrenEntity(name);
             meshSingleChildrenVec.emplace_back(e.GetUUID());
             StaticMeshComponent& singleStaticMesh =
                 e.AddComponent<StaticMeshComponent>(
@@ -382,7 +382,7 @@ case key: \
             glm::ivec4 viewSize = { sizeInt.x, sizeInt.y, 0, 0, };
             ;
             renderTargetC.RenderPassName = "Shadow";
-            renderTargetC.StroeIndex = 0xFFFFFFFFui32;
+            renderTargetC.StroeIndex = 0xFFFFFFFFu;
             entity.UpadteTransformFromMatrix();
             entity.UpdateMatrix();
 #endif // !RY_RENERER_DESIGN_CURENT_MAIN
@@ -694,7 +694,7 @@ case key: \
             cubeMapTest->Bind(1u);
             cubeMapTest->UnBind();
 
-            auto& entiy = aktiveScene->CreateEntity("Test ");
+            Entity entiy = aktiveScene->CreateEntity("Test ");
             SpriteRendererComponent& spriteC = entiy.AddComponent<SpriteRendererComponent>();
             TransformComponent& trasC = entiy.GetComponent<TransformComponent>();
             spriteC.Texture = cubeMapTest;
@@ -747,7 +747,7 @@ case key: \
             cubeMapTest->Bind(1u);
             cubeMapTest->UnBind();
 
-            auto& entiy = aktiveScene->CreateEntity("Test cubeMapTest resize");
+            Entity entiy = aktiveScene->CreateEntity("Test cubeMapTest resize");
             SpriteRendererComponent& spriteC = entiy.AddComponent<SpriteRendererComponent>();
             TransformComponent& trasC = entiy.GetComponent<TransformComponent>();
             AssetManager::CreatLocaleAsset(cubeMapTest);
@@ -817,7 +817,7 @@ case key: \
             cubeMapTest->Bind(1u);
             cubeMapTest->UnBind();
 
-            auto& entiy = aktiveScene->CreateEntity("Test ");
+            Entity entiy = aktiveScene->CreateEntity("Test ");
             SpriteRendererComponent& spriteC = entiy.AddComponent<SpriteRendererComponent>();
             TransformComponent& trasC = entiy.GetComponent<TransformComponent>();
             spriteC.Color.b = 0.5f;
@@ -859,7 +859,7 @@ case key: \
             texture3D->Bind(1u);
             texture3D->UnBind();
 
-            auto& entiy = aktiveScene->CreateEntity("Test 3d Texture");
+            Entity entiy = aktiveScene->CreateEntity("Test 3d Texture");
             SpriteRendererComponent& spriteC = entiy.AddComponent<SpriteRendererComponent>();
             TransformComponent& trasC = entiy.GetComponent<TransformComponent>();
             spriteC.Color.b = 0.5f;
@@ -1985,7 +1985,7 @@ case key: \
 #pragma endregion 
 
 #pragma region BuilPixelCuter
-
+#if 0
     struct ImagePixel
     {
         std::vector<std::vector<glm::u8vec4>> pixel;
@@ -2003,17 +2003,22 @@ case key: \
         return color;
     }
 
-    static inline glm::u8vec4 PackPixelColorVec(const uint8_t* pixel, uint32_t channelCount)
+    static glm::u8vec4 PackPixelColorVec(const uint8_t* pixel, uint32_t channelCount)
     {
-        glm::u8vec4 color = { 0, 0, 0, 0 };
+        uint64_t colorBit = 0;
         RY_CORE_ASSERT(channelCount <= 4, "To larg pxel bytes!");
-        for (uint32_t i = 0; i < channelCount; i++)
+        glm::u8vec4 color{0,0,0,0};
+        for (uint32_t i = 0u; i < channelCount; i++)
         {
-            color |= static_cast<uint32_t>(pixel[i]) << (8 * i);
+            const uint32_t channel = pixel[i];
+            const uint32_t bitOffset = (8 * i);
+            colorBit =  channel << bitOffset;
+            color[i] = channel;
         }
+        glm::u8vec4 color =
         return color;
     }
-#if 0
+
     static std::vector<std::vector<glm::u8vec4>> ConvertBitMapInPixelValues(const uint8_t* byteDataPtr, uint32_t byteSize, uint32_t channelCount)
     {
         std::vector<glm::u8vec4> pixel;
@@ -2299,7 +2304,7 @@ case key: \
         uint32_t count = 20;
         for (uint32_t i = 0; i < count; i++)
         {
-            auto& entiy = m_AktiveScene->CreateEntity("Test " + std::to_string(i));
+            Entity entiy = m_AktiveScene->CreateEntity("Test " + std::to_string(i));
             entiy.AddComponent<SpriteRendererComponent>();
             TransformComponent& trasC = entiy.GetComponent<TransformComponent>();
 
