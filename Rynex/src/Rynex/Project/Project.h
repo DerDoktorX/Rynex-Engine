@@ -74,43 +74,37 @@ namespace Rynex {
 		static std::filesystem::path GenarteProjectAbosult(const std::filesystem::path& path);
 		static std::filesystem::path GenarteProjectRaltivPath(const std::filesystem::path& path);
 
-		static std::filesystem::path CreateAssetInterlPathFormatProject(const std::filesystem::path& path);
+		static std::string CreateAssetInterlPathFormatProject(const std::filesystem::path& path);
 
 		static bool IsPathExisting(const std::filesystem::path& path);
 		static bool IsPathExisting(const std::filesystem::path& path, const std::filesystem::path& base, const std::string& baseName);
 
-		static std::filesystem::path SetMarker(const std::filesystem::path& path, const std::string& marker);
+		static std::string SetMarker(const std::filesystem::path& path, const std::string& marker);
 
 
 		static size_t SearchInPathFor(const std::filesystem::path& path, const std::string& searchItem);
-		static size_t SearchInPathFor(const std::filesystem::path& path, const std::wstring& searchItem);
 		static size_t SearchInPathFor(const std::string& pathStr, const std::string& searchItem);
-		static size_t SearchInPathFor(const std::wstring& pathWstr, const std::wstring& searchItem);
 
 		static bool HasStringInPath(const std::filesystem::path& path, const std::string& searchItem);
+		static bool HasStringInPath(const std::string& path, const std::string& searchItem);
 
 		static size_t PositionMarker(const std::filesystem::path& path, const std::string& marker);
-		static size_t PositionMarker(const std::filesystem::path& path, const std::wstring& marker);
 		static size_t PositionMarker(const std::string& pathStr, const std::string& marker);
-		static size_t PositionMarker(const std::wstring& pathWstr, const std::string& marker);
 
-		static bool HasMarker(const std::filesystem::path& path, const std::string& marker);
-		static bool HasSomeMarker(const std::filesystem::path& path);
+		static bool HasMarker(const std::string& path, const std::string& marker);
+		static bool HasSomeMarker(const std::string& path);
 
-		static std::filesystem::path RemoveMarker(const std::filesystem::path& path, const std::string& marker);
-		static std::filesystem::path RemoveMarkerW(const std::filesystem::path& path, const std::string& marker);
+		static std::filesystem::path RemoveMarker(const std::string& path, const std::string& marker);
 
-		static std::string ExtraxtMarker(const std::filesystem::path& path);
-		static std::wstring ExtraxtMarkerW(const std::filesystem::path& path);
+		static std::string ExtraxtMarker(const std::string& path);
 
-		static std::filesystem::path ReplaceMarkerWitheAbsolutePath(const std::filesystem::path& path);
-		static std::filesystem::path ReplaceMarkerWithePath(const std::filesystem::path& path, const std::string& marker, const std::filesystem::path& base);
-		static std::filesystem::path ReplaceMarkerWitheAbsolutePathW(const std::filesystem::path& path);
+		static std::filesystem::path ReplaceMarkerWitheAbsolutePath(const std::string& pathStr);
+		static std::filesystem::path ReplaceMarkerWithePath(const std::string& path, const std::string& marker, const std::filesystem::path& base);
 
 		static uint32_t GetMarkerVaild(const std::string& marker);
 		static bool IsMarkerVaild(const std::string& marker);
 
-		static std::filesystem::path GeanrateRealtivePathWitheMarker(const std::filesystem::path& path);
+		static std::string GeanrateRealtivePathWitheMarker(const std::filesystem::path& path);
 		static std::filesystem::path GetAbsulteFilePathFormMarker(const std::string& marker);
 
 		static std::pair<std::string, std::filesystem::path> GeanrateRealtivePathAndMarker(const std::filesystem::path& path);
@@ -119,11 +113,9 @@ namespace Rynex {
 		static std::string GetExpextedMarker(const std::filesystem::path& path);
 
 		static bool IsAbsultePathSubPath(const std::filesystem::path& pathAbsolut, const std::filesystem::path& baseAbsolut);
-
 		static std::string SetProjectMarker(const std::filesystem::path& path);
 
 		static std::string RemoveProjectMarker(const std::string& pathStr);
-
 		static std::string RemoveProjectMarker(const std::filesystem::path& path);
 #pragma endregion
 

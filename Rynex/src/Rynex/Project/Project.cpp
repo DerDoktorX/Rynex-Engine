@@ -3,6 +3,7 @@
 
 #include "Rynex/Serializers/ProjectSerialiazer.h"
 #include "Rynex/Utils/PlatformUtils.h"
+#include <Rynex/Project/Path.h>
 
 namespace Rynex {
 
@@ -200,15 +201,16 @@ namespace Rynex {
         return path;
     }
 
-    std::filesystem::path Project::CreateAssetInterlPathFormatProject(const std::filesystem::path& path)
+    std::string Project::CreateAssetInterlPathFormatProject(const std::filesystem::path& path)
     {
         constexpr const char* name = "Project";
         constexpr const char* marker = RY_PATH_PROJECT_MARKER_STR;
         std::filesystem::path pathCreate = path;
+        std::string pathCreateStr = path.string();
         const std::filesystem::path& projectFolder = Project::GetActiveProjectDirectory();
         if (pathCreate.is_relative())
         {
-            if (!Project::IsPathExisting(pathCreate, projectFolder, name))
+            if (!Project::IsPathExisting(path, projectFolder, name))
                 return "";
         }
         else if (pathCreate.is_absolute())
@@ -218,9 +220,9 @@ namespace Rynex {
                 return "";
         }
 
-        pathCreate = SetMarker(pathCreate, marker);
+        pathCreateStr = SetMarker(pathCreate, marker);
 
-        return pathCreate;
+        return pathCreateStr;
     }
 
     bool Project::IsPathExisting(const std::filesystem::path& path)
@@ -246,15 +248,13 @@ namespace Rynex {
 
     }
 
-    std::filesystem::path Project::SetMarker(const std::filesystem::path& path, const std::string& marker)
+    std::string Project::SetMarker(const std::filesystem::path& path, const std::string& marker)
     {
         constexpr const char* directoryDiffern = "/";
         std::string pathStr = path.generic_string();
         pathStr = marker + directoryDiffern + pathStr;
-        std::filesystem::path markedPath = std::filesystem::path(pathStr);
-        std::string markedPathStr = markedPath.generic_string();
-        markedPath = markedPathStr;
-        return markedPath;
+        
+        return pathStr;
     }
 
     size_t Project::SearchInPathFor(const std::filesystem::path& path, const std::string& searchItem)
@@ -265,13 +265,7 @@ namespace Rynex {
         return pos;
     }
 
-    size_t Project::SearchInPathFor(const std::filesystem::path& path, const std::wstring& searchItem)
-    {
-        constexpr size_t searchFrom = 0ull;
-        std::wstring searchePath = path.wstring();
-        size_t pos = SearchInPathFor(searchePath, searchItem);
-        return pos;
-    }
+    
 
     size_t Project::SearchInPathFor(const std::string& pathStr, const std::string& searchItem)
     {
@@ -280,32 +274,29 @@ namespace Rynex {
         return pos;
     }
 
-    size_t Project::SearchInPathFor(const std::wstring& pathWstr, const std::wstring& searchItem)
-    {
-        constexpr size_t searchFrom = 0ull;
-        size_t pos = pathWstr.find(searchItem, searchFrom);
-        return pos;
-    }
+ 
+    
 
     bool Project::HasStringInPath(const std::filesystem::path& path, const std::string& searchItem)
     {
         std::string searchePath = path.string();
-        size_t size = searchePath.size();
-        size_t pos = SearchInPathFor(searchePath, searchItem);
-        bool hasMarker = size < pos;
+        
+        bool hasMarker = HasStringInPath(searchePath, searchItem);
         return hasMarker;
     }
+    
+    bool Project::HasStringInPath(const std::string& pathStr, const std::string& searchItem)
+    {
+        size_t size = pathStr.size();
+        size_t pos = SearchInPathFor(pathStr, searchItem);
+        bool hasMarker = pos < size;
+        return hasMarker;
+    }
+
 
     size_t Project::PositionMarker(const std::filesystem::path& path, const std::string& marker)
     {
         std::string searchePath = path.string();
-        size_t pos = PositionMarker(searchePath, marker);
-        return pos;
-    }
-
-    size_t Project::PositionMarker(const std::filesystem::path& path, const std::wstring& marker)
-    {
-        std::wstring searchePath = path.wstring();
         size_t pos = PositionMarker(searchePath, marker);
         return pos;
     }
@@ -319,33 +310,22 @@ namespace Rynex {
         return pos;
     }
 
-    size_t Project::PositionMarker(const std::wstring& pathWstr, const std::string& marker)
+    bool Project::HasMarker(const std::string& pathStr, const std::string& markerStr)
     {
-        constexpr const char directoryDiffern = '/';
-        constexpr size_t searchFrom = 0ull;
-        std::string searcheMarkerStr = marker + '/';
-        std::wstring searcheMarkerWstr(searcheMarkerStr.begin(), searcheMarkerStr.end());
-
-        size_t pos = SearchInPathFor(pathWstr, searcheMarkerWstr);
-        return pos;
-    }
-
-    bool Project::HasMarker(const std::filesystem::path& path, const std::string& marker)
-    {
-        std::string searchePath = path.string();
+        std::string searchePath = pathStr;
         size_t size = searchePath.size();
-        size_t pos = PositionMarker(searchePath, marker);
+        size_t pos = PositionMarker(searchePath, markerStr);
         bool hasMarker = pos < size;
         return hasMarker;
     }
 
-    bool Project::HasSomeMarker(const std::filesystem::path& path)
+    bool Project::HasSomeMarker(const std::string& pathStr)
     {
         constexpr const char* markerSymbols = "#!#";
         constexpr size_t markerSymbolsSize = 2;
         constexpr size_t expextedCount = 1;
 
-        std::string searchePath = path.string();
+        const std::string& searchePath = pathStr;
         size_t offset = 0ull;
         size_t size = searchePath.size();
         size_t countFound = 0ull;
@@ -359,14 +339,23 @@ namespace Rynex {
         } while (offset < size && i < expextedCount);
 
         bool hasMarker = expextedCount <= countFound;
+        {
+            
+            FileSystem::Path path(pathStr);
+            bool check = hasMarker && path.IsMarked();
+            RY_CORE_INFO_IF(!check, "Pass Test: Has Marker Path!");
+            RY_CORE_ERROR_IF(check, "FAILD Test: Has Marker Path!");
+           
+            RY_CORE_ASSERT(check);
+        }
 
         return hasMarker;
     }
 
-    std::filesystem::path Project::RemoveMarker(const std::filesystem::path& path, const std::string& marker)
+    std::filesystem::path Project::RemoveMarker(const std::string& pathStr, const std::string& marker)
     {
         constexpr size_t offset = 1;
-        std::string searchePath = path.string();
+        const std::string& searchePath = pathStr;
         size_t size = searchePath.size();
         size_t pos = PositionMarker(searchePath, marker);
         size_t sizeMarker = marker.size();
@@ -378,19 +367,8 @@ namespace Rynex {
         return pathWithoutMarker;
     }
 
-    std::filesystem::path Project::RemoveMarkerW(const std::filesystem::path& path, const std::string& marker)
-    {
-        constexpr size_t offset = 1;
-        std::wstring searchePath = path.wstring();
-        size_t size = searchePath.size();
-        size_t pos = PositionMarker(searchePath, marker);
-        size_t sizeMarker = marker.size();
-        size_t endPosMarker = sizeMarker + pos + offset;
-        std::wstring pathWithoutMarker = searchePath.substr(endPosMarker);
-        return std::filesystem::path(pathWithoutMarker);
-    }
 
-    std::string Project::ExtraxtMarker(const std::filesystem::path& path)
+    std::string Project::ExtraxtMarker(const std::string& pathStr)
     {
         constexpr size_t offset = 0ull;
         constexpr uint32_t markerCount = 2;
@@ -398,7 +376,7 @@ namespace Rynex {
             RY_PATH_PROJECT_MARKER_STR,
             RY_PATH_ENGINE_MARKER_STR
         };
-        std::string searchePath = path.string();
+        const std::string& searchePath = pathStr;
         size_t size = searchePath.size();
         size_t pos = MAXSIZE_T;
         uint32_t i = 0;
@@ -408,7 +386,7 @@ namespace Rynex {
         } while (i < markerCount && size <= pos);
         if (size <= pos)
         {
-            RY_CORE_ERROR("No Marker Found To Extraxt in Path: {}", path);
+            RY_CORE_ERROR("No Marker Found To Extraxt in Path: {}", pathStr);
             return "";
         }
         size_t markerIndex = i - 1;
@@ -416,33 +394,9 @@ namespace Rynex {
         return markerInside;
     }
 
-    std::wstring Project::ExtraxtMarkerW(const std::filesystem::path& path)
-    {
-        constexpr size_t offset = 0ull;
-        constexpr uint32_t markerCount = 2;
-        constexpr const wchar_t* markersArray[markerCount] = {
-            RY_PATH_PROJECT_MARKER_WSTR,
-            RY_PATH_ENGINE_MARKER_WSTR
-        };
-        std::wstring searchePath = path.wstring();
-        size_t size = searchePath.size();
-        size_t pos = MAXSIZE_T;
-        uint32_t i = 0;
-        do {
-            pos = PositionMarker(searchePath, markersArray[i]);
-            i++;
-        } while (i < markerCount && size <= pos);
-        if (size <= pos)
-        {
-            RY_CORE_ERROR("No Marker Found To Extraxt in Path: {}", path);
-            return L"";
-        }
-        size_t markerIndex = i - 1;
-        std::wstring markerInside = markersArray[markerIndex];
-        return markerInside;
-    }
+    
 
-    std::filesystem::path Project::ReplaceMarkerWitheAbsolutePath(const std::filesystem::path& path)
+    std::filesystem::path Project::ReplaceMarkerWitheAbsolutePath(const std::string& pathStr)
     {
         constexpr uint32_t markerCount = 2;
         constexpr const char* markersArray[markerCount] = {
@@ -454,12 +408,12 @@ namespace Rynex {
             std::filesystem::current_path()
         };
 
-        if (!HasSomeMarker(path))
+        if (!HasSomeMarker(pathStr))
         {
-            RY_CORE_ERROR("File Path has no Marker! {}", path);
+            RY_CORE_ERROR("File Path has no Marker! {}", pathStr);
             return std::filesystem::path("");
         }
-        std::string marker = ExtraxtMarker(path);
+        std::string marker = ExtraxtMarker(pathStr);
         if (!IsMarkerVaild(marker))
         {
             RY_CORE_ERROR("Did't found a vaild Marker! {}", marker);
@@ -467,66 +421,40 @@ namespace Rynex {
         }
 
         std::filesystem::path base = GetAbsulteFilePathFormMarker(marker);
-        if (base == "")
+        if (base.empty())
         {
             RY_CORE_ERROR("Has No Valid Path Base! {}", base);
             return std::filesystem::path("");
         }
 
 
-        std::filesystem::path absultePath = ReplaceMarkerWithePath(path, marker, base);
+        std::filesystem::path absultePath = ReplaceMarkerWithePath(pathStr, marker, base);
+        
         return absultePath;
-
-
     }
 
-    std::filesystem::path Project::ReplaceMarkerWithePath(const std::filesystem::path& path, const std::string& marker, const std::filesystem::path& base)
+    std::filesystem::path Project::ReplaceMarkerWithePath(const std::string& pathStr, const std::string& marker, const std::filesystem::path& base)
     {
-        std::filesystem::path withOutMarker = RemoveMarker(path, marker);
+        std::filesystem::path withOutMarker = RemoveMarker(pathStr, marker);
         std::filesystem::path absultePath = base / withOutMarker;
         std::string absultePathStr = absultePath.generic_string();
         absultePath = absultePathStr;
+        absultePath = absultePath.lexically_normal();
+        {
+
+            FileSystem::Path fileSystemPath(pathStr);
+            std::filesystem::path pathAbsulte = fileSystemPath.GetAbsolutePath();
+            bool check = absultePath == pathAbsulte;
+            RY_CORE_INFO_IF(!check, "Pass Test: Remplaced Marked Path withe Absoulte!");
+            RY_CORE_ERROR_IF(check, "FAILD Test: Remplaced Marked Path withe Absoulte!");
+            RY_CORE_ERROR_IF(check, "FileSystem::Path: {}", pathAbsulte);
+            RY_CORE_ERROR_IF(check, "Orignele:         {}", absultePath);
+            RY_CORE_ASSERT(check);
+        }
         return absultePath;
     }
 
-    std::filesystem::path Project::ReplaceMarkerWitheAbsolutePathW(const std::filesystem::path& path)
-    {
-        constexpr uint32_t markerCount = 2;
-        constexpr const wchar_t* markersArray[markerCount] = {
-            RY_PATH_PROJECT_MARKER_WSTR,
-            RY_PATH_ENGINE_MARKER_WSTR
-        };
-        std::filesystem::path markersPathsArray[markerCount] = {
-            Project::GetActiveProjectDirectory(),
-            std::filesystem::current_path()
-        };
-
-        if (!HasSomeMarker(path))
-        {
-            RY_CORE_ERROR("File Path has no Marker! {}", path);
-            return std::filesystem::path("");
-        }
-        std::string marker = ExtraxtMarker(path);
-        if (!IsMarkerVaild(marker))
-        {
-            RY_CORE_ERROR("Did't found a vaild Marker! {}", marker);
-            return std::filesystem::path("");
-        }
-
-        std::filesystem::path base = GetAbsulteFilePathFormMarker(marker);
-        if (base == "")
-        {
-            RY_CORE_ERROR("Has No Valid Path Base! {}", base);
-            return std::filesystem::path("");
-        }
-
-
-        std::filesystem::path withOutMarker = RemoveMarkerW(path, marker);
-        std::filesystem::path absultePath = base / withOutMarker;
-        std::wstring absultePathWstr = absultePath.generic_wstring();
-        absultePath = absultePathWstr;
-        return absultePath;
-    }
+    
 
     uint32_t Project::GetMarkerVaild(const std::string& marker)
     {
@@ -535,7 +463,7 @@ namespace Rynex {
         constexpr const char* markersArray[markerCount] = {
             RY_PATH_PROJECT_MARKER_STR,
             RY_PATH_ENGINE_MARKER_STR,
-            RY_PATH_NO_VAILD_MARKER_STR,
+            RY_PATH_NO_VALID_MARKER_STR,
             ""
         };
         uint32_t i = 0;
@@ -553,7 +481,7 @@ namespace Rynex {
         constexpr const char* markersArray[markerCount] = {
             RY_PATH_PROJECT_MARKER_STR,
             RY_PATH_ENGINE_MARKER_STR,
-            RY_PATH_NO_VAILD_MARKER_STR,
+            RY_PATH_NO_VALID_MARKER_STR,
             ""
         };
         uint32_t i = 0;
@@ -564,26 +492,37 @@ namespace Rynex {
         return i < markerVaildCount;
     }
 
-    std::filesystem::path Project::GeanrateRealtivePathWitheMarker(const std::filesystem::path& path)
+    std::string Project::GeanrateRealtivePathWitheMarker(const std::filesystem::path& path)
     {
         std::pair<std::string, std::filesystem::path> pair = GeanrateRealtivePathAndMarker(path);
         const std::string& marker = pair.first;
-        const  std::filesystem::path& base = pair.second;
+        const  std::filesystem::path& realtive = pair.second;
         if (!IsMarkerVaild(marker))
         {
             RY_CORE_ERROR("Did't found a vaild Marker! {}", marker);
-            return std::filesystem::path("");
+            return std::string();
         }
-
+        std::filesystem::path base = Project::GetAbsulteFilePathFormMarker(marker);
         std::filesystem::path realtiveFromBase;
-        if (path.is_absolute())
-            realtiveFromBase = std::filesystem::relative(path, base);
+        if (realtive.is_absolute())
+            realtiveFromBase = std::filesystem::relative(realtive, base);
         else
-            realtiveFromBase = path;
-        std::filesystem::path pathWitheMarker = SetMarker(realtiveFromBase, marker);
+            realtiveFromBase = realtive;
 
-        std::string pathWitheMarkerStr = pathWitheMarker.generic_string();
-        pathWitheMarker = pathWitheMarkerStr;
+
+        std::string pathWitheMarker = SetMarker(realtiveFromBase, marker);
+        std::replace(pathWitheMarker.begin(), pathWitheMarker.end(), '\\', '/');
+        {
+
+            FileSystem::Path fileSystemPath(path);
+            std::string markerPathStr = fileSystemPath.GetMarkedPathString();
+            bool check = markerPathStr == pathWitheMarker;
+            RY_CORE_INFO_IF(!check, "Pass Test: Create Marked Path!");
+            RY_CORE_ERROR_IF(check, "FAILD Test: Create Marked Path!");
+            RY_CORE_ERROR_IF(check, "FileSystem::Path: {}", markerPathStr);
+            RY_CORE_ERROR_IF(check, "Orignele:         {}", pathWitheMarker);
+            RY_CORE_ASSERT(check);
+        }
         return pathWitheMarker;
     }
 
@@ -594,7 +533,7 @@ namespace Rynex {
         constexpr const char* markersArray[markerCount] = {
             RY_PATH_PROJECT_MARKER_STR,
             RY_PATH_ENGINE_MARKER_STR,
-            RY_PATH_NO_VAILD_MARKER_STR
+            RY_PATH_NO_VALID_MARKER_STR
         };
         std::filesystem::path markersPathsArray[markerCount] = {
             Project::GetActiveProjectDirectory(),
@@ -620,10 +559,10 @@ namespace Rynex {
     {
         std::string marker = GetExpextedMarker(path);
         std::filesystem::path absultePath = GetAbsulteFilePathFormMarker(marker);
-        if (path == std::filesystem::path(""))
+        if (path.empty())
         {
             RY_CORE_ERROR("Did't found a vaild Path! {}", path);
-            return std::pair<std::string, std::filesystem::path>(RY_PATH_NO_VAILD_MARKER_STR, "");
+            return std::pair<std::string, std::filesystem::path>(RY_PATH_NO_VALID_MARKER_STR, "");
         }
 
         std::pair<std::string, std::filesystem::path> pair = GeanrateRealtivePathFromMarkerAndBase(path, absultePath, marker);
@@ -648,7 +587,7 @@ namespace Rynex {
     {
         constexpr const char* projectMarker = RY_PATH_PROJECT_MARKER_STR;
         constexpr const char* engineMarker = RY_PATH_ENGINE_MARKER_STR;
-        constexpr const char* engineRealtive = RY_PATH_EXPEXT_ENGINE_RELATIV_START_STR;
+        constexpr const char* engineRealtive = RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR;
 
         std::filesystem::path projectPath = GetActiveProjectDirectory();
         std::filesystem::path appPath = std::filesystem::current_path();
@@ -678,12 +617,27 @@ namespace Rynex {
             else
                 marker = projectMarker;
         }
+        {
+
+            FileSystem::Path fileSystemPath(path);
+           
+            FileSystem::Path::Origin origin = marker == projectMarker ? FileSystem::Path::Origin::Project 
+                : (marker == engineMarker ? FileSystem::Path::Origin::Engine : FileSystem::Path::Origin::None);
+
+            bool check = origin == fileSystemPath.GetOrigin();
+
+            RY_CORE_INFO_IF(!check, "Pass Test: Expexted Path!");
+            RY_CORE_ERROR_IF(check, "FAILD Test: Expexted Path!");
+
+            RY_CORE_ASSERT(check);
+        }
+
         return marker;
     }
 
     bool Project::IsAbsultePathSubPath(const std::filesystem::path& pathAbsolut, const std::filesystem::path& baseAbsolut)
     {
-        RY_CORE_ASSERT(pathAbsolut.is_absolute() && baseAbsolut.is_absolute(), "We expext no Realtive only Absulte Paths!");
+        RY_CORE_ASSERT(pathAbsolut.is_absolute() && baseAbsolut.is_absolute(), "We expext no Relative only Absulte Paths!");
         std::filesystem::path realitveTo = std::filesystem::relative(pathAbsolut, baseAbsolut);
         std::string realitveToStr = realitveTo.generic_string();
         bool areTheSame = !realitveToStr.empty() && realitveToStr.find("..") != 0;
@@ -792,7 +746,8 @@ namespace Rynex {
             s_ActiveInstancProject->m_AssetManger = editorAssetManager;
 
             editorAssetManager->DeserialzeAssetRegistry();
-                       RY_CORE_ERROR("Project Loading For Editor Sucese");
+            RY_CORE_ERROR("Project Loading For Editor Sucese");
+
             return s_ActiveInstancProject;
         }
         RY_CORE_ERROR("Project Loading Faild");
