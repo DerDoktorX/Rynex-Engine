@@ -2,58 +2,73 @@
 #include "Path.h"
 #include <Rynex/Project/Project.h>
 
+// #define RY_PATH_LOG_MSG
+
 namespace Rynex::FileSystem {
-	
+
+	Path::Path()
+		: m_Path()
+		, m_Origin(Origin::None)
+	{
+	}
 
 	Path::Path(const Path& path)
 		: m_Path(path.m_Path)
-		, m_Origne(path.m_Origne)
+		, m_Origin(path.m_Origin)
 	{
 	}
 
-	Path::Path(const std::string& pathStr, Origne origne)
-		: m_Path(pathStr)
-		, m_Origne(origne)
+	Path::Path(const std::string& pathStr, Origin origin)
 	{
-		ConvertInternalPath();
+		auto [path, nextOrigin] = ConvertInternalPath(pathStr, origin);
+		m_Path = path;
+		m_Origin = nextOrigin;
 	}
 
-	Path::Path(const std::string_view& pathView, Origne origne)
-		: m_Path(pathView)
-		, m_Origne(origne)
+	Path::Path(const std::string_view& pathView, Origin origin)
 	{
+		std::string pathStr = pathView.data();
+		auto [path, nextOrigin] = ConvertInternalPath(pathStr, origin);
+		m_Path = path;
+		m_Origin = nextOrigin;
 	}
 
 
-	Path::Path(const std::filesystem::path& path, Origne origne)
+	Path::Path(const std::filesystem::path& path, Origin origin)
 		: m_Path(path)
-		, m_Origne(origne)
+		, m_Origin(origin)
 	{
 		ConvertInternalPath();
 	}
 
-	Path::Path(const char* path, Origne origne)
-		: m_Path(path)
-		, m_Origne(origne)
+	Path::Path(const char* pathChar, Origin origin)
 	{
-		ConvertInternalPath();
+		std::string pathStr = pathChar;
+		auto [path, nextOrigin] = ConvertInternalPath(pathStr, origin);
+		m_Path = path;
+		m_Origin = nextOrigin;
 	}
 
 	Path::~Path()
 	{
 	}
 
-	bool Path::IsMarked() const
+	bool Path::IsEmpty() const
 	{
-		return IsOrignePathMarked(m_Origne);
+		return m_Path.empty() && IsMarked();
 	}
 
-	bool Path::IsRealtive() const
+	bool Path::IsMarked() const
+	{
+		return IsOriginPathMarked(m_Origin);
+	}
+
+	bool Path::IsRelative() const
 	{
 		return m_Path.is_relative();
 	}
 
-	bool Path::IsAbsoulte() const
+	bool Path::IsAbsolute() const
 	{
 		return m_Path.is_absolute();
 	}
@@ -86,13 +101,14 @@ namespace Rynex::FileSystem {
 
 	int16_t Path::GetState() const
 	{
-		int16_t state = FindeMarkedPathInlineState(m_Path, m_Origne);
+		std::string pathStr = m_Path.string();
+		int16_t state = FindMarkedPathInlineState(pathStr, m_Origin);
 		return state;
 	}
 
-	Path::Origne Path::GetMarkerOrigine() const
+	Path::Origin Path::GetOrigin() const
 	{
-		return m_Origne;
+		return m_Origin;
 	}
 
 	
@@ -109,14 +125,38 @@ namespace Rynex::FileSystem {
 
 	std::filesystem::path Path::GetRelativePath() const
 	{
-		return m_Path;
+		return GetRelativePathFromAbsolutePath();
 	}
 
-	std::filesystem::path Path::GetMarkedPath() const
+	std::filesystem::path Path::GetRelativePathFromOriginBase(Origin origin) const
 	{
-		std::filesystem::path markedPath = GetResolveAbsoluteToMarkedPath(m_Path, m_Origne);
-		ConvertUniverselPath(markedPath);
-		return markedPath;
+		std::filesystem::path dstBasePath = GetPathAbsoluteOrigin(origin);
+		std::string_view viewEnum = magic_enum::enum_name(origin);
+#ifdef RYPATH_LOG_MSG
+		RY_CORE_WARN_IF(dstBasePath.empty(), "Origin: {} reulted in a empty base this shoud lead to a invaild Path!", viewEnum.data());
+#else
+#endif
+		std::filesystem::path realtiveToBase = std::filesystem::relative(m_Path, dstBasePath);
+		ConvertUniversalPath(realtiveToBase);
+		return realtiveToBase;
+	}
+
+	std::filesystem::path Path::GetAbsoulteBasePath() const
+	{
+		std::filesystem::path basePath = GetPathAbsoluteOrigin(m_Origin);
+		
+		ConvertUniversalPath(basePath);
+		return basePath;
+	}
+
+	std::filesystem::path Path::GetNamePath() const
+	{
+		return m_Path.filename();
+	}
+
+	std::filesystem::path Path::GetExtensionPath() const
+	{
+		return m_Path.extension();
 	}
 
 	std::string Path::GetAbsolutePathString() const
@@ -131,225 +171,385 @@ namespace Rynex::FileSystem {
 
 	std::string Path::GetMarkedPathString() const
 	{
-		return GetMarkedPath().string();
+		std::string relativePathStr = GetRelativePathString();
+		int8_t index = GetOriginIndex(m_Origin);
+		std::string markedPathStr = PATH_MARKER_STR[index];
+		if(!relativePathStr.empty() && '/' != relativePathStr.at(0))
+			markedPathStr += "/";
+		markedPathStr += relativePathStr;
+		return markedPathStr;
+	}
+
+	std::string Path::GetRelativePathFromOriginBaseString(Origin origin) const
+	{
+		return GetRelativePathFromOriginBase(origin).string();
+	}
+
+	std::string Path::GetAbsoulteBasePathString() const
+	{
+		return GetAbsoulteBasePath().string();
+	}
+
+	std::string Path::GetNamePathString() const
+	{
+		return GetNamePath().string();
+	}
+
+	std::string Path::GetExtensionPathString() const
+	{
+		return GetExtensionPath().string();
+	}
+
+	AssetType Path::GetAssetFileType() const
+	{
+		AssetType assetType = Asset::GetAssetTypeFromFilePath(m_Path);
+		return AssetType();
 	}
 
 
-	void Path::SetMarker(Origne origne)
+	void Path::SetMarker(Origin origne)
 	{
 		std::string_view viewNext = magic_enum::enum_name(origne);
-		std::string_view viewCurent = magic_enum::enum_name(m_Origne);
+		std::string_view viewCurent = magic_enum::enum_name(m_Origin);
+#ifdef RY_PATH_LOG_MSG
+		RY_CORE_WARN("SetMarker overrides the previous origin! {} -> {}", viewCurent, viewNext);
+#else
+		RY_REMBER_FUNC_CHANGE("Remove LOg State if not need!");
+#endif
 
-		RY_CORE_WARN("SetMarker overides the last Origne! {} -> {}", viewNext, viewCurent);
-		m_Origne = origne;
+		std::filesystem::path baseOrigin = GetPathAbsoluteOrigin(m_Origin);
+		std::filesystem::path relative = std::filesystem::relative(m_Path, baseOrigin).generic_string();
+		m_Origin = origne;
+		std::filesystem::path nextBaseOrigin = GetPathAbsoluteOrigin(m_Origin);
+
+#ifdef RY_PATH_LOG_MSG
+		RY_CORE_WARN("SetMarker overrides the previous the absolute base path! {} -> {}", baseOrigin, nextBaseOrigin);
+#else
+		RY_REMBER_FUNC_CHANGE("Remove Log State if not need!");
+#endif
+		m_Path = (nextBaseOrigin / relative).generic_string();
+		m_Path = std::filesystem::absolute(m_Path);
+		ConvertAbsolutePath(m_Path, m_Origin);
+		ConvertUniversalPath(m_Path);
 	}
 
 	
 
-	std::filesystem::path Path::GetProjectDiretory()
+	std::filesystem::path Path::GetProjectDirectory()
 	{
 		return Project::GetActiveProjectDirectory();
 	}
 
-	std::filesystem::path Path::GetEngineDiretory()
+	std::filesystem::path Path::GetEngineDirectory()
 	{
-		RY_CORE_WARN("Engine Directory is curetly GetWorkingDiretory.");
-		return GetWorkingDiretory();
+#ifdef RY_PATH_LOG_MSG
+		RY_CORE_WARN("Engine directory currently returns GetWorkingDirectory.");
+#else
+		RY_REMBER_FUNC_CHANGE("Remove LOg State if not need!");
+#endif
+		return GetWorkingDirectory();
 	}
 
-	std::filesystem::path Path::GetWorkingDiretory()
+	std::filesystem::path Path::GetWorkingDirectory()
 	{
 		std::filesystem::path workingDiretory = std::filesystem::current_path();
-		ConvertUniverselPath(workingDiretory);
+		ConvertUniversalPath(workingDiretory);
 		return workingDiretory;
 	}
 
 	
 
-	void Path::ConvertPathNoMarker()
+	std::tuple<std::filesystem::path, Path::Origin> Path::ConvertPathNoMarker(const std::string& pathStr, Origin origin)
 	{
 		int16_t state = State::None;
-		
-		if (m_Path.empty())
-			return;
-		Origne orignePath = GetPathOrignFromMarkerPath(m_Path);
-		std::filesystem::path pathCopy = m_Path;
-		if (!IsOrignePathMarked(orignePath) && IsOrignePathMarked(m_Origne))
-			return;
-
-		RY_CORE_WARN_IF(!IsOrignePathMarked(orignePath) && !IsOrignePathMarked(m_Origne), "Multyple marked path Origne is not the default case curently we overide the case befor!");
-		
-		switch (orignePath)
+		std::filesystem::path path;
+		if (pathStr.empty())
 		{
-			case Origne::None:
-			{
-				// TODO implement finde Origen
-				RY_CORE_ASSERT(false, "No implement find a none marked path!");
+			RY_CORE_WARN("Path is empty!");
+			return std::tuple<std::filesystem::path, Origin>(path, Origin::None);
+		}
+		Origin originPath = GetPathOriginFromMarkerPath(pathStr);
+		std::string pathCopyStr = pathStr;
+		
+
+		RY_CORE_WARN_IF(!(IsOriginPathMarked(originPath) && IsOriginPathMarked(origin)), "Multiple marked path: origin is not the default case, currently overriding the previous origin!");
+		
+		
+		switch (originPath)
+		{
+			case Origin::None:
+			{	
+				path = pathStr;
+#ifdef RY_PATH_LOG_MSG
+				RY_CORE_TRACE_IF(IsOriginPathMarked(origin), "No Marker in Path and origni is valid!");
+#else
+				RY_REMBER_FUNC_CHANGE("Remove LOg State if not need!");
+#endif
+
+				ConvertUniversalPath(path);
+				if (path.is_absolute())
+				{
+					state |= State::Absolute;
+					Origin originAbsolute = GetExpectedOriginFromAbsolutePath(path);
+					if (IsOriginPathMarked(origin))
+					{
+						if(origin == originAbsolute)
+							break;
+#ifdef RY_PATH_LOG_MSG
+						RY_CORE_WARN("Absolute path has another origne then origne state say! Absolute path wins!");
+#else
+						RY_REMBER_FUNC_CHANGE("Remove LOg State if not need!");
+#endif
+					}
+					origin = originAbsolute;
+				}
+				if (path.is_relative())
+				{
+					state |= State::Relative;
+					Origin originRelative = GetExpectedOriginFromRelativePath(path);
+					if (IsOriginPathMarked(origin))
+					{
+ 						RY_CORE_INFO_IF(origin == originRelative, "Relative path origne state as base path! Origne state wins!");
+						originRelative = origin;
+					}
+					origin = originRelative;
+					if (Origin::Unknown != origin)
+					{
+						std::filesystem::path basePath = GetPathAbsoluteOrigin(origin);
+						path = std::filesystem::absolute(basePath / path);
+					}
+				}
+
 				break;
 			}
-			case Origne::Unknown:
+			case Origin::Unknown:
 			{
 				state |= State::MarkedInline | State::MarkedUnknown;
-				m_Path = RemovePathMarker(m_Path, orignePath);
-				m_Origne = orignePath;
+				path = RemovePathMarker(pathStr, originPath);
+				origin = originPath;
 				break;
 			}
-			case Origne::Engine:
+			case Origin::Engine:
 			{
 				state |= State::MarkedInline | State::MarkedEngine;
-				m_Path = RemovePathMarker(m_Path, orignePath);
-				m_Origne = orignePath;
+				path = RemovePathMarker(pathStr, originPath);
+
+				origin = originPath;
 				break;
 			}
-			case Origne::Project:
+			case Origin::Project:
 			{
 				state |= State::MarkedInline | State::MarkedProject;
-				m_Path = RemovePathMarker(m_Path, orignePath);
-				m_Origne = orignePath;
+				path = RemovePathMarker(pathStr, originPath);
+				origin = originPath;
 				break;
 			}
 			default:
 			{
-				std::string_view view = magic_enum::enum_name(orignePath);
-				RY_CORE_ERROR("Origne-path: {}, path: {}", view, pathCopy);
-				RY_CORE_ASSERT(false, "Not expexted State!");
-				return;
+				std::string_view view = magic_enum::enum_name(originPath);
+				RY_CORE_ERROR("Origin-path: {}, path: {}", view, pathCopyStr);
+				RY_CORE_ASSERT(false, "Unexpected origin state!");
+				return std::tuple<std::filesystem::path, Origin>(path, origin);
 			}
 		}
+#ifdef RY_PATH_LOG_MSG
+		LogPathState(state);
+#else
+		RY_REMBER_FUNC_CHANGE("Remove LOg State if not need!");
+#endif
+		return std::tuple<std::filesystem::path, Origin>(path, origin);
+		
 	}
 
-	void Path::ConvertAboultePath()
+	void Path::ConvertAbsolutePath(std::filesystem::path& path, Origin origin)
 	{
-		bool isAbsolute = m_Path.is_absolute();
-		bool isRelative = m_Path.is_relative();
-		RY_CORE_ASSERT(isAbsolute != isRelative, "Both path shoud never be equeal!");
+		bool isAbsolute = path.is_absolute();
+		bool isRelative = path.is_relative();
+		RY_CORE_ASSERT(isAbsolute != isRelative, "A path must be either absolute or relative, never both!");
 		if (!isAbsolute && isRelative)
 		{
-			m_Path = GetResolveReltivePathToAbsoluteFromOrigne(m_Path, m_Origne);
+			path = GetResolveRelativePathToAbsoluteFromOrigin(path, origin);
+			if (Origin::Unknown != origin)
+				path = path.lexically_normal();
 		}
 		
 	}
 
-	void Path::ConvertUniverselPath()
-	{
-		ConvertUniverselPath(m_Path);
-	}
+	
 
 	void Path::ConvertInternalPath()
 	{
-		ConvertPathNoMarker();
-		ConvertAboultePath();
-		ConvertUniverselPath();
+		std::string pathStr = m_Path.string();
+		auto [path, origin] = ConvertInternalPath(pathStr, m_Origin);
+		m_Path = path;
+		m_Origin = origin;
 	}
 
-	std::filesystem::path Path::GetResolveMarkerPath(Origne origne) const
+	std::filesystem::path Path::GetResolveMarkerPath(Origin origne) const
 	{
-		return GetResolveReltivePathToAbsoluteFromOrigne(m_Path, origne);
+		return GetResolveRelativePathToAbsoluteFromOrigin(m_Path, origne);
 	}
 
-	std::filesystem::path Path::GetResolveAbsoluteToMarkedPath(Origne origne) const
+	std::filesystem::path Path::GetResolveAbsoluteToMarkedPath(Origin origne) const
 	{
 		return GetResolveAbsoluteToMarkedPath(m_Path, origne);
 	}
 
-	std::filesystem::path Path::ClearOringenMarker(Origne origne) const
+	std::filesystem::path Path::GetRelativePathFromAbsolutePath() const
 	{
-		std::filesystem::path reltivePath = RemovePathMarker(m_Path, origne);
-		std::filesystem::path absolutePath = GetResolveReltivePathToAbsoluteFromOrigne(reltivePath, origne);
-		ConvertUniverselPath(absolutePath);
-		return absolutePath;
-	}
+		if (Origin::Unknown == m_Origin)
+			return m_Path;
+		std::filesystem::path baseOrigin = GetPathAbsoluteOrigin(m_Origin);
+		std::filesystem::path relativePath = std::filesystem::relative(m_Path, baseOrigin);
 
-	std::filesystem::path Path::GetRelativePathFromAbsoultePath() const
-	{
-		Origne origne = GetExpextedOrigineFromAbsoultePath(m_Path);
-		std::filesystem::path absolutePath = GetPathAbsoluteMarker(origne);
-		std::filesystem::path relativePath = std::filesystem::relative(m_Path, absolutePath);
+		if (Origin::Engine == m_Origin)
+		{
+			std::filesystem::path expextedEndineRealtiveStart = RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR;
+			std::string nameFolder = expextedEndineRealtiveStart.filename().string();
+			if (!Project::HasStringInPath(relativePath, nameFolder))
+				relativePath = nameFolder / relativePath;
+
+			expextedEndineRealtiveStart = expextedEndineRealtiveStart.parent_path();
+			expextedEndineRealtiveStart = expextedEndineRealtiveStart.generic_string();
+			nameFolder = expextedEndineRealtiveStart.string();
+
+			if (!Project::HasStringInPath(relativePath, nameFolder))
+				relativePath = nameFolder / relativePath;
+		}
+		ConvertUniversalPath(relativePath);
 		return relativePath;
 	}
+	
 
-	int16_t Path::FindeMarkedPathInlineState(const std::filesystem::path& path, Origne origne)
+	void Path::LogPathState(int16_t state)
 	{
-		int16_t state = State::None;
-		if (path.empty()) 
+		constexpr const char* betweenStateChar[2] = { " ", "| " };
+		constexpr const char* pathNamespaceChar = "Path::";
+		constexpr const char* rynexNamespaceChar = "Rynex::";
+		
+		if (0 == state)
 		{
+			RY_CORE_WARN("Path State: {}{}{}", pathNamespaceChar, rynexNamespaceChar, "State::None");
+			return;
+		}
+		
+		constexpr size_t stateCount = 12;
+		
+		constexpr size_t pathNamespace = stateCount * 7;
+		constexpr size_t rynexNamespace = stateCount * 8;
+		constexpr size_t charsBetween = (stateCount - 1) * 3;
+		constexpr size_t maxChars = rynexNamespace + pathNamespace + charsBetween;
+		
+
+		std::string msg;
+		msg.reserve(maxChars);
+		
+		for (int i = 0; i < stateCount; i++)
+		{
+			const int value = BIT(i);
+			const int bitCheck = value & state;
+			if (0 != bitCheck)
+			{
+				State enumValue = static_cast<State>(value);
+				std::string_view view = magic_enum::enum_name(enumValue);
+				if (!msg.empty())
+				{
+					msg += betweenStateChar[1];
+				}
+				
+				msg += view;
+				msg += betweenStateChar[0];
+			}
+		}
+		RY_CORE_INFO("Path State: {}", msg);
+
+	}
+
+	int16_t Path::FindMarkedPathInlineState(const std::string& pathStr, Origin origne)
+	{
+		
+		int16_t state = State::None;
+		if (pathStr.empty())
+		{
+			RY_CORE_ERROR("Empty Path!");
 			return state;
 		}
 
-		Origne orignePath = GetMarkedPathOrigine(path);
+		Origin originPath = GetPathOriginFromMarkerPath(pathStr);
 		std::filesystem::path noInlineMarkedPath;
-		switch (orignePath)
+		switch (originPath)
 		{
-			case Origne::None:
+			case Origin::None:
 			{
-				noInlineMarkedPath = path;
+				noInlineMarkedPath = pathStr;
 				break;
 			}
-			case Origne::Unknown:
+			case Origin::Unknown:
 			{
 				state |= State::MarkedInline | State::MarkedUnknown;
-				noInlineMarkedPath = RemovePathMarker(path, orignePath);
-				origne = orignePath;
+				noInlineMarkedPath = RemovePathMarker(pathStr, originPath);
+				origne = originPath;
 				break;
 			}
-			case Origne::Engine:
+			case Origin::Engine:
 			{
 				state |= State::MarkedInline | State::MarkedEngine;
-				noInlineMarkedPath = RemovePathMarker(path, orignePath);
-				origne = orignePath;
+				noInlineMarkedPath = RemovePathMarker(pathStr, originPath);
+				origne = originPath;
 				break;
 			}
-			case Origne::Project:
+			case Origin::Project:
 			{
 				state |= State::MarkedInline | State::MarkedProject;
-				noInlineMarkedPath = RemovePathMarker(path, orignePath);
-				origne = orignePath;
+				noInlineMarkedPath = RemovePathMarker(pathStr, originPath);
+				origne = originPath;
 				break;
 			}
 			default:
 			{
-				std::string_view view = magic_enum::enum_name(orignePath);
-				RY_CORE_ERROR("Origne-path: {}, path: {}", view, path);
-				RY_CORE_ASSERT(false, "Not expexted State!");
+				std::string_view view = magic_enum::enum_name(originPath);
+				RY_CORE_ERROR("Origin-path: {}, path: {}", view, pathStr);
+				RY_CORE_ASSERT(false, "Unexpected origin state!");
 				return State::None;
 			}
 		}
 		
-		state |= FindeFilesystemStateState(noInlineMarkedPath, origne);
+		state |= FindFilesystemState(noInlineMarkedPath, origne);
 
 
 		return state;
 	}
 
-	int16_t Path::FindeFilesystemStateState(const std::filesystem::path& noInlineMarkedPath, Origne origne)
+	int16_t Path::FindFilesystemState(const std::filesystem::path& noInlineMarkedPath, Origin origne)
 	{
 		int16_t state = State::None;
-		std::filesystem::path absoultePath;
+		std::filesystem::path absolutePath;
 		if (noInlineMarkedPath.is_absolute()) 
 		{
-			absoultePath = noInlineMarkedPath;
-			state |= State::Absoulte;
+			absolutePath = noInlineMarkedPath;
+			state |= State::Absolute;
 		}
 		if (noInlineMarkedPath.is_relative()) 
 		{
-			absoultePath = GetResolveReltivePathToAbsoluteFromOrigne(noInlineMarkedPath, origne);
-			state |= State::Realtive;
+			std::string noInlineMarkedPathStr = noInlineMarkedPath.string();
+			absolutePath = GetResolveRelativePathToAbsoluteFromOrigin(noInlineMarkedPathStr, origne);
+			state |= State::Relative;
 		}
-		if (std::filesystem::exists(absoultePath)) 
+		if (std::filesystem::exists(absolutePath)) 
 		{
 			state |= State::Existing;
 		}
-		if (std::filesystem::is_directory(absoultePath))
+		if (std::filesystem::is_directory(absolutePath))
 		{
 			state |= State::Directory;
 		}
 		else 
 		{
 			state |= State::File;
-			if (absoultePath.has_extension()) 
+			if (absolutePath.has_extension()) 
 			{
 				state |= State::Extension;
-				AssetType assetType = Asset::GetAssetTypeFromFilePath(absoultePath);
+				AssetType assetType = Asset::GetAssetTypeFromFilePath(absolutePath);
 				state |= assetType != AssetType::None ? State::AssetFileExtension : State::None;
 			}
 		}
@@ -358,189 +558,230 @@ namespace Rynex::FileSystem {
 	}
 
 
-	std::filesystem::path Path::GetResolveReltivePathToAbsoluteFromOrigne(const std::filesystem::path& path, Origne origne)
+	std::string Path::GetResolveRelativePathToAbsoluteFromOrigin(const std::filesystem::path& path, Origin origne)
 	{
-		std::filesystem::path absoluteMarkerPath = GetPathAbsoluteMarker(origne);
-		std::filesystem::path resolvePath = absoluteMarkerPath / path;
-		ConvertUniverselPath(resolvePath);
+		std::string absoluteMarkerPath = GetPathAbsoluteOrigin(origne).string();
+		std::string pathStr = path.string();
+		std::string resolvePath = absoluteMarkerPath + "/" + pathStr;
+		
 		return resolvePath;
 	}
 
-	std::filesystem::path Path::GetResolveAbsoluteToMarkedPath(const std::filesystem::path& path, Origne origne)
+	std::string Path::GetResolveAbsoluteToMarkedPath(const std::filesystem::path& path, Origin origne)
 	{
-		std::filesystem::path absolutePath = GetPathAbsoluteMarker(origne);
-		std::filesystem::path relativePath = std::filesystem::relative(absolutePath, path);
-		if (Origne::Engine == origne) 
+		std::filesystem::path absolutePath = GetPathAbsoluteOrigin(origne);
+		std::filesystem::path relativePath = std::filesystem::relative(path, absolutePath);
+		if (Origin::Engine == origne) 
 		{
-			std::filesystem::path reltiveExpextedPathBegin = std::filesystem::path(RY_PATH_EXPEXT_ENGINE_RELATIV_START_STR);
-			relativePath = reltiveExpextedPathBegin / relativePath;
+			std::filesystem::path relativeExpectedPathBegin = std::filesystem::path(RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR);
+			relativePath = relativeExpectedPathBegin / relativePath;
 		}
-		int8_t index = GetOrigneIndex(origne);
-		std::filesystem::path marker = std::filesystem::path(PATH_MARKER_STR[index]);
-		std::filesystem::path markeredRelativePath = marker / relativePath;
-		ConvertUniverselPath(markeredRelativePath);
-		return markeredRelativePath;
+		int8_t index = GetOriginIndex(origne);
+		std::string_view markerView(PATH_MARKER_STR[index]);
+		size_t markerCharCount = markerView.size();
+		relativePath = relativePath.generic_string();
+
+		using PathValueType = std::filesystem::path::value_type;
+		const PathValueType* pathValueTypePtr = relativePath.c_str();
+		size_t pathCharCount = GetPathChartersCount(pathValueTypePtr);
+		
+		
+		size_t count = markerCharCount + pathCharCount + 1;
+		std::string markedRelativePathStr;
+		markedRelativePathStr.reserve(count);
+		markedRelativePathStr += markerView.data();
+		markedRelativePathStr += "/";
+		markedRelativePathStr += relativePath.string();
+		
+		return markedRelativePathStr;
 	}
 
-	uint32_t Path::GetMarkerCarkterCount(Origne origne)
+	
+
+	
+	size_t Path::GetPathChartersCount(const char* pathPtr)
 	{
-		int8_t origneIndex = GetOrigneIndex(origne);
-		uint32_t count = GetMarkerLength(PATH_MARKER_STR[origneIndex]);
+		std::string_view view(pathPtr);
+		size_t count = view.size();
 		return count;
 	}
 
-	bool Path::IsPathMarked(const std::filesystem::path& markedPath)
+	
+	size_t Path::GetPathChartersCount(const wchar_t* pathPtr)
 	{
-		Origne origne = GetMarkedPathOrigine(markedPath);
-		return IsOrignePathMarked(origne);
+		std::wstring_view view(pathPtr);
+		size_t count = view.size();
+		return count;
 	}
 
-	bool Path::IsOrignePathMarked(Origne origne)
+
+	uint32_t Path::GetMarkerCharacterCount(Origin origne)
 	{
-		return Origne::None != origne;
+		int8_t originIndex = GetOriginIndex(origne);
+		uint32_t count = GetMarkerLength(PATH_MARKER_STR[originIndex]);
+		return count;
 	}
 
-	std::filesystem::path Path::RemovePathMarker(const std::filesystem::path& path)
+	bool Path::IsPathMarked(const std::string& markedPathStr)
 	{
-		Origne origne = GetMarkedPathOrigine(path);
-		return RemovePathMarker(path, origne);
+		Origin origne = GetMarkedPathOrigin(markedPathStr);
+		return IsOriginPathMarked(origne);
 	}
 
-	std::filesystem::path Path::RemovePathMarker(const std::filesystem::path& markedPath, Origne origne)
+	bool Path::IsOriginPathMarked(Origin origne)
 	{
-		uint32_t markerCount = GetMarkerCarkterCount(origne);
+		return Origin::None != origne;
+	}
+
+	std::filesystem::path Path::RemovePathMarker(const std::string& markedPathStr)
+	{
+		Origin origne = GetMarkedPathOrigin(markedPathStr);
+		return RemovePathMarker(markedPathStr, origne);
+	}
+
+	std::filesystem::path Path::RemovePathMarker(const std::string& markedPathStr, Origin origne)
+	{
+		uint32_t markerCount = GetMarkerCharacterCount(origne);
 		markerCount += 1u;
-		std::string markerPathStr = markedPath.string();
-		std::string pathStr = markerPathStr.substr(markerCount);
+		
+		std::string pathStr = markedPathStr.substr(markerCount);
 		std::filesystem::path path = pathStr;
 		return path;
 	}
 
-	std::filesystem::path Path::GetReltivePath(const std::filesystem::path& path)
+	std::filesystem::path Path::GetRelativePath(const std::string& markedPathStr)
 	{
-		Origne origne = GetMarkedPathOrigine(path);
-		RY_CORE_ASSERT(IsOrignePathMarked(origne), "file Path not Marked!");
-		std::filesystem::path reltivePath = RemovePathMarker(path, origne);
-		return reltivePath;
+		Origin origne = GetMarkedPathOrigin(markedPathStr);
+		RY_CORE_ASSERT(IsOriginPathMarked(origne), "File path is not marked!");
+		std::filesystem::path relativePath = RemovePathMarker(markedPathStr, origne);
+		return relativePath;
 	}
 
-	std::filesystem::path Path::GetReltivePath(const std::filesystem::path& path, const std::filesystem::path& origene)
+	std::filesystem::path Path::GetRelativePath(const std::string& pathStr, const std::filesystem::path& pathBase)
 	{
-		if (IsPathMarked(path))
+		if (IsPathMarked(pathStr))
 		{
-			return GetReltivePath(path);
+			return GetRelativePath(pathStr);
 		}
-		std::filesystem::path reltivePath;
-		if (path.is_relative()) 
+		std::filesystem::path relativePath = pathStr;
+		if (relativePath.is_relative())
 		{
-			reltivePath = path;
-			return reltivePath;
+			return relativePath;
 		}
-		reltivePath = std::filesystem::relative(path, origene);
-		return reltivePath;
+		relativePath = std::filesystem::relative(relativePath, pathBase);
+		return relativePath;
 	}
 
-	std::filesystem::path Path::GetPathAbsoluteMarker(Origne origne)
+	std::filesystem::path Path::GetPathAbsoluteOrigin(Origin origin)
 	{
-		switch (origne)
+		switch (origin)
 		{
-			case Path::Origne::None:	return std::filesystem::path("");
-			case Path::Origne::Unknown:	return std::filesystem::path("");
-			case Path::Origne::Engine:	
+			case Path::Origin::None:	return std::filesystem::path("");
+			case Path::Origin::Unknown:	return std::filesystem::path("");
+			case Path::Origin::Engine:	
 			{
-				std::filesystem::path enginePath = GetEngineDiretory();
-				ConvertUniverselPath(enginePath);
+				std::filesystem::path enginePath = GetEngineDirectory();
+				ConvertUniversalPath(enginePath);
 				return enginePath;
 			}
-			case Path::Origne::Project:
+			case Path::Origin::Project:
 			{
-				std::filesystem::path projectPath = GetProjectDiretory();
-				ConvertUniverselPath(projectPath);
+				std::filesystem::path projectPath = GetProjectDirectory();
+				ConvertUniversalPath(projectPath);
 				return projectPath;
 			}		
 			default:
-				RY_CORE_ASSERT(false, "Not defined Oringe!");
+				RY_CORE_ASSERT(false, "Undefined origin!");
 		}
 		return std::filesystem::path("");
 	}
 
-	Path::Origne Path::GetMarkedPathOrigine(const std::filesystem::path& markedPath)
+	Path::Origin Path::GetMarkedPathOrigin(const std::string& markedPath)
 	{
-		Origne origne = GetPathOrignFromMarkerPath(markedPath);
-		if (IsOrignePathMarked(origne))
+		Origin origne = GetPathOriginFromMarkerPath(markedPath);
+		if (IsOriginPathMarked(origne))
 		{
 			return origne;
 		}
-		RY_CORE_ASSERT(false, "not implement, marker set!");
-		return Origne::None;
+		RY_CORE_ASSERT(false, "Not implemented: marker not set!!");
+		return Origin::None;
 	}
 
-	Path::Origne Path::GetPathOrignFromMarkerPath(const std::filesystem::path& markedPath)
+	Path::Origin Path::GetPathOriginFromMarkerPath(const std::string& markedPath)
 	{
-		int8_t i = PATH_MARKER_COUNT - 1;
-		while (1 <= i && !Project::HasStringInPath(markedPath, PATH_MARKER_STR[i]))
-		{
-			i--;
-		}
-		if (i < 0)
-		{
-			RY_CORE_ERROR("Diden't found a vaild Marker! {}", i);
-			Origne origne = Origne::None;
-			return origne;
-		}
-		Origne origne = static_cast<Origne>(i);
+		if(Project::HasStringInPath(markedPath, RY_PATH_ENGINE_MARKER_STR))
+			return Origin::Engine;
+
+		if (Project::HasStringInPath(markedPath, RY_PATH_PROJECT_MARKER_STR))
+			return Origin::Project;
+
+		if (Project::HasStringInPath(markedPath, RY_PATH_NO_VALID_MARKER_STR))
+			return Origin::Unknown;
+
+		Origin origne = Origin::None;
+
+#ifdef RY_PATH_LOG_MSG
+		RY_CORE_TRACE("No valid marker found! Origin::None");
+#else
+		RY_REMBER_FUNC_CHANGE("Remove LOg State if not need!");
+#endif
 		return origne;
 	}
 
-	Path::Origne Path::GetExpextedOrigineFromRelativePath(const std::filesystem::path& path)
+	Path::Origin Path::GetExpectedOriginFromRelativePath(const std::filesystem::path& path)
 	{
 		int8_t i = 0;
-		const std::string relativePathSearch[] = {
-			RY_PATH_EXPEXT_ENGINE_RELATIV_START_STR,
-			"",
-		};
-		while ( i < 2 && !Project::HasStringInPath(path, relativePathSearch[i]))
+		
+		if (Project::HasStringInPath(path, RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR))
+			return Origin::Engine;
+
+		if(Project::HasStringInPath(path, ".."))
 		{
-			i++;
+			RY_CORE_WARN("Engine root path not found and path contains parent dots - assuming Origin::Unknown");
+			return Origin::Unknown;
 		}
-		if (2 <= i)
-		{
-			RY_CORE_ERROR("Diden't found a vaild Marker! {}", i);
-			Origne origne = Origne::None;
-			return origne;
-		}
-		int8_t origneIndex = PATH_MARKER_COUNT - i;
-		Origne origne = static_cast<Origne>(origneIndex);
+
+		
+		Origin origne = Origin::Project;
 		return origne;
 	}
 
-	Path::Origne Path::GetExpextedOrigineFromAbsoultePath(const std::filesystem::path& path)
+	Path::Origin Path::GetExpectedOriginFromAbsolutePath(const std::filesystem::path& path)
 	{
-		int8_t i = 0;
-		const std::string absoulutePathSearch[] = {
-			GetProjectDiretory().string(),
-			GetEngineDiretory().string(),
-		};
-		while (i < 2 && !Project::HasStringInPath(path, absoulutePathSearch[i]))
-		{
-			i++;
-		}
-		if ( 2 <= i)
-		{
-			RY_CORE_ERROR("Diden't found a vaild Marker! {}", i);
-			Origne origne = Origne::None;
-			return origne;
-		}
-		int8_t origneIndex = PATH_MARKER_COUNT - i;
-		Origne origne = static_cast<Origne>(origneIndex);
+		std::filesystem::path engineDirectory = GetEngineDirectory();
+		std::string engineDirectoryStr = engineDirectory.string();
+
+		if (Project::HasStringInPath(path, engineDirectoryStr))
+			return Origin::Engine;
+
+		std::filesystem::path projectDirector = GetProjectDirectory();
+		std::string projectDirectoryStr = projectDirector.string();
+
+		if (Project::HasStringInPath(path, projectDirectoryStr))
+			return Origin::Project;
+
+#ifdef RY_PATH_LOG_MSG
+		RY_CORE_TRACE("No valid marker found! Origin::Unknown");
+#else
+		RY_REMBER_FUNC_CHANGE("Remove Log State if not need!");
+#endif
+		Origin origne = Origin::Unknown;
 		return origne;
 	}
 
-	void Path::ConvertUniverselPath(std::filesystem::path& path)
+	void Path::ConvertUniversalPath(std::filesystem::path& path)
 	{
-		std::filesystem::path normalizedPath = path.lexically_normal();
-		std::string genaricPathStr = normalizedPath.generic_string();
-		path = genaricPathStr;
+		std::filesystem::path normalizedPath = path;
+		std::string genericPathStr = normalizedPath.generic_string();
+		path = genericPathStr;
+	}
+
+	std::tuple<std::filesystem::path, Path::Origin> Path::ConvertInternalPath(const std::string& pathStr, Origin origin)
+	{
+		auto[path, nextOrigin] = ConvertPathNoMarker(pathStr, origin);
+		ConvertAbsolutePath(path, nextOrigin);
+		ConvertUniversalPath(path);
+		return std::tuple<std::filesystem::path, Origin>(path, nextOrigin);
 	}
 
 
