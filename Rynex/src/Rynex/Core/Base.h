@@ -385,6 +385,18 @@ namespace Rynex {
 #endif
 
 	template<typename T>
+	struct IsScopePtr : std::false_type {};
+
+	template<typename T>
+	struct IsScopePtr<std::unique_ptr<T>> : std::true_type {};
+
+	template<typename T>
+	constexpr void CheckScopePtr(const T&)
+	{
+		static_assert(IsScopePtr<T>::value, "No Scope Ptr!");
+	}
+
+	template<typename T>
 	using Scope = std::unique_ptr<T>;
 
 	template<typename T, typename ... Args>
@@ -587,6 +599,15 @@ namespace std {
 		ref = nullptr; \
 	} \
 	RY_CORE_ASSERT(nullptr == ref, "Referz not Deleted!")
+
+#define RY_DESTROY_SCOPE(scope) \
+	CheckScopePtr(scope); \
+	if(nullptr != scope) \
+	{ \
+		scope.reset(); \
+		scope = nullptr; \
+	} \
+	RY_CORE_ASSERT(nullptr == scope, "Referz not Deleted!")
 
 #define RY_DESTROY_WEAK(weak) \
 	CheckWeakPtr(weak); \
