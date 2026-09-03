@@ -229,6 +229,12 @@ Rynex::Application* Rynex::CreateApplication(Rynex::ApplicationCommandLineArgs a
 	spec.Name = "Rynex-SandBox";
 	spec.CommandLineArgs = args;
 
+#ifndef BUILD_SYSTEM_PREMAKE
+	RY_CORE_FATAL("Manuel Working Directory configuration [This Solution is not Permanent]");
+	std::filesystem::path exeDir = std::filesystem::path(args[0]).parent_path().parent_path().parent_path().parent_path() / "Sandbox";
+	std::filesystem::current_path(exeDir);
+#endif
+
 	Project::New();
 	return new Sandbox(spec);
 }
