@@ -31,14 +31,25 @@ namespace Rynex {
 
     AssetType Asset::GetAssetTypeFromFilePath(const std::filesystem::path& filePath)
     {
-        
         std::filesystem::path extension = filePath.extension();
         std::string extensionStr = extension.string();
+        
+        
+        AssetType assetType = GetAssetTypeFromFilePath(extensionStr);
+        
+        std::filesystem::path filename = filePath.filename();
+        RY_CORE_ERROR_IF(AssetType::None != assetType, "Error: AssetType GetAssetTypeFromFilePath! Unkowne AssetType: ({} on {})", extensionStr, filename);
+        return assetType;
+    }
+
+    AssetType Asset::GetAssetTypeFromFilePath(const std::string& extensionStr)
+    {
+#if 1
         if (extensionStr == ".png" 
             || extensionStr == ".rytex2d" 
-            || extension == ".jpeg" 
-            || extension == ".jpg"
-            || extension == ".hdr")	return AssetType::Texture2D;
+            || extensionStr == ".jpeg"
+            || extensionStr == ".jpg"
+            || extensionStr == ".hdr")	            return AssetType::Texture2D;
         if (extensionStr.rfind(".ryframe-", 0) == 0) return AssetType::Texture2D;
         if (extensionStr == ".cs")		        return AssetType::Script;
         if (extensionStr == ".glsl")		    return AssetType::Shader;
@@ -58,12 +69,51 @@ namespace Rynex {
         if (extensionStr == ".ryarray-i")      return AssetType::IndexBuffer;
         if (extensionStr.rfind(".ryarray-", 0) == 0)
             return AssetType::VertexBuffer;
-        
-        std::filesystem::path filename = filePath.filename();
-        RY_ASSET_ERROR("Error: AssetType GetAssetTypeFromFilePath! Unkowne AssetType: ({} on {})", extensionStr, filename);
 
         return AssetType::None;
+#else
+        using HashMap = HashMapFlat<std::string_view, AssetType>;
+        using ItConst = typename HashMap::const_iterator;
+        static const HashMap s_ExtensionMap = {
+            { ".png",        AssetType::Texture2D   },
+            { ".rytex2d",    AssetType::Texture2D   },
+            { ".jpeg",       AssetType::Texture2D   },
+            { ".jpg",        AssetType::Texture2D   },
+            { ".hdr",        AssetType::Texture2D   },
+            { ".cs",         AssetType::Script      },
+            { ".glsl",       AssetType::Shader      },
+            { ".gltf",       AssetType::MeshSource  },
+            { ".rymesh",     AssetType::MeshSource  },
+            { ".fbx",        AssetType::MeshSource  },
+            { ".usda",       AssetType::MeshSource  },
+            { ".rystmesh",   AssetType::MeshStatic  },
+            { ".rynexscene", AssetType::Scene       },
+            { ".ryframe",    AssetType::Framebuffer },
+            { ".ttf",        AssetType::TextFont    },
+            { ".bin",        AssetType::BinaryFile  },
+            { ".max",        AssetType::BinaryFile  },
+            { ".txt",        AssetType::TextFile    },
+            { ".ryarray",    AssetType::VertexArray },
+            { ".ryarray-i",  AssetType::IndexBuffer },
+        };
+        RY_REMBER_FUNC_CHANGE("If this solution works Remove old implemtion!");
+
+        ItConst it = s_ExtensionMap.find(extensionStr);
+        if (s_ExtensionMap.end() != it)
+            return it->second;
+
+        if (0u == extensionStr.rfind(".ryframe-", 0u)) 
+            return AssetType::Texture2D;
+
+        if (0u == extensionStr.rfind(".ryarray-", 0u))
+            return AssetType::VertexBuffer;
+        
+       
+
+        return AssetType::None;
+#endif
     }
+
 
     std::string Asset::GetAssetTypeDragAndDropName(AssetType type)
     {

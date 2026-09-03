@@ -45,6 +45,7 @@ namespace Rynex {
 		static std::string_view AssetTypeToString(AssetType type);
 		static AssetType AssetTypeFromString(std::string_view assetType);
 		static AssetType GetAssetTypeFromFilePath(const std::filesystem::path& filePath);
+		static AssetType GetAssetTypeFromFilePath(const std::string& extensionStr);
 		static std::string GetAssetTypeDragAndDropName(AssetType type);
 		static std::string GetAssetTypeMoveAssetInfosName(AssetType type);
 
