@@ -4,7 +4,7 @@
 #include "Rynex/Asset/Base/AssetManager.h"
 
 
-#ifdef RY_PLATFORM_WINDOWS
+#ifdef RY_ASSIMP_MODEL_LODER
     #include <assimp/Importer.hpp>
     #include <assimp/scene.h>
     #include <assimp/postprocess.h>
@@ -17,7 +17,7 @@
 #include <future>
 #include <chrono>
 
-#ifdef RY_PLATFORM_WINDOWS
+#ifdef RY_ASSIMP_MODEL_LODER
 
 namespace Rynex {
 
