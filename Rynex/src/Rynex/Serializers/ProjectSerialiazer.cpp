@@ -42,7 +42,7 @@ namespace Rynex {
 		{
 			constexpr const char* markerProject = RY_PATH_PROJECT_MARKER_STR;
 			std::string realtiveFromBaseStr = "";
-			if (path != "")
+			if (!path.empty())
 			{
 				std::filesystem::path realtiveFromBase = "";
 				if (path.is_absolute())
@@ -53,8 +53,8 @@ namespace Rynex {
 				realtiveFromBase = realtiveFromBase.lexically_normal();
 				realtiveFromBaseStr = realtiveFromBase.generic_string();
 				realtiveFromBase = realtiveFromBaseStr;
-				realtiveFromBase = Project::SetMarker(realtiveFromBase, markerProject);
-				realtiveFromBaseStr = realtiveFromBase.string();
+
+				realtiveFromBaseStr = Project::SetMarker(realtiveFromBase, markerProject);
 			}
 
 			out << YAML::Key << name << YAML::Value << realtiveFromBaseStr;
@@ -129,7 +129,7 @@ namespace Rynex {
 			return false;
 		}
 
-		auto projectNode = data["Project"];
+		YAML::Node projectNode = data["Project"];
 		if (!projectNode)
 			return false;
 
@@ -137,6 +137,7 @@ namespace Rynex {
 		std::string parentProjectFileStr = parentProjectFile.generic_string();
 		parentProjectFile = parentProjectFileStr;
 		config.Name = projectNode["Name"].as<std::string>();
+		config.ProjectPath = parentProjectFileStr;
 
 		DESERLIZE_PATH(ProjectPath);
 		DESERLIZE_PATH(AssetDirectory);

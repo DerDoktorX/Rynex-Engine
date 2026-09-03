@@ -12,7 +12,7 @@ namespace Rynex {
 	struct AssetFindeInfo
 	{
 		AssetHandle Handle;
-		std::filesystem::path MarkedPath;
+		std::string MarkedPath;
 		std::filesystem::path Path;
 
 		AssetFindeInfo()
@@ -22,9 +22,9 @@ namespace Rynex {
 		{
 		}
 
-		AssetFindeInfo(AssetHandle handle, const std::filesystem::path& markedPath, const std::filesystem::path& path = "")
+		AssetFindeInfo(AssetHandle handle, const std::string& markedPathStr, const std::filesystem::path& path = "")
 			: Handle(handle)
-			, MarkedPath(markedPath)
+			, MarkedPath(markedPathStr)
 			, Path(path)
 		{
 		}
@@ -116,10 +116,10 @@ namespace Rynex {
 		}
 
 
-		static AssetHandle GetAssetHandleMarkedPath(const std::filesystem::path& pathMarked)
+		static AssetHandle GetAssetHandleMarkedPath(const std::string& pathMarkedStr)
 		{
-			std::string marker = Project::ExtraxtMarker(pathMarked);
-			std::filesystem::path path = Project::RemoveMarker(pathMarked, marker);
+			std::string marker = Project::ExtraxtMarker(pathMarkedStr);
+			std::filesystem::path path = Project::RemoveMarker(pathMarkedStr, marker);
 
 			Ref<Project> project = Project::GetActive();
 			Ref<AssetManagerBase> assetManger = project->GetAssetManger();

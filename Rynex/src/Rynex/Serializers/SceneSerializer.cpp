@@ -629,15 +629,15 @@ namespace Utils {
 			if (!nodeE)
 				return false;
 
-			std::string path = "";
-			std::string makredPath = "";
+			std::string path;
+			std::string makredPathStr;
 			if (YAML::Node nodeAtribut = nodeE["Path"])
 				path = nodeAtribut.as<std::string>();
 			if (YAML::Node nodeAtribut = nodeE["Path-ProjectMarker"])
-				makredPath = nodeAtribut.as<std::string>();
+				makredPathStr = nodeAtribut.as<std::string>();
 
 			AssetHandle handle = nodeE["Handle"].as<uint64_t>();
-			AssetFindeInfo info = AssetFindeInfo(handle, makredPath, path);
+			AssetFindeInfo info = AssetFindeInfo(handle, makredPathStr, path);
 			*entityC = AssetManager::FindeAsset<T>(info);
 			
 			return true;
@@ -651,14 +651,14 @@ namespace Utils {
 				return loadePromis;
 
 			std::string path = "";
-			std::string makredPath = "";
+			std::string makredPathStr = "";
 			if (YAML::Node nodeAtribut = nodeE["Path"])
 				path = nodeAtribut.as<std::string>();
 			if (YAML::Node nodeAtribut = nodeE["Path-ProjectMarker"])
-				makredPath = nodeAtribut.as<std::string>();
+				makredPathStr = nodeAtribut.as<std::string>();
 			AssetHandle handle = nodeE["Handle"].as<uint64_t>();
 
-			AssetFindeInfo info = AssetFindeInfo(handle, makredPath, path);
+			AssetFindeInfo info(handle, makredPathStr, path);
 
 			int entityID = entity.GetEntityHandle();
 			Ref<Scene> scene = entity.GetScene();
@@ -823,7 +823,7 @@ namespace Utils {
 				{
 					SpriteRendererComponent& sc = deserializedEntity.AddComponent<SpriteRendererComponent>();
 					sc.Color = spriteRendererComponent["Color"].as<glm::vec4>();
-YAML::Node spriteRendererComponentTexture = spriteRendererComponent["Texture"];
+					YAML::Node spriteRendererComponentTexture = spriteRendererComponent["Texture"];
 					RefSceneLodePromisType<Texture> promis = Utils::Deserialize::DeserializeAssetFormate<SpriteRendererComponent, Texture>(spriteRendererComponentTexture, deserializedEntity, AssetType::Texture2D);
 					if (nullptr != promis)
 						lodingPromisVec.emplace_back(promis);

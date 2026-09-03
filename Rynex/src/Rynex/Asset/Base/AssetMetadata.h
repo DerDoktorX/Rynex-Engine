@@ -31,7 +31,8 @@ namespace Rynex {
 
 		std::filesystem::path RealtivePath = "Not knowing Realative Path";
 		std::filesystem::path AbsolutePath = "Not knowing Absolute Path";
-		std::filesystem::path PathMarker = RY_PATH_NO_VAILD_MARKER_STR "/Not knowing Path";
+		std::string PathMarker = RY_PATH_NO_VALID_MARKER_STR "/Not knowing Path";
+		FileSystem::Path Path;
 
 		AssetMetadata() = default;
 		AssetMetadata(const AssetMetadata&) = default;
@@ -51,8 +52,9 @@ namespace Rynex {
 		}	
 
 		void SetFilePath(const std::filesystem::path& path);
-		void SetMarkedFilePath(const std::filesystem::path& markedPath);
-		void SetMarkedFilePath(const std::filesystem::path& markedPath, const std::filesystem::path& path);
+		void SetFilePath(const FileSystem::Path& path);
+		void SetMarkedFilePath(const std::string& markedPathStr);
+		void SetMarkedFilePath(const std::string& markedPathStr, const std::filesystem::path& path);
 		
 
 		void SetChildeHandleMaxIndex(uint32_t maxIndex)

@@ -45,12 +45,12 @@ namespace Rynex {
 				std::string pathAbosulteStr = pathAbosulte.generic_string();
 				pathAbosulte = pathAbosulteStr;
 
-				std::filesystem::path filePathMarker = Project::SetMarker(realtivePath, marker);
+				std::string filePathMarkerStr = Project::SetMarker(realtivePath, marker);
 
 				// out << YAML::Key << "FilePath" << YAML::Value << filePathStr;
 				// out << YAML::Key << "FilePath-Absolute" << YAML::Value << pathAbosulte.string();
 				// out << YAML::Key << "FilePath-Realtiv" << YAML::Value << realtivePath.string();
-				out << YAML::Key << "FilePath-ProjectMarker" << YAML::Value << filePathMarker.string();
+				out << YAML::Key << "FilePath-ProjectMarker" << YAML::Value << filePathMarkerStr;
 
 				out << YAML::Key << "Type" << YAML::Value << Asset::AssetTypeToString(metadata.Type);
 				out << YAML::Key << "Name" << YAML::Value << metadata.Name;
@@ -103,11 +103,16 @@ namespace Rynex {
 				filePathRealtivStr = nodePath.as<std::string>();
 			std::string filePathMarkerStr = node["FilePath-ProjectMarker"].as<std::string>();
 
-
-			std::filesystem::path filePathMarker = filePathMarkerStr;
-			filePathMarkerStr = filePathMarker.generic_string();
-			filePathMarker = filePathMarkerStr;
+#if 1
+			FileSystem::Path pathSystemMarked = FileSystem::Path(filePathMarkerStr);
+			// FileSystem::Path pathSystemRealtiv = FileSystem::Path(filePathAbsoluteStr);
+			// FileSystem::Path pathSystemAbsoulte = FileSystem::Path(filePathRealtivStr);
+#else
+			RY_REMBER_FUNC_CHANGE("Test #if FileSystem::Path with out put!");
+#endif
 			
+			
+			std::replace(filePathMarkerStr.begin(), filePathMarkerStr.end(), '\\', '/');
 		
 			if (YAML::Node nodePath = node["FilePath"])
 			{
@@ -117,12 +122,12 @@ namespace Rynex {
 				filePathStr = origFilePath.generic_string();
 				origFilePath = filePathStr;
 
-				metadata.SetMarkedFilePath(filePathMarker, origFilePath);
+				metadata.SetMarkedFilePath(filePathMarkerStr, origFilePath);
 
 			}
 			else 
 			{
-				metadata.SetMarkedFilePath(filePathMarker);
+				metadata.SetMarkedFilePath(filePathMarkerStr);
 			}
 			
 
