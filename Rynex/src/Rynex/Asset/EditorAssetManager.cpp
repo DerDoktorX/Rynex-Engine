@@ -532,9 +532,6 @@ namespace Rynex {
 
 						asset = AssetImporter::ImportAsset(handle, GetMetadata(handle));
 
-						{
-							
-						}
 							
 						RY_CORE_ASSERT(asset, "Error on: 'EditorAssetManager::GetAsset' No Asset Lodead!");
 						if (asset)
@@ -975,6 +972,7 @@ namespace Rynex {
 			m_HandleRegistry.Write(
 				[this](std::map<AssetHandle, AssetMetadata>& mapHandleRegister)
 				{
+
 					m_PathRegistry.Write(
 						[this, &mapHandleRegister](std::map<std::filesystem::path, AssetHandle>& mapPathRegister)
 						{
@@ -991,6 +989,7 @@ namespace Rynex {
 
 	bool EditorAssetManegerThreade::ExexuteEvent(AssetHandle handle)
 	{
+		constexpr int64_t MAX_WAIT_TIME_LODING_AGAIN_SEC = 1.5;
 		if (handle)
 		{			
 			if(IsAssetLoaded(handle))
@@ -1013,7 +1012,7 @@ namespace Rynex {
 					{
 						std::chrono::steady_clock::time_point curent = std::chrono::steady_clock::now();
 						int64_t diferenc = std::chrono::duration_cast<std::chrono::seconds>(curent - lodetime).count();
-						return diferenc > 1.5;
+						return MAX_WAIT_TIME_LODING_AGAIN_SEC < diferenc;
 					}
 					break;
 				}
