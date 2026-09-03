@@ -1,41 +1,19 @@
-﻿cmake_minimum_required(VERSION 3.16)
+﻿
+cmake_minimum_required(VERSION 4.3)
 
-set(PREMAKE_BUILD_TYPES "Debug" "Release" "Dist")
-get_property(multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-if(multi_config)
-  set(CMAKE_CONFIGURATION_TYPES "${PREMAKE_BUILD_TYPES}" CACHE STRING "list of supported configuration types" FORCE)
-else()
-  set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build Type of the project.")
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "${PREMAKE_BUILD_TYPES}")
-  if(NOT CMAKE_BUILD_TYPE IN_LIST PREMAKE_BUILD_TYPES)
-    message(FATAL_ERROR
-      "Invalid build type '${CMAKE_BUILD_TYPE}'.
-      CMAKE_BUILD_TYPE must be any one of the possible values:
-      ${PREMAKE_BUILD_TYPES}"
-    )
-  endif()
-endif()
+project(Rynex-Rendering)
+include(FetchContent)
 
-set(CMAKE_MSVC_RUNTIME_LIBRARY "")
-set(CMAKE_C_FLAGS "")
-set(CMAKE_CXX_FLAGS "")
-set(CMAKE_C_FLAGS_DEBUG "")
-set(CMAKE_CXX_FLAGS_DEBUG "")
-set(CMAKE_C_FLAGS_RELEASE "")
-set(CMAKE_CXX_FLAGS_RELEASE "")
-set(CMAKE_C_FLAGS_DIST "")
-set(CMAKE_CXX_FLAGS_DIST "")
+add_subdirectory(Rynex/vendor/assimp)
+add_subdirectory(Rynex/vendor/GLFW)
+add_subdirectory(Rynex/vendor/glm)
+add_subdirectory(Rynex/vendor/meshoptimizer)
+add_subdirectory(Rynex/vendor/spdlog)
 
-project("Rynex-Rendering")
-include(Rynex/vendor/GLFW/GLFW.cmake)
-include(Rynex/vendor/Glad/Glad.cmake)
-include(Rynex/vendor/imgui/ImGui.cmake)
-include(Rynex/vendor/assimp/assimp.cmake)
-include(Rynex/vendor/msdf-atelas-gen/msdfgen/freetype/freetype.cmake)
-include(Rynex/vendor/meshoptimizer/meshoptimizer.cmake)
-include(Rynex/vendor/msdf-atelas-gen/msdf-atlas-gen.cmake)
-include(Rynex/vendor/msdf-atelas-gen/msdfgen/msdfgen.cmake)
-include(Rynex/vendor/yaml-cpp/yaml-cpp.cmake)
-include(Rynex/Rynex.cmake)
-include(Rynex-Editor/Rynex-Editor.cmake)
-include(Sandbox/Sandbox.cmake)
+FetchContent_Declare(
+        yaml-cpp
+        # GIT_REPOSITORY https://github.com/ocornut/imgui.git
+        # GIT_TAG v1.91.9b-docking
+        # DOWNLOAD_EXTRACT_TIMESTAMP OFF
+)
+add_subdirectory(Rynex/vendor/yaml-cpp)
