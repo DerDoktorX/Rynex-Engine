@@ -100,8 +100,8 @@ namespace Rynex {
 	{
 		using ItInsert = std::vector<IndexSubMesh>::iterator;
 		std::vector<IndexSubMesh>& subMeshIniciesVec = m_EnitiyToVecIndicesMap[entity];
-
-		ItInsert itPos = std::lower_bound(subMeshIniciesVec.begin(), subMeshIniciesVec.end(), subMesh,
+		ItInsert itEnd = subMeshIniciesVec.end();
+		ItInsert itPos = std::lower_bound(subMeshIniciesVec.begin(), itEnd, subMesh,
 			[](const IndexSubMesh& aIndices, uint32_t bSubMesh)
 			{
 				return aIndices.subMesh < bSubMesh;
@@ -109,7 +109,7 @@ namespace Rynex {
 
 		{
 
-			bool isVaildInsideRange = ItInsert() != itPos && itPos < subMeshIniciesVec.end();
+			bool isVaildInsideRange = itEnd != itPos && itPos < itEnd;
 			bool hasSameSubMesh = isVaildInsideRange ? itPos->subMesh == subMesh : false;
 			bool hasNotSameIndexOrOutSideVaildRange = isVaildInsideRange ? itPos->proxyIndex != proxyIndex : true;
 			if (hasSameSubMesh && hasNotSameIndexOrOutSideVaildRange)

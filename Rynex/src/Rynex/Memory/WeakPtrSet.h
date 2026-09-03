@@ -146,7 +146,7 @@ namespace Rynex {
 					RY_CORE_ERROR("valuePtr is already in container!");
 					return std::numeric_limits<SizeType>::max();
 				}
-				DifernzType index = ContainerIt() != pos ? pos - begin : 0;
+				DifernzType index = end != pos ? pos - begin : 0;
 				RY_CORE_ASSERT(0 <= index && index <= m_Container.size(), "index is negative and (not to be Positive)!");
 				m_Container.insert(pos, item);
 				
