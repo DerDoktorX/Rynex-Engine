@@ -6,7 +6,7 @@
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
-#include <gl/GL.h>
+// #include <gl/GL.h>
 
 namespace Rynex {
 #define RY_ENABLE_LODING_THREADE_FANCE 1
