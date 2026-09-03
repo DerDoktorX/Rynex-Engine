@@ -24,12 +24,13 @@ workspace "Rynex-Rendering"
 
 	filter "not toolset:msc*"
      	buildoptions { "-finput-charset=UTF-8" }
+		-- buildoptions { "/utf-8" }
 	 	print('utf-8 set compile NOT MSVC!')
 	 	
-	 filter "toolset:msc*"
+	filter "toolset:msc*"
      	buildoptions { "/utf-8" }
 	 	print('utf-8 set compile MSVC!')
-		
+
 
 	-- conformancemode "Off" -- disable in vs2026 -> /permissive-
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
@@ -87,15 +88,15 @@ LibraryDir = {}
 Library_WIN = {}
 Library_LINUX = {}
 
-LibraryDir["mono"] = "%{wks.location}/Rynex/vendor/mono/lib/%{cfg.buildcfg}"
+-- LibraryDir["mono"] = "%{wks.location}/Rynex/vendor/mono/lib/%{cfg.buildcfg}"
 LibraryDir["mono_Release"] = "%{wks.location}/Rynex/vendor/mono/lib/Release"
 LibraryDir["mono_Debug"] = "%{wks.location}/Rynex/vendor/mono/lib/Debug"
 
-Library_WIN["mono"] = "%{LibraryDir.mono}/libmono-static-sgen.lib"
+-- Library_WIN["mono"] = "%{LibraryDir.mono}/libmono-static-sgen.lib"
 Library_WIN["mono_Release"] = "%{LibraryDir.mono_Release}/libmono-static-sgen.lib"
 Library_WIN["mono_Debug"] = "%{LibraryDir.mono_Debug}/libmono-static-sgen.lib"
 
-Library_LINUX["mono"] = "%{LibraryDir.mono}/libmono-static-sgen.a"
+-- Library_LINUX["mono"] = "%{LibraryDir.mono}/libmono-static-sgen.a"
 Library_LINUX["mono_Release"] = "%{LibraryDir.mono_Release}/libmono-static-sgen.a"
 Library_LINUX["mono_Debug"] = "%{LibraryDir.mono_Debug}/libmono-static-sgen.a"
 

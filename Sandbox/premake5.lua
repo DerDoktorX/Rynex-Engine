@@ -17,7 +17,7 @@ project "Sandbox"
 	kind "ConsoleApp"
     language "C++"
 	cppdialect "C++17"
-	toolset = Compiler
+	-- toolset = Compiler
 
 
 
@@ -49,7 +49,8 @@ project "Sandbox"
 
 	defines
 	{
-		"RY_SANDBOX"
+		"RY_SANDBOX",
+		"BUILD_SYSTEM_PREMAKE"
 	}
 	
 	links
@@ -65,6 +66,7 @@ project "Sandbox"
 
 	filter "system:linux"
 		systemversion "latest"
+		pic "On"
 		
 	
 	filter "configurations:Debug"

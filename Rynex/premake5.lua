@@ -1,3 +1,4 @@
+
 project "Rynex"
 
 	if BuildProjectConf == "Static" or BuildProjectConf == "Static2Lib"  then
@@ -25,7 +26,7 @@ project "Rynex"
 	
 	pchheader "rypch.h"
 	pchsource "src/rypch.cpp"
-	toolset = Compiler
+	-- toolset = Compiler
 	files
 	{
 		"src/**.h",
@@ -41,10 +42,13 @@ project "Rynex"
 		"vendor/magic_enum/**.hpp",
 	}
 
+	
+
 	defines
 	{
 		"_CRT_SECURE_NO_WARNINGS",
 		"GLFW_INCLUDE_NONE",
+		
 	}
 
 	includedirs
@@ -56,7 +60,7 @@ project "Rynex"
 
 		"%{IncludeDir.entt}",		-- Entity
 		"%{IncludeDir.robin_hood_hashing}", -- has map
-		"%{IncludeDir.mono}",		-- C#
+		--"%{IncludeDir.mono}",		-- C#
 		-- Math
 		"%{IncludeDir.glm}",
 		-- Grafic API
@@ -78,7 +82,6 @@ project "Rynex"
 	}
 
 
-	print('Other Builds then Windows don\'t build use [Mono, Assimp] Curently!')
 
 	links
 	{
@@ -141,32 +144,35 @@ project "Rynex"
     	    "Xcursor",
     	    "Xinerama",
     	}
-
+	filter { "system:None"}
 
 	filter "configurations:Debug"
 		defines "RY_DEBUG"
 		runtime "Debug"
 
+
 	filter "configurations:Release"
-		defines "RY_REALSE"
+		defines "RY_RELEASE"
 		runtime "Release"
 		symbols "on"
-		optimize "on"	
+		optimize "on"
+	filter { "configurations:Default"}
 
 	filter "configurations:Dist"
 		defines "RY_DIST"
 		runtime "Release"
 		optimize "on"
+	filter { "configurations:Default"}
 
 
 	filter {"system:windows", "configurations:Debug"}
-		links { "%{Library_WIN.mono_Debug}" }
+		-- links { "%{Library_WIN.mono_Debug}" }
 
 	filter {"system:windows", "configurations:Release"}
-		links { "%{Library_WIN.mono_Release}" }
+		-- links { "%{Library_WIN.mono_Release}" }
 
 	filter {"system:windows", "configurations:Dist"}
-		links { "%{Library_WIN.mono_Release}" }
+		-- links { "%{Library_WIN.mono_Release}" }
 		
 
 	filter { "system:linux", "configurations:Debug" }
@@ -177,7 +183,7 @@ project "Rynex"
 
 	filter { "system:linux", "configurations:Dist" }
 		links { "%{Library_LINUX.mono_Release}", }
-
+	filter { "system:none", "configurations:Default"}
 	
 
 	

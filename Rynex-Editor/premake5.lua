@@ -19,7 +19,7 @@ project "Rynex-Editor"
 
 	targetdir ("%{wks.location}/bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/bin-int/" .. outputdir .. "/%{prj.name}")
-	toolset = Compiler
+	-- toolset = Compiler
 
 	files
 	{
@@ -56,6 +56,11 @@ project "Rynex-Editor"
 		"Rynex"
 	}
 	
+	defines
+	{
+		"RY_EDITOR",
+		"BUILD_SYSTEM_PREMAKE"
+	}
 	
 
 	filter "system:windows"
@@ -63,6 +68,7 @@ project "Rynex-Editor"
 
 	filter "system:linux"
 		systemversion "latest"
+		pic "On"
 		
 	
 	filter "configurations:Debug"
@@ -81,8 +87,3 @@ project "Rynex-Editor"
 		runtime "Release"
 		optimize "on"
 
-	filter "toolset:msc*"
-    	buildoptions { "/utf-8" }
-
-	filter "not toolset:msc*"
-    	buildoptions { "-finput-charset=UTF-8" }
