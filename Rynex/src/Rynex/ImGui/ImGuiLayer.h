@@ -4,9 +4,7 @@
 #include "Rynex/Core/Base.h"
 
 #include "Rynex/Events/Event.h"
-#include "Rynex/Events/KeyEvent.h"
-#include "Rynex/Events/MouseEvent.h"
-#include "Rynex/Events/ApplicationEvent.h"
+
 
 namespace Rynex {
 
