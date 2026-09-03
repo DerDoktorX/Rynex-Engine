@@ -16,11 +16,710 @@
 
 
 namespace Rynex {
+	namespace Test {
+		
+		static void EngineFilePathClassTestChangeOrigne()
+		{
+			constexpr const FileSystem::Path::Origin expextOutPutOrigne = FileSystem::Path::Origin::Engine;
+			{
+				constexpr const char* checkPath = RY_PATH_PROJECT_MARKER_STR "/../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
+				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
+				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
+				constexpr const char* expextOutPutMarked = RY_PATH_ENGINE_MARKER_STR "/../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
 
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(checkPath);
+				fileSystemPath.SetMarker(expextOutPutOrigne);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == expextOutPutOrigne;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 1 Marked Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 1 Marked Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 1 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 1 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 1 Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 1 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+			}
+			{
+				constexpr const char* checkPath = "Editor-Assets/Texture/ChernoLogo.png";
+				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
+				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
+				constexpr const char* expextOutPutMarked = RY_PATH_ENGINE_MARKER_STR "/../Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
+
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(checkPath);
+				fileSystemPath.SetMarker(expextOutPutOrigne);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == expextOutPutOrigne;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 2 Realtiv Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 2 Realtiv Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 2 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 2 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 2 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 2 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+			}
+
+			{
+				constexpr const char* checkPath = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
+				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
+
+				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
+				constexpr const char* expextOutPutMarked = "Engine#!#/../Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
+
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(checkPath, FileSystem::Path::Origin::Project);
+				fileSystemPath.SetMarker(expextOutPutOrigne);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == expextOutPutOrigne;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 3 Absolute Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+
+			}
+		}
+
+		static void ProjectFilePathClassTestWindowsPathConvention()
+		{
+			constexpr const FileSystem::Path::Origin expextOutPutOrigne = FileSystem::Path::Origin::Project;
+			{
+				constexpr const char* checkPath = "Project#!#\\Assets\\Shaders\\Fetures\\Plane3DShadow.glsl";
+				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Shaders/Fetures/Plane3DShadow.glsl";
+
+				constexpr const char* expextOutPutRealtiv = "Assets/Shaders/Fetures/Plane3DShadow.glsl";
+				constexpr const char* expextOutPutMarked = "Project#!#/Assets/Shaders/Fetures/Plane3DShadow.glsl";
+
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(checkPath);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == expextOutPutOrigne;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 1 Marked Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 1 Marked Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 1 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 1 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 1 Marked Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 1 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+			}
+			{
+				constexpr const char* checkPath = "Assets\\Models\\CV-Model\\scene.rystmesh";
+				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Models/CV-Model/scene.rystmesh";
+
+				constexpr const char* expextOutPutRealtiv = "Assets/Models/CV-Model/scene.rystmesh";
+				constexpr const char* expextOutPutMarked = "Project#!#/Assets/Models/CV-Model/scene.rystmesh";
+
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(checkPath);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == expextOutPutOrigne;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 2 Realtiv Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 2 Realtiv Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 2 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 2 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 2 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 2 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+			}
+
+			{
+				constexpr const char* checkPath = "D:\\dev\\Rynex-Test-Projects\\Test-Project-System\\Assets\\Scene\\Cube2-Test-LigthShader.rynexscene";
+				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Scene/Cube2-Test-LigthShader.rynexscene";
+
+				constexpr const char* expextOutPutRealtiv = "Assets/Scene/Cube2-Test-LigthShader.rynexscene";
+				constexpr const char* expextOutPutMarked = "Project#!#/Assets/Scene/Cube2-Test-LigthShader.rynexscene";
+
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(checkPath);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == expextOutPutOrigne;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 3 Absolute Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+			}
+
+		}
+
+		static void EngineFilePathClassTestWhrongOrgnieInput()
+		{
+			constexpr const FileSystem::Path::Origin expextOutPutOrigne = FileSystem::Path::Origin::Engine;
+			{
+				constexpr const char* checkPath = "Engine#!#/../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
+				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
+				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
+				constexpr const char* expextOutPutMarked = "Engine#!#/../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
+
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(checkPath, FileSystem::Path::Origin::Project);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == expextOutPutOrigne;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 1 Marked Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 1 Marked Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 1 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 1 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 1 Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 1 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+			}
+			{
+				constexpr const char* checkPath = "../Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
+				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Test-Projects/Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
+				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
+				constexpr const char* expextOutPutMarked = RY_PATH_PROJECT_MARKER_STR "/../Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
+
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(FileSystem::Path::Origin::Project).data());
+				FileSystem::Path fileSystemPath(checkPath, FileSystem::Path::Origin::Project);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == FileSystem::Path::Origin::Project;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 2 Realtiv Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 2 Realtiv Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 2 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 2 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 2 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 2 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+			}
+
+			{
+				constexpr const char* checkPath = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
+				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
+
+				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
+				constexpr const char* expextOutPutMarked = "Engine#!#/../Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
+
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(checkPath, FileSystem::Path::Origin::Project);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == expextOutPutOrigne;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 3 Absolute Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+
+			}
+		}
+
+		static void EngineFilePathClassTest()
+		{
+			constexpr const FileSystem::Path::Origin expextOutPutOrigne = FileSystem::Path::Origin::Engine;
+			{
+				constexpr const char* checkPath = "Engine#!#/../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
+				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
+				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
+				constexpr const char* expextOutPutMarked = "Engine#!#/../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
+
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(checkPath);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == expextOutPutOrigne;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 1 Marked Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 1 Marked Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 1 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 1 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 1 Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 1 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+			}
+			{
+				constexpr const char* checkPath = "../Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
+				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
+				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
+				constexpr const char* expextOutPutMarked = "Engine#!#/../Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
+
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(checkPath);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == expextOutPutOrigne;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 2 Realtiv Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 2 Realtiv Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 2 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 2 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 2 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 2 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+			}
+
+			{
+				constexpr const char* checkPath = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
+				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
+				
+				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
+				constexpr const char* expextOutPutMarked = "Engine#!#/../Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
+
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(checkPath);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == expextOutPutOrigne;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 3 Absolute Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+
+			}
+		}
+
+		static void ProjectFilePathClassTest()
+		{
+			constexpr const FileSystem::Path::Origin expextOutPutOrigne = FileSystem::Path::Origin::Project;
+			{
+				constexpr const char* checkPath = "Project#!#/Assets/Shaders/Fetures/Plane3DShadow.glsl";
+				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Shaders/Fetures/Plane3DShadow.glsl";
+				
+				constexpr const char* expextOutPutRealtiv = "Assets/Shaders/Fetures/Plane3DShadow.glsl";
+				constexpr const char* expextOutPutMarked = "Project#!#/Assets/Shaders/Fetures/Plane3DShadow.glsl";
+
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(checkPath);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == expextOutPutOrigne;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 1 Marked Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 1 Marked Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 1 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 1 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 1 Marked Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 1 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+			}
+			{
+				constexpr const char* checkPath = "Assets/Models/CV-Model/scene.rystmesh";
+				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Models/CV-Model/scene.rystmesh";
+				
+				constexpr const char* expextOutPutRealtiv = "Assets/Models/CV-Model/scene.rystmesh";
+				constexpr const char* expextOutPutMarked = "Project#!#/Assets/Models/CV-Model/scene.rystmesh";
+
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(checkPath);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == expextOutPutOrigne;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 2 Realtiv Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 2 Realtiv Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 2 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 2 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 2 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 2 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+			}
+
+			{
+				constexpr const char* checkPath = "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Scene/Cube2-Test-LigthShader.rynexscene";
+				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Scene/Cube2-Test-LigthShader.rynexscene";
+
+				constexpr const char* expextOutPutRealtiv = "Assets/Scene/Cube2-Test-LigthShader.rynexscene";
+				constexpr const char* expextOutPutMarked = "Project#!#/Assets/Scene/Cube2-Test-LigthShader.rynexscene";
+
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(checkPath);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == expextOutPutOrigne;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 3 Absolute Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+			}
+
+		}
+		
+		static void UnknownFilePathClassTest()
+		{
+			constexpr const FileSystem::Path::Origin expextOutPutOrigne = FileSystem::Path::Origin::Unknown;
+			{
+				constexpr const char* checkPath = "../../../Dokument/Notiz.txt";
+				constexpr const char* expextOutPutAbsoulte = "/../../../Dokument/Notiz.txt";
+				constexpr const char* expextOutPutRealtiv = "/../../../Dokument/Notiz.txt";
+				constexpr const char* expextOutPutMarked = "NotVaild!#/../../../Dokument/Notiz.txt";
+
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(checkPath);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == expextOutPutOrigne;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 1 Realtiv Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 1 Realtiv Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 1 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 1 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 1 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 1 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+			}
+			{
+				constexpr const char* checkPath = "NotVaild!#/../../Pictures/Bird.png";
+				constexpr const char* expextOutPutAbsoulte = "/../../Pictures/Bird.png";
+				
+				constexpr const char* expextOutPutRealtiv = "/../../Pictures/Bird.png";
+				constexpr const char* expextOutPutMarked = "NotVaild!#/../../Pictures/Bird.png";
+
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(checkPath);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == expextOutPutOrigne;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 2 Marked Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 2 Marked Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 2 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 2 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 2 Marked Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 2 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+			}
+
+			{
+				constexpr const char* checkPath = "C:/Users/Public/Pictures/CheckeBord.png";
+				constexpr const char* expextOutPutAbsoulte = "C:/Users/Public/Pictures/CheckeBord.png";
+
+				constexpr const char* expextOutPutRealtiv = "C:/Users/Public/Pictures/CheckeBord.png";
+				constexpr const char* expextOutPutMarked = "NotVaild!#/C:/Users/Public/Pictures/CheckeBord.png";
+
+				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(checkPath);
+				std::string pathStr = fileSystemPath.GetPath().string();
+				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
+				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
+				std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
+
+				bool resultPath = pathStr == expextOutPutAbsoulte;
+				bool resultAbsoulte = pathAbsoulteStr == expextOutPutAbsoulte;
+				bool resultRealtiv = pathRelativeStr == expextOutPutRealtiv;
+				bool resultMarked = pathMarkedStr == expextOutPutMarked;
+
+				FileSystem::Path::Origin origne = fileSystemPath.GetOrigin();
+				bool resultOrigne = origne == expextOutPutOrigne;
+
+				if (resultPath && resultOrigne && resultAbsoulte && resultRealtiv && resultMarked)
+				{
+					RY_CORE_INFO("Test 2 Marked Path: Pass");
+				}
+				else
+				{
+					RY_CORE_ERROR_IF(resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ASSERT(false);
+				}
+			}
+		}
+
+
+
+		static void FileSystemClass()
+		{
+			UnknownFilePathClassTest();
+			ProjectFilePathClassTest();
+			EngineFilePathClassTest();
+
+			EngineFilePathClassTestWhrongOrgnieInput();
+			EngineFilePathClassTestChangeOrigne();
+
+		}
+	}
 
 	bool EditorAssetMangerSerialzation::SerilzeThread(const std::filesystem::path& filepath, std::map<AssetHandle, AssetMetadata>* handleReg)
 	{
-
+		
 		YAML::Emitter out;
 		{
 			out << YAML::BeginMap;
@@ -73,6 +772,8 @@ namespace Rynex {
 	bool EditorAssetMangerSerialzation::DeserilzeThread(const std::filesystem::path& filepath, std::map<AssetHandle, AssetMetadata>* handleReg, std::map<std::filesystem::path, AssetHandle>* pathReg)
 	{
 		RY_CORE_INFO("Deserialze Path: '{0}'", filepath.string().c_str());
+		RY_REMBER_FUNC_CHANGE("After Testing remove Utils::TestFileSystemClass from this methode and funktion self!");
+		Test::FileSystemClass();
 
 		YAML::Node data;
 		try
