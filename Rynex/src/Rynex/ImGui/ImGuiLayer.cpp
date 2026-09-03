@@ -4,7 +4,7 @@
 #include "Rynex/Core/Application.h"
 
 #include <imgui.h>
-#include <ImGuizmo.h>
+// #include <ImGuizmo.h>
 
 #define IMGUI_IMPL_API
 #include <backends/imgui_impl_glfw.h>
@@ -39,11 +39,12 @@ namespace Rynex {
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
        
-         float fontSize = 16.0f;
-         fontSize = 15.0f;
-
-         io.Fonts->AddFontFromFileTTF("../Rynex-Editor/Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
-         io.FontDefault=io.Fonts->AddFontFromFileTTF("../Rynex-Editor/Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
+		float fontSize = 16.0f;
+		fontSize = 15.0f;
+		std::string working = std::filesystem::current_path().string();
+		RY_CORE_INFO("working driectory {}", working);
+		io.Fonts->AddFontFromFileTTF("../Rynex-Editor/Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
+		io.FontDefault=io.Fonts->AddFontFromFileTTF("../Rynex-Editor/Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
         
 		ImGui::StyleColorsDark();
         ImGuiStyle& style = ImGui::GetStyle();
@@ -85,7 +86,7 @@ namespace Rynex {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        ImGuizmo::BeginFrame();
+        // ImGuizmo::BeginFrame();
     }
 
     void ImGuiLayer::End()
