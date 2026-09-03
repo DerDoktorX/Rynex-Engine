@@ -126,9 +126,10 @@ namespace Rynex {
 		metadata.SetIntern(true);
 
 		metadata.State = AssetState::Ready;
-		m_HandleRegistry[asset->Handle] = metadata;
+		AssetHandle handle = asset->Handle;
+		m_HandleRegistry[handle] = metadata;
 
-		return asset->Handle;
+		return handle;
 	}
 
 
