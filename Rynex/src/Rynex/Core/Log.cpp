@@ -11,8 +11,14 @@ namespace Rynex {
 
 	Log::Log()
 	{
+	}
 
+	Log::~Log()
+	{
+	}
 
+	void Log::Init()
+	{
 		m_NummberFormating = 0u;
 		{
 			std::vector<spdlog::sink_ptr> logSinks;
@@ -93,8 +99,19 @@ namespace Rynex {
 		}
 	}
 
-	Log::~Log()
+	void Log::Shutdown()
 	{
+		RY_CORE_WARN("Shutdown Log System!!!");
+		RY_DESTROY_REF(m_ThreadLogger);
+
+		RY_DESTROY_REF(m_ClientLogger);
+		RY_DESTROY_REF(m_CoreAssetLogger);
+
+		RY_DESTROY_REF(m_CoreGraficsCreateLogger);
+		RY_DESTROY_REF(m_CoreGraficsDeleteLogger);
+
+		RY_DESTROY_REF(m_CoreAssetLogger);
+		RY_DESTROY_REF(m_CoreMemoryLogger);
 	}
 
 	Log& Log::Get()

@@ -10,7 +10,7 @@
 	int main(int argc, char** argv)
 	{
 		printf("Rynex Engin\n");
-		
+		Rynex::Log::Get().Init();
 		Rynex::Log::Get();
 		
 		RY_PROFILE_BEGIN_SESSION("Startup", "Profile/RynexPrifile-Startup.json");
@@ -37,6 +37,7 @@
 		RY_PROFILE_BEGIN_SESSION("Shutdown", "Profile/RynexPrifile-Shutdown.json");
 		delete app;
 		RY_PROFILE_END_SESSION();
+		Rynex::Log::Get().Shutdown();
 	}
 
 #endif // RY_PLATFORM_WINDOWS

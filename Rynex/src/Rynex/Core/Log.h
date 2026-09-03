@@ -19,7 +19,8 @@ namespace Rynex {
 	public:
 		Log();
 		~Log();
-
+		void Init();
+		void Shutdown();
 		static Log& Get();
 
 		inline std::shared_ptr<spdlog::logger>& GetCoreLogger() { return m_CoreLogger; }
@@ -137,7 +138,7 @@ inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternion)
 	
 #ifndef RY_DIST
 	#define	RY_LOG_MSG_IF_NOT(check, macroFunc, ...)\
-		if(!check)\
+		if(!(check))\
 		{\
 			macroFunc(__VA_ARGS__);\
 		}
@@ -238,17 +239,11 @@ inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternion)
 
 #define RY_INTERNAL_EMPTY_REMBER_FUNC_CHANGE()			RY_CORE_FATAL(msg "\n Rember some Chnage in func {0} in File {1}:{2}", RY_STRINGIFY_MOAKRO(__FUNCSIG__), std::filesystem::path(__FILE__).string(), __LINE__)
 #define RY_INTERNAL_MSG_REMBER_FUNC_CHANGE(msg)	RY_CORE_FATAL(msg "\n Rember some Chnage in func {0} in File {1}:{2}", RY_STRINGIFY_MOAKRO(__FUNCSIG__), std::filesystem::path(__FILE__).string(), __LINE__)
+#define RY_INTERNAL_MSG_REMBER_FUNC_CHANGE_ARGS(msg, ...)	RY_CORE_FATAL(msg "\n Rember some Chnage in func {0} in File {1}:{2}", RY_STRINGIFY_MOAKRO(__FUNCSIG__), std::filesystem::path(__FILE__).string(), __LINE__, __VA_ARGS__)
 
 
-#define RY_INTERALE_REMBER_FUNC_CHANGE_GET_MACRO_NAME(no_msg, msg, msg_arg1, msg_arg2, msg_arg3, marco, ...) marco
-#define RY_INTERALE_REMBER_FUNC_CHANG_GET_MACRO(...) \
-	RY_EXPAND_MOAKRO( \
-		 RY_INTERALE_REMBER_FUNC_CHANGE_GET_MACRO_NAME(\
-			__VA_ARGS__, \
-			RY_INTERNAL_EMPTY_REMBER_FUNC_CHANGE, \
-			RY_INTERNAL_MSG_REMBER_FUNC_CHANGE
-		) \
-	)
+#define RY_INTERALE_REMBER_FUNC_CHANGE_GET_MACRO_NAME(msg_arg3, msg_arg2, msg_arg1, msg, marco, ...)	marco
+#define RY_INTERALE_REMBER_FUNC_CHANG_GET_MACRO(...)	RY_EXPAND_MOAKRO(  RY_INTERALE_REMBER_FUNC_CHANGE_GET_MACRO_NAME( __VA_ARGS__, RY_INTERNAL_MSG_REMBER_FUNC_CHANGE_ARGS, RY_INTERNAL_MSG_REMBER_FUNC_CHANGE_ARGS, RY_INTERNAL_MSG_REMBER_FUNC_CHANGE_ARGS, RY_INTERNAL_MSG_REMBER_FUNC_CHANGE, RY_INTERNAL_EMPTY_REMBER_FUNC_CHANGE, RY_INTERALE_ASSERT_0  ) )
 
 
 #define RY_REMBER_FUNC_CHANGE(...) RY_EXPAND_MOAKRO( RY_INTERALE_REMBER_FUNC_CHANG_GET_MACRO(__VA_ARGS__)(__VA_ARGS__) )
