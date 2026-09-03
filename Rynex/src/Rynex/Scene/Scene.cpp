@@ -3,7 +3,7 @@
 
 #include "Entity.h"
 #include "ScriptableEntity.h"
-#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
+#if defined(RY_SCRIPT_ENGINE)
 	#include <Rynex/Scripting/Mono/ScriptingEngine.h>
 #endif
 #include <Rynex/Asset/Base/AssetMetadata.h>
@@ -259,7 +259,7 @@ namespace Rynex {
 
 	Scene::~Scene()
 	{
-#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
+#if defined(RY_SCRIPT_ENGINE)
 		Scene* scene = ScriptingEngine::GetSceneContext();
 		if (scene == this)
 		{
@@ -587,7 +587,7 @@ namespace Rynex {
 
 	void Scene::OnRuntimStart()
 	{
-#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
+#if defined(RY_SCRIPT_ENGINE)
 		ScriptingEngine::OnRuntimeStart(this);
 		// Instandiat
 
@@ -604,7 +604,7 @@ namespace Rynex {
 
 	void Scene::OnRuntimStop()
 	{
-#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
+#if defined(RY_SCRIPT_ENGINE)
 		auto view = m_Registery.view<ScriptComponent>();
 		for (auto e : view)
 		{
@@ -634,7 +634,7 @@ namespace Rynex {
 				nsc.Instance->OnUpdate(ts.GetSecounds());
 			});
 		
-#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
+#if defined(RY_SCRIPT_ENGINE)
 		for (entt::entity e : scriptView)
 		{
 			Entity entity = { e, this };

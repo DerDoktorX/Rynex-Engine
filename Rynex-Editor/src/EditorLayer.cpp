@@ -9,9 +9,7 @@
 #include <Rynex/Math/Math.h>
 
 #include <Rynex/Serializers/SceneSerializer.h>
-#if RY_SCRIPTING_HAZEL
-   #include <Rynex/Scripting/HazelScripting/ScriptEngine.h> 
-#else
+#if defined(RY_SCRIPT_ENGINE)
     #include <Rynex/Scripting/Mono/ScriptingEngine.h>
 #endif
 
@@ -2415,8 +2413,9 @@ case key: \
         m_Content_BPannel.OnDetache();
         m_Scene_HPanel.OnDetache();  
         m_MeshPannel.OnDetache();
-
-        ScriptingEngine::Shutdown(); 
+#if defined(RY_SCRIPT_ENGINE)
+        ScriptingEngine::Shutdown();
+#endif
         Renderer::ShutdownEditor();
         Renderer::Shutdown();
         Project::ShutDown();
@@ -2809,10 +2808,11 @@ case key: \
     {
         if (Project::Load(path))
         {
-
+#if defined(RY_SCRIPT_ENGINE)
             if(!ScriptingEngine::IsInit())
                 ScriptingEngine::Init(true);
-            
+#endif
+
             if (!Renderer::IsInit())
             {
                 
@@ -3088,13 +3088,16 @@ case key: \
 
     void EditorLayer::ImGuiScript()
     {
+#if defined(RY_SCRIPT_ENGINE)
         if (ImGui::BeginMenu("Script"))
         {
+
             if (ImGui::MenuItem("Reload assembly", "Ctrl+R"))
                 ScriptingEngine::ReloadAssambly();
 
             ImGui::EndMenu();
         }
+#endif
     }
 
     void EditorLayer::ImGuiEdit()

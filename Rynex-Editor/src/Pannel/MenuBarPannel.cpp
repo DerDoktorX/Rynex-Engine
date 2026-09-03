@@ -119,9 +119,7 @@ namespace Rynex {
 		if (ImGui::BeginMenu("Script"))
 		{
 			if (ImGui::MenuItem("Reload assembly", "Ctrl+R"))
-#if RY_SCRIPTING_HAZEL
-				ScriptEngine::ReloadAssembly();
-#else
+#if defined(RY_SCRIPT_ENGINE)
 				ScriptingEngine::ReloadAssambly();
 #endif
 			ImGui::EndMenu();

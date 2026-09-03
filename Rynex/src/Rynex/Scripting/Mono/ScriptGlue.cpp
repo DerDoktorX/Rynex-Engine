@@ -1,4 +1,8 @@
+
 #include "rypch.h"
+
+#if defined(RY_SCRIPT_ENGINE)
+
 #include "ScriptGlue.h"
 #include "ScriptingEngine.h"
 
@@ -13,6 +17,7 @@
 
 #include <mono/metadata/object.h>
 #include <mono/metadata/reflection.h>
+
 
 
 #define USE_HASCOMPONET_FUNC_CS 1
@@ -2001,5 +2006,7 @@ namespace Rynex {
 
 	
 }
+
+#endif
 
 #endif

@@ -5,7 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui/imgui.h>
 
-#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
+#if defined(RY_SCRIPTING_ENGINE)
 	#include <Rynex/Scripting/Mono/ScriptingEngine.h>
 #endif
 #include <Rynex/Scene/Components.h>
@@ -36,7 +36,7 @@ void Sandbox2D::OnAttach()
 		auto projFilePath = cLA[1];
 		if (Rynex::Project::Load(projFilePath))
 		{
-#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
+#if defined(RY_SCRIPTING_ENGINE)
 			if (!Rynex::ScriptingEngine::IsInit())
 				Rynex::ScriptingEngine::Init(false);
 #endif
@@ -63,7 +63,7 @@ void Sandbox2D::OnAttach()
 
 		if (Rynex::Project::Load(filepath))
 		{
-#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
+#if defined(RY_SCRIPTING_ENGINE)
 			if (!Rynex::ScriptingEngine::IsInit())
 				Rynex::ScriptingEngine::Init(false);
 #endif
@@ -260,7 +260,7 @@ void Sandbox2D::OnDetach()
 	RY_DESTROY_REF(m_FullScreenQuade);
 	RY_DESTROY_REF(m_FullScreenShader);
 	
-#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
+#if defined(RY_SCRIPT_ENGINE)
 	if (Rynex::ScriptingEngine::IsInit())
 		Rynex::ScriptingEngine::Shutdown();
 #endif

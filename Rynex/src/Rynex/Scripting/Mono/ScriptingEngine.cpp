@@ -1,4 +1,5 @@
 #include "rypch.h"
+#if defined(RY_SCRIPT_ENGINE)
 #include "ScriptingEngine.h"
 #include "ScriptGlue.h"
 
@@ -642,4 +643,5 @@ namespace Rynex {
 #pragma endregion
 
 }
+#endif
 

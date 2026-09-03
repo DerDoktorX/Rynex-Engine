@@ -2,9 +2,7 @@
 #include "SceneHierachyPannel.h"
 
 #include <Rynex/Scene/Components.h>
-#if RY_SCRIPTING_HAZEL
-#include <Rynex/Scripting/HazelScripting/ScriptEngine.h>
-#else
+#if defined(RY_SCRIPT_ENGINE)
 #include <Rynex/Scripting/Mono/ScriptingEngine.h>
 #endif
 #include <Rynex/Asset/Base/AssetManager.h>
@@ -1672,13 +1670,7 @@ namespace Rynex {
 		if (entity.HasComponent<ScriptComponent>())
 		{
 			ScriptComponent component = entity.GetComponent<ScriptComponent>();
-#if RY_SCRIPTING_HAZEL
-			std::unordered_map<std::string, Ref<ScriptClass>> clasesMap = ScriptEngine::GetEntityClasses();
-			if(clasesMap.find(component.Name) == clasesMap.end())
-				entity.SetState(Entity::State::Error);
-			else
-				entity.SetState(Entity::State::None);
-#else
+#if defined(RY_SCRIPT_ENGINE)
 			if (ScriptingEngine::ClassExists(component.Name))
 				entity.SetState(Entity::State::None);
 			else
@@ -2135,12 +2127,9 @@ namespace Rynex {
 
 	void SceneHierachyPannel::ComponentScriptGUI(Entity e, ScriptComponent& component)
 	{
-#if RY_SCRIPTING_HAZEL
-		std::unordered_map<std::string, Ref<ScriptClass>> clasesMap = ScriptEngine::GetEntityClasses();
-		bool sricptClassExist = clasesMap.find(component.Name) != clasesMap.end();
-#else
+#if defined(RY_SCRIPT_ENGINE)
 		bool sricptClassExist = ScriptingEngine::ClassExists(component.Name);
-#endif
+
 		static char buffer[64];
 		strcpy(buffer, component.Name.c_str());
 
@@ -2175,6 +2164,9 @@ namespace Rynex {
 		{
 			ImGui::PopStyleColor();
 		}
+#else
+		ImGui::Text("Scripting is Currently offline");
+#endif
 	}
 
 	void SceneHierachyPannel::ComponentFrameBufferGUI(Entity e, FrameBufferComponent& component)
