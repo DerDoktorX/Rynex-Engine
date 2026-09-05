@@ -16,8 +16,9 @@
 		RY_PROFILE_BEGIN_SESSION("Startup", "Profile/RynexPrifile-Startup.json");
 		RY_CORE_INFO("Initlatione Log!");
 		RY_INFO("Initlatione Log!");
+		RY_INFO("Working Directory {}", std::filesystem::current_path());
 #ifdef RY_ENABLE_DEFAULT_PROJECT
-		if (1==argc)
+		if (1 == argc)
 		{
 			argv[1] = RY_DEFAULT_PATH_PROJECT_FILE;
 			argc = 2;

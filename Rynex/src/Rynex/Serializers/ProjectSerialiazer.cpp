@@ -31,8 +31,11 @@ namespace Rynex {
 
 			constexpr const char* markerProject = RY_PATH_PROJECT_MARKER_STR;
 			std::string markedPathStr = data.as<std::string>();
-			if (markedPathStr.empty())
+			if (markedPathStr.empty() || !Project::HasSomeMarker(markedPathStr))
+			{
+				RY_CORE_WARN("Diden't found marker in path: {}", markedPathStr);
 				return std::filesystem::path("");
+			}
 
 			std::filesystem::path absolutPath = Project::ReplaceMarkerWithePath(markedPathStr, markerProject, base);
 			return absolutPath;
