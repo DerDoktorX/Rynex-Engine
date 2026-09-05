@@ -16,6 +16,7 @@
 
 
 namespace Rynex {
+
 	namespace Test {
 		
 		static void EngineFilePathClassTestChangeOrigne()
@@ -23,8 +24,8 @@ namespace Rynex {
 			constexpr const FileSystem::Path::Origin expextOutPutOrigne = FileSystem::Path::Origin::Engine;
 			{
 				constexpr const char* checkPath = RY_PATH_PROJECT_MARKER_STR "/../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
-				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
 				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
+				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetEngineDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
 				constexpr const char* expextOutPutMarked = RY_PATH_ENGINE_MARKER_STR "/../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
 
 				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
@@ -59,8 +60,8 @@ namespace Rynex {
 			}
 			{
 				constexpr const char* checkPath = "Editor-Assets/Texture/ChernoLogo.png";
-				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
 				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
+				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetEngineDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
 				constexpr const char* expextOutPutMarked = RY_PATH_ENGINE_MARKER_STR "/../Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
 
 				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
@@ -95,14 +96,14 @@ namespace Rynex {
 			}
 
 			{
-				constexpr const char* checkPath = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
-				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
-
+				// constexpr const char* checkPath = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
 				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
+				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetEngineDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
+
 				constexpr const char* expextOutPutMarked = "Engine#!#/../Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
 
-				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
-				FileSystem::Path fileSystemPath(checkPath, FileSystem::Path::Origin::Project);
+				RY_CORE_TRACE("Check now: {1} {0}", expextOutPutAbsoulte, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(expextOutPutAbsoulte, FileSystem::Path::Origin::Project);
 				fileSystemPath.SetMarker(expextOutPutOrigne);
 				std::string pathStr = fileSystemPath.GetPath().string();
 				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
@@ -139,9 +140,9 @@ namespace Rynex {
 			constexpr const FileSystem::Path::Origin expextOutPutOrigne = FileSystem::Path::Origin::Project;
 			{
 				constexpr const char* checkPath = "Project#!#\\Assets\\Shaders\\Fetures\\Plane3DShadow.glsl";
-				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Shaders/Fetures/Plane3DShadow.glsl";
-
 				constexpr const char* expextOutPutRealtiv = "Assets/Shaders/Fetures/Plane3DShadow.glsl";
+				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetProjectDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
+
 				constexpr const char* expextOutPutMarked = "Project#!#/Assets/Shaders/Fetures/Plane3DShadow.glsl";
 
 				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
@@ -175,9 +176,9 @@ namespace Rynex {
 			}
 			{
 				constexpr const char* checkPath = "Assets\\Models\\CV-Model\\scene.rystmesh";
-				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Models/CV-Model/scene.rystmesh";
-
 				constexpr const char* expextOutPutRealtiv = "Assets/Models/CV-Model/scene.rystmesh";
+				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetProjectDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
+
 				constexpr const char* expextOutPutMarked = "Project#!#/Assets/Models/CV-Model/scene.rystmesh";
 
 				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
@@ -212,9 +213,9 @@ namespace Rynex {
 
 			{
 				constexpr const char* checkPath = "D:\\dev\\Rynex-Test-Projects\\Test-Project-System\\Assets\\Scene\\Cube2-Test-LigthShader.rynexscene";
-				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Scene/Cube2-Test-LigthShader.rynexscene";
-
 				constexpr const char* expextOutPutRealtiv = "Assets/Scene/Cube2-Test-LigthShader.rynexscene";
+
+				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetProjectDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
 				constexpr const char* expextOutPutMarked = "Project#!#/Assets/Scene/Cube2-Test-LigthShader.rynexscene";
 
 				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
@@ -254,8 +255,9 @@ namespace Rynex {
 			constexpr const FileSystem::Path::Origin expextOutPutOrigne = FileSystem::Path::Origin::Engine;
 			{
 				constexpr const char* checkPath = "Engine#!#/../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
-				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
 				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
+				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetEngineDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
+				
 				constexpr const char* expextOutPutMarked = "Engine#!#/../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
 
 				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
@@ -289,8 +291,10 @@ namespace Rynex {
 			}
 			{
 				constexpr const char* checkPath = "../Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
-				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Test-Projects/Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
 				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
+				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetProjectDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
+
+				
 				constexpr const char* expextOutPutMarked = RY_PATH_PROJECT_MARKER_STR "/../Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
 
 				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(FileSystem::Path::Origin::Project).data());
@@ -324,14 +328,15 @@ namespace Rynex {
 			}
 
 			{
-				constexpr const char* checkPath = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
-				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
-
+				// constexpr const char* checkPath = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
 				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
+				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetEngineDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
+
+				
 				constexpr const char* expextOutPutMarked = "Engine#!#/../Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
 
-				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
-				FileSystem::Path fileSystemPath(checkPath, FileSystem::Path::Origin::Project);
+				RY_CORE_TRACE("Check now: {1} {0}", expextOutPutAbsoulte, magic_enum::enum_name(expextOutPutOrigne).data());
+				FileSystem::Path fileSystemPath(expextOutPutAbsoulte, FileSystem::Path::Origin::Project);
 				std::string pathStr = fileSystemPath.GetPath().string();
 				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
 				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
@@ -366,9 +371,12 @@ namespace Rynex {
 		{
 			constexpr const FileSystem::Path::Origin expextOutPutOrigne = FileSystem::Path::Origin::Engine;
 			{
-				constexpr const char* checkPath = "Engine#!#/../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
-				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
+
+				constexpr const char* checkPath = "Engine#!#/../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";				
 				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
+
+				const std::string expextOutPutAbsoulte = std::filesystem::absolute(FileSystem::Path::GetEngineDirectory() / expextOutPutRealtiv).generic_string();
+
 				constexpr const char* expextOutPutMarked = "Engine#!#/../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl";
 
 				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
@@ -402,8 +410,9 @@ namespace Rynex {
 			}
 			{
 				constexpr const char* checkPath = "../Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
-				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
 				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
+
+				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetEngineDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
 				constexpr const char* expextOutPutMarked = "Engine#!#/../Rynex-Editor/Editor-Assets/Texture/ChernoLogo.png";
 
 				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
@@ -438,13 +447,13 @@ namespace Rynex {
 
 			{
 				constexpr const char* checkPath = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
-				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Rendering/Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
-				
 				constexpr const char* expextOutPutRealtiv = "../Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
+				
+				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetEngineDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
 				constexpr const char* expextOutPutMarked = "Engine#!#/../Rynex-Editor/Editor-Assets/Assets/Models/Cube.rystmesh";
 
 				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
-				FileSystem::Path fileSystemPath(checkPath);
+				FileSystem::Path fileSystemPath(expextOutPutAbsoulte);
 				std::string pathStr = fileSystemPath.GetPath().string();
 				std::string pathAbsoulteStr = fileSystemPath.GetAbsolutePath().string();
 				std::string pathRelativeStr = fileSystemPath.GetRelativePath().string();
@@ -480,9 +489,9 @@ namespace Rynex {
 			constexpr const FileSystem::Path::Origin expextOutPutOrigne = FileSystem::Path::Origin::Project;
 			{
 				constexpr const char* checkPath = "Project#!#/Assets/Shaders/Fetures/Plane3DShadow.glsl";
-				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Shaders/Fetures/Plane3DShadow.glsl";
-				
 				constexpr const char* expextOutPutRealtiv = "Assets/Shaders/Fetures/Plane3DShadow.glsl";
+
+				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetProjectDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
 				constexpr const char* expextOutPutMarked = "Project#!#/Assets/Shaders/Fetures/Plane3DShadow.glsl";
 
 				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
@@ -516,9 +525,9 @@ namespace Rynex {
 			}
 			{
 				constexpr const char* checkPath = "Assets/Models/CV-Model/scene.rystmesh";
-				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Models/CV-Model/scene.rystmesh";
-				
 				constexpr const char* expextOutPutRealtiv = "Assets/Models/CV-Model/scene.rystmesh";
+				
+				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetProjectDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
 				constexpr const char* expextOutPutMarked = "Project#!#/Assets/Models/CV-Model/scene.rystmesh";
 
 				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
@@ -553,9 +562,9 @@ namespace Rynex {
 
 			{
 				constexpr const char* checkPath = "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Scene/Cube2-Test-LigthShader.rynexscene";
-				constexpr const char* expextOutPutAbsoulte = "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Scene/Cube2-Test-LigthShader.rynexscene";
-
 				constexpr const char* expextOutPutRealtiv = "Assets/Scene/Cube2-Test-LigthShader.rynexscene";
+				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetProjectDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
+
 				constexpr const char* expextOutPutMarked = "Project#!#/Assets/Scene/Cube2-Test-LigthShader.rynexscene";
 
 				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
@@ -596,6 +605,7 @@ namespace Rynex {
 			{
 				constexpr const char* checkPath = "../../../Dokument/Notiz.txt";
 				constexpr const char* expextOutPutAbsoulte = "/../../../Dokument/Notiz.txt";
+
 				constexpr const char* expextOutPutRealtiv = "/../../../Dokument/Notiz.txt";
 				constexpr const char* expextOutPutMarked = "NotVaild!#/../../../Dokument/Notiz.txt";
 
@@ -855,6 +865,5 @@ namespace Rynex {
 
 		return true;
 	}
-
 
 }
