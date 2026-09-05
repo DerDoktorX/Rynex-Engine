@@ -5,8 +5,8 @@ project "Rynex-ScriptingCore"
 	clr "unsafe"
 	dotnetframework "4.7.2"
 
-	targetdir ("../Rynex-Editor/Resources/Scripts")
-	objdir ("../Rynex-Editor/Resources/Scripts/Intermediates")
+	targetdir ("%{wks.location}/Rynex-Editor/Resources/Scripts")
+	objdir ("%{wks.location}/Rynex-Editor/Resources/Scripts/Intermediates")
 
 	
 
@@ -34,3 +34,4 @@ project "Rynex-ScriptingCore"
 	filter "configurations:Dist"
 		optimize "Full"
 		symbols "Default"
+	filter {}

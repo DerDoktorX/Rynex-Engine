@@ -26,10 +26,12 @@ workspace "Rynex-Rendering"
      	buildoptions { "-finput-charset=UTF-8" }
 		-- buildoptions { "/utf-8" }
 	 	print('utf-8 set compile NOT MSVC!')
-	 	
+	filter {}
+	
 	filter "toolset:msc*"
      	buildoptions { "/utf-8" }
 	 	print('utf-8 set compile MSVC!')
+	filter {}
 
 
 	-- conformancemode "Off" -- disable in vs2026 -> /permissive-
@@ -40,6 +42,8 @@ filter "system:windows"
 	{
 		"RY_PLATFORM_WINDOWS"
 	}
+filter {}
+
 filter "system:linux"	
 	defines
 	{
@@ -54,9 +58,11 @@ defines
 }
 end
 
+
 IncludeDir = {}
 -- Runtime
 IncludeDir["entt"] 		= "%{wks.location}/Rynex/vendor/entt/include"
+IncludeDir["spdlog"] 		= "%{wks.location}/Rynex/vendor/spdlog/include"
 IncludeDir["robin_hood_hashing"] 		= "%{wks.location}/Rynex/vendor/robin-hood-hashing/include"
 
 IncludeDir["mono"] 	= "%{wks.location}/Rynex/vendor/mono/include"

@@ -36,8 +36,8 @@ project "Rynex"
 		"vendor/stb_image/**.cpp",
 		"vendor/glm/glm/**.hpp",
 		"vendor/glm/glm/**.inl",
-		"vendor/ImGuizmo/ImGuizmo.h",
-		"vendor/ImGuizmo/ImGuizmo.cpp",
+		-- "vendor/ImGuizmo/ImGuizmo.h",
+		-- "vendor/ImGuizmo/ImGuizmo.cpp",
 
 		"vendor/magic_enum/**.hpp",
 	}
@@ -56,11 +56,11 @@ project "Rynex"
 		-- Source Files Directory
 		"src",
 		-- Runtime
-		"vendor/spdlog/include",	-- Logs
+		"%{IncludeDir.spdlog}",	-- Logs
 
 		"%{IncludeDir.entt}",		-- Entity
 		"%{IncludeDir.robin_hood_hashing}", -- has map
-		--"%{IncludeDir.mono}",		-- C#
+		"%{IncludeDir.mono}",		-- C#
 		-- Math
 		"%{IncludeDir.glm}",
 		-- Grafic API
@@ -75,7 +75,7 @@ project "Rynex"
 		"%{IncludeDir.meshoptimizer}",
 		-- Runtime Visuelle configs
 		"%{IncludeDir.ImGui}",
-		"%{IncludeDir.ImGuizmo}",
+		-- "%{IncludeDir.ImGuizmo}",
 		
 		"%{IncludeDir.msdfgen}",
 		"%{IncludeDir.msdf_atlas_gen}"
@@ -99,9 +99,11 @@ project "Rynex"
 
 	filter "files:vendor/ImGuizmo/**.cpp"
 		enablepch "off"
-
+	filter {}
+	
 	filter "files:vendor/impolt/*.cpp"
 		enablepch "off"
+	filter {}
 
 	filter "system:windows"
 		systemversion "latest"
@@ -127,6 +129,7 @@ project "Rynex"
 			}
 		end
 	--							 ^
+	filter {}
 
 
 	filter "system:linux"
@@ -144,46 +147,46 @@ project "Rynex"
     	    "Xcursor",
     	    "Xinerama",
     	}
-	filter { "system:None"}
+	filter {}
 
 	filter "configurations:Debug"
 		defines "RY_DEBUG"
 		runtime "Debug"
-
+	filter {}
 
 	filter "configurations:Release"
 		defines "RY_RELEASE"
 		runtime "Release"
 		symbols "on"
 		optimize "on"
-	filter { "configurations:Default"}
+	filter {}
 
 	filter "configurations:Dist"
 		defines "RY_DIST"
 		runtime "Release"
 		optimize "on"
-	filter { "configurations:Default"}
+	filter {}
 
 
 	filter {"system:windows", "configurations:Debug"}
-		-- links { "%{Library_WIN.mono_Debug}" }
+		links { "%{Library_WIN.mono_Debug}" }
 
 	filter {"system:windows", "configurations:Release"}
-		-- links { "%{Library_WIN.mono_Release}" }
+		links { "%{Library_WIN.mono_Release}" }
 
 	filter {"system:windows", "configurations:Dist"}
-		-- links { "%{Library_WIN.mono_Release}" }
+		links { "%{Library_WIN.mono_Release}" }
 		
 
-	filter { "system:linux", "configurations:Debug" }
-		links { "%{Library_LINUX.mono_Debug}", }
-
-	filter { "system:linux", "configurations:Release" }
-		links { "%{Library_LINUX.mono_Release}", }
-
-	filter { "system:linux", "configurations:Dist" }
-		links { "%{Library_LINUX.mono_Release}", }
-	filter { "system:none", "configurations:Default"}
+	--filter { "system:linux", "configurations:Debug" }
+	--	links { "%{Library_LINUX.mono_Debug}", }
+	--
+	--filter { "system:linux", "configurations:Release" }
+	--	links { "%{Library_LINUX.mono_Release}", }
+	--
+	--filter { "system:linux", "configurations:Dist" }
+	--	links { "%{Library_LINUX.mono_Release}", }
+	--filter {}
 	
 
 	
