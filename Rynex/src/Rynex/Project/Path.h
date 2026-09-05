@@ -237,6 +237,7 @@ namespace Rynex::FileSystem {
 
 		static std::filesystem::path GetRelativePath(const std::string& markedPathStr);
 		static std::filesystem::path GetRelativePath(const std::string& pathStr, const std::filesystem::path& pathBase);
+		
 
 		static std::filesystem::path GetPathAbsoluteOrigin(Origin origin);
 		static Origin GetMarkedPathOrigin(const std::string& markedPathStr);
@@ -247,6 +248,7 @@ namespace Rynex::FileSystem {
 		static void ConvertAbsolutePath(std::filesystem::path& path, Origin origin);
 		static std::tuple<std::filesystem::path, Origin> ConvertPathNoMarker(const std::string& pathStr, Origin origin);
 		static void ConvertUniversalPath(std::filesystem::path& path);
+		static void ConvertRealtivePathFromAbsolutePath(std::filesystem::path& relativePath, Origin origin);
 
 		static std::tuple<std::filesystem::path, Origin> ConvertInternalPath(const std::string& pathStr, Origin origin);
 	// --- private constexpr static methodes ----------------------------------------------------------------------------------
@@ -272,6 +274,7 @@ namespace Rynex::FileSystem {
 		std::filesystem::path GetResolveMarkerPath(Origin origin) const;
 		std::filesystem::path GetResolveAbsoluteToMarkedPath(Origin origin) const;
 		std::filesystem::path GetRelativePathFromAbsolutePath() const;
+
 	// --- private varibles ---------------------------------------------------------------------------------------------------
 		std::filesystem::path m_Path;
 		Origin m_Origin;

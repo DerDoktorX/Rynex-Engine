@@ -136,7 +136,7 @@ namespace Rynex::FileSystem {
 		RY_CORE_WARN_IF(dstBasePath.empty(), "Origin: {} reulted in a empty base this shoud lead to a invaild Path!", viewEnum.data());
 #else
 #endif
-		std::filesystem::path realtiveToBase = std::filesystem::relative(m_Path, dstBasePath);
+		std::filesystem::path realtiveToBase = m_Path.lexically_relative(dstBasePath);
 		ConvertUniversalPath(realtiveToBase);
 		return realtiveToBase;
 	}
@@ -217,18 +217,28 @@ namespace Rynex::FileSystem {
 		RY_REMBER_FUNC_CHANGE("Remove LOg State if not need!");
 #endif
 
+		if (Origin::Unknown == m_Origin)
+		{
+			m_Origin = origne;
+			return;
+		}
+
 		std::filesystem::path baseOrigin = GetPathAbsoluteOrigin(m_Origin);
-		std::filesystem::path relative = std::filesystem::relative(m_Path, baseOrigin).generic_string();
+		std::filesystem::path relativePath = m_Path.lexically_relative(baseOrigin);
+
+		ConvertRealtivePathFromAbsolutePath(relativePath, origne);
+
 		m_Origin = origne;
 		std::filesystem::path nextBaseOrigin = GetPathAbsoluteOrigin(m_Origin);
-
+		
 #ifdef RY_PATH_LOG_MSG
 		RY_CORE_WARN("SetMarker overrides the previous the absolute base path! {} -> {}", baseOrigin, nextBaseOrigin);
 #else
 		RY_REMBER_FUNC_CHANGE("Remove Log State if not need!");
 #endif
-		m_Path = (nextBaseOrigin / relative).generic_string();
-		m_Path = std::filesystem::absolute(m_Path);
+		m_Path = (nextBaseOrigin / relativePath);
+		
+		m_Path = m_Path.lexically_normal();
 		ConvertAbsolutePath(m_Path, m_Origin);
 		ConvertUniversalPath(m_Path);
 	}
@@ -316,7 +326,7 @@ namespace Rynex::FileSystem {
 					if (Origin::Unknown != origin)
 					{
 						std::filesystem::path basePath = GetPathAbsoluteOrigin(origin);
-						path = std::filesystem::absolute(basePath / path);
+						path = (basePath / path).lexically_normal();
 					}
 				}
 
@@ -399,24 +409,11 @@ namespace Rynex::FileSystem {
 	{
 		if (Origin::Unknown == m_Origin)
 			return m_Path;
+
 		std::filesystem::path baseOrigin = GetPathAbsoluteOrigin(m_Origin);
-		std::filesystem::path relativePath = std::filesystem::relative(m_Path, baseOrigin);
+		std::filesystem::path relativePath = m_Path.lexically_relative(baseOrigin);
 
-		if (Origin::Engine == m_Origin)
-		{
-			std::filesystem::path expextedEndineRealtiveStart = RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR;
-			std::string nameFolder = expextedEndineRealtiveStart.filename().string();
-			if (!Project::HasStringInPath(relativePath, nameFolder))
-				relativePath = nameFolder / relativePath;
-
-			expextedEndineRealtiveStart = expextedEndineRealtiveStart.parent_path();
-			expextedEndineRealtiveStart = expextedEndineRealtiveStart.generic_string();
-			nameFolder = expextedEndineRealtiveStart.string();
-
-			if (!Project::HasStringInPath(relativePath, nameFolder))
-				relativePath = nameFolder / relativePath;
-		}
-		ConvertUniversalPath(relativePath);
+		ConvertRealtivePathFromAbsolutePath(relativePath, m_Origin);
 		return relativePath;
 	}
 	
@@ -749,6 +746,7 @@ namespace Rynex::FileSystem {
 	Path::Origin Path::GetExpectedOriginFromAbsolutePath(const std::filesystem::path& path)
 	{
 		std::filesystem::path engineDirectory = GetEngineDirectory();
+		engineDirectory = engineDirectory.parent_path();
 		std::string engineDirectoryStr = engineDirectory.string();
 
 		if (Project::HasStringInPath(path, engineDirectoryStr))
@@ -774,6 +772,39 @@ namespace Rynex::FileSystem {
 		std::filesystem::path normalizedPath = path;
 		std::string genericPathStr = normalizedPath.generic_string();
 		path = genericPathStr;
+	}
+
+	void Path::ConvertRealtivePathFromAbsolutePath(std::filesystem::path& relativePath, Origin origin)
+	{
+		switch (origin)
+		{
+		case Origin::None:
+		case Origin::Unknown:
+			break;
+		case Origin::Engine:
+		{
+			std::filesystem::path expextedEndineRealtiveStart = RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR;
+			std::string nameFolder = expextedEndineRealtiveStart.filename().string();
+			if (!Project::HasStringInPath(relativePath, nameFolder))
+				relativePath = nameFolder / relativePath;
+
+			expextedEndineRealtiveStart = expextedEndineRealtiveStart.parent_path();
+			expextedEndineRealtiveStart = expextedEndineRealtiveStart.generic_string();
+			nameFolder = expextedEndineRealtiveStart.filename().string();
+
+			if (!Project::HasStringInPath(relativePath, nameFolder))
+				relativePath = expextedEndineRealtiveStart / relativePath;
+		}
+		case Origin::Project:
+		{
+			ConvertUniversalPath(relativePath);
+			relativePath.lexically_normal();
+			break;
+		}
+		default:
+			RY_CORE_ASSERT(false, "Not Valid Origin state!");
+			break;
+		}
 	}
 
 	std::tuple<std::filesystem::path, Path::Origin> Path::ConvertInternalPath(const std::string& pathStr, Origin origin)
