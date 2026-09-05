@@ -322,27 +322,18 @@ namespace Rynex {
     bool Project::HasSomeMarker(const std::string& pathStr)
     {
         constexpr const char* markerSymbols = "#!#";
-        constexpr size_t markerSymbolsSize = 2;
+        constexpr size_t markerSymbolsSize = 1;
         constexpr size_t expextedCount = 1;
 
-        const std::string& searchePath = pathStr;
-        size_t offset = 0ull;
-        size_t size = searchePath.size();
-        size_t countFound = 0ull;
-        size_t i = 0ull;
-        do
-        {
-            countFound++;
-            offset = searchePath.find(markerSymbols, offset);
-            offset += markerSymbolsSize;
-            i++;
-        } while (offset < size && i < expextedCount);
 
-        bool hasMarker = expextedCount <= countFound;
+        size_t pos = pathStr.find(markerSymbols);
+        size_t count = pathStr.size();
+
+        bool hasMarker = pos < count;
         {
             
             FileSystem::Path path(pathStr);
-            bool check = hasMarker && path.IsMarked();
+            bool check = hasMarker == path.IsMarked();
             RY_CORE_INFO_IF(!check, "Pass Test: Has Marker Path!");
             RY_CORE_ERROR_IF(check, "FAILD Test: Has Marker Path!");
            
