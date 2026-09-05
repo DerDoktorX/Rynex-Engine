@@ -190,14 +190,16 @@ namespace Rynex {
 
 	bool Application::OnWindowResize(WindowResizeEvent& e)
 	{
-		//m_win
-		if (e.GetWidth() == 0 || e.GetHeight() == 0)
+		float width = e.GetWidth();
+		float height = e.GetHeight();
+		if (0 == height || 0 == width)
 		{
 			m_Minmized = true;
 			return false;
 		}
+
 		m_Minmized = false;
-		Renderer::OnWindowsResize(e.GetWidth(), e.GetHeight());
+		Renderer::OnWindowsResize(width, height);
 
 		return false;
 	}

@@ -68,8 +68,8 @@ namespace Rynex {
 			std::filesystem::path pathAbosulte = fileSystemPath.GetAbsolutePath();
 			std::string pathMarkedStr = fileSystemPath.GetMarkedPathString();
 
-			RY_CORE_ASSERT(RealtivePath == realtivePath, "RealtivePath: {} realtivePath: {}", RealtivePath, realtivePath);
-			RY_CORE_ASSERT(AbsolutePath == abosultePath, "AbsolutePath: {} abosultePath: {}", AbsolutePath, abosultePath);
+			RY_CORE_ASSERT(RealtivePath == pathRealtive, "RealtivePath: {} realtivePath: {}", RealtivePath, pathRealtive);
+			RY_CORE_ASSERT(AbsolutePath == pathAbosulte, "AbsolutePath: {} abosultePath: {}", AbsolutePath, pathAbosulte);
 			RY_CORE_ASSERT(PathMarker == pathMarkedStr, "PathMarker: {} pathMarkedStr: {}", PathMarker, pathMarkedStr);
 		}
 		
