@@ -13,8 +13,8 @@
 [submodule "Rynex/vendor/msdf-atelas-gen"]
 	path = Rynex/vendor/msdf-atelas-gen
 	url = https://github.com/TheCherno/msdf-atlas-gen
-[submodule "Rynex/vendor/imgui"]
-	path = Rynex/vendor/imgui
+[submodule "Rynex/vendor/_imgui"]
+	path = Rynex/vendor/_imgui
 	url = https://github.com/DerDoktorX/imgui
 [submodule "Rynex/vendor/_GLFW"]
 	path = Rynex/vendor/_GLFW
