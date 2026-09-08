@@ -7,8 +7,8 @@
 [submodule "Rynex/vendor/yaml-cpp"]
 	path = Rynex/vendor/yaml-cpp
 	url = https://github.com/TheCherno/yaml-cpp
-[submodule "Rynex/vendor/ImGuizmo"]
-	path = Rynex/vendor/ImGuizmo
+[submodule "Rynex/vendor/_ImGizmo"]
+	path = Rynex/vendor/_ImGizmo
 	url = https://github.com/TheCherno/ImGuizmo
 [submodule "Rynex/vendor/msdf-atelas-gen"]
 	path = Rynex/vendor/msdf-atelas-gen
