@@ -1,8 +1,8 @@
 [submodule "Rynex/vendor/spdlog"]
 	path = Rynex/vendor/spdlog
 	url = https://github.com/gabime/spdlog
-[submodule "Rynex/vendor/glm"]
-	path = Rynex/vendor/glm
+[submodule "Rynex/vendor/_glm"]
+	path = Rynex/vendor/_glm
 	url = https://github.com/g-truc/glm
 [submodule "Rynex/vendor/yaml-cpp"]
 	path = Rynex/vendor/yaml-cpp
