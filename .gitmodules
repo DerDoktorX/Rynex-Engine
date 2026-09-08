@@ -16,8 +16,8 @@
 [submodule "Rynex/vendor/imgui"]
 	path = Rynex/vendor/imgui
 	url = https://github.com/DerDoktorX/imgui
-[submodule "Rynex/vendor/GLFW"]
-	path = Rynex/vendor/GLFW
+[submodule "Rynex/vendor/_GLFW"]
+	path = Rynex/vendor/_GLFW
 	url = https://github.com/DerDoktorX/glfw
 [submodule "Rynex/vendor/_assimp"]
 	path = Rynex/vendor/_assimp
