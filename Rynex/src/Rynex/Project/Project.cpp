@@ -334,8 +334,8 @@ namespace Rynex {
             
             FileSystem::Path path(pathStr);
             bool check = hasMarker == path.IsMarked();
-            RY_CORE_INFO_IF(!check, "Pass Test: Has Marker Path!");
-            RY_CORE_ERROR_IF(check, "FAILD Test: Has Marker Path!");
+            RY_CORE_INFO_IF(check, "Pass Test: Has Marker Path!");
+            RY_CORE_ERROR_IF(!check, "FAILD Test: Has Marker Path!");
            
             RY_CORE_ASSERT(check);
         }
@@ -436,10 +436,10 @@ namespace Rynex {
             FileSystem::Path fileSystemPath(pathStr);
             std::filesystem::path pathAbsulte = fileSystemPath.GetAbsolutePath();
             bool check = absultePath == pathAbsulte;
-            RY_CORE_INFO_IF(!check, "Pass Test: Remplaced Marked Path withe Absoulte!");
-            RY_CORE_ERROR_IF(check, "FAILD Test: Remplaced Marked Path withe Absoulte!");
-            RY_CORE_ERROR_IF(check, "FileSystem::Path: {}", pathAbsulte);
-            RY_CORE_ERROR_IF(check, "Orignele:         {}", absultePath);
+            RY_CORE_INFO_IF(check, "Pass Test: Remplaced Marked Path withe Absoulte!");
+            RY_CORE_ERROR_IF(!check, "FAILD Test: Remplaced Marked Path withe Absoulte!");
+            RY_CORE_ERROR_IF(!check, "FileSystem::Path: {}", pathAbsulte);
+            RY_CORE_ERROR_IF(!check, "Orignele:         {}", absultePath);
             RY_CORE_ASSERT(check);
         }
         return absultePath;
@@ -508,10 +508,10 @@ namespace Rynex {
             FileSystem::Path fileSystemPath(path);
             std::string markerPathStr = fileSystemPath.GetMarkedPathString();
             bool check = markerPathStr == pathWitheMarker;
-            RY_CORE_INFO_IF(!check, "Pass Test: Create Marked Path!");
-            RY_CORE_ERROR_IF(check, "FAILD Test: Create Marked Path!");
-            RY_CORE_ERROR_IF(check, "FileSystem::Path: {}", markerPathStr);
-            RY_CORE_ERROR_IF(check, "Orignele:         {}", pathWitheMarker);
+            RY_CORE_INFO_IF(check, "Pass Test: Create Marked Path!");
+            RY_CORE_ERROR_IF(!check, "FAILD Test: Create Marked Path!");
+            RY_CORE_ERROR_IF(!check, "FileSystem::Path: {}", markerPathStr);
+            RY_CORE_ERROR_IF(!check, "Orignele:         {}", pathWitheMarker);
             RY_CORE_ASSERT(check);
         }
         return pathWitheMarker;
@@ -617,8 +617,8 @@ namespace Rynex {
 
             bool check = origin == fileSystemPath.GetOrigin();
 
-            RY_CORE_INFO_IF(!check, "Pass Test: Expexted Path!");
-            RY_CORE_ERROR_IF(check, "FAILD Test: Expexted Path!");
+            RY_CORE_INFO_IF(check, "Pass Test: Expexted Path!");
+            RY_CORE_ERROR_IF(!check, "FAILD Test: Expexted Path!");
 
             RY_CORE_ASSERT(check);
         }

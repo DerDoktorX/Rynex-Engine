@@ -50,13 +50,13 @@ namespace Rynex {
 			m_ElementVec.resize(nextVecByteSize + m_StrideByteSize);
 			uint8_t* offsetPtr = m_ElementVec.data() + offsetByteSize;
 			std::memcpy(offsetPtr, dataPtr, byteSize);
-			RY_CORE_WARN_IF(allocSize == m_ElementVec.capacity(), "Resize action by {} Bytes new Alloc Bytesize: {}!", (static_cast<uint32_t>(m_ElementVec.capacity()) - allocSize), m_ElementVec.capacity());
+			RY_CORE_WARN_IF(allocSize != m_ElementVec.capacity(), "Resize action by {} Bytes new Alloc Bytesize: {}!", (static_cast<uint32_t>(m_ElementVec.capacity()) - allocSize), m_ElementVec.capacity());
 			return offsetByteSize;
 		}
 
 		virtual uint32_t Set(const void* dataPtr, uint32_t byteSize, uint64_t key) override
 		{
-			RY_CORE_WARN_IF(0 == key, "Set funktion is expeted Map not StagingSlotAppendByte! key dont required: {}!", key);
+			RY_CORE_WARN_IF(0 != key, "Set funktion is expeted Map not StagingSlotAppendByte! key dont required: {}!", key);
 			return Add(dataPtr, byteSize);
 		}
 
@@ -121,7 +121,7 @@ namespace Rynex {
 			offsetPtr += m_WriteBytePos;
 			std::memcpy(offsetPtr, dataPtr, byteSize);
 
-			RY_CORE_WARN_IF(allocSize == m_ElementVec.capacity(), "Resize action by {} Bytes new Alloc Bytesize: {}!", (static_cast<uint32_t>(m_ElementVec.capacity()) - allocSize), m_ElementVec.capacity());
+			RY_CORE_WARN_IF(allocSize != m_ElementVec.capacity(), "Resize action by {} Bytes new Alloc Bytesize: {}!", (static_cast<uint32_t>(m_ElementVec.capacity()) - allocSize), m_ElementVec.capacity());
 			
 			uint32_t oldWhritePos = m_WriteBytePos;
 			m_WriteBytePos += byteSize;
@@ -130,7 +130,7 @@ namespace Rynex {
 
 		virtual uint32_t Set(const void* dataPtr, uint32_t byteSize, uint64_t key) override
 		{
-			RY_CORE_WARN_IF(0 == key, "Set funktion is expeted Map not StagingSlotAppendByteWrite! key dont required: {}!", key);
+			RY_CORE_WARN_IF(0 != key, "Set funktion is expeted Map not StagingSlotAppendByteWrite! key dont required: {}!", key);
 			return Add(dataPtr, byteSize);
 		}
 
@@ -196,13 +196,13 @@ namespace Rynex {
 			uint32_t allocSize = m_ElementVec.capacity();
 
 			m_ElementVec.emplace_back(ellment);
-			RY_CORE_WARN_IF(allocSize == m_ElementVec.capacity(), "Resize action by {} Bytes new Alloc Bytesize: {}!", (static_cast<uint32_t>(m_ElementVec.capacity()) - allocSize), m_ElementVec.capacity());
+			RY_CORE_WARN_IF(allocSize != m_ElementVec.capacity(), "Resize action by {} Bytes new Alloc Bytesize: {}!", (static_cast<uint32_t>(m_ElementVec.capacity()) - allocSize), m_ElementVec.capacity());
 			return pos;
 		}
 
 		virtual uint32_t Set(const void* dataPtr, uint32_t byteSize, uint64_t key) override
 		{
-			RY_CORE_WARN_IF(0ull == key, "Set funktion is expeted Map not StagingSlotAppend! key dont required: {}!", key);
+			RY_CORE_WARN_IF(0ull != key, "Set funktion is expeted Map not StagingSlotAppend! key dont required: {}!", key);
 			return Add(dataPtr, byteSize);
 		}
 
@@ -264,7 +264,7 @@ namespace Rynex {
 			uint8_t* offsetPtr = reinterpret_cast<uint8_t*>(m_ElementVec.data());
 			offsetPtr += m_WriteBytePos;
 
-			RY_CORE_WARN_IF(allocSize == m_ElementVec.capacity(), "Resize action by {} Bytes new Alloc Bytesize: {}!", (static_cast<uint32_t>(m_ElementVec.capacity()) - allocSize), m_ElementVec.capacity());
+			RY_CORE_WARN_IF(allocSize != m_ElementVec.capacity(), "Resize action by {} Bytes new Alloc Bytesize: {}!", (static_cast<uint32_t>(m_ElementVec.capacity()) - allocSize), m_ElementVec.capacity());
 
 			std::memcpy(offsetPtr, dataPtr, byteSize);
 			uint32_t oldWhritePos = m_WriteBytePos;
@@ -274,7 +274,7 @@ namespace Rynex {
 
 		virtual uint32_t Set(const void* dataPtr, uint32_t byteSize, uint64_t key) override
 		{
-			RY_CORE_WARN_IF(0ull == key, "Set funktion is expeted Map not StagingSlotAppendWrite! key dont required: {}!", key);
+			RY_CORE_WARN_IF(0ull != key, "Set funktion is expeted Map not StagingSlotAppendWrite! key dont required: {}!", key);
 			return Add(dataPtr, byteSize);
 		}
 

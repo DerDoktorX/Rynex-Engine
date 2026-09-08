@@ -49,23 +49,7 @@ namespace Rynex {
 		}
 
 		
-		template<typename ...Args>
-		inline static constexpr void LoggerMessage(std::shared_ptr<spdlog::logger>& logger, bool checks, spdlog::level::level_enum levelType, spdlog::format_string_t<Args...> fmt, Args&& ... args)
-		{
-			if(!checks)
-			{
-				LoggerMessage(logger, levelType, fmt, std::forward<Args>(args)...);
-			}
-		}
-		
-		template<typename T>
-		inline static constexpr void LoggerMessage(std::shared_ptr<spdlog::logger>& logger, bool checks, spdlog::level::level_enum levelType, const T& msg)
-		{
-			if (!checks)
-			{
-				LoggerMessage<T>(logger, levelType, msg);
-			}
-		}
+
 	private:
 		static Log s_LogInstance;
 	// --- private member varibels --------------------------------------------------------------------------------------------
@@ -142,8 +126,15 @@ inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternion)
 		{\
 			macroFunc(__VA_ARGS__);\
 		}
+
+	#define	RY_LOG_MSG_IF(check, macroFunc, ...)\
+		if(check)\
+		{\
+			macroFunc(__VA_ARGS__);\
+		}
 #else
 	#define	RY_LOG_MSG_IF_NOT(check, macroFunc, ...)
+	#define	RY_LOG_MSG_IF(check, macroFunc, ...)
 #endif
 
 		
@@ -156,11 +147,11 @@ inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternion)
 	#define	RY_CORE_FATAL(...)		::Rynex::Log::Get().GetCoreLogger()->critical(__VA_ARGS__)
 
 
-	#define	RY_CORE_TRACE_IF(check, ...)	RY_LOG_MSG_IF_NOT(check, RY_CORE_TRACE, __VA_ARGS__)
-	#define	RY_CORE_INFO_IF(check, ...)		RY_LOG_MSG_IF_NOT(check, RY_CORE_INFO, __VA_ARGS__)
-	#define	RY_CORE_WARN_IF(check, ...)		RY_LOG_MSG_IF_NOT(check, RY_CORE_WARN, __VA_ARGS__)
-	#define	RY_CORE_ERROR_IF(check, ...)	RY_LOG_MSG_IF_NOT(check, RY_CORE_ERROR, __VA_ARGS__)
-	#define	RY_CORE_FATAL_IF(check, ...)	RY_LOG_MSG_IF_NOT(check, RY_CORE_FATAL, __VA_ARGS__)
+	#define	RY_CORE_TRACE_IF(check, ...)	RY_LOG_MSG_IF(check, RY_CORE_TRACE, __VA_ARGS__)
+	#define	RY_CORE_INFO_IF(check, ...)		RY_LOG_MSG_IF(check, RY_CORE_INFO, __VA_ARGS__)
+	#define	RY_CORE_WARN_IF(check, ...)		RY_LOG_MSG_IF(check, RY_CORE_WARN, __VA_ARGS__)
+	#define	RY_CORE_ERROR_IF(check, ...)	RY_LOG_MSG_IF(check, RY_CORE_ERROR, __VA_ARGS__)
+	#define	RY_CORE_FATAL_IF(check, ...)	RY_LOG_MSG_IF(check, RY_CORE_FATAL, __VA_ARGS__)
 
 	
 

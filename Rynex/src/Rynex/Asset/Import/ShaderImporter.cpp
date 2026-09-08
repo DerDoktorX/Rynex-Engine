@@ -87,9 +87,9 @@ namespace Rynex {
 				std::string mesStr = path.string();
 				std::ios_base::iostate rdState = in.rdstate();
 
-				RY_CORE_WARN_IF(std::ios_base::goodbit != rdState, "Coud not open file '{0}' filepath. (ReLoadeShader)  Error Flage: goodbit", mesStr);
-				RY_CORE_ERROR_IF(std::ios_base::badbit != rdState, "Coud not open file '{0}' filepath. (ReLoadeShader)  Error Flage: badbit", mesStr);
-				RY_CORE_FATAL_IF(std::ios_base::failbit != rdState,"Coud not open file '{0}' filepath. (ReLoadeShader)  Error Flage: failbit", mesStr);
+				RY_CORE_WARN_IF(std::ios_base::goodbit == rdState, "Coud not open file '{0}' filepath. (ReLoadeShader)  Error Flage: goodbit", mesStr);
+				RY_CORE_ERROR_IF(std::ios_base::badbit == rdState, "Coud not open file '{0}' filepath. (ReLoadeShader)  Error Flage: badbit", mesStr);
+				RY_CORE_FATAL_IF(std::ios_base::failbit == rdState,"Coud not open file '{0}' filepath. (ReLoadeShader)  Error Flage: failbit", mesStr);
 				return false;
 			}
 		}

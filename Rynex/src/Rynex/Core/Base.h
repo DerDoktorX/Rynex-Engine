@@ -381,8 +381,12 @@ namespace Rynex {
 	template<typename Key, typename T, typename Hasher = std::hash<Key>, typename KeyEqual = std::equal_to<Key>, typename Alloc = std::allocator<std::pair<const Key, T>>>
 	using HashMapNode = std::unordered_map<Key, T, Hasher, KeyEqual, Alloc>;
 
-
+	
 #endif
+
+	template<typename Key, typename T, typename Pr = std::less<Key>, typename Alloc = std::equal_to<Key>>
+	using OrderedMap = std::map<Key, T, std::allocator<std::pair<const Key, T>>>;
+
 
 	template<typename T>
 	struct IsScopePtr : std::false_type {};

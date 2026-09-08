@@ -40,9 +40,16 @@ namespace Rynex {
 
 		~AssetMangerMapMutex();
 
+		void Shutdown()
+		{
+			std::unique_lock lock(m_Mutex);
+			m_Stop = true;
+			m_AssetMap.clear();
+		}
+
 		inline T GetCopy(const K& key) const
 		{
-			return Read(
+			return this->template FindThenRead<T>(key,
 				[&key](const std::map<K, T>& map)
 				{
 					return map.at(key);
@@ -53,7 +60,7 @@ namespace Rynex {
 		
 		inline void GetRefLemda(std::function<void(T&)> func, const K& key)
 		{
-			Write(
+			FindThenWrite(key,
 				[&key, func](std::map<K, T>& map)
 				{
 					func(map.at(key));
@@ -93,11 +100,9 @@ namespace Rynex {
 
 		}
 
-		// Set Globle Mutex!
 		inline void GetPtr(const K& key, T* value)
 		{
-			
-			Write(
+			FindThenWrite(key,
 				[&key, value](std::map<K, T>& map)
 				{
 					*value = map.at(key);
@@ -105,10 +110,11 @@ namespace Rynex {
 			);
 		};
 
+
 		template<typename Func>
 		inline void WriteValue(const K& key, Func&& func)
 		{
-			Write(
+			FindThenWrite(key,
 				[&key, func](std::map<K, T>& map)
 				{
 					T& value = map.at(key);
@@ -117,9 +123,14 @@ namespace Rynex {
 			);
 		}
 
+		/**
+		 * The methode calls Write, defines a lambder function that. Get the corresponding value position to the {@param key} and overrides the value withe {@param value}.
+		 * @param key find the value in the map.
+		 * @param value a protected reference set the value in the map.
+		 */
 		inline void Set(const K& key, const T& value)
 		{
-			Write(
+			FindThenWrite(key,
 				[&key, &value](std::map<K, T>& map)
 				{
 					map.at(key) = value;
@@ -128,6 +139,11 @@ namespace Rynex {
 
 		};
 
+		/**
+		 * The methode calls Write, defines a lambder function that. Can create a new position {@param key} and the position receive the value off {@param value}.
+		 * @param key find the value in the map.
+		 * @param value a protected reference set the value in the map.
+		 */
 		inline void Add(const K& key, const T& value)
 		{
 
@@ -139,9 +155,14 @@ namespace Rynex {
 			);
 		};
 
+
+		/**
+		 * The methode calls Write, defines a lambder function that. Erase the {@param key} and corresponding value and from the map.
+		 * @param key find the value in the map.
+		 */
 		inline void Remove(const K& key)
 		{
-			Write(
+			FindThenWrite(key,
 				[&key](std::map<K, T>& map)
 				{
 					map.erase(key);
@@ -149,20 +170,21 @@ namespace Rynex {
 			);
 		};
 
-		inline void Change(const K& key, const T& value)
-		{
-			Write(
-				[&key, &value](std::map<K, T>& map)
-				{
-					map.at(key) = value;
-				}
-			);
-		};
 
-		template<typename Func>
-		inline auto ReadValue(const K& key, Func&& func) const
+
+		/**
+		 * The methode calls Read withe a lander function to receive the value of the map that matches the {@param key} (no safety check).
+		 * After receiving the value it calls the lambder function {@param func}, set the value off the map.
+		 * @tparam Func a lambder function that get a argument of type {@T} as param, as a protected reference. Can also have any return value.
+		 * @param key argument to the value in the map.
+		 * @param func lambda function for that get the a protected reference from the map value.
+		 * @return any result you want receive from your own lander.
+		 */
+		template<typename R, typename Func>
+		inline R ReadValue(const K& key, Func&& func) const
 		{
-			return Read(
+			
+			return FindThenRead<R>(key,
 				[&key, func](const std::map<K, T>& map)
 				{
 					const T& value = map.at(key);
@@ -171,16 +193,24 @@ namespace Rynex {
 			);
 		}
 
+		/**
+		 * Search for a key, if it is inside off the map or not.
+		 * @param key argument to the value in the map.
+		 * @return the return value from the Read methode, about the key state.
+		 */
 		inline bool IsFound(const K& key) const
 		{
-			return Read(
-				[&key](const std::map<K, T>& map) 
+			return this->template Read<bool>(
+				[&key](const std::map<K, T>& map) -> bool
 				{
 					return map.find(key) != map.end();
 				}
 			);
 		};
 
+		/**
+		 * Calls Write methode, with a lambda function that clears the map.
+		 */
 		inline void Clear()
 		{
 			Write(
@@ -191,31 +221,116 @@ namespace Rynex {
 			);		
 		}
 
-		template<typename Func>
-		auto Read(Func&& func) const
+
+		/**
+		 * Some read action go throw this methode. The methode lock and unlock the mutex from instance as shared.
+		 * Calls the {@param func} lambda function and set the map reference that is protected, from this instance.
+		 * Also Controls if the instance is in process off destruction. If that is the case the action can be aborted.
+		 * @tparam Func type from the {@param func} lambda function that expect a std::map<K, T> reference that is protected.
+		 *				K and T should be the same typs that are used in this instance.
+		 * @param func expect a lambder that get read access to the internal map from the instance.
+		 * @return if the lamda functions has a return value we return it.
+		 */
+		template<typename R, typename Func>
+		R Read(Func&& func) const
 		{
 			std::shared_lock lock(m_Mutex);
 			RY_CORE_ASSERT(!m_OutSideScope, "Mutex is alrady Set Globle");
-			const std::map<K, T>& map = m_AssetMap;
-			return func(map);
+			if (m_Stop)
+			{
+				RY_CORE_ERROR("destructor executed! Abort Read");
+				return R{};
+			}
+			return func(m_AssetMap);
 		}
 
+		/**
+		 * Some write action go in this methode. The methode lock and unlock the mutex from instance as unique.
+		 * Also Controls if the instance is in process off destruction. If that is the case the action can be aborted.
+		 * Calls the lambda methode and set the map from this instance as the argument.
+		 * @tparam Func type from the {@param} lambda function that expect a std::map<K, T> reference that is not protected.
+		 *				K and T should be the same typs that are used in this instance.
+		 * @param func expect a lambder that get full write access to the internal map from the instance.
+		 */
 		template<typename Func>
 		void Write(Func&& func)
 		{
 			std::unique_lock lock(m_Mutex);
-			RY_CORE_ASSERT(!m_OutSideScope, "Mutex is alrady Set Globle");
+			RY_CORE_ASSERT(!m_OutSideScope, "Mutex is already set globe");
 			if (m_Stop)
+			{
+				RY_CORE_ERROR("destructor executed! Abort Write");
 				return;
-			WriteAction(func);
+			}
+			func(m_AssetMap);
 		}
-	private:
-		template<typename Func>
-		void WriteAction(Func&& func)
+
+		/**
+		 * Some read action go throw this methode. The methode lock and unlock the mutex from instance as shared.
+		 * Calls the {@param func} lambda function and set the map reference that is protected, from this instance.
+		 * Also Controls if the instance is in process off destruction or the position {@param key} exist. If that is the case the action can be aborted.
+		 * @tparam Func type from the {@param func} lambda function that expect a std::map<K, T> reference that is protected.
+		 *				K and T should be the same typs that are used in this instance.
+		 * @param key expect key value that matches the {@K} of this instance.
+		 * @param func expect a lambder that get read access to the internal map from the instance.
+		 * @return if the lamda function has a return value we return it.
+		 */
+		template<typename R, typename Func>
+		R FindThenRead(const K& key, Func&& func) const
 		{
-			std::map<K, T>& map = m_AssetMap;
-			func(map);
+			if (m_Stop)
+			{
+				RY_CORE_ERROR("destructor executed! Abort FindThenWrite");
+				
+				return R{};
+			}
+			
+			std::shared_lock lock(m_Mutex);
+			RY_CORE_ASSERT(!m_OutSideScope, "Mutex is already Set Globe");
+			if (m_Stop || m_AssetMap.find(key) == m_AssetMap.end())
+			{
+				RY_CORE_ERROR_IF(m_Stop, "destructor executed! Abort FindThenRead");
+				RY_CORE_ERROR_IF(m_AssetMap.find(key) == m_AssetMap.end(), "Key not found! Abort FindThenRead");
+
+				
+				return R{};
+			}
+			return func(m_AssetMap);
 		}
+
+		/**
+		 * Most write action go in this methode. The methode lock and unlock the mutex from instance as unique.
+		 * Also Controls if the instance is in process off or that the key exist. If that is the case the action can be aborted.
+		 * Calls the lambda methode and set the map from this instance as the argument.
+		 * @tparam Func type from the {@param} lambda function that expect a std::map<K, T> reference that is not protected.
+		 *				K and T should be the same typs that are used in this instance.
+		 * @param key expect key value that matches the {@K} of this instance.
+		 * @param func expect a lambder that get full write access to the internal map from the instance.
+		 */
+		template<typename Func>
+		void FindThenWrite(const K& key, Func&& func)
+		{
+			if (m_Stop)
+			{
+				RY_CORE_ERROR("destructor executed! Abort FindThenWrite");
+				return;
+			}
+
+			std::unique_lock lock(m_Mutex);
+			RY_CORE_ASSERT(!m_OutSideScope, "Mutex is already set globe");
+
+			if (m_Stop || m_AssetMap.find(key) == m_AssetMap.end())
+			{
+				RY_CORE_ERROR_IF(m_Stop, "destructor executed! Abort FindThenWrite");
+				RY_CORE_ERROR_IF(m_AssetMap.find(key) == m_AssetMap.end(), "Key not found! Abort FindThenWrite");
+				return;
+			}
+			func(m_AssetMap);
+		}
+
+		
+	private:
+
 		inline bool IsLockedFromOutsideAny() const
 		{
 			if (m_ScopeGuardLock.expired())
@@ -227,7 +342,6 @@ namespace Rynex {
 					m_OutSideScopeThreadID.store(scopeThreadID);
 				}
 				return false;
-
 			}
 			else
 			{
@@ -328,6 +442,7 @@ namespace Rynex {
 		mutable std::atomic_uint64_t m_OutSideScopeThreadID;
 
 		std::atomic_bool m_OutSideScope;
+
 		bool m_Stop;
 
 	};
@@ -336,15 +451,7 @@ namespace Rynex {
 	template<typename K, typename T>
 	inline AssetMangerMapMutex<K, T>::~AssetMangerMapMutex()
 	{
-		std::unique_lock lock(m_Mutex);
-		m_Stop = false;
-		WriteAction(
-			[](std::map<K, T>& map)
-			{
-				map.clear();
-			}
-		);
-		
+		RY_CORE_ASSERT(m_Stop, "Destructor called without prior Shutdown()! Ensure all worker threads are joined before destroying AssetMangerMapMutex.");
 	}
 
 

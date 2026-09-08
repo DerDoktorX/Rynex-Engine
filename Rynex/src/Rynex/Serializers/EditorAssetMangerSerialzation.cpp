@@ -50,11 +50,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 1 Marked Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 1 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 1 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 1 Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 1 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 1 Marked Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 1 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 1 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 1 Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 1 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 			}
@@ -86,11 +86,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 2 Realtiv Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 2 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 2 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 2 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 2 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 2 Realtiv Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 2 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 2 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 2 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 2 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 			}
@@ -124,11 +124,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 
@@ -166,11 +166,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 1 Marked Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 1 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 1 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 1 Marked Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 1 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 1 Marked Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 1 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 1 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 1 Marked Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 1 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 			}
@@ -202,11 +202,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 2 Realtiv Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 2 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 2 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 2 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 2 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 2 Realtiv Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 2 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 2 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 2 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 2 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 			}
@@ -239,11 +239,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 			}
@@ -281,11 +281,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 1 Marked Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 1 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 1 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 1 Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 1 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 1 Marked Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 1 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 1 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 1 Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 1 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 			}
@@ -318,11 +318,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 2 Realtiv Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 2 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 2 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 2 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 2 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 2 Realtiv Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 2 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 2 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 2 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 2 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 			}
@@ -356,11 +356,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 
@@ -400,11 +400,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 1 Marked Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 1 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 1 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 1 Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 1 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 1 Marked Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 1 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 1 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 1 Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 1 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 			}
@@ -436,11 +436,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 2 Realtiv Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 2 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 2 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 2 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 2 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 2 Realtiv Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 2 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 2 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 2 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 2 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 			}
@@ -473,11 +473,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 
@@ -515,11 +515,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 1 Marked Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 1 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 1 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 1 Marked Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 1 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 1 Marked Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 1 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 1 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 1 Marked Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 1 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 			}
@@ -551,11 +551,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 2 Realtiv Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 2 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 2 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 2 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 2 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 2 Realtiv Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 2 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 2 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 2 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 2 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 			}
@@ -588,11 +588,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 			}
@@ -630,11 +630,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 1 Realtiv Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 1 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 1 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 1 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 1 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 1 Realtiv Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 1 Realtiv Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 1 Realtiv Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 1 Realtiv Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 1 Realtiv Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 			}
@@ -666,11 +666,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 2 Marked Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 2 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 2 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 2 Marked Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 2 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 2 Marked Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 2 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 2 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 2 Marked Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 2 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 			}
@@ -703,11 +703,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 3 Absolute Path: FAILD! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 3 Absolute Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 3 Absolute Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 3 Absolute Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 3 Absolute Path: FAILD! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 			}

@@ -327,6 +327,11 @@ namespace Rynex {
 	{
 		RY_ASSET_WARN("Begin EditorAssetManegerThreade OnDetach");
 		SerialzeAssetRegistry();
+		m_PathRegistry.Shutdown();
+		m_LoadedAssets.Shutdown();
+		m_DirectoryRegistry.Shutdown();
+		m_HandleRegistry.Shutdown();
+		
 		RY_ASSET_INFO("Ende EditorAssetManegerThreade OnDetach");
 	}
 
@@ -876,7 +881,7 @@ namespace Rynex {
 	{
 		std::map<AssetHandle, Ref<Asset>> mapCopy;
 		{
-			m_LoadedAssets.Read(
+			m_LoadedAssets.Read<bool>(
 				[&mapCopy](const std::map<AssetHandle, Ref<Asset>>& map)
 				{
 					mapCopy = map;
@@ -1058,9 +1063,10 @@ namespace Rynex {
 			{
 
 				
-				m_DirectoryRegistry.ReadValue(showPathGenaric,
-					[this, &itemes](const AssetFileDirectoryThreade& assetFileDirectory) -> bool
+				m_DirectoryRegistry.Read<bool>(
+					[this, &itemes, &showPathGenaric](const std::map<std::filesystem::path, AssetFileDirectoryThreade>& assetBrowserDataThreade) -> bool
 					{
+						const AssetFileDirectoryThreade& assetFileDirectory = assetBrowserDataThreade.at(showPathGenaric);
 						const std::vector<std::filesystem::path>& foldersPaths = assetFileDirectory.Folders;
 						const std::vector<AssetHandle>& handles = assetFileDirectory.AssetFiles;
 
@@ -1122,7 +1128,7 @@ namespace Rynex {
 	{
 		RegisterItemesThreade itemes;
 		{
-			m_HandleRegistry.Read(
+			m_HandleRegistry.Read<bool>(
 				[&itemes](const std::map<AssetHandle, AssetMetadata>& map) -> bool
 				{
 					itemes.reserve(map.size());
@@ -1192,17 +1198,12 @@ namespace Rynex {
 
 	bool EditorAssetManegerThreade::CheckAssetFileExist(AssetHandle handle)
 	{
-		if (!IsAssetHandleValid(handle))
+		AssetMetadata metaData = m_HandleRegistry.GetCopy(handle);
+		if (!metaData)
 			return false;
 
-		std::pair<bool, AssetState> result = m_HandleRegistry.ReadValue(handle,
-			[this](const AssetMetadata& metaData) 
-			{
-				return std::pair<bool, AssetState>{ !IsAssetPathExtensionVaild(metaData.FilePath), metaData.State };
-			}
-		);
-		AssetState state = result.second;
-		if (result.first)
+		const AssetState& state = metaData.State;
+		if (!IsAssetPathExtensionVaild(metaData.FilePath))
 		{
 			m_HandleRegistry.WriteValue(handle,
 				[](AssetMetadata& metaData)
@@ -1307,7 +1308,8 @@ namespace Rynex {
 				m_FileChanges = true;
 			m_RegestryChanges = true; 
 			
-			bool result = m_DirectoryRegistry.ReadValue(parentGenaric, [&origenelGenaric](const AssetFileDirectoryThreade& assetFileDirectory)
+			bool result = m_DirectoryRegistry.ReadValue<bool>(parentGenaric, 
+				[&origenelGenaric](const AssetFileDirectoryThreade& assetFileDirectory) -> bool
 				{
 					for (auto& folder : assetFileDirectory.Folders)
 					{
@@ -1536,37 +1538,34 @@ namespace Rynex {
 		RY_CORE_ASSERT(!m_OutSideScope, "Mutex is alrady Set Globle");
 		std::unique_lock writerLock(m_Mutex);
 		m_Stop = true;
-		if (!m_AssetMap.empty())
-		{
-			WriteAction(
-				[this](std::map<AssetHandle, Ref<Asset>>& map)
-				{
-					for (auto& [key, asset] : map)
-					{
-						asset.reset();
-					}
-					map.clear();
-				}
-			);
-		}
-	}
-
-
-	template<>
-	inline AssetMangerLeftRightMap<AssetHandle, Ref<Asset>>::~AssetMangerLeftRightMap()
-	{
-		std::unique_lock writerLock(m_WriterMutex);
-		m_Stop = true;
 		
-		WriteAction(
-			[this](std::map<AssetHandle, Ref<Asset>>& map)
-			{
-				for (auto& [key, asset] : map)
-				{
-					asset.reset();
-				}
-				map.clear();
-			}
-		);
+		for (auto& [key, asset] : m_AssetMap)
+		{
+			RY_DESTROY_REF(asset);
+		}
+		m_AssetMap.clear();
+		
 	}
+
+
+	
+
+	// template<>
+	// inline void AssetMangerLeftRightMap<AssetHandle, Ref<Asset>>::Shoutdown()
+	// {
+	// 	std::unique_lock writerLock(m_WriterMutex);
+	// 	m_Stop = true;
+	// 	WriteAction(
+	// 		[this](Map& map)
+	// 		{
+	// 			for (auto& [key, asset] : map)
+	// 			{
+	// 				RY_DESTROY_REF(asset);
+	// 			}
+	// 			map.clear();
+	// 		}
+	// 	);
+	// 
+	// 	
+	// }
 }

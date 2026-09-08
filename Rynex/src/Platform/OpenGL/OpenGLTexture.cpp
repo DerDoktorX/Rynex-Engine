@@ -291,7 +291,7 @@ namespace Rynex{
 				case TextureTarget::Texture1D:		
 				{
 					
-					RY_CORE_WARN_IF(!multisampled,"We have no multisampled for a {}", magic_enum::enum_name(target));
+					RY_CORE_WARN_IF(multisampled,"We have no multisampled for a {}", magic_enum::enum_name(target));
 					return GL_TEXTURE_1D;
 				}
 				case TextureTarget::Texture2D:			
@@ -301,22 +301,22 @@ namespace Rynex{
 				}
 				case TextureTarget::Texture3D:	
 				{
-					RY_CORE_WARN_IF(!multisampled,"We have no multisampled for a {}", magic_enum::enum_name(target));
+					RY_CORE_WARN_IF(multisampled,"We have no multisampled for a {}", magic_enum::enum_name(target));
 					return GL_TEXTURE_3D;
 				}
 				case TextureTarget::TextureRectAngle:
 				{
-					RY_CORE_WARN_IF(!multisampled, "We have no multisampled for a {}", magic_enum::enum_name(target));
+					RY_CORE_WARN_IF(multisampled, "We have no multisampled for a {}", magic_enum::enum_name(target));
 					return GL_TEXTURE_RECTANGLE;
 				}
 				case TextureTarget::TextureBuffer:		
 				{
-					RY_CORE_WARN_IF(!multisampled, "We have no multisampled for a {}", magic_enum::enum_name(target));
+					RY_CORE_WARN_IF(multisampled, "We have no multisampled for a {}", magic_enum::enum_name(target));
 					return GL_TEXTURE_BUFFER;
 				}
 				case TextureTarget::Texture1D_Array:
 				{
-					RY_CORE_WARN_IF(!multisampled, "We have no multisampled for a {}", magic_enum::enum_name(target));
+					RY_CORE_WARN_IF(multisampled, "We have no multisampled for a {}", magic_enum::enum_name(target));
 					return GL_TEXTURE_1D_ARRAY;
 				}
 				case TextureTarget::Texture2D_Array:
@@ -328,12 +328,12 @@ namespace Rynex{
 				}
 				case TextureTarget::TextureCubeMap_Array:
 				{
-					RY_CORE_WARN_IF(!multisampled, "We have no multisampled for a {}", magic_enum::enum_name(target));
+					RY_CORE_WARN_IF(multisampled, "We have no multisampled for a {}", magic_enum::enum_name(target));
 					return GL_TEXTURE_CUBE_MAP_ARRAY;
 				}
 				case TextureTarget::TextureCubeMap:		
 				{
-					RY_CORE_WARN_IF(!multisampled, "We have no multisampled for a {}", magic_enum::enum_name(target));
+					RY_CORE_WARN_IF(multisampled, "We have no multisampled for a {}", magic_enum::enum_name(target));
 					return GL_TEXTURE_CUBE_MAP;
 				}
 				default:

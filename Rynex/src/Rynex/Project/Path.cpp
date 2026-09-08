@@ -133,7 +133,7 @@ namespace Rynex::FileSystem {
 		std::filesystem::path dstBasePath = GetPathAbsoluteOrigin(origin);
 		std::string_view viewEnum = magic_enum::enum_name(origin);
 #ifdef RYPATH_LOG_MSG
-		RY_CORE_WARN_IF(dstBasePath.empty(), "Origin: {} reulted in a empty base this shoud lead to a invaild Path!", viewEnum.data());
+		RY_CORE_WARN_IF(!dstBasePath.empty(), "Origin: {} reulted in a empty base this shoud lead to a invaild Path!", viewEnum.data());
 #else
 #endif
 		std::filesystem::path realtiveToBase = m_Path.lexically_relative(dstBasePath);
@@ -282,7 +282,7 @@ namespace Rynex::FileSystem {
 		std::string pathCopyStr = pathStr;
 		
 
-		RY_CORE_WARN_IF(!(IsOriginPathMarked(originPath) && IsOriginPathMarked(origin)), "Multiple marked path: origin is not the default case, currently overriding the previous origin!");
+		RY_CORE_WARN_IF(IsOriginPathMarked(originPath) && IsOriginPathMarked(origin), "Multiple marked path: origin is not the default case, currently overriding the previous origin!");
 		
 		
 		switch (originPath)
@@ -291,7 +291,7 @@ namespace Rynex::FileSystem {
 			{	
 				path = pathStr;
 #ifdef RY_PATH_LOG_MSG
-				RY_CORE_TRACE_IF(IsOriginPathMarked(origin), "No Marker in Path and origni is valid!");
+				RY_CORE_TRACE_IF(!IsOriginPathMarked(origin), "No Marker in Path and origni is valid!");
 #else
 				RY_REMBER_FUNC_CHANGE("Remove LOg State if not need!");
 #endif
@@ -319,7 +319,7 @@ namespace Rynex::FileSystem {
 					Origin originRelative = GetExpectedOriginFromRelativePath(path);
 					if (IsOriginPathMarked(origin))
 					{
- 						RY_CORE_INFO_IF(origin == originRelative, "Relative path origne state as base path! Origne state wins!");
+ 						RY_CORE_INFO_IF(origin != originRelative, "Relative path origne state as base path! Origne state wins!");
 						originRelative = origin;
 					}
 					origin = originRelative;
@@ -729,7 +729,7 @@ namespace Rynex::FileSystem {
 	{
 		int8_t i = 0;
 		
-		if (Project::HasStringInPath(path, RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR))
+		if (Project::HasStringInPath(path, RY_PATH_EXPECT_ENGINE_RELATIVE_START_FOlDER_STR))
 			return Origin::Engine;
 
 		if(Project::HasStringInPath(path, ".."))
