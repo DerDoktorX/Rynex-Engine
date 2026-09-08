@@ -12,8 +12,8 @@ project "Glad"
     kind "StaticLib"
     language "C"
 
-    local projectDir = "_Glad/"
-	location "_Glad/"
+    local projectDir = "Glad/"
+	location "Glad/"
 
 
     targetdir (projectDir .. "bin/" .. outputdir .. "/%{prj.name}")
