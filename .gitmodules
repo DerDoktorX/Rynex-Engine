@@ -4,8 +4,8 @@
 [submodule "Rynex/vendor/_glm"]
 	path = Rynex/vendor/_glm
 	url = https://github.com/g-truc/glm
-[submodule "Rynex/vendor/yaml-cpp"]
-	path = Rynex/vendor/yaml-cpp
+[submodule "Rynex/vendor/_yaml-cpp"]
+	path = Rynex/vendor/_yaml-cpp
 	url = https://github.com/TheCherno/yaml-cpp
 [submodule "Rynex/vendor/_ImGizmo"]
 	path = Rynex/vendor/_ImGizmo
