@@ -14,7 +14,9 @@
 #include <Rynex/Renderer/Materials/Material.h>
 
 #include <imgui/imgui.h>
+#ifdef IM_GUIZMO
 #include <ImGuizmo.h>
+#endif
 #include <imgui/imgui_internal.h>
 #include <Rynex/Renderer/Rendering/Render3D/Renderer3D.h>
 
@@ -281,8 +283,10 @@ namespace Rynex {
             {
                 if (m_AktiveScene->GetEntityCount() == 0)
                     OpenScene();
+#ifdef IM_GUIZMO
                 else if (!ImGuizmo::IsOver())
                     m_EditorLayer->SetSelectedEntity(m_HoveredEntity);
+#endif
             }
         }
         return false;
@@ -936,10 +940,12 @@ namespace Rynex {
 
     void ViewPort::CalculateGizmo()
     {
+#ifdef IM_GUIZMO
         Entity selectedEntity = m_EditorLayer->GetSelectedEntity();
         m_ImGizmoHovered = false;
         if (!selectedEntity || *m_GizmoType == -1)
             return;
+
 
         ImGuizmo::SetOrthographic(false);
         ImGuizmo::SetDrawlist();
@@ -1003,9 +1009,7 @@ namespace Rynex {
         tc.Rotation += dealteRotation;
         tc.Scale = scale;
         selectedEntity.UpdateMatrix();
-
-        
-        
+#endif
         
     }
 

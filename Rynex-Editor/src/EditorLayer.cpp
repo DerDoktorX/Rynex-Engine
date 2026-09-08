@@ -19,7 +19,10 @@
 #include <Rynex/Asset/Import/ShaderImporter.h>
 
 #include <imgui/imgui.h>
+#ifdef IM_GUIZMO
 #include <ImGuizmo.h>
+#endif // IM_GUIZMO
+
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -2663,10 +2666,12 @@ case key: \
             RY_KEY_COMB_CASE(Key::Delete, m_ViewPortFocused, NewScene());
             RY_KEY_COMB_CASE(Key::O, control, OpenScene());
             RY_KEY_COMB_CASE(Key::S, control && shift, control, NewScene(), SaveCurentScene());
+#ifdef IM_GIZMO
             RY_KEY_COMB_CASE(Key::Q, control, m_GizmoType = -1);
             RY_KEY_COMB_CASE(Key::W, control, m_GizmoType = ImGuizmo::OPERATION::TRANSLATE);
             RY_KEY_COMB_CASE(Key::E, control, m_GizmoType = ImGuizmo::OPERATION::ROTATE);
             RY_KEY_COMB_CASE(Key::R, control, m_GizmoType = ImGuizmo::OPERATION::SCALE);
+#endif
 
             
 #if 0

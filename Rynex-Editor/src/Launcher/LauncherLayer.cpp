@@ -11,12 +11,14 @@
 namespace Rynex {
 
 	namespace Utils {
-		void InputText(const std::string& name, std::string& value, char* buffer, uint32_t buferSize)
+		bool InputText(const std::string& name, std::string& value, char* buffer, uint32_t buferSize)
 		{
 			ImGui::Text(name.c_str());
 			strcpy(buffer, value.c_str());
-			if (ImGui::InputText(("##" + name).c_str(), buffer, buferSize))
+			bool input = ImGui::InputText(("##" + name).c_str(), buffer, buferSize);
+			if (input)
 				value = buffer;
+			return input;
 		}
 	}
 
@@ -97,8 +99,26 @@ namespace Rynex {
 			
 			ImGui::Begin("Rynex-Launcher");
 			static char buffer[260];
-
-			Utils::InputText("Name-Project: ", m_ProjectName, buffer, sizeof(buffer));
+			static bool protecedProjectName = false;
+			if(Utils::InputText("Name-Project: ", m_ProjectName, buffer, sizeof(buffer)))
+			{
+				if (RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR == m_ProjectName)
+				{
+					RY_CORE_ERROR("{} is a Proteced Project Name and can not be used!", RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR);
+					m_ProjectName.clear();
+					protecedProjectName = true;
+				}
+				else
+				{
+					protecedProjectName = false;
+				}
+			}
+			if (protecedProjectName)
+			{
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
+				ImGui::Text("%s is a Proteced Project Name and can not be used!", RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR);
+				ImGui::PopStyleColor();
+			}
 
 			Utils::InputText("Location", m_ProjectPath, buffer, sizeof(buffer));
 
