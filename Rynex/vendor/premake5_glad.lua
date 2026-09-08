@@ -12,24 +12,28 @@ project "Glad"
     kind "StaticLib"
     language "C"
 
-    
-    targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+    local projectDir = "_Glad/"
+	location "_Glad/"
+
+
+    targetdir (projectDir .. "bin/" .. outputdir .. "/%{prj.name}")
+    objdir (projectDir .. "bin-int/" .. outputdir .. "/%{prj.name}")
 
     files
     {
-        "include/glad/glad.h",
-        "include/KHR/khrplatform.h",
-        "src/glad.c"
+        projectDir .. "include/glad/glad.h",
+        projectDir .. "include/KHR/khrplatform.h",
+        projectDir .. "src/glad.c"
     }
 
     includedirs
     {
-        "include"
+        projectDir .. "include"
     }
     
     filter "system:windows"
         systemversion "latest"
+
         -- filter { "configurations:Release" }
         -- buildoptions "/MT"
     filter {}

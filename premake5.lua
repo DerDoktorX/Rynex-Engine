@@ -73,7 +73,7 @@ IncludeDir["GLFW"] 		= "%{wks.location}/Rynex/vendor/GLFW/include"
 IncludeDir["Glad"] 		= "%{wks.location}/Rynex/vendor/Glad/include"
 -- Files
 IncludeDir["stb_image"] = "%{wks.location}/Rynex/vendor/stb_image"
-IncludeDir["yaml_cpp"] 	= "%{wks.location}/Rynex/vendor/yaml-cpp/include"
+IncludeDir["yaml_cpp"] 	= "%{wks.location}/Rynex/vendor/_yaml-cpp/include"
 IncludeDir["filewatch"] = "%{wks.location}/Rynex/vendor/filewatch"
 IncludeDir["assimp"] = "%{wks.location}/Rynex/vendor/assimp/include"
 IncludeDir["meshoptimizer"] = "%{wks.location}/Rynex/vendor/meshoptimizer/src"
@@ -131,23 +131,38 @@ Library_WIN["WinVersion"] = "Version.lib"
 Library_WIN["Bcrypt"] = "Bcrypt.lib"
 
 
-Compiler = "msv" -- "msv" | "gcc" | "clang" | "dotnet"
-filter "system:linux"
-	Compiler = "gcc"
-filter {}
+
 group "Dependencies"
-	include "Rynex/vendor/GLFW"
-	include "Rynex/vendor/Glad"
-	include "Rynex/vendor/yaml-cpp"
-	include "Rynex/vendor/imgui"
+local outsidePremkae = true
+if outsidePremkae then
+	include "Rynex/vendor/premake5_glfw.lua"
+	include "Rynex/vendor/premake5_glad.lua"
+	include "Rynex/vendor/premake5_yaml-cpp.lua"
+	include "Rynex/vendor/premake5_imgui.lua"
 	
 	-- notiz: it is nassary for a sucesfull build withe the curent setub to generate the broject withe camke one time in the ./vendor/assimp/ folder.
 	-- NOT in a ./vendor/assimp/build!
 	-- the include assimp/config.h and some other also don't work! becaouse CMakeList.txt generats from  ./vendor/assimp/inlcude/assimp/config.h.in the needed assimp/config.h file.
-	include "Rynex/vendor/assimp" 
+
+	include "Rynex/vendor/premake5_assimp.lua" 
+
+
+	include "Rynex/vendor/premake5_msdfgen.lua"
+	include "Rynex/vendor/premake5_meshoptimizer.lua"
+else
+	include "Rynex/vendor/GLFW"
+	include "Rynex/vendor/Glad"
+	include "Rynex/vendor/_yaml-cpp"
+	include "Rynex/vendor/imgui"
+
+	-- notiz: it is nassary for a sucesfull build withe the curent setub to generate the broject withe camke one time in the ./vendor/assimp/ folder.
+	-- NOT in a ./vendor/assimp/build!
+	-- the include assimp/config.h and some other also don't work! becaouse CMakeList.txt generats from  ./vendor/assimp/inlcude/assimp/config.h.in the needed assimp/config.h file.
+	include "Rynex/vendor/assimp/premake5.lua" 
 
 	include "Rynex/vendor/msdf-atelas-gen"
 	include "Rynex/vendor/meshoptimizer"
+end
 group ""
 
 include "Rynex"

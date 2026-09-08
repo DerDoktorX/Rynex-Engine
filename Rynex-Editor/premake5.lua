@@ -1,4 +1,4 @@
-require "clion"
+
 project "Rynex-Editor"
 
 	if BuildProjectConf == "Static" or BuildProjectConf == "Static2Lib"   then
@@ -59,6 +59,8 @@ project "Rynex-Editor"
 		"Rynex"
 	}
 	
+
+
 	defines
 	{
 		"RY_EDITOR",
@@ -69,12 +71,13 @@ project "Rynex-Editor"
 		postbuildcommands 
 		{
 			"{MKDIR} %{cfg.targetdir}/DLLs",
-		
-			'cmd /c if not exist "%{cfg.targetdir}/Editor-Assets" mklink /J "%{cfg.targetdir}/Editor-Assets" "%{wks.location}/Rynex-Editor/Editor-Assets"',
+			"{MKDIR} %{cfg.targetdir}/Profile",
+
+			'cmd /c if not exist "%{cfg.targetdir}/Editor-Assets" mklink /J "%{cfg.targetdir}/Editor-Assets" "%{wks.location}Rynex-Editor/Editor-Assets"',
 			'cmd /c if not exist "%{cfg.targetdir}/Resources" mklink /J "%{cfg.targetdir}/Resources" "%{wks.location}Rynex-Editor/Resources"',
 			'cmd /c if not exist "%{cfg.targetdir}/SandboxProject" mklink /J "%{cfg.targetdir}/SandboxProject" "%{wks.location}Rynex-Editor/SandboxProject"',
-			'cmd /c if not exist "%{cfg.targetdir}/Profile" mklink /J "%{cfg.targetdir}/Profile" "%{wks.location}Rynex-Editor/Profile"',
 			'cmd /c if not exist "%{cfg.targetdir}/mono" mklink /J "%{cfg.targetdir}/mono" "%{wks.location}Rynex-Editor/mono"',
+			'cmd /c if not exist "%{wks.location}bin\\' .. outputdir .. '\\%{prj.name}\\imgui.ini" mklink /H "%{wks.location}bin\\' .. outputdir .. '\\%{prj.name}\\imgui.ini" "%{wks.location}%{prj.name}\\imgui.ini"',
 		}
 	filter {}
 
@@ -82,13 +85,12 @@ project "Rynex-Editor"
 		postbuildcommands 
 		{
 			"{MKDIR} %{cfg.targetdir}/DLLs",
-			
+			"{MKDIR} %{cfg.targetdir}/Profile",
 
-			"{COPY} %{cfg.targetdir}/Editor-Assets %{wks.location}/Rynex-Editor/Editor-Assets",
-			"{COPY} %{cfg.targetdir}/Resources %{wks.location}/Rynex-Editor/Resources",
-			"{COPY} %{cfg.targetdir}/SandboxProject %{wks.location}/Rynex-Editor/SandboxProject",
-			"{COPY} %{cfg.targetdir}/SandboxProject %{wks.location}/Rynex-Editor/Profile",
-			"{COPY} %{cfg.targetdir}/SandboxProject %{wks.location}/Rynex-Editor/mono",
+			"{COPY} %{wks.location}Rynex-Editor/Editor-Assets %{cfg.targetdir}/Editor-Assets",
+			"{COPY} %{wks.location}Rynex-Editor/Resources %{cfg.targetdir}/Resources",
+			"{COPY} %{wks.location}Rynex-Editor/SandboxProject %{cfg.targetdir}/SandboxProject",
+			-- "{COPY} %{wks.location}Rynex-Editor/imgui.ini %{cfg.targetdir}/imgui.ini",
 		}
 	filter {}
 	

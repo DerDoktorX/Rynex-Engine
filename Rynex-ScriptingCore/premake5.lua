@@ -25,11 +25,12 @@ project "Rynex-ScriptingCore"
 	filter "configurations:Debug"
 		optimize "Off"
 		symbols "Default"
-		
+	filter {}
 
 	filter "configurations:Release"
 		optimize "On"
 		symbols "Default"
+	filter {}
 
 	filter "configurations:Dist"
 		optimize "Full"

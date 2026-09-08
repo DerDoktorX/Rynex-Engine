@@ -38,9 +38,10 @@ project "Sandbox"
 
 	includedirs
 	{
-		"%{wks.location}/Rynex/vendor/spdlog/include",
+		"src",
 		"%{wks.location}/Rynex/src",
 		"%{wks.location}/Rynex/vendor",
+		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.magic_enum}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.entt}",
@@ -60,16 +61,18 @@ project "Sandbox"
 	}
 
 	filter "configurations:Debug or configurations:Release"
+	print( "bevor" )
 		postbuildcommands 
 		{
 			"{MKDIR} %{cfg.targetdir}/DLLs",
 			"{MKDIR} %{cfg.targetdir}/../Rynex-Editor",
+			"{MKDIR} %{cfg.targetdir}/../Rynex-Editor/Profile",
 
 			'cmd /c if not exist "%{cfg.targetdir}/../Rynex-Editor/Editor-Assets" mklink /J "%{cfg.targetdir}/../Rynex-Editor/Editor-Assets" "%{wks.location}Rynex-Editor/Editor-Assets"',
 			'cmd /c if not exist "%{cfg.targetdir}/../Rynex-Editor/Resources" mklink /J "%{cfg.targetdir}/../Rynex-Editor/Resources" "%{wks.location}Rynex-Editor/Resources"',
 			'cmd /c if not exist "%{cfg.targetdir}/../Rynex-Editor/SandboxProject" mklink /J "%{cfg.targetdir}/../Rynex-Editor/SandboxProject" "%{wks.location}Rynex-Editor/SandboxProject"',
-			'cmd /c if not exist "%{cfg.targetdir}/../Rynex-Editor/Profile" mklink /J "%{cfg.targetdir}/../Rynex-Editor/Profile" "%{wks.location}Rynex-Editor/Profile"',
 			'cmd /c if not exist "%{cfg.targetdir}/../Rynex-Editor/mono" mklink /J "%{cfg.targetdir}/../Rynex-Editor/mono" "%{wks.location}Rynex-Editor/mono"',
+			'cmd /c if exist "%{wks.location}\\%{prj.name}imgui.ini" if not exist "%{cfg.targetdir}" mklink "%{cfg.targetdir}\\imgui.ini" "%{wks.location}%{prj.name}\\imgui.ini"',
 		}
 	filter {}
 
@@ -77,13 +80,14 @@ project "Sandbox"
 		postbuildcommands 
 		{
 			"{MKDIR} %{cfg.targetdir}/DLLs",
-			
+			"{MKDIR} %{cfg.targetdir}/../Rynex-Editor",
+			"{MKDIR} %{cfg.targetdir}/../Rynex-Editor/Profile",
 
-			"{COPY} %{cfg.targetdir}../Editor-Assets %{wks.location}/Rynex-Editor/Editor-Assets",
-			"{COPY} %{cfg.targetdir}../Resources %{wks.location}/Rynex-Editor/Resources",
-			"{COPY} %{cfg.targetdir}../SandboxProject %{wks.location}/Rynex-Editor/SandboxProject",
-			"{COPY} %{cfg.targetdir}../Profile %{wks.location}/Rynex-Editor/Profile",
-			"{COPY} %{cfg.targetdir}../mono %{wks.location}/Rynex-Editor/mono",
+			"{COPY} %{wks.location}Rynex-Editor/Editor-Assets %{cfg.targetdir}/../Editor-Assets",
+			"{COPY} %{wks.location}Rynex-Editor/Resources %{cfg.targetdir}/../Resources",
+			"{COPY} %{wks.location}Rynex-Editor/SandboxProject %{cfg.targetdir}/../SandboxProject",
+			"{COPY} %{wks.location}Rynex-Editor/mono %{cfg.targetdir}/../mono",
+			-- "{COPY} %{wks.location}%{prj.name}/imgui.ini %{cfg.targetdir}/imgui.ini",
 		}
 	filter {}
 
