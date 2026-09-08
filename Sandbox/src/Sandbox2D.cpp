@@ -8,6 +8,7 @@
 #if defined(RY_SCRIPTING_ENGINE)
 	#include <Rynex/Scripting/Mono/ScriptingEngine.h>
 #endif
+
 #include <Rynex/Scene/Components.h>
 #include <Rynex/Serializers/SceneSerializer.h>
 
