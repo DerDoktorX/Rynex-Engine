@@ -26,7 +26,7 @@ Rynex-Test/
 # yaml-cpp @ b5b07c8
 # glm @ 7590260
 
-Rynex/vendor/_ImGuizmo
+Rynex/vendor/_ImGizmo
 Rynex/vendor/_imgui
 Rynex/vendor/_meshoptimizer
 Rynex/vendor/_yaml-cpp/
@@ -35,6 +35,7 @@ Rynex/vendor/_glm/
 Rynex/vendor/_Glad/
 Rynex/vendor/_GLFW/
 Rynex/vendor/_msdf-atelas-gen/
+Rynex/vendor/_spdlog
 
 .claude/
 
@@ -83,3 +84,4 @@ Rynex-ScriptingCore/obj
 **.csproj
 **.csproj.user
 .idea
+Rynex/vendor/Stash
