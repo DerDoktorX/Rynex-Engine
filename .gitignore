@@ -26,16 +26,28 @@ Rynex-Test/
 # yaml-cpp @ b5b07c8
 # glm @ 7590260
 
-Rynex/vendor/_ImGizmo
-Rynex/vendor/_imgui
-Rynex/vendor/_meshoptimizer
-Rynex/vendor/_yaml-cpp/
-Rynex/vendor/_assimp/
-Rynex/vendor/_glm/
-Rynex/vendor/_Glad/
-Rynex/vendor/_GLFW/
-Rynex/vendor/_msdf-atelas-gen/
-Rynex/vendor/_spdlog
+# Rynex/vendor/_ImGizmo
+# Rynex/vendor/_imgui
+# Rynex/vendor/_meshoptimizer
+# Rynex/vendor/_yaml-cpp/
+# Rynex/vendor/_assimp/
+# Rynex/vendor/_glm/
+# Rynex/vendor/_Glad/
+# Rynex/vendor/_GLFW/
+# Rynex/vendor/_msdf-atelas-gen/
+# Rynex/vendor/_spdlog
+
+# Camke manged Dependcies
+Rynex/vendor/ImGizmo
+Rynex/vendor/imgui
+Rynex/vendor/meshoptimizer
+Rynex/vendor/yaml-cpp/
+Rynex/vendor/assimp/
+Rynex/vendor/glm/
+Rynex/vendor/Glad/
+Rynex/vendor/GLFW/
+Rynex/vendor/msdf-atelas-gen/
+Rynex/vendor/spdlog
 
 .claude/
 
