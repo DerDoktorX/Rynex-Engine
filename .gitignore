@@ -29,6 +29,13 @@ Rynex-Test/
 Rynex/vendor/_ImGuizmo
 Rynex/vendor/_imgui
 Rynex/vendor/_meshoptimizer
+Rynex/vendor/_yaml-cpp/
+Rynex/vendor/_assimp/
+Rynex/vendor/_glm/
+Rynex/vendor/_Glad/
+Rynex/vendor/_GLFW/
+Rynex/vendor/_msdf-atelas-gen/
+
 .claude/
 
 Profile/
