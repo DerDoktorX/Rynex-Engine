@@ -4,7 +4,7 @@
 #include <memory>
 #include <robin_hood.h>
 #include <unordered_map>
-
+#include <map>
 
 // Check Curent Platfrom Seport + massages for curent State
 #ifdef _WIN32
@@ -94,9 +94,9 @@
 #ifdef RY_PLATFORM_LINUX
 	#if RY_DYNAMIC_LINK
 		#ifdef RY_BUILD_DLL
-			#define RYNEX_API __attribute__((visibility("default")))
+			#define RYNEX_API		__attribute__((visibility("default")))
 	#else
-		#define RYNEX_API __attribute__((visibility("default")))
+		#define RYNEX_API		__attribute__((visibility("default")))
 	#endif
 #else
 	#define RYNEX_API

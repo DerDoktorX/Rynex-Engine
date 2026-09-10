@@ -5,6 +5,7 @@
 // For def from Rynex only
 // #define RY_DEV
 #define RY_DISABLE_CODE_TODO 1	// Like Kommenting out
+#define NOMINMAX
 
 #define RY_CONSOLE 1
 #define RY_CONSOLE_ALICATION_OFF_MEMORY 0
