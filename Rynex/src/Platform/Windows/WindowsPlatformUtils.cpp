@@ -1,15 +1,16 @@
 #include "rypch.h"
 
-#include "Rynex/Utils/PlatformUtils.h"
-#include "Rynex/Core/Application.h"
+#include<Rynex/Utils/PlatformUtils.h>
+#include<Rynex/Core/Application.h>
 
 
 #include <GLFW/glfw3.h>
+#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
 
-#if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
+
 #include <ShlObj.h>
 #include <commdlg.h>
 #else
