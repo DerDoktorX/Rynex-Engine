@@ -18,13 +18,7 @@ Rynex-Test/
 # Rynex/vendor/meshoptimizer
 # Rynex/vendor/gtest
 # Rynex/vendor/assimp
-# GLFW @ 026a148
-# assimp @ f636252
-# gtest @ 79219e2
-# imgui_master @ 781a4ff
-# msdf-atelas-gen @ b50e101
-# yaml-cpp @ b5b07c8
-# glm @ 7590260
+
 
 # Rynex/vendor/_ImGizmo
 # Rynex/vendor/_imgui
@@ -44,7 +38,6 @@ Rynex/vendor/meshoptimizer
 Rynex/vendor/yaml-cpp/
 Rynex/vendor/assimp/
 Rynex/vendor/glm/
-Rynex/vendor/Glad/
 Rynex/vendor/GLFW/
 Rynex/vendor/msdf-atelas-gen/
 Rynex/vendor/spdlog
@@ -97,3 +90,9 @@ Rynex-ScriptingCore/obj
 **.csproj.user
 .idea
 Rynex/vendor/Stash
+_deps
+.cmake
+Rynex/vendor/zlib
+Rynex/vendor/msdf-atlas-gen
+Rynex/vendor/libpng
+Rynex/vendor/freetype
