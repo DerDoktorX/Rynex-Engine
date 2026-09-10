@@ -1,7 +1,7 @@
 #include <rypch.h>
 #include "ProjectPannel.h"
 
-#include "EditorLayer.h"
+#include <EditorLayer.h>
 #include <Rynex/Utils/PlatformUtils.h>
 
 #include <imgui/imgui.h>

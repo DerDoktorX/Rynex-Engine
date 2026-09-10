@@ -15,7 +15,7 @@
 #include <Rynex/Renderer/RenderProxy/StaticeRenderProxys.h>
 
 
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 // #define IMGUI_BOOL_CHECK_BOX(value) { #value, &value }
 #define IMGUI_BOOL_CHECK_BOX(value) ImGuiFlagsUser::CheckBoxBool{ RY_STRINGIFY_MOAKRO(#value), &value }
 

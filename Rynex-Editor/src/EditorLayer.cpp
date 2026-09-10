@@ -19,7 +19,8 @@
 #include <Rynex/Asset/Import/ShaderImporter.h>
 
 #include <imgui/imgui.h>
-#ifdef IM_GUIZMO
+
+#ifdef RY_IM_GUIZMO
 #include <ImGuizmo.h>
 #endif // IM_GUIZMO
 

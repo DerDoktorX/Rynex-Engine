@@ -6,7 +6,7 @@
 #include <Rynex/Renderer/API/Buffer.h>
 
 
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 #define YAML_CPP_STATIC_DEFINE
 #include <yaml-cpp/yaml.h>
 #include <fstream>

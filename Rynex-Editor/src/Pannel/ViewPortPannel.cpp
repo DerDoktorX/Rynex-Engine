@@ -14,7 +14,7 @@
 #include <Rynex/Renderer/Materials/Material.h>
 
 #include <imgui/imgui.h>
-#ifdef IM_GUIZMO
+#ifdef RY_IM_GUIZMO
 #include <ImGuizmo.h>
 #endif
 #include <imgui/imgui_internal.h>

@@ -18,7 +18,7 @@
 #include <queue>
 
 // fast hash map
-#include <robin_hood.h>
+#include <robin_hood/robin_hood.h>
 
 #include <Rynex/Core/Base.h>
 #include <Rynex/Core/Log.h>

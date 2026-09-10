@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "SceneHierachyPannel.h"
 
 #include <Rynex/Scene/Components.h>
@@ -11,10 +11,10 @@
 #include <Rynex/Utils/EnumString.h>
 #include <Rynex/Core/Input.h>
 
-
+#include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 #include <glm/gtc/type_ptr.hpp>
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 #include <Rynex/Renderer/RenderProxy/StaticeRenderProxys.h>
 
 #define RY_ENABLE_UTILS_REALTION_SHIP_COMP 0

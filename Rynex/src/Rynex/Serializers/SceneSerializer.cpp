@@ -12,7 +12,7 @@
 #include <fstream>
 
 
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 
 
 
