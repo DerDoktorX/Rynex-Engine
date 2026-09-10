@@ -15,8 +15,8 @@ set(RYNEX_VER_MESHOPTIMIZER     v0.22)
 # set(RYNEX_VER_MSDF_ATLAS_GEN    v1.3)
 set(RYNEX_VER_MSDF_ATLAS_GEN    v1.2.2)
 set(RYNEX_VER_FREETYPE          VER-2-13-2) # libery from msdfgen-atlas
-# set(RYNEX_VER_ZLIB              v1.3.1) # libery from msdfgen-atlas
-# set(RYNEX_VER_LIBPNG            VER-2-13-2) # libery from msdfgen-atlas
+set(RYNEX_VER_ZLIB              v1.3.1) # libery from msdfgen-atlas
+set(RYNEX_VER_LIBPNG            v1.6.43) # libery from msdfgen-atlas
 
 set(FETCHCONTENT_BASE_DIR "${CMAKE_BINARY_DIR}/_fetch" CACHE PATH "Network Verzeichnis fuer FetchContent-Verwaltungsdaten")
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON CACHE BOOL "Kein erneuter Netzwerkzugriff wenn Quellverzeichnis bereits vorhanden")
@@ -137,8 +137,8 @@ rynex_declare(
 
 # rynex_declare(
 #         zlib
-#         https://github.com/freetype/freetype.git
-#         ${RYNEX_VER_FREETYPE}
+#         https://github.com/madler/zlib.git
+#         ${RYNEX_VER_ZLIB}
 # )
 
 
@@ -149,7 +149,7 @@ rynex_declare(
 # rynex_declare(
 #         libpng
 #         https://github.com/glennrp/libpng.git
-#         ${RYNEX_VER_FREETYPE}
+#         ${RYNEX_VER_LIBPNG}
 # )
 
 # =========================================================================================
@@ -332,26 +332,23 @@ if(NOT TARGET imgui)
     )
 endif()
 
-# FetchContent_MakeAvailable(
-#         zlib
-# )
-#
-# FetchContent_MakeAvailable(
-#         libpng
-# )
-
+# FetchContent_MakeAvailable(zlib)
+# FetchContent_MakeAvailable(libpng)
+FetchContent_MakeAvailable(freetype)
 
 if(NOT freetype_POPULATED)
     FetchContent_Populate(freetype)
+
     # Hilfsvariablen für find_package setzen, die FreeType erwartet
     set(ZLIB_LIBRARY "ZLIB_LIBRARY-NOTFOUND" CACHE STRING "" FORCE)
     set(PNG_LIBRARY "PNG_LIBRARY-NOTFOUND" CACHE STRING "" FORCE)
     set(PNG_PNG_INCLUDE_DIR "PNG_PNG_INCLUDE_DIR-NOTFOUND" CACHE STRING "" FORCE)
     # Baue FreeType
     add_subdirectory(${freetype_SOURCE_DIR} ${freetype_BINARY_DIR})
-endif()
 
+endif()
 add_library(Freetype::Freetype ALIAS freetype)
+
 
 get_target_property(_aliased Freetype::Freetype ALIASED_TARGET)
 if(_aliased)
