@@ -11,7 +11,7 @@
 	path = Rynex/vendor/_ImGizmo
 	url = https://github.com/TheCherno/ImGuizmo
 [submodule "Rynex/vendor/_msdf-atelas-gen"]
-	path = Rynex/vendor/_msdf-atelas-gen
+	path = Rynex/vendor/_msdf-atlas-gen
 	url = https://github.com/TheCherno/msdf-atlas-gen
 [submodule "Rynex/vendor/_imgui"]
 	path = Rynex/vendor/_imgui
