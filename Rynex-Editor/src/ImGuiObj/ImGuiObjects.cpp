@@ -1,8 +1,8 @@
 #include <rypch.h>
 #include "ImGuiObjects.h"
 
-#include <imgui/imgui.h>
-#include <imgui/imgui_internal.h>
+#include <imgui.h>
+#include <imgui_internal.h>
 
 
 namespace Rynex {
@@ -18,7 +18,6 @@ namespace Rynex {
 		{
 			return glm::vec4{ value.x, value.y, value.z, value.w };
 		}
-
 
 		static ImVec2 ConvertGlmInImVec(const glm::vec2& value)
 		{

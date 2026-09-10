@@ -1,7 +1,7 @@
 #include <rypch.h>
 #include "MeshPannel.h"
 
-#include <imgui/imgui_internal.h>
+#include <imgui_internal.h>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <Rynex/Core/Input.h>
