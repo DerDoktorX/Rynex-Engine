@@ -1,6 +1,6 @@
 #include "rypch.h"
 #include "OpenGLShaderStorageBuffer.h"
-#include <Platform/OpenGL/OpenGLBindlesTextureArray.h>
+
 #include <Platform/OpenGL/OpenGLBase.h>
 
 namespace Rynex {

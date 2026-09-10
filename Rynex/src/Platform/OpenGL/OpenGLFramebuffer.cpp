@@ -1,13 +1,13 @@
 #include "rypch.h"
 #include "OpenGLFramebuffer.h"
+
 #include <Platform/OpenGL/OpenGLTexture.h>
-#include <Rynex/Renderer/API/Texture.h>
-#include "Rynex/Core/Application.h"
-#include <Platform/OpenGL/OpenGLThreadContext.h>
 #include <Platform/OpenGL/OpenGLBase.h>
 
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
+
+
 
 #define GL_COLOR_ATTACHMENT_INDEX(x) (GL_COLOR_ATTACHMENT0)
 namespace Rynex {

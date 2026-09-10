@@ -3,49 +3,19 @@
 
 #include <Platform/OpenGL/OpenGLBase.h>
 #include <Platform/OpenGL/OpenGLVertexArray.h>
+#include <Platform/OpenGL/OpenGLContext.h>
+#include <Rynex/Core/Application.h>
+
+
 
 #define RY_USE_OLD_OPENGL 0
 
 
 
 namespace Rynex {
+
+
 	namespace Utils {
-
-		static void AddMemoryToTracker(uint32_t memory)
-		{
-			Application& app = Application::Get();
-			Window& window = app.GetWindow();
-			GraphicsContext* conext = window.GetGraphicsContext();
-			OpenGLContext* OpenGLconext = static_cast<OpenGLContext*>(conext);
-			OpenGLconext->AddCurentAllocMemory(static_cast<uint64_t>(memory));
-		}
-
-		static void RemoveMemoryToTracker(uint32_t memory)
-		{
-			Application& app = Application::Get();
-			Window& window = app.GetWindow();
-			GraphicsContext* conext = window.GetGraphicsContext();
-			OpenGLContext* OpenGLconext = static_cast<OpenGLContext*>(conext);
-			OpenGLconext->RemoveCurentAllocMemory(static_cast<uint64_t>(memory));
-
-		}
-
-		static GLenum GetBufferDataUsage(BufferDataUsage usage)
-		{
-
-			switch (usage)
-			{
-				RY_CASE_RETURN(BufferDataUsage::None, GL_STATIC_DRAW);
-				RY_CASE_RETURN(BufferDataUsage::DynamicDraw, GL_DYNAMIC_DRAW);
-				RY_CASE_RETURN(BufferDataUsage::StaticDraw, GL_STATIC_DRAW);
-			default:
-				RY_CORE_ASSERT(false, "BufferData, GL_STATIC_DRAW");
-				return GL_STATIC_DRAW;
-			}
-			return GL_STATIC_DRAW;
-		}
-
-
 
 		static GLenum GetFlagsFromFlagTypes(BufferFlagGPU flag)
 		{

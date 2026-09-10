@@ -1,3 +1,4 @@
+#pragma once
 #include <Rynex/Renderer/API/BindlesTextureArray.h>
 #include <Platform/OpenGL/OpenGLShaderStorageBuffer.h>
 

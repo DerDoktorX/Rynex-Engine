@@ -3,6 +3,7 @@
 
 
 #include <Platform/OpenGL/OpenGLBase.h>
+#include <glad/glad.h>
 
 #include <algorithm>
 #include <vector>

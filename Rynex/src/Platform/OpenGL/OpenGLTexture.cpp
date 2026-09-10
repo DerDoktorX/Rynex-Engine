@@ -1,11 +1,10 @@
 #include "rypch.h"
 #include "OpenGLTexture.h"
-
-#include <Rynex/Core/Application.h>
-
 #include <Platform/OpenGL/OpenGLBase.h>
+
 #include <Platform/OpenGL/OpenGLFramebuffer.h>
 #include <Platform/OpenGL/OpenGLBindlesTextureArray.h>
+
 
 namespace Rynex{
 
@@ -466,6 +465,21 @@ namespace Rynex{
 	{		
 		OnDestroyCall();
 		DestroyID();
+	}
+
+	uint32_t OpenGLTextureStorageModern::GetWidth() const
+	{
+		return m_Object.GetDimension().withe;
+	}
+
+	uint32_t OpenGLTextureStorageModern::GetHeight() const
+	{
+		return m_Object.GetDimension().heigth;
+	}
+
+	uint32_t OpenGLTextureStorageModern::GetDepth() const
+	{
+		return m_Object.GetDimension().depth;
 	}
 
 	void OpenGLTextureStorageModern::BindLessTex()

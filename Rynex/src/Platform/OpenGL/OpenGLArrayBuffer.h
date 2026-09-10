@@ -1,5 +1,4 @@
 #pragma once
-#include <Platform/OpenGL/OpenGLPrototypes.h>
 #include <Platform/OpenGL/OpenGLFence.h>
 #define RY_USE_OPENGL_NAMED_BUFFER
 

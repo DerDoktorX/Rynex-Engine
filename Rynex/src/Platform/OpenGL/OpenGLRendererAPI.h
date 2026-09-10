@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Rynex/Renderer/RendererAPI.h>
-// #define RY_OPENGL_BINDLES_TEXTURE_API_STATE_RECORDE
+
 namespace Rynex {
 	class AktiveBindlesTexture;
 	class OpenGLRendererAPI : public RendererAPI

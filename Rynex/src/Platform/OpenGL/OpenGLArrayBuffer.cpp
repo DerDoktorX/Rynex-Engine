@@ -3,7 +3,6 @@
 
 #include <Platform/OpenGL/OpenGLBase.h>
 
-
 namespace Rynex {
 
 	OpenGLArrayBuffer::OpenGLArrayBuffer(uint32_t target, const uint8_t* data, uint32_t byteSize, uint32_t usage)

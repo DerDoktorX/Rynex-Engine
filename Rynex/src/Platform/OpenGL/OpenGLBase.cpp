@@ -1,0 +1,418 @@
+#include "rypch.h"
+#include "OpenGLBase.h"
+
+
+#include <Rynex/Core/Application.h>
+#include <glad/glad.h>
+
+namespace OpenGL {
+    void ExecuteFunctionOnMainThread(const std::function<void()>& func, const char* name)
+    {
+        if (Rynex::OpenGLThreadContext::IsActive())
+        {
+            func();
+            return;
+        }
+
+#if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
+        RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! executing", name);
+        Rynex::Application::Get().SubmiteToMainThreedQueue(func);
+#else
+        RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! Waiting", name);
+        Rynex::Application::Get().SubmiteToMainThreedQueueWait(func);
+#endif
+    }
+
+    void CheckForAktivContextFunktion(const std::function<void()>& func, const char* name)
+    {
+        if (Rynex::OpenGLThreadContext::IsActive())
+        {
+            RY_CORE_INFO("This Parel Thread has a Aktiv OpenGL Context {}, exute now {}", Rynex::ThreadPool::GetCurentThreadIDstr(), name);
+            func();
+
+            return;
+        }
+        RY_CORE_FATAL("This Parel Thread Has No Aktiv OpenGL Context {}, wil try to {}", Rynex::ThreadPool::GetCurentThreadIDstr(), name);
+
+    }
+
+	void CheckForAktivContextResume(const std::function<void()>& func, const char* name)
+    {
+        if (Rynex::OpenGLThreadContext::IsActive())
+        {
+            RY_CORE_INFO("This Parel Thread has a Aktiv OpenGL Context {}, exute now {}", Rynex::ThreadPool::GetCurentThreadIDstr(), name);
+            return;
+        }
+        RY_CORE_FATAL("This Parel Thread Has No Aktiv OpenGL Context {}, wil try to {}", Rynex::ThreadPool::GetCurentThreadIDstr(), name);
+
+    }
+
+    void ExecuteFunctionOnLocaleThread(const std::function<void()>& func, const char* name)
+    {
+        Rynex::OpenGLThreadContext threadContext;
+        Rynex::Application& app = Rynex::Application::Get();
+        if(!app.IsRunninig())
+            return;
+
+        if (Rynex::OpenGLThreadContext::IsActive())
+        {
+            func();
+            return;
+        }
+
+
+        func();
+        RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! Waiting", name);
+    }
+
+    glm::uvec2 GetMainWindowCurentSize()
+    {
+        Rynex::Application& app = Rynex::Application::Get();
+        Rynex::Window& window = app.GetWindow();
+        glm::uvec2 size = glm::uvec2{
+            window.GetWidth(),
+            window.GetHeight()
+        };
+        return size;
+    }
+
+    void OnError(std::string typeStr)
+    {
+        RY_CORE_FATAL("OpenGL Error -> {} ", typeStr);
+        RY_DEBUG_BREAK();
+    }
+
+    void OnDebugeSource(std::string sourceStr)
+	{
+		RY_CORE_INFO("GL TYPE: ** {} **", sourceStr);
+	}
+
+	void OnDebugeType(std::string typeStr)
+	{
+		RY_CORE_INFO("GL SOURCE: ** {} **", typeStr);
+	}
+
+	void OnDebugeSeverity(std::string severity)
+	{
+		RY_CORE_INFO("GL SEVERITY: ** {} **", severity);
+	}
+
+
+
+	void APIENTRY DebugeOutPut(uint32_t source, uint32_t type, uint32_t id, uint32_t severity, int32_t length, const char* message, const void* userParam)
+	{
+#if !RY_ENABLE_GARFIC_API_DBUGE_DETAILD_MASSEGES
+		if (id == 131169u || id == 131185u || id == 131218 || id == 131204)
+			return;
+#endif
+
+		RY_CORE_TRACE("OpenGL Debug Message(H: {:x}/D: {:L}): {}", id, id, message);
+		switch (source)
+		{
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSource, GL_DEBUG_SOURCE_API);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSource, GL_DEBUG_SOURCE_WINDOW_SYSTEM);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSource, GL_DEBUG_SOURCE_SHADER_COMPILER);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSource, GL_DEBUG_SOURCE_THIRD_PARTY);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSource, GL_DEBUG_SOURCE_APPLICATION);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSource, GL_DEBUG_SOURCE_OTHER);
+		default:
+			RY_CORE_ASSERT(false,"Not Defnind OpenGL debug source!");
+			break;
+		}
+
+		switch (type)
+		{
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_ERROR);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_PORTABILITY);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_PERFORMANCE);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_MARKER);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_PUSH_GROUP);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_POP_GROUP);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_OTHER);
+		default:
+			RY_CORE_ASSERT(false, "Not Defnind OpenGL debug type!");
+			break;
+		}
+
+		switch (severity)
+		{
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSeverity, GL_DEBUG_SEVERITY_HIGH);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSeverity, GL_DEBUG_SEVERITY_LOW);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSeverity, GL_DEBUG_SEVERITY_MEDIUM);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSeverity, GL_DEBUG_SEVERITY_NOTIFICATION);
+		default:
+			RY_CORE_ASSERT(false, "Not Defnind OpenGL debug severity!");
+			break;
+		}
+#if RY_ENABLE_GARFIC_API_DEBUG_MEASGE_DEBUG_BREAK
+		if(severity != GL_DEBUG_SEVERITY_LOW || type != GL_DEBUG_TYPE_OTHER || source != GL_DEBUG_SOURCE_API)
+			RY_DEBUG_BREAK();
+#elif RY_ENABLE_GARFIC_API_DEBUG_MEASGE_DEBUG_BREAK_PERFORMANCE_TYPE
+		if (GL_DEBUG_TYPE_PERFORMANCE == type)
+			RY_DEBUG_BREAK();
+#elif RY_ENABLE_GARFIC_API_DEBUG_MEASGE_DEBUG_BREAK_ERROR_TYPE
+		if (GL_DEBUG_TYPE_ERROR == type)
+			RY_DEBUG_BREAK();
+#endif
+	}
+
+	void ErrorMassageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+	{
+
+		if (type == GL_DEBUG_TYPE_ERROR)
+		{
+			RY_CORE_FATAL("GL CALLBACK: ** GL ERROR ** message = {}", message);
+		}
+#if RY_ENABLE_GRIFIC_API_WARN_MASGES
+		else
+		{
+			RY_CORE_WARN("GL CALLBACK: ** GL WARN **  message = {}", message);
+		}
+		RY_CORE_TRACE("GL CALLBACK: ** Info ++ message = {}", message);
+#endif
+
+
+
+	}
+
+	void CheckError()
+	{
+		GLenum err;
+		while ((err = glGetError()) != GL_NO_ERROR)
+		{
+			switch (err)
+			{
+				RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnError, GL_INVALID_ENUM);
+				RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnError, GL_INVALID_VALUE);
+				RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnError, GL_INVALID_OPERATION);
+				RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnError, GL_STACK_OVERFLOW);
+				RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnError, GL_STACK_UNDERFLOW);
+				RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnError, GL_OUT_OF_MEMORY);
+				RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnError, GL_INVALID_FRAMEBUFFER_OPERATION);
+				RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnError, GL_CONTEXT_LOST);
+				RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnError, GL_CONTEXT_FLAG_NO_ERROR_BIT);
+			default:
+				RY_CORE_ASSERT(false, "Not Defnind OpenGL Error!");
+				break;
+			}
+		}
+	}
+
+	std::string GetTargetStr(uint32_t t)
+	{
+		switch (t)
+		{
+			RY_CASE_STR_MACRO(GL_TEXTURE_1D);
+			RY_CASE_STR_MACRO(GL_TEXTURE_2D);
+			RY_CASE_STR_MACRO(GL_TEXTURE_2D_MULTISAMPLE);
+			RY_CASE_STR_MACRO(GL_TEXTURE_3D);
+			RY_CASE_STR_MACRO(GL_TEXTURE_RECTANGLE);
+			RY_CASE_STR_MACRO(GL_TEXTURE_CUBE_MAP);
+			RY_CASE_STR_MACRO(GL_TEXTURE_1D_ARRAY);
+			RY_CASE_STR_MACRO(GL_TEXTURE_2D_ARRAY);
+			RY_CASE_STR_MACRO(GL_TEXTURE_CUBE_MAP_ARRAY);
+			RY_CASE_STR_MACRO(GL_TEXTURE_2D_MULTISAMPLE_ARRAY);
+
+		default:
+			RY_CORE_ASSERT(false, "Not Defined OpenGL Texture Target");
+			break;
+		}
+		return "";
+	}
+
+	std::string GetFomateInternelStr2(uint32_t f)
+	{
+		switch (f)
+		{
+			RY_CASE_STR_MACRO(GL_R8);
+			RY_CASE_STR_MACRO(GL_RG8);
+
+			RY_CASE_STR_MACRO(GL_RGB8);
+			RY_CASE_STR_MACRO(GL_RGB16F);
+			RY_CASE_STR_MACRO(GL_RGB32F);
+			RY_CASE_STR_MACRO(GL_RGBA8);
+			RY_CASE_STR_MACRO(GL_RGBA16F);
+			RY_CASE_STR_MACRO(GL_RGBA32F);
+
+
+			RY_CASE_STR_MACRO(GL_SRGB8);
+			RY_CASE_STR_MACRO(GL_SRGB8_ALPHA8);
+
+			RY_CASE_STR_MACRO(GL_R32I);
+			RY_CASE_STR_MACRO(GL_DEPTH_COMPONENT);
+			RY_CASE_STR_MACRO(GL_DEPTH_COMPONENT16);
+			RY_CASE_STR_MACRO(GL_DEPTH_COMPONENT24);
+			RY_CASE_STR_MACRO(GL_DEPTH_COMPONENT32);
+			RY_CASE_STR_MACRO(GL_DEPTH_COMPONENT32F);
+			RY_CASE_STR_MACRO(GL_DEPTH24_STENCIL8);
+			RY_CASE_STR_MACRO(GL_DEPTH32F_STENCIL8);
+		default:
+			RY_CORE_ASSERT(false, "Not Defined OpenGL Texture Format");
+			break;
+		}
+		return "";
+	}
+
+	std::string GetTextureFomateInternelStr(uint32_t inFo)
+	{
+		switch (inFo)
+		{
+			RY_CASE_STR_MACRO(GL_R8);
+			RY_CASE_STR_MACRO(GL_RG8);
+
+			RY_CASE_STR_MACRO(GL_RGB8);
+			RY_CASE_STR_MACRO(GL_RGB16F);
+			RY_CASE_STR_MACRO(GL_RGB32F);
+			RY_CASE_STR_MACRO(GL_RGBA8);
+			RY_CASE_STR_MACRO(GL_RGBA16F);
+			RY_CASE_STR_MACRO(GL_RGBA32F);
+
+			RY_CASE_STR_MACRO(GL_SRGB8);
+			RY_CASE_STR_MACRO(GL_SRGB8_ALPHA8);
+
+			RY_CASE_STR_MACRO(GL_R32I);
+			RY_CASE_STR_MACRO(GL_DEPTH_COMPONENT);
+			RY_CASE_STR_MACRO(GL_DEPTH_COMPONENT16);
+			RY_CASE_STR_MACRO(GL_DEPTH_COMPONENT24);
+			RY_CASE_STR_MACRO(GL_DEPTH_COMPONENT32);
+			RY_CASE_STR_MACRO(GL_DEPTH_COMPONENT32F);
+			RY_CASE_STR_MACRO(GL_DEPTH24_STENCIL8);
+			RY_CASE_STR_MACRO(GL_DEPTH32F_STENCIL8);
+		default:
+			RY_CORE_ASSERT(false, "Not Defined OpenGL Texture Format");
+			break;
+		}
+		return "";
+	}
+
+	std::string GetTextureFomateStr(uint32_t f)
+	{
+		switch (f)
+		{
+			RY_CASE_STR_MACRO(GL_RED);
+			RY_CASE_STR_MACRO(GL_RG);
+
+			RY_CASE_STR_MACRO(GL_RGB);
+			RY_CASE_STR_MACRO(GL_SRGB);
+
+			RY_CASE_STR_MACRO(GL_RGBA);
+			RY_CASE_STR_MACRO(GL_SRGB_ALPHA);
+
+			RY_CASE_STR_MACRO(GL_RED_INTEGER);
+			RY_CASE_STR_MACRO(GL_DEPTH_COMPONENT);
+			RY_CASE_STR_MACRO(GL_DEPTH_STENCIL);
+		default:
+			RY_CORE_ASSERT(false, "Not Defined OpenGL Texture Format");
+			break;
+		}
+		return "";
+	}
+
+	GLenum GetBuffersTarget(Rynex::BufferType target)
+	{
+		switch (target)
+		{
+			RY_INTERNLE_GET_OPENGL_MACRO_CASE(Rynex::BufferType::ShaderStorage, GL_SHADER_STORAGE_BUFFER);
+			RY_INTERNLE_GET_OPENGL_MACRO_CASE(Rynex::BufferType::Vertex, GL_ARRAY_BUFFER);
+			RY_INTERNLE_GET_OPENGL_MACRO_CASE(Rynex::BufferType::DrawIndrirect, GL_DRAW_INDIRECT_BUFFER);
+			RY_INTERNLE_GET_OPENGL_MACRO_CASE(Rynex::BufferType::Uniform, GL_UNIFORM_BUFFER);
+			case Rynex::BufferType::None:
+			RY_INTERNLE_GET_OPENGL_MACRO_DEFAULT(Rynex::BufferType);
+		}
+		return 0;
+	}
+
+	GLenum GetFlagsFromFlagTypes(Rynex::BufferFlagGPU flag)
+	{
+
+		uint8_t enumValue = 0;
+
+		if(flag == enumValue)
+			return 0u;
+		GLenum result = 0u;
+		constexpr uint8_t count = Rynex::BufferFlag::s_Count;
+
+		for (uint8_t i = 1; i < count; i++)
+		{
+			enumValue = BIT(i);
+
+			if (BIT_EQUAL(flag, enumValue))
+			{
+				Rynex::BufferFlag::BufferFlagBit bufferFlagBit = static_cast<Rynex::BufferFlag::BufferFlagBit>(enumValue);
+				switch (enumValue)
+				{
+				case Rynex::BufferFlag::BufferFlagBit::Dynamic:
+				{
+					result |= GL_DYNAMIC_STORAGE_BIT;
+					break;
+				}
+				case Rynex::BufferFlag::BufferFlagBit::Read:
+				{
+					result |= GL_MAP_READ_BIT;
+					break;
+				}
+				case Rynex::BufferFlag::BufferFlagBit::Write:
+				{
+					result |= GL_MAP_WRITE_BIT;
+					break;
+				}
+				case Rynex::BufferFlag::BufferFlagBit::Presistent:
+				{
+					result |= GL_MAP_PERSISTENT_BIT;
+					break;
+				}
+				case Rynex::BufferFlag::BufferFlagBit::Coherent:
+				{
+					result |= GL_MAP_COHERENT_BIT;
+					break;
+				}
+				case Rynex::BufferFlag::BufferFlagBit::Client:
+				{
+					result |= GL_CLIENT_STORAGE_BIT;
+					break;
+				}
+				default:
+					RY_CORE_ERROR("value is not defnied: [{}] = {} ", i, enumValue);
+					RY_CORE_ASSERT(false);
+					break;
+				}
+			}
+		}
+		return result;
+	}
+
+}
+namespace Rynex {
+
+    bool ExecuteResumeOnMainThread(const std::function<void()>& func, const char* name)
+    {
+        if (Rynex::OpenGLThreadContext::IsActive())
+            return false;
+
+#if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
+        RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! executing", name);
+        Rynex::Application::Get().SubmiteToMainThreedQueue(func);
+#else
+        RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! Waiting", name);
+        Rynex::Application::Get().SubmiteToMainThreedQueueWait(func);
+#endif
+        return true;
+    }
+
+    bool ExecuteResumeOnLocaleThread(const std::function<void()>& func, const char* name)
+    {
+        Rynex::Application& app = Rynex::Application::Get();
+        if (!app.IsRunninig())
+            return true;
+
+        if (Rynex::OpenGLThreadContext::IsActive())
+            return false;
+
+
+        func();
+        RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! Waiting", name);
+        return true;
+    }
+}

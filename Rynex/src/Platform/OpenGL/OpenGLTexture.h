@@ -3,13 +3,20 @@
 #include <Rynex/Renderer/API/Texture.h>
 #include <Rynex/Memory/WeakPtrSet.h>
 
-#include <Platform/OpenGL/OpenGLBase.h>
+#include <Platform/OpenGL/OpenGLFence.h>
+#include <Platform/OpenGL/OpenGLTextureStorage.h>
 
 
 namespace Rynex {
+	class OpenGLLinkedTextureArray;
+	class OpenGLBindlesTextureArray;
+	class OpenGLTextureObject;
+	class OpenGLTextureStorageModern;
+	class OpenGLTextureSampler;
 
 #define RY_USE_PRENT_LINKE
 
+	class OpenGLFramebuffer;
 
 	class OpenGLTextureStorageModern : public Texture
 	{
@@ -22,9 +29,9 @@ namespace Rynex {
 
 		virtual const TextureSpecification& GetSpecification() const override { return m_Specification; }
 
-		virtual uint32_t GetWidth() const override { return m_Object.GetDimension().withe; }
-		virtual uint32_t GetHeight() const override { return m_Object.GetDimension().heigth; }
-		virtual uint32_t GetDepth() const override { return m_Object.GetDimension().depth; }
+		virtual uint32_t GetWidth() const override;
+		virtual uint32_t GetHeight() const override;
+		virtual uint32_t GetDepth() const override;
 
 		virtual uint32_t GetRenderID() const override { return m_RendererIDTex; }
 

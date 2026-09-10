@@ -1,10 +1,11 @@
 #include "rypch.h"
 #include "OpenGLContext.h"
 
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
-
 #include <Platform/OpenGL/OpenGLBase.h>
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 
 // Nivade extension Flags
 #define GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX          0x9047

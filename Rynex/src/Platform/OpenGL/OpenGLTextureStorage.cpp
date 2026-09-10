@@ -1,7 +1,13 @@
 #include "rypch.h"
 #include "OpenGLTextureStorage.h"
 
+
 #include <Platform/OpenGL/OpenGLBase.h>
+
+
+#include <glad/glad.h>
+
+
 
 namespace Rynex {
 

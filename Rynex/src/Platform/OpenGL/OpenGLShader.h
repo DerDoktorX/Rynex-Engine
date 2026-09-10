@@ -1,6 +1,6 @@
 #pragma once
-#include "Rynex/Renderer/API/Shader.h"
-#include "Rynex/Asset/Base/Asset.h"
+#include <Rynex/Renderer/API/Shader.h>
+
 
 namespace Rynex {
 

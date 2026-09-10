@@ -1,4 +1,5 @@
 #pragma once
+
 namespace Rynex {
 #if 1
 	class OpenGLTextureObject

@@ -1,12 +1,10 @@
 #include "rypch.h"
 #include "OpenGLVertexArray.h"
 
+#include <Platform/OpenGL/OpenGLBase.h>
 #include <Platform/OpenGL/OpenGLBuffer.h>
-#include <Rynex/Core/Application.h>
-
 
 #include <glad/glad.h>
-#include <Platform/OpenGL/OpenGLBase.h>
 
 namespace Rynex {
 #define RY_OPENGL_VERTEX_OLD 0
