@@ -1,17 +1,19 @@
 project(Rynex-Editor)
 
-file(GLOB_RECURSE SOURCE_FILES
+file(
+        GLOB_RECURSE
+        SOURCE_FILES
         ${CMAKE_CURRENT_LIST_DIR}/src/**.cpp
 )
 
-add_library(
+add_executable(
         Rynex-Editor
         ${SOURCE_FILES}
 )
 
 target_include_directories(
         Rynex-Editor
-        PUBLIC
+        PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/src/
 )
 
@@ -23,13 +25,13 @@ target_link_libraries(
 
 if(WIN32)
     target_compile_definitions(
-            Rynex
+            Rynex-Editor
             PRIVATE
             RY_PLATFORM_WINDOWS
     )
 else()
     target_compile_definitions(
-            Rynex
+            Rynex-Editor
             PRIVATE
             RY_PLATFORM_LINUX
     )
