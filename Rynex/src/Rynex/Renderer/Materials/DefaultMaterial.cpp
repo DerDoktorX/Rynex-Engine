@@ -255,7 +255,7 @@ namespace Rynex {
 		return true;
 	}
 
-	const std::vector<Ref<Texture>>& DefaultMaterial::GetTextureForDraw()
+	std::vector<Ref<Texture>> DefaultMaterial::GetTextureForDraw()
 	{
 		RY_CORE_ASSERT(nullptr != m_LastPassPtr);
 		return m_LastPassPtr->texturesVec;
@@ -288,7 +288,7 @@ namespace Rynex {
 	}
 
 
-	const std::vector<Ref<Texture>>& DefaultMaterial::GetTextureForDraw(const BufferLayout& layout, int lodTier) const
+	std::vector<Ref<Texture>> DefaultMaterial::GetTextureForDraw(const BufferLayout& layout, int lodTier) const
 	{
 		int index = GetLayaoutIndex(layout, lodTier);
 		if (index != -1)

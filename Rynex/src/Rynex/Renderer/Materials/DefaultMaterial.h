@@ -64,14 +64,14 @@ namespace Rynex {
         virtual bool HasSpecForDraw(const BufferLayout& layout, int lodTier) const override;
         
 
-        virtual const std::vector<Ref<Texture>>& GetTextureForDraw(const BufferLayout& layout, int lodTier) const override;
+        virtual std::vector<Ref<Texture>> GetTextureForDraw(const BufferLayout& layout, int lodTier) const override;
         virtual const Ref<Shader>& GetShaderForDraw(const BufferLayout& layout, int lodTier) const override;
         virtual DrawSpecification::BatchConfig GetDrawSpecification(const BufferLayout& layout, int lodTier) const override;
         virtual int GetRenderMode(const BufferLayout& layout, int lodTier) const override;
         virtual int GetLayaoutIndex(const BufferLayout& layout, int lodTier) const override;
         
         virtual bool HasSpecForDraw(const BufferLayout& layout, int lodTier) override;
-        virtual const std::vector<Ref<Texture>>& GetTextureForDraw() override;
+        virtual std::vector<Ref<Texture>> GetTextureForDraw() override;
         virtual const Ref<Shader>& GetShaderForDraw() override;
         virtual DrawSpecification::BatchConfig GetDrawSpecification() override;
         virtual int GetRenderMode() override;
