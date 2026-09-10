@@ -56,7 +56,9 @@ project "Rynex-Editor"
 
 	links
 	{
-		"Rynex"
+		"Rynex",
+		"ImGui"
+
 	}
 	
 
