@@ -579,10 +579,17 @@ namespace Rynex {
         ImVec2 viewportPannelSize = ImGui::GetContentRegionAvail();
         WindowResize({ viewportPannelSize.x , viewportPannelSize.y });
         m_WindowMoving = IsCurrentWindowMoving();
-        
+
         Ref<Texture> finelTex = GetFinalImag();
         uint32_t textureID = finelTex->GetRenderID();
-        ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ viewportPannelSize.x, viewportPannelSize.y }, ImVec2(0, 1), ImVec2(1, 0));
+        ImVec2 uv0{ 0, 1 };
+        ImVec2 uv1{ 1, 0 };
+       
+        ImTextureID imguiTextureID = reinterpret_cast<ImTextureID>(&textureID);
+        ImGui::Image(
+            imguiTextureID,
+            viewportPannelSize
+        );
 
         // Drag and drop conten Broser
         DragAndDrop();
@@ -610,8 +617,14 @@ namespace Rynex {
 
                     glm::vec2 textureDisplaySize = CalculateImageWindowSize(m_FontTex);
                     ImVec2 displaySize = Utils::Convert_GLMvec2_In_ImVec2(textureDisplaySize);
-
-                    ImGui::Image(reinterpret_cast<void*>(shadowID), displaySize, ImVec2(0, 1), ImVec2(1, 0));
+                    ImTextureID imguiShadowID = reinterpret_cast<ImTextureID>(&shadowID);
+                    ImVec2 uv0{ 0, 1 };
+                    ImVec2 uv1{ 1, 0 };
+                    ImGui::Image(
+                        imguiShadowID, 
+                        displaySize
+                       
+                    );
                 }
                 ImGui::End();
             }
@@ -686,8 +699,7 @@ namespace Rynex {
                 if (index < 0 || index > texCount)
                     index = 0;
 
-                // Ref<Framebuffer> shadowFB = Renderer::GetMainPassViewFramebuffer();
-                //::Statistics stats = Renderer3D::GetStats();
+
 
 
                 if (attachmentsCount == index && shadowMap != nullptr)
@@ -704,14 +716,12 @@ namespace Rynex {
                         glm::vec2 textureDisplaySize = CalculateImageWindowSize(m_FontTex);
                         ImVec2 displaySize = Utils::Convert_GLMvec2_In_ImVec2(textureDisplaySize);
 
-
-                        ImGui::Image(reinterpret_cast<void*>(shadowID)
-                            , displaySize
-                            , ImVec2{ 0, 1 }
-                            , ImVec2{ 1, 0 }
-                            , ImVec4{ 1.0f, 1.0f, 1.0f, 1.0f }
-                            , ImVec4{ 0.0f, 0.0f, 0.5f, 1.0f }
-                        );
+                        ImTextureID textureID = reinterpret_cast<ImTextureID>(&shadowID);
+                        ImVec2 uv0{ 0, 1 };
+                        ImVec2 uv1{ 1, 0 };
+                        ImVec4 backgroundColor{ 1.0f, 1.0f, 1.0f, 1.0f };
+                        ImVec4 color{ 0.0f, 0.0f, 0.0f, 0.0f };
+                        ImGui::Image(textureID, displaySize);
 
 
                     }
@@ -744,14 +754,16 @@ namespace Rynex {
                             viewPortX = viewPortY * aspectRoation;
                             viewPortY = viewPortY;
                         }
-
-                        ImGui::Image(reinterpret_cast<void*>(attechmentID),
-                            ImVec2{ (shadowMap->GetWidth() / shadowMap->GetHeight()) * viewportPannelShadowSize.y,  viewportPannelShadowSize.y },
-                            ImVec2(0, 1),
-                            ImVec2(1, 0),
-                            ImVec4{ 1.0f, 1.0f, 1.0f, 1.0f },
-                            ImVec4{ 0.0f, 0.0f,0.5f, 1.0f }
-                        );
+                        ImTextureID textureID = reinterpret_cast<ImTextureID>(&attechmentID);
+                        ImVec2 uv0{ 0, 1 };
+                        ImVec2 uv1{ 1, 0 };
+                        ImVec4 backgroundColor{ 1.0f, 1.0f, 1.0f, 1.0f };
+                        ImVec4 textureColor{ 0.0f, 0.0f, 0.5f, 1.0f };
+                        ImVec2 textureSize{
+                            (shadowMap->GetWidth() / shadowMap->GetHeight()) * viewportPannelShadowSize.y,
+                            viewportPannelShadowSize.y
+                        };
+                        ImGui::Image(textureID, textureSize);
 
 
 

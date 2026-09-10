@@ -407,7 +407,15 @@ void Sandbox2D::ImGuiViewPortRender()
 	ImVec2 viewportPannelSize = ImGui::GetContentRegionAvail();
 	ImGuiViewPortResize({ viewportPannelSize.x,viewportPannelSize.y });
 	uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID(0);
-	ImGui::Image(reinterpret_cast<void*>(textureID), viewportPannelSize, ImVec2(0, 1), ImVec2(1, 0));
+	ImTextureID imTextureID = reinterpret_cast<ImTextureID>(&imTextureID);
+	ImVec2 uv1{ 0, 1 };
+	ImVec2 uv2{ 1, 0 };
+	ImGui::Image(
+		textureID,
+		viewportPannelSize,
+		uv1, 
+		uv2
+	);
 	
 	ImGui::End();
 	ImGui::PopStyleVar();

@@ -224,9 +224,46 @@ namespace Rynex {
 					ImGui::PushID(data.Name.c_str());
 					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 					if (data.Path != m_BaseDirectory / "Loadead (NotAssetFiles)" && data.Path != m_BaseDirectory / "Unknown File Types")
-						ImGui::ImageButton((ImTextureID)m_DirectoryIcon->GetRenderID(), { thumbernailSize , thumbernailSize }, { 0, 1 }, { 1, 0 }, -1, ImVec4(0.15f, 0.75f, 0.2f, 0.15f), ImVec4(1, 1, 1, 1));
+					{
+						uint32_t textureID = m_DirectoryIcon->GetRenderID();
+						ImTextureID imTextureID = reinterpret_cast<ImTextureID>(&textureID);
+						ImVec2 textureSize{ thumbernailSize , thumbernailSize };
+						ImVec2 uv1{ 0, 1 };
+						ImVec2 uv2{ 1, 0 };
+						ImVec4 bacgroundColor{ 0.15f, 0.85f, 0.2f, 0.1f };
+						ImVec4 iconColor{ 1, 1, 1, 1 };
+
+						ImGui::ImageButton(
+							"",
+							imTextureID,
+							textureSize,
+							uv1,
+							uv2,
+							bacgroundColor,
+							iconColor
+						);
+					}
 					else
-						ImGui::ImageButton((ImTextureID)m_DirectoryIcon->GetRenderID(), { thumbernailSize , thumbernailSize }, { 0, 1 }, { 1, 0 }, -1, ImVec4(0.875f, 0.875f, 0.35f, 0.5f), ImVec4(1, 1, 1, 1));
+					{
+						uint32_t textureID = m_DirectoryIcon->GetRenderID();
+						ImTextureID imTextureID = reinterpret_cast<ImTextureID>(&textureID);
+						
+						ImVec2 textureSize{ thumbernailSize , thumbernailSize };
+						ImVec2 uv1{ 0, 1 };
+						ImVec2 uv2{ 1, 0 };
+						ImVec4 bacgroundColor{ 0.15f, 0.85f, 0.2f, 0.1f };
+						ImVec4 iconColor{ 1, 1, 1, 1 };
+
+						ImGui::ImageButton(
+							"",
+							imTextureID, 
+							textureSize,
+							uv1,
+							uv2,
+							bacgroundColor,
+							iconColor
+						);
+					}
 
 					ImGui::PopStyleColor();
 					if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
@@ -355,14 +392,20 @@ namespace Rynex {
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 		uint32_t renderID = texture->GetRenderID();
 		ImTextureID imTextureID = ImTextureID(renderID);
+		ImVec2 textureSize = ImVec2{ thumbernailSize , thumbernailSize };
+		ImVec2 uv1 = ImVec2{ 0, 1 };
+		ImVec2 uv2 = ImVec2{ 1, 0 };
+		ImVec4 bacgroundColor = ImVec4{ 0.15f, 0.85f, 0.2f, 0.1f };
+		ImVec4 iconColor = GetAssetStateColor(state);
 		ImGui::ImageButton(
+			"",
 			imTextureID,
-			{ thumbernailSize , thumbernailSize },
-			{ 0, 1 },
-			{ 1, 0 },
-			-1,
-			ImVec4(0.15f, 0.85f, 0.2f, 0.1f),
-			GetAssetStateColor(state));
+			textureSize,
+			uv1,
+			uv2,
+			bacgroundColor,
+			iconColor
+		);
 
 		if (state == AssetState::LostConection || state == AssetState::Error)
 		{

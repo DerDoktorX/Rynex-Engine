@@ -2224,7 +2224,10 @@ namespace Rynex {
 
 			ImGui::SetColumnWidth(1, 100);
 			windowSize.y = windowSize.x / ((float)fbspec.Width / fbspec.Height);
-			ImGui::Image((ImTextureID)textureID, windowSize, ImVec2(0, 1), ImVec2(1, 0));
+			ImTextureID imTextureID = reinterpret_cast<ImTextureID>(&textureID);
+			ImVec2 uv0{ 0, 1 };
+			ImVec2 uv1{ 0, 1 };
+			ImGui::Image(imTextureID, windowSize);
 
 			ImGui::NextColumn();
 
