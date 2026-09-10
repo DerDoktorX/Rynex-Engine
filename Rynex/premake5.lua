@@ -32,14 +32,14 @@ project "Rynex"
 		"src/**.h",
 		"src/**.cpp",
 		-- vendor add Source Files to Rynex
-		"vendor/stb_image/**.h",
-		"vendor/stb_image/**.cpp",
+		"vendor/stb_image/include/**.h",
+		"vendor/stb_image/src/**.cpp",
 		"vendor/glm/glm/**.hpp",
 		"vendor/glm/glm/**.inl",
 		-- "vendor/ImGuizmo/ImGuizmo.h",
 		-- "vendor/ImGuizmo/ImGuizmo.cpp",
 
-		"vendor/magic_enum/**.hpp",
+		"vendor/magic_enum/include/**.hpp",
 	}
 
 	
@@ -97,13 +97,13 @@ project "Rynex"
 	}
 
 
-	filter "files:vendor/ImGuizmo/**.cpp"
-		enablepch "off"
-	filter {}
+	-- filter "files:vendor/ImGuizmo/**.cpp"
+	-- 	enablepch "off"
+	-- filter {}
 	
-	filter "files:vendor/impolt/*.cpp"
-		enablepch "off"
-	filter {}
+	-- filter "files:vendor/impolt/*.cpp"
+	-- 	enablepch "off"
+	-- filter {}
 
 	filter "system:windows"
 		systemversion "latest"

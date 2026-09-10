@@ -62,31 +62,31 @@ end
 IncludeDir = {}
 -- Runtime
 IncludeDir["entt"] 		= "%{wks.location}/Rynex/vendor/entt/include"
-IncludeDir["spdlog"] 		= "%{wks.location}/Rynex/vendor/spdlog/include"
+IncludeDir["spdlog"] 		= "%{wks.location}/Rynex/vendor/_spdlog/include"
 IncludeDir["robin_hood_hashing"] 		= "%{wks.location}/Rynex/vendor/robin-hood-hashing/include"
 
 IncludeDir["mono"] 	= "%{wks.location}/Rynex/vendor/mono/include"
 -- Math
-IncludeDir["glm"] 		= "%{wks.location}/Rynex/vendor/glm"
+IncludeDir["glm"] 		= "%{wks.location}/Rynex/vendor/_glm"
 -- Grafic API
-IncludeDir["GLFW"] 		= "%{wks.location}/Rynex/vendor/GLFW/include"
+IncludeDir["GLFW"] 		= "%{wks.location}/Rynex/vendor/_GLFW/include"
 IncludeDir["Glad"] 		= "%{wks.location}/Rynex/vendor/Glad/include"
 -- Files
-IncludeDir["stb_image"] = "%{wks.location}/Rynex/vendor/stb_image"
+IncludeDir["stb_image"] = "%{wks.location}/Rynex/vendor/stb_image/include"
 IncludeDir["yaml_cpp"] 	= "%{wks.location}/Rynex/vendor/_yaml-cpp/include"
-IncludeDir["filewatch"] = "%{wks.location}/Rynex/vendor/filewatch"
+IncludeDir["filewatch"] = "%{wks.location}/Rynex/vendor/filewatch/include"
 IncludeDir["assimp"] = "%{wks.location}/Rynex/vendor/assimp/include"
-IncludeDir["meshoptimizer"] = "%{wks.location}/Rynex/vendor/meshoptimizer/src"
+IncludeDir["meshoptimizer"] = "%{wks.location}/Rynex/vendor/_meshoptimizer/src"
 
-IncludeDir["magic_enum"] = "%{wks.location}/Rynex/vendor/magic_enum"
+IncludeDir["magic_enum"] = "%{wks.location}/Rynex/vendor/magic_enum/include"
 -- Runtime Visuelle configs
-IncludeDir["ImGui"] 	= "%{wks.location}/Rynex/vendor/imgui"
+IncludeDir["ImGui"] 	= "%{wks.location}/Rynex/vendor/_imgui"
 
 IncludeDir["ImGuizmo"] 	= "%{wks.location}/Rynex/vendor/ImGuizmo"
 
-IncludeDir["msdfgen"] 	= "%{wks.location}/Rynex/vendor/msdf-atelas-gen/msdfgen"
-IncludeDir["msdf_atlas_gen"] 	= "%{wks.location}/Rynex/vendor/msdf-atelas-gen/msdf-atlas-gen"
-IncludeDir["freetype"] 	= "%{wks.location}/Rynex/vendor/msdf-atelas-gen/msdfgen/freetype/include"
+IncludeDir["msdfgen"] 	= "%{wks.location}/Rynex/vendor/_msdf-atelas-gen/msdfgen"
+IncludeDir["msdf_atlas_gen"] 	= "%{wks.location}/Rynex/vendor/_msdf-atelas-gen/msdf-atelas-gen"
+IncludeDir["freetype"] 	= "%{wks.location}/Rynex/vendor/_msdf-atelas-gen/msdfgen/freetype/include"
 -- Test
 IncludeDir["gtest"] = "%{wks.location}/Rynex-Test/vendor/gtest/googletest/include"
 
