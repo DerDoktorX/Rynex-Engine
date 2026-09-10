@@ -75,7 +75,7 @@ IncludeDir["Glad"] 		= "%{wks.location}/Rynex/vendor/Glad/include"
 IncludeDir["stb_image"] = "%{wks.location}/Rynex/vendor/stb_image/include"
 IncludeDir["yaml_cpp"] 	= "%{wks.location}/Rynex/vendor/_yaml-cpp/include"
 IncludeDir["filewatch"] = "%{wks.location}/Rynex/vendor/filewatch/include"
-IncludeDir["assimp"] = "%{wks.location}/Rynex/vendor/assimp/include"
+IncludeDir["assimp"] = "%{wks.location}/Rynex/vendor/_assimp/include"
 IncludeDir["meshoptimizer"] = "%{wks.location}/Rynex/vendor/_meshoptimizer/src"
 
 IncludeDir["magic_enum"] = "%{wks.location}/Rynex/vendor/magic_enum/include"
@@ -84,9 +84,9 @@ IncludeDir["ImGui"] 	= "%{wks.location}/Rynex/vendor/_imgui"
 
 IncludeDir["ImGuizmo"] 	= "%{wks.location}/Rynex/vendor/ImGuizmo"
 
-IncludeDir["msdfgen"] 	= "%{wks.location}/Rynex/vendor/_msdf-atelas-gen/msdfgen"
-IncludeDir["msdf_atlas_gen"] 	= "%{wks.location}/Rynex/vendor/_msdf-atelas-gen/msdf-atelas-gen"
-IncludeDir["freetype"] 	= "%{wks.location}/Rynex/vendor/_msdf-atelas-gen/msdfgen/freetype/include"
+IncludeDir["msdfgen"] 	= "%{wks.location}/Rynex/vendor/_msdf-atlas-gen/msdfgen"
+IncludeDir["msdf_atlas_gen"] 	= "%{wks.location}/Rynex/vendor/_msdf-atlas-gen/msdf-atlas-gen"
+IncludeDir["freetype"] 	= "%{wks.location}/Rynex/vendor/_msdf-atlas-gen/msdfgen/freetype/include"
 -- Test
 IncludeDir["gtest"] = "%{wks.location}/Rynex-Test/vendor/gtest/googletest/include"
 
@@ -136,7 +136,7 @@ group "Dependencies"
 local outsidePremkae = true
 if outsidePremkae then
 	include "Rynex/vendor/premake5_glfw.lua"
-	include "Rynex/vendor/premake5_glad.lua"
+	include "Rynex/vendor/Glad.lua"
 	include "Rynex/vendor/premake5_yaml-cpp.lua"
 	include "Rynex/vendor/premake5_imgui.lua"
 	
@@ -150,18 +150,18 @@ if outsidePremkae then
 	include "Rynex/vendor/premake5_msdfgen.lua"
 	include "Rynex/vendor/premake5_meshoptimizer.lua"
 else
-	include "Rynex/vendor/GLFW"
+	include "Rynex/vendor/_GLFW"
 	include "Rynex/vendor/Glad"
 	include "Rynex/vendor/_yaml-cpp"
-	include "Rynex/vendor/imgui"
+	include "Rynex/vendor/_imgui"
 
 	-- notiz: it is nassary for a sucesfull build withe the curent setub to generate the broject withe camke one time in the ./vendor/assimp/ folder.
 	-- NOT in a ./vendor/assimp/build!
 	-- the include assimp/config.h and some other also don't work! becaouse CMakeList.txt generats from  ./vendor/assimp/inlcude/assimp/config.h.in the needed assimp/config.h file.
-	include "Rynex/vendor/assimp/premake5.lua" 
+	include "Rynex/vendor/_assimp/premake5.lua"
 
-	include "Rynex/vendor/msdf-atelas-gen"
-	include "Rynex/vendor/meshoptimizer"
+	include "Rynex/vendor/_msdf-atlas-gen"
+	include "Rynex/vendor/_meshoptimizer"
 end
 group ""
 
