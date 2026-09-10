@@ -1,6 +1,6 @@
 #include "rypch.h"
 #include "Asset.h"
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 
 namespace Rynex {
 
