@@ -11,7 +11,7 @@
 #endif // RY_PLATFORM_WINDOWS
 
 
-#include <stb_image.h>
+#include <stb_image/stb_image.h>
 #include <execution>
 
 #include <future>

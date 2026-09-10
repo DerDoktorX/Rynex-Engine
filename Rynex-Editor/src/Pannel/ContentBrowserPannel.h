@@ -5,7 +5,7 @@
 #include <Rynex/Project/Project.h>
 
 
-#include <FileWatch.h>
+#include <fileWatch/FileWatch.h>
 
 
 

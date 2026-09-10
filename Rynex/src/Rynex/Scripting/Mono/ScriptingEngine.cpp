@@ -12,7 +12,8 @@
 #include <mono/metadata/mono-debug.h>
 #include <mono/metadata/threads.h>
 
-#include <FileWatch.h>
+#include <filewatcher/FileWatch.h>
+
 #include <Rynex/Project/Project.h>
 
 

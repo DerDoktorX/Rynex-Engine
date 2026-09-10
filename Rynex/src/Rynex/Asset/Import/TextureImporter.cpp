@@ -3,8 +3,8 @@
 
 #include "Rynex/Asset/Base/AssetManager.h"
 
-#include <stb_image.h>
-#include <stb_image_write.h>
+#include <stb_image/stb_image.h>
+#include <stb_image/stb_image_write.h>
 
 namespace Rynex{
 	namespace Utils {

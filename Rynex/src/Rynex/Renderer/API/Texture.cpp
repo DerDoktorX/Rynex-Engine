@@ -5,7 +5,7 @@
 #include <Platform/OpenGL/OpenGLTexture.h>
 #include <Platform/OpenGL/OpenGLRenderCommand.h>
 
-#include <stb_image.h>
+
 
 namespace Rynex {
 	static Ref<Texture> s_DefaultTexture = nullptr;
