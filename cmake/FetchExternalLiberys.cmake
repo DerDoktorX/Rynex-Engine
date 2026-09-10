@@ -179,14 +179,11 @@ rynex_declare(
 # ========= msdf-atlas-gen ================================================================
 # =========================================================================================
 
-set(MSDF_ATLAS_BUILD_STANDALONE     OFF CACHE BOOL "" FORCE)
-set(MSDF_ATLAS_INSTALL              OFF CACHE BOOL "" FORCE)
-set(MSDF_ATLAS_USE_VCPKG            OFF CACHE BOOL "" FORCE)
-set(MSDFGEN_INSTALL                 OFF CACHE BOOL "" FORCE)
-set(MSDFGEN_BUILD_STANDALONE        OFF CACHE BOOL "" FORCE)
-set(MSDFGEN_USE_VCPKG               OFF CACHE BOOL "" FORCE)
-set(MSDFGEN_USE_SYSTEM_FREETYPE     OFF CACHE BOOL "" FORCE)
 
+set(MSDF_ATLAS_BUILD_STANDALONE OFF CACHE BOOL "" FORCE) # no .exe create.
+set(MSDF_ATLAS_USE_VCPKG       OFF CACHE BOOL "" FORCE)  # no VC Packed manger.
+set(MSDF_ATLAS_USE_SKIA        OFF CACHE BOOL "" FORCE)  # Skia not needed
+set(BUILD_SHARED_LIBS          OFF CACHE BOOL "" FORCE)  # static linked libery no dll
 
 rynex_declare(
         msdf-atlas-gen

@@ -13,11 +13,17 @@ target_include_directories(
         Rynex
         PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/src/
-        PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}/vendor/entt/include/
+
         ${CMAKE_CURRENT_LIST_DIR}/vendor/fileWatch/include/
         ${CMAKE_CURRENT_LIST_DIR}/vendor/magic_enum/include/
         ${CMAKE_CURRENT_LIST_DIR}/vendor/robin-hood-hashing/include/
+
+        PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}/vendor/entt/include/
+
+        # msdf-atlas-gen
+        ${CMAKE_CURRENT_LIST_DIR}/vendor/msdf-atlas-gen/msdf-atlas-gen/
+        ${CMAKE_CURRENT_LIST_DIR}/vendor/msdf-atlas-gen/msdfgen/
 )
 
 target_link_libraries(
@@ -34,6 +40,7 @@ target_link_libraries(
         yaml-cpp
         meshoptimizer
         stb_image
+        msdf-atlas-gen
 )
 
 target_precompile_headers(
