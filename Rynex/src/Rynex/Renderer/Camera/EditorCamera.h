@@ -5,7 +5,6 @@
 #include <Rynex/Core/Timestep.h>
 #include <Rynex/Events/Event.h>
 #include <Rynex/Events/MouseEvent.h>
-#include <Rynex/Events/KeyEvent.h>
 
 #include <glm/glm.hpp>
 

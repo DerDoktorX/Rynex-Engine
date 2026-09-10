@@ -1,12 +1,11 @@
 #pragma once
 
-#include "ScenenCamera.h"
-#include "Scene.h"
-#include "Rynex/Core/UUID.h"
-#include "Rynex/Renderer/API/Texture.h"
-#include "Rynex/Renderer/API/Shader.h"
-#include "Rynex/Renderer/API/VertexArray.h"
-#include "Rynex/Renderer/API/Framebuffer.h"
+#include <Rynex/Scene/ScenenCamera.h>
+#include <Rynex/Core/UUID.h>
+#include <Rynex/Renderer/API/Texture.h>
+#include <Rynex/Renderer/API/Shader.h>
+#include <Rynex/Renderer/API/VertexArray.h>
+#include <Rynex/Renderer/API/Framebuffer.h>
 
 
 #include <glm/glm.hpp>
@@ -22,6 +21,12 @@
 #define RY_REALTION_SCHIP_ID_COMP 0
 #define RY_REALTION_SCHIP_ARRAY_COMP 1
 
+
+#ifndef RY_SCENE_HEADER
+#define RY_SCENE_HEADER
+#else
+#error "Scene headers is alraedy!"
+#endif
 
 namespace Rynex {
 

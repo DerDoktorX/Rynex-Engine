@@ -7,12 +7,10 @@
 #include <Rynex/Asset/Base/AssetManager.h>
 #include <Rynex/Renderer/API/Buffer.h>
 
-#define YAML_CPP_STATIC_DEFINE
+
 #include <yaml-cpp/yaml.h>
 #include <fstream>
 
-
-#include <magic_enum/magic_enum.hpp>
 
 
 

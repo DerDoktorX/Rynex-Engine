@@ -89,9 +89,7 @@
 	#else //  DYNAMIC LINKING
 		#define RYNEX_API
 	#endif // STATIC LINKING
-#endif
-
-#ifdef RY_PLATFORM_LINUX
+#elif defined(RY_PLATFORM_LINUX)
 	#if RY_DYNAMIC_LINK
 		#ifdef RY_BUILD_DLL
 			#define RYNEX_API		__attribute__((visibility("default")))
@@ -102,6 +100,9 @@
 	#define RYNEX_API
 	#endif
 #endif
+
+
+
 
 
 // Bit Operation

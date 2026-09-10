@@ -6,9 +6,7 @@
 #include <Rynex/Renderer/API/Buffer.h>
 #include <Rynex/Project/Project.h>
 
-#include <glm/glm.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
-#define YAML_CPP_STATIC_DEFINE
+
 #include <yaml-cpp/yaml.h>
 #include <fstream>
 

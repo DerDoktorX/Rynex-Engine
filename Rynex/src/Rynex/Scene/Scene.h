@@ -8,7 +8,6 @@
 #include <Rynex/Scene/ScenePrototyps.h>
 #include <Rynex/Core/LodePromis.h>
 
-#include <entt.hpp>
 
 #include <Rynex/Renderer/Rendering/Renderer.h>
 #include <entt/entt.hpp>
