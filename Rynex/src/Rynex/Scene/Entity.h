@@ -3,7 +3,7 @@
 #include "Scene.h"
 #include "Components.h"
 
-#include <entt.hpp>
+#include <entt/entt.hpp>
 #include <Rynex/Renderer/Rendering/Render3D/Renderer3D.h>
 
 namespace Rynex {

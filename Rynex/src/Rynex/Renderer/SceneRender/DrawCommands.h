@@ -21,7 +21,7 @@
 #include <Rynex/Renderer/API/Texture.h>        // Ref<Texture>
 #include <Rynex/Renderer/Objects/BoundingVolume.h>
 
-#include <entt.hpp>
+#include <entt/entt.hpp>
 
 namespace Rynex {
 

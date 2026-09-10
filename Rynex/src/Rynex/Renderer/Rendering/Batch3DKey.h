@@ -2,7 +2,7 @@
 #include <Rynex/Renderer/API/ProtypeAPI.h>
 #include <Rynex/Renderer/Mesh/Mesh.h>
 #include <Rynex/Renderer/Materials/Material.h>
-#include <robin_hood.h>
+#include <robin_hood/robin_hood.h>
 
 namespace Rynex {
 // #define RY_BATCH_KEY_HASH

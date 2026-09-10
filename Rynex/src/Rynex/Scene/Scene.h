@@ -11,6 +11,7 @@
 #include <entt.hpp>
 
 #include <Rynex/Renderer/Rendering/Renderer.h>
+#include <entt/entt.hpp>
 namespace Rynex {
 	
 #pragma region PrototypenComponents
