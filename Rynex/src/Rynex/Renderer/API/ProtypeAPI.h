@@ -8,7 +8,7 @@ namespace Rynex{
 	enum class ShaderDataType : uint8_t;
 	enum class BufferDataUsage : uint8_t;
 	enum class BufferType : uint8_t;
-
+	using BufferFlagGPU = uint8_t;
 	namespace BufferFlag {
 		enum BufferFlagGPU : uint8_t;
 	}
