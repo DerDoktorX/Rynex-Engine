@@ -95,8 +95,8 @@ project "msdfgen"
 	cppdialect "C++17"
     staticruntime "off"
 
-	projectDir = "msdf-atelas-gen/msdfgen/"
-	location "msdf-atelas-gen/msdfgen/"
+	projectDir = "_msdf-atlas-gen/msdfgen/"
+	location "_msdf-atlas-gen/msdfgen/"
 
 	targetdir (projectDir .. "bin/" .. outputdir .. "/%{prj.name}")
 	objdir (projectDir .. "bin-int/" .. outputdir .. "/%{prj.name}")
