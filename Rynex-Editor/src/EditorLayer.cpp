@@ -381,8 +381,8 @@ case key: \
             renderTargetC.Target = CreateRef<RenderTarget>(fb);
             const glm::uvec2& size = fb->GetFrambufferSize();
             glm::ivec2 sizeInt = static_cast<glm::ivec2>(size);
-            glm::ivec4 viewSize = { sizeInt.x, sizeInt.y, 0, 0, };
-            ;
+            glm::ivec4 viewSize{ sizeInt.x, sizeInt.y, 0, 0, };
+            
             renderTargetC.RenderPassName = "Shadow";
             renderTargetC.StroeIndex = 0xFFFFFFFFu;
             entity.UpadteTransformFromMatrix();

@@ -128,12 +128,14 @@
 
 
 namespace OpenGL {
-
+	
 	void ExecuteFunctionOnMainThread(const std::function<void()>& func, const char* name);
+	bool ExecuteResumeOnMainThread(const std::function<void()>& func, const char* name);
+
 	void CheckForAktivContextFunktion(const std::function<void()>& func, const char* name);
 	void CheckForAktivContextResume(const std::function<void()>& func, const char* name);
+
 	void ExecuteFunctionOnLocaleThread(const std::function<void()>& func, const char* name);
-	bool ExecuteResumeOnMainThread(const std::function<void()>& func, const char* name);
 	bool ExecuteResumeOnLocaleThread(const std::function<void()>& func, const char* name);
 
 	glm::uvec2 GetMainWindowCurentSize();

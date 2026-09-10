@@ -7,12 +7,12 @@ project "msdf-atlas-gen"
     staticruntime "off"
 	
 
-	local projectDir = "_msdf-atlas-gen/"
+	local projectDir = "_msdf-atlas-gen"
 	location "_msdf-atlas-gen/"
-	-- local projectDir = ""
+	
 
-	targetdir (projectDir .. "bin/" .. outputdir .. "/%{prj.name}")
-	objdir (projectDir .. "bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir (projectDir .. "/bin/" .. outputdir .. "/%{prj.name}")
+	objdir (projectDir .. "/bin-int/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
@@ -23,9 +23,9 @@ project "msdf-atlas-gen"
 
 	includedirs
 	{
-		projectDir .. "msdf-atlas-gen",
-		projectDir .. "msdfgen",
-		projectDir .. "msdfgen/include"
+		projectDir .. "/msdf-atlas-gen/",
+		projectDir .. "/msdfgen/",
+		projectDir .. "/msdfgen/include"
 	}
 
 	defines

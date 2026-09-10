@@ -16,25 +16,32 @@ project "ImGui"
 
 
 	local projectDir = "_imgui/"
-	location "_imgui/"
+	location "_imgui"
 
-	targetdir (projectDir .. "bin/" .. outputdir .. "/%{prj.name}")
-	objdir (projectDir .. "bin-int/" .. outputdir .. "/%{prj.name}")
+	targetdir (projectDir .. "/bin/" .. outputdir .. "/%{prj.name}")
+	objdir (projectDir .. "/bin-int/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{
-		projectDir .. "imconfig.h",
-		projectDir .. "imgui.h",
-		projectDir .. "imgui.cpp",
-		projectDir .. "imgui_draw.cpp",
-		projectDir .. "imgui_internal.h",
-		projectDir .. "imgui_tables.cpp",
-		projectDir .. "imgui_widgets.cpp",
-		projectDir .. "imstb_rectpack.h",
-		projectDir .. "imstb_textedit.h",
-		projectDir .. "imstb_truetype.h",
-		projectDir .. "imgui_demo.cpp"
+		projectDir .. "/imconfig.h",
+		projectDir .. "/imgui.h",
+		projectDir .. "/imgui.cpp",
+		projectDir .. "/imgui_draw.cpp",
+		projectDir .. "/imgui_internal.h",
+		projectDir .. "/imgui_tables.cpp",
+		projectDir .. "/imgui_widgets.cpp",
+		projectDir .. "/imstb_rectpack.h",
+		projectDir .. "/imstb_textedit.h",
+		projectDir .. "/imstb_truetype.h",
+		projectDir .. "/imgui_demo.cpp"
 	}
+
+	includedirs
+	{
+		projectDir .. ""
+	}
+
+
 
 	filter "system:windows"
 		systemversion "latest"

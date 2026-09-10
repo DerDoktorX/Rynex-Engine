@@ -23,6 +23,21 @@ namespace OpenGL {
 #endif
     }
 
+	bool ExecuteResumeOnMainThread(const std::function<void()>& func, const char* name)
+	{
+		if (Rynex::OpenGLThreadContext::IsActive())
+			return false;
+
+#if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
+		RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! executing", name);
+		Rynex::Application::Get().SubmiteToMainThreedQueue(func);
+#else
+		RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! Waiting", name);
+		Rynex::Application::Get().SubmiteToMainThreedQueueWait(func);
+#endif
+		return true;
+	}
+
     void CheckForAktivContextFunktion(const std::function<void()>& func, const char* name)
     {
         if (Rynex::OpenGLThreadContext::IsActive())
@@ -64,6 +79,21 @@ namespace OpenGL {
         func();
         RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! Waiting", name);
     }
+
+	bool ExecuteResumeOnLocaleThread(const std::function<void()>& func, const char* name)
+	{
+		Rynex::Application& app = Rynex::Application::Get();
+		if (!app.IsRunninig())
+			return true;
+
+		if (Rynex::OpenGLThreadContext::IsActive())
+			return false;
+
+
+		func();
+		RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! Waiting", name);
+		return true;
+	}
 
     glm::uvec2 GetMainWindowCurentSize()
     {

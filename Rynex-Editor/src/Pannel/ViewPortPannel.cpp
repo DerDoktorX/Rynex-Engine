@@ -283,7 +283,7 @@ namespace Rynex {
             {
                 if (m_AktiveScene->GetEntityCount() == 0)
                     OpenScene();
-#ifdef IM_GUIZMO
+#ifdef RY_IM_GUIZMO
                 else if (!ImGuizmo::IsOver())
                     m_EditorLayer->SetSelectedEntity(m_HoveredEntity);
 #endif
@@ -952,7 +952,7 @@ namespace Rynex {
 
     void ViewPort::CalculateGizmo()
     {
-#ifdef IM_GUIZMO
+#ifdef RY_IM_GUIZMO
         Entity selectedEntity = m_EditorLayer->GetSelectedEntity();
         m_ImGizmoHovered = false;
         if (!selectedEntity || *m_GizmoType == -1)

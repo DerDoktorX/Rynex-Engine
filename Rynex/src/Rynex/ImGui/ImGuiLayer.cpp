@@ -4,19 +4,15 @@
 #include "Rynex/Core/Application.h"
 
 #include <imgui.h>
-// #include <ImGuizmo.h>
-
-#define IMGUI_IMPL_API
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_opengl3.h>
-
-
-
-// TEMPORARY
+#ifdef RY_IM_GUIZMO
+#include <ImGuizmo.h>
+#endif
 #include <GLFW/glfw3.h>
 
-
-
+#define IMGUI_IMPL_API
+#define IMGUI_IMPL_OPENGL_LOADER_GLAD
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
 
 namespace Rynex {
    

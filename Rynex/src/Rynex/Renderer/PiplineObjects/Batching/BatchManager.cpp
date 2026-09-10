@@ -47,6 +47,7 @@ namespace Rynex {
 			RY_CORE_INFO("We Replaced the hash map and abourt Rendering!");
 			return nullptr;
 		}
+		return storeSubmite;
 	}
 
 	BatchTexture& BatchManager::GetBatchTexture(const Batch3DKey& key)

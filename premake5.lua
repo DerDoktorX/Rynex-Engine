@@ -135,10 +135,14 @@ Library_WIN["Bcrypt"] = "Bcrypt.lib"
 group "Dependencies"
 local outsidePremkae = true
 if outsidePremkae then
-	include "Rynex/vendor/premake5_glfw.lua"
+	include "Rynex/vendor/stb_image"
 	include "Rynex/vendor/Glad"
+
+	include "Rynex/vendor/premake5_glfw.lua"
+	
 	include "Rynex/vendor/premake5_yaml-cpp.lua"
-	include "Rynex/vendor/premake5_imgui.lua"
+	include "Rynex/vendor/_imgui"
+	-- include "Rynex/vendor/premake5_imgui.lua"
 	
 	-- notiz: it is nassary for a sucesfull build withe the curent setub to generate the broject withe camke one time in the ./vendor/assimp/ folder.
 	-- NOT in a ./vendor/assimp/build!
@@ -147,18 +151,21 @@ if outsidePremkae then
 	include "Rynex/vendor/premake5_assimp.lua" 
 
 
-	include "Rynex/vendor/premake5_msdfgen.lua"
+	-- include "Rynex/vendor/premake5_msdfgen.lua"
+	include "Rynex/vendor/_msdf-atlas-gen"
 	include "Rynex/vendor/premake5_meshoptimizer.lua"
 else
-	include "Rynex/vendor/_GLFW"
+	include "Rynex/vendor/stb_image"
 	include "Rynex/vendor/Glad"
+	include "Rynex/vendor/_GLFW"
+	
 	include "Rynex/vendor/_yaml-cpp"
 	include "Rynex/vendor/_imgui"
 
 	-- notiz: it is nassary for a sucesfull build withe the curent setub to generate the broject withe camke one time in the ./vendor/assimp/ folder.
 	-- NOT in a ./vendor/assimp/build!
 	-- the include assimp/config.h and some other also don't work! becaouse CMakeList.txt generats from  ./vendor/assimp/inlcude/assimp/config.h.in the needed assimp/config.h file.
-	include "Rynex/vendor/_assimp/premake5.lua"
+	include "Rynex/vendor/_assimp"
 
 	include "Rynex/vendor/_msdf-atlas-gen"
 	include "Rynex/vendor/_meshoptimizer"

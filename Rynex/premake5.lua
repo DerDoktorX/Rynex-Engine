@@ -32,8 +32,6 @@ project "Rynex"
 		"src/**.h",
 		"src/**.cpp",
 		-- vendor add Source Files to Rynex
-		"vendor/stb_image/include/**.h",
-		"vendor/stb_image/src/**.cpp",
 		"vendor/glm/glm/**.hpp",
 		"vendor/glm/glm/**.inl",
 		-- "vendor/ImGuizmo/ImGuizmo.h",
@@ -91,6 +89,7 @@ project "Rynex"
 		"meshoptimizer",
 		"assimp",
 
+		"stb_image",
 		"yaml-cpp",			-- Files
 		"ImGui", 			-- Runtime Visuelle configs
 		"msdf-atlas-gen"
