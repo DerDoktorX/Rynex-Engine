@@ -136,7 +136,7 @@ group "Dependencies"
 local outsidePremkae = true
 if outsidePremkae then
 	include "Rynex/vendor/premake5_glfw.lua"
-	include "Rynex/vendor/Glad.lua"
+	include "Rynex/vendor/Glad"
 	include "Rynex/vendor/premake5_yaml-cpp.lua"
 	include "Rynex/vendor/premake5_imgui.lua"
 	

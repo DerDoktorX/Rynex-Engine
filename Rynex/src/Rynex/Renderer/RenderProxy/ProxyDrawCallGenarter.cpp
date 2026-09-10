@@ -1,6 +1,6 @@
 #include "rypch.h"
 #include "ProxyDrawCallGenarter.h"
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 #include <Rynex/Renderer/Rendering/Renderer.h>
 #include <Rynex/Renderer/RenderProxy/StaticeRenderProxys.h>
 

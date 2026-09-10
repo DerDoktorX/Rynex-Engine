@@ -5,8 +5,8 @@ project "freetype"
     staticruntime "off"
 
 
-	local projectDir = "_msdf-atelas-gen/msdfgen/"
-	location "_msdf-atelas-gen/msdfgen/"
+	local projectDir = "_msdf-atlas-gen/msdfgen/"
+	location "_msdf-atlas-gen/msdfgen/"
 
 	targetdir (projectDir .. "bin/" .. outputdir .. "/%{prj.name}")
 	objdir (projectDir .. "bin-int/" .. outputdir .. "/%{prj.name}")
