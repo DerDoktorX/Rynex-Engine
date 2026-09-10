@@ -7,8 +7,8 @@ project "msdf-atlas-gen"
     staticruntime "off"
 	
 
-	local projectDir = "_msdf-atelas-gen/"
-	location "_msdf-atelas-gen/"
+	local projectDir = "_msdf-atlas-gen/"
+	location "_msdf-atlas-gen/"
 	-- local projectDir = ""
 
 	targetdir (projectDir .. "bin/" .. outputdir .. "/%{prj.name}")
