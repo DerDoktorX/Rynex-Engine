@@ -14,5 +14,5 @@ if (POLICY CMP0141)
 
 endif()
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Rynex)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Rynex/vendor/Glad)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Rynex/vendor/stb_image)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Rynex/vendor/Glad/)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Rynex/vendor/stb_image/)

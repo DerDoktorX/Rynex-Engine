@@ -135,22 +135,22 @@ rynex_declare(
 # ========= zlib ==========================================================================
 # =========================================================================================
 
-rynex_declare(
-        zlib
-        https://github.com/freetype/freetype.git
-        ${RYNEX_VER_FREETYPE}
-)
+# rynex_declare(
+#         zlib
+#         https://github.com/freetype/freetype.git
+#         ${RYNEX_VER_FREETYPE}
+# )
 
 
 # =========================================================================================
 # ========= zlib ==========================================================================
 # =========================================================================================
 
-rynex_declare(
-        libpng
-        https://github.com/glennrp/libpng.git
-        ${RYNEX_VER_FREETYPE}
-)
+# rynex_declare(
+#         libpng
+#         https://github.com/glennrp/libpng.git
+#         ${RYNEX_VER_FREETYPE}
+# )
 
 # =========================================================================================
 # ========= freetype ======================================================================
@@ -332,13 +332,13 @@ if(NOT TARGET imgui)
     )
 endif()
 
-FetchContent_MakeAvailable(
-        zlib
-)
-
-FetchContent_MakeAvailable(
-        libpng
-)
+# FetchContent_MakeAvailable(
+#         zlib
+# )
+#
+# FetchContent_MakeAvailable(
+#         libpng
+# )
 
 
 if(NOT freetype_POPULATED)
