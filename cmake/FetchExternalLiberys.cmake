@@ -18,10 +18,9 @@ set(RYNEX_VER_FREETYPE          VER-2-13-2) # libery from msdfgen-atlas
 set(RYNEX_VER_ZLIB              v1.3.1) # libery from msdfgen-atlas
 set(RYNEX_VER_LIBPNG            v1.6.43) # libery from msdfgen-atlas
 
-set(FETCHCONTENT_BASE_DIR "${CMAKE_BINARY_DIR}/_fetch" CACHE PATH "Network Verzeichnis fuer FetchContent-Verwaltungsdaten")
-set(FETCHCONTENT_UPDATES_DISCONNECTED ON CACHE BOOL "Kein erneuter Netzwerkzugriff wenn Quellverzeichnis bereits vorhanden")
+set(FETCHCONTENT_BASE_DIR "${CMAKE_BINARY_DIR}/_fetch" CACHE PATH "Network Verzeichnis fur FetchContent-Verwaltungsdaten")
+set(FETCHCONTENT_UPDATES_DISCONNECTED OFF CACHE BOOL "Kein erneuter Netzwerkzugriff wenn Quellverzeichnis bereits vorhanden")
 set(RYNEX_VENDOR_DIR "${CMAKE_SOURCE_DIR}/Rynex/vendor")
-
 
 macro(rynex_make_available _fc_name)
     message("\n")
@@ -74,6 +73,7 @@ macro(rynex_declare _fc_name _fc_repo _fc_tag)
                 OVERRIDE_FIND_PACKAGE   ${_RD_OVERRIDE_FIND_PACKAGE}
         )
     else()
+        
         FetchContent_Declare(
                 ${_fc_name}
                 GIT_REPOSITORY          ${_fc_repo}
@@ -87,6 +87,9 @@ macro(rynex_declare _fc_name _fc_repo _fc_tag)
     endif()
 
 endmacro()
+
+
+
 
 # =========================================================================================
 # ========= spdlog ========================================================================
@@ -107,10 +110,11 @@ rynex_declare(
 # ========= yaml-cpp ======================================================================
 # =========================================================================================
 
-set(YAML_CPP_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
-set(YAML_CPP_BUILD_TOOLS    OFF CACHE BOOL "" FORCE)
-set(YAML_CPP_BUILD_CONTRIB  OFF CACHE BOOL "" FORCE)
-set(YAML_CPP_INSTALL        OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_BUILD_TESTS                OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_BUILD_TOOLS                OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_BUILD_CONTRIB              OFF CACHE BOOL "" FORCE)
+set(YAML_CPP_INSTALL                    OFF CACHE BOOL "" FORCE)
+set(DCMAKE_DISABLE_PRECOMPILE_HEADERS   ON  CACHE BOOL "" FORCE)
 
 rynex_declare(
         yaml-cpp
@@ -240,7 +244,7 @@ set(ASSIMP_WARNINGS_AS_ERRORS               OFF CACHE BOOL "" FORCE)
 # all Importer deactivate, then selective activate
 set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT   OFF CACHE BOOL "" FORCE)
 set(ASSIMP_BUILD_FBX_IMPORTER               ON  CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_GLTF_IMPORTER              ON  CACHE BOOL "" FORCE)  # deckt glTF + glTF2 ab
+set(ASSIMP_BUILD_GLTF_IMPORTER              ON  CACHE BOOL "" FORCE)  # deck glTF + glTF2 ab
 set(ASSIMP_BUILD_OBJ_IMPORTER               ON  CACHE BOOL "" FORCE)
 
 # all Exporter deactivate
@@ -277,15 +281,9 @@ rynex_make_available(
         yaml-cpp
         POLICY_VERSION  3.5
 )
-
-
-
-
-
 rynex_make_available(assimp)
 rynex_make_available(spdlog)
 rynex_make_available(glm)
-rynex_make_available(yaml-cpp)
 rynex_make_available(glfw)
 rynex_make_available(meshoptimizer)
 
@@ -293,7 +291,7 @@ rynex_make_available(meshoptimizer)
 # =========================================================================================
 # =========================================================================================
 # =========================================================================================
-FetchContent_MakeAvailable(imgui)
+rynex_make_available(imgui)
 
 
 set(IMGUI_DIR "${RYNEX_VENDOR_DIR}/imgui")
@@ -338,9 +336,9 @@ if(NOT TARGET imgui)
     )
 endif()
 
-# FetchContent_MakeAvailable(zlib)
-# FetchContent_MakeAvailable(libpng)
-FetchContent_MakeAvailable(freetype)
+# rynex_make_available(zlib)
+# rynex_make_available(libpng)
+rynex_make_available(freetype)
 
 if(NOT freetype_POPULATED)
     FetchContent_Populate(freetype)
@@ -358,7 +356,7 @@ add_library(Freetype::Freetype ALIAS freetype)
 
 get_target_property(_aliased Freetype::Freetype ALIASED_TARGET)
 if(_aliased)
-    message(STATUS "The name Freetype::Freetype is an ALIAS for ${_aliased}.")
+    message("The name Freetype::Freetype is an ALIAS for ${_aliased}.")
 else()
     message(WARNING "The name Freetype::Freetype is not an ALIAS for ${_aliased}.")
 endif()

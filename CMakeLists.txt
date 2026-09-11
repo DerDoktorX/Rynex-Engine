@@ -4,7 +4,10 @@ cmake_minimum_required(VERSION 4.3)
 
 project(Rynex-Rendering)
 
+include(cmake/BuildConfigurations.cmake)
 include(cmake/FetchExternalLiberys.cmake)
+include(cmake/OutputDirectories.cmake)
+include(cmake/ResourceDeployment.cmake)
 
 if (POLICY CMP0141)
     cmake_policy(SET CMP0141 NEW)
@@ -20,3 +23,7 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Rynex/vendor/Glad/)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Rynex/vendor/stb_image/)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Rynex-Editor)
+
+message(" Set ub c: ${CMAKE_C_FLAGS} | c++: ${CMAKE_CXX_FLAGS} | build type: ${CMAKE_CONFIGURATION_TYPE_INIT}")
+rynex_set_output_dirs(Rynex)
+rynex_set_output_dirs(Rynex-Editor)
