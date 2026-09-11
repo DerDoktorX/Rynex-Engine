@@ -2,7 +2,7 @@
 #if RY_ENABLE_FONT
 #include <vector>
 #undef INFINITE
-#include "msdf-atlas-gen.h"
+#include <msdf-atlas-gen/msdf-atlas-gen.h>
 #endif
 namespace Rynex {
 	struct MSDFData

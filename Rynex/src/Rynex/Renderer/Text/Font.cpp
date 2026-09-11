@@ -3,11 +3,10 @@
 
 #if RY_ENABLE_FONT
 #undef INFINITE
-#include "msdf-atlas-gen.h"
-#include "FontGeometry.h"
-#include "GlyphGeometry.h"
-
-#include "MSDFData.h"
+#include <msdf-atlas-gen/msdf-atlas-gen.h>
+#include <msdf-atlas-gen/FontGeometry.h>
+#include <msdf-atlas-gen/GlyphGeometry.h>
+#include <Rynex/Renderer/Text//MSDFData.h>
 #endif
 
 namespace Rynex {

@@ -11,8 +11,8 @@
 #include <Rynex/Utils/EnumString.h>
 #include <Rynex/Core/Input.h>
 
-#include <imgui/imgui.h>
-#include <imgui/imgui_internal.h>
+#include <imgui.h>
+#include <imgui_internal.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <magic_enum/magic_enum.hpp>
 #include <Rynex/Renderer/RenderProxy/StaticeRenderProxys.h>

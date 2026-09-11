@@ -13,11 +13,12 @@
 
 #include <Rynex/Renderer/Materials/Material.h>
 
-#include <imgui/imgui.h>
+#include <imgui.h>
+#include <imgui_internal.h>
 #ifdef RY_IM_GUIZMO
 #include <ImGuizmo.h>
 #endif
-#include <imgui/imgui_internal.h>
+
 #include <Rynex/Renderer/Rendering/Render3D/Renderer3D.h>
 
 

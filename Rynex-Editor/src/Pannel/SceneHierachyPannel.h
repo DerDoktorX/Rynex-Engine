@@ -1,10 +1,9 @@
 #pragma once
 #include <Rynex/Core/Base.h>
-#include <Rynex/Core/Log.h>
 #include <Rynex/Scene/Scene.h>
 #include <Rynex/Scene/Entity.h>
 
-#include <imgui/imgui.h>
+#include <imgui.h>
 #include <future>
 
 namespace Rynex {

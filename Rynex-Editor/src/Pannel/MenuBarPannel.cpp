@@ -8,7 +8,7 @@
 #else
 	#include <Rynex/Scripting/Mono/ScriptingEngine.h>
 #endif
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 namespace Rynex {
 
