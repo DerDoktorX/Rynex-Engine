@@ -67,3 +67,22 @@ rynex_deploy_resources(
         DLLs
         Profile
 )
+# rynex_deploy_resources(
+#       Rynex-Editor
+#
+#       SOURCE_DIR
+#         ${CMAKE_CURRENT_SOURCE_DIR}
+#
+#       # LINK_DIRS
+#         # Editor-Assets
+#         # Resources
+#         # SandboxProject
+#         # mono
+#
+#       LINK_FILES
+#         imgui.ini
+#
+#       MAKE_DIRS
+#         DLLs
+#         Profile
+# )

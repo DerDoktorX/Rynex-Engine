@@ -43,7 +43,7 @@ target_link_libraries(
 target_precompile_headers(
         Rynex
         PRIVATE
-            ${CMAKE_CURRENT_LIST_DIR}/src/rypch.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/rypch.h
 )
 
 
@@ -69,4 +69,5 @@ else()
                 RY_PLATFORM_LINUX
     )
 endif()
+
 
