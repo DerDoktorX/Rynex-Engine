@@ -96,16 +96,21 @@ namespace Rynex {
         void FindThenWrite(const K& key, Func&& func) const
         {
             using ExpextedFunc = std::function<void(const K& key, T& value)>;
-
-            // constexpr const char* funcTypeName = typeid(Func).name();
+#if 201709L < __cplusplus
+            constexpr const char* funcTypeName = typeid(Func).name();
+        	static_assert(std::is_same_v<ExpextedFunc, Func>, "not expected Func");
+        	static_assert(false, "Remove #if checking for c++ 20.")
+#else
             static_assert(std::is_same_v<ExpextedFunc, Func>, "not expected Func");
+#endif
+
             Write(
                 [&key, func](const Map& map) -> void
                 {
                     auto it = map.find(key);
                     if (it == map.end())
                     {
-                        RY_CORE_ERROR("Key dosen't exist! FindThenWrite");
+                        RY_CORE_ERROR("Key doesn't exist! FindThenWrite");
                         return;
                     }
                     T& value = it->second;
@@ -117,10 +122,10 @@ namespace Rynex {
         template<typename Func>
         void WriteValue(const K& key, Func&& func)
         {
+        	RY_REMBER_FUNC_CHANGE("Remove methode replace after withe FindThenWrite");
             FindThenWrite(key,
                 [func](const K& keyLamda, T& value) -> void
                 {
-                    T& value = map.at(keyLamda);
                     func(keyLamda, value);
                 }
             );

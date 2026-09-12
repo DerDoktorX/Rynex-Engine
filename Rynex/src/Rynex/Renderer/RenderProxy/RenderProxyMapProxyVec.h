@@ -59,8 +59,8 @@ namespace Rynex {
 	{
 	public:
 		using Map = std::map<RenderProxyKey, RenderProxyGroup>;
-		using Iterator = typename Map::iterator;
-		using ConstIterator = typename Map::const_iterator;
+		using Iterator = Map::iterator;
+		using ConstIterator = Map::const_iterator;
 
 		RenderProxyMapProxyVec();
 		RenderProxyMapProxyVec(const RenderProxyMapProxyVec& r);

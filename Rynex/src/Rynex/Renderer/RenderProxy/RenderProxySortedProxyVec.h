@@ -57,10 +57,10 @@ namespace Rynex {
 		{
 			for (const auto& [key, groupRange] : m_GroupViewsMap)
 			{
-				ProxyGroupViewConst groupView(
+				ProxyGroupViewConst groupView{
 					m_SortedProxyVec.data() + groupRange.first,
 					groupRange.second
-				);
+				};
 				func(key, groupView);
 			}
 		}

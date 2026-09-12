@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef RY_PLATFORM_WINDOWS
+
 
 	extern Rynex::Application* Rynex::CreateApplication(ApplicationCommandLineArgs spec);
 
@@ -11,7 +11,7 @@
 	{
 		printf("Rynex Engin\n");
 		Rynex::Log::Get().Init();
-		Rynex::Log::Get();
+
 		
 		RY_PROFILE_BEGIN_SESSION("Startup", "Profile/RynexPrifile-Startup.json");
 		RY_CORE_INFO("Initlatione Log!");
@@ -41,4 +41,3 @@
 		Rynex::Log::Get().Shutdown();
 	}
 
-#endif // RY_PLATFORM_WINDOWS

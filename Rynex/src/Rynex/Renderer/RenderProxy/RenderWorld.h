@@ -12,8 +12,6 @@ namespace Rynex {
 	class RenderWorld
 	{
 	public:
-		
-	public:
 		RenderWorld();
 		~RenderWorld();
 
