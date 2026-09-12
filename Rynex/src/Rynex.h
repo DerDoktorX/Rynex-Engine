@@ -22,7 +22,7 @@
 #include "Rynex/Utils/PlatformUtils.h"
 
 // ----- AssetManger ---------------------
-#include "Rynex/Asset/Base/Asset.h"
+#include <Rynex/Asset/Base/Asset.h>
 #include "Rynex/Asset/Base/AssetImporter.h"
 #include "Rynex/Asset/Base/AssetManager.h"
 #include "Rynex/Asset/Base/AssetManagerBase.h"

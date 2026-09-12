@@ -1,6 +1,6 @@
 #include "rypch.h"
-#include "Base/AssetImporter.h"
-#include "Rynex/Project/Project.h"
+#include <Rynex/Asset/Base/AssetImporter.h>
+#include <Rynex/Project/Project.h>
 
 
 namespace Rynex {

@@ -1,12 +1,12 @@
 #include "rypch.h"
 #include "EditorAssetManager.h"
 
-#include "Base/AssetManager.h"
-#include "Base/AssetImporter.h"
-#include "Rynex/Project/Project.h"
+#include <Rynex/Asset/Base/AssetManager.h>
+#include <Rynex/Asset/Base/AssetImporter.h>
+#include <Rynex/Project/Project.h>
 
-#include "Rynex/Serializers/EditorAssetMangerSerialzation.h"
-#include "Rynex/Renderer/API/Texture.h"
+#include <Rynex/Serializers/EditorAssetMangerSerialzation.h>
+
 
 #include <chrono>
 

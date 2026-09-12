@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include <future>
 #include <Rynex/Asset/Base/AssetManagerBase.h>
 #include <Rynex/Asset/Base/AssetMetadata.h>
 #include <Rynex/Asset/Base/Asset.h>
@@ -10,7 +11,7 @@
 #include <Rynex/Renderer/API/Texture.h>
 
 #include <map>
-#include <future>
+
 
 
 namespace Rynex {
