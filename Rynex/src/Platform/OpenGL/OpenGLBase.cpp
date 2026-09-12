@@ -285,7 +285,7 @@ namespace OpenGL {
 		return "";
 	}
 
-	std::string GetTextureFomateInternelStr(uint32_t inFo)
+	std::string GetTextureFormateInternelStr(uint32_t inFo)
 	{
 		switch (inFo)
 		{
@@ -317,7 +317,7 @@ namespace OpenGL {
 		return "";
 	}
 
-	std::string GetTextureFomateStr(uint32_t f)
+	std::string GetTextureFormateStr(uint32_t f)
 	{
 		switch (f)
 		{

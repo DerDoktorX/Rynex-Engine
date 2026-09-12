@@ -413,7 +413,7 @@ namespace Rynex {
 		default:
 			break;
 		}
-		std::string formatStr = OpenGL::GetTextureFomateStr(formate);
+		std::string formatStr = OpenGL::GetTextureFormateStr(formate);
 		RY_CORE_ASSERT(false, "not Vaild OpenGL target Data! {}", formatStr);
 		
 	}

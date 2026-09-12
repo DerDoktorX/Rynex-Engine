@@ -156,8 +156,8 @@ namespace OpenGL {
 
 	std::string GetTargetStr(uint32_t t);
 	std::string GetFomateInternelStr2(uint32_t f);
-	std::string GetTextureFomateInternelStr(uint32_t inFo);
-	std::string GetTextureFomateStr(uint32_t f);
+	std::string GetTextureFormateInternelStr(uint32_t inFo);
+	std::string GetTextureFormateStr(uint32_t f);
 
 	uint32_t GetBuffersTarget(Rynex::BufferType target);
 	uint32_t GetFlagsFromFlagTypes(Rynex::BufferFlagGPU flag);
