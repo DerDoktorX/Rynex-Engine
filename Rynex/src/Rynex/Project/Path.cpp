@@ -247,7 +247,9 @@ namespace Rynex::FileSystem {
 
 	std::filesystem::path Path::GetProjectDirectory()
 	{
-		return Project::GetActiveProjectDirectory();
+		std::filesystem::path projectPath = Project::GetActiveProjectDirectory();
+		ConvertUniversalPath(projectPath);
+		return projectPath;
 	}
 
 	std::filesystem::path Path::GetEngineDirectory()

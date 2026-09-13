@@ -121,6 +121,8 @@ namespace Rynex {
 			if (ImGui::MenuItem("Reload assembly", "Ctrl+R"))
 #if defined(RY_SCRIPT_ENGINE)
 				ScriptingEngine::ReloadAssambly();
+#else
+					RY_CORE_WARN("Script engine not compiled in");
 #endif
 			ImGui::EndMenu();
 		}

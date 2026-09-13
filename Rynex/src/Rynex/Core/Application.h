@@ -1,13 +1,13 @@
 #pragma once
-#include "Rynex/Core/Window.h"
-#include "Rynex/Core/LayerStack.h"
-#include "Rynex/Events/Event.h"
-#include "Rynex/Events/ApplicationEvent.h"
+#include <Rynex/Core/Window.h>
+#include <Rynex/Core/LayerStack.h>
+#include <Rynex/Events/Event.h>
+#include <Rynex/Events/ApplicationEvent.h>
 
-#include "Rynex/Core/TimeStep.h"
+#include <Rynex/Core/TimeStep.h>
 #include <Rynex/Core/ThreadPool.h>
 
-#include "Rynex/ImGui/ImGuiLayer.h"
+#include <Rynex/ImGui/ImGuiLayer.h>
 #include <Rynex/Renderer/API/ThreadContext.h>
 
 int main(int argc, char** argv);
@@ -66,6 +66,7 @@ namespace Rynex {
 
 		inline static Application& Get() { return *s_Instance; }
 		inline Window& GetWindow() { return *m_Window; }
+		inline Weak<Window> GetWindowWeak() { return m_Window; }
 		int64_t GetImGuiTime() const { return m_ImGuiTimeFrame; }
 		int64_t GetLayerTime() const { return m_LayerTimeFrame; }
 

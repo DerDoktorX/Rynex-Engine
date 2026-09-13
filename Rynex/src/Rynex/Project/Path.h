@@ -276,10 +276,10 @@ namespace Rynex::FileSystem {
 		std::filesystem::path GetResolveAbsoluteToMarkedPath(Origin origin) const;
 		std::filesystem::path GetRelativePathFromAbsolutePath() const;
 
-	// --- private varibles ---------------------------------------------------------------------------------------------------
+	// --- private variables --------------------------------------------------------------------------------------------------
 		std::filesystem::path m_Path;
 		Origin m_Origin;
-	// --- private frinds -----------------------------------------------------------------------------------------------------
+	// --- private friend -----------------------------------------------------------------------------------------------------
 		friend bool operator==(const Path& a, const Path& b);
 		friend bool operator!=(const Path& a, const Path& b);
 		friend Path operator/(const Path& a, const Path& b);

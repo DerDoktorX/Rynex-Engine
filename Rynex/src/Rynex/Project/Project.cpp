@@ -740,8 +740,8 @@ namespace Rynex {
         ProjectSerialiazer serialiazer(project);
         if (serialiazer.Deserlize(path))
         {
-            project->m_Config.ProjectPath = path.parent_path();
-            
+            project->m_Config.ProjectPath = FileSystem::Path(path.parent_path()).GetAbsolutePath();
+
             Ref<EditorAssetManegerThreade> editorAssetManager = CreateRef<EditorAssetManegerThreade>();
             editorAssetManager->OnAttach();
             s_ActiveInstancProject->m_AssetManger = editorAssetManager;
