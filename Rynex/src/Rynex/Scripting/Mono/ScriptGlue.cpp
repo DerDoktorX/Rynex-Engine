@@ -1,18 +1,19 @@
 
 #include "rypch.h"
+#include "ScriptGlue.h"
 
 #if defined(RY_SCRIPT_ENGINE)
 
-#include "ScriptGlue.h"
-#include "ScriptingEngine.h"
 
-#include "Rynex/Core/UUID.h"
-#include "Rynex/Core/KeyCodes.h"
-#include "Rynex/Core/Input.h"
-#include "Rynex/Asset/Base/AssetManager.h"
+#include <Rynex/Scripting/ScriptingEngine.h>
 
-#include "Rynex/Scene/Scene.h"
-#include "Rynex/Scene/Entity.h"
+#include <Rynex/Core/UUID.h>
+#include <Rynex/Core/KeyCodes.h>
+#include <Rynex/Core/Input.h>
+#include <Rynex/Asset/Base/AssetManager.h>
+
+#include <Rynex/Scene/Scene.h>
+#include <Rynex/Scene/Entity.h>
 
 
 #include <mono/metadata/object.h>

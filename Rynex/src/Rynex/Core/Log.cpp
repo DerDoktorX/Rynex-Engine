@@ -1,5 +1,5 @@
 #include "rypch.h"
-#include "Rynex/Core/Log.h"
+#include <Rynex/Core/Log.h>
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>

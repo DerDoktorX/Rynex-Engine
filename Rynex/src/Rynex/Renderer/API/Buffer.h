@@ -1,8 +1,7 @@
 #pragma once
 #include <Rynex/Asset/Base/Asset.h>
 #include <magic_enum/magic_enum.hpp>
-// #define RY_HOLD_LAYOUT_ELEMENT_INCREAS_INSTANCE
-// #define RY_CHNAGE_OF_ORGNISE_LAYOUTE_INSTANC_INCREASE
+
 
 
 namespace Rynex {

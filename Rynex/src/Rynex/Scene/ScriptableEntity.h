@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Entity.h"
+#include <Rynex/Scene/Entity.h>
 
 namespace Rynex {
 	

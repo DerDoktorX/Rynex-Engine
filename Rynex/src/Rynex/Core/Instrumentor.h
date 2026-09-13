@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rynex/Core/Log.h"
+#include <Rynex/Core/Log.h>
 
 // TODO: Check what header Fiels real need to exist
 #include <algorithm>

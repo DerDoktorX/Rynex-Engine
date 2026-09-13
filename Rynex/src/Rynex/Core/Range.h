@@ -1,5 +1,4 @@
 #pragma once
-#include<rypch.h>
 
 namespace Rynex {
 

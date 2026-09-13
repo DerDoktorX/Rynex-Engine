@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Rynex/Core/Layer.h"
-#include "Rynex/Core/Base.h"
+#include <Rynex/Core/Layer.h>
+#include <Rynex/Core/Base.h>
 
-#include "Rynex/Events/Event.h"
+#include <Rynex/Events/Event.h>
 
 
 namespace Rynex {

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Rynex/Core/Base.h"
+#include <Rynex/Core/Base.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/string_cast.hpp"
+#include <glm/gtx/string_cast.hpp>
 
 #pragma warning(push, 0)
 #include <spdlog/spdlog.h>

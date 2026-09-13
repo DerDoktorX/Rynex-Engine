@@ -1,7 +1,7 @@
 #include "rypch.h"
 #include "BoundingVolume.h"
 
-#include "Rynex/Core/Assert.h"
+#include <Rynex/Core/Assert.h>
 
 namespace Rynex {
 

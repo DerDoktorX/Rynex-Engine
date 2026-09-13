@@ -1,9 +1,10 @@
 #include "rypch.h"
 #if defined(RY_SCRIPT_ENGINE)
-#include "ScriptingEngine.h"
-#include "ScriptGlue.h"
 
-#include "Rynex/Core/Application.h"
+#include "ScriptingEngine.h"
+#include <Rynex/Scripting/ScriptGlue.h>
+
+#include <Rynex/Core/Application.h>
 
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>

@@ -1,12 +1,9 @@
 #pragma once
 
-#include "Base/AssetManagerBase.h"
-#include "Base/AssetMetadata.h"
-#include "Rynex/Asset/Base/Asset.h"
-#include "Rynex/Asset/EditorAssetManager.h"
-
-
-#include <map>
+#include <Rynex/Asset/Base/AssetManagerBase.h>
+#include <Rynex/Asset/Base/AssetMetadata.h>
+#include <Rynex/Asset/Base/Asset.h>
+#include <Rynex/Asset/EditorAssetManager.h>
 
 namespace Rynex {
 

@@ -1,8 +1,8 @@
 #include "rypch.h"
 #include "Scene.h"
 
-#include "Entity.h"
-#include "ScriptableEntity.h"
+#include <Rynex/Scene/Entity.h>
+#include <Rynex/Scene/ScriptableEntity.h>
 #if defined(RY_SCRIPT_ENGINE)
 	#include <Rynex/Scripting/Mono/ScriptingEngine.h>
 #endif

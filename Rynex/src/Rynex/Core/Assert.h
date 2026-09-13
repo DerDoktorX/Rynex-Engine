@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Rynex/Core/Base.h"
-#include "Rynex/Core/Log.h"
+#include <Rynex/Core/Base.h>
+#include <Rynex/Core/Log.h>
 #include <filesystem>
 
 #define RY_CORE_NOT_IMPL() RY_CORE_FATAL("Function Not Implemted {} {}", std::filesystem::path(__FILE__).string(), __LINE__); RY_DEBUG_BREAK()

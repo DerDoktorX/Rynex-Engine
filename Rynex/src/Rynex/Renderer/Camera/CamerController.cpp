@@ -1,8 +1,8 @@
 #include "rypch.h"
 #include "CamerController.h"
 
-#include "Rynex/Core/Input.h"
-#include "Rynex/Core/KeyCodes.h"
+#include <Rynex/Core/Input.h>
+#include <Rynex/Core/KeyCodes.h>
 
 namespace Rynex {
 	OrthograficCameraController::OrthograficCameraController(float aspectRotation, bool rotatione)

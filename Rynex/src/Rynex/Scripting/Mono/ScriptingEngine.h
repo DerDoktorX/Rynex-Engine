@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Rynex/Scene/Scene.h"
-#include "Rynex/Scene/Entity.h"
+#include <Rynex/Scene/Scene.h>
+#include <Rynex/Scene/Entity.h>
 
 extern "C" {
 	typedef struct _MonoClass MonoClass;

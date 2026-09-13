@@ -45,7 +45,6 @@
 #include <random>
 #include <Rynex/Asset/Import/TextureImporter.h>
 #include <Rynex/Renderer/Rendering/DrawContext.h>
-#include <Rynex/Renderer/ResoureManger/StagingSlot.h>
 
 
 

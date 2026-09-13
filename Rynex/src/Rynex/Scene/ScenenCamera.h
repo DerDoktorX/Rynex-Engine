@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Rynex/Renderer/Camera/Camera.h"
-#include "Rynex/Renderer/Objects/BoundingVolume.h"
+#include <Rynex/Renderer/Camera/Camera.h>
+#include <Rynex/Renderer/Objects/BoundingVolume.h>
 
 namespace Rynex{
 

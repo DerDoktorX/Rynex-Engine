@@ -1,5 +1,5 @@
 #pragma once
-#include "Rynex/Renderer/Materials/Material.h"
+#include <Rynex/Renderer/Materials/Material.h>
 
 #define RY_DEFAULT_MATERIEL_WEAK 1
 namespace Rynex {

@@ -1,7 +1,7 @@
 #include "rypch.h"
 #include "AssetImporter.h"
-#include "Asset.h"
 
+#include <Rynex/Asset/Base/Asset.h>
 #include <Rynex/Asset/Import/TextureImporter.h>
 #include <Rynex/Asset/Import/SceneImporter.h>
 #include <Rynex/Asset/Import/ShaderImporter.h>

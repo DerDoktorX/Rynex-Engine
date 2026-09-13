@@ -3,7 +3,7 @@
 
 #if RY_EDITOR_ASSETMANGER_THREADE
 
- #include "Rynex/Asset/EditorAssetManager.h"
+#include "Rynex/Asset/EditorAssetManager.h"
 #else
 #endif
 

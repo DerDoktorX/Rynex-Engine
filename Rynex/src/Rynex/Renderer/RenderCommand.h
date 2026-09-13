@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RendererAPI.h"
+#include <Rynex/Renderer/RendererAPI.h>
 
 namespace Rynex {
 #if RY_RENDERER_API_INDEIPENDENT

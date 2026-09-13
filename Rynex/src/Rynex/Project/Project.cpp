@@ -1,8 +1,8 @@
 #include "rypch.h"
 #include "Project.h"
 
-#include "Rynex/Serializers/ProjectSerialiazer.h"
-#include "Rynex/Utils/PlatformUtils.h"
+#include <Rynex/Serializers/ProjectSerialiazer.h>
+#include <Rynex/Utils/PlatformUtils.h>
 #include <Rynex/Project/Path.h>
 
 namespace Rynex {

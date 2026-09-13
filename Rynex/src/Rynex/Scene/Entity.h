@@ -1,9 +1,7 @@
 #pragma once
 
-#include "Scene.h"
-#include "Components.h"
-
-#include <entt/entt.hpp>
+#include <Rynex/Scene/Scene.h>
+#include <Rynex/Scene/Components.h>
 #include <Rynex/Renderer/Rendering/Render3D/Renderer3D.h>
 
 namespace Rynex {
