@@ -180,6 +180,9 @@ namespace Rynex {
 		template<typename K, typename T>
 		using AssetMangerMap = AssetMangerMapMutex<K, T>;
 
+
+		virtual ~EditorAssetManegerThreade() = default;
+
 		virtual void OnAttach();
 		virtual void OnDetach();
 

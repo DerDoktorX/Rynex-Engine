@@ -1532,20 +1532,20 @@ namespace Rynex {
 
 #pragma endregion
 
-	template<>
-	inline AssetMangerMapMutex<AssetHandle, Ref<Asset>>::~AssetMangerMapMutex()
-	{
-		RY_CORE_ASSERT(!m_OutSideScope, "Mutex is alrady Set Globle");
-		std::unique_lock writerLock(m_Mutex);
-		m_Stop = true;
-		
-		for (auto& [key, asset] : m_AssetMap)
-		{
-			RY_DESTROY_REF(asset);
-		}
-		m_AssetMap.clear();
-		
-	}
+	// template<>
+	// inline AssetMangerMapMutex<AssetHandle, Ref<Asset>>::~AssetMangerMapMutex()
+	// {
+	// 	RY_CORE_ASSERT(!m_OutSideScope, "Mutex is alrady Set Globle");
+	// 	std::unique_lock writerLock(m_Mutex);
+	// 	m_Stop = true;
+	//
+	// 	for (auto& [key, asset] : m_AssetMap)
+	// 	{
+	// 		RY_DESTROY_REF(asset);
+	// 	}
+	// 	m_AssetMap.clear();
+	//
+	// }
 
 
 	

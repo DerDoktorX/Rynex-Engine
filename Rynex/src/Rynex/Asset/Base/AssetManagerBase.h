@@ -6,10 +6,10 @@ namespace Rynex {
 
     using AssetMap = std::map<AssetHandle, Ref<Asset>>;
 
-    class 
-        AssetManagerBase
+    class AssetManagerBase
     {
-    public: 
+    public:
+        virtual ~AssetManagerBase() = default;
         virtual void OnAttach() = 0;
         virtual void OnDetach() = 0;
 
@@ -34,7 +34,8 @@ namespace Rynex {
         virtual AssetHandle CreatLocaleAsset(Ref<Asset> asset, AssetMetadata& metadata) = 0;
 
         virtual Ref<Asset> GetLocaleAsset(AssetHandle handle) = 0;
-        virtual void DeleteLocaleAsset(AssetHandle handle) = 0;        
+        virtual void DeleteLocaleAsset(AssetHandle handle) = 0;
+
     };
 
 }
