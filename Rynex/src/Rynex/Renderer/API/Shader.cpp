@@ -44,7 +44,7 @@ namespace Rynex {
 	Ref<Shader> Shader::Default()
 	{
 		if(Renderer::IsInit())
-			return AssetManager::GetAsset<Shader>("../Rynex-Editor/Editor-Assets/shaders/Default_Rynex-Editor_Shader.glsl");
+			return AssetManager::GetAsset<Shader>("Engine-Resources/Editor-Assets/shaders/Default_Rynex-Editor_Shader.glsl");
 		return nullptr;
 	}
 

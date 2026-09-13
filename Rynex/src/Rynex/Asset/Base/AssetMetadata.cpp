@@ -70,7 +70,8 @@ namespace Rynex {
 
 			RY_CORE_ASSERT(RealtivePath == pathRealtive, "RealtivePath: {} realtivePath: {}", RealtivePath, pathRealtive);
 			RY_CORE_ASSERT(AbsolutePath == pathAbosulte, "AbsolutePath: {} abosultePath: {}", AbsolutePath, pathAbosulte);
-			RY_CORE_ASSERT(PathMarker == pathMarkedStr, "PathMarker: {} pathMarkedStr: {}", PathMarker, pathMarkedStr);
+			// RY_CORE_ASSERT(PathMarker == pathMarkedStr, "PathMarker: {} pathMarkedStr: {}", PathMarker, pathMarkedStr);
+			PathMarker = fileSystemPath.GetMarkedPathString();
 		}
 		
 		

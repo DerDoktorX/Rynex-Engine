@@ -40,6 +40,8 @@ target_link_libraries(
             msdf-atlas-gen
 )
 
+
+
 target_precompile_headers(
         Rynex
         PRIVATE
@@ -70,4 +72,5 @@ else()
     )
 endif()
 
+setupBinary(Rynex)
 

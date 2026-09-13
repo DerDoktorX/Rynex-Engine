@@ -11,7 +11,7 @@ Entities:
       Color: [1, 0, 1]
       AlgorithmFlags: 65538
       Shader:
-        Path: ../Rynex-Editor/Editor-Assets/shaders/3DLigthe.glsl
+        Path: Rynex-Editor/Editor-Assets/shaders/3DLigthe.glsl
         Handle: 13068815048741226181
       UniformLayoute:
         - Name: u_Ambient

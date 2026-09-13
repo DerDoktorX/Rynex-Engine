@@ -39,8 +39,8 @@ namespace Rynex {
 		fontSize = 15.0f;
 		std::string working = std::filesystem::current_path().string();
 		RY_CORE_INFO("working driectory {}", working);
-		io.Fonts->AddFontFromFileTTF("../Rynex-Editor/Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
-		io.FontDefault=io.Fonts->AddFontFromFileTTF("../Rynex-Editor/Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
+		io.Fonts->AddFontFromFileTTF("Engine-Resources/Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
+		io.FontDefault=io.Fonts->AddFontFromFileTTF("Engine-Resources/Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf", fontSize);
         
 		ImGui::StyleColorsDark();
         ImGuiStyle& style = ImGui::GetStyle();

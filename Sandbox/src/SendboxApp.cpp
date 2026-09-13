@@ -58,18 +58,18 @@ public:
 				m_VertexArray->SetIndexBuffer(indexBuffer);
 
 				{
-					m_Shader = Rynex::Shader::Create("../Rynex-Editor/Editor-Assets/shaders/SrcShader.glsl");
+					m_Shader = Rynex::Shader::Create("Engine-Resources/Editor-Assets/shaders/SrcShader.glsl");
 				}
 			
 
 				{
 					//std::string textureFragmentSrc_, textureVertexSrc_;
-					//File::ReadFile("../Rynex-Editor/shaders/Texture.glsl", textureFragmentSrc_);
+					//File::ReadFile("Engine-Resources/shaders/Texture.glsl", textureFragmentSrc_);
 
-					auto textureShader = m_ShaderLibary.Load("../Rynex-Editor/Editor-Assets/shaders/Texture.glsl");
+					auto textureShader = m_ShaderLibary.Load("Engine-Resources/Editor-Assets/shaders/Texture.glsl");
 
-					m_Texture = Rynex::Texture::Create("../Rynex-Editor/Editor-Assets/textures/Checkerboard.png");
-					m_TrasperentTestTexture = Rynex::Texture::Create("../Rynex-Editor/Editor-Assets/textures/testBlending.png");
+					m_Texture = Rynex::Texture::Create("Engine-Resources/Editor-Assets/textures/Checkerboard.png");
+					m_TrasperentTestTexture = Rynex::Texture::Create("Engine-Resources/Editor-Assets/textures/testBlending.png");
 
 					std::dynamic_pointer_cast<Rynex::OpenGLShader>(textureShader)->Bind();
 					std::dynamic_pointer_cast<Rynex::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
@@ -109,7 +109,7 @@ public:
 				m_SquareVA->SetIndexBuffer(squareIB);
 
 
-				m_BlueShader = Rynex::Shader::Create("../Rynex-Editor/Editor-Assets/shaders/BlueShaderSrc.glsl");
+				m_BlueShader = Rynex::Shader::Create("Engine-Resources/Editor-Assets/shaders/BlueShaderSrc.glsl");
 				
 			}
 		}

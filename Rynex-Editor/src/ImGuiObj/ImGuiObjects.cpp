@@ -8,7 +8,6 @@
 namespace Rynex {
 	namespace Utils {
 
-
 		static glm::vec2 ConvertImVecInGlm(const ImVec2& value)
 		{
 			return glm::vec2{ value.x, value.y };

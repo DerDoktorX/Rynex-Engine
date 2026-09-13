@@ -5,7 +5,8 @@
 // For def from Rynex only
 // #define RY_DEV
 #define RY_DISABLE_CODE_TODO 1	// Like Kommenting out
-#define NOMINMAX
+#undef NOMINMAX
+#define NOMINMAX 0
 
 #define RY_CONSOLE 1
 #define RY_CONSOLE_ALICATION_OFF_MEMORY 0
@@ -15,7 +16,7 @@
 #define RY_CONSOLE_LOG_NUMBER 0
 // #define RY_SCRIPT_ENGINE
 #define RY_ASSIMP_MODEL_LODER
-
+#define RY_ENGINE_RESOURCE_FOLDER "Engine-Resources"
 #ifdef RY_CONSOLE_LOG_LARGE_NUMBER
 	#define RY_CONSOLE_LOG_LARGE_NUMBER_GRUPING_SYMBOL ' '
 	#define RY_CONSOLE_LOG_LARGE_NUMBER_GRUPING_COUNT "\3"

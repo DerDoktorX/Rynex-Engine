@@ -2245,7 +2245,7 @@ namespace Rynex {
 	{
 		if (nullptr == s_Storarage3D->ErrorTex)
 		{
-			s_Storarage3D->ErrorTex = TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ErrorTex.png");
+			s_Storarage3D->ErrorTex = TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ErrorTex.png");
 		}
 		return s_Storarage3D->ErrorTex;
 	}

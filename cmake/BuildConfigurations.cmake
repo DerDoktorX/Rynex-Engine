@@ -20,8 +20,8 @@ endif()
 #   string(TOUPPER "RelInfoEasy") -> "RELINFOEASAY"
 # ============================================================================
 if(MSVC)
-    set(CMAKE_C_FLAGS_RELINFOEASY   "/O2 /Ob1 /Zi" CACHE STRING "C-Flags for RelInfoEasy"   FORCE)
-    set(CMAKE_CXX_FLAGS_RELINFOEASY "/O2 /Ob1 /Zi" CACHE STRING "CXX-Flags for RelInfoEasy" FORCE)
+    set(CMAKE_C_FLAGS_RELINFOEASY   "/O2 /Ob1 /Z7" CACHE STRING "C-Flags for RelInfoEasy"   FORCE)
+    set(CMAKE_CXX_FLAGS_RELINFOEASY "/O2 /Ob1 /Z7" CACHE STRING "CXX-Flags for RelInfoEasy" FORCE)
     
     set(CMAKE_EXE_LINKER_FLAGS_RELINFOEASY    "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO}"    CACHE STRING "Linker-Flags for RelInfoEasy"         FORCE)
     set(CMAKE_SHARED_LINKER_FLAGS_RELINFOEASY "${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO}" CACHE STRING "Shared-Linker-Flags for RelInfoEasy"  FORCE)

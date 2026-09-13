@@ -68,20 +68,20 @@ namespace Rynex {
 	{
 		m_Project = Project::GetActive();
 		RY_CORE_INFO("ContentBrowserPannel::OnAtache Start!");
-		m_DirectoryIcon		= TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ContentBrowser/DirectoryIcon.png");
+		m_DirectoryIcon		= TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ContentBrowser/DirectoryIcon.png");
 		
 		//Files
-		Ref<Texture> defaultIcon = TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ContentBrowser/FileIconDefault.png");
+		Ref<Texture> defaultIcon = TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ContentBrowser/FileIconDefault.png");
 #if 0
 		AssetManager::CreatLocaleAsset<Texture>(defaultIcon);
 		m_FileIconDefault	= AssetManager::GetAsset<Texture>(defaultIcon->Handle);
 #else
 		m_FileIconDefault = defaultIcon;
 #endif
-		m_FileIconError		= TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ContentBrowser/FileIconError.png");
-		m_FileIconScene		= TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ContentBrowser/FileIconScene.png");
-		m_FileIconShader	= TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ContentBrowser/FileIconShader.png");
-		m_FileIconTexture	= TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ContentBrowser/FileIconTexture.png");
+		m_FileIconError		= TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ContentBrowser/FileIconError.png");
+		m_FileIconScene		= TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ContentBrowser/FileIconScene.png");
+		m_FileIconShader	= TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ContentBrowser/FileIconShader.png");
+		m_FileIconTexture	= TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ContentBrowser/FileIconTexture.png");
 		m_AssetManger		= m_Project->GetEditorAssetManger();
 
 		m_AssetManger->SerialzeAssetRegistry();
@@ -409,10 +409,7 @@ namespace Rynex {
 
 		if (state == AssetState::LostConection || state == AssetState::Error)
 		{
-			// ImGui::BeginDragDropSource();
-			// const AssetHandle* handleE = &m_AssetManger->GetAssetHandle(path);
-			// ImGui::SetDragDropPayload(GetAssetTypeMoveAssetInfosName(type).c_str(), handleE, sizeof(AssetHandle));
-			// ImGui::EndDragDropSource();
+
 		}
 		else
 		{
@@ -643,7 +640,7 @@ namespace Rynex {
 	static void OnFileSystemEventEditorAssetDirectory(std::string filepath, const filewatch::Event change_type)
 	{
 		RY_CORE_TRACE("Event File Ptah {}", filepath);
-		std::filesystem::path filePath = ("..\\Rynex-Editor\\Editor-Assets" / std::filesystem::path(filepath)).generic_string();
+		std::filesystem::path filePath = (RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR / std::filesystem::path(filepath)).generic_string();
 
 		std::string event = GetFileWatcherEventString(change_type);
 		RY_CORE_TRACE("FileWatcher Editor Event: ({}) Info: ({})!", event, filePath.string().c_str());
@@ -736,7 +733,7 @@ namespace Rynex {
 		RY_CORE_TRACE("Project-Asset: Watch File Path ({})", projectFilePathStr);
 		s_Data->ProjectAssetFileWatcher = CreateScope<filewatch::FileWatch<std::string>>(projectFilePathStr, OnFileSystemEventProjectDirectory);
 #if RY_EDITOR_ASSET_FILEWATCHER
-		std::string editorFilePathStr = "..\\Rynex-Editor\\Editor-Assets";
+		std::string editorFilePathStr = RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR;
 		RY_CORE_TRACE("Editor-Asset: Watch File Path ({})", projectFilePathStr);
 		s_Data->EditorAssetFileWatcher = CreateScope<filewatch::FileWatch<std::string>>(editorFilePathStr, OnFileSystemEventEditorAssetDirectory);
 #else

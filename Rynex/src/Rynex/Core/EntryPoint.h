@@ -7,16 +7,25 @@
 
 
 
+
+
 	int main(int argc, char** argv)
 	{
 		printf("Rynex Engin\n");
 		Rynex::Log::Get().Init();
 
 		
-		RY_PROFILE_BEGIN_SESSION("Startup", "Profile/RynexPrifile-Startup.json");
+		RY_PROFILE_BEGIN_SESSION("Startup", "Resources-Engines/Profile/RynexPrifile-Startup.json");
 		RY_CORE_INFO("Initlatione Log!");
 		RY_INFO("Initlatione Log!");
+		std::filesystem::path workingDir = std::filesystem::current_path();
+		workingDir = workingDir.parent_path();
+		std::filesystem::current_path(workingDir);
 		RY_INFO("Working Directory {}", std::filesystem::current_path());
+
+
+
+
 #ifdef RY_ENABLE_DEFAULT_PROJECT
 		if (1 == argc)
 		{

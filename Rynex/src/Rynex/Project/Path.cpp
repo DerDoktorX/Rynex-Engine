@@ -640,8 +640,18 @@ namespace Rynex::FileSystem {
 	{
 		uint32_t markerCount = GetMarkerCharacterCount(origne);
 		markerCount += 1u;
-		
+
 		std::string pathStr = markedPathStr.substr(markerCount);
+		constexpr const char* oldRelativeMerkerRemoveStr = "../Rynex-Editor";
+		size_t count = pathStr.size();
+		size_t pos = pathStr.find(oldRelativeMerkerRemoveStr);
+		if (pos < count)
+		{
+			size_t oldRelativeMerkerRemoveStrCount = std::string{oldRelativeMerkerRemoveStr}.size();
+			pathStr = pathStr.substr(oldRelativeMerkerRemoveStrCount);
+			pathStr = RY_PATH_EXPECT_ENGINE_RELATIVE_START_FOlDER_STR + pathStr;
+		}
+
 		std::filesystem::path path = pathStr;
 		return path;
 	}
@@ -728,8 +738,9 @@ namespace Rynex::FileSystem {
 	Path::Origin Path::GetExpectedOriginFromRelativePath(const std::filesystem::path& path)
 	{
 		int8_t i = 0;
-		
-		if (Project::HasStringInPath(path, RY_PATH_EXPECT_ENGINE_RELATIVE_START_FOlDER_STR))
+
+		constexpr const char* oldEngineRealtivePathStart = "../Rynex-Editor";
+		if (Project::HasStringInPath(path, RY_PATH_EXPECT_ENGINE_RELATIVE_START_FOlDER_STR) || Project::HasStringInPath(path, oldEngineRealtivePathStart))
 			return Origin::Engine;
 
 		if(Project::HasStringInPath(path, ".."))

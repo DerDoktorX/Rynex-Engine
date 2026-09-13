@@ -128,13 +128,7 @@ namespace Rynex {
 			return handle;
 		}
 
-		template<typename T>
-		static Ref<T> GetAssetMarkedPath(const std::filesystem::path& pathMarked)
-		{
-			AssetHandle handle = GetAssetHandleMarkedPath(pathMarked);
-			Ref<T> asset = AssetManager::GetAsset<T>(handle);
-			return asset;
-		}
+
 
 		
 		template<typename T>

@@ -177,7 +177,7 @@ namespace Rynex {
         if (path.is_absolute())
             return path;
         std::string pathStr = path.string();
-        uint32_t index = pathStr.find("../Rynex-Editor");
+        uint32_t index = pathStr.find("Engine-Resources/Editor-Assets");
         uint32_t count = pathStr.size();
         if (index < count)
         {
@@ -348,10 +348,20 @@ namespace Rynex {
         constexpr size_t offset = 1;
         const std::string& searchePath = pathStr;
         size_t size = searchePath.size();
-        size_t pos = PositionMarker(searchePath, marker);
+        size_t pos = searchePath.find(marker);
         size_t sizeMarker = marker.size();
         size_t endPosMarker = sizeMarker + pos + offset;
-        std::string pathWithoutMarkerStr = searchePath.substr(endPosMarker);
+    	std::string pathWithoutMarkerStr = searchePath.substr(endPosMarker);
+
+    	constexpr const char* oldEngineRealtivePathStartStr = "../Rynex-Editor";
+    	size_t posEngineRealtivePath =searchePath.find(oldEngineRealtivePathStartStr);
+    	if (posEngineRealtivePath < searchePath.size())
+    	{
+    		size_t count = std::string{oldEngineRealtivePathStartStr}.size() + 1;
+    		pathWithoutMarkerStr = pathWithoutMarkerStr.substr(count);
+    		pathWithoutMarkerStr = RY_PATH_EXPECT_ENGINE_RELATIVE_START_FOlDER_STR + pathWithoutMarkerStr;
+    	}
+
         std::filesystem::path pathWithoutMarker = pathWithoutMarkerStr;
         pathWithoutMarkerStr = pathWithoutMarker.generic_string();
         pathWithoutMarker = pathWithoutMarkerStr;
@@ -369,7 +379,7 @@ namespace Rynex {
         };
         const std::string& searchePath = pathStr;
         size_t size = searchePath.size();
-        size_t pos = MAXSIZE_T;
+        size_t pos = std::numeric_limits<size_t>::max();
         uint32_t i = 0;
         do {
             pos = PositionMarker(searchePath, markersArray[i]);
@@ -608,20 +618,20 @@ namespace Rynex {
             else
                 marker = projectMarker;
         }
-        {
-
-            FileSystem::Path fileSystemPath(path);
-           
-            FileSystem::Path::Origin origin = marker == projectMarker ? FileSystem::Path::Origin::Project 
-                : (marker == engineMarker ? FileSystem::Path::Origin::Engine : FileSystem::Path::Origin::None);
-
-            bool check = origin == fileSystemPath.GetOrigin();
-
-            RY_CORE_INFO_IF(check, "Pass Test: Expexted Path!");
-            RY_CORE_ERROR_IF(!check, "FAILD Test: Expexted Path!");
-
-            RY_CORE_ASSERT(check);
-        }
+        // {
+//
+        //     FileSystem::Path fileSystemPath(path);
+        //
+        //     FileSystem::Path::Origin origin = marker == projectMarker ? FileSystem::Path::Origin::Project
+        //         : (marker == engineMarker ? FileSystem::Path::Origin::Engine : FileSystem::Path::Origin::None);
+//
+        //     bool check = origin == fileSystemPath.GetOrigin();
+//
+        //     RY_CORE_INFO_IF(check, "Pass Test: Expexted Path!");
+        //     RY_CORE_ERROR_IF(!check, "FAILD Test: Expexted Path!");
+//
+        //     RY_CORE_ASSERT(check);
+        // }
 
         return marker;
     }

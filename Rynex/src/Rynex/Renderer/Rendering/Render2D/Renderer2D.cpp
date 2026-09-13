@@ -150,7 +150,7 @@ namespace Rynex {
 	void Renderer2D::Init()
 	{
 		s_Storarage2D.Quades.Create(
-			"../Rynex-Editor/Editor-Assets/shaders/Texture2.glsl", 
+			"Engine-Resources/Editor-Assets/shaders/Texture2.glsl", 
 			1u, 
 			{
 				{ ShaderDataType::Float3,	"a_Postion"	},
@@ -198,7 +198,7 @@ namespace Rynex {
 		void* dataPtr = quadVerticesLayout;
 
 		s_Storarage2D.QuadesT.Create(
-			"../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl",
+			"Engine-Resources/Editor-Assets/shaders/TextureTransform2.glsl",
 			1u,
 			quadVerticesLayout,
 			{
@@ -211,7 +211,7 @@ namespace Rynex {
 		s_Storarage2D.QuadesT.SetCameraSlot(0u);
 #if RY_RENDER2D_TEST_BATCHING_SBO_PARICLE
 		s_Storarage2D.Particle.Create(
-			// "../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl",
+			// "Engine-Resources/Editor-Assets/shaders/TextureTransform2.glsl",
 			100u,
 			quadVerticesLayout,
 			{
@@ -223,7 +223,7 @@ namespace Rynex {
 			);
 #endif
 		s_Storarage2D.Text.Create(
-			"../Rynex-Editor/Editor-Assets/shaders/TextShader.glsl",
+			"Engine-Resources/Editor-Assets/shaders/TextShader.glsl",
 			1u,
 			{
 				{ ShaderDataType::Float3,	"a_Postion"	},
@@ -277,7 +277,7 @@ namespace Rynex {
 		void* dataPtr = quadVerticesLayout;
 
 		s_Storarage2D.QuadesSingle.Create(
-			"../Rynex-Editor/Editor-Assets/shaders/TextureTransform2.glsl",
+			"Engine-Resources/Editor-Assets/shaders/TextureTransform2.glsl",
 			1u,
 			quadVerticesLayout,
 			{
@@ -290,7 +290,7 @@ namespace Rynex {
 		s_Storarage2D.QuadesSingle.SetCameraSlot(0u);
 
 		s_Storarage2D.TextSingle.Create(
-			"../Rynex-Editor/Editor-Assets/shaders/TextShader.glsl",
+			"Engine-Resources/Editor-Assets/shaders/TextShader.glsl",
 			1u,
 			{
 				{ ShaderDataType::Float3,	"a_Postion"	},
@@ -305,7 +305,7 @@ namespace Rynex {
 		s_Storarage2D.TextSingle.SetCameraSlot(0u);
 
 		s_Storarage2D.Icon.Create(
-			"../Rynex-Editor/Editor-Assets/shaders/IconTexture.glsl",
+			"Engine-Resources/Editor-Assets/shaders/IconTexture.glsl",
 			16u,
 			{
 				{ ShaderDataType::Float4,	"a_Postion"	},
@@ -320,7 +320,7 @@ namespace Rynex {
 		s_Storarage2D.Icon.SetDisplaySlot(1u);
 
 		s_Storarage2D.IconSingle.Create(
-			"../Rynex-Editor/Editor-Assets/shaders/IconTexture.glsl",
+			"Engine-Resources/Editor-Assets/shaders/IconTexture.glsl",
 			16u,
 			{
 				{ ShaderDataType::Float4,	"a_Postion"	},
@@ -335,10 +335,10 @@ namespace Rynex {
 		s_Storarage2D.IconSingle.SetDisplaySlot(1u);
 
 		s_Storarage2D.IconTexture[IconTexture::Dafult] = Texture::Default();
-		s_Storarage2D.IconTexture[IconTexture::PointLigthe] = TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ViewPort/PointLigtheIcon.png");
-		s_Storarage2D.IconTexture[IconTexture::SpotLigth] = TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ViewPort/SpotLigthIcon.png");
-		s_Storarage2D.IconTexture[IconTexture::DirectionelLigthe] = TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ViewPort/DirectionelLigtheIcon.png");
-		s_Storarage2D.IconTexture[IconTexture::Camera] = TextureImporter::LoadTexture("../Rynex-Editor/Resources/Icons/ViewPort/CameraIcon.png");
+		s_Storarage2D.IconTexture[IconTexture::PointLigthe] = TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ViewPort/PointLigtheIcon.png");
+		s_Storarage2D.IconTexture[IconTexture::SpotLigth] = TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ViewPort/SpotLigthIcon.png");
+		s_Storarage2D.IconTexture[IconTexture::DirectionelLigthe] = TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ViewPort/DirectionelLigtheIcon.png");
+		s_Storarage2D.IconTexture[IconTexture::Camera] = TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ViewPort/CameraIcon.png");
 		for (Ref<Texture> tex : s_Storarage2D.IconTexture)
 		{
 			if (tex)

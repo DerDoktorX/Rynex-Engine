@@ -3,6 +3,7 @@ project(Rynex-Editor)
 file(
         GLOB_RECURSE
         SOURCE_FILES
+        CONFIGURE_DEPENDS
         ${CMAKE_CURRENT_LIST_DIR}/src/**.cpp
 )
 
@@ -33,7 +34,7 @@ target_compile_definitions(
         $<$<CONFIG:RelWithDebInfo>:RY_RELEASE>     # equals Premake "Release" just off crack
         $<$<CONFIG:Release>:RY_DIST>               # equals Premake "Dist"
 )
-
+setupBinary(Rynex-Editor)
 if(WIN32)
     target_compile_definitions(
             Rynex-Editor
@@ -47,23 +48,3 @@ else()
                 RY_PLATFORM_LINUX
     )
 endif()
-
-# rynex_deploy_resources(
-#       Rynex-Editor
-#
-#       SOURCE_DIR
-#         ${CMAKE_CURRENT_SOURCE_DIR}
-#
-#       # LINK_DIRS
-#         # Editor-Assets
-#         # Resources
-#         # SandboxProject
-#         # mono
-#
-#       LINK_FILES
-#         imgui.ini
-#
-#       MAKE_DIRS
-#         DLLs
-#         Profile
-# )

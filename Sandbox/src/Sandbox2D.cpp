@@ -131,7 +131,7 @@ void Sandbox2D::OnAttach()
 	m_FullScreenQuade->SetPrimitv(Rynex::VertexArray::Primitv::TraingleStrips);
 
 	
-	m_FullScreenShader = Rynex::ShaderImporter::LoadShader("../Rynex-Editor/Editor-Assets/shaders/FullScreeShader.glsl", "FullScreeShader", false);
+	m_FullScreenShader = Rynex::ShaderImporter::LoadShader("Engine-Resources/Editor-Assets/shaders/FullScreeShader.glsl", "FullScreeShader", false);
 
 	RY_ASSERT(m_FullScreenShader && indexBuffer && vertexBuffer && m_FullScreenQuade, "Screen Rendering ERROR");
 #endif
@@ -203,7 +203,7 @@ void Sandbox2D::OnAttach()
 	{
 		Rynex::Entity entityE = m_AktiveScene->CreateEntity("Entity");
 		Rynex::SpriteRendererComponent& spriteC = entityE.AddComponent<Rynex::SpriteRendererComponent>();
-		spriteC.Texture = Rynex::TextureImporter::LoadTexture("../Rynex-Editor/Editor-Assets/textures/Checkerboard.png");
+		spriteC.Texture = Rynex::TextureImporter::LoadTexture("Engine-Resources/Editor-Assets/textures/Checkerboard.png");
 		spriteC.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		if (!entityE.HasComponent<Rynex::TransformComponent>())
 			entityE.AddComponent<Rynex::TransformComponent>();

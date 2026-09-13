@@ -97,7 +97,7 @@ namespace Rynex {
         m_SelctedTarget.SetFramebuffer(m_SelectedFramebuffer);
         m_SelctedTarget.SetClearColorAttachment(0, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
-        m_Filtering = AssetManager::GetAsset<Shader>("../Rynex-Editor/Editor-Assets/shaders/Compute.glsl");
+        m_Filtering = AssetManager::GetAsset<Shader>("Engine-Resources/Editor-Assets/shaders/Compute.glsl");
 
         m_AktiveScene = m_EditorLayer->GetAktivScene();
         m_GizmoType = m_EditorLayer->GetPtrGizmoType();

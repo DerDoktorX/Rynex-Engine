@@ -154,7 +154,7 @@ namespace Rynex {
 	{		
 		
 		if (!m_Default)
-			m_Default = CreateRef<Font>("../Rynex-Editor/Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf");
+			m_Default = CreateRef<Font>("Engine-Resources/Resources/fonts/Open_Sans/static/OpenSans-Bold.ttf");
 
 		return m_Default;
 	}
