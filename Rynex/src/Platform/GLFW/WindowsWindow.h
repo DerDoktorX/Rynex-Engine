@@ -1,10 +1,7 @@
 #pragma once
 
-#include "Rynex/Core/Window.h"
-
-#include "Rynex/Events/MouseEvent.h"
-#include "Rynex/Events/KeyEvent.h"
-
+#include <Rynex/Core/Window.h>
+#include <Rynex/Events/MouseEvent.h>
 #include <GLFW/glfw3.h>
 
 namespace Rynex {
@@ -33,7 +30,8 @@ namespace Rynex {
 		virtual bool IsFocused() const override;
 		virtual bool IsVSync() const override;
 
-		inline virtual void* GetNativeWindow() const override { return m_Window; }
+		[[nodiscard]] GLFWwindow* GetWindowPtr() const { return m_Window; }
+		inline virtual void* GetNativeWindow() const override { return GetWindowPtr(); }
 		virtual GraphicsContext* GetGraphicsContext() override { return m_Context.get(); }
 
 		virtual Ref<ThreadContext> CreateThreadeContext() override;

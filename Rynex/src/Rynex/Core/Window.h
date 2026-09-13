@@ -1,12 +1,16 @@
 #pragma once
 
-#include "rypch.h"
-#include "Rynex/Events/Event.h"
-#include "Rynex/Renderer/API/GraphicsContext.h"
+
+#include <Rynex/Events/Event.h>
+#include <Rynex/Renderer/API/GraphicsContext.h>
+struct GLFWwindow;
+
 
 namespace Rynex {
 
 	class ThreadContext;
+	class WindowsWindow;
+
 
 	struct RYNEX_API WindowProps
 	{
@@ -57,5 +61,12 @@ namespace Rynex {
 		virtual Ref<ThreadContext> CreateThreadeContext() = 0;
 
 		static Scope<Window> Create(const WindowProps& props = WindowProps());
+
 	};
+
+
+
+
+
+
 }

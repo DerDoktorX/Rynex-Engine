@@ -30,6 +30,8 @@ namespace Rynex {
 	}
 
 
+
+
 	WindowsWindow::WindowsWindow(const WindowProps& props)
 	{
 		Init(props);
