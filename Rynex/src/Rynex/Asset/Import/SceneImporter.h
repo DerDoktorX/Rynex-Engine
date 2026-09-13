@@ -1,6 +1,6 @@
 #pragma once
-#include "Rynex/Scene/Scene.h"
-#include "Rynex/Asset/Base/AssetMetadata.h"
+#include <Rynex/Scene/Scene.h>
+#include <Rynex/Asset/Base/AssetMetadata.h>
 
 
 namespace Rynex {

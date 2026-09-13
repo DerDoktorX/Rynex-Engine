@@ -1,7 +1,7 @@
 #pragma once
-#include "Rynex/Asset/Base/Asset.h"
-#include "Rynex/Asset/Base/AssetMetadata.h"
-#include "Rynex/Renderer/API/Texture.h"
+#include <Rynex/Asset/Base/Asset.h>
+#include <Rynex/Asset/Base/AssetMetadata.h>
+#include <Rynex/Renderer/API/Texture.h>
 
 namespace Rynex {
 

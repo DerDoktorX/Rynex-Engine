@@ -1,7 +1,7 @@
 #include "rypch.h"
 #include "ModelImporter.h"
 
-#include "Rynex/Asset/Base/AssetManager.h"
+#include <Rynex/Asset/Base/AssetManager.h>
 
 
 #ifdef RY_ASSIMP_MODEL_LODER

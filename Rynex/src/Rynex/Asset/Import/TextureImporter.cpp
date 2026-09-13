@@ -1,7 +1,7 @@
 #include "rypch.h"
 #include "TextureImporter.h"
 
-#include "Rynex/Asset/Base/AssetManager.h"
+#include <Rynex/Asset/Base/AssetManager.h>
 
 #include <stb_image/stb_image.h>
 #include <stb_image/stb_image_write.h>

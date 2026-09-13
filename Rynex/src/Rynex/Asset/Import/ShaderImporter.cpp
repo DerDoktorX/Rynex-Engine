@@ -1,7 +1,7 @@
 #include "rypch.h"
 #include "ShaderImporter.h"
 
-#include "Rynex/Asset/Base/AssetManager.h"
+#include <Rynex/Asset/Base/AssetManager.h>
 
 namespace Rynex {
 
