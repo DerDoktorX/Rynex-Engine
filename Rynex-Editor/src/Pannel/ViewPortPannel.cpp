@@ -586,11 +586,8 @@ namespace Rynex {
         ImVec2 uv0{ 0, 1 };
         ImVec2 uv1{ 1, 0 };
        
-        ImTextureID imguiTextureID = reinterpret_cast<ImTextureID>(&textureID);
-        ImGui::Image(
-            imguiTextureID,
-            viewportPannelSize
-        );
+        ImTextureID imguiTextureID = textureID;
+        ImGui::Image(imguiTextureID,viewportPannelSize, uv0, uv1);
 
         // Drag and drop conten Broser
         DragAndDrop();
@@ -618,14 +615,10 @@ namespace Rynex {
 
                     glm::vec2 textureDisplaySize = CalculateImageWindowSize(m_FontTex);
                     ImVec2 displaySize = Utils::Convert_GLMvec2_In_ImVec2(textureDisplaySize);
-                    ImTextureID imguiShadowID = reinterpret_cast<ImTextureID>(&shadowID);
+                    ImTextureID imguiShadowID = shadowID;
                     ImVec2 uv0{ 0, 1 };
                     ImVec2 uv1{ 1, 0 };
-                    ImGui::Image(
-                        imguiShadowID, 
-                        displaySize
-                       
-                    );
+                    ImGui::Image(  imguiShadowID, displaySize, uv0, uv1);
                 }
                 ImGui::End();
             }
@@ -717,12 +710,12 @@ namespace Rynex {
                         glm::vec2 textureDisplaySize = CalculateImageWindowSize(m_FontTex);
                         ImVec2 displaySize = Utils::Convert_GLMvec2_In_ImVec2(textureDisplaySize);
 
-                        ImTextureID textureID = reinterpret_cast<ImTextureID>(&shadowID);
+                        ImTextureID textureID = shadowID;
                         ImVec2 uv0{ 0, 1 };
                         ImVec2 uv1{ 1, 0 };
                         ImVec4 backgroundColor{ 1.0f, 1.0f, 1.0f, 1.0f };
                         ImVec4 color{ 0.0f, 0.0f, 0.0f, 0.0f };
-                        ImGui::Image(textureID, displaySize);
+                        ImGui::Image(textureID, displaySize, uv0, uv1, backgroundColor, color);
 
 
                     }
@@ -755,7 +748,7 @@ namespace Rynex {
                             viewPortX = viewPortY * aspectRoation;
                             viewPortY = viewPortY;
                         }
-                        ImTextureID textureID = reinterpret_cast<ImTextureID>(&attechmentID);
+                        ImTextureID textureID = attechmentID;
                         ImVec2 uv0{ 0, 1 };
                         ImVec2 uv1{ 1, 0 };
                         ImVec4 backgroundColor{ 1.0f, 1.0f, 1.0f, 1.0f };
@@ -764,7 +757,7 @@ namespace Rynex {
                             (shadowMap->GetWidth() / shadowMap->GetHeight()) * viewportPannelShadowSize.y,
                             viewportPannelShadowSize.y
                         };
-                        ImGui::Image(textureID, textureSize);
+                        ImGui::Image(textureID, textureSize, uv0, uv1, backgroundColor, textureColor);
 
 
 

@@ -170,7 +170,7 @@ namespace Rynex {
 				break;
 		}
 		RY_CORE_ASSERT(false, "Error not defined FileStats: ContentBrowserPannel::SetFileStateColor!");
-		return ImVec4(0, 0, 0, 1);
+		return ImVec4(0.0, 0, 0.0, 1);
 	}
 
 	void ContentBrowserPannel::AssetPannel()
@@ -222,16 +222,18 @@ namespace Rynex {
 				else if (data.IsFolder)
 				{
 					ImGui::PushID(data.Name.c_str());
-					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-					if (data.Path != m_BaseDirectory / "Loadead (NotAssetFiles)" && data.Path != m_BaseDirectory / "Unknown File Types")
+
+					ImVec4 sytelColor{0.0f, 0.0f, 0.0f, 0.0f};
+					ImGui::PushStyleColor(ImGuiCol_Button, sytelColor);
+					if (data.Path != m_BaseDirectory / "Loaded (NotAssetFiles)" && data.Path != m_BaseDirectory / "Unknown File Types")
 					{
 						uint32_t textureID = m_DirectoryIcon->GetRenderID();
-						ImTextureID imTextureID = reinterpret_cast<ImTextureID>(&textureID);
+						ImTextureID imTextureID = textureID;
 						ImVec2 textureSize{ thumbernailSize , thumbernailSize };
-						ImVec2 uv1{ 0, 1 };
-						ImVec2 uv2{ 1, 0 };
-						ImVec4 bacgroundColor{ 0.15f, 0.85f, 0.2f, 0.1f };
-						ImVec4 iconColor{ 1, 1, 1, 1 };
+						ImVec2 uv1{ 0.f, 1.f };
+						ImVec2 uv2{ 1.f, 0.f };
+						ImVec4 bacgroundColor{ 0.15f, 0.85f, 0.2f, 0.15f };
+						ImVec4 iconColor{ 1.f, 1.f, 1.f, 1.f };
 
 						ImGui::ImageButton(
 							"",
@@ -241,19 +243,20 @@ namespace Rynex {
 							uv2,
 							bacgroundColor,
 							iconColor
+
 						);
 					}
 					else
 					{
 						uint32_t textureID = m_DirectoryIcon->GetRenderID();
-						ImTextureID imTextureID = reinterpret_cast<ImTextureID>(&textureID);
+						ImTextureID imTextureID = textureID;
 						
 						ImVec2 textureSize{ thumbernailSize , thumbernailSize };
-						ImVec2 uv1{ 0, 1 };
-						ImVec2 uv2{ 1, 0 };
-						ImVec4 bacgroundColor{ 0.15f, 0.85f, 0.2f, 0.1f };
-						ImVec4 iconColor{ 1, 1, 1, 1 };
+						ImVec2 uv1{ 0.f, 1.f };
+						ImVec2 uv2{ 1.f, 0.f };
+						ImVec4 bacgroundColor{ 0.875f, 0.875f, 0.35f, 0.5f };
 
+						ImVec4 iconColor{ 1.f, 1.f, 1.f, 1.f };
 						ImGui::ImageButton(
 							"",
 							imTextureID, 
@@ -262,6 +265,7 @@ namespace Rynex {
 							uv2,
 							bacgroundColor,
 							iconColor
+
 						);
 					}
 
@@ -322,7 +326,7 @@ namespace Rynex {
 		AssetHandle& handle = data.Handle;
 		AssetType& type = data.Type;
 
-		if (relativProjectPath == "")
+		if (relativProjectPath.empty())
 			relativProjectPath = std::filesystem::relative(path, m_BaseDirectory);
 
 		std::string& name = data.Name;
@@ -389,22 +393,28 @@ namespace Rynex {
 		}
 
 		AssetState& state = data.State;
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+		ImVec4 colorSytle{0.0f, 0.0f, 0.0f, 0.0f };
+		ImGui::PushStyleColor(ImGuiCol_Button, colorSytle);
+
 		uint32_t renderID = texture->GetRenderID();
-		ImTextureID imTextureID = ImTextureID(renderID);
+		ImTextureID imTextureID = renderID;
 		ImVec2 textureSize = ImVec2{ thumbernailSize , thumbernailSize };
-		ImVec2 uv1 = ImVec2{ 0, 1 };
-		ImVec2 uv2 = ImVec2{ 1, 0 };
-		ImVec4 bacgroundColor = ImVec4{ 0.15f, 0.85f, 0.2f, 0.1f };
-		ImVec4 iconColor = GetAssetStateColor(state);
+		ImVec2 uv1 = ImVec2{ 0.f, 1.f };
+		ImVec2 uv2 = ImVec2{ 1.f, 0.f };
+		ImVec4 backgroundColor{ 0.15f, 0.85f, 0.2f, 0.1f };
+		ImVec4 iconColor= GetAssetStateColor(state);
+
+
 		ImGui::ImageButton(
 			"",
 			imTextureID,
 			textureSize,
 			uv1,
 			uv2,
-			bacgroundColor,
+
+			backgroundColor,
 			iconColor
+
 		);
 
 		if (state == AssetState::LostConection || state == AssetState::Error)
@@ -512,7 +522,7 @@ namespace Rynex {
 				break;
 		}
 		RY_CORE_ASSERT(false, "Error not defined FileStats: ContentBrowserPannel::SetFileStateColor!");
-		return ImVec4(0, 0, 0, 1);
+		return ImVec4(0, 0, 0, 1.0);
 	}
 
 
@@ -572,7 +582,6 @@ namespace Rynex {
 		for (auto& folderDealte : m_DealeteFolderList)
 		{
 			RY_CORE_ASSERT(false, "Folder Dealte System Not Finished!");
-			
 		}
 	}
 
@@ -663,7 +672,6 @@ namespace Rynex {
 		}
 		case filewatch::Event::removed:
 		{
-
 			Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
 			assetManger->EventAsyncRemoved(filePath);
 			break;
