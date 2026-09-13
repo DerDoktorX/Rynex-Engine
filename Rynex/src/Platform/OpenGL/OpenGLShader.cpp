@@ -756,7 +756,7 @@ namespace Rynex {
 				defineLine += valueDefine;
 				defineLine += lineEnd;
 
-				size_t newCountLine = UINT64_MAX;
+				size_t newCountLine = std::numeric_limits<uint64_t>::max();
 				defineInShaderCodeDeclarted.clear();
 				defineInShaderCodeDeclarted += lineEnd;
 				defineInShaderCodeDeclarted += typeChar;

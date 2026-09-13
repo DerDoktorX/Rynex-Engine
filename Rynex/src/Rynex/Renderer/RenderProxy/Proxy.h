@@ -55,7 +55,7 @@ namespace Rynex{
 		{
 			meshBatch.Check();
 			RY_CORE_ASSERT(-1 != entity, "Invaild Proxy Mesh!");
-			RY_CORE_ASSERT(MAXUINT32 != subMesh, "Invaild Proxy Mesh!");
+			RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() != subMesh, "Invaild Proxy Mesh!");
 		}
 
 		

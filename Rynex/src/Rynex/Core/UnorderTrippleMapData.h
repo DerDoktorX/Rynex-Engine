@@ -797,7 +797,7 @@ namespace Rynex {
 
 #pragma region Range
 
-		// x,r = UINT32_MAX / y,g = Uint32_MIN
+		// x,r =  std::numeric_limits<uint32_t>::max() / y,g =  std::numeric_limits<uint32_t>::min()
 		static glm::uvec2 MinMaxRange() { return glm::uvec2{ static_cast<uint32_t>(-1), 0 }; }
 
 		// x,r = Min Index / y,g = Max Index

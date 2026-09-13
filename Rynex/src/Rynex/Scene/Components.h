@@ -366,7 +366,7 @@ namespace Rynex {
 		bool Render2DSprites = true;
 		bool Render2DText = true;
 		bool RenderIcons = true;
-		uint32_t StroeIndex = MAXUINT32;
+		uint32_t StroeIndex = std::numeric_limits<uint32_t>::max();
 		
 		RenderTargetComponent() = default;
 		RenderTargetComponent(const RenderTargetComponent& renderTargetC)
@@ -382,7 +382,7 @@ namespace Rynex {
 			, Render3DMeshes(renderTargetC.Render3DMeshes)
 			, Render2DSprites(renderTargetC.Render2DSprites)
 			, RenderIcons(renderTargetC.RenderIcons)
-			, StroeIndex(MAXUINT32)
+			, StroeIndex(std::numeric_limits<uint32_t>::max())
 		{
 		}
 	};

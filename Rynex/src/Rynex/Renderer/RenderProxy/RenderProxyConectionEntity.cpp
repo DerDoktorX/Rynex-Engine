@@ -19,7 +19,7 @@ namespace Rynex {
 		RY_CORE_ASSERT(!indicesSubMeshVec.empty(), "The list is empty so sub mesh count not me in it! And the key shoud not any longer exist!");
 
 		uint32_t indicesSubMeshIndex = GetSubMeshVecIndexByBinarySearch(indicesSubMeshVec, subMesh);
-		RY_CORE_ASSERT(UINT32_MAX != indicesSubMeshIndex, "Not found proxy Index from sub mesh!");
+		RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() != indicesSubMeshIndex, "Not found proxy Index from sub mesh!");
 
 		return indicesSubMeshVec.at(indicesSubMeshIndex);
 	}
@@ -33,7 +33,7 @@ namespace Rynex {
 		RY_CORE_ASSERT(!indexSubMeshVec.empty(), "The list is empty so sub mesh count not me in it!");
 
 		uint32_t subMeshProxyIndex = GetSubMeshProxyIndexByBinarySearch(indexSubMeshVec, subMesh);
-		RY_CORE_ASSERT(UINT32_MAX != subMeshProxyIndex, "Not found proxy Index from sub mesh!");
+		RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() != subMeshProxyIndex, "Not found proxy Index from sub mesh!");
 
 		return subMeshProxyIndex;
 	}
@@ -59,7 +59,7 @@ namespace Rynex {
 		RY_CORE_ASSERT(!indicesSubMeshVec.empty(), "The list is empty so sub mesh count not me in it! And the key shoud not any longer exist!");
 
 		uint32_t indicesSubMeshIndex = GetSubMeshVecIndexByBinarySearch(indicesSubMeshVec, subMesh);
-		RY_CORE_ASSERT(UINT32_MAX != indicesSubMeshIndex, "Not found proxy Index from sub mesh!");
+		RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() != indicesSubMeshIndex, "Not found proxy Index from sub mesh!");
 		ItErase begin = indicesSubMeshVec.begin();
 		ItErase erasePos = begin + indicesSubMeshIndex;
 		uint32_t proxyIndex = indicesSubMeshVec.at(indicesSubMeshIndex).proxyIndex;
@@ -282,7 +282,7 @@ namespace Rynex {
 
 		if (firstSubMesh.subMesh == subMesh)
 			return searchIndex;
-		return UINT32_MAX;
+		return std::numeric_limits<uint32_t>::max();
 	}
 
 	uint32_t RenderProxyConectionEntity::GetSubMeshProxyIndexLast(const std::vector<IndexSubMesh>& subMeshIniciesVec, uint32_t subMesh)
@@ -290,12 +290,12 @@ namespace Rynex {
 		uint32_t count = subMeshIniciesVec.size();
 		uint32_t searchIndex = count - 1u;
 
-		RY_CORE_ASSERT(UINT32_MAX != searchIndex, "Buffer Overflow!");
+		RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() != searchIndex, "Buffer Overflow!");
 		const IndexSubMesh& lastSubMesh = subMeshIniciesVec.at(searchIndex);
 
 		if (lastSubMesh.subMesh == subMesh)
 			return searchIndex;
-		return UINT32_MAX;
+		return std::numeric_limits<uint32_t>::max();
 	}
 
 	uint32_t RenderProxyConectionEntity::GetSubMeshProxyIndexSelfIndex(const std::vector<IndexSubMesh>& subMeshIniciesVec, uint32_t subMesh)
@@ -309,7 +309,7 @@ namespace Rynex {
 			if (firstSubMesh.subMesh == subMesh)
 				return subMesh;
 		}
-		return UINT32_MAX;
+		return std::numeric_limits<uint32_t>::max();
 	}
 	
 	uint32_t RenderProxyConectionEntity::GetSubMeshProxyIndexOptimalPostion(const std::vector<IndexSubMesh>& subMeshIniciesVec, uint32_t subMesh)
@@ -320,18 +320,18 @@ namespace Rynex {
 		(hitCount[0])++;
 
 		if (subMeshIniciesVec.empty())
-			return UINT32_MAX;
+			return std::numeric_limits<uint32_t>::max();
 
 		(hitCount[1])++;
 
 		uint32_t foundIndex = GetSubMeshProxyIndexSelfIndex(subMeshIniciesVec, subMesh);
-		if (UINT32_MAX != foundIndex)
+		if (std::numeric_limits<uint32_t>::max() != foundIndex)
 			return foundIndex;
 
 
 		(hitCount[2])++;
 		foundIndex = GetSubMeshProxyIndexFirst(subMeshIniciesVec, subMesh);
-		if (UINT32_MAX != foundIndex)
+		if (std::numeric_limits<uint32_t>::max() != foundIndex)
 			return foundIndex;
 
 		(hitCount[3])++;
@@ -339,7 +339,7 @@ namespace Rynex {
 		foundIndex = GetSubMeshProxyIndexLast(subMeshIniciesVec, subMesh);
 
 
-		hitCount[4] = UINT32_MAX != foundIndex ? hitCount[4] + 1 : hitCount[4];
+		hitCount[4] = std::numeric_limits<uint32_t>::max() != foundIndex ? hitCount[4] + 1 : hitCount[4];
 
 
 		return foundIndex;
@@ -376,18 +376,18 @@ namespace Rynex {
 		}
 		RY_CORE_ERROR("Out side off bounderies (sub mesh Proxy Index) Not Found!");
 
-		return UINT32_MAX;
+		return std::numeric_limits<uint32_t>::max();
 	}
 
 
 	uint32_t RenderProxyConectionEntity::GetSubMeshVecIndexByBinarySearch(const std::vector<IndexSubMesh>& subMeshIniciesVec, uint32_t subMesh)
 	{
 		if (subMeshIniciesVec.empty())
-			return UINT32_MAX;
+			return std::numeric_limits<uint32_t>::max();
 
 
 		uint32_t subMeshOptimalIndex = GetSubMeshProxyIndexOptimalPostion(subMeshIniciesVec, subMesh);
-		if (UINT32_MAX != subMeshOptimalIndex)
+		if (std::numeric_limits<uint32_t>::max() != subMeshOptimalIndex)
 			return subMeshOptimalIndex;
 
 		uint32_t lowerBound = 0u;
@@ -414,7 +414,7 @@ namespace Rynex {
 
 		}
 		RY_CORE_ERROR("Out side off bounderies (IndicesSubMesh Index) Not Found!");
-		return UINT32_MAX;
+		return std::numeric_limits<uint32_t>::max();
 	}
 
 	uint32_t RenderProxyConectionEntity::GetSubMeshVecInsertIndexByBinarySearch(const std::vector<IndexSubMesh>& subMeshIniciesVec, uint32_t subMesh)
@@ -434,7 +434,7 @@ namespace Rynex {
 			if (subMesh == subMeshValue)
 			{
 				RY_CORE_FATAL("We found an equal to subMesh:= {} Stores Index:= on index:= {}!", subMesh, indexSubMesh.proxyIndex, m);
-				return UINT32_MAX;
+				return std::numeric_limits<uint32_t>::max();
 			}
 
 			if (subMesh < subMeshValue)
@@ -459,7 +459,7 @@ namespace Rynex {
 		}
 
 		RY_CORE_TRACE("We found an insert Index on index:= {}", lowerBound);
-		return UINT32_MAX;
+		return std::numeric_limits<uint32_t>::max();
 	}
 
 }

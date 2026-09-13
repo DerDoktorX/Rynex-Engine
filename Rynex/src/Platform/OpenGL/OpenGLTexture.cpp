@@ -212,7 +212,7 @@ namespace Rynex{
 			case TextureTarget::TextureCubeMap:
 			default:
 				RY_CORE_ASSERT(false, "Wrong Texture Target Fomrate! For Texture Array!");
-				return MAXUINT32;
+				return std::numeric_limits<uint32_t>::max();
 			}
 		}
 

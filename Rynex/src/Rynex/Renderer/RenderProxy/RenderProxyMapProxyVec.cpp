@@ -82,7 +82,7 @@ namespace Rynex {
             return false;
 
         uint32_t proxyIndex = m_ProxyInidicesVec.at(stableIndex);
-        return UINT32_MAX != proxyIndex;
+        return std::numeric_limits<uint32_t>::max() != proxyIndex;
     }
 
     
@@ -91,7 +91,7 @@ namespace Rynex {
     {
         RY_CORE_ASSERT(IsValid(stableIndex), "Buffer Overflow!");
         uint32_t proxyIndex = m_ProxyInidicesVec.at(stableIndex);
-        RY_CORE_ASSERT(UINT32_MAX != proxyIndex, "Proxy Store Index is Not Vaild!");
+        RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() != proxyIndex, "Proxy Store Index is Not Vaild!");
         return proxyIndex;
     }
 
@@ -99,7 +99,7 @@ namespace Rynex {
     {
         for (uint32_t& proxyAccesIndex : m_ProxyInidicesVec)
         {
-            if (MAXUINT32 != proxyAccesIndex && proxyAccesIndexInsert <= proxyAccesIndex)
+            if (std::numeric_limits<uint32_t>::max() != proxyAccesIndex && proxyAccesIndexInsert <= proxyAccesIndex)
             {
                 proxyAccesIndex++;
             }
@@ -114,7 +114,7 @@ namespace Rynex {
         {
             proxyIndex = GetIndexFromFreeList();
             uint32_t& indexProxy = m_ProxyInidicesVec.at(proxyIndex);
-            RY_CORE_ASSERT(UINT32_MAX == indexProxy, "The Stored Value is Vaild!");
+            RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() == indexProxy, "The Stored Value is Vaild!");
             indexProxy = proxyAccesIndexInsert;
         }
 #ifdef RY_TEST_CHECK_FOR_IDENTY
@@ -122,7 +122,7 @@ namespace Rynex {
         for (uint32_t x = 0; x < count; x++)
         {
             uint32_t proxyAceesX = m_ProxyInidicesVec.at(x);
-            if (UINT32_MAX == proxyAceesX)
+            if (std::numeric_limits<uint32_t>::max() == proxyAceesX)
                 continue;
 
 
@@ -141,7 +141,7 @@ namespace Rynex {
     {
 
         uint32_t removeProxyIndex = m_ProxyInidicesVec.at(proxyAccesIndexRemove);
-        m_ProxyInidicesVec.at(proxyAccesIndexRemove) = MAXUINT32;
+        m_ProxyInidicesVec.at(proxyAccesIndexRemove) = std::numeric_limits<uint32_t>::max();
 
         AddFreeList(proxyAccesIndexRemove);
         constexpr uint32_t maxFreeListSize = 150u;
@@ -152,7 +152,7 @@ namespace Rynex {
 
         for (uint32_t& proxyAccesIndex : m_ProxyInidicesVec)
         {
-            if (MAXUINT32 != proxyAccesIndex && proxyAccesIndex > removeProxyIndex)
+            if (std::numeric_limits<uint32_t>::max() != proxyAccesIndex && proxyAccesIndex > removeProxyIndex)
             {
                 proxyAccesIndex--;
             }
@@ -163,7 +163,7 @@ namespace Rynex {
         for (uint32_t x = 0; x < count; x++)
         {
             uint32_t proxyAceesX = m_ProxyInidicesVec.at(x);
-            if (UINT32_MAX == proxyAceesX)
+            if (std::numeric_limits<uint32_t>::max() == proxyAceesX)
                 continue;
 
 
@@ -316,7 +316,7 @@ namespace Rynex {
             }
         }
         RY_CORE_ERROR("Not found Proxy! Enity: ({}) / SubMesh: ({})", entity, subMesh);
-        return { RenderProxyKey{0}, UINT32_MAX }; 
+        return { RenderProxyKey{0}, std::numeric_limits<uint32_t>::max() };
     }
 
 

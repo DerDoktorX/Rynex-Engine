@@ -1302,7 +1302,7 @@ namespace Rynex {
 				&& CheckVertexArraysIdentical(vecIndicies, indiciesVec))
 				return i;
 		}
-		return MAXUINT32;
+		return std::numeric_limits<uint32_t>::max();
 	}
 
 	

@@ -21,7 +21,7 @@ namespace Rynex {
 	std::string FileDialoges::OpenFile(const char* filter, const char* beginDir)
 	{
 		OPENFILENAMEA ofn;
-		CHAR szFile[MAX_PATH] = { 0 };
+		CHAR szFile[MAX_PATH];
 		ZeroMemory(&ofn, sizeof(OPENFILENAME));
 
 		ofn.lStructSize = sizeof(OPENFILENAME);

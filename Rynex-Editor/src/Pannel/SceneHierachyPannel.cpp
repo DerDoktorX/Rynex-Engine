@@ -1606,7 +1606,7 @@ namespace Rynex {
 		if (e.GetScene() != m_Context)
 		{
 			RY_CORE_FATAL("Enitity was never part of this Scene!");
-			return MAXUINT32;
+			return std::numeric_limits<uint32_t>::max();
 		}
 		uint32_t index = e.GetEntityIndexHandle();
 		if (index < m_SceneList.size() && e == m_SceneList.at(index))
@@ -1621,10 +1621,10 @@ namespace Rynex {
 		}
 		RY_CORE_ERROR("Not Founded Eneitity In Lolcale Vec! search now Orignel Hirachie if we finde the the Entity the locale Vec will be overitten!");
 		
-		uint32_t foundIndex = MAXUINT32;
+		uint32_t foundIndex = std::numeric_limits<uint32_t>::max();
 		index = 0u;
 		m_Context->m_Registery.each([searchEnitity = e, this, &foundIndex, &index](entt::entity e) {
-			if (foundIndex != MAXUINT32)
+			if (foundIndex != std::numeric_limits<uint32_t>::max())
 				return;
 
 			Entity entity = Entity(e, m_Context.get());
@@ -1632,7 +1632,7 @@ namespace Rynex {
 				foundIndex = index;
 			index++;
 		});
-		if (foundIndex == MAXUINT32)
+		if (foundIndex == std::numeric_limits<uint32_t>::max())
 		{
 			RY_CORE_FATAL("Enitity Not Found Here!");
 			return foundIndex;

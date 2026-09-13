@@ -123,7 +123,7 @@ namespace Rynex {
 
         for (uint32_t& proxyAccesIndex : m_ProxyInidicesVec)
         {
-            if (MAXUINT32 != proxyAccesIndex && proxyIndexInsert <= proxyAccesIndex)
+            if (std::numeric_limits<uint32_t>::max() != proxyAccesIndex && proxyIndexInsert <= proxyAccesIndex)
             {
                 proxyAccesIndex++;
             }
@@ -140,7 +140,7 @@ namespace Rynex {
         {
             proxyIndex = GetIndexFromFreeList();
             uint32_t& indexProxy = m_ProxyInidicesVec.at(proxyIndex);
-            RY_CORE_ASSERT(UINT32_MAX == indexProxy, "The Stored Value is Vaild!");
+            RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() == indexProxy, "The Stored Value is Vaild!");
             indexProxy = proxyIndexInsert;
         }
 #ifdef RY_TEST_CHECK_FOR_IDENTY
@@ -148,7 +148,7 @@ namespace Rynex {
         for (uint32_t x = 0; x < count; x++)
         {
             uint32_t proxyAceesX = m_ProxyInidicesVec.at(x);
-            if (UINT32_MAX == proxyAceesX)
+            if (std::numeric_limits<uint32_t>::max() == proxyAceesX)
                 continue;
 
 
@@ -167,7 +167,7 @@ namespace Rynex {
     {
 
         uint32_t removeProxyIndex = m_ProxyInidicesVec.at(proxyAccesIndexRemove);
-        m_ProxyInidicesVec.at(proxyAccesIndexRemove) = MAXUINT32;
+        m_ProxyInidicesVec.at(proxyAccesIndexRemove) = std::numeric_limits<uint32_t>::max();
         
         AddFreeList(proxyAccesIndexRemove);
         constexpr uint32_t maxFreeListSize = 150u;
@@ -178,7 +178,7 @@ namespace Rynex {
 
         for (uint32_t& proxyAccesIndex : m_ProxyInidicesVec)
         {
-            if (MAXUINT32 != proxyAccesIndex && proxyAccesIndex > removeProxyIndex)
+            if (std::numeric_limits<uint32_t>::max() != proxyAccesIndex && proxyAccesIndex > removeProxyIndex)
             {
                 proxyAccesIndex--;
             }
@@ -189,7 +189,7 @@ namespace Rynex {
         for (uint32_t x = 0; x < count; x++)
         {
             uint32_t proxyAceesX = m_ProxyInidicesVec.at(x);
-            if (UINT32_MAX == proxyAceesX)
+            if (std::numeric_limits<uint32_t>::max() == proxyAceesX)
                 continue;
 
 

@@ -476,7 +476,7 @@ namespace Rynex {
 
 	bool DrawContext::RemoveRenderBufferGPUBufferVec(const RenderBufferGPU& rendbufferGPU, std::vector<RenderBufferGPU>& rendbufferGPUVec)
 	{
-		uint32_t index = MAXUINT32;
+		uint32_t index = std::numeric_limits<uint32_t>::max();
 		uint32_t i = 0;
 		for (const RenderBufferGPU& renderBuffer : rendbufferGPUVec)
 		{
@@ -487,7 +487,7 @@ namespace Rynex {
 			}
 		}
 
-		if (MAXUINT32 != index)
+		if (std::numeric_limits<uint32_t>::max() != index)
 		{
 			BufferPtrGPUVec::iterator it = rendbufferGPUVec.begin() + index;
 			rendbufferGPUVec.erase(it);

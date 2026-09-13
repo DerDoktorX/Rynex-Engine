@@ -34,7 +34,7 @@ namespace Rynex {
         glm::vec3       color = glm::vec3(1.0f);
         float           intensity = 1.0f;
         bool            castShadow = false;
-        uint32_t        shadowMapIndex = UINT32_MAX;   // UINT32_MAX = no shadow map assigned
+        uint32_t        shadowMapIndex = std::numeric_limits<uint32_t>::max();   // std::numeric_limits<uint32_t>::max() = no shadow map assigned
         entt::entity    entity = entt::null;
     };
 
@@ -48,7 +48,7 @@ namespace Rynex {
         float           linear = 0.022f;
         float           quadratic = 0.0019f;
         bool            castShadow = false;
-        uint32_t        shadowMapIndex = UINT32_MAX;
+        uint32_t        shadowMapIndex = std::numeric_limits<uint32_t>::max();
         entt::entity    entity = entt::null;
     };
 
@@ -62,7 +62,7 @@ namespace Rynex {
         float           InnerConeAngle = 0.95f;    // cos of inner half-angle
         float           OuterConeAngle = 0.90f;    // cos of outer half-angle
         bool            CastShadow = false;
-        uint32_t        ShadowMapIndex = UINT32_MAX;
+        uint32_t        ShadowMapIndex = std::numeric_limits<uint32_t>::max();
         entt::entity    Entity = entt::null;
     };
 

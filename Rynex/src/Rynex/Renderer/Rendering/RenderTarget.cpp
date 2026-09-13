@@ -759,7 +759,7 @@ namespace Rynex {
         RY_CORE_ASSERT(index < m_ShadeDrawList.Size());
 #else
 
-        uint32_t index = MAXUINT32;
+        uint32_t index = std::numeric_limits<uint32_t>::max();
 #endif
         RY_REMBER_FUNC_CHANGE("We need maby a suolution for this funtion or need to delted!");
         return index;

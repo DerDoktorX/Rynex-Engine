@@ -34,7 +34,8 @@ namespace Rynex {
 			{-1,-1,-1,1}, { 1,-1,-1,1}, {-1, 1,-1,1}, { 1, 1,-1,1},
 			{-1,-1, 1,1}, { 1,-1, 1,1}, {-1, 1, 1,1}, { 1, 1, 1,1}
 		};
-		glm::vec3 minCorner(FLT_MAX), maxCorner(-FLT_MAX);
+		glm::vec3 minCorner(std::numeric_limits<float>::max());
+		glm::vec3 maxCorner(-std::numeric_limits<float>::max());
 		for (auto& c : corners) {
 			glm::vec4 p = lightViewPost * c;
 			p /= p.w;

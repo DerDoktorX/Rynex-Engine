@@ -116,7 +116,7 @@ namespace Rynex {
 				RY_CORE_ERROR("ShaderDataType {} not defined", nameType.data());
 		}
 		RY_CORE_ASSERT(false, "Uknokn ShaderDataType!");
-		return MAXUINT32;
+		return std::numeric_limits<uint32_t>::max();
 	};
 
 

@@ -127,7 +127,7 @@ namespace Rynex {
         const void* GetDefaultParamDataPtr()  const;
         uint32_t GetDefaultParamDataSize() const;
 
-        // Index lookup — returns UINT32_MAX if not found.
+        // Index lookup — returns std:: if not found.
         uint32_t FindParamIndex(const std::string& name) const;
         uint32_t FindTextureSlotIndex(const std::string& name) const;
 

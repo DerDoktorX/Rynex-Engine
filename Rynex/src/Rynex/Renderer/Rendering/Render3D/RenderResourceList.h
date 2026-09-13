@@ -136,7 +136,7 @@ namespace Rynex {
 			if (it == m_ResourceFinder.end())
 				return it->second;
 			RY_CORE_ASSERT(false);
-			return MAXUINT32;
+			return std::numeric_limits<uint32_t>::max();
 		}
 
 		bool Has(const ResourceT& resource)

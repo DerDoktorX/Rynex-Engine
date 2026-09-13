@@ -59,17 +59,17 @@ namespace Rynex {
 		inline static constexpr const char* const s_NoneShaderSerilze = "None";
 
 
-		inline static constexpr uint32_t s_NoneTextureNameRuntime = MAXUINT32;
+		inline static constexpr uint32_t s_NoneTextureNameRuntime = std::numeric_limits<uint32_t>::max();
 		inline static constexpr uint32_t s_MainTextureNameRuntime = 0u;
 		inline static constexpr uint32_t s_FirstTextureNameRuntime = 1u;
 
-		inline static constexpr uint32_t s_NoneRenderPassRuntime = MAXUINT32;
+		inline static constexpr uint32_t s_NoneRenderPassRuntime = std::numeric_limits<uint32_t>::max();
 		inline static constexpr uint32_t s_FirstRenderPassRuntime = 0u;
 
-		inline static constexpr uint32_t s_NoneDrawListRuntime = MAXUINT32;
+		inline static constexpr uint32_t s_NoneDrawListRuntime = std::numeric_limits<uint32_t>::max();
 		inline static constexpr uint32_t s_FirstDrawListRuntime = 0u;
 
-		inline static constexpr uint32_t s_NoneShaderRuntime = MAXUINT32;
+		inline static constexpr uint32_t s_NoneShaderRuntime = std::numeric_limits<uint32_t>::max();
 		inline static constexpr uint32_t s_FirstShaderRuntime = 0u;
 	public:
 		struct Runtime

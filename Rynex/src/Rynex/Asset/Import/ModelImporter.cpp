@@ -240,7 +240,7 @@ namespace Rynex {
                 if (vertexPosArrayPtr == ptr)
                     return i;
             }
-            return MAXUINT32;
+            return std::numeric_limits<uint32_t>::max();
         }
 
         static MeshSource::SourceMesh ReadVertexData(aiMesh* mesh, std::vector<MeshSource::SourceVertex>& vertexSourceData, std::vector<aiVector3D*>& vertexPosArrayPtrList)
@@ -294,7 +294,7 @@ namespace Rynex {
             uint32_t indexPtr = GetIndexOfIdenticalPtrList(vertexPosArrayPtrList, vericiesPtr);
             uint32_t indexValue =MeshSource::GetIndexVertexArraysIdentical(vertexSourceData, &vertexData, &indciesData);
             uint32_t index = indexPtr == indexValue ? indexPtr : indexValue;
-            if (index == MAXUINT)
+            if (std::numeric_limits<uint32_t>::max() == index)
             {
                 index = vertexSourceData.size();
                
