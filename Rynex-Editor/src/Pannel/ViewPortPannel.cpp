@@ -640,7 +640,7 @@ namespace Rynex {
 #else // !RY_RENERER_DESIGN_CURENT_MAIN
         uint32_t count = 0u;
         Renderer::ForEchStoredPassedRenderPassIndex(
-            [this](const RenderPass& renderPass, uint32_t indexPass)
+            [this](const RenderPass& renderPass, uint32_t indexPass) -> void
             {
                 if ("Shadow" != renderPass.Name)
                     return;
@@ -803,14 +803,23 @@ namespace Rynex {
         m_Framebuffer->BindColorAttachmentImage(Acces::Read, m_RenderOnAtachment, 1);
         m_Image->BindImage(Acces::Write, 2);
 
-        RenderCommand::DispatcheCompute({ glm::ceil<uint32_t>(m_WindowSize.x / m_ComputeGrups.x)  , glm::ceil<uint32_t>(m_WindowSize.y / m_ComputeGrups.y)  , m_ComputeGrups.z });
+    	uint32_t withe = m_WindowSize.x;
+    	uint32_t heigth = m_WindowSize.y;
+    	uint32_t dimensionX = withe / m_ComputeGrups.x;
+    	uint32_t dimensionY = heigth / m_ComputeGrups.y;
+    	uint32_t dimensionZ =  static_cast<uint32_t>(m_ComputeGrups.z);
+    	glm::uvec3 dimensions{ dimensionX, dimensionY, dimensionZ };
+        RenderCommand::DispatcheCompute(dimensions);
         m_FinaleImage = m_Image;
     }
 
     void ViewPort::SetNewAktiveSecen(const Ref<Scene>& scene)
     {
         m_AktiveScene = scene;
-        m_AktiveScene->OnViewportResize(static_cast<uint32_t>(m_WindowSize.x), static_cast<uint32_t>(m_WindowSize.y));
+
+    	uint32_t withe = m_WindowSize.x;
+    	uint32_t heigth = m_WindowSize.y;
+        m_AktiveScene->OnViewportResize(withe, heigth);
     }
 
     void ViewPort::SetComputeInvocation(const glm::vec3& invocation)

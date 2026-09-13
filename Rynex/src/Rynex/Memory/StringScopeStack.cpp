@@ -72,7 +72,7 @@ namespace Rynex {
 			RY_CORE_TRACE("DrawContext Scope: {}", m_Scope);
 		}
 
-		std::string&& StringScopeStack::GetScopeToName(const std::string& name) const
+		std::string StringScopeStack::GetScopeToName(const std::string& name) const
 		{
 			if (m_Scope.empty())
 			{
@@ -86,7 +86,7 @@ namespace Rynex {
 			return std::string(posFirst, posEnd);
 		}
 
-		std::string&& StringScopeStack::GetScopeNamespaces() const
+		std::string StringScopeStack::GetScopeNamespaces() const
 		{
 			std::string scopeNamespaces;
 			scopeNamespaces.reserve(m_Scope.size());
@@ -110,10 +110,10 @@ namespace Rynex {
 				}
 				RY_CORE_ASSERT(0 <= openBrakets, "negativ openbarkets shoud never happen!");
 			}
-			return std::move(scopeNamespaces);
+			return scopeNamespaces;
 		}
 
-		std::string&& StringScopeStack::GetScopePath() const
+		std::string StringScopeStack::GetScopePath() const
 		{
 			return std::string(m_Scope);
 		}

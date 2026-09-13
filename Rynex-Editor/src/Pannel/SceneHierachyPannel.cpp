@@ -2296,9 +2296,10 @@ namespace Rynex {
 
 	void SceneHierachyPannel::ComponentTextGUI(Entity e, TextComponent& component)
 	{
-		static char bufferText[2048];
+		constexpr size_t bufferCount = 2048;
+		static char bufferText[bufferCount];
 		strcpy(bufferText, component.TextString.c_str());
-		if (ImGui::InputTextMultiline("Text String", bufferText, 2048))
+		if (ImGui::InputTextMultiline("Text String", bufferText, bufferCount))
 			component.TextString = bufferText;
 		ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
 

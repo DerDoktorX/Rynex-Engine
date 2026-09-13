@@ -36,8 +36,8 @@ namespace Rynex {
 		
 
 		std::map<filewatch::Event, std::string> FileWatcherEventMap = {
-			{ filewatch::Event::added,			"Event::added"},
-			{ filewatch::Event::modified,		"Event::modified"},
+			{ filewatch::Event::added,		"Event::added"},
+			{ filewatch::Event::modified,	"Event::modified"},
 			{ filewatch::Event::removed,		"Event::removed"},
 			{ filewatch::Event::renamed_new,	"Event::renamed_new"},
 			{ filewatch::Event::renamed_old,	"Event::renamed_old"},
@@ -142,7 +142,7 @@ namespace Rynex {
 		for (auto& p : std::filesystem::directory_iterator(curentPath))
 		{
 			const auto& path = p.path();
-			auto realtivPath = std::filesystem::relative(path, curentPath);
+			auto realtivpath = std::filesystem::relative(path, curentPath);
 
 			if (p.is_directory())
 			{
@@ -150,7 +150,7 @@ namespace Rynex {
 			}
 			else
 			{
-				ImGui::Text("%s", realtivPath.string().c_str());
+				ImGui::Text("%s", realtivpath.string().c_str());
 			}
 		}
 	}

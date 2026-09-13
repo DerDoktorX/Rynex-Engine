@@ -21,9 +21,9 @@ namespace Rynex{
 
 			void PrintScope()const;
 
-			std::string&& GetScopeToName(const std::string& name) const;
-			std::string&& GetScopeNamespaces()const;
-			std::string&& GetScopePath()const;
+			std::string GetScopeToName(const std::string& name) const;
+			std::string GetScopeNamespaces()const;
+			std::string GetScopePath()const;
 			void Clear();
 		private:
 			std::string m_Scope;
