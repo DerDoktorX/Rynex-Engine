@@ -7,6 +7,8 @@
 namespace Rynex {
 
 	class ThreadContext;
+	class WindowsWindow;
+	struct GLFWwindow;
 
 	struct RYNEX_API WindowProps
 	{
@@ -57,5 +59,13 @@ namespace Rynex {
 		virtual Ref<ThreadContext> CreateThreadeContext() = 0;
 
 		static Scope<Window> Create(const WindowProps& props = WindowProps());
+		static GLFWwindow* GetWindowGLFWwindowPt(Weak<Window> windowWeak);
+
 	};
+
+
+
+
+
+
 }

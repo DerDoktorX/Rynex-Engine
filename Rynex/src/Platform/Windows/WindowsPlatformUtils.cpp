@@ -3,8 +3,8 @@
 #include<Rynex/Utils/PlatformUtils.h>
 #include<Rynex/Core/Application.h>
 
-
 #include <GLFW/glfw3.h>
+
 #if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
@@ -20,27 +20,42 @@ namespace Rynex {
 #if defined(RY_PLATFORM_WINDOWS) && RY_PLATFORM_WINDOWS
 	std::string FileDialoges::OpenFile(const char* filter, const char* beginDir)
 	{
+		constexpr uint32_t MAC_PATH_CHAR_COUNT = MAX_PATH;
 		OPENFILENAMEA ofn;
-		CHAR szFile[MAX_PATH];
+		CHAR szFile[MAC_PATH_CHAR_COUNT] = "";
 		ZeroMemory(&ofn, sizeof(OPENFILENAME));
 
+
 		ofn.lStructSize = sizeof(OPENFILENAME);
-		ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow());
+		Weak<Window> windowWeak = Application::Get().GetWindowWeak();
+		GLFWwindow* windowPtr = Window::GetWindowPtr<GLFWwindow>(windowWeak);
+		ofn.hwndOwner = glfwGetWin32Window(windowPtr);
 		ofn.lpstrFile = szFile;
 		ofn.nMaxFile = sizeof(szFile);
-		if(beginDir!="")
+
+		std::string begindirView(beginDir);
+		if(!begindirView.empty())
 		{
-			if (GetCurrentDirectoryA(256, (char*)beginDir))
+			char* filePathCharPtr = &begindirView[0];
+			if (GetCurrentDirectoryA(MAC_PATH_CHAR_COUNT, filePathCharPtr))
 				ofn.lpstrInitialDir = beginDir;
 		}
+
+		// Sets the default extension by extracting it from the filter
 		ofn.lpstrFilter = filter;
 		ofn.nFilterIndex = 1;
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+		std::string fileSellected;
+		if (GetOpenFileNameA(&ofn))
+		{
+			if(nullptr == ofn.lpstrFile)
+				return fileSellected;
 
-		if (GetOpenFileNameA(&ofn) == TRUE)
-			return ofn.lpstrFile ? ofn.lpstrFile : std::string("");
+			fileSellected = ofn.lpstrFile;
+			RY_CORE_INFO("Fished OpenFile Success!");
+		}
 		
-		return std::string("");
+		return fileSellected;
 	}
 
 	std::string FileDialoges::SaveFile(const char* filter)
@@ -50,7 +65,9 @@ namespace Rynex {
 
 		ZeroMemory(&ofn, sizeof(OPENFILENAME));
 		ofn.lStructSize = sizeof(OPENFILENAME);
-		ofn.hwndOwner = glfwGetWin32Window((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow());
+		Weak<Window> windowWeak = Application::Get().GetWindowWeak();
+		GLFWwindow* windowPtr = Window::GetWindowPtr<GLFWwindow>(windowWeak);
+		ofn.hwndOwner = glfwGetWin32Window(windowPtr);
 		ofn.lpstrFile = szFile;
 		ofn.nMaxFile = sizeof(szFile);
 
@@ -60,11 +77,11 @@ namespace Rynex {
 
 		// Sets the default extension by extracting it from the filter
 		ofn.lpstrDefExt = strchr(filter, '\0') + 1;
+		std::string result;
+		if (GetSaveFileNameA(&ofn))
+			result = ofn.lpstrFile;
 
-		if (GetSaveFileNameA(&ofn) == TRUE)
-			return ofn.lpstrFile;
-
-		return std::string();
+		return result;
 	}
 
 	std::string FileDialoges::SelectFolder()
@@ -73,7 +90,10 @@ namespace Rynex {
 		ZeroMemory(&bi, sizeof(BROWSEINFOA));
 		CHAR szPath[MAX_PATH] = { 0 };
 
-		bi.hwndOwner = glfwGetWin32Window((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow());
+		Weak<Window> windowWeak = Application::Get().GetWindowWeak();
+		GLFWwindow* windowPtr = Window::GetWindowPtr<GLFWwindow>(windowWeak);
+
+		bi.hwndOwner = glfwGetWin32Window(windowPtr);
 		bi.pszDisplayName = szPath;
 		
 		bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
