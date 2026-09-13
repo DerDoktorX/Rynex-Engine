@@ -25,13 +25,13 @@ namespace Rynex {
 
     struct MeshLodingData
     {
-        Ref<Mesh> MeshR;
-        uint32_t MaterielIndex;
+        Ref<Mesh> meshR;
+        uint32_t materielIndex;
     };
 
     struct Data
     {
-        std::filesystem::path CurentFilePathExtention = "";
+        std::filesystem::path curentFilePathExtention = "";
     };
 
     static Data s_Data = Data();
@@ -373,7 +373,7 @@ namespace Rynex {
         RY_CORE_INFO("Beginn Loding Moddel {}", path.string());
         startTimePoint = std::chrono::high_resolution_clock::now();
 
-        s_Data.CurentFilePathExtention = path.extension();
+        s_Data.curentFilePathExtention = path.extension();
 
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile(path.string().c_str(),

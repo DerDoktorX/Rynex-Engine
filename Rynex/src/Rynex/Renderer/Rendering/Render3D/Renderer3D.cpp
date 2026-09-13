@@ -51,57 +51,18 @@
 namespace Rynex {
 
 
-	struct ShaderDrawEntityList2
-	{
-		Ref<Shader>			Shader;
-		Ref<StorageBuffer>	OffsetBuffer;
-		Ref<StorageBuffer>	ObjectBuffer;
-		Ref<IndirectBuffer>	drawBuffer;
-
-		IndirectDrawMap<MeshRenderObjectTransform> DrawMap;
-	};
-
-	struct ShaderDrawEntityListShadow
-	{
-		Ref<Shader>			Shader;
-		Ref<StorageBuffer>	OffsetBuffer;
-		Ref<StorageBuffer>	ObjectBuffer;
-		Ref<IndirectBuffer>	drawBuffer;
-
-		IndirectDrawMap<glm::mat4> DrawMap;
-	};
 
 
 
-	namespace Utils {
 
-		template<typename T>
-		static void SubmitMeshObject(MapVector<UUID, T>& mapVec, const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const std::vector<uint32_t>& indicesMeshes, const glm::mat4& model, int entityID)
-		{
-
-			const UUID& id = shader->Handle;
-			if (!mapVec.HasKey(id))
-			{
-				T& shaderDrawList = mapVec.AddData(id, T{ shader });
-				shaderDrawList.DrawMap.SubmitMeshes(mesh, indicesMeshes, entityID, model);
-			}
-			else
-			{
-				// ShaderDrawEntityList2& list2 = FindShaderDrawList2(shader, entityID);
-				T& shaderDrawList = mapVec.GetDataFromKey(id);
-				shaderDrawList.DrawMap.SubmitMeshes(mesh, indicesMeshes, entityID, model);
-			}
-		}
-
-	}
 
 	struct DrawContent
 	{
-		Ref<VertexBuffer> VertexB;
-		Ref<IndexBuffer> IndexB;
-		uint32_t BaseVertex;
-		uint32_t FirstIndex;
-		uint32_t LodLevel = 0;
+		Ref<VertexBuffer> vertexB;
+		Ref<IndexBuffer> indexB;
+		uint32_t baseVertex;
+		uint32_t firstIndex;
+		uint32_t lodLevel = 0;
 
 	};
 
@@ -109,7 +70,7 @@ namespace Rynex {
 
 	struct BatchingMeshArrayStorage
 	{
-		Ref<BatchingMeshArray> MeshArray;
+		Ref<BatchingMeshArray> meshArray;
 		Ref<VertexArray> vao;
 		Ref<VertexBuffer> VB;
 		Ref<IndexBuffer> IB;
@@ -118,7 +79,7 @@ namespace Rynex {
 
 		void Clear()
 		{
-			RY_DESTROY_REF(MeshArray);
+			RY_DESTROY_REF(meshArray);
 			if (vao)
 				vao->ClearVertexBuffers();
 			RY_DESTROY_REF(vao);
@@ -263,7 +224,7 @@ namespace Rynex {
 	void Renderer3D::Init()
 	{
 		s_Storarage3D = CreateScope<Renderer3DStorage>();
-		s_Storarage3D->BatchedMesh.MeshArray = CreateRef<BatchingMeshArray>();
+		s_Storarage3D->BatchedMesh.meshArray = CreateRef<BatchingMeshArray>();
 		s_Storarage3D->MeshDefaultShader = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/MeshTestShader.glsl"));
 		s_Storarage3D->IndrectMultyShadowShader = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/MeshTestShadowShader.glsl"));
 
@@ -2037,8 +1998,8 @@ namespace Rynex {
 
 		CheckMesh(meshStatic);
 
-		DrawContent content = s_Storarage3D->BatchedMesh.MeshArray->GetData(meshStatic);
-		return glm::uvec2{ content.BaseVertex, content.FirstIndex };
+		DrawContent content = s_Storarage3D->BatchedMesh.meshArray->GetData(meshStatic);
+		return glm::uvec2{ content.baseVertex, content.firstIndex };
 	}
 
 	const Ref<VertexArray>& Renderer3D::GetMeshArrayVAO()
@@ -2110,7 +2071,7 @@ namespace Rynex {
 	{
 		RY_REMBER_FUNC_CHANGE("Remove the function, maybe we don't need anmory in futer! (The Concept off Rendering Mesh Batches for indrect Rendering)");
 
-		if (!s_Storarage3D->BatchedMesh.MeshArray->Has(meshStatic))
+		if (!s_Storarage3D->BatchedMesh.meshArray->Has(meshStatic))
 		{
 			AddMeshData(meshStatic);
 		}
@@ -2182,7 +2143,7 @@ namespace Rynex {
 		{
 			const Ref<VertexBuffer>& vab = vabVec.at(i);
 			const Ref<IndexBuffer>& ib = ibVec.at(i);
-			s_Storarage3D->BatchedMesh.MeshArray->Add(
+			s_Storarage3D->BatchedMesh.meshArray->Add(
 				meshStatic,
 				DrawContent{
 					vab, ib,
@@ -2263,7 +2224,7 @@ namespace Rynex {
 
 
 		s_Storarage3D->BatchedMesh.Clear();
-		s_Storarage3D->BatchedMesh.MeshArray = CreateRef<BatchingMeshArray>();
+		s_Storarage3D->BatchedMesh.meshArray = CreateRef<BatchingMeshArray>();
 	}
 
 	void Renderer3D::FrameFinshed()
