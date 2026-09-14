@@ -2122,7 +2122,7 @@ case key: \
     {
         if(m_Project && m_Project->GetConfig().ProjectRady)
         {
-            m_Project->SaveActive(m_Project->GetConfig().ProjectPath / (m_Project->GetConfig().Name + ".ryproj"));
+            m_Project->SaveActive(m_Project->GetConfig().ProjectPath / (m_Project->GetConfig().name + ".ryproj"));
         }
     }
 

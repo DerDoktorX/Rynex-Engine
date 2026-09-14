@@ -8,7 +8,7 @@ namespace Rynex {
 
 	struct ProjectConfig
 	{
-		std::string Name = "Default-Project";
+		std::string name = "Default-Project";
 		std::string CreateDate = "00:00-00.00.0000";
 		std::string LastOpenDate = "00:00-00.00.0000";
 		std::filesystem::path StartScene = "";
@@ -30,7 +30,7 @@ namespace Rynex {
 
 		bool operator!=(const ProjectConfig& profectConfig) const
 		{
-			return ((profectConfig.Name != Name) &&
+			return ((profectConfig.name != name) &&
 				(profectConfig.CreateDate != CreateDate) &&
 				(profectConfig.LastOpenDate != LastOpenDate) &&
 				(profectConfig.LastScene != LastScene) &&

@@ -315,9 +315,9 @@ namespace Rynex {
         m_CurentProject = Project::GetActive();
         auto& config = m_CurentProject->GetConfig();
         m_StartScene = config.StartScene.string();
-        m_ProjectName = config.Name;
+        m_ProjectName = config.name;
         m_ProjectDir = config.ProjectPath.string();
-        m_ProjectFile = (config.ProjectPath / config.Name).string();
+        m_ProjectFile = (config.ProjectPath / config.name).string();
         m_ScriptCorePath = config.ScriptCorePath.string();
         m_ScriptAppPath = config.ScriptAppPath.string();
         m_AssetPath = config.AssetDirectory.string();
@@ -331,7 +331,7 @@ namespace Rynex {
         m_CurentProject = Project::GetActive();
         auto& config = m_CurentProject->GetConfig();
         config.StartScene = m_StartScene;
-        config.Name = m_ProjectName;
+        config.name = m_ProjectName;
         config.ProjectPath = m_ProjectDir;
         config.ScriptCorePath = m_ScriptCorePath;
         config.ScriptAppPath = m_ScriptAppPath; 

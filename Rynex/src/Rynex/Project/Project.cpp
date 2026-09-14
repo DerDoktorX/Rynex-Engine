@@ -102,8 +102,8 @@ namespace Rynex {
         static bool CreateProjectFolderStruct(ProjectConfig& pConfig, const std::filesystem::path& pFolder, const std::string& name = "")
         {
             bool result = false;
-            pConfig.Name = name=="" ? "Project-Create-Test": name;
-            std::filesystem::path pwFolder = SetupFolder(pFolder, pConfig.Name);
+            pConfig.name = name=="" ? "Project-Create-Test": name;
+            std::filesystem::path pwFolder = SetupFolder(pFolder, pConfig.name);
             
             pConfig.ProjectPath = pwFolder;
             pConfig.AppDirektory = pwFolder.parent_path();
