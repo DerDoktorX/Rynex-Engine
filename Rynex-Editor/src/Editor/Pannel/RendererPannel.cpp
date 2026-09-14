@@ -1,8 +1,7 @@
 #include <rypch.h>
 #include "RendererPannel.h"
 
-#include <imgui.h>
-#include <imgui_internal.h>
+
 
 #include <EditorLayer.h>
 #include <ImGuiObj/ImGuiObjects.h>
@@ -14,7 +13,8 @@
 #include <Rynex/Renderer/PiplineObjects/Piplines/PiplineBase.h>
 #include <Rynex/Renderer/RenderProxy/StaticeRenderProxys.h>
 
-
+#include <imgui.h>
+#include <imgui_internal.h>
 #include <magic_enum/magic_enum.hpp>
 // #define IMGUI_BOOL_CHECK_BOX(value) { #value, &value }
 #define IMGUI_BOOL_CHECK_BOX(value) ImGuiFlagsUser::CheckBoxBool{ RY_STRINGIFY_MOAKRO(#value), &value }

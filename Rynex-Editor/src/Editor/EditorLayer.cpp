@@ -1,5 +1,5 @@
 #include <rypch.h>
-#include "EditorLayer.h"
+#include "../EditorLayer.h"
 
 #include <Rynex/Core/Application.h>
 #include <Rynex/Core/Input.h>
