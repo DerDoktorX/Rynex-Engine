@@ -988,43 +988,43 @@ namespace Serializer {
 }
 namespace Deserialize {
 
-	template<>
-	bool AssetFormate<Rynex::Texture>(YAML::Node& nodeE, Rynex::Ref<Rynex::Texture>* entityC, bool async)
+
+    template<typename T>
+    bool AssetFormateType(YAML::Node nodeE, Rynex::Ref<T>* entityC, bool async)
+    {
+        if (!nodeE)
+            return false;
+
+        Rynex::FileSystem::Path path;
+        Rynex::FileSystem::Path pathMarked;
+
+        if (YAML::Node nodeAtribut = nodeE["Path-ProjectMarker"])
+            pathMarked = nodeAtribut.as<std::string>();
+
+        if (YAML::Node nodeAtribut = nodeE["Path"])
+            path = nodeAtribut.as<std::string>();
+
+
+
+        Rynex::AssetHandle handle = nodeE["Handle"].as<uint64_t>();
+        Rynex::AssetFindeInfo info = Rynex::AssetFindeInfo(handle, path, pathMarked);
+        *entityC = Rynex::AssetManager::FindAsset<T>(info);
+
+        return true;
+    }
+
+	bool AssetFormate(YAML::Node nodeE, Rynex::Ref<Rynex::Texture>* entityC, bool async)
 	{
-		if (!nodeE)
-			return false;
-
-		std::string path = "";
-		std::string makredPath = "";
-		if (YAML::Node nodeAtribut = nodeE["Path"])
-			path = nodeAtribut.as<std::string>();
-		if (YAML::Node nodeAtribut = nodeE["Path-ProjectMarker"])
-			makredPath = nodeAtribut.as<std::string>();
-
-		Rynex::AssetHandle handle = nodeE["Handle"].as<uint64_t>();
-		Rynex::AssetFindeInfo info = Rynex::AssetFindeInfo(handle, makredPath, path);
-		*entityC = Rynex::AssetManager::FindeAsset<Rynex::Texture>(info);
-
-		return true;
+        return AssetFormateType<Rynex::Texture>(nodeE, entityC, async);
 	}
 
-	template<>
-	bool AssetFormate<Rynex::MeshStatic>(YAML::Node& nodeE, Rynex::Ref<Rynex::MeshStatic>* entityC, bool async)
-	{
-		if (!nodeE)
-			return false;
 
-		std::string path = "";
-		std::string makredPath = "";
-		if (YAML::Node nodeAtribut = nodeE["Path"])
-			path = nodeAtribut.as<std::string>();
-		if (YAML::Node nodeAtribut = nodeE["Path-ProjectMarker"])
-			makredPath = nodeAtribut.as<std::string>();
+	bool AssetFormate(YAML::Node nodeE, Rynex::Ref<Rynex::MeshStatic>* entityC, bool async)
+    {
+        return AssetFormateType<Rynex::MeshStatic>(nodeE, entityC, async);
+    }
 
-		Rynex::AssetHandle handle = nodeE["Handle"].as<uint64_t>();
-		Rynex::AssetFindeInfo info = Rynex::AssetFindeInfo(handle, makredPath, path);
-		*entityC = Rynex::AssetManager::FindeAsset<Rynex::MeshStatic>(info);
 
-		return true;
-	}
+
+    
 }

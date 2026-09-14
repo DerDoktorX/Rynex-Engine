@@ -18,7 +18,7 @@ namespace Rynex {
         return handle != 0 && m_AssetRegistry.IsAssetInRegistry(handle);
     }
 
-    bool RuntimeAssetManager::IsAssetHandleValid(const std::filesystem::path& filepath) const
+    bool RuntimeAssetManager::IsAssetHandleValid(const FileSystem::Path& filepath) const
     {
         RY_CORE_ASSERT(false, "This Funktion 'RuntimeAssetManager::IsAssetHandleValid' Don't need to Exist in Runtime!");
         return false;
@@ -66,7 +66,7 @@ namespace Rynex {
         return Ref<Asset>();
     }
 
-    Ref<Asset> RuntimeAssetManager::GetAsset(const std::filesystem::path& filepath)
+    Ref<Asset> RuntimeAssetManager::GetAsset(const FileSystem::Path& filepath)
     {
         RY_CORE_ERROR("This Funktion 'RuntimeAssetManager::GetAsset' Don't need to Exist in Runtime!");
         return GetAsset(m_AssetRegistry.GetAssetHandle(filepath));
@@ -77,22 +77,25 @@ namespace Rynex {
         return GetAsset(handle);
     }
 
-    Ref<Asset> RuntimeAssetManager::GetAssetAsync(const std::filesystem::path& path)
+    Ref<Asset> RuntimeAssetManager::GetAssetAsync(const FileSystem::Path& path)
     {
-        return GetAsset(m_AssetRegistry.GetAssetHandle(path));
+        AssetHandle handle = m_AssetRegistry.GetAssetHandle(path);
+        return GetAsset(handle);
     }
 
-    const AssetHandle RuntimeAssetManager::GetAssetHandle(const std::filesystem::path& path) const
+    const AssetHandle RuntimeAssetManager::GetAssetHandle(const FileSystem::Path& path) const
     {
         return m_AssetRegistry.GetAssetHandleConst(path);
     }
 
     const AssetMetadata RuntimeAssetManager::GetMetadata(AssetHandle handle) const
     {
-        return GetMetadata(m_AssetRegistry.IsAssetInRegistry(handle));
+        if (m_AssetRegistry.IsAssetInRegistry(handle))
+            return GetMetadata(handle);
+        return AssetMetadata();
     }
 
-    const AssetMetadata RuntimeAssetManager::GetMetadata(const std::filesystem::path& path) const
+    const AssetMetadata RuntimeAssetManager::GetMetadata(const FileSystem::Path& path) const
     {
         RY_CORE_ERROR("This Funktion 'RuntimeAssetManager::IsAssetLoaded' Don't need to Exist in Runtime!");
         return GetMetadata(m_AssetRegistry.IsAssetInRegistry(path));
@@ -103,7 +106,7 @@ namespace Rynex {
         return m_LoadedAssets.find(handle) != m_LoadedAssets.end();
     }
 
-    bool RuntimeAssetManager::IsAssetLoaded(const std::filesystem::path& filepath) const 
+    bool RuntimeAssetManager::IsAssetLoaded(const FileSystem::Path& filepath) const
     {
         RY_CORE_ERROR("This Funktion 'RuntimeAssetManager::IsAssetLoaded' Don't need to Exist in Runtime!");
         if (!m_AssetRegistry.IsAssetInRegistry(filepath))

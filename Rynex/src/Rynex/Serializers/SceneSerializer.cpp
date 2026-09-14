@@ -636,7 +636,7 @@ namespace Utils {
 
 			AssetHandle handle = nodeE["Handle"].as<uint64_t>();
 			AssetFindeInfo info = AssetFindeInfo(handle, makredPathStr, path);
-			*entityC = AssetManager::FindeAsset<T>(info);
+			*entityC = AssetManager::FindAsset<T>(info);
 			
 			return true;
 		}

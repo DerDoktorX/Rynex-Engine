@@ -311,8 +311,8 @@ namespace Rynex {
 
 	void ContentBrowserPannel::ImGuiAssetFile(AssetBrowserDataThreade& data, float thumbernailSize)
 	{
-		std::filesystem::path& relativProjectPath = data.RelativProjectPath;
-		std::filesystem::path& path = data.Path;
+		std::filesystem::path relativProjectPath = data.RelativProjectPath.GetNamePathString();
+		std::filesystem::path path = data.Path.GetPath();
 		AssetHandle& handle = data.Handle;
 		AssetType& type = data.Type;
 

@@ -740,19 +740,9 @@ namespace Rynex {
 					continue;
 				out << YAML::BeginMap;
 				out << YAML::Key << "Handle" << YAML::Value << handle;
-				std::filesystem::path path = metadata.FilePath.lexically_normal();
-				
-				std::string filePathStr = path.generic_string();
-				
-				std::pair <std::string, std::filesystem::path> pair  = Project::GeanrateRealtivePathAndMarker(filePathStr);
-				const std::string& marker = pair.first;
-				const std::filesystem::path& realtivePath = pair.second;
-				std::filesystem::path basePath = Project::GetAbsulteFilePathFormMarker(marker);
-				std::filesystem::path pathAbosulte = basePath / realtivePath;
-				std::string pathAbosulteStr = pathAbosulte.generic_string();
-				pathAbosulte = pathAbosulteStr;
 
-				std::string filePathMarkerStr = Project::SetMarker(realtivePath, marker);
+				std::string pathStr = metadata.PathMarker;
+
 
 				// out << YAML::Key << "FilePath" << YAML::Value << filePathStr;
 				// out << YAML::Key << "FilePath-Absolute" << YAML::Value << pathAbosulte.string();
@@ -777,7 +767,7 @@ namespace Rynex {
 		return true;
 	}
 
-	bool EditorAssetMangerSerialzation::DeserilzeThread(const std::filesystem::path& filepath, std::map<AssetHandle, AssetMetadata>* handleReg, std::map<std::filesystem::path, AssetHandle>* pathReg)
+	bool EditorAssetMangerSerialzation::DeserilzeThread(const std::filesystem::path& filepath, std::map<AssetHandle, AssetMetadata>* handleReg, std::map<FileSystem::Path, AssetHandle>* pathReg)
 	{
 		RY_CORE_INFO("Deserialze Path: '{0}'", filepath.string().c_str());
 		RY_REMBER_FUNC_CHANGE("After Testing remove Utils::TestFileSystemClass from this methode and funktion self!");
@@ -854,10 +844,8 @@ namespace Rynex {
 			metadata.SetActive(true);
 			metadata.SetIntern(false);
 			metadata.State = AssetState::LostConection;
-
-			pathReg->insert_or_assign(metadata.RealtivePath, handle);
-			pathReg->insert_or_assign(metadata.AbsolutePath, handle);
-			pathReg->insert_or_assign(metadata.FilePath, handle);
+            const FileSystem::Path& pathKey = metadata.Path;
+			pathReg->insert_or_assign(pathKey, handle);
 			handleReg->insert_or_assign(handle, metadata);
 		}
 

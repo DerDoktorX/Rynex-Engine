@@ -56,7 +56,7 @@ namespace Rynex {
 				}
 			);
 
-		};
+		}
 		
 		inline void GetRefLemda(std::function<void(T&)> func, const K& key)
 		{

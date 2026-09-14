@@ -2106,10 +2106,12 @@ case key: \
             }
             m_Project = Project::GetActive();
             m_AssetManger = m_Project->GetEditorAssetManger();
-            std::filesystem::path startScene = Project::GetActive()->GetConfig().StartScene;
-            if (startScene.string() != "")
+            ProjectConfig config = m_Project->GetConfig();
+            std::filesystem::path startScene = config.StartScene;
+            if (!startScene.empty())
             {
-                OpenScene(m_AssetManger->GetAssetHandle(startScene));
+                m_AssetManger->GetAssetHandle(startScene);
+                OpenScene();
                 // OpenScene(startScene);
             }
             

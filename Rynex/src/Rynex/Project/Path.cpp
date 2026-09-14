@@ -118,7 +118,14 @@ namespace Rynex::FileSystem {
 		return m_Path;
 	}
 
-	std::filesystem::path Path::GetAbsolutePath() const
+    Path Path::GetParent() const
+    {
+	    std::filesystem::path parentPath = GetParentPath();
+	    Path parent(parentPath);
+	    return parent;
+    }
+
+    std::filesystem::path Path::GetAbsolutePath() const
 	{
 		return m_Path;
 	}
@@ -159,7 +166,18 @@ namespace Rynex::FileSystem {
 		return m_Path.extension();
 	}
 
-	std::string Path::GetAbsolutePathString() const
+    std::filesystem::path Path::GetParentPath() const
+    {
+	    std::filesystem::path parentPath = m_Path.parent_path();
+	    return parentPath;
+    }
+
+    std::string Path::GetPathString() const
+    {
+	    return m_Path.string();
+    }
+
+    std::string Path::GetAbsolutePathString() const
 	{
 		return GetAbsolutePath().string();
 	}
@@ -200,7 +218,14 @@ namespace Rynex::FileSystem {
 		return GetExtensionPath().string();
 	}
 
-	AssetType Path::GetAssetFileType() const
+    std::string Path::GetParentPathString() const
+    {
+
+
+	    return GetParentPath().string();
+    }
+
+    AssetType Path::GetAssetFileType() const
 	{
 		AssetType assetType = Asset::GetAssetTypeFromFilePath(m_Path);
 		return AssetType();
@@ -378,10 +403,10 @@ namespace Rynex::FileSystem {
 		bool isAbsolute = path.is_absolute();
 		bool isRelative = path.is_relative();
 		RY_CORE_ASSERT(isAbsolute != isRelative, "A path must be either absolute or relative, never both!");
-		if (!isAbsolute && isRelative)
+		if (!isAbsolute && isRelative && Origin::None != origin)
 		{
 			path = GetResolveRelativePathToAbsoluteFromOrigin(path, origin);
-			if (Origin::Unknown != origin)
+			if (Origin::Unknown != origin )
 				path = path.lexically_normal();
 		}
 		
@@ -416,6 +441,7 @@ namespace Rynex::FileSystem {
 		std::filesystem::path relativePath = m_Path.lexically_relative(baseOrigin);
 
 		ConvertRealtivePathFromAbsolutePath(relativePath, m_Origin);
+
 		return relativePath;
 	}
 	
@@ -632,7 +658,19 @@ namespace Rynex::FileSystem {
 		return Origin::None != origne;
 	}
 
-	std::filesystem::path Path::RemovePathMarker(const std::string& markedPathStr)
+    bool Path::IsStringInPath(const std::filesystem::path& path, const char* searchPtr)
+    {
+	    std::string pathStr = path.string();
+	    return IsStringInPath(pathStr, searchPtr);
+    }
+
+    bool Path::IsStringInPath(const std::string& pathStr, const char* searchPtr)
+    {
+	    size_t pos = pathStr.find(searchPtr);
+	    return std::string::npos != pos;
+    }
+
+    std::filesystem::path Path::RemovePathMarker(const std::string& markedPathStr)
 	{
 		Origin origne = GetMarkedPathOrigin(markedPathStr);
 		return RemovePathMarker(markedPathStr, origne);
@@ -718,13 +756,13 @@ namespace Rynex::FileSystem {
 
 	Path::Origin Path::GetPathOriginFromMarkerPath(const std::string& markedPath)
 	{
-		if(Project::HasStringInPath(markedPath, RY_PATH_ENGINE_MARKER_STR))
+		if(IsStringInPath(markedPath, RY_PATH_ENGINE_MARKER_STR))
 			return Origin::Engine;
 
-		if (Project::HasStringInPath(markedPath, RY_PATH_PROJECT_MARKER_STR))
+		if (IsStringInPath(markedPath, RY_PATH_PROJECT_MARKER_STR))
 			return Origin::Project;
 
-		if (Project::HasStringInPath(markedPath, RY_PATH_NO_VALID_MARKER_STR))
+		if (IsStringInPath(markedPath, RY_PATH_NO_VALID_MARKER_STR))
 			return Origin::Unknown;
 
 		Origin origne = Origin::None;
@@ -739,19 +777,17 @@ namespace Rynex::FileSystem {
 
 	Path::Origin Path::GetExpectedOriginFromRelativePath(const std::filesystem::path& path)
 	{
-		int8_t i = 0;
 
-		constexpr const char* oldEngineRealtivePathStart = "../Rynex-Editor";
-		if (Project::HasStringInPath(path, RY_PATH_EXPECT_ENGINE_RELATIVE_START_FOlDER_STR) || Project::HasStringInPath(path, oldEngineRealtivePathStart))
+		if (IsStringInPath(path, RY_PATH_EXPECT_ENGINE_RELATIVE_START_FOlDER_STR))
 			return Origin::Engine;
 
-		if(Project::HasStringInPath(path, ".."))
+		if(IsStringInPath(path, ".."))
 		{
 			RY_CORE_WARN("Engine root path not found and path contains parent dots - assuming Origin::Unknown");
 			return Origin::Unknown;
 		}
 
-		
+
 		Origin origne = Origin::Project;
 		return origne;
 	}
@@ -761,14 +797,14 @@ namespace Rynex::FileSystem {
 		std::filesystem::path engineDirectory = GetEngineDirectory();
 		engineDirectory = engineDirectory.parent_path();
 		std::string engineDirectoryStr = engineDirectory.string();
-
-		if (Project::HasStringInPath(path, engineDirectoryStr))
+        const char* engineDirectoryChar = engineDirectoryStr.c_str();
+		if (IsStringInPath(path, engineDirectoryChar))
 			return Origin::Engine;
 
 		std::filesystem::path projectDirector = GetProjectDirectory();
 		std::string projectDirectoryStr = projectDirector.string();
-
-		if (Project::HasStringInPath(path, projectDirectoryStr))
+	    const char* projectDirectoryChar = projectDirectoryStr.c_str();
+		if (IsStringInPath(path, projectDirectoryChar))
 			return Origin::Project;
 
 #ifdef RY_PATH_LOG_MSG
@@ -798,20 +834,23 @@ namespace Rynex::FileSystem {
 		{
 			std::filesystem::path expextedEndineRealtiveStart = RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR;
 			std::string nameFolder = expextedEndineRealtiveStart.filename().string();
-			if (!Project::HasStringInPath(relativePath, nameFolder))
+		    const char* nameFolderStr = nameFolder.c_str();
+
+			if (!IsStringInPath(relativePath, nameFolderStr))
 				relativePath = nameFolder / relativePath;
 
 			expextedEndineRealtiveStart = expextedEndineRealtiveStart.parent_path();
 			expextedEndineRealtiveStart = expextedEndineRealtiveStart.generic_string();
 			nameFolder = expextedEndineRealtiveStart.filename().string();
 
-			if (!Project::HasStringInPath(relativePath, nameFolder))
+			if (!IsStringInPath(relativePath, nameFolderStr))
 				relativePath = expextedEndineRealtiveStart / relativePath;
 		}
 		case Origin::Project:
 		{
+		    relativePath = relativePath.lexically_normal();
 			ConvertUniversalPath(relativePath);
-			relativePath.lexically_normal();
+
 			break;
 		}
 		default:

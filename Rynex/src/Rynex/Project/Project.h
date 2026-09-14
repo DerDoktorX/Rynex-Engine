@@ -51,19 +51,13 @@ namespace Rynex {
 		Project();
 		~Project();
 #pragma region PathFunction
-		const std::filesystem::path& GetProjectDirectory() { return s_ActiveInstancProject->m_Config.ProjectPath; }
-		const std::filesystem::path& GetAssetDirectory() { return s_ActiveInstancProject->m_Config.AssetDirectory; }
-		const std::filesystem::path& GetAssetRegistryPath() { return s_ActiveInstancProject->m_Config.AssetRegistryPath; }
-		void SetLastSceneAsset(const std::filesystem::path& sceneAsset) { s_ActiveInstancProject->m_Config.LastScene = sceneAsset; }
-		
-		// TODO(Yan): move to asset manager when we have one
-		std::filesystem::path GetAssetFileSystemPath(const std::filesystem::path& path)
-		{
-			std::filesystem::path assetDiretoryPath = GetAssetDirectory() / path;
-			return assetDiretoryPath;
-		}
+		[[nodiscard]] const std::filesystem::path& GetProjectDirectory() const { return m_Config.ProjectPath; }
+		[[nodiscard]] const std::filesystem::path& GetAssetDirectory() const { return m_Config.AssetDirectory; }
+		[[nodiscard]] const std::filesystem::path& GetAssetRegistryPath() const { return m_Config.AssetRegistryPath; }
+		void SetLastSceneAsset(const std::filesystem::path& sceneAsset) { m_Config.LastScene = sceneAsset; }
 
-		std::filesystem::path& GetAppDirektory() { return s_ActiveInstancProject->m_Config.AppDirektory; }
+
+		std::filesystem::path& GetAppDirectory() { return m_Config.AppDirektory; }
 
 		static const std::filesystem::path& GetActiveProjectDirectory()
 		{
@@ -71,52 +65,7 @@ namespace Rynex {
 			return s_ActiveInstancProject->GetProjectDirectory();
 		}
 
-		static std::filesystem::path GenarteProjectAbosult(const std::filesystem::path& path);
-		static std::filesystem::path GenarteProjectRaltivPath(const std::filesystem::path& path);
 
-		static std::string CreateAssetInterlPathFormatProject(const std::filesystem::path& path);
-
-		static bool IsPathExisting(const std::filesystem::path& path);
-		static bool IsPathExisting(const std::filesystem::path& path, const std::filesystem::path& base, const std::string& baseName);
-
-		static std::string SetMarker(const std::filesystem::path& path, const std::string& marker);
-
-
-		static size_t SearchInPathFor(const std::filesystem::path& path, const std::string& searchItem);
-		static size_t SearchInPathFor(const std::string& pathStr, const std::string& searchItem);
-
-		static bool HasStringInPath(const std::filesystem::path& path, const std::string& searchItem);
-		static bool HasStringInPath(const std::string& path, const std::string& searchItem);
-
-		static size_t PositionMarker(const std::filesystem::path& path, const std::string& marker);
-		static size_t PositionMarker(const std::string& pathStr, const std::string& marker);
-
-		static bool HasMarker(const std::string& path, const std::string& marker);
-		static bool HasSomeMarker(const std::string& path);
-
-		static std::filesystem::path RemoveMarker(const std::string& path, const std::string& marker);
-
-		static std::string ExtraxtMarker(const std::string& path);
-
-		static std::filesystem::path ReplaceMarkerWitheAbsolutePath(const std::string& pathStr);
-		static std::filesystem::path ReplaceMarkerWithePath(const std::string& path, const std::string& marker, const std::filesystem::path& base);
-
-		static uint32_t GetMarkerVaild(const std::string& marker);
-		static bool IsMarkerVaild(const std::string& marker);
-
-		static std::string GeanrateRealtivePathWitheMarker(const std::filesystem::path& path);
-		static std::filesystem::path GetAbsulteFilePathFormMarker(const std::string& marker);
-
-		static std::pair<std::string, std::filesystem::path> GeanrateRealtivePathAndMarker(const std::filesystem::path& path);
-		static std::pair<std::string, std::filesystem::path> GeanrateRealtivePathFromMarkerAndBase(const std::filesystem::path& path, const std::filesystem::path& base, const std::string& marker);
-
-		static std::string GetExpextedMarker(const std::filesystem::path& path);
-
-		static bool IsAbsultePathSubPath(const std::filesystem::path& pathAbsolut, const std::filesystem::path& baseAbsolut);
-		static std::string SetProjectMarker(const std::filesystem::path& path);
-
-		static std::string RemoveProjectMarker(const std::string& pathStr);
-		static std::string RemoveProjectMarker(const std::filesystem::path& path);
 #pragma endregion
 
 
@@ -124,12 +73,6 @@ namespace Rynex {
 		{
 			RY_CORE_ASSERT(s_ActiveInstancProject, "Erroe: Project::GetAssetDirectory()");
 			return s_ActiveInstancProject->GetAssetDirectory();
-		}
-
-		static std::filesystem::path GetActiveAssetFileSystemPath(const std::filesystem::path& path)
-		{
-			RY_CORE_ASSERT(s_ActiveInstancProject, "Erroe: Project::GetAssetDirectory()");
-			return s_ActiveInstancProject->GetAssetFileSystemPath(path);
 		}
 
 		static std::filesystem::path GetActiveAssetRegistryPath()

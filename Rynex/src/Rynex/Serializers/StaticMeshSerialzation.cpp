@@ -103,7 +103,7 @@ namespace Rynex {
 			return true;
 		}
 
-		template< typename T>
+		template<typename T>
 		static bool DeserializeAssetFormate(YAML::Node& nodeE, Ref<T>& storeAsset)
 		{
 			if (!nodeE)
@@ -112,17 +112,18 @@ namespace Rynex {
 				RY_CORE_ERROR("Not Found Node: {}", tag);
 				return false;
 			}
-			std::string markedPath = "";
-			std::string path = "";
 
+            FileSystem::Path path;
+		    FileSystem::Path markedPath;
 			if(YAML::Node nodeAtribut = nodeE["Path-ProjectMarker"])
 				markedPath = nodeAtribut.as<std::string>();
 			if (YAML::Node nodeAtribut = nodeE["Path"])
-				path = nodeAtribut.as<std::string>();
+				path =  nodeAtribut.as<std::string>();
 			AssetHandle handle = nodeE["Handle"].as<uint64_t>();
 
-			AssetFindeInfo info = AssetFindeInfo(handle, markedPath, path);
-			storeAsset = AssetManager::FindeAsset<T>(info);
+
+			AssetFindeInfo info = AssetFindeInfo(handle, path, markedPath);
+			storeAsset = AssetManager::FindAsset<T>(info);
 
 			return storeAsset != nullptr;
 		}

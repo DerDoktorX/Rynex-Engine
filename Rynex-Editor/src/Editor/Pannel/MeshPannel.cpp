@@ -24,12 +24,6 @@ namespace Rynex {
 	void MeshPannel::OnAttache(EditorLayer* editorLayer)
 	{
 		m_EditorLayer = editorLayer;
-
-#if 0
-		m_MeshObject = AssetManager::GetAsset<MeshStatic>("Assets/Models/main_sponza/main_sponza/NewSponza_Main_glTF_003.rystmesh");
-		Ref<MeshSource>meshSource = m_MeshObject->GetMeshSource();
-		m_HirachyNode = meshSource->GetNodes();
-#endif
 	}
 
 	void MeshPannel::OnDetache()

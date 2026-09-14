@@ -18,6 +18,6 @@ namespace Rynex {
 		static bool Deserilze(const std::filesystem::path& filepath, AssetRegistry& assetRegistry);
 
 		static bool SerilzeThread(const std::filesystem::path& filepath, std::map<AssetHandle, AssetMetadata>* handleReg);
-		static bool DeserilzeThread(const std::filesystem::path& filepath, std::map<AssetHandle, AssetMetadata>* handleReg, std::map<std::filesystem::path, AssetHandle>* pathReg);
+		static bool DeserilzeThread(const std::filesystem::path& filepath, std::map<AssetHandle, AssetMetadata>* handleReg, std::map<FileSystem::Path, AssetHandle>* pathReg);
 	};
 }

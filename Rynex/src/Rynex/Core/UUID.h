@@ -35,7 +35,7 @@ namespace std {
 	template<>
 	struct hash<Rynex::UUID>
 	{
-		std::size_t operator()(const Rynex::UUID& uuid) const
+		[[nodiscard]] static std::size_t operator()(const Rynex::UUID& uuid) noexcept
 		{
 			return (uint64_t)uuid;
 		}

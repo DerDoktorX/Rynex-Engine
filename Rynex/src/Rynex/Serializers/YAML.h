@@ -360,8 +360,9 @@ namespace Serializer {
 namespace Deserialize {
 
 
-	template<typename T>
-	static bool AssetFormate(YAML::Node& nodeE, Rynex::Ref<T>* entityC, bool async);
+
+	static bool AssetFormate(YAML::Node nodeE, Rynex::Ref<Rynex::Texture>* entityC, bool async);
+    static bool AssetFormate(YAML::Node nodeE, Rynex::Ref<Rynex::MeshStatic>* entityC, bool async);
 
 
 }

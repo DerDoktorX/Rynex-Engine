@@ -11,27 +11,27 @@ namespace Rynex {
 
 	struct AssetFindeInfo
 	{
-		AssetHandle Handle;
-		std::string MarkedPath;
-		std::filesystem::path Path;
-
+		AssetHandle m_Handle;
+		FileSystem::Path m_Path;
+	    FileSystem::Path m_MarkedPath;
+	    
 		AssetFindeInfo()
-			: Handle(0ull)
-			, MarkedPath("")
-			, Path("")
+			: m_Handle(0ull)
+			, m_Path()
+	        , m_MarkedPath()
 		{
 		}
 
-		AssetFindeInfo(AssetHandle handle, const std::string& markedPathStr, const std::filesystem::path& path = "")
-			: Handle(handle)
-			, MarkedPath(markedPathStr)
-			, Path(path)
+		AssetFindeInfo(AssetHandle handle, const FileSystem::Path& path,  const FileSystem::Path& markedPath)
+			: m_Handle(handle)
+			, m_Path(path)
+		    , m_MarkedPath(markedPath)
 		{
 		}
 
 		operator bool() const
 		{
-			bool result = Handle != 0ull && (MarkedPath != "" || Path != "");
+			bool result = m_Handle != 0ull && !m_Path.IsEmpty();
 			return result;
 		}
 
@@ -92,7 +92,7 @@ namespace Rynex {
 		static void GetAssetAsyncPromis(const std::filesystem::path& path, Ref<LodePromisType<T, PromisArgs ...>> lodePromis)
 		{
 			std::function<void()> processFunc = std::bind(&AssetManager::GetAssetAsyncPromisProcessRef<T, std::filesystem::path, LodePromisType<T, PromisArgs ...>>, path, lodePromis);
-			RY_SUBMITE_TASK_TO_ASYNC_THREED("get Asset from Path " + path.string(), processFunc);
+			RY_SUBMITE_TASK_TO_ASYNC_THREED("get Asset from Path: " + path.string(), processFunc);
 		}
 
 		static std::filesystem::path GetMarkedAssetPath(AssetHandle handle)
@@ -118,8 +118,8 @@ namespace Rynex {
 
 		static AssetHandle GetAssetHandleMarkedPath(const std::string& pathMarkedStr)
 		{
-			std::string marker = Project::ExtraxtMarker(pathMarkedStr);
-			std::filesystem::path path = Project::RemoveMarker(pathMarkedStr, marker);
+
+			FileSystem::Path path = FileSystem::Path(pathMarkedStr);
 
 			Ref<Project> project = Project::GetActive();
 			Ref<AssetManagerBase> assetManger = project->GetAssetManger();
@@ -132,7 +132,7 @@ namespace Rynex {
 
 		
 		template<typename T>
-		static Ref<T> FindeAsset(const AssetFindeInfo& info)
+		static Ref<T> FindAsset(const AssetFindeInfo& info)
 		{
 			
 			RY_CORE_ASSERT(info, "not enough information for 100% ID Asset!");
@@ -140,19 +140,15 @@ namespace Rynex {
 			Ref<Project> project = Project::GetActive();
 			Ref<EditorAssetManegerThreade> editorAssetManger = project->GetEditorAssetManger();
 
-			AssetHandle handle = info.Handle;
-			AssetHandle handlePath = editorAssetManger->GetAssetHandle(info.Path);
-			AssetHandle handleMarkedPath = GetAssetHandleMarkedPath(info.MarkedPath);
+			AssetHandle handle = info.m_Handle;
+			AssetHandle handlePath = editorAssetManger->GetAssetHandle(info.m_Path);
+
 			Ref<T> asset = nullptr;
 
 
-			if (editorAssetManger->IsAssetHandleValid(handle) && (handle == handleMarkedPath || handle == handlePath))
+			if (editorAssetManger->IsAssetHandleValid(handle) && handle == handlePath)
 			{
 				asset = AssetManager::GetAsset<T>(handle);
-			}
-			else if (editorAssetManger->IsAssetHandleValid(handleMarkedPath))
-			{
-				asset = AssetManager::GetAsset<T>(handleMarkedPath);
 			}
 			else if (editorAssetManger->IsAssetHandleValid(handlePath))
 			{
@@ -160,7 +156,7 @@ namespace Rynex {
 			}
 			else
 			{
-				RY_CORE_ASSERT(false,"The to many not vaild states to Limted to safely ID The Asset!")
+				RY_CORE_ASSERT(false,"The to many not valid states to Limited to safely ID The Asset!")
 			}
 			return asset;
 		}
@@ -174,19 +170,14 @@ namespace Rynex {
 			Ref<Project> project = Project::GetActive();
 			Ref<EditorAssetManegerThreade> editorAssetManger = project->GetEditorAssetManger();
 
-			AssetHandle handle = info.Handle;
-			AssetHandle handlePath = editorAssetManger->GetAssetHandle(info.Path);
-			AssetHandle handleMarkedPath = GetAssetHandleMarkedPath(info.MarkedPath);
+			AssetHandle handle = info.m_Handle;
+			AssetHandle handlePath = editorAssetManger->GetAssetHandle(info.m_Path);
 			
 			
 
-			if (editorAssetManger->IsAssetHandleValid(handle) && (handle == handleMarkedPath || handle == handlePath))
+			if (editorAssetManger->IsAssetHandleValid(handle) && handle == handlePath)
 			{
 				func(handle);
-			}
-			else if (editorAssetManger->IsAssetHandleValid(handleMarkedPath))
-			{
-				func(handleMarkedPath);
 			}
 			else if (editorAssetManger->IsAssetHandleValid(handlePath))
 			{
@@ -194,7 +185,7 @@ namespace Rynex {
 			}
 			else
 			{
-				RY_CORE_ASSERT(false, "The to many not vaild states to Limted to safely ID The Asset!");
+				RY_CORE_ASSERT(false, "The to many not valid states to Limited to safely ID The Asset!");
 			}
 		}
 

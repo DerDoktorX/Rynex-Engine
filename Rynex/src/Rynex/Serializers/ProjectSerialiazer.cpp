@@ -24,35 +24,27 @@ namespace Rynex {
 			if(!data)
 				return std::filesystem::path("");
 
-			constexpr const char* markerProject = RY_PATH_PROJECT_MARKER_STR;
-			std::string markedPathStr = data.as<std::string>();
-			if (markedPathStr.empty() || !Project::HasSomeMarker(markedPathStr))
-			{
-				RY_CORE_WARN("Diden't found marker in path: {}", markedPathStr);
-				return std::filesystem::path("");
-			}
 
-			std::filesystem::path absolutPath = Project::ReplaceMarkerWithePath(markedPathStr, markerProject, base);
+			std::string markedPathStr = data.as<std::string>();
+		    FileSystem::Path path(markedPathStr);
+			std::filesystem::path absolutPath = path.GetPath();
 			return absolutPath;
 		}
 
 		static void SerlizeFilePathNode(YAML::Emitter& out, const std::string& name, const std::filesystem::path& path, const std::filesystem::path& base)
 		{
 			constexpr const char* markerProject = RY_PATH_PROJECT_MARKER_STR;
-			std::string realtiveFromBaseStr = "";
+			std::string realtiveFromBaseStr;
 			if (!path.empty())
 			{
-				std::filesystem::path realtiveFromBase = "";
+				std::filesystem::path realtiveFromBase;
 				if (path.is_absolute())
 					realtiveFromBase = std::filesystem::relative(path, base);
 				else
 					realtiveFromBase = path;
 
-				realtiveFromBase = realtiveFromBase.lexically_normal();
-				realtiveFromBaseStr = realtiveFromBase.generic_string();
-				realtiveFromBase = realtiveFromBaseStr;
-
-				realtiveFromBaseStr = Project::SetMarker(realtiveFromBase, markerProject);
+			    FileSystem::Path pathSystem(realtiveFromBase);
+				realtiveFromBaseStr = pathSystem.GetMarkedPathString();
 			}
 
 			out << YAML::Key << name << YAML::Value << realtiveFromBaseStr;
@@ -90,7 +82,7 @@ namespace Rynex {
 				SERLIZE_PATH(ScriptAppPath);
 
 				
-				if (config.CreateDate == "00:00-00.00.0000")
+				if ("00:00-00.00.0000" == config.CreateDate)
 					config.CreateDate = AssetRegistry::GetCurrentTimeStr();
 				
 				out << YAML::Key << "CreateDate" << YAML::Value << config.CreateDate;
