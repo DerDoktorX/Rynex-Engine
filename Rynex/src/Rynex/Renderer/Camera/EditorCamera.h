@@ -6,7 +6,7 @@
 #include <Rynex/Events/Event.h>
 #include <Rynex/Events/MouseEvent.h>
 
-#include <glm/glm.hpp>
+
 
 
 namespace Rynex {

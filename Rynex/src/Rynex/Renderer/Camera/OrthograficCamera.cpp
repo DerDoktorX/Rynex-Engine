@@ -1,9 +1,5 @@
 #include "rypch.h"
 #include "OrthograficCamera.h"
-
-//#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 namespace Rynex {
 
 	OrthograficCamera::OrthograficCamera(float left, float rigth, float bottom, float top, float nearPlane, float farPlane)

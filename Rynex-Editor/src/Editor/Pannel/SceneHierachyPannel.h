@@ -4,7 +4,6 @@
 #include <Rynex/Scene/Entity.h>
 
 #include <imgui.h>
-#include <future>
 
 namespace Rynex {
 

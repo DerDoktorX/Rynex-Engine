@@ -1,12 +1,12 @@
 #include <rypch.h>
 #include "MeshPannel.h"
 
-#include <imgui_internal.h>
-#include <glm/gtc/type_ptr.hpp>
-
 #include <Rynex/Core/Input.h>
 #include <Rynex/Renderer/Mesh/MeshStatic.h>
 #include <Rynex/Asset/Base/AssetManager.h>
+
+#include <imgui_internal.h>
+
 
 namespace Rynex {
 

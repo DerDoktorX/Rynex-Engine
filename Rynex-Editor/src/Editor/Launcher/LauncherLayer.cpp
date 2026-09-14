@@ -1,6 +1,6 @@
 #include <rypch.h>
 #include "LauncherLayer.h"
-#include <EditorLayer.h>
+#include <Editor/EditorLayer.h>
 #include <Rynex/Core/Application.h>
 #include <Rynex/Utils/PlatformUtils.h>
 #include <Rynex/Project/Project.h>

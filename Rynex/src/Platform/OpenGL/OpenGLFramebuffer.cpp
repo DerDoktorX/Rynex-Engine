@@ -4,8 +4,6 @@
 #include <Platform/OpenGL/OpenGLTexture.h>
 #include <Platform/OpenGL/OpenGLBase.h>
 
-#include <glad/glad.h>
-#include <glm/gtc/type_ptr.hpp>
 
 
 

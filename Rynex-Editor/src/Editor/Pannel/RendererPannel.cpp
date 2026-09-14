@@ -3,19 +3,18 @@
 
 
 
-#include <EditorLayer.h>
-#include <ImGuiObj/ImGuiObjects.h>
+#include <Editor/EditorLayer.h>
+#include <Editor/ImGuiObj/ImGuiObjects.h>
 
 #include <Rynex/Renderer/Rendering/Renderer.h>
 #include <Rynex/Core/Application.h>
 #include <Rynex/Renderer/Rendering/Render3D/Renderer3D.h>
-#include <Rynex/Renderer/Rendering/PiplineVec.h>
-#include <Rynex/Renderer/PiplineObjects/Piplines/PiplineBase.h>
 #include <Rynex/Renderer/RenderProxy/StaticeRenderProxys.h>
 
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <magic_enum/magic_enum.hpp>
+
 // #define IMGUI_BOOL_CHECK_BOX(value) { #value, &value }
 #define IMGUI_BOOL_CHECK_BOX(value) ImGuiFlagsUser::CheckBoxBool{ RY_STRINGIFY_MOAKRO(#value), &value }
 

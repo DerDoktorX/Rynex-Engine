@@ -4,7 +4,7 @@
 #include <Rynex/Renderer/API/Framebuffer.h>
 #include <Rynex/Renderer/API/Buffer.h>
 
-#include <glm/glm.hpp>
+
 
 namespace Rynex{
 

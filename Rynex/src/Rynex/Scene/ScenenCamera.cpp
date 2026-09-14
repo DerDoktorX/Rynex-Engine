@@ -1,10 +1,6 @@
 #include "rypch.h"
 #include "ScenenCamera.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 namespace Rynex {
 
 	std::array<glm::vec4, 8> SceneCamera::m_ViewFustrum = {

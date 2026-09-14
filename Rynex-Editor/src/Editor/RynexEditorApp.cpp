@@ -1,7 +1,7 @@
 #include <rypch.h>
 #include "EditorLayer.h"
 
-#include <Launcher/LauncherLayer.h>
+#include <Editor/Launcher/LauncherLayer.h>
 #include <Rynex/Core/Application.h>
 #include <Rynex/Core/EntryPoint.h>
 #include <Rynex/Project/Project.h>

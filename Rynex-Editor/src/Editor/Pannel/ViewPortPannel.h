@@ -6,9 +6,6 @@
 #include <Rynex/Scene/Scene.h>
 #include <Rynex/Scene/Entity.h>
 
-// #include <Rynex/Renderer/Rendering/Render3D/SingleMultyRender.h>
-
-#include <glm/gtc/type_ptr.hpp>
 
 
 

@@ -4,10 +4,7 @@
 #include <Rynex/Renderer/API/Texture.h>
 #include <Rynex/Project/Project.h>
 
-
 #include <filewatch/FileWatch.h>
-
-
 
 namespace Rynex {
 

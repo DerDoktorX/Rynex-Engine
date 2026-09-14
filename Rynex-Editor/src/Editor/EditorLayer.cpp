@@ -1,5 +1,5 @@
 #include <rypch.h>
-#include "../EditorLayer.h"
+#include "EditorLayer.h"
 
 #include <Rynex/Core/Application.h>
 #include <Rynex/Core/Input.h>
@@ -9,7 +9,7 @@
 #include <Rynex/Math/Math.h>
 
 #include <Rynex/Serializers/SceneSerializer.h>
-#if defined(RY_SCRIPT_ENGINE)
+#ifdef RY_SCRIPT_ENGINE
     #include <Rynex/Scripting/Mono/ScriptingEngine.h>
 #endif
 
@@ -24,25 +24,14 @@
 #include <ImGuizmo.h>
 #endif // IM_GUIZMO
 
-
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-#include <Rynex/Renderer/Text/Font.h>
 #include <Rynex/Renderer/Mesh/MeshSource.h>
 #include <Rynex/Renderer/Rendering/Render3D/IndirectDrawMap.h>
 #include <Rynex/Renderer/Mesh/MeshStatic.h>
-#include <Rynex/Core/Vector.h>
 
 #include <Rynex/Serializers/StaticMeshSerialzation.h>
 
-
-#include <Rynex/Core/VectorMapElementRef.h>
 #include <Rynex/Renderer/PiplineObjects/Piplines/PiplineBase.h>
 
-#include <type_traits>
-#include <stdexcept>
-#include <random>
 #include <Rynex/Asset/Import/TextureImporter.h>
 #include <Rynex/Renderer/Rendering/DrawContext.h>
 

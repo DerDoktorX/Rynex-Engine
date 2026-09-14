@@ -3,10 +3,6 @@
 #include <Platform/OpenGL/OpenGLThreadContext.h>
 #include <Platform/OpenGL/OpenGLRenderCommand.h>
 
-
-
-#include <glm/gtc/type_ptr.hpp>
-
 #define RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(func, type) case type: { func(#type); break; }
 
 

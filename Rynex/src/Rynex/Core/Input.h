@@ -5,8 +5,6 @@
 #include <Rynex/Core/MouseCodes.h>
 
 
-#include <glm/glm.hpp>
-
 
 namespace Rynex {
 	class RYNEX_API Input

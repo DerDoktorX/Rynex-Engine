@@ -1,8 +1,10 @@
 #pragma once
+#include <Rynex/Core/TimeStep.h>
+
 #include <Rynex/Events/Event.h>
 #include <Rynex/Events/KeyEvent.h>
 #include <Rynex/Events/MouseEvent.h>
-#include <Rynex/Core/TimeStep.h>
+
 #include <Rynex/Project/Project.h>
 
 namespace Rynex {

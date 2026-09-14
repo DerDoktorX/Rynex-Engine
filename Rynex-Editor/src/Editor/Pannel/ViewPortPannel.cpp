@@ -1,6 +1,6 @@
 #include <rypch.h>
 #include "ViewPortPannel.h"
-#include "EditorLayer.h"
+#include <Editor//EditorLayer.h>
 
 #include <Rynex/Core/Application.h>
 #include <Rynex/Core/Input.h>

@@ -15,6 +15,14 @@
 #include <regex>
 #include <optional>
 #include <queue>
+#include <future>
+#include <random>
+#include <chrono>
+#include <xtree>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 
 #include <Rynex/Core/Base.h>
 #include <Rynex/Core/Log.h>

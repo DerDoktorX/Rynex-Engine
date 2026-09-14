@@ -1,21 +1,24 @@
 #include <rypch.h>
 #include "SceneHierachyPannel.h"
 
-#include <Rynex/Scene/Components.h>
-#if defined(RY_SCRIPT_ENGINE)
-#include <Rynex/Scripting/Mono/ScriptingEngine.h>
-#endif
+
+#include <Rynex/Core/Input.h>
 #include <Rynex/Asset/Base/AssetManager.h>
+#include <Rynex/Utils/EnumString.h>
+#include <Rynex/Scene/Components.h>
+#ifdef RY_SCRIPT_ENGINE
+	#include <Rynex/Scripting/Mono/ScriptingEngine.h>
+#endif
+
 #include <Rynex/Renderer/Rendering/Renderer.h>
 #include <Rynex/Renderer/Materials/Material.h>
-#include <Rynex/Utils/EnumString.h>
-#include <Rynex/Core/Input.h>
+#include <Rynex/Renderer/RenderProxy/StaticeRenderProxys.h>
+
 
 #include <imgui.h>
 #include <imgui_internal.h>
-#include <glm/gtc/type_ptr.hpp>
 #include <magic_enum/magic_enum.hpp>
-#include <Rynex/Renderer/RenderProxy/StaticeRenderProxys.h>
+
 
 #define RY_ENABLE_UTILS_REALTION_SHIP_COMP 0
 #define RY_SCENE_HIERACHY_PANNEL_DRAG_AND_DROP 0

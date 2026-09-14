@@ -1,13 +1,15 @@
 #include <rypch.h>
 #include "MenuBarPannel.h"
-#include "EditorLayer.h"
+
+#include <Editor/EditorLayer.h>
 
 #include <Rynex/Core/Application.h>
-#if RY_SCRIPTING_HAZEL
-	#include <Rynex/Scripting/HazelScripting/ScriptEngine.h> 
-#else
+
+#ifndef RY_SCRIPTING_HAZEL
 	#include <Rynex/Scripting/Mono/ScriptingEngine.h>
 #endif
+
+
 #include <imgui.h>
 
 namespace Rynex {

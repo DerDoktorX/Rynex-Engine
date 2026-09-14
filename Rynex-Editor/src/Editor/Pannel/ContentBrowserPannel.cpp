@@ -2,22 +2,12 @@
 #include "ContentBrowserPannel.h"
 
 #include <Rynex/Core/Application.h>
-
 #include <Rynex/Asset/Base/AssetManager.h>
-#include <Rynex/Asset/Base/AssetImporter.h>
 #include <Rynex/Asset/Import/TextureImporter.h>
-#include <Rynex/Asset/Import/ShaderImporter.h>
 #include <Rynex/Asset/Import/SceneImporter.h>
-
-
-#include <Rynex/Renderer/API/Framebuffer.h>
-#include <Rynex/Utils/EnumString.h>
-
 
 #include <imgui.h>
 #include <imgui_internal.h>
-
-#include <future>
 
 namespace Rynex {
 

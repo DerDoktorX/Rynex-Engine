@@ -1,8 +1,6 @@
 #include <rypch.h>
 #include "Sandbox2D.h"
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <imgui/imgui.h>
 
 #if defined(RY_SCRIPTING_ENGINE)

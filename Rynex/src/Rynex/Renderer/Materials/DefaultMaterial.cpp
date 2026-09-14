@@ -5,7 +5,7 @@
 #include <Rynex/Asset/Base/AssetManager.h>
 #include <Rynex/Renderer/Rendering/Render3D/Renderer3D.h>
 
-#include <glm/gtc/type_ptr.hpp>
+
 
 namespace Rynex {
 #define DEFAULT_PATH_DEFAULT_MATERIAL "D:/dev/Rynex-Test-Projects/Test-Project-System/Assets/Shaders/Fetures/Cube3DShadow.glsl";

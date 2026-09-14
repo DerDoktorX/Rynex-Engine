@@ -1,9 +1,7 @@
 #pragma once
-#include "Rynex/Project/Project.h"
-#include "Rynex/Renderer/API/Buffer.h"
+#include <Rynex/Project/Project.h>
+#include <Rynex/Renderer/API/Buffer.h>
 
-#include <glm/glm.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
 
 namespace YAML {
 	class Emitter;
