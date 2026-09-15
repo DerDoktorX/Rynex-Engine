@@ -49,7 +49,7 @@ function(setupBinary target)
                COMMAND ${CMAKE_COMMAND} -E create_symlink "${RYNEX_ROOT_PROJECT}/Rynex-Editor/Resources"        "${RYNEX_PROJECT_ENGINE_RESOURCES_OUTPUT}/Resources"
                COMMAND ${CMAKE_COMMAND} -E create_symlink "${RYNEX_ROOT_PROJECT}/Rynex-Editor/SandboxProject"   "${RYNEX_PROJECT_ENGINE_RESOURCES_OUTPUT}/SandboxProject"
                COMMAND ${CMAKE_COMMAND} -E create_symlink "${RYNEX_ROOT_PROJECT}/Rynex-Editor/mono"             "${RYNEX_PROJECT_ENGINE_RESOURCES_OUTPUT}/mono"
-               COMMAND ${CMAKE_COMMAND} -E create_symlink "${RYNEX_ROOT_PROJECT}/Rynex-Editor/imgui.ini"        "${RYNEX_PROJECT_ENGINE_RESOURCES_OUTPUT}/imgui.ini"
+               COMMAND ${CMAKE_COMMAND} -E create_symlink "${RYNEX_ROOT_PROJECT}/Rynex-Editor/imgui.ini"        "${RYNEX_PROJECT_BINARY_FOLDER_OUTPUT}/imgui.ini"
         )
     else()
         add_custom_command(
@@ -72,6 +72,7 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Rynex)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Rynex/vendor/Glad/)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Rynex/vendor/stb_image/)
 
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Sandbox)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Rynex-Editor)
 
 message("cxx dbg flags: ${CMAKE_CXX_FLAGS_DEBUG}")
