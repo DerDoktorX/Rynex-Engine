@@ -68,7 +68,7 @@ namespace Rynex {
 			out << YAML::Key << "Project" << YAML::Value;
 			{
 				out << YAML::BeginMap;// Project
-				out << YAML::Key << "Name" << YAML::Value << config.Name;
+				out << YAML::Key << "Name" << YAML::Value << config.name;
 				
 				std::filesystem::path projectFolder = config.ProjectPath;
 				SERLIZE_PATH(ProjectPath);
@@ -126,7 +126,7 @@ namespace Rynex {
 		std::filesystem::path parentProjectFile = filepath.parent_path();
 		std::string parentProjectFileStr = parentProjectFile.generic_string();
 		parentProjectFile = parentProjectFileStr;
-		config.Name = projectNode["Name"].as<std::string>();
+		config.name = projectNode["Name"].as<std::string>();
 		config.ProjectPath = parentProjectFileStr;
 
 		DESERLIZE_PATH(ProjectPath);

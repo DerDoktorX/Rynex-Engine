@@ -4,7 +4,7 @@
 
 namespace Rynex {
 
-	class EditorAssetManegerThreade;
+	class EditorAssetManagerThread;
 
 	struct ProjectConfig
 	{
@@ -135,7 +135,7 @@ namespace Rynex {
 		Ref<AssetManagerBase> GetAssetManger() { return m_AssetManger; }
 		Ref<RuntimeAssetManager> GetRuntimeAssetManger() const { return std::static_pointer_cast<RuntimeAssetManager>(m_AssetManger); }
 
-		Ref<EditorAssetManegerThreade> GetEditorAssetManger() const { return  std::static_pointer_cast<EditorAssetManegerThreade>(m_AssetManger); }
+		Ref<EditorAssetManagerThread> GetEditorAssetManger() const { return  std::static_pointer_cast<EditorAssetManagerThread>(m_AssetManger); }
 
 		static Ref<Project> New();
 		static Ref<Project> CreatNewPorject();

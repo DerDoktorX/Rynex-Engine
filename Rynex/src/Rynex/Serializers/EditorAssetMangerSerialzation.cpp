@@ -747,7 +747,7 @@ namespace Rynex {
 				// out << YAML::Key << "FilePath" << YAML::Value << filePathStr;
 				// out << YAML::Key << "FilePath-Absolute" << YAML::Value << pathAbosulte.string();
 				// out << YAML::Key << "FilePath-Realtiv" << YAML::Value << realtivePath.string();
-				out << YAML::Key << "FilePath-ProjectMarker" << YAML::Value << filePathMarkerStr;
+				out << YAML::Key << "FilePath-ProjectMarker" << YAML::Value << metadata.Path.GetMarkedPathString();
 
 				out << YAML::Key << "Type" << YAML::Value << Asset::AssetTypeToString(metadata.Type);
 				out << YAML::Key << "Name" << YAML::Value << metadata.Name;
@@ -769,7 +769,7 @@ namespace Rynex {
 
 	bool EditorAssetMangerSerialzation::DeserilzeThread(const std::filesystem::path& filepath, std::map<AssetHandle, AssetMetadata>* handleReg, std::map<FileSystem::Path, AssetHandle>* pathReg)
 	{
-		RY_CORE_INFO("Deserialze Path: '{0}'", filepath.string().c_str());
+		RY_CORE_INFO("Deserialize Path: '{0}'", filepath.string().c_str());
 		RY_REMBER_FUNC_CHANGE("After Testing remove Utils::TestFileSystemClass from this methode and funktion self!");
 		Test::FileSystemClass();
 
@@ -777,7 +777,6 @@ namespace Rynex {
 		try
 		{
 			data = YAML::LoadFile(filepath.string());
-			// data = YAML::LoadFile("AssetRegistry.ryr");
 		}
 		catch (YAML::ParserException e)
 		{
@@ -843,7 +842,7 @@ namespace Rynex {
 				metadata.ChangeTime = AssetRegistry::GetCurrentTimeStr();
 			metadata.SetActive(true);
 			metadata.SetIntern(false);
-			metadata.State = AssetState::LostConection;
+			metadata.SetState(AssetState::LostConnection);
             const FileSystem::Path& pathKey = metadata.Path;
 			pathReg->insert_or_assign(pathKey, handle);
 			handleReg->insert_or_assign(handle, metadata);

@@ -962,7 +962,7 @@ namespace Serializer {
 	void AssetFormate(YAML::Emitter& out, Rynex::AssetHandle handle)
 	{
 		Rynex::Ref<Rynex::Project> project = Rynex::Project::GetActive();
-		Rynex::Ref<Rynex::EditorAssetManegerThreade> editorAssetManger = project->GetEditorAssetManger();
+		Rynex::Ref<Rynex::EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
 		Rynex::AssetMetadata metadata = editorAssetManger->GetMetadata(handle);
 		const std::filesystem::path& filePath = metadata.FilePath;
 		const std::filesystem::path& pathMarked = metadata.PathMarker;

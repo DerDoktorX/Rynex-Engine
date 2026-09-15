@@ -207,7 +207,7 @@ namespace Utils {
 		static void SerializerAssetFormate(YAML::Emitter& out, const std::string& name, AssetHandle handle)
 		{
 			Ref<Project> project = Project::GetActive();
-			Ref<EditorAssetManegerThreade> editorAssetManger = project->GetEditorAssetManger();
+			Ref<EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
 			AssetMetadata metadata = editorAssetManger->GetMetadata(handle);
 			const std::filesystem::path& filePath = metadata.FilePath;
 			const std::filesystem::path& pathMarked = metadata.PathMarker;
@@ -226,7 +226,7 @@ namespace Utils {
 		static void SerializerAssetFormate(YAML::Emitter& out, const std::string& name, AssetHandle handle, AssetType type)
 		{
 			Ref<Project> project = Project::GetActive();
-			Ref<EditorAssetManegerThreade> editorAssetManger = project->GetEditorAssetManger();
+			Ref<EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
 			if (!editorAssetManger->IsAssetHandleValid(handle))
 			{
 				RY_CORE_ERROR("Asset has no vild Handle Serialized in {}", name);
@@ -265,7 +265,7 @@ namespace Utils {
 		{
 			RY_LOG_DISABLE_NUMBER;
 
-			Ref<EditorAssetManegerThreade> editorAssetManger = Project::GetActive()->GetEditorAssetManger();
+			Ref<EditorAssetManagerThread> editorAssetManger = Project::GetActive()->GetEditorAssetManger();
 
 
 			RY_CORE_ASSERT(entity.HasComponent<IDComponent>(), "Error: Entity has not IDComponent");
@@ -736,7 +736,7 @@ namespace Utils {
 		std::ifstream stream(path);
 		std::stringstream strStream;
 		strStream << stream.rdbuf();
-		Ref<EditorAssetManegerThreade> editorAssetManger = Project::GetActive()->GetEditorAssetManger();
+		Ref<EditorAssetManagerThread> editorAssetManger = Project::GetActive()->GetEditorAssetManger();
 
 		YAML::Node data = YAML::Load(strStream.str());
 		if (!data["Scene"])

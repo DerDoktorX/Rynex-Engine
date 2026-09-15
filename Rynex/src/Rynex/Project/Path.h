@@ -76,12 +76,12 @@ namespace Rynex::FileSystem {
 
         Origin GetOrigin() const;
 
-        const std::filesystem::path& GetPath() const; // get proteced acces to Orignal data
+        const std::filesystem::path& GetPath() const; // get protected access to Original data
         [[nodiscard]] Path GetParent() const;
         [[nodiscard]] std::filesystem::path GetAbsolutePath() const;
         [[nodiscard]] std::filesystem::path GetRelativePath() const;
         [[nodiscard]] std::filesystem::path GetRelativePathFromOriginBase(Origin origin) const;
-        [[nodiscard]] std::filesystem::path GetAbsoulteBasePath() const;
+        [[nodiscard]] std::filesystem::path GetAbsoluteBasePath() const;
         [[nodiscard]] std::filesystem::path GetNamePath() const;
         [[nodiscard]] std::filesystem::path GetExtensionPath() const;
         [[nodiscard]] std::filesystem::path GetParentPath() const;
@@ -91,7 +91,7 @@ namespace Rynex::FileSystem {
         [[nodiscard]] std::string GetRelativePathString() const;
         [[nodiscard]] std::string GetMarkedPathString() const;
         [[nodiscard]] std::string GetRelativePathFromOriginBaseString(Origin origin) const;
-        [[nodiscard]] std::string GetAbsoulteBasePathString() const;
+        [[nodiscard]] std::string GetAbsoluteBasePathString() const;
         [[nodiscard]] std::string GetNamePathString() const;
         [[nodiscard]] std::string GetExtensionPathString() const;
         [[nodiscard]] std::string GetParentPathString() const;
@@ -99,7 +99,7 @@ namespace Rynex::FileSystem {
 
 
         void SetMarker(Origin origin);
-
+        void Clear();
 
         inline bool operator==(const Path& path) const
         {
@@ -157,6 +157,7 @@ namespace Rynex::FileSystem {
         inline Path& operator=(const Path& path)
         {
             m_Path = path.m_Path;
+            m_Origin = path.m_Origin;
             return *this;
         }
 

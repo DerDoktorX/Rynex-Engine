@@ -132,7 +132,7 @@ namespace Rynex {
                     {
                         Ref<Project> project = Project::GetActive();
 #if RY_EDITOR_ASSETMANGER_THREADE
-                        Ref<EditorAssetManegerThreade> editorAssetManager = project->GetEditorAssetManger();
+                        Ref<EditorAssetManagerThread> editorAssetManager = project->GetEditorAssetManger();
                         const AssetMetadata metadata = editorAssetManager->GetMetadata(*(AssetHandle*)payload->Data);
 #else
                         Ref<EditorAssetManager> editorAssetManager = project->GetEditorAssetManger();

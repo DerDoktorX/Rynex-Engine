@@ -123,14 +123,14 @@ namespace Rynex {
 		AssetHandle Handle = 0;
 		AssetMetadata Metadata = AssetMetadata();
 		AssetType Type = AssetType::None;
-		std::string TypeString = "";
+		std::string TypeString;
 		Ref<Texture> Texture = nullptr;
 		AssetState State = AssetState::None;
 
-		std::string Name = "";
-		FileSystem::Path Path = "";
-		FileSystem::Path RelativProjectPath = "";
-		std::string PathString = "";
+		std::string Name;
+		FileSystem::Path Path;
+		FileSystem::Path RelativProjectPath;
+		std::string PathString;
 
 		AssetBrowserDataThreade() = default;
 		AssetBrowserDataThreade(bool isAssset, bool isFolder, AssetHandle handle, const AssetMetadata& metadata, AssetType type, const std::string& typeString, AssetState state, const std::string& name, const FileSystem::Path& path, const std::string& pathString)
@@ -173,21 +173,21 @@ namespace Rynex {
 
 	
 
-	class EditorAssetManegerThreade : public AssetManagerBase
+	class EditorAssetManagerThread : public AssetManagerBase
 	{
 	public:
 		template<typename K, typename T>
 		using AssetMangerMap = AssetMangerMapMutex<K, T>;
 
+	    EditorAssetManagerThread();
+		virtual ~EditorAssetManagerThread() override;
 
-		virtual ~EditorAssetManegerThreade() = default;
+		virtual void OnAttach() override;
+		virtual void OnDetach() override;
 
-		virtual void OnAttach();
-		virtual void OnDetach();
+		bool IsDirectoryInRegistry(const FileSystem::Path& parentPath) const;
 
-		bool IsDirectoryInRegistry(const FileSystem::Path& parentPath);
-
-		bool IsAssetPathExtensionVaild(const FileSystem::Path& parentPath) const;
+		bool IsAssetPathExtensionValid(const FileSystem::Path& parentPath) const;
 		virtual bool IsAssetHandleValid(AssetHandle handle) const override;
 		virtual bool IsAssetHandleValid(const FileSystem::Path& path) const override;
 		virtual bool IsAssetInteral(AssetHandle handle) const override;
@@ -196,14 +196,14 @@ namespace Rynex {
 
 		void IsAssetHandleValidAsync(AssetHandle handle, bool* result);
 		void IsAssetHandleValidAsync(const FileSystem::Path& path, bool* result);
-		void IsAssetInteralAsync(AssetHandle handle, bool* result);
+		void IsAssetInternalAsync(AssetHandle handle, bool* result);
 		void IsAssetLoadedAsync(AssetHandle handle, bool* result);
 		void IsAssetLoadedAsync(const FileSystem::Path& path, bool* result);
 
 		virtual const AssetMetadata GetMetadata(AssetHandle handle) const override;
 		virtual const AssetMetadata GetMetadata(const FileSystem::Path& path) const override;
-		void GetMetadataAsync(AssetHandle handle, AssetMetadata* meatdat);
-		void GetMetadataAsync(const FileSystem::Path& path, AssetMetadata* meatdat);
+		void GetMetadataAsync(AssetHandle handle, AssetMetadata* metadat);
+		void GetMetadataAsync(const FileSystem::Path& path, AssetMetadata* metadata);
 
 		virtual const AssetHandle GetAssetHandle(const FileSystem::Path& path) const override;
 
@@ -226,15 +226,15 @@ namespace Rynex {
 
 		void DeleteLocaleAssetAsync(AssetHandle handle);
 
-		void ScaneDirectory(const FileSystem::Path& path);
-		void ReLoadeAsset(AssetHandle handle);
-		void ReLoadeAsset(const FileSystem::Path& path);
+		void ScanDirectory(const FileSystem::Path& path);
+		void ReLodeAsset(AssetHandle handle);
+		void ReLoadAsset(const FileSystem::Path& path);
 
-		bool IsCurentAssetState(const FileSystem::Path& showPath) const;
-		ContentBrowserItemesThreade GetCurentAssetInformation(const FileSystem::Path& showPath);
+		bool IsCurrentAssetState(const FileSystem::Path& showPath) const;
+		ContentBrowserItemesThreade GetCurrentAssetInformation(const FileSystem::Path& showPath);
 
-		bool IsCurentRegistryAssetChandge() const;
-		RegisterItemesThreade GetCurentAssetRegistry();
+		bool IsCurrentRegistryAssetChange() const;
+		RegisterItemesThreade GetCurrentAssetRegistry();
 
 		void EventAsyncModified(const FileSystem::Path& path);
 		void EventAsyncAdded(const FileSystem::Path& path);
@@ -242,64 +242,63 @@ namespace Rynex {
 		void EventAsyncRenamedNew(const FileSystem::Path& path);
 		void EventAsyncRenamedOld(const FileSystem::Path& path);
 
-		void SerialzeAssetRegistry();
-		bool DeserialzeAssetRegistry();
+		void SerializeAssetRegistry();
+		bool DeserializeAssetRegistry();
 
-		void DeleateDirectory(const FileSystem::Path& path);
-		void DeleateFileAsset(AssetHandle handle);
-		void UnLoadeFileAsset(const AssetHandle handle);
+		void DeleteDirectory(const FileSystem::Path& path);
+		void DeleteFileAsset(AssetHandle handle);
+		void UnLodeFileAsset(const AssetHandle handle);
 		
-		void ClearLodeadAssetList();
+		void ClearLoadedAssetList();
 	private:
 
-		bool ExexuteEvent(AssetHandle handle);
+		bool ExecuteEvent(AssetHandle handle);
 		inline bool IsFileAssetExist(const FileSystem::Path& path);
 		bool CheckAssetFileExist(AssetHandle handle);
 
 		void CreateAssetDirectory(const FileSystem::Path& parentPath);
-		void AddAssetFileToAssetDirectory(const FileSystem::Path& assetPath, const std::string& assetName, const std::string& assetPathString, AssetHandle handle);
+		void AddAssetFileToAssetDirectory(const FileSystem::Path& assetPath, AssetHandle handle);
 		void AddDirectoryToParent(const FileSystem::Path& prentPath);
-		void AddDirectory(const FileSystem::Path& path);
+		void AddDirectory(const FileSystem::Path& folder, const FileSystem::Path& parentFolder, std::map<FileSystem::Path, AssetFileDirectoryThreade>& folderMap);
 		void CreateFileAsset(const FileSystem::Path& path);
-		void CreateNewFileAsset(const std::string& name, const FileSystem::Path& path, const std::string& pathMarker);
+		void CreateNewFileAsset(const FileSystem::Path& path);
 
 		void GetMetadata(AssetHandle handle, AssetMetadata* metaData, std::mutex* metaDataMutex);
-		void DeleateDirectory(const std::vector<FileSystem::Path>& paths);
-		void DeleateFileAsset(const std::vector<AssetHandle>& handles);
+		void DeleteDirectory(const std::vector<FileSystem::Path>& paths);
+		void DeleteFileAsset(const std::vector<AssetHandle>& handles);
 
 		
-        Ref<Asset> GetAssetLostConection(AssetHandle handle);
+        Ref<Asset> GetAssetLostConnection(AssetHandle handle);
 	    void SetAssetMetadataLockState(AssetHandle handle, std::function<void(AssetMetadata&)> lambder);
 	    void SetAssetMetadataUpdateContentBrowser(AssetMetadata& metadata);
+	    void SetPathUpdateContentBrowser(const FileSystem::Path& metadata);
 	    void SetAssetMetadataStateNotLoaded(AssetMetadata& metadata);
 	    void SetAssetMetadataStateLoading(AssetMetadata& metadata);
 	    void SetAssetMetadataStateError(AssetMetadata& metadata);
 	    void SetAssetMetadataStateReady(AssetMetadata& metadata);
-	    void SetAssetMetadataStateUpdateing(int* abourtPtr, AssetMetadata& metadata);
-	    void SetAssetMetadataStateLostConection(AssetMetadata& metadata);
+	    void SetAssetMetadataStateUpdating(int* aboutPtr, AssetMetadata& metadata);
+	    void SetAssetMetadataStateLostConnection(AssetMetadata& metadata);
 	private:
 		AssetMangerMap<AssetHandle, Ref<Asset>>							    m_LoadedAssets;
 		AssetMangerMap<AssetHandle, AssetMetadata>							m_HandleRegistry;
 		AssetMangerMap<FileSystem::Path, AssetHandle>					    m_PathRegistry;
-		AssetMangerMap<FileSystem::Path, AssetFileDirectoryThreade>	            m_DirectoryRegistry;
+		AssetMangerMap<FileSystem::Path, AssetFileDirectoryThreade>         m_DirectoryRegistry;
 
-		bool							m_FileChanges = true;
-		bool							m_RegestryChanges = true;
+		bool							m_FileChanges;
+		bool							m_RegistryChanges;
 		mutable std::mutex				m_ChangesMutex;
 
-		uint32_t						m_CurentProzesses;
-		mutable std::mutex				m_CurentProzessesMutex;
+		uint32_t						m_CurrentProcess;
+		mutable std::mutex				m_CurrentProcessMutex;
 
-		FileSystem::Path			    m_CurentPath = "";
-		mutable std::mutex				m_CurentPathMutex;
+		FileSystem::Path			    m_CurrentPath;
+		mutable std::mutex				m_CurrentPathMutex;
 
-		FileSystem::Path			    m_BaseAssetPath = "";
+		FileSystem::Path			    m_BaseAssetPath;
 		mutable std::mutex				m_BaseAssetPathMutex;
 
 		mutable std::mutex				m_WorkingThreadMutex;
 		std::vector<std::future<void>>	m_WorkingThread;
-		
-		
 	};
 
 #pragma endregion

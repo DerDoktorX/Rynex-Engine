@@ -41,9 +41,9 @@ namespace Rynex {
             else if (!IsAssetInteral(handle))
             {
                 AssetMetadata& metadata = m_AssetRegistry.GetMetadata(handle);
-                metadata.State = AssetState::Loading;
+                metadata.SetState(AssetState::Loading);
                 asset = AssetImporter::ImportAsset(handle, metadata);
-                metadata.State = AssetState::Ready;
+                metadata.SetState(AssetState::Ready);
                 asset->Handle = handle;
                 if (!asset) {}
                 m_LoadedAssets[handle] = asset;

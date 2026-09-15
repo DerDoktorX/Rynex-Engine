@@ -138,7 +138,7 @@ namespace Rynex {
 			RY_CORE_ASSERT(info, "not enough information for 100% ID Asset!");
 
 			Ref<Project> project = Project::GetActive();
-			Ref<EditorAssetManegerThreade> editorAssetManger = project->GetEditorAssetManger();
+			Ref<EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
 
 			AssetHandle handle = info.m_Handle;
 			AssetHandle handlePath = editorAssetManger->GetAssetHandle(info.m_Path);
@@ -168,7 +168,7 @@ namespace Rynex {
 			RY_CORE_ASSERT(info, "not enough information for 100% ID Asset!");
 
 			Ref<Project> project = Project::GetActive();
-			Ref<EditorAssetManegerThreade> editorAssetManger = project->GetEditorAssetManger();
+			Ref<EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
 
 			AssetHandle handle = info.m_Handle;
 			AssetHandle handlePath = editorAssetManger->GetAssetHandle(info.m_Path);

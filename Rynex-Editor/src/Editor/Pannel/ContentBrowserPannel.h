@@ -104,7 +104,7 @@ namespace Rynex {
 	private:
 		Ref<Project> m_Project;
 		std::filesystem::path m_BaseDirectory;
-		std::filesystem::path m_CurrentDirectory;
+		FileSystem::Path m_CurrentDirectory;
 
 		Ref<Texture>	m_DirectoryIcon;
 		//Files
@@ -122,7 +122,7 @@ namespace Rynex {
 		
 		// AssetDirectory m_AssetDirectorys;
 #if RY_EDITOR_ASSETMANGER_THREADE
-		Ref<EditorAssetManegerThreade> m_AssetManger;
+		Ref<EditorAssetManagerThread> m_AssetManger;
 #else
 		Ref<EditorAssetManager> m_AssetManger;
 #endif

@@ -744,7 +744,7 @@ namespace Rynex {
 
 					{
 						Ref<Project> project = Project::GetActive();
-						Ref<EditorAssetManegerThreade> assetManger = project->GetEditorAssetManger();
+						Ref<EditorAssetManagerThread> assetManger = project->GetEditorAssetManger();
 						if (!assetManger->IsAssetHandleValid(handle))
 						{
 							uint64_t handleValue = handle;
@@ -867,7 +867,7 @@ namespace Rynex {
 					// TODO: make Import Class
 					Ref<Project> project = Project::GetActive();
 #if RY_EDITOR_ASSETMANGER_THREADE
-					Ref<EditorAssetManegerThreade> editorAssetManager = project->GetEditorAssetManger();
+					Ref<EditorAssetManagerThread> editorAssetManager = project->GetEditorAssetManger();
 					const AssetMetadata metadata = editorAssetManager->GetMetadata(*(AssetHandle*)payload->Data);
 #else
 					Ref<EditorAssetManager> editorAssetManager = project->GetEditorAssetManger();

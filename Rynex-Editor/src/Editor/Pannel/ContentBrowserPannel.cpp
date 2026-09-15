@@ -74,7 +74,7 @@ namespace Rynex {
 		m_FileIconTexture	= TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ContentBrowser/FileIconTexture.png");
 		m_AssetManger		= m_Project->GetEditorAssetManger();
 
-		m_AssetManger->SerialzeAssetRegistry();
+		m_AssetManger->SerializeAssetRegistry();
 		RY_CORE_INFO("Fished SerialzeAssetRegistry!");
 		m_BaseDirectory = Project::GetActiveAssetDirectory();
 		m_CurrentDirectory = m_BaseDirectory;
@@ -90,7 +90,7 @@ namespace Rynex {
 
 		RY_DESTROY_REF(m_Project);
 		m_BaseDirectory.clear();
-		m_CurrentDirectory.clear();
+		m_CurrentDirectory.Clear();
 
 		RY_DESTROY_REF(m_DirectoryIcon);
 		RY_DESTROY_REF(m_FileIconDefault);
@@ -149,13 +149,13 @@ namespace Rynex {
 	{
 		switch (state)
 		{
-			case AssetState::Error:			return ImVec4(0.95, 0.05, 0.1, 1.0);
-			case AssetState::Updateing:		return ImVec4(0.3, 0.5, 0.7, 1.0);
-			case AssetState::LostConection:	return ImVec4(0.75, 0.1, 0.05, 1.0);
-			case AssetState::Loading:		return ImVec4(0.85, 0.275, 0.05, 1.0);
-			case AssetState::Ready:			return ImVec4(0.2, 0.8, 0.3, 1.0);
-			case AssetState::NotLoaded:		return ImVec4(0.8, 0.7, 0.1, 1.0);
-			case AssetState::None:			return ImVec4(1.0, 1.0, 0.5, 1.0);
+			case AssetState::Error:			    return ImVec4(0.95, 0.05, 0.1, 1.0);
+			case AssetState::Updateing:		    return ImVec4(0.3, 0.5, 0.7, 1.0);
+			case AssetState::LostConnection:	return ImVec4(0.75, 0.1, 0.05, 1.0);
+			case AssetState::Loading:		    return ImVec4(0.85, 0.275, 0.05, 1.0);
+			case AssetState::Ready:			    return ImVec4(0.2, 0.8, 0.3, 1.0);
+			case AssetState::NotLoaded:		    return ImVec4(0.8, 0.7, 0.1, 1.0);
+			case AssetState::None:			    return ImVec4(1.0, 0.0, 1.0, 1.0);
 			default:
 				break;
 		}
@@ -177,7 +177,7 @@ namespace Rynex {
 			{
 				if (ImGui::Button("<-"))
 				{
-					m_CurrentDirectory = m_CurrentDirectory.parent_path();
+					m_CurrentDirectory = m_CurrentDirectory.GetParent();
 				}
 			}
 
@@ -197,10 +197,10 @@ namespace Rynex {
 			ImGui::Columns(columnCount, 0, false);
 
 
-			if (m_AssetManger->IsCurentAssetState(m_CurrentDirectory))
+			if (m_AssetManger->IsCurrentAssetState(m_CurrentDirectory))
 			{
-				m_FileItemes = m_AssetManger->GetCurentAssetInformation(m_CurrentDirectory);
-				RY_CORE_WARN("New Asset Items Ordert");
+				m_FileItemes = m_AssetManger->GetCurrentAssetInformation(m_CurrentDirectory);
+				RY_CORE_WARN("New Asset Items Order");
 			}
 
 			for (AssetBrowserDataThreade& data : m_FileItemes)
@@ -213,7 +213,7 @@ namespace Rynex {
 				{
 					ImGui::PushID(data.Name.c_str());
 
-					ImVec4 sytelColor{0.0f, 0.0f, 0.0f, 0.0f};
+					ImVec4 sytelColor{ 0.0f, 0.0f, 0.0f, 0.0f };
 					ImGui::PushStyleColor(ImGuiCol_Button, sytelColor);
 					if (data.Path != m_BaseDirectory / "Loaded (NotAssetFiles)" && data.Path != m_BaseDirectory / "Unknown File Types")
 					{
@@ -292,11 +292,11 @@ namespace Rynex {
 				}
 				if (ImGui::MenuItem("Scane Directory"))
 				{
-
+				    m_AssetManger->ScanDirectory(m_CurrentDirectory);
 				}
 				if (ImGui::MenuItem("Onlode All Assets Form Register"))
 				{
-					m_AssetManger->ClearLodeadAssetList();
+					m_AssetManger->ClearLoadedAssetList();
 				}
 
 
@@ -407,7 +407,7 @@ namespace Rynex {
 
 		);
 
-		if (state == AssetState::LostConection || state == AssetState::Error)
+		if (state == AssetState::LostConnection || state == AssetState::Error)
 		{
 
 		}
@@ -480,9 +480,9 @@ namespace Rynex {
 		{
 			ImGui::Begin("Asset Regestriy", &m_WindowRegestriyPannellOpen, ImGuiWindowFlags_None);
 			
-			if (m_AssetManger->IsCurentRegistryAssetChandge())
+			if (m_AssetManger->IsCurrentRegistryAssetChange())
 			{
-				m_RegisterItemes = m_AssetManger->GetCurentAssetRegistry();
+				m_RegisterItemes = m_AssetManger->GetCurrentAssetRegistry();
 			}
 			
 			for (const auto& [handle, metadata, filePath] : m_RegisterItemes)
@@ -598,14 +598,14 @@ namespace Rynex {
 			case filewatch::Event::modified:
 			{
 
-				Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
+				Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
 				assetManger->EventAsyncModified(filePath);
 
 				break;
 			}
 			case filewatch::Event::added:
 			{
-				Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
+				Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
 				assetManger->EventAsyncAdded(filePath);
 				break;
 
@@ -613,19 +613,19 @@ namespace Rynex {
 			case filewatch::Event::removed:
 			{
 
-				Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
+				Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
 				assetManger->EventAsyncRemoved(filePath);
 				break;
 			}
 			case filewatch::Event::renamed_new:
 			{
-				Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
+				Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
 				assetManger->EventAsyncRenamedNew(filePath);
 				break;
 			}
 			case filewatch::Event::renamed_old:
 			{
-				Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
+				Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
 				assetManger->EventAsyncRenamedOld(filePath);
 				break;
 			}
@@ -648,33 +648,33 @@ namespace Rynex {
 		case filewatch::Event::modified:
 		{
 
-			Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
+			Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
 			assetManger->EventAsyncModified(filePath);
 
 			break;
 		}
 		case filewatch::Event::added:
 		{
-			Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
+			Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
 			assetManger->EventAsyncAdded(filePath);
 			break;
 
 		}
 		case filewatch::Event::removed:
 		{
-			Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
+			Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
 			assetManger->EventAsyncRemoved(filePath);
 			break;
 		}
 		case filewatch::Event::renamed_new:
 		{
-			Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
+			Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
 			assetManger->EventAsyncRenamedNew(filePath);
 			break;
 		}
 		case filewatch::Event::renamed_old:
 		{
-			Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
+			Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
 			assetManger->EventAsyncRenamedOld(filePath);
 			break;
 		}
@@ -713,8 +713,8 @@ namespace Rynex {
 	{
 		for (AssetHandle assetonLoade : m_OnLoadeAsset)
 		{
-			Ref<EditorAssetManegerThreade> assetManger = Project::GetActive()->GetEditorAssetManger();
-			assetManger->UnLoadeFileAsset(assetonLoade);
+			Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
+			assetManger->UnLodeFileAsset(assetonLoade);
 		}
 		m_OnLoadeAsset.clear();
 	}

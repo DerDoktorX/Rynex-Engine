@@ -8,7 +8,7 @@ namespace Rynex {
 	{
 		None = 0,
 		Loading,
-		LostConection,	// Contion to File
+		LostConnection,	// Contion to File
 		Updateing,
 		Ready,			// Raedy to use
 		Error,			// Every Error
@@ -76,6 +76,8 @@ namespace Rynex {
 
 		void SetState(AssetState state) 
 		{
+
+		    RY_CORE_TRACE("AssetMetadata state change from Asset ({}): {} -> {}", Name ,State, state);
 			State = state;
 		}
 

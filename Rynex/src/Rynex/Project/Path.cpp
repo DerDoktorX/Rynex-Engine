@@ -148,7 +148,7 @@ namespace Rynex::FileSystem {
 		return realtiveToBase;
 	}
 
-	std::filesystem::path Path::GetAbsoulteBasePath() const
+	std::filesystem::path Path::GetAbsoluteBasePath() const
 	{
 		std::filesystem::path basePath = GetPathAbsoluteOrigin(m_Origin);
 		
@@ -203,9 +203,9 @@ namespace Rynex::FileSystem {
 		return GetRelativePathFromOriginBase(origin).string();
 	}
 
-	std::string Path::GetAbsoulteBasePathString() const
+	std::string Path::GetAbsoluteBasePathString() const
 	{
-		return GetAbsoulteBasePath().string();
+		return GetAbsoluteBasePath().string();
 	}
 
 	std::string Path::GetNamePathString() const
@@ -228,7 +228,7 @@ namespace Rynex::FileSystem {
     AssetType Path::GetAssetFileType() const
 	{
 		AssetType assetType = Asset::GetAssetTypeFromFilePath(m_Path);
-		return AssetType();
+		return assetType;
 	}
 
 
@@ -268,9 +268,14 @@ namespace Rynex::FileSystem {
 		ConvertUniversalPath(m_Path);
 	}
 
-	
+    void Path::Clear()
+    {
+	    m_Path.clear();
+	    m_Origin = Origin::None;
+    }
 
-	std::filesystem::path Path::GetProjectDirectory()
+
+    std::filesystem::path Path::GetProjectDirectory()
 	{
 		std::filesystem::path projectPath = Project::GetActiveProjectDirectory();
 		ConvertUniversalPath(projectPath);

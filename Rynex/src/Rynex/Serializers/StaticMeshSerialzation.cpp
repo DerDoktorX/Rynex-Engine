@@ -18,7 +18,7 @@ namespace Rynex {
 		static bool SerializerAssetFormate(YAML::Emitter& out, const std::string& name, AssetHandle handle)
 		{
 			Ref<Project> project = Project::GetActive();
-			Ref<EditorAssetManegerThreade> editorAssetManger = project->GetEditorAssetManger();
+			Ref<EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
 			if (!editorAssetManger->IsAssetHandleValid(handle))
 			{
 				uint64_t handleV = handle;
@@ -60,7 +60,7 @@ namespace Rynex {
 			out << YAML::Key << "Materiel" << YAML::Value;
 			{
 				Ref<Project> project = Project::GetActive();
-				Ref<EditorAssetManegerThreade> editorAssetManger = project->GetEditorAssetManger();
+				Ref<EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
 
 				const Ref<Material>& material = object._Material;
 				AssetHandle materielHandle = material->Handle;
@@ -216,7 +216,7 @@ namespace Rynex {
 		static bool DeserializeMateriel(AssetHandle materilHandle, const std::filesystem::path& path, MeshStatic::SingleObjectMeshData& singleObjectMeshData)
 		{
 			Ref<Project> project = Project::GetActive();
-			Ref<EditorAssetManegerThreade> assetManager = project->GetEditorAssetManger();
+			Ref<EditorAssetManagerThread> assetManager = project->GetEditorAssetManger();
 			AssetHandle handleP = assetManager->GetAssetHandle(path);
 			RY_CORE_ASSERT(handleP == materilHandle, "Not Simulare Asset Handle!");
 

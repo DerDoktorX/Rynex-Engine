@@ -204,16 +204,16 @@ namespace Rynex {
         std::filesystem::path fileNamePath = pConfig.name + ".ryproj";
         std::filesystem::path filePath = pConfig.ProjectPath / filePath;
         Project::SaveActive(filePath);
-        Ref<EditorAssetManegerThreade> editorAssetManager = s_ActiveInstancProject->GetEditorAssetManger();
+        Ref<EditorAssetManagerThread> editorAssetManager = s_ActiveInstancProject->GetEditorAssetManger();
 
        if (editorAssetManager)
        {
-           editorAssetManager->SerialzeAssetRegistry();
+           editorAssetManager->SerializeAssetRegistry();
        }
        else
        {
-           Ref<EditorAssetManegerThreade> editorAssetManagerN = CreateRef<EditorAssetManegerThreade>();
-           editorAssetManagerN->SerialzeAssetRegistry();
+           Ref<EditorAssetManagerThread> editorAssetManagerN = CreateRef<EditorAssetManagerThread>();
+           editorAssetManagerN->SerializeAssetRegistry();
            s_ActiveInstancProject->m_AssetManger = editorAssetManagerN;
        }
        return s_ActiveInstancProject;
@@ -229,18 +229,18 @@ namespace Rynex {
         std::filesystem::path filePath = pConfig.ProjectPath / filePath;
 
         Project::SaveActive(filePath);
-        Ref<EditorAssetManegerThreade> editorAssetManager = s_ActiveInstancProject->GetEditorAssetManger();
+        Ref<EditorAssetManagerThread> editorAssetManager = s_ActiveInstancProject->GetEditorAssetManger();
 
 
 
         if (editorAssetManager)
         {
-            editorAssetManager->SerialzeAssetRegistry();
+            editorAssetManager->SerializeAssetRegistry();
         }
         else
         {
-            Ref<EditorAssetManegerThreade> editorAssetManagerN = CreateRef<EditorAssetManegerThreade>();
-            editorAssetManagerN->SerialzeAssetRegistry();
+            Ref<EditorAssetManagerThread> editorAssetManagerN = CreateRef<EditorAssetManagerThread>();
+            editorAssetManagerN->SerializeAssetRegistry();
             s_ActiveInstancProject->m_AssetManger = editorAssetManagerN;
         }
         s_ActiveInstancProject = project;
@@ -264,11 +264,11 @@ namespace Rynex {
         {
             project->m_Config.ProjectPath = FileSystem::Path(path.parent_path()).GetAbsolutePath();
 
-            Ref<EditorAssetManegerThreade> editorAssetManager = CreateRef<EditorAssetManegerThreade>();
+            Ref<EditorAssetManagerThread> editorAssetManager = CreateRef<EditorAssetManagerThread>();
             editorAssetManager->OnAttach();
             s_ActiveInstancProject->m_AssetManger = editorAssetManager;
 
-            editorAssetManager->DeserialzeAssetRegistry();
+            // editorAssetManager->DeserializeAssetRegistry();
             RY_CORE_ERROR("Project Loading For Editor Sucese");
 
             return s_ActiveInstancProject;

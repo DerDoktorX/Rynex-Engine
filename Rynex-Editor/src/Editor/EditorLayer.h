@@ -169,7 +169,7 @@ namespace Rynex{
 		std::mutex						s_WorkingThreadMutex;
 		std::vector<std::future<void>>	s_WorkingThread;
 
-		Ref<EditorAssetManegerThreade> m_AssetManger;
+		Ref<EditorAssetManagerThread> m_AssetManger;
 
 		int64_t m_ViewPortUpdateTime;
 		int64_t m_ViewPortRenderTime;
