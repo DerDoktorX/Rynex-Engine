@@ -16,7 +16,7 @@
 // Arrows dont work her
 namespace Rynex {
 
-	class RYNEX_API Log
+    class RYNEX_API Log
 	{
 	public:
 		Log();
@@ -69,23 +69,55 @@ namespace Rynex {
 	
 
 }
-template<typename OStream, glm::length_t L, typename T, glm::qualifier Q>
-inline OStream& operator<<(OStream& os, const glm::vec<L, T, Q>& vector)
+template<glm::length_t L, typename T, glm::qualifier Q>
+std::ostream& operator<<(std::ostream& os, const glm::vec<L, T, Q>& vector)
 {
 	return os << glm::to_string(vector);
 }
 
-template<typename OStream, glm::length_t C, glm::length_t R, typename T, glm::qualifier Q>
-inline OStream& operator<<(OStream& os, const glm::mat<C, R, T, Q>& matrix)
+template<glm::length_t C, glm::length_t R, typename T, glm::qualifier Q>
+std::ostream& operator<<(std::ostream& os, const glm::mat<C, R, T, Q>& matrix)
 {
 	return os << glm::to_string(matrix);
 }
 
-template<typename OStream, typename T, glm::qualifier Q>
-inline OStream& operator<<(OStream& os, glm::qua<T, Q> quaternion)
+template<typename T, glm::qualifier Q>
+std::ostream& operator<<(std::ostream& os, glm::qua<T, Q> quaternion)
 {
 	return os << glm::to_string(quaternion);
 }
+
+
+template<>
+struct fmt::formatter<std::string_view> : fmt::formatter<const char*>
+{
+    context::iterator format(const std::string_view& view, fmt::format_context& ctx) const
+    {
+        const char* viewData = view.data();
+        return fmt::formatter<const char*>::format(viewData, ctx);
+    }
+};
+
+template<>
+struct fmt::formatter<Rynex::UUID> : fmt::formatter<uint64_t>
+{
+    context::iterator format(const Rynex::UUID& uuid, fmt::format_context& ctx) const
+    {
+        uint64_t number = static_cast<uint64_t>(uuid);
+        return fmt::formatter<uint64_t>::format(number, ctx);
+    }
+};
+
+
+template<typename T>
+struct fmt::formatter<T, std::enable_if_t<std::is_enum_v<T>, char>> : fmt::formatter<std::string_view>
+{
+    context::iterator format(const T& value, fmt::format_context& ctx) const
+    {
+        std::string_view view = magic_enum::enum_name(value);
+        return fmt::formatter<std::string_view>::format(view, ctx);
+    }
+};
 
 
 

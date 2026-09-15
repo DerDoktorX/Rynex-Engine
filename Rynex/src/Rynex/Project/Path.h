@@ -318,3 +318,14 @@ namespace std {
 		}
 	};
 }
+
+
+template<>
+struct fmt::formatter<Rynex::FileSystem::Path> : fmt::formatter<std::filesystem::path>
+{
+    context::iterator format(const Rynex::FileSystem::Path& value, fmt::format_context& ctx) const
+    {
+        const std::filesystem::path& path = value.GetPath();
+        return fmt::formatter<std::filesystem::path>::format(path, ctx);
+    }
+};
