@@ -1,6 +1,6 @@
 #pragma once
-#include "Asset.h"
-#include "AssetMetadata.h"
+#include <Rynex/Asset/Base/Asset.h>
+#include <Rynex/Asset/Base/AssetMetadata.h>
 
 #include <Rynex/Core/Application.h>
 #include <Rynex/Project/Project.h>

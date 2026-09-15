@@ -1,9 +1,12 @@
 #pragma once
 
 #include <Rynex/Core/Base.h>
+#include <Rynex/Core/UUID.h>
+#include <magic_enum/magic_enum.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
+
 
 #pragma warning(push, 0)
 #include <spdlog/spdlog.h>

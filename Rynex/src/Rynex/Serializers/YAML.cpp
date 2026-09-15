@@ -6,8 +6,6 @@
 #include <yaml-cpp/yaml.h>
 
 
-#include <magic_enum/magic_enum.hpp>
-
 
 namespace YAML {
 

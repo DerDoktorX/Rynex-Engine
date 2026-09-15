@@ -1,6 +1,7 @@
 #include "rypch.h"
 #include "EditorAssetManager.h"
 
+#include <Rynex/Asset/Base/Asset.h>
 #include <Rynex/Asset/Base/AssetManager.h>
 #include <Rynex/Asset/Base/AssetImporter.h>
 #include <Rynex/Project/Project.h>

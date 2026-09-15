@@ -1,5 +1,6 @@
 #pragma once
-#include <Rynex/Asset/Base//Asset.h>
+#include <Rynex/Asset/Base/Asset.h>
+
 
 namespace Rynex {
 

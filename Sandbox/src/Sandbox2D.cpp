@@ -1,7 +1,7 @@
 #include <rypch.h>
 #include "Sandbox2D.h"
 
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 #if defined(RY_SCRIPTING_ENGINE)
 	#include <Rynex/Scripting/Mono/ScriptingEngine.h>

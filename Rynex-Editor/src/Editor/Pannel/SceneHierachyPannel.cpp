@@ -17,7 +17,7 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
-#include <magic_enum/magic_enum.hpp>
+
 
 
 #define RY_ENABLE_UTILS_REALTION_SHIP_COMP 0
