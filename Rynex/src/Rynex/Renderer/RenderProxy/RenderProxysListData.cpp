@@ -392,7 +392,7 @@ namespace Rynex {
 
                 if (m_Stop)
                 {
-                    RY_CORE_WARN("We dont finsh the event list!");
+                    RY_CORE_WARN_IF(!m_ThreadQueue.Empty(), "We dont finsh the event list!");
                     return;
                 }
 

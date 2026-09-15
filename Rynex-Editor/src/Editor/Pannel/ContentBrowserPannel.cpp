@@ -190,7 +190,7 @@ namespace Rynex {
 			float pannelWidth1 = ImGui::GetContentRegionAvail().x;
 			float pannelWidth2 = ImGui::GetWindowWidth();
 			pannelWidth2 -= 30.0f;
-			int columnCount = (int)(pannelWidth2 / cellSize);
+			int columnCount = static_cast<int>(pannelWidth2 / cellSize);
 			if (columnCount < 1)
 				columnCount = 1;
 

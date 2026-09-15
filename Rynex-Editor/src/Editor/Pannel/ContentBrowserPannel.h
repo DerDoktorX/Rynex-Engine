@@ -136,7 +136,9 @@ namespace Rynex {
 #else
 		ContentBrowserItemes m_FileItemes;
 #endif
-	};				   
+	};
+
+
 }					   
 
 

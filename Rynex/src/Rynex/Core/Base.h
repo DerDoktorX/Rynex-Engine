@@ -6,7 +6,7 @@
 #include <robin_hood/robin_hood.h>
 #include <map>
 
-// Check Curent Platfrom Seport + massages for curent State
+// Check current Platform support + massages for current State
 #ifdef _WIN32
 
 	#ifdef _WIN64
@@ -73,7 +73,7 @@
 	#endif
 #endif
 
-// Platforms specific Definse
+// Platforms specific defines
 
 // Windows	|
 //			V
@@ -452,16 +452,6 @@ namespace Rynex {
 	}
 
 
-	inline std::filesystem::path GetPathAsGenaric(std::filesystem::path path)
-	{
-		std::filesystem::path pathLexically = path.lexically_normal();
-		std::string pathGenericStr = pathLexically.generic_string();
-		pathLexically = pathGenericStr;
-		return pathLexically;
-	}
-
-
-
 	template<typename T>
 	using Weak = std::weak_ptr<T>;
 
@@ -478,14 +468,14 @@ namespace Rynex {
 		static_assert(IsWeakPtr<T>::value, "No Weak Ptr!");
 	}
 	template<typename T>
-	constexpr bool CheckAllRefsVaild(Ref<T>& ref)
+	constexpr bool CheckAllRefsValid(Ref<T>& ref)
 	{
 		bool v = nullptr != ref;
 		return v;
 	}
 
 	template<typename T, typename ... Args>
-	constexpr bool CheckAllRefsVaild(Ref<T>& ref, Ref<Args>& ... args)
+	constexpr bool CheckAllRefsValid(Ref<T>& ref, Ref<Args>& ... args)
 	{
 		bool v = CheckAllRefsVaild(ref);
 
@@ -493,18 +483,19 @@ namespace Rynex {
 		{
 			return v && CheckAllRefsVaild(args...);
 		}
+	    return false;
 	}
 
 
 	template<typename T>
-	constexpr bool CheckAllVecsVaild(std::vector<T>& vec)
+	constexpr bool CheckAllVecsValid(std::vector<T>& vec)
 	{
 		bool v = !vec.empty();
 		return v;
 	}
 
 	template<typename T, typename ... Args>
-	constexpr bool CheckAllVecsVaild(std::vector<T>& vec, std::vector<Args>& ... args)
+	constexpr bool CheckAllVecsValid(std::vector<T>& vec, std::vector<Args>& ... args)
 	{
 		bool v = CheckAllRefsVaild(vec);
 
@@ -512,6 +503,7 @@ namespace Rynex {
 		{
 			return v && CheckAllRefsVaild(args...);
 		}
+	    return false;
 	}
 
 	constexpr std::size_t BinaryPresentionCount(std::uint64_t value)

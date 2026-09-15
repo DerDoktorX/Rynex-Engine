@@ -659,7 +659,7 @@ namespace Rynex {
 			&& !m_ShadeIABvec.empty()
 			&& !m_DepthIABvec.empty()
 			&& !m_MaterialsVec.empty()
-			&& CheckAllRefsVaild(m_StorageBuffer)
+			&& CheckAllRefsValid(m_StorageBuffer)
 			&& m_TexturesMap.Empty();
 
 		return value;
