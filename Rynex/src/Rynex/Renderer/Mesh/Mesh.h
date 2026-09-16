@@ -34,8 +34,13 @@ namespace Rynex {
 		MeshVertices() = default;
 		MeshVertices(const MeshVertices& mv) = default;
 
-		
-	};
+        MeshVertices(glm::vec3 position, glm::vec2 textureCords, glm::vec3 normale)
+            : m_Position(position)
+            , m_TextureCords(textureCords)
+            , m_Normale(normale)
+        {
+        }
+    };
 
 	constexpr bool operator==(const MeshVertices& left, const MeshVertices& rigth)
 	{

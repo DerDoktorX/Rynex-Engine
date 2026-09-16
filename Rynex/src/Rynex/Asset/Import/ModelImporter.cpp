@@ -160,8 +160,8 @@ namespace Rynex {
             for (uint32_t i = 0; i < size; i++)
             {
                 MeshVertices& mesVert = vertexData.emplace_back<MeshVertices>(
-                    MeshVertices{
-                        glm::vec3{vericiesPtr->x, vericiesPtr->y, vericiesPtr->z},
+                     MeshVertices{
+                    glm::vec3{vericiesPtr->x, vericiesPtr->y, vericiesPtr->z},
                         glm::vec2{0.0f, 0.0f},
                         glm::vec3{0.0f, 0.0f, 0.0f}
                     }

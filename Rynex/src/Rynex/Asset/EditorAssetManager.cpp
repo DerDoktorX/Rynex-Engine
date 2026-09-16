@@ -760,7 +760,7 @@ namespace Rynex {
 
 	void EditorAssetManagerThread::ReLodeAsset(AssetHandle handle)
 	{
-		RY_CORE_ASSERT(handle != 0, "This Handle is Unacceptable");
+		RY_CORE_ASSERT(AssetHandle::Zero() != handle, "This Handle is Unacceptable");
 		if (IsAssetLoaded(handle))
 		{
 			std::chrono::microseconds waitTime = std::chrono::milliseconds(30);

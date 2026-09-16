@@ -15,8 +15,8 @@ namespace Rynex {
 
         void operator()(RenderProxysListData::AddFuncArgs funcArgs)
         {
-            const RenderProxy& proxy = funcArgs.proxy;
-            const glm::mat4& model = funcArgs.model;
+            const RenderProxy& proxy = funcArgs.m_Proxy;
+            const glm::mat4& model = funcArgs.m_Model;
             proxy.Check();
 
             uint32_t proxyIndex = m_ProxyRef.AddProxy(proxy, model);
@@ -37,15 +37,15 @@ namespace Rynex {
         void operator()(RenderProxysListData::UpdateFuncArgs funcArgs)
         {
 
-            const RenderProxyConectionEntity::IndexSubMesh& indexSubMesh = m_ProxyRef.m_RenderProxyMapEntity.GetIndexSubMeshFromMap(funcArgs.entity, funcArgs.subMesh);
+            const RenderProxyConectionEntity::IndexSubMesh& indexSubMesh = m_ProxyRef.m_RenderProxyMapEntity.GetIndexSubMeshFromMap(funcArgs.m_Entity, funcArgs.m_SubMesh);
 
             RY_CORE_ASSERT(!Asset::CurrentOnMainThread(), "Expexted not Main Thread!");
 
 
             uint32_t indexProxy = indexSubMesh.proxyIndex;
             RenderProxyKey renderProxyKey = indexSubMesh.renderProxyKey;
-            RY_CORE_ASSERT(indexSubMesh.subMesh == funcArgs.subMesh, "not the same sub mesh!");
-            m_ProxyRef.UpdateProxyTransform(funcArgs.entity, funcArgs.subMesh, indexProxy, renderProxyKey, funcArgs.model);
+            RY_CORE_ASSERT(indexSubMesh.subMesh == funcArgs.m_SubMesh, "not the same sub mesh!");
+            m_ProxyRef.UpdateProxyTransform(funcArgs.m_Entity, funcArgs.m_SubMesh, indexProxy, renderProxyKey, funcArgs.m_Model);
             m_ProxyRef.m_HasChagedMain.at(RenderProxysListData::StateEvent) = true;
             m_ProxyRef.m_HasChagedCurent.at(RenderProxysListData::StateEvent) = true;
             m_ProxyRef.m_RenderProxyArrayVec.at(RenderProxysListData::EventData).Size();
@@ -148,7 +148,7 @@ namespace Rynex {
         RY_CORE_ASSERT(-1 != subMesh, "Not Valid SubMesh!");
 
 
-        AddFuncArgs addFuncArgs = {
+        AddFuncArgs addFuncArgs{
             proxy, model
         };
 

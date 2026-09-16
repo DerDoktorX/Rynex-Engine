@@ -199,7 +199,7 @@ namespace Rynex {
 				m_DrawList = CreateShaderDrawResource();
 				m_DrawList.m_ShaderProgram = m_Shader;
 				m_DrawList.m_VAO = m_VAA;
-				m_DrawList.m_RenderMode = RenderMode::A_Buffer | RenderMode::CallFace_None | RenderMode::Death_Buffer;
+				m_DrawList.m_RenderMode = RenderMode::RenderMode::A_Buffer | RenderMode::RenderMode::CallFace_None | RenderMode::RenderMode::Death_Buffer;
 				m_DrawList.m_DrawElement.m_Count = count;
 				m_DrawList.m_DrawElement.m_InstancesCount = 1u;
 				m_DrawList.m_DrawElement.m_BaseVertex = 0u;

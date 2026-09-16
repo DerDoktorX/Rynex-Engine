@@ -15,7 +15,7 @@ namespace Rynex {
 
     bool RuntimeAssetManager::IsAssetHandleValid(AssetHandle handle) const
     {
-        return handle != 0 && m_AssetRegistry.IsAssetInRegistry(handle);
+        return AssetHandle::Zero() != handle && m_AssetRegistry.IsAssetInRegistry(handle);
     }
 
     bool RuntimeAssetManager::IsAssetHandleValid(const FileSystem::Path& filepath) const

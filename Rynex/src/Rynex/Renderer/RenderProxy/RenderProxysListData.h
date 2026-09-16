@@ -22,43 +22,50 @@ namespace Rynex {
 	private:
 		struct AddFuncArgs
 		{
+		    RenderProxy m_Proxy;
+			glm::mat4 m_Model;
+
 			AddFuncArgs() = delete;
 			AddFuncArgs(AddFuncArgs&&) = delete;
 			AddFuncArgs(const AddFuncArgs&) = default;
+            AddFuncArgs(const RenderProxy& proxy, const glm::mat4& model)
+                : m_Proxy(proxy)
+		        , m_Model(model)
+            {
+            }
 
-			RenderProxy proxy;
-			glm::mat4 model;
+
 
 			AddFuncArgs& operator=(const AddFuncArgs& left)
 			{
-				proxy = left.proxy;
-				model = left.model;
+				m_Proxy = left.m_Proxy;
+				m_Model = left.m_Model;
 				return *this;
 			}
 		};
 
 		struct UpdateFuncArgs
 		{
-			int entity;
-			uint32_t subMesh;
-			glm::mat4 model;
+			int m_Entity;
+			uint32_t m_SubMesh;
+			glm::mat4 m_Model;
 
 			UpdateFuncArgs() = delete;
 			UpdateFuncArgs(UpdateFuncArgs&&) = delete;
 			UpdateFuncArgs(const UpdateFuncArgs&) = default;
 
 			UpdateFuncArgs(int entity, uint32_t subMesh, const glm::mat4& model)
-				: entity(entity)
-				, subMesh(subMesh)
-				, model(model)
+				: m_Entity(entity)
+				, m_SubMesh(subMesh)
+				, m_Model(model)
 			{
 			}
 
 			UpdateFuncArgs& operator=(const UpdateFuncArgs& left)
 			{
-				entity = left.entity;
-				subMesh = left.subMesh;
-				model = left.model;
+				m_Entity = left.m_Entity;
+				m_SubMesh = left.m_SubMesh;
+				m_Model = left.m_Model;
 				return *this;
 			}
 		};

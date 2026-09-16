@@ -999,8 +999,8 @@ namespace Rynex {
 
 		// flags |= ImGuiTreeNodeFlags_Framed;
 		RelationshipUUIDComponent& realtionship = entity.GetComponent<RelationshipUUIDComponent>();
-		bool parent = realtionship.m_Childrens.size() != 0ull,
-			cildern = realtionship.m_Parent != 0ull;
+		bool parent = !realtionship.m_Childrens.empty(),
+			cildern = UUID::Zero() != realtionship.m_Parent;
 #if 0
 		if (((cildern && !parent) || (cildern && parent)) && normale)
 			return;
@@ -1090,7 +1090,7 @@ namespace Rynex {
 		}
 		
 
-		if (ImGui::IsItemClicked() && Input::IsKeyPressed(Key::LeftShift) && m_SelectionContext != Entity())
+		if (ImGui::IsItemClicked() && Entity() != Input::IsKeyPressed(Key::LeftShift) && m_SelectionContext)
 		{
 			m_SelectionContextEndeMarker = entity;
 		}

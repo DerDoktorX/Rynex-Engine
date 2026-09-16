@@ -22,7 +22,7 @@ namespace Rynex {
 			SingleObjectMeshData() = default;
 			SingleObjectMeshData(const SingleObjectMeshData&) = default;
 			SingleObjectMeshData(const Ref<MeshSingle>& meshSingle, const Ref<Material>& materiel, const glm::mat4& localeMatrix, const std::string& nodeName, uint32_t localeMeshIndex, uint32_t localeMaterielIndex)
-				: SingleMeshObject({ materiel, meshSingle })
+				: SingleMeshObject(materiel, meshSingle)
 				, LocaleCildrenMatrix(localeMatrix)
 				, NodeName(nodeName)
 				, LocaleIndexMesh(localeMeshIndex)

@@ -31,7 +31,7 @@ namespace Rynex {
 
 		operator bool() const
 		{
-			bool result = m_Handle != 0ull && !m_Path.IsEmpty();
+			bool result = AssetHandle::Zero() != m_Handle && !m_Path.IsEmpty();
 			return result;
 		}
 

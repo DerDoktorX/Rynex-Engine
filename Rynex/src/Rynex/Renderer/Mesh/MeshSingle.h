@@ -85,7 +85,12 @@ namespace Rynex {
 		
 
 		SingleMeshObject() = default;
-		SingleMeshObject(const SingleMeshObject&) = default;
+        SingleMeshObject(const SingleMeshObject&) = default;
+        SingleMeshObject(const Ref<Material>& material, const Ref<MeshSingle>& meshSingle)
+            : m_Material(material)
+            , m_MeshSingle(meshSingle)
+	    {}
+        // SingleMeshObject(const SingleMeshObject&) = default;
 
 
 		bool operator==(const SingleMeshObject& object) const;
