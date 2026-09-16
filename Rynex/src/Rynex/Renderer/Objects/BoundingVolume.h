@@ -5,12 +5,12 @@
 namespace Rynex {
 
 	struct AABB {
-		glm::vec3 Min;
-		glm::vec3 Max;
+		glm::vec3 m_Min;
+		glm::vec3 m_Max;
 
 		AABB()
-			: Min(glm::vec3(std::numeric_limits<float>::max()))
-			, Max(glm::vec3(std::numeric_limits<float>::min()))
+			: m_Min(glm::vec3(std::numeric_limits<float>::max()))
+			, m_Max(glm::vec3(std::numeric_limits<float>::min()))
 		{
 		}
 
@@ -18,26 +18,26 @@ namespace Rynex {
 		
 
 		AABB(const glm::vec3& max, const glm::vec3& min)
-			: Max(max)
-			, Min(min)
+			: m_Min(min)
+			, m_Max(max)
 		{ }
 
-		AABB(const std::vector<glm::vec3>& vertices)
-			: Min(glm::vec3(std::numeric_limits<float>::max()))
-			, Max(glm::vec3(std::numeric_limits<float>::min()))
+        explicit AABB(const std::vector<glm::vec3>& vertices)
+			: m_Min(glm::vec3(std::numeric_limits<float>::max()))
+			, m_Max(glm::vec3(std::numeric_limits<float>::min()))
 		{
 			for (const auto& vertex : vertices) {
-				Min = glm::min(Min, vertex);
-				Max = glm::max(Max, vertex);
+				m_Min = glm::min(m_Min, vertex);
+				m_Max = glm::max(m_Max, vertex);
 			}
 		}
 
 		
 
-		void operator=(const AABB& rigth)
+		void operator=(const AABB& right)
 		{
-			Max = rigth.Max;
-			Min = rigth.Min;
+			m_Max = right.m_Max;
+			m_Min = right.m_Min;
 		}
 	};
 
@@ -145,8 +145,8 @@ namespace Rynex {
 
 		void SetBoxAABB(std::array<glm::vec3, 8>& points);
 
-		const glm::vec3& GetMin() const { return m_AABB.Min; }
-		const glm::vec3& GetMax() const { return m_AABB.Max; }
+		const glm::vec3& GetMin() const { return m_AABB.m_Min; }
+		const glm::vec3& GetMax() const { return m_AABB.m_Max; }
 
 		glm::vec3 GetMin(const glm::mat4& model) const;
 		glm::vec3 GetMax(const glm::mat4& model) const;

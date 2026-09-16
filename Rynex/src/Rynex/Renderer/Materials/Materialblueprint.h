@@ -5,6 +5,8 @@
 #include <Rynex/Renderer/API/Texture.h>
 #include <Rynex/Asset/Base/Asset.h>
 
+#include "Material.h"
+
 
 // ============================================================
 //  MaterialBlueprint.h
@@ -43,22 +45,22 @@ namespace Rynex {
         // ----------------------------------------------------------
         struct ShaderVariant
         {
-            Ref<Shader>                     shader;
+            Ref<Shader>                     m_Shader;
 
             // Layout of the parameter uniform-block this variant expects.
             // Must match the blueprint's canonical m_ParamDescriptors byte-layout.
-            BufferLayout                    paramBlockLayout;
+            BufferLayout                    m_ParamBlockLayout;
 
             // GPU fixed-function state required by this variant.
-            MaterialStateFlag               stateFlags = MaterialStateFlags::None;
+            MaterialStateFlag               m_StateFlags = MaterialStateFlags::None;
 
             // How instances / material params are batched for this pass.
-            DrawSpecification::BatchConfig  batchConfig = DrawSpecification::None;
+            DrawSpecification::BatchConfig  m_BatchConfig = DrawSpecification::None;
 
             // Render-mode integer forwarded to RendererAPI::SetMode.
-            int                             renderMode = 0;
+            int                             m_RenderMode = 0;
 
-            bool IsValid() const { return shader != nullptr; }
+            bool IsValid() const { return m_Shader != nullptr; }
         };
 
         // ----------------------------------------------------------
@@ -70,13 +72,13 @@ namespace Rynex {
         {
             // GPU buffer filled with m_DefaultParamData at compile time.
             // MaterialParameter patches this at bind time if it has overrides.
-            Ref<UniformBuffer>              defaultParamUBO;
+            Ref<UniformBuffer>              m_DefaultParamUBO;
 
             // Per-pass compiled variants at this quality level.
             // Index: static_cast<uint32_t>(RenderPassTag)
-            std::array<ShaderVariant, g_RenderPassTagCount> variantMap;
+            std::array<ShaderVariant, g_RenderPassTagCount> m_VariantMap;
 
-            bool IsCompiled() const { return defaultParamUBO != nullptr; }
+            bool IsCompiled() const { return m_DefaultParamUBO != nullptr; }
         };
 
 

@@ -8,7 +8,7 @@ namespace Rynex {
 #ifdef RY_HASH_MAP_FOR_BUFFER_AND_ELEMENT_ONLY
 		m_HashMapElementRenderBuffer.clear();
 #else
-		m_InhartendScopeBuffer.scopeBufferVec.clear();
+		m_InhartendScopeBuffer.m_ScopeBufferVec.clear();
 		m_HashMapScopeRenderBuffer.clear();
 #endif
 		m_HashMapRenderBuffer.clear();
@@ -51,13 +51,13 @@ namespace Rynex {
 		return it == m_HashMapElementRenderBuffer.end();	
 #else
 
-		for (const RenderBufferGPU& buffer : m_InhartendScopeBuffer.scopeBufferVec)
+		for (const RenderBufferGPU& buffer : m_InhartendScopeBuffer.m_ScopeBufferVec)
 		{
-			const Memory::DynamicDataStruct& dataBuffer = buffer->dataBuffer;
+			const Memory::DynamicDataStruct& dataBuffer = buffer->m_DataBuffer;
 			const BufferLayout& layout = dataBuffer.GetLayout();
 			for (const BufferElement& e : layout)
 			{
-				if(e.name == name)
+				if(e.m_Name == name)
 				{ 
 					return true;
 				}
@@ -78,7 +78,7 @@ namespace Rynex {
 
 	}
 
-	const DrawContext::BufferGPU& DrawContext::GetBufferFromScopeName(const std::string& scope, const std::string& name) const
+    DrawContext::BufferGPU DrawContext::GetBufferFromScopeName(const std::string& scope, const std::string& name) const
 	{
 		BufferKey bufferKey = BufferKey( scope, name );
 
@@ -87,10 +87,10 @@ namespace Rynex {
 			return Ref<IndexBuffer>(nullptr);
 
 		const RenderBufferGPU& renderBufferGPU = it->second;
-		return renderBufferGPU->buffer;
+		return renderBufferGPU->m_Buffer;
 	}
 
-	const DrawContext::BufferGPU& DrawContext::GetBufferFromScopeName(const std::string& scopeName) const
+    DrawContext::BufferGPU DrawContext::GetBufferFromScopeName(const std::string& scopeName) const
 	{
 		BufferKey bufferKey = BufferKey( scopeName );
 
@@ -99,10 +99,10 @@ namespace Rynex {
 			return Ref<IndexBuffer>(nullptr);
 
 		const RenderBufferGPU& renderBufferGPU = it->second;
-		return renderBufferGPU->buffer;
+		return renderBufferGPU->m_Buffer;
 	}
 
-	const DrawContext::RenderBufferGPU& DrawContext::GetRenderBuffer(const std::string& name) const
+    DrawContext::RenderBufferGPU DrawContext::GetRenderBuffer(const std::string& name) const
 	{
 #ifdef RY_SCOPE_STREING_INLINE
 		BufferKey bufferKey{ m_ScopeName, name};
@@ -140,7 +140,7 @@ namespace Rynex {
 
 	}
 
-	std::string&& DrawContext::GetScopeToName(const std::string& name) const
+    std::string DrawContext::GetScopeToName(const std::string& name) const
 	{
 #ifdef RY_SCOPE_STREING_INLINE
 		if (m_ScopeName.empty())
@@ -280,7 +280,7 @@ namespace Rynex {
 
 	}
 
-	std::string&& DrawContext::GetScopeName()
+    std::string DrawContext::GetScopeName()
 	{
 #ifdef RY_SCOPE_STREING_INLINE
 		return std::string(m_ScopeName);
@@ -347,13 +347,13 @@ namespace Rynex {
 			return;
 
 
-		const std::vector<RenderBufferGPU>& renderBufferScopeVec = pos->second.scopeBufferVec;
-		std::vector<RenderBufferGPU>& inhartendRenderBufferScopeVec = m_InhartendScopeBuffer.scopeBufferVec;
+		const std::vector<RenderBufferGPU>& renderBufferScopeVec = pos->second.m_ScopeBufferVec;
+		std::vector<RenderBufferGPU>& inhartendRenderBufferScopeVec = m_InhartendScopeBuffer.m_ScopeBufferVec;
 		AddRenderBufferVecRenderRenderBufferVec(renderBufferScopeVec, inhartendRenderBufferScopeVec);
 
 
-		const HashMapFlat<std::string, BufferPtrGPUVec>& ellmentNameScopeHashMap = pos->second.ellmentNameScopeHashMap;
-		HashMapFlat<std::string, BufferPtrGPUVec>& inhartendEllmentNameScopeHashMap = m_InhartendScopeBuffer.ellmentNameScopeHashMap;
+		const HashMapFlat<std::string, BufferPtrGPUVec>& ellmentNameScopeHashMap = pos->second.m_ElementNameScopeHashMap;
+		HashMapFlat<std::string, BufferPtrGPUVec>& inhartendEllmentNameScopeHashMap = m_InhartendScopeBuffer.m_ElementNameScopeHashMap;
 
 		for (auto&[elementName, renderBufferVec] : ellmentNameScopeHashMap)
 		{
@@ -371,13 +371,13 @@ namespace Rynex {
 			return;
 
 
-		const std::vector<RenderBufferGPU>& renderBufferScopeVec = pos->second.scopeBufferVec;
-		std::vector<RenderBufferGPU>& inhartendRenderBufferScopeVec = m_InhartendScopeBuffer.scopeBufferVec;
+		const std::vector<RenderBufferGPU>& renderBufferScopeVec = pos->second.m_ScopeBufferVec;
+		std::vector<RenderBufferGPU>& inhartendRenderBufferScopeVec = m_InhartendScopeBuffer.m_ScopeBufferVec;
 		RemoveRenderBufferVecRenderBufferVec(renderBufferScopeVec, inhartendRenderBufferScopeVec);
 
 
-		const HashMapFlat<std::string, BufferPtrGPUVec>& ellmentNameScopeHashMap = pos->second.ellmentNameScopeHashMap;
-		HashMapFlat<std::string, BufferPtrGPUVec>& inhartendEllmentNameScopeHashMap = m_InhartendScopeBuffer.ellmentNameScopeHashMap;
+		const HashMapFlat<std::string, BufferPtrGPUVec>& ellmentNameScopeHashMap = pos->second.m_ElementNameScopeHashMap;
+		HashMapFlat<std::string, BufferPtrGPUVec>& inhartendEllmentNameScopeHashMap = m_InhartendScopeBuffer.m_ElementNameScopeHashMap;
 
 		for (auto& [elementName, renderBufferVec] : ellmentNameScopeHashMap)
 		{
@@ -404,11 +404,11 @@ namespace Rynex {
 
 	void DrawContext::InsertRenderBufferGPUToScopeElementBufferVec(const RenderBufferGPU& rendbufferGPU, HashMapFlat<std::string, BufferPtrGPUVec>& ellmentNameScopeHashMap)
 	{
-		const Memory::DynamicDataStruct& dataBuffer = rendbufferGPU->dataBuffer;
+		const Memory::DynamicDataStruct& dataBuffer = rendbufferGPU->m_DataBuffer;
 		const BufferLayout& layout = dataBuffer.GetLayout();
 		for (const BufferElement& e : layout)
 		{
-			BufferPtrGPUVec& bufferPtrVec = ellmentNameScopeHashMap[e.name];
+			BufferPtrGPUVec& bufferPtrVec = ellmentNameScopeHashMap[e.m_Name];
 			AddRenderBufferGPURenderBufferVec(rendbufferGPU, bufferPtrVec);
 		}
 
@@ -434,12 +434,12 @@ namespace Rynex {
 
 	void DrawContext::OverrideRenderBufferGPUScopeElementBufferVec(const RenderBufferGPU& rendbufferGPU,HashMapFlat<std::string, BufferPtrGPUVec>& ellmentNameScopeHashMap)
 	{
-		const Memory::DynamicDataStruct& dataBuffer = rendbufferGPU->dataBuffer;
+		const Memory::DynamicDataStruct& dataBuffer = rendbufferGPU->m_DataBuffer;
 		const BufferLayout& layout = dataBuffer.GetLayout();
 		
 		for (const BufferElement& e : layout)
 		{
-			BufferPtrGPUVec& bufferPtrVec = ellmentNameScopeHashMap[e.name];
+			BufferPtrGPUVec& bufferPtrVec = ellmentNameScopeHashMap[e.m_Name];
 			OverrideRenderBufferGPUBufferVec(rendbufferGPU, bufferPtrVec);
 		}
 	}
@@ -463,12 +463,12 @@ namespace Rynex {
 
 	void DrawContext::RemoveRenderBufferGPUScopeElementBufferVec(const RenderBufferGPU& rendbufferGPU, HashMapFlat<std::string, BufferPtrGPUVec>& ellmentNameScopeHashMap)
 	{
-		const Memory::DynamicDataStruct& dataBuffer = rendbufferGPU->dataBuffer;
+		const Memory::DynamicDataStruct& dataBuffer = rendbufferGPU->m_DataBuffer;
 		const BufferLayout& layout = dataBuffer.GetLayout();
 
 		for (const BufferElement& e : layout)
 		{
-			BufferPtrGPUVec& bufferPtrVec = ellmentNameScopeHashMap[e.name];
+			BufferPtrGPUVec& bufferPtrVec = ellmentNameScopeHashMap[e.m_Name];
 			RemoveAllRenderBufferGPUBufferVec(rendbufferGPU, bufferPtrVec);
 		}
 

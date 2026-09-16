@@ -8,7 +8,7 @@
 #include <yaml-cpp/yaml.h>
 #include <fstream>
 
-#include "YAML.h"
+#include <Rynex/Serializers/YAML.h>
 
 
 namespace Rynex {
@@ -17,21 +17,21 @@ namespace Rynex {
 
 		static bool SerializerAssetFormate(YAML::Emitter& out, const std::string& name, AssetHandle handle)
 		{
-			Ref<Project> project = Project::GetActive();
-			Ref<EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
+			const Ref<Project> project = Project::GetActive();
+			const Ref<EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
 			if (!editorAssetManger->IsAssetHandleValid(handle))
 			{
-				uint64_t handleV = handle;
-				RY_CORE_ERROR("We Coud not Serialize! Because we dient finde AssetHandle: ({})  in Assetmaneger!", handleV);
+
+				RY_CORE_ERROR("We could not Serialize! Because we didn't find AssetHandle: ({})  in AssetManager!", handle);
 				return false;
 			}
-			AssetMetadata metaData = editorAssetManger->GetMetadata(handle);
-			const std::filesystem::path& filePath = metaData.FilePath;
-			const std::filesystem::path& pathMarked = metaData.PathMarker;
+			const AssetMetadata metaData = editorAssetManger->GetMetadata(handle);
+			const std::filesystem::path& filePath = metaData.m_FilePath;
+			const std::filesystem::path& pathMarked = metaData.m_PathMarker;
 
 			if (!editorAssetManger->IsAssetHandleValid(filePath))
 			{
-				RY_CORE_ERROR("We Coud not Serialize! Because we dient finde Filepath: ({}) in Assetmaneger!", filePath);
+				RY_CORE_ERROR("We could not Serialize! Because we didn't find Filepath: ({}) in AssetManager!", filePath);
 				return false;
 			}
 			
@@ -50,37 +50,37 @@ namespace Rynex {
 			out << YAML::Key << "MeshSingle" << YAML::Value;
 			{
 				out << YAML::BeginMap;
-				const Ref<MeshSingle>& meshSingle = object._MeshSingle;
+				const Ref<MeshSingle>& meshSingle = object.m_MeshSingle;
 				const std::string& meshName = meshSingle->GetName();
-				uint32_t localeMeshIndex = meshSingle->GetModelLocalMesheIndex();
+				const uint32_t localeMeshIndex = meshSingle->GetModelLocalMeshIndex();
 				out << YAML::Key << "Name" << YAML::Value << meshName;
 				out << YAML::Key << "LocaleIndex" << YAML::Value << localeMeshIndex;
 				out << YAML::EndMap;
 			}
-			out << YAML::Key << "Materiel" << YAML::Value;
+
 			{
-				Ref<Project> project = Project::GetActive();
-				Ref<EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
+				const Ref<Project> project = Project::GetActive();
+				const Ref<EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
 
-				const Ref<Material>& material = object._Material;
-				AssetHandle materielHandle = material->Handle;
+				const Ref<Material>& material = object.m_Material;
+				const AssetHandle materielHandle = material->Handle;
 
-				out << YAML::BeginMap;
+				const std::string key = "Material";
 				if(editorAssetManger->IsAssetHandleValid(materielHandle) && !editorAssetManger->IsAssetInteral(materielHandle))
 				{
-					AssetMetadata metadata = editorAssetManger->GetMetadata(materielHandle);
-					std::filesystem::path filePath = metadata.FilePath;
-					out << YAML::Key << "Handle" << materielHandle;
-					out << YAML::Key << "FilePath" << filePath;
+				    SerializerAssetFormate(out, key, materielHandle);
 				}
 				else
 				{
+				    out << YAML::Key << key << YAML::Value;
+				    out << YAML::BeginMap;
 					out << YAML::Key << "Name" << YAML::Value << object.NodeName;
 					out << YAML::Key << "LocaleIndex" << object.LocaleIndexMateriel;
+				    out << YAML::EndMap;
 				}
-				out << YAML::EndMap;
+
 			}
-			out << YAML::Key << "Node" << YAML::Value;
+
 			{
 				out << YAML::BeginMap;
 				out << YAML::Key << "MeshName" << YAML::Value << object.NodeName;
@@ -119,13 +119,13 @@ namespace Rynex {
 				markedPath = nodeAtribut.as<std::string>();
 			if (YAML::Node nodeAtribut = nodeE["Path"])
 				path =  nodeAtribut.as<std::string>();
-			AssetHandle handle = nodeE["Handle"].as<uint64_t>();
+			const AssetHandle handle = nodeE["Handle"].as<uint64_t>();
 
 
-			AssetFindeInfo info = AssetFindeInfo(handle, path, markedPath);
+			const AssetFindeInfo info(handle, path, markedPath);
 			storeAsset = AssetManager::FindAsset<T>(info);
 
-			return storeAsset != nullptr;
+			return nullptr != storeAsset;
 		}
 
 
@@ -134,7 +134,8 @@ namespace Rynex {
 			const std::vector<Ref<MeshSingle>>& meshSingleVec = sourceMesh->GetMeshSingleVecConst();
 			uint32_t index = 0u;
 			Ref<MeshSingle> meshSingleLocaleIndexPast = nullptr;
-			if (localeIndex >= meshSingleVec.size())
+		    const uint32_t count = meshSingleVec.size();
+			if (count <= localeIndex)
 			{
 				RY_CORE_WARN("We can't identify the Mesh not withe the stroed locale Index {}, we need to recreate the file probly!", localeIndex);
 			}
@@ -144,11 +145,12 @@ namespace Rynex {
 				const std::string& meshSingleName = meshSingle->GetName();
 				if (meshSingleName == name)
 				{
-					singleObjectMeshData._MeshSingle = meshSingle;
+					singleObjectMeshData.m_MeshSingle = meshSingle;
 					singleObjectMeshData.LocaleIndexMesh = index;
 					return true;
 				}
-				else if (index == localeIndex)
+
+				if (index == localeIndex)
 				{
 					meshSingleLocaleIndexPast = meshSingle;
 				}
@@ -157,7 +159,7 @@ namespace Rynex {
 			}
 			if(localeIndex < index)
 			{
-				singleObjectMeshData._MeshSingle = meshSingleLocaleIndexPast;
+				singleObjectMeshData.m_MeshSingle = meshSingleLocaleIndexPast;
 				singleObjectMeshData.LocaleIndexMesh = index;
 
 				RY_CORE_WARN("We dont found name we use the locale Mesh Index to identify MeshSingle");
@@ -170,24 +172,25 @@ namespace Rynex {
 
 		static bool DeserializeMateriel(const std::string& name, uint32_t localeIndex, MeshStatic::SingleObjectMeshData& singleObjectMeshData, Ref<MeshSource>& sourceMesh)
 		{
-			const std::vector<MeshSource::_Material>& materielSourceVec = sourceMesh->GetMaterialsSourcesConst();
+			const std::vector<MeshSource::MaterialMesh>& materielSourceVec = sourceMesh->GetMaterialsSourcesConst();
 			const std::vector<Ref<Material>>& materielVec = sourceMesh->GetMaterialsVecConst();
 
 			uint32_t index = 0u;
-			MeshSource::_Material materielLocaleIndexPast;
-			if (localeIndex >= materielVec.size())
+			MeshSource::MaterialMesh materielLocaleIndexPast;
+		    uint32_t count = materielSourceVec.size();
+			if (count <= localeIndex)
 			{
 				RY_CORE_WARN("We can't identify the Mesh not withe the stroed locale Index {}, we need to recreate the file probly!", localeIndex);
 			}
 
-			for (const MeshSource::_Material& mateiel : materielSourceVec)
+			for (const MeshSource::MaterialMesh& mateiel : materielSourceVec)
 			{
-				const std::string& meshSingleName = mateiel.NameMateriel;
+				const std::string& meshSingleName = mateiel.m_NameMateriel;
 				if (meshSingleName == name)
 				{
 					uint32_t materilLocaleIndex = mateiel.MaterielIndex;
 					RY_CORE_ASSERT(materilLocaleIndex < materielVec.size(), "out side of range!");
-					singleObjectMeshData._Material = materielVec.at(materilLocaleIndex);
+					singleObjectMeshData.m_Material = materielVec.at(materilLocaleIndex);
 					singleObjectMeshData.LocaleIndexMateriel = materilLocaleIndex;
 					return true;
 				}
@@ -202,7 +205,7 @@ namespace Rynex {
 			{
 				uint32_t materilLocaleIndex = materielLocaleIndexPast.MaterielIndex;
 				RY_CORE_ASSERT(materilLocaleIndex < materielVec.size(), "out side of range!");
-				singleObjectMeshData._Material = materielVec.at(materilLocaleIndex);
+				singleObjectMeshData.m_Material = materielVec.at(materilLocaleIndex);
 				singleObjectMeshData.LocaleIndexMateriel = materilLocaleIndex;
 
 				RY_CORE_WARN("We dont found name we use the locale Mesh Index to identify MeshSingle");
@@ -212,19 +215,21 @@ namespace Rynex {
 			return false;
 
 		}
-	
-		static bool DeserializeMateriel(AssetHandle materilHandle, const std::filesystem::path& path, MeshStatic::SingleObjectMeshData& singleObjectMeshData)
+
+	    // TODO: Replace function in the long run.
+		static bool DeserializeMateriel(AssetHandle materialHandle, const std::filesystem::path& path, MeshStatic::SingleObjectMeshData& singleObjectMeshData)
 		{
-			Ref<Project> project = Project::GetActive();
-			Ref<EditorAssetManagerThread> assetManager = project->GetEditorAssetManger();
-			AssetHandle handleP = assetManager->GetAssetHandle(path);
-			RY_CORE_ASSERT(handleP == materilHandle, "Not Simulare Asset Handle!");
+		    RY_REMBER_FUNC_CHANGE("Remove function replace withe DeserializeAssetFormate!");
+			const Ref<Project> project = Project::GetActive();
+			const Ref<EditorAssetManagerThread> assetManager = project->GetEditorAssetManger();
+			const AssetHandle handleP = assetManager->GetAssetHandle(path);
+			RY_CORE_ASSERT(handleP == materialHandle, "Not Simulare Asset Handle!");
 
 			singleObjectMeshData.LocaleIndexMateriel = static_cast<uint32_t>(-1);
-			Ref<Material>& materiel = singleObjectMeshData._Material;
-			if(assetManager->IsAssetHandleValid(materilHandle))
+			Ref<Material>& materiel = singleObjectMeshData.m_Material;
+			if(assetManager->IsAssetHandleValid(materialHandle))
 			{
-				materiel = AssetManager::GetAsset<Material>(materilHandle);
+				materiel = AssetManager::GetAsset<Material>(materialHandle);
 				return true;
 			}
 			else
@@ -237,35 +242,47 @@ namespace Rynex {
 
 		}
 
+
 		static bool DeserializeMeshObject(const YAML::Node& meshNodes, MeshStatic::SingleObjectMeshData& singleObjectMeshData, Ref<MeshSource>& sourceMesh)
 		{
-			if (const YAML::Node& meshSingleNode = meshNodes["MeshSingle"])
+			if (const YAML::Node meshSingleNode = meshNodes["MeshSingle"])
 			{
-				std::string name = meshSingleNode["Name"].as<std::string>();
+				const std::string name = meshSingleNode["Name"].as<std::string>();
 				uint32_t localeIndex = meshSingleNode["LocaleIndex"].as<uint32_t>();
 
 				bool resultSingleMesh = Utils::DeserializeSingleMesh(name, localeIndex, singleObjectMeshData, sourceMesh);
 			}	
-
-			if (const YAML::Node& materielNode = meshNodes["Materiel"])
+            RY_REMBER_FUNC_CHANGE("Remove function DeserializeMateriel and replace complett withe DeserializeAssetFormate!");
+			if (YAML::Node materielNode = meshNodes["Materiel"])
 			{
-				if(const YAML::Node& materielNameNode = materielNode["Name"])
+			    bool resultMateriel;
+				if(const YAML::Node materielNameNode = materielNode["Name"])
 				{
-					std::string name = materielNameNode.as<std::string>();
+					const std::string name = materielNameNode.as<std::string>();
 					uint32_t localeIndex = materielNode["LocaleIndex"].as<uint32_t>();
 					
-					bool resultMateriel = Utils::DeserializeMateriel(name, localeIndex, singleObjectMeshData, sourceMesh);
+					resultMateriel = Utils::DeserializeMateriel(name, localeIndex, singleObjectMeshData, sourceMesh);
 				}
-				else if(const YAML::Node& materielHandleNode = materielNode["Handle"])
+				else if(const YAML::Node materielHandleNode = materielNode["Handle"])
 				{
-					AssetHandle materielHandle = materielHandleNode.as<uint64_t>();
-					std::filesystem::path materielFilPath = materielNode["FilePath"].as<std::string>();
-					bool resultMateriel = Utils::DeserializeMateriel(materielHandle, materielFilPath, singleObjectMeshData);
+
+				    if (const YAML::Node materielFilePathNode = materielNode["FilePath"])
+				    {
+				        AssetHandle materielHandle = materielHandleNode.as<uint64_t>();
+
+					    std::filesystem::path materielFilPath = materielNode["FilePath"].as<std::string>();
+					    resultMateriel = Utils::DeserializeMateriel(materielHandle, materielFilPath, singleObjectMeshData);
+				    }
+					else
+					{
+					   resultMateriel = DeserializeAssetFormate<Material>(materielNode, singleObjectMeshData.m_Material);
+					}
 				}
 				else
 				{
 					return false;
 				}
+
 			}
 			if (const YAML::Node& objectNode = meshNodes["Node"])
 			{
@@ -338,12 +355,12 @@ namespace Rynex {
 		{
 			return false;
 		}
-		else if (nullptr == meshSource)
+		if (nullptr == meshSource)
 		{
 			RY_CORE_ERROR("Not sucess by loding MeshSource Asset");
 			return false;
 		}
-		else if (!DeserializeMeshNodes(data["MeshNodes"], meshSource))
+		if (!DeserializeMeshNodes(data["MeshNodes"], meshSource))
 		{
 			return false;
 		}

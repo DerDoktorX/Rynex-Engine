@@ -39,17 +39,17 @@ namespace Rynex {
 	{		
 		RY_LOG_DISABLE_NUMBER;
 
-		return s_AssetsImportFuncs.at(metadata.Type)(handle, metadata);
+		return s_AssetsImportFuncs.at(metadata.m_Type)(handle, metadata);
 
 		RY_LOG_ENABLE_NUMBER;
 
 	}
 
-	bool AssetImporter::ReLoadeAsset(AssetHandle handle, const AssetMetadata& metadata)
+	bool AssetImporter::ReLoadAsset(AssetHandle handle, const AssetMetadata& metadata)
 	{
 		RY_LOG_DISABLE_NUMBER;
 
-		bool result = s_AssetsReloadeFuncs.at(metadata.Type)(handle, metadata.AbsolutePath);
+		bool result = s_AssetsReloadeFuncs.at(metadata.m_Type)(handle, metadata.m_AbsolutePath);
 	
 		RY_LOG_ENABLE_NUMBER;
 		return result;

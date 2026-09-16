@@ -7,8 +7,8 @@ namespace Rynex {
 
     Ref<Shader> ShaderImporter::ImportShader(AssetHandle handle, const AssetMetadata& metadata)
     {
-		std::filesystem::path filePath = metadata.AbsolutePath;
-		return LoadShader(filePath, metadata.Name);
+		std::filesystem::path filePath = metadata.m_AbsolutePath;
+		return LoadShader(filePath, metadata.m_Name);
     }
 
 	Ref<Shader> ShaderImporter::LoadShader(const std::filesystem::path& path, const std::string& name)

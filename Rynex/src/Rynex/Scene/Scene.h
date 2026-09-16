@@ -24,18 +24,18 @@ namespace Rynex {
 
 	using EnttFrameBufferView	= EnttViewComponents<ModelMatrixComponent, CameraComponent, FrameBufferComponent>;
 	using EnttCameraView		= EnttViewComponents<ModelMatrixComponent, CameraComponent>;
-	using EnttPartikelView		= EnttViewComponents<ModelMatrixComponent, ParticelComponente>;
+	using EnttPartikelView		= EnttViewComponents<ModelMatrixComponent, ParticleComponent>;
 	
 	// Ligthts
-	using EnttDrirektionLigthView	= EnttViewComponents<ModelMatrixComponent, DrirectionleLigthComponent>;
-	using EnttPointLigthView		= EnttViewComponents<ModelMatrixComponent, PointLigthComponent>;
-	using EnttSpotLigthView			= EnttViewComponents<ModelMatrixComponent, SpotLigthComponent>;
+	using EnttDrirektionLigthView	= EnttViewComponents<ModelMatrixComponent, DirectionLightComponent>;
+	using EnttPointLigthView		= EnttViewComponents<ModelMatrixComponent, PointLightComponent>;
+	using EnttSpotLigthView			= EnttViewComponents<ModelMatrixComponent, SpotLightComponent>;
 	using EnttScriptView			= EnttViewComponents<ScriptComponent>;
 	using EnttRenderTargetView		= EnttViewComponents<RenderTargetComponent, CameraComponent, ModelMatrixComponent>;
 
 #pragma endregion
 
-	struct EnttViewLigths
+	struct EnttViewLights
 	{
 		EnttDrirektionLigthView drirektionLCV;
 		EnttPointLigthView pointLCV;
@@ -109,12 +109,12 @@ namespace Rynex {
 		bool IsWindowResize() const { return m_Resized; }
 		bool IsCameraEntityViewFustrum();
 
-		uint32_t GetEntityCount() const { return static_cast<uint32_t>(m_Registery.size()); }
+		uint32_t GetEntityCount() const { return static_cast<uint32_t>(m_Registry.size()); }
 
 		template<typename... Components>
 		auto GetAllEntitiesWith()
 		{
-			return this->m_Registery.view<Components...>();
+			return this->m_Registry.view<Components...>();
 		}
 		
 		void SetFuncSubmit3DSceneDrawListToFrame(const std::function<void()>& func);
@@ -126,7 +126,7 @@ namespace Rynex {
 		static Ref<Scene> GetRefInPlace(Scene* scenePtr);
 	private:
 		template<typename T>
-		void OnComponentAdded(Entity entity, T& component);		
+		void OnComponentAdded(Entity entity, T& component);
 		
 		static void Submit2DCamerIcons(EnttCameraView& cameraView);
 		static void Submit2DDrirectionLigthIcons(EnttDrirektionLigthView& drirektionLigthView);
@@ -140,7 +140,7 @@ namespace Rynex {
 		static void Submit3DSpotLigth(EnttSpotLigthView& spotLigthView);
 		static void Submit3DDrirectionLigth(EnttDrirektionLigthView& drirektionLigthView);
 
-		static void SubmitLigtheViews(EnttViewLigths& ligths);
+		static void SubmitLigtheViews(EnttViewLights& ligths);
 		static void RenderRenderTaregtView(EnttRenderTargetView& renderTargetView, EnttRender3DStaticModelView& view3dStaticMesh);
 		static void SubmitRenderTaregtCurent(Camera& camera, const glm::mat4& model, RenderTargetComponent& targetC);
 		static void SubmitRenderTaregtMain(Camera& camera, const glm::mat4& model, RenderTargetComponent& targetC);
@@ -182,9 +182,9 @@ namespace Rynex {
 		static void OnEntityStaticSingleMeshDestroy(entt::registry& registry, entt::entity entity);
 
 	private:
-		entt::registry m_Registery;
+		entt::registry m_Registry;
 
-		std::vector<Ref<LodePromis<Scene>>> m_LodingPromisVec;
+		std::vector<Ref<LodePromis<Scene>>> m_LoadingPromisVec;
 		Ref<RenderTarget> m_MainTartget;
 
 		
@@ -217,6 +217,14 @@ namespace Rynex {
 		friend class SceneHierachyPannel;
 		friend class SceneRenderer;
 	};
+
+
+    // Default
+    // template<typename T>
+    // inline void Scene::OnComponentAdded(Entity entity, T& component)
+    // {
+    //     static_assert(false, "OnComponentAdded Default Calld. No Defntion for this T present!");
+    // }
 
 }
 

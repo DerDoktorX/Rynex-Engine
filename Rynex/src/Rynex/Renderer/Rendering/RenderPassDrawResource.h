@@ -25,23 +25,23 @@ namespace Rynex {
 		template<typename T>
 		struct PerBatch 
 		{
-			uint32_t maxEllemnts;
-			uint32_t curentIndex;
-			std::vector<T> batch;
+			uint32_t m_MaxElements;
+			uint32_t m_CurrentIndex;
+			std::vector<T> m_Batch;
 		};
 
 		struct DrawCall
 		{
-			Ref<Shader> shader;
-			Shape shape;
-			DrawSpec drawSpec;
+			Ref<Shader> m_Shader;
+			Shape m_Shape;
+			DrawSpec m_DrawSpec;
 #if RY_BIND_RESOURCES_TYPE_VEC
 			std::vector<BindTexture> texturesVec;
 			std::vector<BindSSBO> ssboVec;
 			std::vector<BindUniform> uniformVec;
 #else
 #if 1
-			std::vector<BindAll> resourceVec;
+			std::vector<BindAll> m_ResourceVec;
 #else
 			std::vector<std::pair<uint32_t, std::variant<typename Ref<typename Texture>, typename Ref<typename BindlesTextureArray>, typename Ref<typename UniformBuffer>, typename Ref<typename StorageBuffer>>>> resourceVec;
 #endif
@@ -49,16 +49,16 @@ namespace Rynex {
 		};
 
 		template<typename T, typename Buffer>
-		struct InstancBatch
+		struct InstanceBatch
 		{
-			Ref<MeshSingle> mesh;
-			Ref<Material> materiel;
-			uint32_t instancIndex;
-			std::vector<T> batchData;
-			Ref<Buffer> buffer;
+			Ref<MeshSingle> m_Mesh;
+			Ref<Material> m_Materiel;
+			uint32_t m_InstanceIndex;
+			std::vector<T> m_BatchData;
+			Ref<Buffer> m_Buffer;
 		};
 
-		class RenderPassDrawResoucs
+		class RenderPassDrawResource
 		{
 		public:
 			using RenderProxyStore = RenderProxy;
@@ -72,8 +72,8 @@ namespace Rynex {
 				PerBatch<Ref<BindlesTextureArray>> bindlesTextureArrayPerBatch;
 				PerBatch<TextureResourceBindles> textureResourceBindlesPerBatch;
 				PerBatch<Batch::Render3DMeshObject> render3DMeshBindlesPerBatch;
-				PerBatch<Batch::Render3DMeshObjectTrasform> render3DMeshBindlesTrasformPerBatch;
-				PerBatch<Batch::Render3DMeshObjectTrasform> render3DMeshBindlesTrasformPerBatch;
+				PerBatch<Batch::Render3DMeshObjectTransform> render3DMeshBindlesTrasformPerBatch;
+				PerBatch<Batch::Render3DMeshObjectTransform> render3DMeshBindlesTrasformPerBatch;
 #endif
 			};
 #else
@@ -84,17 +84,17 @@ namespace Rynex {
 			using ConstItMapObject = std::unordered_map<Batch3DKey, Batch3DData>::const_iterator;
 
 		public:
-			RenderPassDrawResoucs();
-			~RenderPassDrawResoucs();
+			RenderPassDrawResource();
+			~RenderPassDrawResource();
 
 			void SetOutPutLayout(const BufferLayout& outPut);
-			void SubmiteVisebleObjects(RenderProxyPtr renderProxy, int lodTier);
+			void SubmitVisibleObjects(RenderProxyPtr renderProxy, int lodTier);
 			void ClearFrame();
-			void GenrateDrawCalls(std::vector<DrawCall>& drawCallList);
+			void GenerateDrawCalls(std::vector<DrawCall>& drawCallList);
 
 		private:			
-			static void SubmiteToList(RenderProxy* proxy, int lodTier, std::vector<std::pair<int, RenderProxy>>& list);
-			static void SubmiteToList(RenderProxy* proxy, int lodTier, std::vector<std::pair<int, RenderProxy*>>& list);
+			static void SubmitToList(RenderProxy* proxy, int lodTier, std::vector<std::pair<int, RenderProxy>>& list);
+			static void SubmitToList(RenderProxy* proxy, int lodTier, std::vector<std::pair<int, RenderProxy*>>& list);
 
 			void DrawCallsFromList(std::vector<DrawCall>& drawCallList, const Batch3DKey& key, std::vector<std::pair<int, RenderProxy>>& list);
 			void DrawCallsFromList(std::vector<DrawCall>& drawCallList, const Batch3DKey& key, std::vector<std::pair<int, RenderProxy*>>& list);

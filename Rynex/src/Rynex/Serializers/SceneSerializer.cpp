@@ -25,9 +25,9 @@ namespace Rynex {
 		CameraComponent CameraComponent;
 		ScriptComponent ScriptComponent;
 		SpriteRendererComponent SpriteRendererComponent;
-		GeomtryComponent GeomtryComponent;
+		GeometryComponent GeomtryComponent;
 		MaterialComponent MaterialComponent;
-		RealtionShipUUIDComponent RealtionShipComponent;
+		RelationshipUUIDComponent RealtionShipComponent;
 		ModelMatrixComponent ModelMatrixComponent;
 		ModelMangerComponent ModelMangerComponent;
 		DynamicMeshComponent DynamicMeshComponent;
@@ -136,7 +136,7 @@ namespace Utils {
 			for (const BufferElement& ellement : layout)
 			{
 
-				switch (ellement.type)
+				switch (ellement.m_Type)
 				{
 				case ShaderDataType::Float:
 				{
@@ -209,8 +209,8 @@ namespace Utils {
 			Ref<Project> project = Project::GetActive();
 			Ref<EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
 			AssetMetadata metadata = editorAssetManger->GetMetadata(handle);
-			const std::filesystem::path& filePath = metadata.FilePath;
-			const std::filesystem::path& pathMarked = metadata.PathMarker;
+			const std::filesystem::path& filePath = metadata.m_FilePath;
+			const std::filesystem::path& pathMarked = metadata.m_PathMarker;
 
 			std::string filePathStr = filePath.string();
 			std::string pathMarkedStr = pathMarked.string();
@@ -235,15 +235,15 @@ namespace Utils {
 
 			AssetMetadata metadata = editorAssetManger->GetMetadata(handle);
 
-			if (metadata.Type != type)
+			if (metadata.m_Type != type)
 			{
-				std::string_view metadataType = Asset::AssetTypeToString(metadata.Type);
+				std::string_view metadataType = Asset::AssetTypeToString(metadata.m_Type);
 				std::string_view needMetadataType = Asset::AssetTypeToString(type);
 				RY_CORE_ERROR("Asset not Serialized in {} ({} == {})", name, metadataType, needMetadataType);
 				return;
 			}
-			const std::filesystem::path& filePath = metadata.FilePath;
-			const std::filesystem::path& pathMarked = metadata.PathMarker;
+			const std::filesystem::path& filePath = metadata.m_FilePath;
+			const std::filesystem::path& pathMarked = metadata.m_PathMarker;
 			std::string filePathStr = filePath.string();
 			std::string pathMarkedStr = pathMarked.string();
 
@@ -277,7 +277,7 @@ namespace Utils {
 				out << YAML::Key << "TagComponent";
 				out << YAML::BeginMap;
 
-				std::string& tag = entity.GetComponent<TagComponent>().Tag;
+				std::string& tag = entity.GetComponent<TagComponent>().m_Tag;
 				out << YAML::Key << "Tag" <<  tag;
 
 				out << YAML::EndMap;
@@ -289,9 +289,9 @@ namespace Utils {
 				out << YAML::BeginMap;
 
 				TransformComponent& tc = entity.GetComponent<TransformComponent>();
-				out << YAML::Key << "Transaltion" << tc.Transaltion;
-				out << YAML::Key << "Rotation" << tc.Rotation;
-				out << YAML::Key << "Scale" << tc.Scale;
+				out << YAML::Key << "Transaltion" << tc.m_Transform;
+				out << YAML::Key << "Rotation" << tc.m_Rotation;
+				out << YAML::Key << "Scale" << tc.m_Scale;
 
 				out << YAML::EndMap;
 			}
@@ -302,11 +302,11 @@ namespace Utils {
 				out << YAML::BeginMap;
 
 				CameraComponent& cc = entity.GetComponent<CameraComponent>();
-				SceneCamera& camera = cc.Camera;
+				SceneCamera& camera = cc.m_Camera;
 
 				out << YAML::Key << "Camera" << camera;
-				out << YAML::Key << "Primary" << YAML::Value << cc.Primary;
-				out << YAML::Key << "FixedAspectRotaion" << YAML::Value << cc.FixedAspectRotaion;
+				out << YAML::Key << "Primary" << YAML::Value << cc.m_Primary;
+				out << YAML::Key << "FixedAspectRotaion" << YAML::Value << cc.m_FixedAspectRotation;
 
 				out << YAML::EndMap;
 			}
@@ -316,7 +316,7 @@ namespace Utils {
 				out << YAML::Key << "ScriptComponent";
 				out << YAML::BeginMap;
 				ScriptComponent& sc = entity.GetComponent<ScriptComponent>();
-				out << YAML::Key << "ClassName" << YAML::Value << sc.Name;
+				out << YAML::Key << "ClassName" << YAML::Value << sc.m_Name;
 				out << YAML::EndMap;
 			}
 
@@ -326,8 +326,8 @@ namespace Utils {
 				out << YAML::BeginMap;
 
 				SpriteRendererComponent& sc = entity.GetComponent<SpriteRendererComponent>();
-				out << YAML::Key << "Color" << YAML::Value << sc.Color;
-				if (Ref<Texture> tex = sc.Texture.lock())
+				out << YAML::Key << "Color" << YAML::Value << sc.m_Color;
+				if (Ref<Texture> tex = sc.m_Texture.lock())
 				{
 					SerializerAssetFormate(out, "Texture", tex->Handle);
 				}
@@ -335,17 +335,17 @@ namespace Utils {
 			}
 
 
-			if (entity.HasComponent<RealtionShipUUIDComponent>())
+			if (entity.HasComponent<RelationshipUUIDComponent>())
 			{
-				RealtionShipUUIDComponent& rSc = entity.GetComponent<RealtionShipUUIDComponent>();
+				RelationshipUUIDComponent& rSc = entity.GetComponent<RelationshipUUIDComponent>();
 
 				out << YAML::Key << "RealtionShipComponent";
 				out << YAML::BeginMap;
-				out << YAML::Key << "ParentID" << YAML::Value << rSc.parent;
+				out << YAML::Key << "ParentID" << YAML::Value << rSc.m_Parent;
 				out << YAML::Key << "ChildrenIDs" << YAML::Value;
 				out << YAML::Flow;
 				out << YAML::BeginSeq;
-				for (UUID& idChild : rSc.childrens)
+				for (UUID& idChild : rSc.m_Childrens)
 				{
 					out << YAML::Value << idChild;
 				}
@@ -358,8 +358,8 @@ namespace Utils {
 				out << YAML::Key << "ModelMatrixComponent";
 				out << YAML::BeginMap;
 				ModelMatrixComponent& modelMatC = entity.GetComponent<ModelMatrixComponent>();
-				out << YAML::Key << "Locale" << YAML::Value << modelMatC.Locale;
-				out << YAML::Key << "Globle" << YAML::Value << modelMatC.Globle;
+				out << YAML::Key << "Locale" << YAML::Value << modelMatC.m_Locale;
+				out << YAML::Key << "Globle" << YAML::Value << modelMatC.m_Global;
 				out << YAML::EndMap;
 			}
 
@@ -368,8 +368,8 @@ namespace Utils {
 				out << YAML::Key << "ViewMatrixComponent";
 				out << YAML::BeginMap;
 				ViewMatrixComponent& viewMatC = entity.GetComponent<ViewMatrixComponent>();
-				out << YAML::Key << "Locale" << YAML::Value << viewMatC.Locale;
-				out << YAML::Key << "Globle" << YAML::Value << viewMatC.Globle;
+				out << YAML::Key << "Locale" << YAML::Value << viewMatC.m_Locale;
+				out << YAML::Key << "Globle" << YAML::Value << viewMatC.m_Global;
 				out << YAML::EndMap;
 			}
 
@@ -378,7 +378,7 @@ namespace Utils {
 				out << YAML::Key << "StaticMeshComponent";
 				out << YAML::BeginMap;
 				ModelMangerComponent& staticMeshC = entity.GetComponent<ModelMangerComponent>();						
-				const Ref<MeshStatic>& meshStatic = staticMeshC.meshStatic;
+				const Ref<MeshStatic>& meshStatic = staticMeshC.m_MeshStatic;
 
 				if (nullptr != meshStatic)
 				{
@@ -395,53 +395,53 @@ namespace Utils {
 				TextComponent& textC = entity.GetComponent<TextComponent>();
 
 
-				out << YAML::Key << "TextString" << YAML::Value << textC.TextString.c_str();
-				out << YAML::Key << "Color" << YAML::Value << textC.Color;
-				out << YAML::Key << "Kerning" << YAML::Value << textC.Kerning;
-				out << YAML::Key << "LineSpacing" << YAML::Value << textC.LineSpacing;
+				out << YAML::Key << "TextString" << YAML::Value << textC.m_TextString.c_str();
+				out << YAML::Key << "Color" << YAML::Value << textC.m_Color;
+				out << YAML::Key << "Kerning" << YAML::Value << textC.m_Kerning;
+				out << YAML::Key << "LineSpacing" << YAML::Value << textC.m_LineSpacing;
 				out << YAML::EndMap;
 			}
 
-			if (entity.HasComponent<DrirectionleLigthComponent>())
+			if (entity.HasComponent<DirectionLightComponent>())
 			{
 				out << YAML::Key << "DrirektionleLigthComponent";
 				out << YAML::BeginMap;
-				DrirectionleLigthComponent& drirektionleC = entity.GetComponent<DrirectionleLigthComponent>();
+				DirectionLightComponent& drirektionleC = entity.GetComponent<DirectionLightComponent>();
 
-				out << YAML::Key << "Color" << YAML::Value << drirektionleC.color;
-				out << YAML::Key << "Intensitie" << YAML::Value << drirektionleC.intensitie;
+				out << YAML::Key << "Color" << YAML::Value << drirektionleC.m_Color;
+				out << YAML::Key << "Intensitie" << YAML::Value << drirektionleC.m_Intensity;
 
 				out << YAML::EndMap;
 			}
 
-			if (entity.HasComponent<PointLigthComponent>())
+			if (entity.HasComponent<PointLightComponent>())
 			{
 				out << YAML::Key << "PointLigthComponent";
 				out << YAML::BeginMap;
-				PointLigthComponent& pointC = entity.GetComponent<PointLigthComponent>();
+				PointLightComponent& pointC = entity.GetComponent<PointLightComponent>();
 
-				out << YAML::Key << "Color" << YAML::Value << pointC.color;
-				out << YAML::Key << "Intensitie" << YAML::Value << pointC.intensitie;
-				out << YAML::Key << "Distence" << YAML::Value << pointC.distence;
-				out << YAML::Key << "Quadratic" << YAML::Value << pointC.quadratic;
-				out << YAML::Key << "Linear" << YAML::Value << pointC.linear;
-				out << YAML::Key << "Constant" << YAML::Value << pointC.constant;
+				out << YAML::Key << "Color" << YAML::Value << pointC.m_Color;
+				out << YAML::Key << "Intensitie" << YAML::Value << pointC.m_Intensity;
+				out << YAML::Key << "Distence" << YAML::Value << pointC.m_Distance;
+				out << YAML::Key << "Quadratic" << YAML::Value << pointC.m_Quadratic;
+				out << YAML::Key << "Linear" << YAML::Value << pointC.m_Linear;
+				out << YAML::Key << "Constant" << YAML::Value << pointC.m_Constant;
 
 
 				out << YAML::EndMap;
 			}
 
-			if (entity.HasComponent<SpotLigthComponent>())
+			if (entity.HasComponent<SpotLightComponent>())
 			{
 				out << YAML::Key << "SpotLigthComponent";
 				out << YAML::BeginMap;
-				SpotLigthComponent& spotC = entity.GetComponent<SpotLigthComponent>();
+				SpotLightComponent& spotC = entity.GetComponent<SpotLightComponent>();
 
-				out << YAML::Key << "Color" << YAML::Value << spotC.color;
-				out << YAML::Key << "Intensitie" << YAML::Value << spotC.intensitie;
-				out << YAML::Key << "Distence" << YAML::Value << spotC.distence;
-				out << YAML::Key << "Inner" << YAML::Value << spotC.inner;
-				out << YAML::Key << "Outer" << YAML::Value << spotC.outer;
+				out << YAML::Key << "Color" << YAML::Value << spotC.m_Color;
+				out << YAML::Key << "Intensitie" << YAML::Value << spotC.m_Intensity;
+				out << YAML::Key << "Distence" << YAML::Value << spotC.m_Distance;
+				out << YAML::Key << "Inner" << YAML::Value << spotC.m_Inner;
+				out << YAML::Key << "Outer" << YAML::Value << spotC.m_Outer;
 
 				out << YAML::EndMap;
 			}
@@ -457,10 +457,10 @@ namespace Utils {
 					out << YAML::BeginMap;
 
 					
-					const FramebufferSpecification& spec = frameC.FrameBuffer->GetFramebufferSpecification();
+					const FramebufferSpecification& spec = frameC.m_FrameBuffer->GetFramebufferSpecification();
 					out << YAML::Key << "FramebufferSpecifcation" << spec;
-					out << YAML::Key << "ClearColor" << YAML::Value << frameC.ClearColor;
-					out << YAML::Key << "FramebufferSize" << YAML::Value << (int)frameC.FramebufferSize;
+					out << YAML::Key << "ClearColor" << YAML::Value << frameC.m_ClearColor;
+					out << YAML::Key << "FramebufferSize" << YAML::Value << (int)frameC.m_FramebufferSize;
 
 
 					out << YAML::EndMap;
@@ -554,7 +554,7 @@ namespace Utils {
 			uint32_t elementsSize = elements.size();
 			for (YAML::detail::iterator_value element : node)
 			{
-				switch (elements[(index % elementsSize)].type)
+				switch (elements[(index % elementsSize)].m_Type)
 				{
 				case ShaderDataType::Float:
 				{
@@ -700,7 +700,7 @@ namespace Utils {
 		out << YAML::BeginMap;
 		out << YAML::Key << "Scene" << YAML::Value << "Untiteld";
 		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
-		m_Scene->m_Registery.each([&](auto entityID)
+		m_Scene->m_Registry.each([&](auto entityID)
 			{
 				Entity entity = { entityID, m_Scene.get() };
 				if (!entity)
@@ -714,7 +714,7 @@ namespace Utils {
 		RY_CORE_ASSERT(fout);
 		fout << out.c_str();
 
-		m_Scene->m_Registery.each([&](auto entityID)
+		m_Scene->m_Registry.each([&](auto entityID)
 		{
 			Entity entity{ entityID, m_Scene.get() };
 			entity.UpdateMatrix();
@@ -744,7 +744,7 @@ namespace Utils {
 
 		std::string sceneName = data["Scene"].as<std::string>();
 		RY_CORE_ASSERT("Deserialize scene '{0}'", sceneName);
-		std::vector<Ref<LodePromis<Scene>>>& lodingPromisVec = m_Scene->m_LodingPromisVec;
+		std::vector<Ref<LodePromis<Scene>>>& lodingPromisVec = m_Scene->m_LoadingPromisVec;
 		lodingPromisVec.clear();
 
 		YAML::Node entities = data["Entities"];
@@ -765,36 +765,36 @@ namespace Utils {
 				{
 					// Entities always have transforms
 					TransformComponent& tc = deserializedEntity.GetComponent<TransformComponent>();
-					tc.Transaltion = transformComponent["Transaltion"].as<glm::vec3>();
-					tc.Rotation = transformComponent["Rotation"].as<glm::vec3>();
-					tc.Scale = transformComponent["Scale"].as<glm::vec3>();
+					tc.m_Transform = transformComponent["Transaltion"].as<glm::vec3>();
+					tc.m_Rotation = transformComponent["Rotation"].as<glm::vec3>();
+					tc.m_Scale = transformComponent["Scale"].as<glm::vec3>();
 				}
 
 				if (YAML::Node realtionShipComponent = entity["RealtionShipComponent"])
 				{
-					RealtionShipUUIDComponent& rSc = deserializedEntity.GetComponent<RealtionShipUUIDComponent>();
+					RelationshipUUIDComponent& rSc = deserializedEntity.GetComponent<RelationshipUUIDComponent>();
 					if(realtionShipComponent["Parent"])
 					{
 						UUID parent = realtionShipComponent["Parent"].as<uint64_t>();
 						Entity parentEntity = m_Scene->GetEntitiyByUUID(parent);
 						if(parentEntity)
 						{
-							rSc.parent = parent;
-							RealtionShipUUIDComponent& rSCparent = parentEntity.GetComponent<RealtionShipUUIDComponent>();
+							rSc.m_Parent = parent;
+							RelationshipUUIDComponent& rSCparent = parentEntity.GetComponent<RelationshipUUIDComponent>();
 							UUID id = deserializedEntity.GetUUID();
-							rSCparent.childrens.push_back(id);
+							rSCparent.m_Childrens.push_back(id);
 						}
 
 					} 
 					else if(realtionShipComponent["ParentID"])
 					{
-						rSc.parent = realtionShipComponent["ParentID"].as<uint64_t>();
+						rSc.m_Parent = realtionShipComponent["ParentID"].as<uint64_t>();
 						YAML::Node childNodes = realtionShipComponent["ChildrenIDs"];
 						uint32_t size = childNodes.size();
-						rSc.childrens.reserve(size);
+						rSc.m_Childrens.reserve(size);
 						for (YAML::Node childsIDsNode : childNodes)
 						{
-							rSc.childrens.push_back(childsIDsNode.as<uint64_t>());
+							rSc.m_Childrens.push_back(childsIDsNode.as<uint64_t>());
 						}
 					}
 
@@ -806,21 +806,21 @@ namespace Utils {
 					CameraComponent& cc = deserializedEntity.AddComponent<CameraComponent>();
 
 					YAML::Node cameraProps = cameraComponent["Camera"];
-					cc.Camera = cameraProps.as<SceneCamera>();
-					cc.Primary = cameraComponent["Primary"].as<bool>();
-					cc.FixedAspectRotaion = cameraComponent["FixedAspectRotaion"].as<bool>();
+					cc.m_Camera = cameraProps.as<SceneCamera>();
+					cc.m_Primary = cameraComponent["Primary"].as<bool>();
+					cc.m_FixedAspectRotation = cameraComponent["FixedAspectRotaion"].as<bool>();
 				}
 
 				if (YAML::Node scriptComponent = entity["ScriptComponent"])
 				{
 					ScriptComponent& tc = deserializedEntity.AddComponent<ScriptComponent>();
-					tc.Name = scriptComponent["ClassName"].as<std::string>();
+					tc.m_Name = scriptComponent["ClassName"].as<std::string>();
 				}
 
 				if (YAML::Node spriteRendererComponent = entity["SpriteRendererComponent"])
 				{
 					SpriteRendererComponent& sc = deserializedEntity.AddComponent<SpriteRendererComponent>();
-					sc.Color = spriteRendererComponent["Color"].as<glm::vec4>();
+					sc.m_Color = spriteRendererComponent["Color"].as<glm::vec4>();
 					YAML::Node spriteRendererComponentTexture = spriteRendererComponent["Texture"];
 					RefSceneLodePromisType<Texture> promis = Utils::Deserialize::DeserializeAssetFormate<SpriteRendererComponent, Texture>(spriteRendererComponentTexture, deserializedEntity, AssetType::Texture2D);
 					if (nullptr != promis)
@@ -836,14 +836,14 @@ namespace Utils {
 					ModelMatrixComponent& m4c = deserializedEntity.GetComponent<ModelMatrixComponent>();
 					if(modelMatrixComponentN["Matrix4x4"])
 					{
-						m4c.Locale = modelMatrixComponentN["Matrix4x4"].as<glm::mat4>();
-						m4c.Globle = modelMatrixComponentN["GlobleMatrix4x4"].as<glm::mat4>();
+						m4c.m_Locale = modelMatrixComponentN["Matrix4x4"].as<glm::mat4>();
+						m4c.m_Global = modelMatrixComponentN["GlobleMatrix4x4"].as<glm::mat4>();
 						RY_CORE_WARN("Old ModelMatrixComponent Name Confention");
 					}
 					if (modelMatrixComponentN["Locale"])
 					{
-						m4c.Locale = modelMatrixComponentN["Locale"].as<glm::mat4>();
-						m4c.Globle = modelMatrixComponentN["Globle"].as<glm::mat4>();
+						m4c.m_Locale = modelMatrixComponentN["Locale"].as<glm::mat4>();
+						m4c.m_Global = modelMatrixComponentN["Globle"].as<glm::mat4>();
 					}
 				}
 
@@ -852,8 +852,8 @@ namespace Utils {
 					if (!deserializedEntity.HasComponent<ViewMatrixComponent>())
 						deserializedEntity.AddComponent<ViewMatrixComponent>();
 					ViewMatrixComponent& viewMatC = deserializedEntity.GetComponent<ViewMatrixComponent>();
-					viewMatC.Locale = viewMatrixComponentN["Locale"].as<glm::mat4>();
-					viewMatC.Globle = viewMatrixComponentN["Globle"].as<glm::mat4>();
+					viewMatC.m_Locale = viewMatrixComponentN["Locale"].as<glm::mat4>();
+					viewMatC.m_Global = viewMatrixComponentN["Globle"].as<glm::mat4>();
 				}
 
 				if (YAML::Node staticMeshComponent = entity["StaticMeshComponent"])
@@ -870,50 +870,49 @@ namespace Utils {
 				{
 					deserializedEntity.AddComponent<TextComponent>();
 					TextComponent& textC = deserializedEntity.GetComponent<TextComponent>();
-					textC.FontAsset = Font::GetDefault();
-					textC.TextString = textComponent["TextString"].as<std::string>();
-					textC.Color = textComponent["Color"].as<glm::vec4>();
+					textC.m_FontAsset = Font::GetDefault();
+					textC.m_TextString = textComponent["TextString"].as<std::string>();
+					textC.m_Color = textComponent["Color"].as<glm::vec4>();
 					
-					textC.LineSpacing = textComponent["LineSpacing"].as<float>();
-					textC.Kerning = textComponent["Kerning"].as<float>();
+					textC.m_LineSpacing = textComponent["LineSpacing"].as<float>();
+					textC.m_Kerning = textComponent["Kerning"].as<float>();
 
 					RY_CORE_ASSERT(deserializedEntity.HasComponent<TextComponent>())
 				}
 
 				if (YAML::Node drirektionleComponent = entity["DrirektionleLigthComponent"])
 				{
-					DrirectionleLigthComponent& drirektionleC = deserializedEntity.AddComponent<DrirectionleLigthComponent>();
-					drirektionleC.color = drirektionleComponent["Color"].as<glm::vec3>();
-					drirektionleC.intensitie = drirektionleComponent["Intensitie"].as<float>();
+					DirectionLightComponent& drirektionleC = deserializedEntity.AddComponent<DirectionLightComponent>();
+					drirektionleC.m_Color = drirektionleComponent["Color"].as<glm::vec3>();
+					drirektionleC.m_Intensity = drirektionleComponent["Intensitie"].as<float>();
 				}
 
 				if (YAML::Node pointLigthComponent = entity["PointLigthComponent"])
 				{
-					PointLigthComponent& pointLigthC = deserializedEntity.AddComponent<PointLigthComponent>();
-					pointLigthC.color = pointLigthComponent["Color"].as<glm::vec3>();
-					pointLigthC.intensitie = pointLigthComponent["Intensitie"].as<float>();
-					pointLigthC.distence = pointLigthComponent["Distence"].as<float>();
+					PointLightComponent& pointLigthC = deserializedEntity.AddComponent<PointLightComponent>();
+					pointLigthC.m_Color = pointLigthComponent["Color"].as<glm::vec3>();
+					pointLigthC.m_Distance = pointLigthComponent["Distence"].as<float>();
 
 					if(YAML::Node constantCompN = pointLigthComponent["Constant"])
-						pointLigthC.constant = constantCompN.as<float>();
+						pointLigthC.m_Constant = constantCompN.as<float>();
 
 					if (YAML::Node intensitieCompN = pointLigthComponent["Intensitie"])
-						pointLigthC.intensitie = intensitieCompN.as<float>();
+						pointLigthC.m_Intensity = intensitieCompN.as<float>();
 
 					if (YAML::Node quadraticCompN = pointLigthComponent["Quadratic"])
-						pointLigthC.quadratic = quadraticCompN.as<float>();
+						pointLigthC.m_Quadratic = quadraticCompN.as<float>();
 
 				}
 
 				if (YAML::Node spotLigthComponent = entity["SpotLigthComponent"])
 				{
-					SpotLigthComponent& spotLigthC = deserializedEntity.AddComponent<SpotLigthComponent>();
-					spotLigthC.color = spotLigthComponent["Color"].as<glm::vec3>();
-					spotLigthC.intensitie = spotLigthComponent["Intensitie"].as<float>();
-					spotLigthC.distence = spotLigthComponent["Distence"].as<float>();
+					SpotLightComponent& spotLigthC = deserializedEntity.AddComponent<SpotLightComponent>();
+					spotLigthC.m_Color = spotLigthComponent["Color"].as<glm::vec3>();
+					spotLigthC.m_Intensity = spotLigthComponent["Intensitie"].as<float>();
+					spotLigthC.m_Distance = spotLigthComponent["Distence"].as<float>();
 
-					spotLigthC.inner = spotLigthComponent["Inner"].as<float>();
-					spotLigthC.outer = spotLigthComponent["Outer"].as<float>();
+					spotLigthC.m_Inner = spotLigthComponent["Inner"].as<float>();
+					spotLigthC.m_Outer = spotLigthComponent["Outer"].as<float>();
 					
 				}
 
@@ -924,10 +923,10 @@ namespace Utils {
 					if (YAML::Node framebufferSpecifcationNode = frameBufferComponent["FramebufferSpecifcation"])
 					{
 						FramebufferSpecification frame = framebufferSpecifcationNode.as<FramebufferSpecification>();
-						frameC.FrameBuffer = Framebuffer::Create(frame);
+						frameC.m_FrameBuffer = Framebuffer::Create(frame);
 					}
-					frameC.ClearColor = frameBufferComponent["ClearColor"].as<glm::vec3>();
-					frameC.FramebufferSize = (FrameBufferImageSize)frameBufferComponent["FramebufferSize"].as<int>();
+					frameC.m_ClearColor = frameBufferComponent["ClearColor"].as<glm::vec3>();
+					frameC.m_FramebufferSize = (FrameBufferImageSize)frameBufferComponent["FramebufferSize"].as<int>();
 
 				}
 	

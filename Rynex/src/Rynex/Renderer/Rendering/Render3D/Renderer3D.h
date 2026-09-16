@@ -7,32 +7,32 @@ namespace Rynex {
 	struct ShaderDrawEntityList;
 	class PiplineRefBaseVec;
 
-	typedef enum LigthSourceEnum {
+	typedef enum LightSourceEnum {
 
-		LigthSource_None = 0,
-		LigthSource_Dirctionel = 1,
+		LightSource_None = 0,
+		LightSource_Directionel = 1,
 
 	}LigthSourceEnum;
 
-	struct LigthSource 
+	struct LightSource
 	{
-		glm::vec3 postion;
-		float intensty;
-		glm::vec3 color; 
-		int type;
+		glm::vec3 m_Position;
+		float m_Intensity;
+		glm::vec3 m_Color;
+		int m_Type;
 		glm::vec3 direction;
 
-		LigthSource()
-			: postion(0.0f, 0.0f, 0.0f)
-			, color(0.0f, 0.0f, 0.0f)
-			, intensty(0.0f)
+		LightSource()
+			: m_Position(0.0f, 0.0f, 0.0f)
+			, m_Color(0.0f, 0.0f, 0.0f)
+			, m_Intensity(0.0f)
 			, direction(0.0f)
-			, type(LigthSourceEnum::LigthSource_None)
+			, m_Type(LigthSourceEnum::LightSource_None)
 		{
 
 		}
 
-		LigthSource(const LigthSource&) = default;
+		LightSource(const LightSource&) = default;
 	};
 	
 	class Renderer3D

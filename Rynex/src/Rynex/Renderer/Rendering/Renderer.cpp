@@ -644,7 +644,7 @@ namespace Rynex {
 		RY_SCOPE_TIMER(statePass.TimeElpassed);
 		Ref<RenderTarget>& target = renderPass.Target;
 		statePass.DrawCallsCount = target->GetDrawListCount();
-		statePass.PiplineCallsCount = target->GetPilineBaseCount();
+		statePass.PiplineCallsCount = target->GetPiplineListBaseCount();
 
 		DrawRenderFromRenderPass(target);
 	}
@@ -656,7 +656,7 @@ namespace Rynex {
 		RY_SCOPE_TIMER(statePass.TimeElpassed);
 		Ref<RenderTarget>& target = renderPass.Target;
 		statePass.DrawCallsCount = target->GetDrawListCount();
-		statePass.PiplineCallsCount = target->GetPilineBaseCount();
+		statePass.PiplineCallsCount = target->GetPiplineListBaseCount();
 
 
 		DrawRenderFromRenderPass(target, mode);
@@ -665,12 +665,12 @@ namespace Rynex {
 	inline void Renderer::DrawRenderFromRenderPass(Ref<RenderTarget>& target)
 	{
 		target->BindFramebuffer();
-		target->ClearFramebufferImges();
+		target->ClearFramebufferImageList();
 		target->ClearFramebufferDepth();
 
 		if (s_Settings.sortBeforDrawFromRenderTarget)
 		{
-			target->SortePilineList();
+			target->SortedPiplineList();
 		}
 	}
 
@@ -683,30 +683,30 @@ namespace Rynex {
 
 	inline void Renderer::DrawRenderTargetFromRenderPass(Ref<RenderTarget>& target)
 	{
-		target->DrawPilines();
+		target->DrawPiplineList();
 		target->DrawBufferList();
 #if 0
 		target->DrawPilinesBase();
 #endif
-		target->SortePilineAlphaList();
-		target->DrawAlphaPilines();
+		target->SortedPiplineAlphaList();
+		target->DrawAlphaPiplineList();
 	}
 
 	inline void Renderer::DrawRenderTargetFromRenderPass(Ref<RenderTarget>& target, int mode)
 	{
-		target->DrawPilines(mode);
+		target->DrawPiplineList(mode);
 		target->DrawBufferList(mode);
 #if 0
 		target->DrawPilinesBase(mode);
 #endif
-		target->SortePilineAlphaList();
-		target->DrawAlphaPilines(mode);
+		target->SortedPiplineAlphaList();
+		target->DrawAlphaPiplineList(mode);
 	}
 
 	inline void Renderer::ClearRenderTargetFromRenderPass(Ref<RenderTarget>& target)
 	{
-		target->ClearPilines();
-		target->ClearAlphaPilines();
+		target->ClearPiplineList();
+		target->ClearAlphaPiplineList();
 	}
 
 	inline void Renderer::InitFromRenderPassDisplayUB(RenderPass& renderPass)
@@ -972,8 +972,8 @@ namespace Rynex {
 
 	inline bool Renderer::IsInsideFromRenderPassViewFustrem(RenderPass& renderPass, const AABB& aabb, const glm::mat4& modelMatrix)
 	{
-		glm::vec4 max4 = GetGlobleEge(modelMatrix, aabb.Max);
-		glm::vec4 min4 = GetGlobleEge(modelMatrix, aabb.Min);
+		glm::vec4 max4 = GetGlobleEge(modelMatrix, aabb.m_Max);
+		glm::vec4 min4 = GetGlobleEge(modelMatrix, aabb.m_Min);
 		return IsInsideFromRenderPassViewFustremAABB(renderPass.BoundingArray, max4, min4);
 	}
 
@@ -1017,22 +1017,22 @@ namespace Rynex {
 		Ref<RenderTarget>& renderTarget = GetRenderTargetFromRenderPass(renderPass);
 
 		statePass.DrawCallsCount = renderTarget->GetDrawListCount();
-		statePass.PiplineCallsCount = renderTarget->GetPilineBaseCount();
+		statePass.PiplineCallsCount = renderTarget->GetPiplineListBaseCount();
 
 		renderTarget->BindFramebuffer();
-		renderTarget->ClearFramebufferImges();
+		renderTarget->ClearFramebufferImageList();
 		renderTarget->ClearFramebufferDepth();
 
 
 
 		if (s_Settings.drawPiplinesFromRenderTarget && s_Settings.sortBeforDrawFromRenderTarget)
 		{
-			renderTarget->SortePilineList();
-			renderTarget->DrawPilines();
+			renderTarget->SortedPiplineList();
+			renderTarget->DrawPiplineList();
 		} 
 		else if (s_Settings.drawPiplinesFromRenderTarget)
 		{
-			renderTarget->DrawPilines();
+			renderTarget->DrawPiplineList();
 		}
 
 		if (s_Settings.drawShaderDrawListFromRenderTarget)
@@ -1055,7 +1055,7 @@ namespace Rynex {
 
 		if (s_Settings.drawPiplinesFromRenderTarget)
 		{
-			renderTarget->DrawAlphaPilines();
+			renderTarget->DrawAlphaPiplineList();
 		}
 
 	}
@@ -1067,21 +1067,21 @@ namespace Rynex {
 		Ref<RenderTarget>& renderTarget = GetRenderTargetFromRenderPass(renderPass);
 
 		statePass.DrawCallsCount = renderTarget->GetDrawListCount();
-		statePass.PiplineCallsCount = renderTarget->GetPilineBaseCount();
+		statePass.PiplineCallsCount = renderTarget->GetPiplineListBaseCount();
 
 
 		renderTarget->BindFramebuffer();
-		renderTarget->ClearFramebufferImges();
+		renderTarget->ClearFramebufferImageList();
 		renderTarget->ClearFramebufferDepth();
 		
 		if (s_Settings.drawPiplinesFromRenderTarget && s_Settings.sortBeforDrawFromRenderTarget)
 		{
-			renderTarget->SortePilineList();
-			renderTarget->DrawPilines(mode);
+			renderTarget->SortedPiplineList();
+			renderTarget->DrawPiplineList(mode);
 		}
 		else if (s_Settings.drawPiplinesFromRenderTarget)
 		{
-			renderTarget->DrawPilines(mode);
+			renderTarget->DrawPiplineList(mode);
 		}
 
 		if (s_Settings.drawShaderDrawListFromRenderTarget)
@@ -1106,7 +1106,7 @@ namespace Rynex {
 
 		if (s_Settings.drawPiplinesFromRenderTarget)
 		{
-			renderTarget->DrawAlphaPilines(mode);
+			renderTarget->DrawAlphaPiplineList(mode);
 		}
 	}
 
@@ -1114,8 +1114,8 @@ namespace Rynex {
 	{
 		ResetFromRenderPassRenderPassPiplines(renderPass);
 		Ref<RenderTarget>& renderTarget = GetRenderTargetFromRenderPass(renderPass);
-		renderTarget->ClearPilines();
-		renderTarget->ClearAlphaPilines();
+		renderTarget->ClearPiplineList();
+		renderTarget->ClearAlphaPiplineList();
 		renderTarget->ClearShaderDrawList();
 	}
 
@@ -1205,7 +1205,7 @@ namespace Rynex {
 
 			uint32_t index = 0u;
 #ifdef RY_SSBO_VARIENTS
-			for (auto& resource : shaderDraw.GetBindeStorage())
+			for (auto& resource : shaderDraw.GetBindStorage())
 			{
 				std::visit([index](auto& ssbo)
 					{
@@ -1221,7 +1221,7 @@ namespace Rynex {
 			}
 #else
 
-			for (Ref<StorageBuffer>& resource : shaderDraw.GetBindeStorage())
+			for (Ref<StorageBuffer>& resource : shaderDraw.GetBindStorage())
 			{
 				if (nullptr != resource)
 				{
@@ -1234,7 +1234,7 @@ namespace Rynex {
 #endif
 			index = 0u;
 #ifdef RY_TEXTURE_VARIENTS
-			for (auto& resource : shaderDraw.GetBindeTextures())
+			for (auto& resource : shaderDraw.GetBindTextures())
 			{
 				std::visit([index](auto& texture)
 					{
@@ -1249,7 +1249,7 @@ namespace Rynex {
 			}
 #else
 
-			for (Ref<Texture>& resource : shaderDraw.GetBindeTextures())
+			for (Ref<Texture>& resource : shaderDraw.GetBindTextures())
 			{
 				if (nullptr != resource)
 				{
@@ -1262,7 +1262,7 @@ namespace Rynex {
 #endif
 			index = 0u;
 
-			for (Ref<UniformBuffer>& resource : shaderDraw.GetBindeUniform())
+			for (Ref<UniformBuffer>& resource : shaderDraw.GetBindUniform())
 			{
 				if (nullptr != resource)
 				{
@@ -1273,12 +1273,12 @@ namespace Rynex {
 				index++;
 			}
 			index = 0u;
-			shaderDraw.shaderProgramm->Bind();
+			shaderDraw.m_ShaderProgram->Bind();
 
-			const Mesh::PerDrawObject& drawElement = shaderDraw.drawElement;
-			RenderCommand::SetMode(shaderDraw.renderMode);
+			const Mesh::PerDrawObject& drawElement = shaderDraw.m_DrawElement;
+			RenderCommand::SetMode(shaderDraw.m_RenderMode);
 
-			RenderCommand::DrawElement(shaderDraw.vao, drawElement);
+			RenderCommand::DrawElement(shaderDraw.m_VAO, drawElement);
 
 		}
 
@@ -1291,7 +1291,7 @@ namespace Rynex {
 
 			uint32_t index = 0u;
 #ifdef RY_SSBO_VARIENTS
-			for (auto& resource : shaderDraw.GetBindeStorage())
+			for (auto& resource : shaderDraw.GetBindStorage())
 			{
 				std::visit([index](auto& ssbo)
 					{
@@ -1307,7 +1307,7 @@ namespace Rynex {
 			}
 #else
 
-			for (Ref<StorageBuffer>& resource : shaderDraw.GetBindeStorage())
+			for (Ref<StorageBuffer>& resource : shaderDraw.GetBindStorage())
 			{
 				if (nullptr != resource)
 				{
@@ -1320,7 +1320,7 @@ namespace Rynex {
 #endif
 			index = 0u;
 #ifdef RY_TEXTURE_VARIENTS
-			for (auto& resource : shaderDraw.GetBindeTextures())
+			for (auto& resource : shaderDraw.GetBindTextures())
 			{
 				std::visit([index](auto& texture)
 					{
@@ -1335,7 +1335,7 @@ namespace Rynex {
 			}
 #else
 
-			for (Ref<Texture>& resource : shaderDraw.GetBindeTextures())
+			for (Ref<Texture>& resource : shaderDraw.GetBindTextures())
 			{
 				if (nullptr != resource)
 				{
@@ -1348,7 +1348,7 @@ namespace Rynex {
 #endif
 			index = 0u;
 
-			for (Ref<UniformBuffer>& resource : shaderDraw.GetBindeUniform())
+			for (Ref<UniformBuffer>& resource : shaderDraw.GetBindUniform())
 			{
 				if (nullptr != resource)
 				{
@@ -1359,12 +1359,12 @@ namespace Rynex {
 				index++;
 			}
 			index = 0u;
-			shaderDraw.shaderProgramm->Bind();
+			shaderDraw.m_ShaderProgram->Bind();
 
-			const Mesh::PerDrawObject& drawElement = shaderDraw.drawElement;
+			const Mesh::PerDrawObject& drawElement = shaderDraw.m_DrawElement;
 			RenderCommand::SetMode(mode);
 
-			RenderCommand::DrawElement(shaderDraw.vao, drawElement);
+			RenderCommand::DrawElement(shaderDraw.m_VAO, drawElement);
 
 		}
 

@@ -14,17 +14,17 @@ namespace Rynex {
 
 	struct RYNEX_API WindowProps
 	{
-		std::string Title;
-		uint32_t Height;
-		uint32_t Width;
-		uint32_t PosX;
-		uint32_t PosY;
+		std::string m_Title;
+		uint32_t m_Height;
+		uint32_t m_Width;
+		uint32_t m_PosX;
+		uint32_t m_PosY;
 
 
 		WindowProps(const std::string& title = "Rynex Engine",
 			uint32_t width = 1600u ,
 			uint32_t height = 900u )
-			: Title(title), Width(width), Height(height), PosX(0u), PosY(0u)
+			: m_Title(title), m_Width(width), m_Height(height), m_PosX(0u), m_PosY(0u)
 		{
 
 		}

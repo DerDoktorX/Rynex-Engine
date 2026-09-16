@@ -147,14 +147,14 @@ namespace Rynex {
             {
                 if (Ref<ShaderDrawList> drawList = shaderDraw.lock())
                 {
-                    if (drawList->shaderProgramm == setShaderDraw->shaderProgramm)
+                    if (drawList->m_ShaderProgram == setShaderDraw->m_ShaderProgram)
                     {
-                        FindEmptyAndEmplaceSet(setShaderDraw->GetBindeTextures(), drawList->GetBindeTextures());
-                        FindEmptyAndEmplaceSet(setShaderDraw->GetBindeUniform(), drawList->GetBindeUniform());
-                        FindEmptyAndEmplaceSet(setShaderDraw->GetBindeStorage(), drawList->GetBindeStorage());
+                        FindEmptyAndEmplaceSet(setShaderDraw->GetBindTextures(), drawList->GetBindTextures());
+                        FindEmptyAndEmplaceSet(setShaderDraw->GetBindUniform(), drawList->GetBindUniform());
+                        FindEmptyAndEmplaceSet(setShaderDraw->GetBindStorage(), drawList->GetBindStorage());
                         return;
                     }
-                    else if (drawList->shaderProgramm == nullptr)
+                    else if (drawList->m_ShaderProgram == nullptr)
                     {
                         shaderDraw = setShaderDraw;
                         return;
@@ -460,118 +460,118 @@ namespace Rynex {
 #else
         static void BindResources(ShaderDrawList& setShaderDraw)
         {
-            setShaderDraw.shaderProgramm->Bind();
+            setShaderDraw.m_ShaderProgram->Bind();
             
-            BindOnArrayIndex(setShaderDraw.GetBindeStorage());
-            BindOnArrayIndex<TextureBindArray>(setShaderDraw.GetBindeTextures());
-            BindOnArrayIndex(setShaderDraw.GetBindeUniform());
+            BindOnArrayIndex(setShaderDraw.GetBindStorage());
+            BindOnArrayIndex<TextureBindArray>(setShaderDraw.GetBindTextures());
+            BindOnArrayIndex(setShaderDraw.GetBindUniform());
         }
 
         static void UnBindResources(ShaderDrawList& setShaderDraw)
         {
-            setShaderDraw.shaderProgramm->UnBind();
+            setShaderDraw.m_ShaderProgram->UnBind();
 
-            UnBindOnArrayIndex(setShaderDraw.GetBindeStorage());
-            UnBindOnArrayIndex<TextureBindArray>(setShaderDraw.GetBindeTextures());
-            UnBindOnArrayIndex(setShaderDraw.GetBindeUniform());
+            UnBindOnArrayIndex(setShaderDraw.GetBindStorage());
+            UnBindOnArrayIndex<TextureBindArray>(setShaderDraw.GetBindTextures());
+            UnBindOnArrayIndex(setShaderDraw.GetBindUniform());
         }
 
         static void DrawObjectBufferListShader(ShaderDrawList& setShaderDraw, int renderMode)
         {
-            if (nullptr == setShaderDraw.shaderProgramm || nullptr == setShaderDraw.vao)
+            if (nullptr == setShaderDraw.m_ShaderProgram || nullptr == setShaderDraw.m_VAO)
                 return;
             RenderCommand::SetMode(renderMode);
             BindResources(setShaderDraw);
 
-            const Ref<IndirectBuffer>& drawBuffer = setShaderDraw.drawBuffer;
-            const Mesh::PerDrawObject& drawElement = setShaderDraw.drawElement;
+            const Ref<IndirectBuffer>& drawBuffer = setShaderDraw.m_DrawBuffer;
+            const Mesh::PerDrawObject& drawElement = setShaderDraw.m_DrawElement;
 
             if (nullptr != drawBuffer)
             {
-                RenderCommand::DrawMultyMeshIndriect(setShaderDraw.vao, drawBuffer);
+                RenderCommand::DrawMultyMeshIndriect(setShaderDraw.m_VAO, drawBuffer);
 #ifdef RY_UNBIND_AFTER_DRAW
                 drawBuffer->UnBind();
 #endif
             }
-            else if(0u != drawElement.Count)
+            else if(0u != drawElement.m_Count)
             {
-                RenderCommand::DrawElement(setShaderDraw.vao, drawElement);
+                RenderCommand::DrawElement(setShaderDraw.m_VAO, drawElement);
             }
             else
             {
-                RenderCommand::DrawIndexedMesh(setShaderDraw.vao, setShaderDraw.indicesCount);
+                RenderCommand::DrawIndexedMesh(setShaderDraw.m_VAO, setShaderDraw.m_IndicesCount);
             }
 #ifdef RY_UNBIND_AFTER_DRAW
             UnBindResources(setShaderDraw);
-            setShaderDraw.vao->UnBind();
-            setShaderDraw.shaderProgramm->UnBind();
+            setShaderDraw.m_VAO->UnBind();
+            setShaderDraw.m_ShaderProgram->UnBind();
 #endif
 
         }
 
         static void DrawObjectBufferListShader(ShaderDrawList& setShaderDraw)
         {
-            DrawObjectBufferListShader(setShaderDraw, setShaderDraw.renderMode);
+            DrawObjectBufferListShader(setShaderDraw, setShaderDraw.m_RenderMode);
         }
 
         static void DrawSingleObjectShader(ShaderDrawList& setShaderDraw, int renderMode)
         {
-            if (nullptr == setShaderDraw.shaderProgramm || nullptr == setShaderDraw.vao)
+            if (nullptr == setShaderDraw.m_ShaderProgram || nullptr == setShaderDraw.m_VAO)
                 return;
 
             RenderCommand::SetMode(renderMode);
             BindResources(setShaderDraw);
             
-            const Ref<IndirectBuffer>& drawBuffer = setShaderDraw.drawBuffer;
-            const Mesh::PerDrawObject& drawElement = setShaderDraw.drawElement;
+            const Ref<IndirectBuffer>& drawBuffer = setShaderDraw.m_DrawBuffer;
+            const Mesh::PerDrawObject& drawElement = setShaderDraw.m_DrawElement;
 
             if (nullptr != drawBuffer)
             {
                 uint32_t count = drawBuffer->GetCount();
                 RY_CORE_NOT_IMPL();
             }
-            else if(0u != drawElement.Count)
+            else if(0u != drawElement.m_Count)
             {
-                RenderCommand::DrawElement(setShaderDraw.vao, drawElement);
+                RenderCommand::DrawElement(setShaderDraw.m_VAO, drawElement);
             }
             else
             {
-                RenderCommand::DrawIndexedMesh(setShaderDraw.vao, setShaderDraw.indicesCount);
+                RenderCommand::DrawIndexedMesh(setShaderDraw.m_VAO, setShaderDraw.m_IndicesCount);
             }
 #ifdef RY_UNBIND_AFTER_DRAW
-            setShaderDraw.vao->UnBind();
-            setShaderDraw.shaderProgramm->UnBind();
+            setShaderDraw.m_VAO->UnBind();
+            setShaderDraw.m_ShaderProgram->UnBind();
 #endif
         }
         static void DrawSingleObjectShader(ShaderDrawList& setShaderDraw)
         {
-            DrawSingleObjectShader(setShaderDraw, setShaderDraw.renderMode);
+            DrawSingleObjectShader(setShaderDraw, setShaderDraw.m_RenderMode);
         }
 
         static void DrawObjectShaderOrder(const ShaderDrawList& setShaderDraw)
         {
-            if (nullptr != setShaderDraw.shaderProgramm)
+            if (nullptr != setShaderDraw.m_ShaderProgram)
                 return;
             
-            setShaderDraw.shaderProgramm->Bind();
+            setShaderDraw.m_ShaderProgram->Bind();
 
-            BindOnArrayIndexOrder(setShaderDraw.GetBindeUniform());
-            BindOnArrayIndexOrder<TextureBindArray>(setShaderDraw.GetBindeTextures());
-            BindOnArrayIndexOrder(setShaderDraw.GetBindeStorage());
+            BindOnArrayIndexOrder(setShaderDraw.GetBindUniform());
+            BindOnArrayIndexOrder<TextureBindArray>(setShaderDraw.GetBindTextures());
+            BindOnArrayIndexOrder(setShaderDraw.GetBindStorage());
             
 
-            if (nullptr != setShaderDraw.drawBuffer)
+            if (nullptr != setShaderDraw.m_DrawBuffer)
             {
-                RenderCommand::DrawMultyMeshIndriect(setShaderDraw.vao, setShaderDraw.drawBuffer);
+                RenderCommand::DrawMultyMeshIndriect(setShaderDraw.m_VAO, setShaderDraw.m_DrawBuffer);
 #ifdef RY_UNBIND_AFTER_DRAW
-                setShaderDraw.drawBuffer->UnBind();
+                setShaderDraw.m_DrawBuffer->UnBind();
 #endif
             }
             else
-                RenderCommand::DrawIndexedMesh(setShaderDraw.vao, setShaderDraw.indicesCount);
+                RenderCommand::DrawIndexedMesh(setShaderDraw.m_VAO, setShaderDraw.m_IndicesCount);
 #ifdef RY_UNBIND_AFTER_DRAW
-            setShaderDraw.vao->UnBind();
-            setShaderDraw.shaderProgramm->UnBind();
+            setShaderDraw.m_VAO->UnBind();
+            setShaderDraw.m_ShaderProgram->UnBind();
 #endif
         }
 #endif
@@ -591,7 +591,7 @@ namespace Rynex {
         uint32_t count = m_FB->GetAttachmentTexturesSize();
         m_ClearColorFuncVec.resize(count);
         const FramebufferSpecification& fbSpec = fb->GetFramebufferSpecification();
-        m_RenderViewSize = glm::vec4{ fbSpec.Width, fbSpec.Height, 0.0f, 0.0f };
+        m_RenderViewSize = glm::vec4{ fbSpec.m_Width, fbSpec.m_Height, 0.0f, 0.0f };
     }
 
     Ref<RenderTarget> RenderTarget::Copy(const Ref<RenderTarget>& src)
@@ -639,7 +639,7 @@ namespace Rynex {
     {
 #ifdef RY_SHADER_DRAW_LIST_SHEARD_PTR
 
-        Ref<Shader> shader = drawList->shaderProgramm;
+        Ref<Shader> shader = drawList->m_ShaderProgram;
         if (shader == nullptr)
             return;
         if (!m_ShadeDrawList.HasObject(drawList))
@@ -659,7 +659,7 @@ namespace Rynex {
         {
             if(Ref<ShaderDrawList> drawList = shaderDrawList.lock())
             {
-                const Ref<Shader>& shaderCall = drawList->shaderProgramm;
+                const Ref<Shader>& shaderCall = drawList->m_ShaderProgram;
                 if (shaderCall.get() == shader.get())
                 {
                     return drawList;
@@ -667,18 +667,18 @@ namespace Rynex {
             }
         }
         ShaderDrawResource drawList = CreateShaderDrawResource();
-        drawList->shaderProgramm = shader;
+        drawList->m_ShaderProgram = shader;
 #else
         for (Const_ShaderDrawResource_Ref drawList : m_ShadeDrawList)
         {
-            const Ref<Shader>& shaderCall = drawList.shaderProgramm;
+            const Ref<Shader>& shaderCall = drawList.m_ShaderProgram;
             if (shaderCall.get() == shader.get())
             {
                 return drawList;
             }
         }
         ShaderDrawResource drawList = CreateShaderDrawResource();
-        drawList.shaderProgramm = shader;
+        drawList.m_ShaderProgram = shader;
 #endif
         return drawList;
     }
@@ -710,7 +710,7 @@ namespace Rynex {
         const Weak<ShaderDrawList>& shaderDraw = m_ShadeDrawList.GetDataFromIndex(index);
         if (Ref<ShaderDrawList> drawList = shaderDraw.lock())
         {
-            const Ref<Shader>& shaderCall = drawList->shaderProgramm;
+            const Ref<Shader>& shaderCall = drawList->m_ShaderProgram;
             bool is = shaderCall.get() == shader.get();
             return is;
         }
@@ -719,7 +719,7 @@ namespace Rynex {
         RY_CORE_ASSERT(index < m_ShadeDrawList.size(), "To hige Index");
         Const_ShaderDrawResource_Ref shaderDraw = m_ShadeDrawList.at(index);
         
-         const Ref<Shader>& shaderCall = shaderDraw.shaderProgramm;
+         const Ref<Shader>& shaderCall = shaderDraw.m_ShaderProgram;
          bool is = shaderCall.get() == shader.get();
          return is;
 #endif
@@ -754,7 +754,7 @@ namespace Rynex {
         uint32_t index = m_ShadeDrawList.AddObjectIndex(shaderDrawList);
         if(Ref<ShaderDrawList> drawList = shaderDrawList.lock())
         {
-            drawList->shaderProgramm = shader;
+            drawList->m_ShaderProgram = shader;
         }
         RY_CORE_ASSERT(index < m_ShadeDrawList.Size());
 #else
@@ -803,7 +803,7 @@ namespace Rynex {
             drawListCount++;
         }
 #endif
-        CheckExexuteDrawList(drawListCount);
+        CheckExecuteDrawList(drawListCount);
 
         return renderModeBevorDraw;
     }
@@ -821,7 +821,7 @@ namespace Rynex {
                 drawListCount++;
             }
         }
-        CheckExexuteDrawList(drawListCount);
+        CheckExecuteDrawList(drawListCount);
 
 #else
         for (ShaderDrawList& drawList : m_ShadeDrawList)
@@ -830,7 +830,7 @@ namespace Rynex {
 #if 0
             drawListCount++;
         }
-        CheckExexuteDrawList(drawListCount);
+        CheckExecuteDrawList(drawListCount);
 #else
         }
 #endif
@@ -862,7 +862,7 @@ namespace Rynex {
         }
 #endif
 
-        CheckExexuteDrawList(drawListCount);
+        CheckExecuteDrawList(drawListCount);
 
         return renderModeBevorDraw;
     }
@@ -888,7 +888,7 @@ namespace Rynex {
         }
 #endif
 
-        CheckExexuteDrawList(drawListCount);
+        CheckExecuteDrawList(drawListCount);
 
         return renderModeBevorDraw;
     }
@@ -929,7 +929,7 @@ namespace Rynex {
             ShaderDrawList* drawList = &drawListRef;
 #endif
 
-                std::sort(drawList->GetBindeTextures().begin(), drawList->GetBindeTextures().end(),
+                std::sort(drawList->GetBindTextures().begin(), drawList->GetBindTextures().end(),
 #ifdef RY_TEXTURE_VARIENTS
                     [](auto& refA, auto& refB)
                     {
@@ -945,7 +945,7 @@ namespace Rynex {
                         return  result;
                     });
 
-                std::sort(drawList->GetBindeUniform().begin(), drawList->GetBindeUniform().end(),
+                std::sort(drawList->GetBindUniform().begin(), drawList->GetBindUniform().end(),
                     [](Ref<UniformBuffer>& refA, Ref<UniformBuffer>& refB)
                     {
                         bool a = nullptr != refA.get();
@@ -954,7 +954,7 @@ namespace Rynex {
                         return  result;
                     });
 
-                std::sort(drawList->GetBindeStorage().begin(), drawList->GetBindeStorage().end(),
+                std::sort(drawList->GetBindStorage().begin(), drawList->GetBindStorage().end(),
 #ifdef RY_SSBO_VARIENTS
                     [](auto& refA, auto& refB)
                     {
@@ -991,14 +991,14 @@ namespace Rynex {
 #endif
     }
 
-    void RenderTarget::SortePilineList()
+    void RenderTarget::SortedPiplineList()
     {
         std::sort(m_PilineBaseVec.begin(), m_PilineBaseVec.end(), &PiplineRenderBase::SortePiplineRenderBase);
     }
 
-    void RenderTarget::SortePilineAlphaList()
+    void RenderTarget::SortedPiplineAlphaList()
     {
-        std::sort(m_PilineAlphaBaseVec.begin(), m_PilineAlphaBaseVec.end(), &AlphaPiplineBase::SortByDistenz);
+        std::sort(m_PilineAlphaBaseVec.begin(), m_PilineAlphaBaseVec.end(), &AlphaPiplineBase::SortByDistend);
     }
 
     
@@ -1011,7 +1011,7 @@ namespace Rynex {
             m_RenderViewSize = renderSize;
             if (nullptr != m_FB)
             {
-                glm::uvec2 size = m_FB->GetFrambufferSize();
+                glm::uvec2 size = m_FB->GetFramebufferSize();
                 glm::uvec2 size2 = glm::uvec2(m_RenderViewSize);
                 if(size != size2)
                 {
@@ -1061,8 +1061,8 @@ namespace Rynex {
         const FramebufferSpecification& fbSpec = m_FB->GetFramebufferSpecification();
 
 
-        const FramebufferTextureSpecification& frameTexSpec = fbSpec.Attachments[index];
-        if (IsDataTypeValidToAtachment(frameTexSpec, clearColor))
+        const FramebufferTextureSpecification& frameTexSpec = fbSpec.m_Attachments[index];
+        if (IsDataTypeValidToAttachment(frameTexSpec, clearColor))
         {
             std::function<void(const Ref<Framebuffer>&, uint32_t)>& func = m_ClearColorFuncVec.at(index);
             func = [clearColor](const Ref<Framebuffer>& fb, uint32_t index) {
@@ -1091,8 +1091,8 @@ namespace Rynex {
         const FramebufferSpecification& fbSpec = m_FB->GetFramebufferSpecification();
 
 
-        const FramebufferTextureSpecification& frameTexSpec = fbSpec.Attachments[index];
-        if (IsDataTypeValidToAtachment(frameTexSpec, clearColor))
+        const FramebufferTextureSpecification& frameTexSpec = fbSpec.m_Attachments[index];
+        if (IsDataTypeValidToAttachment(frameTexSpec, clearColor))
         {
             std::function<void(const Ref<Framebuffer>&, uint32_t)>& func = m_ClearColorFuncVec.at(index);
             func = [clearColor](const Ref<Framebuffer>& fb, uint32_t index) {
@@ -1117,7 +1117,7 @@ namespace Rynex {
 
         for (const AlphaPiplineBase& alphaPiplineBase : m_PilineAlphaBaseVec)
         {
-            piplineVecCopy.emplace_back(alphaPiplineBase.Pipline->Copy());
+            piplineVecCopy.emplace_back(alphaPiplineBase.m_BindingLayoutPipline->Copy());
         }
 
         return piplineVecCopy;
@@ -1137,7 +1137,7 @@ namespace Rynex {
         { 
             const ShaderDrawList* drawList = &drawListRef;
 #endif
-                if (drawList->shaderProgramm.get() == shader.get())
+                if (drawList->m_ShaderProgram.get() == shader.get())
                     return true;
 #ifdef RY_SHADER_DRAW_LIST_SHEARD_PTR
             }
@@ -1279,18 +1279,18 @@ namespace Rynex {
     
 
 
-    void RenderTarget::SetPiplineAlphaDistenz(uint32_t index, float distenz)
+    void RenderTarget::SetPiplineAlphaDistend(uint32_t index, float distenz)
     {
         uint32_t count = m_PilineAlphaBaseVec.size();
         RY_CORE_ASSERT(index < count, "Buffer Overflow!");
         RenderTarget::AlphaPiplineBase& alphaPiplineBase = m_PilineAlphaBaseVec.at(index);
-        float& distenceFrom = alphaPiplineBase.Distenz;
-        alphaPiplineBase.Distenz = distenz < distenceFrom ? distenz : distenceFrom;
+        float& distenceFrom = alphaPiplineBase.m_Distend;
+        alphaPiplineBase.m_Distend = distenz < distenceFrom ? distenz : distenceFrom;
     }
 
     
 
-    int RenderTarget::DrawPilines()
+    int RenderTarget::DrawPiplineList()
     {
         int renderModeBevorDraw = Renderer::GetMode();
 #if RY_TEST_SORT_EFICENTS
@@ -1323,7 +1323,7 @@ namespace Rynex {
 
     }
 
-    int RenderTarget::DrawPilines(int modes)
+    int RenderTarget::DrawPiplineList(int modes)
     {
         int renderModeBevorDraw = Renderer::GetMode();
 #if RY_TEST_SORT_EFICENTS
@@ -1355,39 +1355,39 @@ namespace Rynex {
         return renderModeBevorDraw;
     }
 
-    int RenderTarget::DrawAlphaPilines()
+    int RenderTarget::DrawAlphaPiplineList()
     {
         int renderModeBevorDraw = Renderer::GetMode();
         for (AlphaPiplineBase& e : m_PilineAlphaBaseVec)
         {
-            Ref<PiplineRenderBase>& pipline = e.Pipline;
+            Ref<PiplineRenderBase>& pipline = e.m_BindingLayoutPipline;
             pipline->DrawNow();
         }
         return renderModeBevorDraw;
     }
 
-    int RenderTarget::DrawAlphaPilines(int mode)
+    int RenderTarget::DrawAlphaPiplineList(int mode)
     {
         int renderModeBevorDraw = Renderer::GetMode();
         for (AlphaPiplineBase& e : m_PilineAlphaBaseVec)
         {
-            Ref<PiplineRenderBase>& pipline = e.Pipline;
+            Ref<PiplineRenderBase>& pipline = e.m_BindingLayoutPipline;
             pipline->DrawNow(mode);
         }
         return renderModeBevorDraw;
     }
 
-    void RenderTarget::ClearPilines()
+    void RenderTarget::ClearPiplineList()
     {
         m_PilineBaseVec.clear();
     }
 
-    void RenderTarget::ClearAlphaPilines()
+    void RenderTarget::ClearAlphaPiplineList()
     {
         m_PilineAlphaBaseVec.clear();
     }
 
-    void RenderTarget::ClearFramebufferImges()
+    void RenderTarget::ClearFramebufferImageList()
     {
         uint32_t i = 0;
         for (std::function<void(const Ref<Framebuffer>&, uint32_t)>& func : m_ClearColorFuncVec)
@@ -1420,13 +1420,13 @@ namespace Rynex {
         if (SortRenderListNotEqual(aRef, bRef))
             return false;
 
-        glm::u64vec2 changesTex = RenderTarget::SortRenderListChangeBindBointCount(aRef->GetBindeTextures(), bRef->GetBindeTextures());
-        glm::u64vec2 changesUni = RenderTarget::SortRenderListChangeBindBointCount<Ref<UniformBuffer>, g_UniformBindArrayCount>(aRef->GetBindeUniform(), bRef->GetBindeUniform());
-        glm::u64vec2 changesSSBO = RenderTarget::SortRenderListChangeBindBointCount(aRef->GetBindeStorage(), bRef->GetBindeStorage());
+        glm::u64vec2 changesTex = RenderTarget::SortRenderListChangeBindBointCount(aRef->GetBindTextures(), bRef->GetBindTextures());
+        glm::u64vec2 changesUni = RenderTarget::SortRenderListChangeBindBointCount<Ref<UniformBuffer>, g_UniformBindArrayCount>(aRef->GetBindUniform(), bRef->GetBindUniform());
+        glm::u64vec2 changesSSBO = RenderTarget::SortRenderListChangeBindBointCount(aRef->GetBindStorage(), bRef->GetBindStorage());
         glm::u64vec2 changes = (changesTex * 60ull) + (changesUni * 10ull) + (changesSSBO * 30ull);
 
-        int aRanderMode = aRef->renderMode;
-        int bRanderMode = bRef->renderMode;
+        int aRanderMode = aRef->m_RenderMode;
+        int bRanderMode = bRef->m_RenderMode;
 
         if (aRanderMode != bRanderMode)
             changes.x++;
@@ -1444,20 +1444,20 @@ namespace Rynex {
     bool RenderTarget::SortRenderListNotEqual(Const_ShaderDrawResource_RefPtr aRef, Const_ShaderDrawResource_RefPtr bRef)
     {
 
-        const Ref<Shader>& aShader = aRef->shaderProgramm;
-        const Ref<Shader>& bShader = bRef->shaderProgramm;
+        const Ref<Shader>& aShader = aRef->m_ShaderProgram;
+        const Ref<Shader>& bShader = bRef->m_ShaderProgram;
 
         if (aShader.get() != bShader.get())
             return true;
 
-        const Ref<VertexArray>& aVertexArray = aRef->vao;
-        const Ref<VertexArray>& bVertexArray = bRef->vao;
+        const Ref<VertexArray>& aVertexArray = aRef->m_VAO;
+        const Ref<VertexArray>& bVertexArray = bRef->m_VAO;
 
         if (aVertexArray.get() != bVertexArray.get())
             return true;
 
-        const Ref<IndirectBuffer>& aDrawBuffer = aRef->drawBuffer;
-        const Ref<IndirectBuffer>& bDrawBuffer = bRef->drawBuffer;
+        const Ref<IndirectBuffer>& aDrawBuffer = aRef->m_DrawBuffer;
+        const Ref<IndirectBuffer>& bDrawBuffer = bRef->m_DrawBuffer;
 
         if (aDrawBuffer.get() != bDrawBuffer.get())
             return true;
@@ -1470,7 +1470,7 @@ namespace Rynex {
 
    
 
-    void RenderTarget::CheckExexuteDrawList(uint32_t drawListCount)
+    void RenderTarget::CheckExecuteDrawList(uint32_t drawListCount)
     {
 #ifdef RY_SHADER_DRAW_LIST_SHEARD_PTR
         uint32_t drawListSize = m_ShadeDrawList.Size();
@@ -1485,7 +1485,7 @@ namespace Rynex {
 
     
 
-    bool RenderTarget::IsDataTypeValidToAtachment(const FramebufferTextureSpecification& frameTexSpec, const glm::vec4& value)
+    bool RenderTarget::IsDataTypeValidToAttachment(const FramebufferTextureSpecification& frameTexSpec, const glm::vec4& value)
     {
         constexpr TexFrom vaildTexFormatsArray[] = { 
             TexFrom::R8
@@ -1501,7 +1501,7 @@ namespace Rynex {
             ,  TexFrom::RGBA16F
             ,  TexFrom::RGBA32F
         };
-        const TexFrom& fromate = frameTexSpec.TextureFormat;
+        const TexFrom& fromate = frameTexSpec.m_TextureFormat;
         for (TexFrom texform : vaildTexFormatsArray)
         {
             if (texform == fromate)
@@ -1510,10 +1510,10 @@ namespace Rynex {
         return false;
     }
 
-    bool RenderTarget::IsDataTypeValidToAtachment(const FramebufferTextureSpecification& frameTexSpec, const int& value)
+    bool RenderTarget::IsDataTypeValidToAttachment(const FramebufferTextureSpecification& frameTexSpec, const int& value)
     {
         constexpr TexFrom vaildTexFormatsArray[] = { TexFrom::RED_INTEGER };
-        const TexFrom& fromate = frameTexSpec.TextureFormat;
+        const TexFrom& fromate = frameTexSpec.m_TextureFormat;
         for (TexFrom texform : vaildTexFormatsArray)
         {
             if (texform == fromate)

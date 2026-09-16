@@ -5,15 +5,16 @@
 #include <Rynex/Renderer/API/Shader.h>
 #include <Rynex/Renderer/API/VertexArray.h>
 #include <Rynex/Renderer/API/Framebuffer.h>
-
-
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
 #include <Rynex/Renderer/Text/Font.h>
 #include <Rynex/Renderer/Rendering/Renderer.h>
 #include <Rynex/Memory/VectorData2D.h>
 #include <Rynex/Renderer/RenderProxy/Proxy.h>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
+
+
 
 #define RY_REALTION_SCHIP_ID_COMP 0
 #define RY_REALTION_SCHIP_ARRAY_COMP 1
@@ -32,64 +33,71 @@ namespace Rynex {
 
 	struct IDComponent
 	{
-		UUID ID;
+		UUID m_ID;
 
 		IDComponent() {}
 		IDComponent(const IDComponent&) = default;
-		IDComponent(UUID id)
-			: ID(id) {}
+
+		explicit  IDComponent(const UUID id)
+			: m_ID(id) {}
 	};
 
 	struct TagComponent
 	{
-		std::string Tag;
+		std::string m_Tag;
 
 		TagComponent() = default;
 		TagComponent(const TagComponent&) = default;
-		TagComponent(const std::string tag)
-			: Tag(tag) {}
+
+        explicit TagComponent(const std::string& tag)
+			: m_Tag(tag) {}
 	};
 
 #pragma endregion
 
 
-	enum class RenderSginale {
+	enum class RenderSignale {
 		None = 0,
 		NotInit,
-		Darw,
+		Draw,
 		UpdateData
 	};
 
 	struct TransformComponent
 	{
-		glm::vec3 Transaltion{ 0.f, 0.f, 0.f };
-		glm::vec3 Rotation{ 0.f, 0.f, 0.f };
-		glm::vec3 Scale{ 1.f, 1.f, 1.f };
-		bool Change = false;
+		glm::vec3 m_Transform{ 0.f, 0.f, 0.f };
+		glm::vec3 m_Rotation{ 0.f, 0.f, 0.f };
+		glm::vec3 m_Scale{ 1.f, 1.f, 1.f };
+		bool m_Change = false;
 
 		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
-		TransformComponent(const glm::vec3 transaltion)
-			: Transaltion(transaltion) {}
+
+        explicit TransformComponent(const glm::vec3& translation)
+			: m_Transform(translation)
+            , m_Rotation(0.f, 0.f, 0.f)
+	        , m_Scale(1.f, 1.f, 1.f )
+            , m_Change(false)
+        {}
 
 		glm::mat4 GetTransform() const
 		{
-			glm::quat oriaention = glm::quat(Rotation);
-			glm::mat4 rotation = glm::toMat4(oriaention);
+			const glm::quat orientation(m_Rotation);
+			const glm::mat4 rotation = glm::toMat4(orientation);
 			
-			glm::mat4 translate = glm::translate(glm::mat4(1.0f), Transaltion);
-			glm::mat4 scale = glm::scale(glm::mat4(1.0f), Scale);
+			const glm::mat4 translate = glm::translate(glm::mat4(1.0f), m_Transform);
+			const glm::mat4 scale = glm::scale(glm::mat4(1.0f), m_Scale);
 
-			glm::mat4 matrix = translate * rotation * scale;
+			const glm::mat4 matrix = translate * rotation * scale;
 
 			return matrix;
 		}
 
 		void SetTransform(const glm::mat4& matrix)
 		{
-			Transaltion = TransformComponent::ExtraxtTransaltion(matrix);
-			Scale = TransformComponent::ExtraxtScale(matrix);
-			Rotation = TransformComponent::ExtraxtRotation(matrix, Scale);
+			m_Transform = TransformComponent::ExtraxtTranslation(matrix);
+			m_Scale = TransformComponent::ExtraxtScale(matrix);
+			m_Rotation = TransformComponent::ExtraxtRotation(matrix, m_Scale);
 
 			glm::mat4 matrixCheck = GetTransform();
 			
@@ -101,60 +109,60 @@ namespace Rynex {
 					const float& matCheckV = matrixCheck[x][y];
 					if(matV != matCheckV)
 					{
-						RY_CORE_WARN("Matrix[{}][{}] value befor: {} and after: {} are not equel", x, y, matV, matCheckV);
+						RY_CORE_WARN("Matrix[{}][{}] value before: {} and after: {} are not equal", x, y, matV, matCheckV);
 					}
 				}
 			}
 			
 		}
-		static glm::vec3 ExtraxtTransaltion(const glm::mat4& matrix)
+		static glm::vec3 ExtraxtTranslation(const glm::mat4& matrix)
 		{
-			const glm::vec4& postionRow = matrix[3];
-			glm::vec3 transaltion = glm::vec3(postionRow.x, postionRow.y, postionRow.z);
-			transaltion *= postionRow.w;
-			return transaltion;
+			const glm::vec4& positionRow = matrix[3];
+			glm::vec3 translation(positionRow.x, positionRow.y, positionRow.z);
+			translation *= positionRow.w;
+			return translation;
 		}
 
 		static glm::vec3 ExtraxtRotation(const glm::mat4& matrix)
 		{
-			glm::mat3 rotationMatrix = glm::mat3(matrix);
+			glm::mat3 rotationMatrix(matrix);
 			glm::vec3 scale = ExtraxtScale(matrix);
 			rotationMatrix[0] /= scale[0];
 			rotationMatrix[1] /= scale[1];
 			rotationMatrix[2] /= scale[2];
 
-			glm::quat oriention = glm::quat_cast(rotationMatrix);
-			glm::vec3 eulerOriantion = glm::eulerAngles(oriention);
-			return eulerOriantion;
+			const glm::quat orientation = glm::quat_cast(rotationMatrix);
+			const glm::vec3 eulerOrientation = glm::eulerAngles(orientation);
+			return eulerOrientation;
 		}
 
 		static glm::vec3 ExtraxtRotation(const glm::mat4& matrix, const glm::vec3& scale)
 		{
-			glm::mat3 rotationMatrix = glm::mat3(matrix);
+			glm::mat3 rotationMatrix(matrix);
 			rotationMatrix[0] /= scale[0];
 			rotationMatrix[1] /= scale[1];
 			rotationMatrix[2] /= scale[2];
 
-			glm::quat oriention = glm::quat_cast(rotationMatrix);
-			glm::vec3 eulerOriantion = glm::eulerAngles(oriention);
-			return eulerOriantion;
+			const glm::quat orientation = glm::quat_cast(rotationMatrix);
+			const glm::vec3 eulerOrientation = glm::eulerAngles(orientation);
+			return eulerOrientation;
 		}
 
 		static glm::vec3 ExtraxtScale(const glm::mat4& matrix)
 		{
-			glm::vec3 scaleRow[3] = { 
-				glm::vec3(matrix[0])
-				, glm::vec3(matrix[1])
-				, glm::vec3(matrix[2])
+			const glm::vec3 scaleRow[3] = {
+				    glm::vec3(matrix[0]),
+			        glm::vec3(matrix[1]),
+			        glm::vec3(matrix[2])
 			};
 
-			float scaleLength[3] = {
+			const float scaleLength[3] = {
 				glm::length(scaleRow[0]),
 				glm::length(scaleRow[1]),
 				glm::length(scaleRow[2])
 			};
 
-			glm::vec3 scale = glm::vec3(scaleLength[0], scaleLength[1], scaleLength[2]);
+			const glm::vec3 scale(scaleLength[0], scaleLength[1], scaleLength[2]);
 			return scale;
 		}
 
@@ -163,14 +171,14 @@ namespace Rynex {
 	// TODO: Add TailingFactor for texture
 	struct SpriteRendererComponent
 	{
-		glm::vec4 Color{ 1.0f, 0.0f, 1.0f, 1.0f };
-		Weak<Texture> Texture;
+		glm::vec4 m_Color{ 1.0f, 0.0f, 1.0f, 1.0f };
+		Weak<Texture> m_Texture;
 				
 
 		SpriteRendererComponent() = default;
 		SpriteRendererComponent(const SpriteRendererComponent&) = default;
-		SpriteRendererComponent(const glm::vec4 color)
-			: Color(color) {}
+		explicit SpriteRendererComponent(const glm::vec4 color)
+			: m_Color(color) {}
 
 	};
 
@@ -178,11 +186,11 @@ namespace Rynex {
 	struct TextComponent
 	{
 		
-		std::string TextString = "";
-		Ref<Font> FontAsset = Font::GetDefault();
-		glm::vec4 Color{ 1.0f };
-		float Kerning = 0.0f;
-		float LineSpacing = 0.0f;
+		std::string m_TextString = "";
+		Ref<Font> m_FontAsset = Font::GetDefault();
+		glm::vec4 m_Color{ 1.0f };
+		float m_Kerning = 0.0f;
+		float m_LineSpacing = 0.0f;
 
 		TextComponent() = default;
 		TextComponent(const TextComponent&) = default;
@@ -191,10 +199,10 @@ namespace Rynex {
 
 	struct CameraComponent
 	{
-		SceneCamera Camera;
-		bool Primary = true;
-		bool FixedAspectRotaion = false;
-		bool ViewFustrum = false;
+		SceneCamera m_Camera;
+		bool m_Primary = true;
+		bool m_FixedAspectRotation = false;
+		bool m_ViewFrustum = false;
 		CameraComponent() = default;
 		CameraComponent(const CameraComponent&) = default;
 
@@ -203,8 +211,8 @@ namespace Rynex {
 	
 	struct ScriptComponent
 	{
-		std::string Name = "None";
-		int selectedScript = 0;
+		std::string m_Name = "None";
+		int m_SelectedScript = 0;
 
 		ScriptComponent() = default;
 		ScriptComponent(const ScriptComponent&) = default;
@@ -213,12 +221,12 @@ namespace Rynex {
 
 	class ScriptableEntity;
 
-	struct NativeSripteComponent
+	struct NativeScriptComponent
 	{
-		ScriptableEntity* Instance = nullptr;
+		ScriptableEntity* m_Instance = nullptr;
 
-		ScriptableEntity* (*InstantiateScript)();
-		void (*DestroyScript)(NativeSripteComponent*);
+		ScriptableEntity* (*m_InstantiateScriptFunc)();
+		void (*m_DestroyScriptFunc)(NativeScriptComponent*);
 
 
 
@@ -226,25 +234,25 @@ namespace Rynex {
 		void Bind()
 		{
 			RY_CORE_MEMORY_ALICATION("InstantiateScript", "NativeSripteComponent::Bind", T);
-			InstantiateScript = []() { return static_cast<ScriptableEntity*>(new T()); };
-			DestroyScript = [](NativeSripteComponent* nsc) { delete nsc->Instance; nsc->Instance = nullptr; };
+			m_InstantiateScriptFunc = []() -> ScriptableEntity* { return static_cast<ScriptableEntity*>(new T()); };
+			m_DestroyScriptFunc = [](NativeScriptComponent* nsc)-> void { delete nsc->m_Instance; nsc->m_Instance = nullptr; };
 		}
 
 
 	};
 
-	struct GeomtryComponent
+	struct GeometryComponent
 	{
-		Ref<VertexArray> Geometry = nullptr;
-		Ref<VertexBuffer> Buffer = nullptr;
+		Ref<VertexArray> m_Geometry = nullptr;
+		Ref<VertexBuffer> m_Buffer = nullptr;
 
-		GeomtryComponent() = default;
-		GeomtryComponent(const GeomtryComponent&) = default;
+		GeometryComponent() = default;
+		GeometryComponent(const GeometryComponent&) = default;
 	};
 
 	struct MaterialComponent
 	{
-		Ref<Material> material = nullptr;
+		Ref<Material> m_Material = nullptr;
 		MaterialComponent() = default;
 		MaterialComponent(const MaterialComponent&) = default;
 	};
@@ -252,9 +260,9 @@ namespace Rynex {
 #pragma region Matrix_Compents
 	struct ModelMatrixComponent
 	{
-		glm::mat4 Locale = glm::mat4(1.0);
-		glm::mat4 Globle = glm::mat4(1.0);
-		bool Change = false;
+		glm::mat4 m_Locale = glm::mat4(1.0);
+		glm::mat4 m_Global = glm::mat4(1.0);
+		bool m_Change = false;
 
 		ModelMatrixComponent() = default;
 		ModelMatrixComponent(const ModelMatrixComponent&) = default;
@@ -264,129 +272,131 @@ namespace Rynex {
 	// this Matrix is the glm::inverse version from Model Matrix.
 	struct ViewMatrixComponent
 	{
-		glm::mat4 Locale = glm::mat4(1.0);
-		glm::mat4 Globle = glm::mat4(1.0);
+		glm::mat4 m_Locale = glm::mat4(1.0);
+		glm::mat4 m_Global = glm::mat4(1.0);
 
 		ViewMatrixComponent() = default;
 		ViewMatrixComponent(const ViewMatrixComponent&) = default;
 
-		inline glm::mat4 ModelViewProjection(const glm::mat4& model, const glm::mat4& projetion) const
+		inline glm::mat4 ModelViewProjection(const glm::mat4& model, const glm::mat4& projection) const
 		{
-			return projetion * Globle * model;
+			return projection * m_Global * model;
 		}
 
-		inline glm::mat4 ViewProjection( const glm::mat4& projetion) const
+		inline glm::mat4 ViewProjection( const glm::mat4& projection) const
 		{
-			return projetion * Globle;
+			return projection * m_Global;
 		}
 
-		// transforms from From Canonicel View Volume to Globelspace Usfuell like debuging your camera from a nother camera
-		inline glm::mat4 GlobleCameraSpace(const glm::mat4& projetion) const
+		// transforms from From Canonical View Volume to Global space Usefully like debuting your camera from a other camera perspective
+		inline glm::mat4 GlobalCameraSpace(const glm::mat4& projection) const
 		{
-			return glm::inverse(projetion * Globle);
+			return glm::inverse(projection * m_Global);
 		}
 
-		void CalculteGlobelShadowViewMatrix(const glm::vec3& center, const glm::vec3& direction)
+		void CalculateGlobalShadowViewMatrix(const glm::vec3& center, const glm::vec3& direction)
 		{
-			glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-			Globle = glm::lookAt(center + direction, center, up);
+            constexpr glm::vec3 up(0.0f, 1.0f, 0.0f);
+		    const glm::vec3 eye = center + direction;
+			m_Global = glm::lookAt(eye, center, up);
 		}
 
-		void CalculteLocaleShadowViewMatrix(const glm::vec3& center, const glm::vec3& direction)
+		void CalculateLocaleShadowViewMatrix(const glm::vec3& center, const glm::vec3& direction)
 		{
-			glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-			Locale = glm::lookAt(center + direction, center, up);
+			constexpr glm::vec3 up(0.0f, 1.0f, 0.0f);
+		    const glm::vec3 eye = center + direction;
+			m_Locale = glm::lookAt(eye, center, up);
 		}
 	};
 
 
-	struct ProjtionViewMatrixComponent
+	struct ProjectionViewMatrixComponent
 	{
-		glm::mat4 Locale = glm::mat4(1.0);
-		glm::mat4 Globle = glm::mat4(1.0);
+		glm::mat4 m_Locale = glm::mat4(1.0);
+		glm::mat4 m_Global = glm::mat4(1.0);
 
-		ProjtionViewMatrixComponent() = default;
-		ProjtionViewMatrixComponent(const ProjtionViewMatrixComponent&) = default;
+		ProjectionViewMatrixComponent() = default;
+		ProjectionViewMatrixComponent(const ProjectionViewMatrixComponent&) = default;
 	};
 
-	struct InverseProjtionViewMatrixComponent
+	struct InverseProjectionViewMatrixComponent
 	{
-		glm::mat4 Locale = glm::mat4(1.0);
-		glm::mat4 Globle = glm::mat4(1.0);
+		glm::mat4 m_Locale = glm::mat4(1.0);
+		glm::mat4 m_Global = glm::mat4(1.0);
 
-		InverseProjtionViewMatrixComponent() = default;
-		InverseProjtionViewMatrixComponent(const InverseProjtionViewMatrixComponent&) = default;
+		InverseProjectionViewMatrixComponent() = default;
+		InverseProjectionViewMatrixComponent(const InverseProjectionViewMatrixComponent&) = default;
 	};
 
 
-	struct WorldViewFustrumComponent
+	struct WorldViewFrustumComponent
 	{
-		std::array<glm::vec4, 8> ViewFustrum;
+		std::array<glm::vec4, 8> m_ViewFrustum;
 
-		WorldViewFustrumComponent() = default;
-		WorldViewFustrumComponent(const WorldViewFustrumComponent&) = default;
+		WorldViewFrustumComponent() = default;
+		WorldViewFrustumComponent(const WorldViewFrustumComponent&) = default;
 	};
 
 	struct AABBBoxComponent
 	{
-		BoundingVolume Local;
-		BoundingVolume Globel;
+		BoundingVolume m_Local;
+		BoundingVolume m_Global;
 
 		AABBBoxComponent() = default;
 		AABBBoxComponent(const AABBBoxComponent&) = default;
 	};
 
-	struct PrimitvComponent
+	struct PrimitiveComponent
 	{
-		PrimitvComponent() = default;
-		PrimitvComponent(const PrimitvComponent&) = default;
+		PrimitiveComponent() = default;
+		PrimitiveComponent(const PrimitiveComponent&) = default;
 
-		std::vector<Ref<StaticMeshInstanceBatchRenderProxy>> proxyVec;
+		std::vector<Ref<StaticMeshInstanceBatchRenderProxy>> m_ProxyVec;
 
 	};
 
 	struct RenderTargetComponent
 	{
-		Ref<RenderTarget> Target;
-		std::string RenderPassName = "None";
-		bool RenderImage = true;
-		bool ClearImage = true;
-		bool ClearPiplines = false;
-		bool UpdatePiplines = false;
+		Ref<RenderTarget> m_Target;
+		std::string m_RenderPassName = "None";
+		bool m_RenderImage = true;
+		bool m_ClearImage = true;
+		bool m_ClearPipline = false;
+		bool m_UpdatePipline = false;
 		bool RenderImageOnce = true;
 
-		bool FustremCulling = false;
-		bool InsideMainFustrem = false;
+		bool m_FrustumCulling = false;
+		bool m_InsideMainFrustum = false;
 
-		bool Render3DMeshes = true;
-		bool RenderParicels = true;
-		bool Render2DSprites = true;
-		bool Render2DText = true;
-		bool RenderIcons = true;
-		uint32_t StroeIndex = std::numeric_limits<uint32_t>::max();
+		bool m_Render3DMeshes = true;
+		bool m_RenderParticles = true;
+		bool m_Render2DSprites = true;
+		bool m_Render2DText = true;
+		bool m_RenderIcons = true;
+		uint32_t m_StoreIndex = std::numeric_limits<uint32_t>::max();
 		
 		RenderTargetComponent() = default;
 		RenderTargetComponent(const RenderTargetComponent& renderTargetC)
-			: Target(RenderTarget::Copy(renderTargetC.Target))
-			, RenderPassName(renderTargetC.RenderPassName)
-			, RenderImage(renderTargetC.RenderImage)
-			, ClearImage(renderTargetC.ClearImage)
-			, ClearPiplines(renderTargetC.ClearPiplines)
-			, UpdatePiplines(renderTargetC.UpdatePiplines)
+			: m_Target(RenderTarget::Copy(renderTargetC.m_Target))
+			, m_RenderPassName(renderTargetC.m_RenderPassName)
+			, m_RenderImage(renderTargetC.m_RenderImage)
+			, m_ClearImage(renderTargetC.m_ClearImage)
+			, m_ClearPipline(renderTargetC.m_ClearPipline)
+			, m_UpdatePipline(renderTargetC.m_UpdatePipline)
 			, RenderImageOnce(renderTargetC.RenderImageOnce)
-			, FustremCulling(renderTargetC.FustremCulling)
-			, InsideMainFustrem(renderTargetC.InsideMainFustrem)
-			, Render3DMeshes(renderTargetC.Render3DMeshes)
-			, Render2DSprites(renderTargetC.Render2DSprites)
-			, RenderIcons(renderTargetC.RenderIcons)
-			, StroeIndex(std::numeric_limits<uint32_t>::max())
+			, m_FrustumCulling(renderTargetC.m_FrustumCulling)
+			, m_InsideMainFrustum(renderTargetC.m_InsideMainFrustum)
+			, m_Render3DMeshes(renderTargetC.m_Render3DMeshes)
+			, m_Render2DSprites(renderTargetC.m_Render2DSprites)
+			, m_RenderIcons(renderTargetC.m_RenderIcons)
+			, m_StoreIndex(std::numeric_limits<uint32_t>::max())
 		{
 		}
 	};
 
 	struct Matrix3x3Component
 	{
-		glm::mat3 Matrix;
+		glm::mat3 m_Matrix;
 	};
 
 
@@ -394,19 +404,20 @@ namespace Rynex {
 
 	struct FrameBufferComponent
 	{
-		Ref<Framebuffer> FrameBuffer = nullptr;
+		Ref<Framebuffer> m_FrameBuffer = nullptr;
 		
-		uint32_t FrameBufferLayoutIndex = 0;
-		glm::vec3 ClearColor;
-		FrameBufferImageSize FramebufferSize;
+		uint32_t m_FrameBufferLayoutIndex = 0;
+		glm::vec3 m_ClearColor{0.0f,0.0f,0.0f};
+		FrameBufferImageSize m_FramebufferSize = FrameBufferImageSize::StaticSize;
 		
 
 		FrameBufferComponent() = default;
 		FrameBufferComponent(const FrameBufferComponent&) = default;
-		FrameBufferComponent(Ref<Framebuffer> frameBuffer)
-			: FrameBuffer(frameBuffer)
-			, ClearColor({ 0.0,0.0,0.0 })
-			, FramebufferSize(FrameBufferImageSize::StaticSize)
+
+        explicit FrameBufferComponent(const Ref<Framebuffer>& framebuffer)
+			: m_FrameBuffer(framebuffer)
+			, m_ClearColor(0.0f,0.0f,0.0f)
+			, m_FramebufferSize(FrameBufferImageSize::StaticSize)
 		{ 
 		}
 	};
@@ -415,11 +426,11 @@ namespace Rynex {
 #define RY_DISABLE_FLAT_2D_VEC 0
 	struct ModelMangerComponent
 	{
-		Ref<MeshStatic> meshStatic;
-		std::vector<UUID> singleMeshes;
-		std::vector<std::vector<uint32_t>> rendereStoreIndexVec2;
+		Ref<MeshStatic> m_MeshStatic;
+		std::vector<UUID> m_SingleMeshes;
+		std::vector<std::vector<uint32_t>> m_RenderStoreIndexVec2;
 
-		Memory::VectorData2D<ObjectRendereIndex> objectRendereIndexPiplineVec2;
+		Memory::VectorData2D<ObjectRendereIndex> m_ObjectRenderIndexPiplineVec2;
 
 
 		ModelMangerComponent() = default;
@@ -428,28 +439,28 @@ namespace Rynex {
 
 	struct StaticMeshComponent
 	{
-		UUID entitySource;
-		Ref<Material> material;
-		Ref<MeshSingle> meshSingle;
-		std::vector<uint32_t> rendereStoreIndexVec;
-		std::vector<ObjectRendereIndex> objectRendereIndexPiplineVec;
+		UUID m_EntitySource;
+		Ref<Material> m_Material;
+		Ref<MeshSingle> m_MeshSingle;
+		std::vector<uint32_t> m_RenderStoreIndexVec;
+		std::vector<ObjectRendereIndex> m_ObjectRenderIndexPiplineVec;
 		StaticMeshComponent()
-			: entitySource(0ull)
-			, material(nullptr)
-			, meshSingle(nullptr)
+			: m_EntitySource(0ull)
+			, m_Material(nullptr)
+			, m_MeshSingle(nullptr)
 
 		{
-			RY_CORE_WARN("Entity Component StaticSingleComponetsMeshComponent, shoud be created with init args!");
+			RY_CORE_WARN("Entity Component StaticMeshComponent, should be created with init args!");
 		}
 
-		StaticMeshComponent(const UUID& uuid, const Ref<MeshSingle>& meshSingel, const Ref<Material>& materiel)
-			: entitySource(uuid)
-			, material(materiel)
-			, meshSingle(meshSingel)
-			, rendereStoreIndexVec()
-			, objectRendereIndexPiplineVec()
+		StaticMeshComponent(const UUID& uuid, const Ref<MeshSingle>& meshSingle, const Ref<Material>& materiel)
+			: m_EntitySource(uuid)
+			, m_Material(materiel)
+			, m_MeshSingle(meshSingle)
+			, m_RenderStoreIndexVec()
+			, m_ObjectRenderIndexPiplineVec()
 		{
-			RY_CORE_WARN("Entity Component StaticSingleComponetsMeshComponent, shoud be created with init args!");
+			RY_CORE_WARN_IF(0ull == uuid,"Entity Component StaticMeshComponent, should be created with init args!");
 		}
 		StaticMeshComponent(const StaticMeshComponent&) = default;
 
@@ -457,8 +468,8 @@ namespace Rynex {
 
 	struct DynamicMeshComponent
 	{
-		Ref<MeshDynamic> meshR = nullptr;
-		Ref<Material> material = nullptr;
+		Ref<MeshDynamic> m_MeshR = nullptr;
+		Ref<Material> m_Material = nullptr;
 		
 
 		DynamicMeshComponent() = default;
@@ -468,20 +479,22 @@ namespace Rynex {
 
 	struct VisibleComponent
 	{
-		bool isVisable = true;
+		bool m_Visible = true;
 
 		VisibleComponent() = default;
 		VisibleComponent(const VisibleComponent&) = default;
 
 	};
 
-	struct InvirementMap 
+	struct EnvironmentMap
 	{
-		Ref<TextureCubeMap> textureCubeMap;
-		InvirementMap() = default;
-		InvirementMap(const InvirementMap&) = default;
+		Ref<TextureCubeMap> m_TextureCubeMap;
+	    std::vector<ObjectRendereIndex> m_IndexPiplineVec;
 
-		std::vector<ObjectRendereIndex> indexPiplineVec;
+		EnvironmentMap() = default;
+		EnvironmentMap(const EnvironmentMap&) = default;
+
+
 
 	};
 
@@ -491,87 +504,87 @@ namespace Rynex {
 
 #pragma region LigthsComponts
 	
-	struct DrirectionleLigthComponent
+	struct DirectionLightComponent
 	{
-		glm::vec3 color = { 1.0f, 1.0f, 1.0f };
-		float intensitie = 0.5f;
+		glm::vec3 m_Color = { 1.0f, 1.0f, 1.0f };
+		float m_Intensity = 0.5f;
 
-		uint32_t batchIndex = 0xFFFFFFFFu;
+		uint32_t m_BatchIndex = 0xFFFFFFFFu;
 
-		DrirectionleLigthComponent() = default;
-		DrirectionleLigthComponent(const DrirectionleLigthComponent&) = default;
+		DirectionLightComponent() = default;
+		DirectionLightComponent(const DirectionLightComponent&) = default;
 
 	};
 
-	struct PointLigthComponent
+	struct PointLightComponent
 	{
-		glm::vec3 color = { 1.0f, 1.0f, 1.0f };
-		float distence = 10.0f;
-		float intensitie = 0.5f;
+		glm::vec3 m_Color = { 1.0f, 1.0f, 1.0f };
+		float m_Distance = 10.0f;
+		float m_Intensity = 0.5f;
 
-		float constant = 1.0f;
-		float linear =  0.022f;
-		float quadratic = 0.0019f;
+		float m_Constant = 1.0f;
+		float m_Linear =  0.022f;
+		float m_Quadratic = 0.0019f;
 
-		uint32_t batchIndex = 0xFFFFFFFFu;
+		uint32_t m_BatchIndex = 0xFFFFFFFFu;
 
-		PointLigthComponent() = default;
-		PointLigthComponent(const PointLigthComponent&) = default;
+		PointLightComponent() = default;
+		PointLightComponent(const PointLightComponent&) = default;
 	};
 
-	struct SpotLigthComponent
+	struct SpotLightComponent
 	{
-		glm::vec3 color = { 1.0f, 1.0f, 1.0f };
-		float distence = 30.0f;
-		float intensitie = 0.5;
+		glm::vec3 m_Color = { 1.0f, 1.0f, 1.0f };
+		float m_Distance = 30.0f;
+		float m_Intensity = 0.5;
 
-		float inner = 0.95f;
-		float outer = 0.9f;
+		float m_Inner = 0.95f;
+		float m_Outer = 0.9f;
 
-		uint32_t batchIndex = 0xFFFFFFFFu;
+		uint32_t m_BatchIndex = 0xFFFFFFFFu;
 
-		SpotLigthComponent() = default;
-		SpotLigthComponent(const SpotLigthComponent&) = default;
+		SpotLightComponent() = default;
+		SpotLightComponent(const SpotLightComponent&) = default;
 	};
 
 #pragma endregion
 
 
-	// TOOD: make a Partikel Component System
-	struct ParticelComponente
+	// TODO: make a Particle Component System
+	struct ParticleComponent
 	{
 
-		glm::vec3 spawnPositon;
-		glm::vec3 spawnPositonRndOffset;
-		float maxLifeTime;
+		glm::vec3 m_SpawnPositon;
+		glm::vec3 m_SpawnPositonRndOffset;
+		float m_MaxLifeTime;
 		
-		uint32_t count = 1;
+		uint32_t m_Count = 1;
 		
 	};
 
 	struct PostProcessingComponent
 	{
-		Ref<Shader> shader = nullptr;
-		glm::vec<3, uint16_t> dispatch = { 1, 1, 1 };
+		Ref<Shader> m_Shader = nullptr;
+		glm::vec<3, uint16_t> m_Dispatch = { 1, 1, 1 };
 		// this is an Index how Defined the using order
-		uint8_t order;
+		uint8_t m_Order;
 
 		// PostProcessingFlags Are Flags vor Memory Barrier In the GPU 
-		// or Flags Like Screen Size Indipenden
-		int postProcessingFlags = 0;
+		// or Flags Like Screen Size Independent
+		int m_PostProcessingFlags = 0;
 
 		PostProcessingComponent() = default;
 		PostProcessingComponent(const PostProcessingComponent&) = default;
 
 		
 	};
-	struct RealtionShipUUIDComponent
+	struct RelationshipUUIDComponent
 	{
-		UUID parent = 0;
-		std::vector<UUID> childrens;
+		UUID m_Parent = 0;
+		std::vector<UUID> m_Childrens;
 
-		RealtionShipUUIDComponent() = default;
-		RealtionShipUUIDComponent(const RealtionShipUUIDComponent&) = default;
+		RelationshipUUIDComponent() = default;
+		RelationshipUUIDComponent(const RelationshipUUIDComponent&) = default;
 	};
 
 
@@ -581,22 +594,28 @@ namespace Rynex {
 	};
 
 	using AllComponents =
-		ComponentGroup<TransformComponent, SpriteRendererComponent,
-		CameraComponent, ScriptComponent,
-		MaterialComponent,
-		GeomtryComponent,
-		Matrix3x3Component,
-		ModelMatrixComponent
-		, ViewMatrixComponent,
-		FrameBufferComponent,
-		StaticMeshComponent,
-		RealtionShipUUIDComponent,
-		VisibleComponent,
-		ModelMangerComponent, DynamicMeshComponent,
-		NativeSripteComponent,
-		DrirectionleLigthComponent, PointLigthComponent, SpotLigthComponent,
-		ParticelComponente,
-		TextComponent,
-		RenderTargetComponent
+		ComponentGroup<
+		    TransformComponent,
+            SpriteRendererComponent,
+		    CameraComponent,
+            ScriptComponent,
+		    MaterialComponent,
+		    GeometryComponent,
+		    Matrix3x3Component,
+		    ModelMatrixComponent,
+            ViewMatrixComponent,
+		    FrameBufferComponent,
+		    StaticMeshComponent,
+		    RelationshipUUIDComponent,
+		    VisibleComponent,
+		    ModelMangerComponent,
+            DynamicMeshComponent,
+		    NativeScriptComponent,
+		    DirectionLightComponent,
+            PointLightComponent,
+            SpotLightComponent,
+		    ParticleComponent,
+		    TextComponent,
+		    RenderTargetComponent
 		 >;
 }

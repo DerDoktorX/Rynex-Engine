@@ -17,9 +17,9 @@ namespace Rynex {
 
         namespace GenrateLoop{
 
-            static void MaterielBuffer(const MeshSource::SourceMesh& meshSource, const std::vector<MeshSource::_Material>& materielSource, std::vector<Mesh::MeshMaterielIndex>& materielBuffer, std::vector<Ref<Material>>& materiels)
+            static void MaterielBuffer(const MeshSource::SourceMesh& meshSource, const std::vector<MeshSource::MaterialMesh>& materielSource, std::vector<Mesh::MeshMaterielIndex>& materielBuffer, std::vector<Ref<Material>>& materiels)
             {
-                int materielIndex = static_cast<int>(meshSource.MaterielIndex);
+                int materielIndex = static_cast<int>(meshSource.m_MaterielIndex);
                 
                 Ref<Material> materiel = CreateRef<DefaultMaterial>();
                 materielBuffer.emplace_back<Mesh::MeshMaterielIndex>(
@@ -38,7 +38,7 @@ namespace Rynex {
 
             static void PerDrawObjectBuffer(const MeshSource::SourceMesh& meshSource, std::vector<Mesh::PerDrawObject>& pdo, std::vector<uint32_t>& indicies, uint32_t vertexCount)
             { 
-                const std::vector<uint32_t>& meshIndex = meshSource.ObjectMeshIndexVec;
+                const std::vector<uint32_t>& meshIndex = meshSource.m_ObjectMeshIndexVec;
 
                 uint32_t indiciesSize = static_cast<uint32_t>(indicies.size());
                 uint32_t meshSize = static_cast<uint32_t>(meshIndex.size());
@@ -69,7 +69,7 @@ namespace Rynex {
 
             static void BatchIncicies(const MeshSource::SourceMesh& meshSource, std::vector<uint32_t>& indicies)
             {
-                const std::vector<uint32_t>& meshIndex = meshSource.ObjectMeshIndexVec;
+                const std::vector<uint32_t>& meshIndex = meshSource.m_ObjectMeshIndexVec;
                 std::vector<uint32_t>::const_iterator beginMeshIndex = meshIndex.begin();
                 std::vector<uint32_t>::const_iterator endMeshIndex = meshIndex.end();
 
@@ -79,15 +79,15 @@ namespace Rynex {
 
             }
 
-            static void BatchVertices(const MeshSource::SourceMesh& meshSource, std::vector<MeshVerteices>& vertices)
+            static void BatchVertices(const MeshSource::SourceMesh& meshSource, std::vector<MeshVertices>& vertices)
             {
-                const std::vector<MeshVerteices>& meshVertices = meshSource.MeshVerteices;
-                std::vector<MeshVerteices>::const_iterator beginMeshVertices = meshVertices.begin();
-                std::vector<MeshVerteices>::const_iterator endMeshVertices = meshVertices.end();
+                const std::vector<MeshVertices>& meshVertices = meshSource.m_MeshVertices;
+                std::vector<MeshVertices>::const_iterator beginMeshVertices = meshVertices.begin();
+                std::vector<MeshVertices>::const_iterator endMeshVertices = meshVertices.end();
 
-                std::vector<MeshVerteices>::const_iterator postionBatchedVertices = vertices.end();
+                std::vector<MeshVertices>::const_iterator postionBatchedVertices = vertices.end();
 
-                vertices.insert<std::vector<MeshVerteices>::const_iterator>(postionBatchedVertices, beginMeshVertices, endMeshVertices);
+                vertices.insert<std::vector<MeshVertices>::const_iterator>(postionBatchedVertices, beginMeshVertices, endMeshVertices);
 
             }
         }
@@ -102,13 +102,13 @@ namespace Rynex {
             const std::vector<MeshSource::SourceMesh>& meshSourcesVec = source->GetMeshSourcesConst();
             const std::vector<Ref<Material>>& materialVec = source->GetMaterialsVecConst();
 
-            uint32_t meshSize = sourceNodes.ObjectMeshIndexVec.size();
+            uint32_t meshSize = sourceNodes.m_ObjectMeshIndexVec.size();
             
             glm::mat4 meshMatrix;
             
 
 
-            meshMatrix = localeParent * sourceNodes.Matrics;
+            meshMatrix = localeParent * sourceNodes.m_Matrics;
 
             if(meshSize != 0u)
             {
@@ -121,13 +121,13 @@ namespace Rynex {
             RY_CORE_ASSERT(sizeSourceMesh == sizeObjectMesh, "Not Equal Size Differenz {}", static_cast<int>(static_cast<int>(sizeSourceMesh) - static_cast<int>(sizeObjectMesh)) );
 
             uint32_t sizeMateriel = materialVec.size();
-            const std::string& nameNode = sourceNodes.NodeName;
+            const std::string& nameNode = sourceNodes.m_NodeName;
 
-            for (const uint32_t& objectMeshIndex : sourceNodes.ObjectMeshIndexVec)
+            for (const uint32_t& objectMeshIndex : sourceNodes.m_ObjectMeshIndexVec)
             {
                 RY_CORE_ASSERT(objectMeshIndex < sizeObjectMesh, "Higer Mesh Index then Expected {}", objectMeshIndex);
                 const MeshSource::SourceMesh& vertexSource = meshSourcesVec.at(objectMeshIndex);
-                const uint32_t& indexMateriel = vertexSource.MaterielIndex;
+                const uint32_t& indexMateriel = vertexSource.m_MaterielIndex;
 
                 RY_CORE_ASSERT(indexMateriel < sizeMateriel, "Higer Materiel Index then Expected {}", indexMateriel);
 
@@ -149,7 +149,7 @@ namespace Rynex {
                
             }
             
-            for (const MeshSource::EntityNodes& childrens : sourceNodes.Childrens)
+            for (const MeshSource::EntityNodes& childrens : sourceNodes.m_Childrens)
             {
                 GenartaeStaticMatrixBufferNode(objectVec, meshMatrix, childrens, sortMatrix, source);
             }
@@ -201,12 +201,12 @@ namespace Rynex {
         static MeshStatic::SingleObjectMeshData&& CreateSingleMeshData(Mesh::MeshRenderObject& object)
         {
             return MeshStatic::SingleObjectMeshData{
-                object.Mesh,
-                object.Material,
-                object.Matrix,
-                object.NodeName,
-                object.LocaleIndexMesh,
-                object.LocaleIndexMateriel
+                object.m_Mesh,
+                object.m_Material,
+                object.m_Matrix,
+                object.m_NodeName,
+                object.m_LocaleIndexMesh,
+                object.m_LocaleIndexMateriel
             };
         }
 
@@ -235,12 +235,12 @@ namespace Rynex {
                
                 singleMeshData.emplace_back<MeshStatic::SingleObjectMeshData>(
                    MeshStatic::SingleObjectMeshData{
-                        object.Mesh,
-                        object.Material,
-                        object.Matrix,
-                        object.NodeName,
-                        object.LocaleIndexMesh,
-                        object.LocaleIndexMateriel
+                        object.m_Mesh,
+                        object.m_Material,
+                        object.m_Matrix,
+                        object.m_NodeName,
+                        object.m_LocaleIndexMesh,
+                        object.m_LocaleIndexMateriel
                    }
                 );
             }
@@ -270,9 +270,9 @@ namespace Rynex {
         std::vector<Ref<Material>>& materiels = source->GetMaterialsVec();
 
 
-        if (!source->HasMeshDataGerated())
+        if (!source->HasMeshDataGenerated())
         {
-            source->GenarteMeshDataIndevdiuelBuffer();
+            source->GenerateMeshDataIndividuallyBuffer();
         }
         
         std::vector<Mesh::PerDrawObject>& pdo = source->GetPerDrawObjectsShadeVec();
@@ -311,9 +311,9 @@ namespace Rynex {
         std::vector<Ref<Material>>& materiels = source->GetMaterialsVec();
 
 
-        if (!source->HasMeshDataGerated())
+        if (!source->HasMeshDataGenerated())
         {
-            source->GenarteMeshDataIndevdiuelBuffer();
+            source->GenerateMeshDataIndividuallyBuffer();
         }
 
 

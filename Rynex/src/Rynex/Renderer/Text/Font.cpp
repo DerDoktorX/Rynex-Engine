@@ -87,8 +87,8 @@ namespace Rynex {
 		}
 
 		double fontScale = 1.0;
-		m_Data->FontGeometry = msdf_atlas::FontGeometry(&m_Data->Glyphs);
-		int glyphsLoaded = m_Data->FontGeometry.loadCharset(font, fontScale, charset);
+		m_Data->m_FontGeometry = msdf_atlas::FontGeometry(&m_Data->m_Glyphs);
+		int glyphsLoaded = m_Data->m_FontGeometry.loadCharset(font, fontScale, charset);
 		RY_CORE_INFO("Loaded {} glyphs from font (out of {})", glyphsLoaded, charset.size());
 
 
@@ -99,7 +99,7 @@ namespace Rynex {
 		atlasPacker.setMiterLimit(1.0);
 		atlasPacker.setPadding(0);
 		atlasPacker.setScale(emSize);
-		int remaining = atlasPacker.pack(m_Data->Glyphs.data(), (int)m_Data->Glyphs.size());
+		int remaining = atlasPacker.pack(m_Data->m_Glyphs.data(), (int)m_Data->m_Glyphs.size());
 		RY_CORE_ASSERT(remaining == 0);
 
 		int width, height;
@@ -116,15 +116,15 @@ namespace Rynex {
 		bool expensiveColoring = false;
 		if (expensiveColoring)
 		{
-			msdf_atlas::Workload([&glyphs = m_Data->Glyphs, &coloringSeed](int i, int threadNo) -> bool {
+			msdf_atlas::Workload([&glyphs = m_Data->m_Glyphs, &coloringSeed](int i, int threadNo) -> bool {
 				unsigned long long glyphSeed = (LCG_MULTIPLIER * (coloringSeed ^ i) + LCG_INCREMENT) * !!coloringSeed;
 				glyphs[i].edgeColoring(msdfgen::edgeColoringInkTrap, DEFAULT_ANGLE_THRESHOLD, glyphSeed);
 				return true;
-				}, m_Data->Glyphs.size()).finish(THREAD_COUNT);
+				}, m_Data->m_Glyphs.size()).finish(THREAD_COUNT);
 		}
 		else {
 			unsigned long long glyphSeed = coloringSeed;
-			for (msdf_atlas::GlyphGeometry& glyph : m_Data->Glyphs)
+			for (msdf_atlas::GlyphGeometry& glyph : m_Data->m_Glyphs)
 			{
 				glyphSeed *= LCG_MULTIPLIER;
 				glyph.edgeColoring(msdfgen::edgeColoringInkTrap, DEFAULT_ANGLE_THRESHOLD, glyphSeed);
@@ -132,7 +132,7 @@ namespace Rynex {
 		}
 
 
-		m_AtlasTexture = CreateAndCacheAtlas<uint8_t, float, 3, msdf_atlas::msdfGenerator>("Test", (float)emSize, m_Data->Glyphs, m_Data->FontGeometry, width, height);
+		m_AtlasTexture = CreateAndCacheAtlas<uint8_t, float, 3, msdf_atlas::msdfGenerator>("Test", (float)emSize, m_Data->m_Glyphs, m_Data->m_FontGeometry, width, height);
 
 
 		msdfgen::destroyFont(font);

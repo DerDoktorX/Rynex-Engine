@@ -41,8 +41,8 @@ namespace Rynex {
 
 			bool operator==(const SingleObjectMeshData& data) const
 			{
-				bool rMateriel = this->_Material == data._Material;
-				bool rMesh = this->_MeshSingle == data._MeshSingle;
+				bool rMateriel = this->m_Material == data.m_Material;
+				bool rMesh = this->m_MeshSingle == data.m_MeshSingle;
 				bool rMatrix = this->LocaleCildrenMatrix == data.LocaleCildrenMatrix;
 				bool rNodeName = this->NodeName == data.NodeName;
 				bool rIndexMesh = this->LocaleIndexMesh == data.LocaleIndexMesh;
@@ -52,8 +52,8 @@ namespace Rynex {
 
 			bool operator!=(const SingleObjectMeshData& data) const
 			{
-				bool rMateriel = this->_Material == data._Material;
-				bool rMesh = this->_MeshSingle == data._MeshSingle;
+				bool rMateriel = this->m_Material == data.m_Material;
+				bool rMesh = this->m_MeshSingle == data.m_MeshSingle;
 				bool rMatrix = this->LocaleCildrenMatrix == data.LocaleCildrenMatrix;
 				bool rNodeName = this->NodeName != data.NodeName;
 				bool rIndexMesh = this->LocaleIndexMesh != data.LocaleIndexMesh;
@@ -80,8 +80,8 @@ namespace Rynex {
 
 		const std::vector<MeshStatic::SingleObjectMeshData>& GetSingleObjectMesDataVec() const { return m_SingleObjectDataVec; }
 		const MeshStatic::SingleObjectMeshData& GetSingleObjectData(uint32_t index) const { RY_CORE_ASSERT(index < m_SingleObjectDataVec.size(), "Buffer Overflow"); return m_SingleObjectDataVec.at(index); }
-		const Ref<MeshSingle>& GetMeshFromObject(uint32_t index) const { return GetSingleObjectData(index)._MeshSingle; }
-		const Ref<Material>& GetMaterialFromObject(uint32_t index) const { return GetSingleObjectData(index)._Material; }
+		const Ref<MeshSingle>& GetMeshFromObject(uint32_t index) const { return GetSingleObjectData(index).m_MeshSingle; }
+		const Ref<Material>& GetMaterialFromObject(uint32_t index) const { return GetSingleObjectData(index).m_Material; }
 		const glm::mat4& GetChildrenMatriceFromObject(uint32_t index) const { return GetSingleObjectData(index).LocaleCildrenMatrix; }
 		const UUID& GetMeshesIDFromMeshObject(uint32_t index) const { return GetSingleObjectData(index).GetHandle(); }
 		const Mesh::PerDrawObject& GetPerDrawObjectFromMeshObject(uint32_t index) const { return GetSingleObjectData(index).GetShadePerDrawObjectIndrect(); }

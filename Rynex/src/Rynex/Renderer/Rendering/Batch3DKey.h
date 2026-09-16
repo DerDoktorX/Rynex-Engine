@@ -7,7 +7,7 @@
 namespace Rynex {
 // #define RY_BATCH_KEY_HASH
 // #define	RY_BATCH_KEY_HASH_FUNC
-	class RenderPassDrawResoucs;
+	class RenderPassDrawResource;
 
 	class Batch3DKey
 	{
@@ -34,7 +34,7 @@ namespace Rynex {
 		int m_RenderMode;
 		int m_LOD_Level;
 	private:
-		friend RenderPassDrawResoucs;
+		friend RenderPassDrawResource;
 		RY_ADD_NONE_MEBER_OPERATOR_FUNC_AS_FRIND(::Rynex::Batch3DKey, bool, == );
 		RY_ADD_NONE_MEBER_OPERATOR_FUNC_AS_FRIND(::Rynex::Batch3DKey, bool, != );
 	};

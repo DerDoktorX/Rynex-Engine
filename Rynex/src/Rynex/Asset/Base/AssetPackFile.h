@@ -7,37 +7,37 @@ namespace Rynex {
 	{
 		struct AssetInfo
 		{
-			uint64_t PackedOffset; 
-			uint64_t PackedSize;
-			uint16_t Type;
-			uint16_t Flags;
+			uint64_t m_PackedOffset;
+			uint64_t m_PackedSize;
+			uint16_t m_Type;
+			uint16_t m_Flags;
 		};
 
 		struct SceneInfo
 		{
-			uint64_t PackedOffset = 0;
-			uint64_t PackedSize = 0;
-			uint16_t Flags = 0;
-			std::map<uint64_t, SceneInfo> Scenes;
+			uint64_t m_PackedOffset = 0;
+			uint64_t m_PackedSize = 0;
+			uint16_t m_Flags = 0;
+			std::map<uint64_t, SceneInfo> m_Scenes;
 		};
 
 		struct IndexTable
 		{
-			uint64_t PackedAppBinaryOffset = 0;
-			uint64_t PackedAppSize = 0;
-			std::map<uint64_t, SceneInfo> Scenes;
+			uint64_t m_PackedAppBinaryOffset = 0;
+			uint64_t m_PackedAppSize = 0;
+			std::map<uint64_t, SceneInfo> m_Scenes;
 		};
 
 
 		struct FileHeader
 		{
-			const char HEADER[4] = {'R','Z','A','P'};
-			uint32_t Version = 0;
-			uint64_t BuilDVersion = 0;
+			const char m_Header[4] = {'R','Z','A','P'};
+			uint32_t m_Version = 0;
+			uint64_t m_BuildVersion = 0;
 		};
 
-		FileHeader Header;
-		IndexTable Index;
+		FileHeader m_Header;
+		IndexTable m_Index;
 	};
 	
 

@@ -1,6 +1,5 @@
 #pragma once
 #include <Rynex/Asset/RuntimeAssetManager.h>
-#include <Rynex/Scripting/Mono/ScriptingEngine.h>
 
 namespace Rynex {
 
@@ -8,40 +7,54 @@ namespace Rynex {
 
 	struct ProjectConfig
 	{
-		std::string name = "Default-Project";
-		std::string CreateDate = "00:00-00.00.0000";
-		std::string LastOpenDate = "00:00-00.00.0000";
-		std::filesystem::path StartScene = "";
-		std::filesystem::path LastScene = "";
+		std::string m_Name = "Default-Project";
+		std::string m_CreateDate = "00:00-00.00.0000";
+		std::string m_LastOpenDate = "00:00-00.00.0000";
+		std::filesystem::path m_StartScene = "";
+		std::filesystem::path m_LastScene = "";
 
-		std::filesystem::path AppDirektory = "";
-		std::filesystem::path AssetDirectory = "Assets";
-		std::filesystem::path AssetRegistryPath = "AssetRegistry.ryr";
-		std::filesystem::path ProjectScriptPremake5 = "premake5.lua";
-		std::filesystem::path ScriptAppPath = "SandboxProject/Assets/Scripts/Binaries/Sanbox.dll";
-		std::filesystem::path ScriptCorePath = "Resources/Scripts/Rynex-ScriptingCore.dll";
-		// std::filesystem::path ProjectPath = "C:/dev/Rynex-Enine/Rynex-Editor/SandboxProject";
-		std::filesystem::path ProjectPath = "EMPTY";
+		std::filesystem::path m_AppDirectory = "";
+		std::filesystem::path m_AssetDirectory = "Assets";
+		std::filesystem::path m_AssetRegistryPath = "AssetRegistry.ryr";
+		std::filesystem::path m_ProjectScriptPremake5 = "premake5.lua";
+		std::filesystem::path m_ScriptAppPath = "SandboxProject/Assets/Scripts/Binaries/Sandbox.dll";
+		std::filesystem::path m_ScriptCorePath = "Resources/Scripts/Rynex-ScriptingCore.dll";
+		std::filesystem::path m_ProjectPath = "EMPTY";
 
-		std::string RynexVersion = "In Dev Version Cuurent Date Only";
-		bool ProjectRady = false;
+		std::string m_RynexVersion = "In Dev Version Current Date Only";
+		bool m_ProjectRady = false;
 
 		ProjectConfig() = default;
 
-		bool operator!=(const ProjectConfig& profectConfig) const
+		bool operator!=(const ProjectConfig& projectConfig) const
 		{
-			return ((profectConfig.name != name) &&
-				(profectConfig.CreateDate != CreateDate) &&
-				(profectConfig.LastOpenDate != LastOpenDate) &&
-				(profectConfig.LastScene != LastScene) &&
-				(profectConfig.AppDirektory != AppDirektory) &&
-				(profectConfig.AssetDirectory != AssetDirectory) &&
-				(profectConfig.AssetRegistryPath != AssetRegistryPath) &&
-				(profectConfig.ProjectScriptPremake5 != ProjectScriptPremake5) &&
-				(profectConfig.ScriptAppPath != ScriptAppPath) &&
-				(profectConfig.ScriptCorePath != ScriptCorePath) &&
-				(profectConfig.ProjectPath != ProjectPath) &&
-				(profectConfig.ProjectRady != ProjectRady));
+		    bool resultName                   = (projectConfig.m_Name                     != m_Name);
+		    bool resultCreateDate             = (projectConfig.m_CreateDate               != m_CreateDate);
+		    bool resultLastOpenDate           = (projectConfig.m_LastOpenDate             != m_LastOpenDate);
+		    bool resultLastScene              = (projectConfig.m_LastScene                != m_LastScene);
+		    bool resultAppDirectory           = (projectConfig.m_AppDirectory             != m_AppDirectory);
+		    bool resultAssetDirectory         = (projectConfig.m_AssetDirectory           != m_AssetDirectory);
+		    bool resultAssetRegistryPath      = (projectConfig.m_AssetRegistryPath        != m_AssetRegistryPath);
+		    bool resultProjectScriptPremake5  = (projectConfig.m_ProjectScriptPremake5    != m_ProjectScriptPremake5);
+		    bool resultScriptAppPath          = (projectConfig.m_ScriptAppPath            != m_ScriptAppPath);
+		    bool resultScriptCorePath         = (projectConfig.m_ScriptCorePath           != m_ScriptCorePath);
+		    bool resultProjectPath            = (projectConfig.m_ProjectPath              != m_ProjectPath);
+		    bool resultProjectRady            = (projectConfig.m_ProjectRady              != m_ProjectRady);
+
+
+			return (resultName
+			    && resultCreateDate
+			    && resultCreateDate
+			    && resultLastOpenDate
+			    && resultLastScene
+			    && resultAppDirectory
+			    && resultAssetDirectory
+			    && resultAssetRegistryPath
+			    && resultProjectScriptPremake5
+			    && resultScriptAppPath
+			    && resultScriptCorePath
+			    && resultProjectPath
+			    && resultProjectRady);
 		}
 	};
 
@@ -51,18 +64,18 @@ namespace Rynex {
 		Project();
 		~Project();
 #pragma region PathFunction
-		[[nodiscard]] const std::filesystem::path& GetProjectDirectory() const { return m_Config.ProjectPath; }
-		[[nodiscard]] const std::filesystem::path& GetAssetDirectory() const { return m_Config.AssetDirectory; }
-		[[nodiscard]] const std::filesystem::path& GetAssetRegistryPath() const { return m_Config.AssetRegistryPath; }
-		void SetLastSceneAsset(const std::filesystem::path& sceneAsset) { m_Config.LastScene = sceneAsset; }
+		[[nodiscard]] const std::filesystem::path& GetProjectDirectory() const { return m_Config.m_ProjectPath; }
+		[[nodiscard]] const std::filesystem::path& GetAssetDirectory() const { return m_Config.m_AssetDirectory; }
+		[[nodiscard]] const std::filesystem::path& GetAssetRegistryPath() const { return m_Config.m_AssetRegistryPath; }
+		void SetLastSceneAsset(const std::filesystem::path& sceneAsset) { m_Config.m_LastScene = sceneAsset; }
 
 
-		std::filesystem::path& GetAppDirectory() { return m_Config.AppDirektory; }
+		std::filesystem::path& GetAppDirectory() { return m_Config.m_AppDirectory; }
 
 		static const std::filesystem::path& GetActiveProjectDirectory()
 		{
-			RY_CORE_ASSERT(s_ActiveInstancProject, "Error: Project::GetProjectDirectory()");
-			return s_ActiveInstancProject->GetProjectDirectory();
+			RY_CORE_ASSERT(s_ActiveInstanceProject, "Error: Project::GetProjectDirectory()");
+			return s_ActiveInstanceProject->GetProjectDirectory();
 		}
 
 
@@ -71,58 +84,58 @@ namespace Rynex {
 
 		static const std::filesystem::path& GetActiveAssetDirectory()
 		{
-			RY_CORE_ASSERT(s_ActiveInstancProject, "Erroe: Project::GetAssetDirectory()");
-			return s_ActiveInstancProject->GetAssetDirectory();
+			RY_CORE_ASSERT(s_ActiveInstanceProject, "Error: Project::GetActiveAssetDirectory()");
+			return s_ActiveInstanceProject->GetAssetDirectory();
 		}
 
 		static std::filesystem::path GetActiveAssetRegistryPath()
 		{
-			RY_CORE_ASSERT(s_ActiveInstancProject, "Erroe: Project::GetActiveAssetRegistryPath()");
-			return s_ActiveInstancProject->GetAssetRegistryPath();
+			RY_CORE_ASSERT(s_ActiveInstanceProject, "Error: Project::GetActiveAssetRegistryPath()");
+			return s_ActiveInstanceProject->GetAssetRegistryPath();
 		}
 
-		static const std::filesystem::path& GetActiveScriptingAppDirektory()
+		static const std::filesystem::path& GetActiveScriptingAppDirectory()
 		{
-			RY_CORE_ASSERT(s_ActiveInstancProject, "Erroe: Project::GetProjectDirectory()");
-			return s_ActiveInstancProject->m_Config.ScriptAppPath;
+			RY_CORE_ASSERT(s_ActiveInstanceProject, "Error: Project::GetActiveScriptingAppDirectory()");
+			return s_ActiveInstanceProject->m_Config.m_ScriptAppPath;
 		}
 
-		static const std::filesystem::path& GetActiveProjectScriptingCoreDirektory()
+		static const std::filesystem::path& GetActiveProjectScriptingCoreDirectory()
 		{
-			RY_CORE_ASSERT(s_ActiveInstancProject, "Erroe: Project::GetActiveAssetProjectScriptingCoreDirektory()");
-			return s_ActiveInstancProject->m_Config.ScriptCorePath;
+			RY_CORE_ASSERT(s_ActiveInstanceProject, "Error: Project::GetActiveProjectScriptingCoreDirectory()");
+			return s_ActiveInstanceProject->m_Config.m_ScriptCorePath;
 		}
 
 		static void SetActiveLastSceneAsset(const std::filesystem::path& sceneAsset)
 		{
-			RY_CORE_ASSERT(s_ActiveInstancProject, "Erroe: Project::GetActiveAssetProjectScriptingCoreDirektory()");
-			if(s_ActiveInstancProject->m_AssetManger->IsAssetHandleValid(sceneAsset))
-				s_ActiveInstancProject->SetActiveLastSceneAsset(sceneAsset);
+			RY_CORE_ASSERT(s_ActiveInstanceProject, "Error: Project::SetActiveLastSceneAsset()");
+			if(s_ActiveInstanceProject->m_AssetManger->IsAssetHandleValid(sceneAsset))
+				s_ActiveInstanceProject->SetActiveLastSceneAsset(sceneAsset);
 		}
 
 		static void Init()
 		{
-			RY_CORE_WARN("Projekt Init! Beginn");
-			RY_CORE_ASSERT(!s_ActiveInstancProject, "Project!");
-			if(!s_ActiveInstancProject)
+			RY_CORE_WARN("Project Init! Begin");
+			RY_CORE_ASSERT(!s_ActiveInstanceProject, "Project!");
+			if(!s_ActiveInstanceProject)
 			{
-				s_ActiveInstancProject = CreateRef<Project>();
+				s_ActiveInstanceProject = CreateRef<Project>();
 				
-				RY_CORE_INFO("Projekt Init! Sucess");
+				RY_CORE_INFO("Project Init! Success");
 			}
 			
 			
 		}
 
-		static void ShutDown()
+		static void Shutdown()
 		{
-			RY_CORE_WARN("Projekt ShutDown! Beginn");
-			if (s_ActiveInstancProject->m_Config.ProjectRady)
+			RY_CORE_WARN("Project ShutDown! Begin");
+			if (s_ActiveInstanceProject->m_Config.m_ProjectRady)
 			{
-				s_ActiveInstancProject->m_AssetManger->OnDetach();
-				s_ActiveInstancProject->m_AssetManger.reset();
-				RY_DESTROY_REF(s_ActiveInstancProject);
-				RY_CORE_INFO("Projekt ShutDown! Sucess");
+				s_ActiveInstanceProject->m_AssetManger->OnDetach();
+				s_ActiveInstanceProject->m_AssetManger.reset();
+				RY_DESTROY_REF(s_ActiveInstanceProject);
+				RY_CORE_INFO("Project Shutdown! Success");
 			}
 		}	
 
@@ -130,21 +143,21 @@ namespace Rynex {
 
 		ProjectConfig& GetConfig() { return m_Config; }
 
-		static Ref<Project> GetActive() { return s_ActiveInstancProject; }
+		static Ref<Project> GetActive() { return s_ActiveInstanceProject; }
 
 		Ref<AssetManagerBase> GetAssetManger() { return m_AssetManger; }
-		Ref<RuntimeAssetManager> GetRuntimeAssetManger() const { return std::static_pointer_cast<RuntimeAssetManager>(m_AssetManger); }
 
+		Ref<RuntimeAssetManager> GetRuntimeAssetManger() const { return std::static_pointer_cast<RuntimeAssetManager>(m_AssetManger); }
 		Ref<EditorAssetManagerThread> GetEditorAssetManger() const { return  std::static_pointer_cast<EditorAssetManagerThread>(m_AssetManger); }
 
 		static Ref<Project> New();
-		static Ref<Project> CreatNewPorject();
-		static Ref<Project> CreatNewPorject(const std::filesystem::path& projectPath, const std::string& name);
+		static Ref<Project> CreatNewProject();
+		static Ref<Project> CreatNewProject(const std::filesystem::path& projectPath, const std::string& name);
 		static Ref<Project> Load(const std::filesystem::path& path);
 		static bool SaveActive(const std::filesystem::path& path);
 
-		bool operator!=(const Ref<Project>& project)
-		{
+		bool operator!=(const Ref<Project>& project) const
+        {
 			return project->m_Config != m_Config;
 		}
 	private:
@@ -152,7 +165,7 @@ namespace Rynex {
 
 		Ref<AssetManagerBase> m_AssetManger;
 		
-		inline static Ref<Project> s_ActiveInstancProject;
+		inline static Ref<Project> s_ActiveInstanceProject;
 	};
 
 

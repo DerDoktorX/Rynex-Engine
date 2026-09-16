@@ -77,7 +77,7 @@ namespace Rynex {
 		{
 			for (const BufferElement& elem : m_Layout) 
 			{
-				if (elem.name == name)
+				if (elem.m_Name == name)
 					return &elem;
 			}
 			return nullptr;

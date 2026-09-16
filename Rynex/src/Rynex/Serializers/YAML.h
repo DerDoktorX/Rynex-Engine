@@ -1,6 +1,12 @@
 #pragma once
 #include <Rynex/Project/Project.h>
-#include <Rynex/Renderer/API/Buffer.h>
+#include <Rynex/Renderer/API/ProtypeAPI.h>
+#include <Rynex/Scene/ScenePrototyps.h>
+#include <Rynex/Scene/ScenenCamera.h>
+
+namespace Rynex {
+    class MeshStatic;
+}
 
 
 namespace YAML {

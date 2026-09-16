@@ -163,11 +163,11 @@ namespace Rynex {
 			if (nullptr == m_DrawList)
 			{
 				m_DrawList = CreateRef<ShaderDrawList>();
-				m_DrawList->shaderProgramm = m_Shader;
-				m_DrawList->vao = m_VAA;
-				m_DrawList->renderMode = RenderMode::A_Buffer | RenderMode::CallFace_None | RenderMode::Death_Buffer;
+				m_DrawList->m_ShaderProgram = m_Shader;
+				m_DrawList->m_VAO = m_VAA;
+				m_DrawList->m_RenderMode = RenderMode::A_Buffer | RenderMode::CallFace_None | RenderMode::Death_Buffer;
 
-				StorageBindArray& storageBindArray = m_DrawList->GetBindeStorage();
+				StorageBindArray& storageBindArray = m_DrawList->GetBindStorage();
 				storageBindArray[1] = m_TransformStroageBuffer;
 
 			}
@@ -175,13 +175,13 @@ namespace Rynex {
 			{
 				target.AddDrawPass(m_DrawList);
 			}
-			UniformBindArray& uniformBindArray = m_DrawList->GetBindeUniform();
+			UniformBindArray& uniformBindArray = m_DrawList->GetBindUniform();
 
 			if (-1 != m_CameraSlot)
 				uniformBindArray[m_CameraSlot] = camerbuffer;
 			if (-1 != m_DisplaySlot)
 				uniformBindArray[m_DisplaySlot] = displaybuffer;
-			TextureBindArray& textureBindArray = m_DrawList->GetBindeTextures();
+			TextureBindArray& textureBindArray = m_DrawList->GetBindTextures();
 			for (uint32_t i = 0; i < m_TextureSlotsIndex; i++)
 			{
 				if (Ref<Texture> tex = m_TextureSlots[i].lock())
@@ -194,16 +194,16 @@ namespace Rynex {
 				return false;
 			}
 
-			if (nullptr == m_DrawList.shaderProgramm)
+			if (nullptr == m_DrawList.m_ShaderProgram)
 			{
 				m_DrawList = CreateShaderDrawResource();
-				m_DrawList.shaderProgramm = m_Shader;
-				m_DrawList.vao = m_VAA;
-				m_DrawList.renderMode = RenderMode::A_Buffer | RenderMode::CallFace_None | RenderMode::Death_Buffer;
-				m_DrawList.drawElement.Count = count;
-				m_DrawList.drawElement.InstancesCount = 1u;
-				m_DrawList.drawElement.BaseVertex = 0u;
-				StorageBindArray& storageBindArray = m_DrawList.GetBindeStorage();
+				m_DrawList.m_ShaderProgram = m_Shader;
+				m_DrawList.m_VAO = m_VAA;
+				m_DrawList.m_RenderMode = RenderMode::A_Buffer | RenderMode::CallFace_None | RenderMode::Death_Buffer;
+				m_DrawList.m_DrawElement.m_Count = count;
+				m_DrawList.m_DrawElement.m_InstancesCount = 1u;
+				m_DrawList.m_DrawElement.m_BaseVertex = 0u;
+				StorageBindArray& storageBindArray = m_DrawList.GetBindStorage();
 				storageBindArray[1] = m_TransformStroageBuffer;
 
 			}
@@ -211,13 +211,13 @@ namespace Rynex {
 			if (m_NewData)
 				FlushData();
 
-			UniformBindArray& uniformBindArray = m_DrawList.GetBindeUniform();
+			UniformBindArray& uniformBindArray = m_DrawList.GetBindUniform();
 
 			if (-1 != m_CameraSlot)
 				uniformBindArray[m_CameraSlot] = camerbuffer;
 			if (-1 != m_DisplaySlot)
 				uniformBindArray[m_DisplaySlot] = displaybuffer;
-			TextureBindArray& textureBindArray = m_DrawList.GetBindeTextures();
+			TextureBindArray& textureBindArray = m_DrawList.GetBindTextures();
 			for (uint32_t i = 0; i < m_TextureSlotsIndex; i++)
 			{
 				if (Ref<Texture> tex = m_TextureSlots[i].lock())
@@ -245,11 +245,11 @@ namespace Rynex {
 			if (nullptr == m_DrawList)
 			{
 				m_DrawList = CreateRef<ShaderDrawList>();
-				m_DrawList->shaderProgramm = m_Shader;
-				m_DrawList->vao = m_VAA;
-				m_DrawList->renderMode = RenderMode::A_Buffer | RenderMode::CallFace_None | RenderMode::Death_Buffer;
+				m_DrawList->m_ShaderProgram = m_Shader;
+				m_DrawList->m_VAO = m_VAA;
+				m_DrawList->m_RenderMode = RenderMode::A_Buffer | RenderMode::CallFace_None | RenderMode::Death_Buffer;
 
-				StorageBindArray& storageBindArray = m_DrawList->GetBindeStorage();
+				StorageBindArray& storageBindArray = m_DrawList->GetBindStorage();
 				storageBindArray[1] = m_TransformStroageBuffer;
 
 			}
@@ -257,13 +257,13 @@ namespace Rynex {
 			{
 				target.AddDrawPass(m_DrawList);
 			}
-			UniformBindArray& uniformBindArray = m_DrawList->GetBindeUniform();
+			UniformBindArray& uniformBindArray = m_DrawList->GetBindUniform();
 
 			if (-1 != m_CameraSlot)
 				uniformBindArray[m_CameraSlot] = camerbuffer;
 			if (-1 != m_DisplaySlot)
 				uniformBindArray[m_DisplaySlot] = displaybuffer;
-			TextureBindArray& textureBindArray = m_DrawList->GetBindeTextures();
+			TextureBindArray& textureBindArray = m_DrawList->GetBindTextures();
 			for (uint32_t i = 0; i < m_TextureSlotsIndex; i++)
 			{
 				if (Ref<Texture> tex = m_TextureSlots[i].lock())
@@ -276,16 +276,16 @@ namespace Rynex {
 				return;
 			}
 
-			if (nullptr == m_DrawList.shaderProgramm)
+			if (nullptr == m_DrawList.m_ShaderProgram)
 			{
 				m_DrawList = CreateShaderDrawResource();
-				m_DrawList.shaderProgramm = m_Shader;
-				m_DrawList.vao = m_VAA;
-				m_DrawList.renderMode = RenderMode::A_Buffer | RenderMode::CallFace_None | RenderMode::Death_Buffer;
-				m_DrawList.drawElement.Count = count;
-				m_DrawList.drawElement.InstancesCount = 1u;
-				m_DrawList.drawElement.BaseVertex = 0u;
-				StorageBindArray& storageBindArray = m_DrawList.GetBindeStorage();
+				m_DrawList.m_ShaderProgram = m_Shader;
+				m_DrawList.m_VAO = m_VAA;
+				m_DrawList.m_RenderMode = RenderMode::A_Buffer | RenderMode::CallFace_None | RenderMode::Death_Buffer;
+				m_DrawList.m_DrawElement.m_Count = count;
+				m_DrawList.m_DrawElement.m_InstancesCount = 1u;
+				m_DrawList.m_DrawElement.m_BaseVertex = 0u;
+				StorageBindArray& storageBindArray = m_DrawList.GetBindStorage();
 				storageBindArray[1] = m_TransformStroageBuffer;
 
 			}
@@ -296,13 +296,13 @@ namespace Rynex {
 			if (m_NewData)
 				FlushData();
 
-			UniformBindArray& uniformBindArray = m_DrawList.GetBindeUniform();
+			UniformBindArray& uniformBindArray = m_DrawList.GetBindUniform();
 
 			if (-1 != m_CameraSlot)
 				uniformBindArray[m_CameraSlot] = camerbuffer;
 			if (-1 != m_DisplaySlot)
 				uniformBindArray[m_DisplaySlot] = displaybuffer;
-			TextureBindArray& textureBindArray = m_DrawList.GetBindeTextures();
+			TextureBindArray& textureBindArray = m_DrawList.GetBindTextures();
 			for (uint32_t i = 0; i < m_TextureSlotsIndex; i++)
 			{
 				if (Ref<Texture> tex = m_TextureSlots[i].lock())

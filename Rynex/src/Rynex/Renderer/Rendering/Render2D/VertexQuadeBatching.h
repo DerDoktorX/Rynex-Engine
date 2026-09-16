@@ -174,24 +174,24 @@ namespace Rynex {
 			if (nullptr == m_DrawList)
 			{
 				m_DrawList = CreateShaderDrawResource();
-				m_DrawList->shaderProgramm = m_Shader;
-				m_DrawList->vao = m_VAA;
-				m_DrawList->renderMode = RenderMode::A_Buffer | RenderMode::CallFace_None | RenderMode::Death_Buffer;
+				m_DrawList->m_ShaderProgram = m_Shader;
+				m_DrawList->m_VAO = m_VAA;
+				m_DrawList->m_RenderMode = RenderMode::A_Buffer | RenderMode::CallFace_None | RenderMode::Death_Buffer;
 				
 			}
 			if (!target.HasDrawPass(m_DrawList))
 			{
 				target.AddDrawPass(m_DrawList);
 			}
-			m_DrawList->indicesCount = count;
+			m_DrawList->m_IndicesCount = count;
 
-			UniformBindArray& uniformBindArray = m_DrawList->GetBindeUniform();
+			UniformBindArray& uniformBindArray = m_DrawList->GetBindUniform();
 			if (-1 != m_CameraSlot)
 				uniformBindArray[m_CameraSlot] = camerbuffer;
 			if (-1 != m_DisplaySlot)
 				uniformBindArray[m_DisplaySlot] = displaybuffer;
 
-			TextureBindArray& textureBindArray = m_DrawList->GetBindeTextures();
+			TextureBindArray& textureBindArray = m_DrawList->GetBindTextures();
 			for (uint32_t i = 0; i < m_TextureSlotsIndex; i++)
 			{
 				if (Ref<Texture> tex = m_TextureSlots[i].lock())
@@ -203,21 +203,21 @@ namespace Rynex {
 				m_DrawList.Clear();
 				return;
 			}
-			if (nullptr == m_DrawList.shaderProgramm)
+			if (nullptr == m_DrawList.m_ShaderProgram)
 			{
-				m_DrawList.shaderProgramm = m_Shader;
-				m_DrawList.vao = m_VAA;
-				m_DrawList.renderMode = RenderMode::A_Buffer | RenderMode::CallFace_None | RenderMode::Death_Buffer;
+				m_DrawList.m_ShaderProgram = m_Shader;
+				m_DrawList.m_VAO = m_VAA;
+				m_DrawList.m_RenderMode = RenderMode::A_Buffer | RenderMode::CallFace_None | RenderMode::Death_Buffer;
 
 			}
 
-			UniformBindArray& uniformBindArray = m_DrawList.GetBindeUniform();
+			UniformBindArray& uniformBindArray = m_DrawList.GetBindUniform();
 			if(-1 != m_CameraSlot)
 				uniformBindArray[m_CameraSlot] = camerbuffer;
 			if (-1 != m_DisplaySlot)
 				uniformBindArray[m_DisplaySlot] = displaybuffer;
 
-			TextureBindArray& textureBindArray = m_DrawList.GetBindeTextures();
+			TextureBindArray& textureBindArray = m_DrawList.GetBindTextures();
 			for (uint32_t i = 0; i < m_TextureSlotsIndex; i++)
 			{
 				if (Ref<Texture> tex = m_TextureSlots[i].lock())

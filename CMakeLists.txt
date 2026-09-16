@@ -6,14 +6,17 @@ project(Rynex-Rendering)
 
 include(cmake/FetchExternalLiberys.cmake)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 if (POLICY CMP0141)
     cmake_policy(SET CMP0141 NEW)
-    set(CMAKE_CXX_STANDARD 17)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-    set(CMAKE_CXX_EXTENSIONS OFF)
     set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>")
 endif()
+
+
+
 
 set(RYNEX_BINARY_TARGET "$<CONFIG>")
 # set(RYNEX_BINARY_TARGET "[CONFIG]")

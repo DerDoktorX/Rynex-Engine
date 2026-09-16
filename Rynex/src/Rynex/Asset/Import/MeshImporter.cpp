@@ -9,7 +9,7 @@ namespace Rynex {
 
 	Ref<MeshStatic> MeshImporter::ImportMesh(AssetHandle handle, const AssetMetadata& metadata)
 	{
-		return LoadMesh(metadata.AbsolutePath);
+		return LoadMesh(metadata.m_AbsolutePath);
 	}
 
 	Ref<MeshStatic> MeshImporter::LoadMesh(const std::filesystem::path& path)

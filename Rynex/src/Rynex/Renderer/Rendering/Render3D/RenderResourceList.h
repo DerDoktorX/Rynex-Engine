@@ -17,14 +17,14 @@ namespace Rynex {
 		
 		struct InfoData
 		{
-			uint32_t Count;
+			uint32_t m_Count;
 #if RY_RENDER_RESOURCE_DATA_ARRAY
 			_N* Data;
 #else
-			_N Data;
+			_N m_Data;
 #endif
 
-			Ref<TypeT> Resource;
+			Ref<TypeT> m_Resource;
 		};
 
 		using _InfoDataNT = InfoData;
@@ -65,9 +65,9 @@ namespace Rynex {
 				m_Size++;
 
 #if RY_RENDER_RESOURCE_DATA_ARRAY
-				RY_CORE_ASSERT((m_Data.data() + index) == ((m_Infos.data() + index)->Data));
+				RY_CORE_ASSERT((m_Data.data() + index) == ((m_Infos.data() + index)->m_Data));
 #endif
-				RY_CORE_ASSERT(resource.get() == info.Resource.get());
+				RY_CORE_ASSERT(resource.get() == info.m_Resource.get());
 				return info;
 			}
 			else
@@ -76,10 +76,10 @@ namespace Rynex {
 				_InfoDataNT& info = m_Infos.at(index);
 				
 #if RY_RENDER_RESOURCE_DATA_ARRAY
-				RY_CORE_ASSERT((m_Data.data() + index) == &((m_Infos.data() + index)->Data));
+				RY_CORE_ASSERT((m_Data.data() + index) == &((m_Infos.data() + index)->m_Data));
 #endif
-				info.Count++;
-				RY_CORE_ASSERT(resource.get() == info.Resource.get());
+				info.m_Count++;
+				RY_CORE_ASSERT(resource.get() == info.m_Resource.get());
 				return info;
 			}
 		}
@@ -98,7 +98,7 @@ namespace Rynex {
 				uint32_t index = it->second;
 				_InfoDataNT& info = m_Infos.at(index);
 #if RY_RENDER_RESOURCE_DATA_ARRAY
-				RY_CORE_ASSERT((m_Data.data() + index) == (m_Infos.data() + index)->Data);
+				RY_CORE_ASSERT((m_Data.data() + index) == (m_Infos.data() + index)->m_Data);
 #endif
 				return info;
 			}
@@ -115,7 +115,7 @@ namespace Rynex {
 		_N GetData(const ResourceT& resource)
 		{
 			_InfoDataNT resourceData = GetInfo(resource);
-			return resourceData.Data;
+			return resourceData.m_Data;
 		}
 
 		ResourceT& GetResource(const ResourceT& resource)

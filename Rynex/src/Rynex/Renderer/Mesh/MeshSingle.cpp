@@ -32,7 +32,7 @@ namespace Rynex {
 	}
 
 	
-	bool MeshSingle::IsViewFustrum(const glm::mat4& model, const glm::mat4& viewProjtion)
+	bool MeshSingle::IsViewFrustum(const glm::mat4& model, const glm::mat4& viewProjtion)
 	{
 		glm::mat4 mvp = viewProjtion * model;
 		const AABB& aabb = m_Bounding.GetAABB();
@@ -52,7 +52,7 @@ namespace Rynex {
 		}
 	}
 
-	bool MeshSingle::IsNotPointInFiewFustrem(glm::vec3 max, glm::vec3 min, const glm::vec4& planeSide)
+	bool MeshSingle::IsNotPointInViewFrustum(glm::vec3 max, glm::vec3 min, const glm::vec4& planeSide)
 	{
 		glm::vec3 postion(
 			planeSide.x < 0.0f ? max.x : min.x,
@@ -73,11 +73,11 @@ namespace Rynex {
 	{
 		glm::vec4 planes[6];
 		ExtractFrustum(viewProjtion, planes);
-		glm::vec4 max = model * glm::vec4(box.Max, 1.0f);
-		glm::vec4 min = model * glm::vec4(box.Min, 1.0f);
+		glm::vec4 max = model * glm::vec4(box.m_Max, 1.0f);
+		glm::vec4 min = model * glm::vec4(box.m_Min, 1.0f);
 		for (const glm::vec4& p : planes)
 		{
-			if (IsNotPointInFiewFustrem(max, min, p))
+			if (IsNotPointInViewFrustum(max, min, p))
 				return true;
 		}
 		return false;
@@ -85,14 +85,14 @@ namespace Rynex {
 
 	bool MeshSingle::IsAABBInsideFrustum(const glm::mat4& m, const AABB& box)
 	{
-		if (box.Max == glm::vec3(0.0f) && box.Min == glm::vec3(0.0f))
+		if (box.m_Max == glm::vec3(0.0f) && box.m_Min == glm::vec3(0.0f))
 			return true;
 
 		glm::vec4 planes[6];
 		ExtractFrustum(m, planes);
 		
-		glm::vec4 max = glm::vec4(box.Max, 1.0f);
-		glm::vec4 min = glm::vec4(box.Min, 1.0f);
+		glm::vec4 max = glm::vec4(box.m_Max, 1.0f);
+		glm::vec4 min = glm::vec4(box.m_Min, 1.0f);
 		
 		for (const glm::vec4& p : planes)
 		{
@@ -113,7 +113,7 @@ namespace Rynex {
 		return false;
 	}
 
-	glm::vec4 MeshSingle::CaculatePlaneViewFustremPlaneNormilze(const glm::vec3& normale, float constant)
+	glm::vec4 MeshSingle::CalculatePlaneViewFrustumPlaneNormelize(const glm::vec3& normale, float constant)
 	{
 		float normleLength = glm::length(normale);
 		float inverseNormalLength = 1.0f / normleLength;
@@ -133,7 +133,7 @@ namespace Rynex {
 			viewProj[2][3] - viewProj[2][0]
 		);
 		float constatnt = viewProj[3][3] - viewProj[3][0];
-		glm::vec4 plane = CaculatePlaneViewFustremPlaneNormilze(normle, constatnt);
+		glm::vec4 plane = CalculatePlaneViewFrustumPlaneNormelize(normle, constatnt);
 		return plane;
 	}
 
@@ -145,7 +145,7 @@ namespace Rynex {
 			viewProj[2][3] + viewProj[2][0]
 		);
 		float constatnt = viewProj[3][3] - viewProj[3][0];
-		glm::vec4 plane = CaculatePlaneViewFustremPlaneNormilze(normle, constatnt);
+		glm::vec4 plane = CalculatePlaneViewFrustumPlaneNormelize(normle, constatnt);
 		return plane;
 	}
 
@@ -157,7 +157,7 @@ namespace Rynex {
 			viewProj[2][3] + viewProj[2][1]
 		);
 		float constatnt = viewProj[3][3] - viewProj[3][1];
-		glm::vec4 plane = CaculatePlaneViewFustremPlaneNormilze(normle, constatnt);
+		glm::vec4 plane = CalculatePlaneViewFrustumPlaneNormelize(normle, constatnt);
 
 		return plane;
 	}
@@ -170,7 +170,7 @@ namespace Rynex {
 			viewProj[2][3] - viewProj[2][1]
 		);
 		float constatnt = viewProj[3][3] - viewProj[3][1];
-		glm::vec4 plane = CaculatePlaneViewFustremPlaneNormilze(normle, constatnt);
+		glm::vec4 plane = CalculatePlaneViewFrustumPlaneNormelize(normle, constatnt);
 
 		return plane;
 	}
@@ -183,7 +183,7 @@ namespace Rynex {
 			viewProj[2][3] - viewProj[2][2]
 		);
 		float constatnt = viewProj[3][3] - viewProj[3][2];
-		glm::vec4 plane = CaculatePlaneViewFustremPlaneNormilze(normle, constatnt);
+		glm::vec4 plane = CalculatePlaneViewFrustumPlaneNormelize(normle, constatnt);
 
 		return plane;
 	}
@@ -196,7 +196,7 @@ namespace Rynex {
 			viewProj[2][3] + viewProj[2][2]
 		);
 		float constatnt = viewProj[3][3] + viewProj[3][2];
-		glm::vec4 plane = CaculatePlaneViewFustremPlaneNormilze(normle, constatnt);
+		glm::vec4 plane = CalculatePlaneViewFrustumPlaneNormelize(normle, constatnt);
 
 		return plane;
 	}
@@ -261,7 +261,7 @@ namespace Rynex {
 			RY_CORE_ASSERT("Not Found Source Asset!");
 			return;
 		}
-		uint32_t count = source->m_VABvec.size();
+		uint32_t count = source->m_VABVec.size();
 		uint32_t i = m_ModelLocaleIndex < count ? m_ModelLocaleIndex : 0;
 		RY_CORE_ASSERT(i < count || count == 1, "unexpected Source ShaderArray Count not 1 not anyhing higer then SingleMesh LocaleIndex!");
 		
@@ -270,10 +270,10 @@ namespace Rynex {
 		m_DepthVIB = source->GetDepthIndexBuffer(i);
 
 		const std::vector<Mesh::PerDrawObject>& shadeIndrectPDOVec = source->GetPerDrawObjectsShadeVec();
-		SetupPDOIndrect(shadeIndrectPDOVec, m_ShadePDOIndrect);
+		SetupPDOIndrect(shadeIndrectPDOVec, m_ShadePDOIndirect);
 
 		const std::vector<Mesh::PerDrawObject>& depthIndrectPDOVec = source->GetPerDrawObjectsDepthVec();
-		SetupPDOIndrect(depthIndrectPDOVec, m_DepthPDOIndrect);
+		SetupPDOIndrect(depthIndrectPDOVec, m_DepthPDOIndirect);
 
 	}
 
@@ -290,34 +290,34 @@ namespace Rynex {
 	{
 		const Mesh::PerDrawObject& indrectPDO = indrectPDOVec.at(m_ModelLocaleIndex);
 
-		pdoIndrect.Count = indrectPDO.Count;
-		pdoIndrect.InstancesCount = 1;
-		pdoIndrect.FirstIndex = indrectPDO.FirstIndex;
-		pdoIndrect.BaseVertex = indrectPDO.BaseVertex;
-		pdoIndrect.BaseInstance = 0;
+		pdoIndrect.m_Count = indrectPDO.m_Count;
+		pdoIndrect.m_InstancesCount = 1;
+		pdoIndrect.m_FirstIndex = indrectPDO.m_FirstIndex;
+		pdoIndrect.m_BaseVertex = indrectPDO.m_BaseVertex;
+		pdoIndrect.m_BaseInstance = 0;
 	}
 
 
 	bool SingleMeshObject::operator==(const SingleMeshObject& object) const
 	{
-		bool resultMateriel = object._Material == this->_Material;
-		bool resultMesh = object._MeshSingle == this->_MeshSingle;
+		bool resultMateriel = object.m_Material == this->m_Material;
+		bool resultMesh = object.m_MeshSingle == this->m_MeshSingle;
 
 		return resultMateriel && resultMesh;
 	}
 
 	bool SingleMeshObject::operator!=(const SingleMeshObject& object) const
 	{
-		bool resultMateriel = object._Material != this->_Material;
-		bool resultMesh = object._MeshSingle != this->_MeshSingle;
+		bool resultMateriel = object.m_Material != this->m_Material;
+		bool resultMesh = object.m_MeshSingle != this->m_MeshSingle;
 
 		return resultMateriel || resultMesh;
 	}
 
 	uint64_t SingleMeshObject::GetUUID() const
 	{
-		uint64_t hashMateriel = std::hash<Ref<Material>>{}(_Material);
-		uint64_t hashMesh = std::hash<Ref<MeshSingle>>{}(_MeshSingle);
+		uint64_t hashMateriel = std::hash<Ref<Material>>{}(m_Material);
+		uint64_t hashMesh = std::hash<Ref<MeshSingle>>{}(m_MeshSingle);
 		uint64_t hash = hashMateriel ^ (hashMesh << 1);
 		return hash;
 	}

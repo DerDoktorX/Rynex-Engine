@@ -3,49 +3,49 @@
 
 namespace Rynex {
 
-	std::array<glm::vec4, 8> SceneCamera::m_ViewFustrum = {
+	std::array<glm::vec4, 8> SceneCamera::m_ViewFrustumEdges = {
 		glm::vec4(-1.0f, -1.0f, -1.0f, 1.0f), // nbl = near, bottem, left
 		glm::vec4(-1.0f,  1.0f, -1.0f, 1.0f), // ntl = near, top, left
-		glm::vec4( 1.0f, -1.0f, -1.0f, 1.0f), // nbr = near, bottem, rigth
-		glm::vec4( 1.0f,  1.0f, -1.0f, 1.0f), // ntr = near, top, rigth
+		glm::vec4( 1.0f, -1.0f, -1.0f, 1.0f), // nbr = near, bottem, right
+		glm::vec4( 1.0f,  1.0f, -1.0f, 1.0f), // ntr = near, top, right
 
 		glm::vec4(-1.0f, -1.0f,  1.0f, 1.0f), // fbl = far, bottem, left
 		glm::vec4(-1.0f,  1.0f,  1.0f, 1.0f), // ftl = far, top, left
-		glm::vec4( 1.0f, -1.0f,  1.0f, 1.0f), // fbr = far, bottem, rigth
-		glm::vec4( 1.0f,  1.0f,  1.0f, 1.0f), // ftr = far, top, rigth
+		glm::vec4( 1.0f, -1.0f,  1.0f, 1.0f), // fbr = far, bottem, right
+		glm::vec4( 1.0f,  1.0f,  1.0f, 1.0f), // ftr = far, top, right
 	};
 
 	SceneCamera::SceneCamera()
 	{
-		RecalulateProjection();
+		RecalculateProjection();
 		
 	}
 
-	void SceneCamera::SetOrthoGrafic(float sizen, float nearClip, float farClip)
+	void SceneCamera::SetOrthoGraphic(float sizen, float nearClip, float farClip)
 	{
-		m_ProjektionType = ProjectionType::Orthographic;
-		m_OrthoGraficSizen	= sizen;
-		m_OrthoGraficNear	= nearClip;
-		m_OrthoGraficFar	= farClip;
+		m_ProjectionType = ProjectionType::Orthographic;
+		m_OrthographicSize	= sizen;
+		m_OrthographicNear	= nearClip;
+		m_OrthographicFar	= farClip;
 
-		RecalulateProjection();
+		RecalculateProjection();
 	}
 
-	void SceneCamera::SetPerspectiv(float verticleFOV, float nearClip, float farClip)
+	void SceneCamera::SetPerspective(float verticleFOV, float nearClip, float farClip)
 	{
-		m_ProjektionType = ProjectionType::Perspectiv;
-		m_PerspectivFOV = verticleFOV;
-		m_PerspectivNear = nearClip;
-		m_PerspectivFar = farClip;
+		m_ProjectionType = ProjectionType::Perspective;
+		m_PerspectiveFOV = verticleFOV;
+		m_PerspectiveNear = nearClip;
+		m_PerspectiveFar = farClip;
 
-		RecalulateProjection();
+		RecalculateProjection();
 	}
 
-	void SceneCamera::SetViewPortSize(uint32_t withe, uint32_t heigth)
+	void SceneCamera::SetViewPortSize(uint32_t withe, uint32_t height)
 	{
-		m_AspectRotatio = static_cast<float>(withe) / static_cast<float>(heigth);
-		m_ViewAsspect = { static_cast<int>(withe), static_cast<int>(heigth) };
-		RecalulateProjection();
+		m_AspectRotation = static_cast<float>(withe) / static_cast<float>(height);
+		m_ViewAspect = { static_cast<int>(withe), static_cast<int>(height) };
+		RecalculateProjection();
 	}
 
 	
@@ -54,20 +54,20 @@ namespace Rynex {
 	glm::vec4 SceneCamera::GetWorldCameraCenter(const glm::mat4& view) const
 	{
 		float nearPlane, farPlane;
-		switch (m_ProjektionType)
+		switch (m_ProjectionType)
 		{
-		case ProjectionType::Perspectiv:
+		case ProjectionType::Perspective:
 		{
-			farPlane = m_PerspectivFar;
-			nearPlane = m_PerspectivNear;
+			farPlane = m_PerspectiveFar;
+			nearPlane = m_PerspectiveNear;
 			break;
 		}
 			
 		case  ProjectionType::Orthographic:
 		{
 			
-			farPlane = m_OrthoGraficFar;
-			nearPlane = m_OrthoGraficNear;
+			farPlane = m_OrthographicFar;
+			nearPlane = m_OrthographicNear;
 			break;
 		}
 			
@@ -82,20 +82,20 @@ namespace Rynex {
 	glm::vec4 SceneCamera::GetWorldCameraCenterMax(const glm::mat4& view, float max) const
 	{
 		float nearPlane, farPlane;
-		switch (m_ProjektionType)
+		switch (m_ProjectionType)
 		{
-		case ProjectionType::Perspectiv:
+		case ProjectionType::Perspective:
 		{
-			farPlane = m_PerspectivFar;
-			nearPlane = m_PerspectivNear;
+			farPlane = m_PerspectiveFar;
+			nearPlane = m_PerspectiveNear;
 			break;
 		}
 
 		case  ProjectionType::Orthographic:
 		{
 
-			farPlane = m_OrthoGraficFar;
-			nearPlane = m_OrthoGraficNear;
+			farPlane = m_OrthographicFar;
+			nearPlane = m_OrthographicNear;
 			break;
 		}
 
@@ -110,20 +110,20 @@ namespace Rynex {
 	glm::vec4 SceneCamera::GetWorldCameraCenterMin(const glm::mat4& view, float min) const
 	{
 		float nearPlane, farPlane;
-		switch (m_ProjektionType)
+		switch (m_ProjectionType)
 		{
-		case ProjectionType::Perspectiv:
+		case ProjectionType::Perspective:
 		{
-			farPlane = m_PerspectivFar;
-			nearPlane = m_PerspectivNear;
+			farPlane = m_PerspectiveFar;
+			nearPlane = m_PerspectiveNear;
 			break;
 		}
 
 		case  ProjectionType::Orthographic:
 		{
 
-			farPlane = m_OrthoGraficFar;
-			nearPlane = m_OrthoGraficNear;
+			farPlane = m_OrthographicFar;
+			nearPlane = m_OrthographicNear;
 			break;
 		}
 
@@ -136,18 +136,18 @@ namespace Rynex {
 	}
 
 
-	std::array<glm::vec4, 8> SceneCamera::GetViewFustrumWorld(const glm::mat4& view) const
+	std::array<glm::vec4, 8> SceneCamera::GetViewFrustumWorld(const glm::mat4& view) const
 	{
-		std::array<glm::vec4, 8> viewFustremWorld = m_ViewFustrum;
+		std::array<glm::vec4, 8> viewFustremWorld = m_ViewFrustumEdges;
 		glm::mat4 VP = glm::inverse(m_Projektion * view);
 		for (auto& fust : viewFustremWorld)
 			fust = VP * fust;
 		return viewFustremWorld;
 	}
 
-	float SceneCamera::GetWorldViewFustrumRaidus(const glm::mat4& view)
+	float SceneCamera::GetWorldViewFrustumRadius(const glm::mat4& view)
 	{
-		std::array<glm::vec4, 8> viewFustrum = SceneCamera::GetInverseViewProjetionFustrumWorld(view);
+		std::array<glm::vec4, 8> viewFustrum = SceneCamera::GetInverseViewProjectionFrustumWorld(view);
 		float radius = 0.0f;
 		for (glm::vec4& pos : viewFustrum)
 		{
@@ -161,32 +161,32 @@ namespace Rynex {
 		return radius;
 	}
 
-	std::array<glm::vec4, 8> SceneCamera::GetViewFustrumWorld(const glm::mat4& view, const glm::mat4& projetion)
+	std::array<glm::vec4, 8> SceneCamera::GetViewFrustumWorld(const glm::mat4& view, const glm::mat4& projetion)
 	{
-		std::array<glm::vec4, 8> viewFustremWorld = m_ViewFustrum;
+		std::array<glm::vec4, 8> viewFustremWorld = m_ViewFrustumEdges;
 		glm::mat4 iVP = glm::inverse(projetion * view);
-		return GetInverseViewProjetionFustrumWorld(iVP);
+		return GetInverseViewProjectionFrustumWorld(iVP);
 	}
 
-	std::array<glm::vec4, 8> SceneCamera::GetViewProjetionFustrumWorld(const glm::mat4& viewProjetion)
+	std::array<glm::vec4, 8> SceneCamera::GetViewProjectionFrustumWorld(const glm::mat4& viewProjetion)
 	{
 		glm::mat4 iVP = glm::inverse(viewProjetion);
-		return GetInverseViewProjetionFustrumWorld(iVP);
+		return GetInverseViewProjectionFrustumWorld(iVP);
 	}
 
-	std::array<glm::vec4, 8> SceneCamera::GetInverseViewProjetionFustrumWorld(const glm::mat4& inverseViewProjetion)
+	std::array<glm::vec4, 8> SceneCamera::GetInverseViewProjectionFrustumWorld(const glm::mat4& inverseViewProjetion)
 	{
-		std::array<glm::vec4, 8> viewFustremWorld = m_ViewFustrum;
+		std::array<glm::vec4, 8> viewFustremWorld = m_ViewFrustumEdges;
 		for (glm::vec4& fust : viewFustremWorld)
 			fust = inverseViewProjetion * fust;
 		return viewFustremWorld;
 	}
 
-	std::pair<glm::vec3, glm::vec3> SceneCamera::GetMinMaxViewFustrumInSpace(const glm::mat4& spaceMatrix)
+	std::pair<glm::vec3, glm::vec3> SceneCamera::GetMinMaxViewFrustumInSpace(const glm::mat4& spaceMatrix)
 	{
 		glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());
 		glm::vec3 max = glm::vec3(std::numeric_limits<float>::lowest());
-		for (glm::vec4& fust : m_ViewFustrum)
+		for (glm::vec4& fust : m_ViewFrustumEdges)
 		{
 			fust = spaceMatrix * fust;
 			glm::vec3 pos = glm::vec3(fust) / fust.w;
@@ -196,11 +196,11 @@ namespace Rynex {
 		return std::pair<glm::vec3, glm::vec3>(min, max);
 	}
 
-	std::pair<glm::vec3, glm::vec3> SceneCamera::GetMinMaxViewFustrumInSpace(const glm::mat4& spaceMatrix, const std::array<glm::vec4, 8>& trasformtViewFustrum)
+	std::pair<glm::vec3, glm::vec3> SceneCamera::GetMinMaxViewFrustumInSpace(const glm::mat4& spaceMatrix, const std::array<glm::vec4, 8>& transformViewFrustum)
 	{
 		glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());
 		glm::vec3 max = glm::vec3(std::numeric_limits<float>::lowest());
-		for (const glm::vec4& fust : trasformtViewFustrum)
+		for (const glm::vec4& fust : transformViewFrustum)
 		{
 			glm::vec4 pos4 = spaceMatrix * fust;
 			glm::vec3 pos3 = glm::vec3(pos4 / pos4.w) ;
@@ -216,24 +216,24 @@ namespace Rynex {
 		return glm::lookAt(center - direction, center, up);
 	}
 
-	void SceneCamera::RecalulateProjection()
+	void SceneCamera::RecalculateProjection()
 	{
 		
-		if(m_ProjektionType == ProjectionType::Perspectiv)
+		if(m_ProjectionType == ProjectionType::Perspective)
 		{			
-			m_Projektion = glm::perspective(m_PerspectivFOV, m_AspectRotatio, m_PerspectivNear, m_PerspectivFar);
+			m_Projektion = glm::perspective(m_PerspectiveFOV, m_AspectRotation, m_PerspectiveNear, m_PerspectiveFar);
 		}
 		else
 		{
-			float orthoLeft = -m_OrthoGraficSizen * m_AspectRotatio * 0.5f;
-			float orthoRigth = m_OrthoGraficSizen * m_AspectRotatio * 0.5f;
-			float orthoBottem = -m_OrthoGraficSizen * 0.5f;
-			float orthoTop = m_OrthoGraficSizen * 0.5f;
+			float orthoLeft = -m_OrthographicSize * m_AspectRotation * 0.5f;
+			float orthoRigth = m_OrthographicSize * m_AspectRotation * 0.5f;
+			float orthoBottem = -m_OrthographicSize * 0.5f;
+			float orthoTop = m_OrthographicSize * 0.5f;
 
 			m_Projektion = glm::ortho(
 				orthoLeft, orthoRigth,
 				orthoBottem, orthoTop,
-				m_OrthoGraficNear, m_OrthoGraficFar
+				m_OrthographicNear, m_OrthographicFar
 			);
 		}
 

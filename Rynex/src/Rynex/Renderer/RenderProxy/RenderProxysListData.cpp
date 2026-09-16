@@ -26,7 +26,7 @@ namespace Rynex {
             auto& renderProxyVec = m_ProxyRef.m_RenderProxyArrayVec.at(RenderProxysListData::EventData);
 
 
-            m_ProxyRef.m_RenderProxyMapEntity.AddProxyIndexToMap(proxy.entity, proxy.subMesh, proxyIndex, proxy.GetKey(), renderProxyVec);
+            m_ProxyRef.m_RenderProxyMapEntity.AddProxyIndexToMap(proxy.m_Entity, proxy.m_SubMesh, proxyIndex, proxy.GetKey(), renderProxyVec);
 
             m_ProxyRef.m_HasChagedMain.at(RenderProxysListData::StateEvent) = true;
             m_ProxyRef.m_HasChagedCurent.at(RenderProxysListData::StateEvent) = true;
@@ -270,11 +270,11 @@ namespace Rynex {
         auto& renderProxyVec = m_RenderProxyArrayVec.at(EventData);
 
         RenderProxy& proxy = renderProxyVec.AtProxy(renderProxyKey, proxyIndex);
-        RY_CORE_ASSERT(proxy.entity == entity, "We update the whrong Enity in the Proxy!");
-        RY_CORE_ASSERT(proxy.subMesh == subMesh, "We update the whrong SubMesh in the Proxy!");
+        RY_CORE_ASSERT(proxy.m_Entity == entity, "We update the whrong Enity in the Proxy!");
+        RY_CORE_ASSERT(proxy.m_SubMesh == subMesh, "We update the whrong SubMesh in the Proxy!");
         proxy.Check();
 
-        proxy.model = matrix;
+        proxy.m_Model = matrix;
     }
 
     void RenderProxysListData::RemoveProxy(int entity, uint32_t subMesh, uint32_t proxyIndex, RenderProxyKey renderProxyKey)
@@ -288,7 +288,7 @@ namespace Rynex {
             const RenderProxy& proxy = renderProxyVec.AtProxy(renderProxyKey, proxyIndex);
             proxy.Check();
 
-            if (proxy.entity != entity || proxy.subMesh != subMesh)
+            if (proxy.m_Entity != entity || proxy.m_SubMesh != subMesh)
             {
                 std::pair<RenderProxyKey, uint32_t> pair = renderProxyVec.FindeProxy( entity, subMesh);
                 RenderProxyKey key = pair.first;
@@ -296,8 +296,8 @@ namespace Rynex {
                 RY_CORE_ERROR("Whrong index, expextedt index Pos {} but actuely its {}", proxyIndex, index);
 
                 const RenderProxy& proxy2 = renderProxyVec.AtProxy(key, index);
-                RY_CORE_ASSERT(proxy2.entity == entity, "We remove the whrong Enity in the Proxy!");
-                RY_CORE_ASSERT(proxy2.subMesh == subMesh, "We remove the whrong SubMesh in the Proxy!");
+                RY_CORE_ASSERT(proxy2.m_Entity == entity, "We remove the whrong Enity in the Proxy!");
+                RY_CORE_ASSERT(proxy2.m_SubMesh == subMesh, "We remove the whrong SubMesh in the Proxy!");
                 renderProxyVec.Remove(index, key);
 
                 return;
@@ -313,7 +313,7 @@ namespace Rynex {
             const RenderProxy& proxy = renderProxyVec.AtProxy(renderProxyKey, proxyIndex);
             proxy.Check();
 
-            if (proxy.entity != entity || proxy.subMesh != subMesh)
+            if (proxy.m_Entity != entity || proxy.m_SubMesh != subMesh)
             {
                 std::pair<RenderProxyKey, uint32_t> pair = renderProxyVec.FindeProxy( entity, subMesh);
                 RenderProxyKey key = pair.first;
@@ -322,8 +322,8 @@ namespace Rynex {
                 RY_CORE_ERROR("Whrong index, expextedt index Pos {} but actuely its {}", proxyIndex, index);
 
                 const RenderProxy& proxy2 = renderProxyVec.AtProxy(key, index);
-                RY_CORE_ASSERT(proxy2.entity == entity, "We remove the whrong Enity in the Proxy!");
-                RY_CORE_ASSERT(proxy2.subMesh == subMesh, "We remove the whrong SubMesh in the Proxy!");
+                RY_CORE_ASSERT(proxy2.m_Entity == entity, "We remove the whrong Enity in the Proxy!");
+                RY_CORE_ASSERT(proxy2.m_SubMesh == subMesh, "We remove the whrong SubMesh in the Proxy!");
                 renderProxyVec.Remove(index, key);
 
                 return;
@@ -335,8 +335,8 @@ namespace Rynex {
         else
         {
             const RenderProxy& proxy = renderProxyVec.AtProxy(renderProxyKey, proxyIndex);
-            RY_CORE_ASSERT(proxy.entity == entity, "We remove the whrong Enity in the Proxy!");
-            RY_CORE_ASSERT(proxy.subMesh == subMesh, "We remove the whrong SubMesh in the Proxy!");
+            RY_CORE_ASSERT(proxy.m_Entity == entity, "We remove the whrong Enity in the Proxy!");
+            RY_CORE_ASSERT(proxy.m_SubMesh == subMesh, "We remove the whrong SubMesh in the Proxy!");
             proxy.Check();
 
             renderProxyVec.Remove(proxyIndex, renderProxyKey);

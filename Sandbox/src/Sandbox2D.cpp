@@ -23,16 +23,16 @@ Sandbox2D::Sandbox2D()
 
 void Sandbox2D::OnAttach()
 {
-	Rynex::Window* window = &Rynex::Application::Get().GetWindow();
-	m_ViewPortSize = { window->GetWidth() ,window->GetHeight()};
-	m_WindowPos = { window->GetPosX() ,window->GetPosY() };
-	m_MousePos = { window->GetMousePosX() ,window->GetMousePosY() };
+	Rynex::Window& window = Rynex::Application::Get().GetWindow();
+	m_ViewPortSize = { window.GetWidth() ,window.GetHeight()};
+	m_WindowPos = { window.GetPosX() ,window.GetPosY() };
+	m_MousePos = { window.GetMousePosX() ,window.GetMousePosY() };
     m_AktiveScene = Rynex::CreateRef<Rynex::Scene>();
 
-	auto cLA = Rynex::Application::Get().GetSpecification().CommandLineArgs;
-	if (cLA.Count > 1)
+	auto commandLineArgs = Rynex::Application::Get().GetSpecification().CommandLineArgs;
+	if (commandLineArgs.Count > 1)
 	{
-		auto projFilePath = cLA[1];
+		auto projFilePath = commandLineArgs[1];
 		if (Rynex::Project::Load(projFilePath))
 		{
 #if defined(RY_SCRIPTING_ENGINE)
@@ -42,7 +42,7 @@ void Sandbox2D::OnAttach()
 			if (!Rynex::Renderer::IsInit())
 				Rynex::Renderer::Init();
 
-			std::filesystem::path startScene = Rynex::Project::GetActive()->GetConfig().StartScene;
+			std::filesystem::path startScene = Rynex::Project::GetActive()->GetConfig().m_StartScene;
 			m_Project = Rynex::Project::GetActive();
 			m_AssetManger = m_Project->GetRuntimeAssetManger();
 			if (startScene.string() != "")
@@ -55,10 +55,18 @@ void Sandbox2D::OnAttach()
 	else
 	{
 		std::filesystem::path filepath = "";
+	    constexpr uint32_t MAX_TRY_COUNT = 3u;
+	    uint32_t i = 0u;
 		do
 		{
 			filepath = Rynex::FileDialoges::OpenFile("Rynex Project (*.ryproj)\0*.ryproj\0");
-		} while (filepath == "");
+		    i++;
+		} while (filepath.empty() && i < MAX_TRY_COUNT);
+
+	    if (filepath.empty())
+	    {
+	        return;
+	    }
 
 		if (Rynex::Project::Load(filepath))
 		{
@@ -69,7 +77,7 @@ void Sandbox2D::OnAttach()
 			if (!Rynex::Renderer::IsInit())
 				Rynex::Renderer::Init();
 
-			std::filesystem::path startScene = Rynex::Project::GetActive()->GetConfig().StartScene;
+			std::filesystem::path startScene = Rynex::Project::GetActive()->GetConfig().m_StartScene;
 			m_Project = Rynex::Project::GetActive();
 			m_AssetManger = m_Project->GetRuntimeAssetManger();
 			if (startScene.string() != "")
@@ -141,14 +149,14 @@ void Sandbox2D::OnAttach()
 	{
 		Rynex::Entity cameraE = m_AktiveScene->CreateEntity("Camera");
 		Rynex::CameraComponent cameraC = cameraE.AddComponent<Rynex::CameraComponent>();
-		cameraC.Primary = true;
-		cameraC.FixedAspectRotaion = false;
-		cameraC.Camera.SetProjectionType(Rynex::SceneCamera::ProjectionType::Orthographic);
+		cameraC.m_Primary = true;
+		cameraC.m_FixedAspectRotation = false;
+		cameraC.m_Camera.SetProjectionType(Rynex::SceneCamera::ProjectionType::Orthographic);
 		if (!cameraE.HasComponent<Rynex::TransformComponent>())
 			cameraE.AddComponent<Rynex::TransformComponent>();
 		Rynex::TransformComponent& transformC = cameraE.GetComponent<Rynex::TransformComponent>();
-		transformC.Transaltion = { -0.0f, 0.0f, 0.0f };
-		transformC.Scale = { 1.0f, 1.0f, 1.0f };
+		transformC.m_Transform = { -0.0f, 0.0f, 0.0f };
+		transformC.m_Scale = { 1.0f, 1.0f, 1.0f };
 
 
 		if (!cameraE.HasComponent<Rynex::TransformComponent>())
@@ -167,12 +175,12 @@ void Sandbox2D::OnAttach()
 	{
 		Rynex::Entity entityE = m_AktiveScene->CreateEntity("Entity");
 		Rynex::SpriteRendererComponent& spriteC = entityE.AddComponent<Rynex::SpriteRendererComponent>();
-		spriteC.Color = { 0.8f, 0.2f, 0.3f, 1.0f };
+		spriteC.m_Color = { 0.8f, 0.2f, 0.3f, 1.0f };
 		if (!entityE.HasComponent<Rynex::TransformComponent>())
 			entityE.AddComponent<Rynex::TransformComponent>();
 		Rynex::TransformComponent& transformC = entityE.GetComponent<Rynex::TransformComponent>();
-		transformC.Transaltion = { -1.0f, 0.0f, 0.5f };
-		transformC.Scale = { 0.8f, 0.8f, 1.0f };
+		transformC.m_Transform = { -1.0f, 0.0f, 0.5f };
+		transformC.m_Scale = { 0.8f, 0.8f, 1.0f };
 
 		if (!entityE.HasComponent<Rynex::TransformComponent>())
 			entityE.AddComponent<Rynex::TransformComponent>();
@@ -184,12 +192,12 @@ void Sandbox2D::OnAttach()
 	{
 		Rynex::Entity entityE = m_AktiveScene->CreateEntity("Entity");
 		Rynex::SpriteRendererComponent& spriteC = entityE.AddComponent<Rynex::SpriteRendererComponent>();
-		spriteC.Color = { 0.2f, 0.3f, 0.8f, 1.0f };
+		spriteC.m_Color = { 0.2f, 0.3f, 0.8f, 1.0f };
 		if (!entityE.HasComponent<Rynex::TransformComponent>())
 			entityE.AddComponent<Rynex::TransformComponent>();
 		Rynex::TransformComponent& transformC = entityE.GetComponent<Rynex::TransformComponent>();
-		transformC.Transaltion = { 0.5f, 0.5f, 0.5f };
-		transformC.Scale = { 0.5f, 0.75f, 1.0f };
+		transformC.m_Transform = { 0.5f, 0.5f, 0.5f };
+		transformC.m_Scale = { 0.5f, 0.75f, 1.0f };
 		
 		if (!entityE.HasComponent<Rynex::TransformComponent>())
 			entityE.AddComponent<Rynex::TransformComponent>();
@@ -201,13 +209,13 @@ void Sandbox2D::OnAttach()
 	{
 		Rynex::Entity entityE = m_AktiveScene->CreateEntity("Entity");
 		Rynex::SpriteRendererComponent& spriteC = entityE.AddComponent<Rynex::SpriteRendererComponent>();
-		spriteC.Texture = Rynex::TextureImporter::LoadTexture("Engine-Resources/Editor-Assets/textures/Checkerboard.png");
-		spriteC.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		spriteC.m_Texture = Rynex::TextureImporter::LoadTexture("Engine-Resources/Editor-Assets/textures/Checkerboard.png");
+		spriteC.m_Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 		if (!entityE.HasComponent<Rynex::TransformComponent>())
 			entityE.AddComponent<Rynex::TransformComponent>();
 		Rynex::TransformComponent& transformC = entityE.GetComponent<Rynex::TransformComponent>();
-		transformC.Transaltion = { 0.0f, 0.0f,-0.1f };
-		transformC.Scale = { 10.0f, 10.0f, 1.0f };
+		transformC.m_Transform = { 0.0f, 0.0f,-0.1f };
+		transformC.m_Scale = { 10.0f, 10.0f, 1.0f };
 
 		if (!entityE.HasComponent<Rynex::TransformComponent>())
 			entityE.AddComponent<Rynex::TransformComponent>();
@@ -225,12 +233,12 @@ void Sandbox2D::OnAttach()
 
 			Rynex::Entity entityE = m_AktiveScene->CreateEntity("Entity");
 			Rynex::SpriteRendererComponent& spriteC = entityE.AddComponent<Rynex::SpriteRendererComponent>();
-			spriteC.Color = { (x + 5.0f) / 10.0f, 0.4f, (y + 5.0f) / 10.0f, 0.5f };
+			spriteC.m_Color = { (x + 5.0f) / 10.0f, 0.4f, (y + 5.0f) / 10.0f, 0.5f };
 			if (!entityE.HasComponent<Rynex::TransformComponent>())
 				entityE.AddComponent<Rynex::TransformComponent>();
 			Rynex::TransformComponent& transformC = entityE.GetComponent<Rynex::TransformComponent>();
-			transformC.Transaltion = { x, y, 0.0f };
-			transformC.Scale = { 0.45f, 0.45f, 1.0f };
+			transformC.m_Transform = { x, y, 0.0f };
+			transformC.m_Scale = { 0.45f, 0.45f, 1.0f };
 
 			if (!entityE.HasComponent<Rynex::TransformComponent>())
 				entityE.AddComponent<Rynex::TransformComponent>();
@@ -265,7 +273,7 @@ void Sandbox2D::OnDetach()
 #endif
 	if (Rynex::Renderer::IsInit())
 		Rynex::Renderer::Shutdown();
-	Rynex::Project::ShutDown();
+	Rynex::Project::Shutdown();
 	RY_DESTROY_REF(m_Project);
 
 	RY_WARN("Sandbox2D::OnDetach!");

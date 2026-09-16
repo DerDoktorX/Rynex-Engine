@@ -65,8 +65,8 @@ namespace Rynex {
 
 		Linear,
 		Nearest,
-		LinearMidmapLinear,
-		LinearMidmapNearest,
+		LinearMidMapLinear,
+		LinearMidMapNearest,    // LinearMidMapNearest
 	};
 
 	enum class TextureCompareModes : uint8_t
@@ -88,14 +88,14 @@ namespace Rynex {
 		None = 0,
 		Default = 1,
 
-		Repeate,
-		MirrorRepeate,
+		Repeat,
+		MirrorRepeat,  // MirrorRepeat
 		ClampEdge,
 		ClampBorder,
 		MirrorClampEdge
 	};
 
-	enum class Acces : uint8_t
+	enum class Access : uint8_t
 	{
 		None = 0,
 		Default = 1,
@@ -131,7 +131,7 @@ namespace Rynex {
 			}
 		}
 
-		TextureWrappingMode& operator[](int index)
+		TextureWrappingMode& operator[](const int index)
 		{
 			switch (index)
 			{
@@ -144,12 +144,12 @@ namespace Rynex {
 			}
 		}
 
-		bool operator ==(TextureWrappingSpecification textureWrappingSpecification) const
+		bool operator ==(const TextureWrappingSpecification textureWrappingSpecification) const
 		{
 			return (textureWrappingSpecification.R == R) && (textureWrappingSpecification.S == S) && (textureWrappingSpecification.T == T);
 		}
 
-		bool operator !=(TextureWrappingSpecification textureWrappingSpecification) const
+		bool operator !=(const TextureWrappingSpecification textureWrappingSpecification) const
 		{
 			return (textureWrappingSpecification.R != R) || (textureWrappingSpecification.S != S) || (textureWrappingSpecification.T != T);
 		}
@@ -164,9 +164,9 @@ namespace Rynex {
 		
 		uint32_t Samples = 1u;
 		TextureFilteringMode FilteringMode = TextureFilteringMode::Nearest;
-		TextureWrappingSpecification WrappingSpec = {
-			TextureWrappingMode::Repeate,
-			TextureWrappingMode::Repeate,
+		TextureWrappingSpecification WrappingSpec{
+			TextureWrappingMode::Repeat,
+			TextureWrappingMode::Repeat,
 		};
 		TextureCompareModes Compare = TextureCompareModes::None;
 		uint32_t GenerateMips = 0u;
@@ -198,7 +198,7 @@ namespace Rynex {
 				|| GenerateMips != spec.GenerateMips;
 		}
 
-		bool IsEqualWitheOutTexturTarget(const TextureSpecification& spec)const
+		bool IsEqualWitheOutTextureTarget(const TextureSpecification& spec)const
 		{
 			return Width == spec.Width
 				&& Height == spec.Height
@@ -224,7 +224,7 @@ namespace Rynex {
 		
 		static Ref<Texture> White();
 		static void Shutdown();
-		virtual ~Texture() {};
+		virtual ~Texture() = default;
 
 		virtual const TextureSpecification& GetSpecification() const = 0;
 
@@ -243,16 +243,16 @@ namespace Rynex {
 		
 		virtual bool IsBindLessTexActiv() const = 0;
 
-		virtual bool IsTransferd() = 0;
+		virtual bool IsTransfer() = 0;//IsTransfer
 
 		virtual void Bind(uint32_t slot = 0) const = 0;
-		virtual void BindImage(Acces acces,uint32_t slot = 0) const = 0;
+		virtual void BindImage(Access access,uint32_t slot = 0) const = 0;
 		virtual void UnBind(uint32_t slot = 0) const = 0;
-		virtual void UnBindImage(Acces acces, uint32_t slot = 0) const = 0;
+		virtual void UnBindImage(Access access, uint32_t slot = 0) const = 0;
 		
 		virtual void BindLessTex() = 0;
 		virtual void UnBindLessTex() = 0;
-		virtual uint64_t GetBindlesHandle() const = 0;
+		virtual uint64_t GetBindlessHandle() const = 0;// GetBindlessHandle
 
 		virtual void Resize1D(uint32_t width) = 0;
 		virtual void Resize2D(uint32_t width, uint32_t height) = 0;
@@ -262,7 +262,7 @@ namespace Rynex {
 		virtual bool operator==(const Texture& other) const = 0;
 
 		static AssetType GetStaticType() { return AssetType::Texture; }
-		AssetType GetType() const { return GetStaticType(); }
+		AssetType GetType() const override { return GetStaticType(); }
 	};
 	
 
@@ -272,32 +272,32 @@ namespace Rynex {
 		static Ref<LinkedTextureArray> Create(TextureSpecification spec);
 		virtual ~LinkedTextureArray() {};
 
-		virtual const TextureSpecification& GetVaildTextureSpecification() const = 0;
+		virtual const TextureSpecification& GetValidTextureSpecification() const = 0;
 
-		virtual uint32_t GetVaildTextureWidth() const = 0;
-		virtual uint32_t GetVaildTextureHeight() const = 0;
-		virtual uint32_t GetVaildTextureDepth() const = 0;
+		virtual uint32_t GetValidTextureWidth() const = 0;
+		virtual uint32_t GetValidTextureHeight() const = 0;
+		virtual uint32_t GetValidTextureDepth() const = 0;
 		virtual uint32_t GetRenderID() const = 0;
 
-		virtual bool IsTransferd() = 0;
+		virtual bool IsTransfer() = 0;
 
 		virtual void Bind(uint32_t slot = 0) const = 0;
-		virtual void BindImage(Acces acces, uint32_t slot = 0) const = 0;
+		virtual void BindImage(Access access, uint32_t slot = 0) const = 0;
 		virtual void UnBind(uint32_t slot = 0) const = 0;
-		virtual void UnBindImage(Acces acces, uint32_t slot = 0) const = 0;
+		virtual void UnBindImage(Access access, uint32_t slot = 0) const = 0;
 
 
-		virtual void SetTextureToArray(int index, const Ref<Texture>& texture, bool instandGPUploade = false) = 0;
-		virtual void SetTextureToArray(int index, std::nullptr_t, bool instandGPUploade = false) = 0;
+		virtual void SetTextureToArray(int index, const Ref<Texture>& texture, bool instantlyGPUploade = false) = 0;
+		virtual void SetTextureToArray(int index, std::nullptr_t, bool instantlyGPUploade = false) = 0;
 
 		virtual Ref<Texture> GetTextureToArray(int index) = 0;
-		virtual void ResizeTextureArray(int size, bool instandGPUploade = false) = 0;
+		virtual void ResizeTextureArray(int size, bool instantlyGPUploade = false) = 0;
 
 		virtual const std::vector<Weak<Texture>>& GetTextureVec() const = 0;
 		virtual uint32_t GetTextureCount() const = 0;
 		virtual void ClearTextures() = 0;
 
-		virtual bool IsDataRaydyOnGPU() const = 0;
+		virtual bool IsDataReadyOnGPU() const = 0;
 		virtual void UpdateDataGPU() = 0;
 
 		virtual void ResizeDimensions1D(uint32_t width) = 0;
@@ -308,7 +308,7 @@ namespace Rynex {
 		virtual bool operator==(const LinkedTextureArray& other) const = 0;
 
 		static AssetType GetStaticType() { return AssetType::LinkedTextureArray; }
-		AssetType GetType() const { return GetStaticType(); }
+		AssetType GetType() const override { return GetStaticType(); }
 	};
 
 

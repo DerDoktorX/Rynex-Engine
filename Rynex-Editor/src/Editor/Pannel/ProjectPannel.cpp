@@ -139,7 +139,7 @@ namespace Rynex {
                         AssetMetadata metadata = editorAssetManager->GetMetadata(*(AssetHandle*)payload->Data);
 #endif
                         
-                        const std::filesystem::path& path = metadata.FilePath;
+                        const std::filesystem::path& path = metadata.m_FilePath;
                         std::string pathStr = path.string();
                         value = pathStr.c_str();
                         result = true;
@@ -314,14 +314,14 @@ namespace Rynex {
     {
         m_CurentProject = Project::GetActive();
         auto& config = m_CurentProject->GetConfig();
-        m_StartScene = config.StartScene.string();
-        m_ProjectName = config.name;
-        m_ProjectDir = config.ProjectPath.string();
-        m_ProjectFile = (config.ProjectPath / config.name).string();
-        m_ScriptCorePath = config.ScriptCorePath.string();
-        m_ScriptAppPath = config.ScriptAppPath.string();
-        m_AssetPath = config.AssetDirectory.string();
-        m_AssetRegeistry = config.AssetRegistryPath.string();        
+        m_StartScene = config.m_StartScene.string();
+        m_ProjectName = config.m_Name;
+        m_ProjectDir = config.m_ProjectPath.string();
+        m_ProjectFile = (config.m_ProjectPath / config.m_Name).string();
+        m_ScriptCorePath = config.m_ScriptCorePath.string();
+        m_ScriptAppPath = config.m_ScriptAppPath.string();
+        m_AssetPath = config.m_AssetDirectory.string();
+        m_AssetRegeistry = config.m_AssetRegistryPath.string();        
         m_ChangeValue = 0;
         m_Change = false;
     }
@@ -330,13 +330,13 @@ namespace Rynex {
     {
         m_CurentProject = Project::GetActive();
         auto& config = m_CurentProject->GetConfig();
-        config.StartScene = m_StartScene;
-        config.name = m_ProjectName;
-        config.ProjectPath = m_ProjectDir;
-        config.ScriptCorePath = m_ScriptCorePath;
-        config.ScriptAppPath = m_ScriptAppPath; 
-        config.AssetDirectory = m_AssetPath;
-        config.AssetRegistryPath = m_AssetRegeistry;
+        config.m_StartScene = m_StartScene;
+        config.m_Name = m_ProjectName;
+        config.m_ProjectPath = m_ProjectDir;
+        config.m_ScriptCorePath = m_ScriptCorePath;
+        config.m_ScriptAppPath = m_ScriptAppPath; 
+        config.m_AssetDirectory = m_AssetPath;
+        config.m_AssetRegistryPath = m_AssetRegeistry;
         SaveProject();
         m_ChangeValue = 0;
         m_Change = false;

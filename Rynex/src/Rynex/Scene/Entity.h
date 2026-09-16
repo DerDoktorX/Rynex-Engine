@@ -12,22 +12,23 @@ namespace Rynex {
 		enum State
 		{
 			None = 0,
-			Wahrning,
+			Warning,
 			Error
 		};
 	public:
-		Entity() = default;
+		Entity();
 		Entity(entt::entity handle, Scene* scene);
 		Entity(const Entity& other) = default;
-
 
 
 		template<typename T, typename... Args>
 		T& AddComponent(Args&&... args)
 		{
-			RY_CORE_ASSERT(!HasComponent<T>(), "Entity arlead has that component!");
+			RY_CORE_ASSERT(!HasComponent<T>(), "Entity already has that component!");
 			Ref<Scene> scene = m_Scene.lock();
-			T& component = scene->m_Registery.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+		    RY_CORE_ASSERT(nullptr != scene, "Scene is nullptr! (Scene could be deleted or never existed)");
+			T& component = scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+
 			scene->OnComponentAdded<T>(*this, component);
 			return component;
 		}
@@ -36,7 +37,7 @@ namespace Rynex {
 		T& AddOrReplaceComponent(Args&&... args)
 		{
 			Ref<Scene> scene = m_Scene.lock();
-			T& component = scene->m_Registery.emplace_or_replace<T>( m_EntityHandle, std::forward<Args>(args)...);
+			T& component = scene->m_Registry.emplace_or_replace<T>( m_EntityHandle, std::forward<Args>(args)...);
 			
 			scene->OnComponentAdded<T>(*this, component);
 			return component;
@@ -69,7 +70,7 @@ namespace Rynex {
 		{
 			RY_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
 			Ref<Scene> scene = m_Scene.lock();
-			scene->m_Registery.replace<T>(m_EntityHandle, comp);
+			scene->m_Registry.replace<T>(m_EntityHandle, comp);
 		}
 
 		template<typename T>
@@ -77,7 +78,7 @@ namespace Rynex {
 		{
 			RY_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
 			Ref<Scene> scene = m_Scene.lock();
-			return scene->m_Registery.get<T>(m_EntityHandle);
+			return scene->m_Registry.get<T>(m_EntityHandle);
 		};
 
 		template<typename T>
@@ -85,7 +86,7 @@ namespace Rynex {
 		{
 			RY_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
 			Ref<Scene> scene = m_Scene.lock();
-			return scene->m_Registery.get<T>(m_EntityHandle);
+			return scene->m_Registry.get<T>(m_EntityHandle);
 		};
 
 		template<typename T, typename N>
@@ -95,7 +96,7 @@ namespace Rynex {
 		bool HasComponent() const
 		{
 			Ref<Scene> scene = m_Scene.lock();
-			return scene->m_Registery.has<T>(m_EntityHandle);
+			return scene->m_Registry.has<T>(m_EntityHandle);
 		};
 
 		template<typename T>
@@ -104,19 +105,19 @@ namespace Rynex {
 		bool IsVisbble() const
 		{
 			const VisibleComponent& visbelC = GetComponentC<VisibleComponent>();
-			bool visble = visbelC.isVisable;
+			bool visble = visbelC.m_Visible;
 			return visble;
 		}
 
 		void SetVisable(bool state)
 		{
 			VisibleComponent& visbelC = GetComponent<VisibleComponent>();
-			if (visbelC.isVisable != state) 
+			if (visbelC.m_Visible != state) 
 			{
 				int entityHandle = GetEntityHandle();
-				RY_CORE_INFO("Entity({}) has viblity changed from {} to {}!", entityHandle, visbelC.isVisable, state);
+				RY_CORE_INFO("Entity({}) has viblity changed from {} to {}!", entityHandle, visbelC.m_Visible, state);
 			}
-			visbelC.isVisable = state;
+			visbelC.m_Visible = state;
 			
 		}
 
@@ -129,14 +130,14 @@ namespace Rynex {
 		bool IsVaild() const 
 		{ 
 			Ref<Scene> scene = m_Scene.lock();
-			bool result = entt::null != m_EntityHandle && nullptr != scene && scene->m_Registery.valid(m_EntityHandle);
+			bool result = entt::null != m_EntityHandle && nullptr != scene && scene->m_Registry.valid(m_EntityHandle);
 			return result;
 		}
 
 		bool IsNotVaild() const
 		{
 			Ref<Scene> scene = m_Scene.lock();
-			bool result = (entt::null == m_EntityHandle || nullptr == scene || !scene->m_Registery.valid(m_EntityHandle));
+			bool result = (entt::null == m_EntityHandle || nullptr == scene || !scene->m_Registry.valid(m_EntityHandle));
 			return result;
 		}
 
@@ -154,7 +155,7 @@ namespace Rynex {
 		entt::entity GetDefaultEntityHandle() const { return m_EntityHandle; }
 
 		
-		UUID GetParentID() const { return GetComponentC<RealtionShipUUIDComponent>().parent; }
+		UUID GetParentID() const { return GetComponentC<RelationshipUUIDComponent>().m_Parent; }
 
 		Entity GetParentEntity() const
 		{ 
@@ -165,14 +166,14 @@ namespace Rynex {
 		
 		std::vector<UUID>& GetChildrens() 
 		{ 
-			return GetComponent<RealtionShipUUIDComponent>().childrens; 
+			return GetComponent<RelationshipUUIDComponent>().m_Childrens; 
 		}
 
 		bool RemoveFromChildrens(Entity e);
 		bool AddToChildrens(Entity e);
 
-		UUID GetUUID() { return GetComponent<IDComponent>().ID; }
-		std::string GetTagName() { return GetComponent<TagComponent>().Tag; }
+		UUID GetUUID() { return GetComponent<IDComponent>().m_ID; }
+		std::string GetTagName() { return GetComponent<TagComponent>().m_Tag; }
 		void UpdateMatrix();
 		void UpdateAutoMatrix();
 		
@@ -209,10 +210,8 @@ namespace Rynex {
 
 	private:
 		Weak<Scene> m_Scene;
-		entt::entity m_EntityHandle{ entt::null };
-		State m_State = State::None;
-	private:
-
+		entt::entity m_EntityHandle;
+		State m_State;
 	};
 
 
@@ -237,7 +236,7 @@ namespace Rynex {
 	{
 		RY_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
 		Ref<Scene> scene = m_Scene.lock();
-		scene->m_Registery.remove<T>(m_EntityHandle);
+		scene->m_Registry.remove<T>(m_EntityHandle);
 	}
 
 
@@ -251,7 +250,7 @@ namespace Rynex {
 	inline void Entity::SetLodedAsset<SpriteRendererComponent, Texture>(Ref<Texture> asset)
 	{
 		SpriteRendererComponent& componet = GetComponent<SpriteRendererComponent>();
-		componet.Texture = asset;
+		componet.m_Texture = asset;
 		UpdateComponent(componet);
 	}
 
@@ -261,10 +260,10 @@ namespace Rynex {
 	inline void Entity::SetLodedAsset<ModelMangerComponent, MeshStatic>(Ref<MeshStatic> asset)
 	{
 		ModelMangerComponent& componet = GetComponent<ModelMangerComponent>();
-		componet.meshStatic = asset;
-		componet.rendereStoreIndexVec2.clear();
-		componet.objectRendereIndexPiplineVec2.Clear();
-		componet.singleMeshes.clear();
+		componet.m_MeshStatic = asset;
+		componet.m_RenderStoreIndexVec2.clear();
+		componet.m_ObjectRenderIndexPiplineVec2.Clear();
+		componet.m_SingleMeshes.clear();
 
 		UpdateComponent(componet);		
 

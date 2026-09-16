@@ -157,7 +157,7 @@ namespace Rynex {
 		AssetRigestriyPannel() = default;
 
 		AssetRigestriyPannel(AssetHandle handle, const AssetMetadata& metadata)
-			: Handle(handle), Metadata(metadata), FileAssetPath(metadata.FilePath.string())
+			: Handle(handle), Metadata(metadata), FileAssetPath(metadata.m_FilePath.string())
 		{ }
 
 		AssetRigestriyPannel(const AssetRigestriyPannel&) = default;

@@ -238,8 +238,8 @@ namespace Rynex {
 		RY_DESTROY_REF(m_AlbdeoTex);
 		RY_DESTROY_REF(m_ShadowTex);
 		RY_DESTROY_REF(m_LigthBuffer);
-		RY_DESTROY_REF(m_SingleMeshObject._Material);
-		RY_DESTROY_REF(m_SingleMeshObject._MeshSingle);
+		RY_DESTROY_REF(m_SingleMeshObject.m_Material);
+		RY_DESTROY_REF(m_SingleMeshObject.m_MeshSingle);
 
 	}
 
@@ -247,7 +247,7 @@ namespace Rynex {
 
 	uint64_t InstenceMeshPiplineRenderShade::GetVertexBufferNumber() const
 	{
-		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 		const Ref<VertexBuffer>& vab = meshSingle->GetVertexBuffer();
 		uint64_t number = 0ull;
 		uint32_t i = 0;
@@ -263,7 +263,7 @@ namespace Rynex {
 
 	uint64_t InstenceMeshPiplineRenderShade::GetIndexBufferNumber() const
 	{
-		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 		const Ref<IndexBuffer>& iba = meshSingle->GetShadeIndexBuffer();
 		uint64_t number = reinterpret_cast<uint64_t>(iba.get());
 		return number;
@@ -404,7 +404,7 @@ namespace Rynex {
 
 	void InstenceMeshPiplineRenderShade::DrawNow(int flags)
 	{
-		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 
 		
 		if (nullptr == m_Shader
@@ -420,26 +420,26 @@ namespace Rynex {
 		}
 		BeforeDrawCall();
 #if 0
-		Mesh::PerDrawObject drawElement = meshSingle->GetShadePerDrawObjectIndrect();
+		Mesh::PerDrawObject drawElement = meshSingle->GetShadePerDrawObjectIndirect();
 		RenderCommand::SetMode(flags);
 		BindResources();
 		RY_CORE_ASSERT(0 < m_InstencCount);
-		drawElement.InstancesCount = m_InstencCount;
+		drawElement.m_InstancesCount = m_InstencCount;
 		RenderCommand::DrawElement(m_VertexArray, drawElement);
 #else
 		ShaderDrawResource drawList = CreateShaderDrawResource();
 		
-		drawList.renderMode = m_SingleMeshObject._Material->GetShadeRenderMode();
-		drawList.shaderProgramm = m_Shader;
-		drawList.vao = m_VertexArray;
-		drawList.drawElement = meshSingle->GetShadePerDrawObjectIndrect();
-		drawList.drawElement.InstancesCount = m_InstencCount;
-		drawList.GetBindeUniform().at(UniformBinding_MainCamer) = m_CameraBuffer;
-		drawList.GetBindeUniform().at(UniformBinding_Materiel) = m_MaterielBuffer;
-		drawList.GetBindeUniform().at(UniformBinding_LigthCamera) = m_LigthBuffer;
+		drawList.m_RenderMode = m_SingleMeshObject.m_Material->GetShadeRenderMode();
+		drawList.m_ShaderProgram = m_Shader;
+		drawList.m_VAO = m_VertexArray;
+		drawList.m_DrawElement = meshSingle->GetShadePerDrawObjectIndirect();
+		drawList.m_DrawElement.m_InstancesCount = m_InstencCount;
+		drawList.GetBindUniform().at(UniformBinding_MainCamer) = m_CameraBuffer;
+		drawList.GetBindUniform().at(UniformBinding_Materiel) = m_MaterielBuffer;
+		drawList.GetBindUniform().at(UniformBinding_LigthCamera) = m_LigthBuffer;
 
-		drawList.GetBindeTextures().at(TextureBinding_Abldoe) = m_AlbdeoTex;
-		drawList.GetBindeTextures().at(TextureBinding_Shadow) = m_ShadowTex;
+		drawList.GetBindTextures().at(TextureBinding_Abldoe) = m_AlbdeoTex;
+		drawList.GetBindTextures().at(TextureBinding_Shadow) = m_ShadowTex;
 #if 0
 		Ref<RenderTarget>& target = Renderer::GetRenderTargetMain();
 		target->AddDrawPass(drawList);
@@ -459,14 +459,14 @@ namespace Rynex {
 		m_Shader = shader;
 		m_SingleMeshObject = singleMesh;
 
-		const Ref<Material>& materiel = m_SingleMeshObject._Material;
+		const Ref<Material>& materiel = m_SingleMeshObject.m_Material;
 
 		m_AlbdeoTex = materiel->GetAlbedoTextures();
 		m_RenderMode = materiel->GetShadeRenderMode();
 		
 		m_MaterielBuffer = materiel->GetMaterielUniformBuffer();
 
-		Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 		return CheckVAOFromMeshSingleShade(m_VertexArray, meshSingle);
 	}
 
@@ -475,9 +475,9 @@ namespace Rynex {
 		int result = Result_None;
 
 		CheckObject(m_Shader, shader, result, Result_NotAllowedShader, Result_NoShaderSpaceLeft);
-		CheckObject(m_SingleMeshObject._MeshSingle, singleMesh._MeshSingle, result, Result_NotAllowedRenderShape, Result_NoRenderShapeSpaceLeft);
-		const Ref<Material>& materiel = singleMesh._Material;
-		CheckObject(m_SingleMeshObject._Material, materiel, result, Result_NotAllowedShadeDefinition, Result_NoShadeDefinitionSpaceLeft);
+		CheckObject(m_SingleMeshObject.m_MeshSingle, singleMesh.m_MeshSingle, result, Result_NotAllowedRenderShape, Result_NoRenderShapeSpaceLeft);
+		const Ref<Material>& materiel = singleMesh.m_Material;
+		CheckObject(m_SingleMeshObject.m_Material, materiel, result, Result_NotAllowedShadeDefinition, Result_NoShadeDefinitionSpaceLeft);
 
 		if (nullptr != materiel)
 			CheckObject(m_AlbdeoTex, materiel->GetAlbedoTextures(), result, Result_NotAllowedTexture, Result_NoTextexurSpaceLeft);
@@ -561,15 +561,15 @@ namespace Rynex {
 	void InstenceMeshPiplineRenderDepth::Clear()
 	{
 		InstenceMeshPiplineRenderBase::Clear();
-		RY_DESTROY_REF(m_SingleMeshObject._Material);
-		RY_DESTROY_REF(m_SingleMeshObject._MeshSingle);
+		RY_DESTROY_REF(m_SingleMeshObject.m_Material);
+		RY_DESTROY_REF(m_SingleMeshObject.m_MeshSingle);
 	}
 
 
 
 	uint64_t InstenceMeshPiplineRenderDepth::GetVertexBufferNumber() const
 	{
-		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 		const Ref<VertexBuffer>& vab = meshSingle->GetVertexBuffer();
 		uint64_t number = 0ull;
 		uint32_t i = 0;
@@ -584,7 +584,7 @@ namespace Rynex {
 
 	uint64_t InstenceMeshPiplineRenderDepth::GetIndexBufferNumber() const
 	{
-		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 		const Ref<IndexBuffer>& ib = meshSingle->GetDepthIndexBuffer();
 		uint64_t number = reinterpret_cast<uint64_t>(ib.get());
 		return number;
@@ -719,7 +719,7 @@ namespace Rynex {
 
 	void InstenceMeshPiplineRenderDepth::DrawNow(int flags)
 	{
-		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 
 		if (nullptr == m_Shader
 			|| nullptr == m_VertexArray
@@ -730,11 +730,11 @@ namespace Rynex {
 		}
 		BeforeDrawCall();
 
-		Mesh::PerDrawObject drawElement = meshSingle->GetDepthPerDrawObjectIndrect();
+		Mesh::PerDrawObject drawElement = meshSingle->GetDepthPerDrawObjectIndirect();
 		RenderCommand::SetMode(flags);
 		BindResources();
 		RY_CORE_ASSERT(0 < m_InstencCount);
-		drawElement.InstancesCount = m_InstencCount;
+		drawElement.m_InstancesCount = m_InstencCount;
 		RenderCommand::DrawElement(m_VertexArray, drawElement);
 	}
 
@@ -742,11 +742,11 @@ namespace Rynex {
 	{
 		m_Shader = shader;
 		m_SingleMeshObject = singleMesh;
-		const Ref<Material>& materiel = m_SingleMeshObject._Material;
+		const Ref<Material>& materiel = m_SingleMeshObject.m_Material;
 
 		m_RenderMode = materiel->GetShadeRenderMode();
 
-		Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 		return CheckVAOFromMeshSingleDepth(m_VertexArray, meshSingle);
 	}
 
@@ -756,9 +756,9 @@ namespace Rynex {
 		int result = Result_None;
 
 		CheckObject(m_Shader, shader, result, Result_NotAllowedShader, Result_NoShaderSpaceLeft);
-		CheckObject(m_SingleMeshObject._MeshSingle, singleMesh._MeshSingle, result, Result_NotAllowedRenderShape, Result_NoRenderShapeSpaceLeft);
-		const Ref<Material>& materielTest = singleMesh._Material;
-		const Ref<Material>& materielThis = m_SingleMeshObject._Material;
+		CheckObject(m_SingleMeshObject.m_MeshSingle, singleMesh.m_MeshSingle, result, Result_NotAllowedRenderShape, Result_NoRenderShapeSpaceLeft);
+		const Ref<Material>& materielTest = singleMesh.m_Material;
+		const Ref<Material>& materielThis = m_SingleMeshObject.m_Material;
 		if (nullptr == materielTest)
 			return (result | Result_NotAllowedShadeDefinition);
 		if (nullptr == materielThis)
@@ -843,7 +843,7 @@ namespace Rynex {
 
 	uint64_t InstenceMeshPiplineRenderShape::GetVertexBufferNumber() const
 	{
-		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 		const Ref<VertexBuffer>& vab = meshSingle->GetVertexBuffer();
 		uint64_t number = 0ull;
 		uint32_t i = 0;
@@ -857,7 +857,7 @@ namespace Rynex {
 
 	uint64_t InstenceMeshPiplineRenderShape::GetIndexBufferNumber() const
 	{
-		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 		const Ref<IndexBuffer>& iab = meshSingle->GetDepthIndexBuffer();
 		uint64_t number = reinterpret_cast<uint64_t>(iab.get());
 		return number;
@@ -996,7 +996,7 @@ namespace Rynex {
 
 	void InstenceMeshPiplineRenderShape::DrawNow(int flags)
 	{
-		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 
 		if (nullptr == m_Shader
 			|| nullptr == m_VertexArray
@@ -1008,11 +1008,11 @@ namespace Rynex {
 		}
 		BeforeDrawCall();
 
-		Mesh::PerDrawObject drawElement = meshSingle->GetShadePerDrawObjectIndrect();
+		Mesh::PerDrawObject drawElement = meshSingle->GetShadePerDrawObjectIndirect();
 		RenderCommand::SetMode(flags);
 		BindResources();
 		RY_CORE_ASSERT(0 < m_InstencCount);
-		drawElement.InstancesCount = m_InstencCount;
+		drawElement.m_InstancesCount = m_InstencCount;
 		RenderCommand::DrawElement(m_VertexArray, drawElement);
 
 	}
@@ -1022,13 +1022,13 @@ namespace Rynex {
 		m_Shader = shader;
 		m_SingleMeshObject = singleMesh;
 
-		const Ref<Material>& materiel = m_SingleMeshObject._Material;
+		const Ref<Material>& materiel = m_SingleMeshObject.m_Material;
 
 
 		m_AlbdeoTex = materiel->GetAlbedoTextures();
 		m_RenderMode = materiel->GetShadeRenderMode();
 
-		Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 		return CheckVAOFromMeshSingleShape(m_VertexArray, meshSingle);
 	}
 
@@ -1039,9 +1039,9 @@ namespace Rynex {
 		int result = Result_None;
 
 		CheckObject(m_Shader, shader, result, Result_NotAllowedShader, Result_NoShaderSpaceLeft);
-		CheckObject(m_SingleMeshObject._MeshSingle, singleMesh._MeshSingle, result, Result_NotAllowedRenderShape, Result_NoRenderShapeSpaceLeft);
-		const Ref<Material>& materiel = singleMesh._Material;
-		CheckObject(m_SingleMeshObject._Material, materiel, result, Result_NotAllowedShadeDefinition, Result_NoShadeDefinitionSpaceLeft);
+		CheckObject(m_SingleMeshObject.m_MeshSingle, singleMesh.m_MeshSingle, result, Result_NotAllowedRenderShape, Result_NoRenderShapeSpaceLeft);
+		const Ref<Material>& materiel = singleMesh.m_Material;
+		CheckObject(m_SingleMeshObject.m_Material, materiel, result, Result_NotAllowedShadeDefinition, Result_NoShadeDefinitionSpaceLeft);
 
 		if (nullptr != materiel)
 			CheckObject(m_AlbdeoTex, materiel->GetAlbedoTextures(), result, Result_NotAllowedTexture, Result_NoTextexurSpaceLeft);

@@ -136,7 +136,7 @@ namespace Rynex {
 		bool IsWindowHoverd() const { return m_WindowHoverd; }
 		bool IsGizmoHoverd() const { return m_ImGizmoHovered; }
 		void OnStaicResultion(bool state);
-		glm::vec2 GetRenderSize() const { return m_Framebuffer->GetFrambufferSize(); }
+		glm::vec2 GetRenderSize() const { return m_Framebuffer->GetFramebufferSize(); }
 		Ref<Texture> GetFinalImag() const;
 	private:
 		void ResizeGameResultion(const glm::vec2& size);

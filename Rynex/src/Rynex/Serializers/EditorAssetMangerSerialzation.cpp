@@ -741,17 +741,17 @@ namespace Rynex {
 				out << YAML::BeginMap;
 				out << YAML::Key << "Handle" << YAML::Value << handle;
 
-				std::string pathStr = metadata.PathMarker;
+				std::string pathStr = metadata.m_PathMarker;
 
 
 				// out << YAML::Key << "FilePath" << YAML::Value << filePathStr;
 				// out << YAML::Key << "FilePath-Absolute" << YAML::Value << pathAbosulte.string();
 				// out << YAML::Key << "FilePath-Realtiv" << YAML::Value << realtivePath.string();
-				out << YAML::Key << "FilePath-ProjectMarker" << YAML::Value << metadata.Path.GetMarkedPathString();
+				out << YAML::Key << "FilePath-ProjectMarker" << YAML::Value << metadata.m_Path.GetMarkedPathString();
 
-				out << YAML::Key << "Type" << YAML::Value << Asset::AssetTypeToString(metadata.Type);
-				out << YAML::Key << "Name" << YAML::Value << metadata.Name;
-				out << YAML::Key << "ChangeTime" << YAML::Value << metadata.ChangeTime;
+				out << YAML::Key << "Type" << YAML::Value << Asset::AssetTypeToString(metadata.m_Type);
+				out << YAML::Key << "Name" << YAML::Value << metadata.m_Name;
+				out << YAML::Key << "ChangeTime" << YAML::Value << metadata.m_ChangeTime;
 
 				out << YAML::EndMap;
 			}
@@ -829,21 +829,21 @@ namespace Rynex {
 			}
 			
 
-			metadata.Type = Asset::AssetTypeFromString(node["Type"].as<std::string>());
-			AssetType assetType = Asset::GetAssetTypeFromFilePath(metadata.FilePath);
-			if (metadata.Type != assetType)
-				metadata.Type = assetType;
+			metadata.m_Type = Asset::AssetTypeFromString(node["Type"].as<std::string>());
+			AssetType assetType = Asset::GetAssetTypeFromFilePath(metadata.m_FilePath);
+			if (metadata.m_Type != assetType)
+				metadata.m_Type = assetType;
 
 
-			metadata.Name = node["Name"].as<std::string>();
+			metadata.m_Name = node["Name"].as<std::string>();
 			if (node["ChangeTime"])
-				metadata.ChangeTime = node["ChangeTime"].as<std::string>();
+				metadata.m_ChangeTime = node["ChangeTime"].as<std::string>();
 			else
-				metadata.ChangeTime = AssetRegistry::GetCurrentTimeStr();
+				metadata.m_ChangeTime = AssetRegistry::GetCurrentTimeStr();
 			metadata.SetActive(true);
 			metadata.SetIntern(false);
 			metadata.SetState(AssetState::LostConnection);
-            const FileSystem::Path& pathKey = metadata.Path;
+            const FileSystem::Path& pathKey = metadata.m_Path;
 			pathReg->insert_or_assign(pathKey, handle);
 			handleReg->insert_or_assign(handle, metadata);
 		}

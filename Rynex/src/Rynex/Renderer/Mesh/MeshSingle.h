@@ -22,18 +22,19 @@ namespace Rynex {
 		const Ref<IndexBuffer>& GetDepthIndexBuffer() const { RY_REMBER_FUNC_CHANGE("Change to sellect a LOD level"); return m_DepthVIB; }
 
 
-		const Mesh::PerDrawObject& GetShadePerDrawObjectIndrect() const { return m_ShadePDOIndrect; }
-		const Mesh::PerDrawObject& GetDepthPerDrawObjectIndrect() const { return m_DepthPDOIndrect; }
+		const Mesh::PerDrawObject& GetShadePerDrawObjectIndirect() const { return m_ShadePDOIndirect; }
+		const Mesh::PerDrawObject& GetDepthPerDrawObjectIndirect() const { return m_DepthPDOIndirect; }
 
 		Ref<MeshSource> GetSourceMesh() const 
 		{ 
 			Ref<MeshSource> source = m_Source.lock();
 			return source;
 		}
-		uint32_t GetModelLocalMesheIndex() const { return m_ModelLocaleIndex; }
+		uint32_t GetModelLocalMeshIndex() const { return m_ModelLocaleIndex; }
 
 		const std::string& GetName() const { return m_Name; }
-		bool IsViewFustrum(const glm::mat4& model, const glm::mat4& viewProjtion);
+
+		bool IsViewFrustum(const glm::mat4& model, const glm::mat4& viewProjtion);
 		
 		const BoundingVolume& GetBoundingVolume() const { return m_Bounding; }
 		const AABB& GetAABB() const { return m_Bounding.GetAABB(); }
@@ -42,10 +43,10 @@ namespace Rynex {
 	private:
 		static void ExtractFrustum(const glm::mat4& viewProj, glm::vec4 planes[6]);
 
-		static bool IsNotPointInFiewFustrem(glm::vec3 max, glm::vec3 min, const glm::vec4& planeSide);
+		static bool IsNotPointInViewFrustum(glm::vec3 max, glm::vec3 min, const glm::vec4& planeSide);
 		static bool IsAABBInsideFrustum(const glm::mat4& model, const AABB& box, const glm::mat4& viewProjtion);
 		static bool IsAABBInsideFrustum(const glm::mat4& m, const AABB& box);
-		static glm::vec4 CaculatePlaneViewFustremPlaneNormilze(const glm::vec3& normale, float constan);
+		static glm::vec4 CalculatePlaneViewFrustumPlaneNormelize(const glm::vec3& normale, float constan);
 		static glm::vec4 CaculateCorectViewFustremPlane0(const glm::mat4& viewProj);
 		static glm::vec4 CaculateCorectViewFustremPlane1(const glm::mat4& viewProj);
 		static glm::vec4 CaculateCorectViewFustremPlane2(const glm::mat4& viewProj);
@@ -71,16 +72,16 @@ namespace Rynex {
 		std::string m_Name;
 
 		BoundingVolume m_Bounding;
-		Mesh::PerDrawObject m_ShadePDOIndrect;
-		Mesh::PerDrawObject m_DepthPDOIndrect;
+		Mesh::PerDrawObject m_ShadePDOIndirect;
+		Mesh::PerDrawObject m_DepthPDOIndirect;
 
 		uint32_t m_ModelLocaleIndex;
 	};
 
 	struct SingleMeshObject
 	{
-		Ref<Material> _Material;
-		Ref<MeshSingle> _MeshSingle;
+		Ref<Material> m_Material;
+		Ref<MeshSingle> m_MeshSingle;
 		
 
 		SingleMeshObject() = default;
@@ -100,11 +101,25 @@ namespace std {
 	template<>
 	struct hash<Rynex::SingleMeshObject>
 	{
-		std::size_t operator()(const Rynex::SingleMeshObject& object) const
-		{
+		static std::size_t operator()(const Rynex::SingleMeshObject& object) noexcept
+        {
 			uint64_t uuid = object.GetUUID();
 			return uuid;
 		}
 	};
+
+}
+
+namespace robin_hood {
+
+    template<>
+    struct hash<Rynex::SingleMeshObject>
+    {
+        static std::size_t operator()(const Rynex::SingleMeshObject& object) noexcept
+        {
+            uint64_t uuid = object.GetUUID();
+            return uuid;
+        }
+    };
 
 }

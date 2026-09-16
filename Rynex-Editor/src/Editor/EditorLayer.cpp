@@ -138,7 +138,7 @@ case key: \
     {
         Entity entiy = scene->CreateEntity(name);
         ModelMangerComponent& staticMesh = entiy.AddComponent<ModelMangerComponent>();
-        staticMesh.meshStatic = meshStatic;
+        staticMesh.m_MeshStatic = meshStatic;
 
         TransformComponent& transC = entiy.GetComponent<TransformComponent>();
         transC.SetTransform(matrix);
@@ -157,7 +157,7 @@ case key: \
         entiy.UpdateMatrix();
 #if 1
         const UUID& meshSourceEntityUUID = entiy.GetUUID();
-        std::vector<UUID>& meshSingleChildrenVec = staticMesh.singleMeshes;
+        std::vector<UUID>& meshSingleChildrenVec = staticMesh.m_SingleMeshes;
         const std::vector<MeshStatic::SingleObjectMeshData>& meshSingleVec = meshStatic->GetSingleObjectMesDataVec();
         meshSingleChildrenVec.reserve(meshSingleVec.size());
 #if 0
@@ -183,8 +183,8 @@ case key: \
         for (const MeshStatic::SingleObjectMeshData& meshSingle : meshSingleVec)
         {
 #endif
-            const Ref<Material>& materiel = meshSingle._Material;
-            const Ref<MeshSingle>& meshSingel = meshSingle._MeshSingle;
+            const Ref<Material>& materiel = meshSingle.m_Material;
+            const Ref<MeshSingle>& meshSingel = meshSingle.m_MeshSingle;
             const glm::mat4& matrix = meshSingle.LocaleCildrenMatrix;
             const std::string& name = meshSingle.NodeName;
 
@@ -193,7 +193,8 @@ case key: \
             StaticMeshComponent& singleStaticMesh = 
                 e.AddComponent<StaticMeshComponent>(
                     meshSourceEntityUUID
-                    , meshSingel, materiel
+                    , meshSingel
+                    , materiel
                 );
 
             TransformComponent& transMeshChildeC = e.GetComponent<TransformComponent>();
@@ -208,7 +209,7 @@ case key: \
     {
         Entity entiy = e.AddChildrenEntity(name);
         ModelMangerComponent& staticMesh = entiy.AddComponent<ModelMangerComponent>();
-        staticMesh.meshStatic = meshStatic;
+        staticMesh.m_MeshStatic = meshStatic;
 
         TransformComponent& transC = entiy.GetComponent<TransformComponent>();
         transC.SetTransform(matrix);
@@ -227,14 +228,14 @@ case key: \
         entiy.UpdateMatrix();
 #if 1
         const UUID& meshSourceEntityUUID = entiy.GetUUID();
-        std::vector<UUID>& meshSingleChildrenVec = staticMesh.singleMeshes;
+        std::vector<UUID>& meshSingleChildrenVec = staticMesh.m_SingleMeshes;
         const std::vector<MeshStatic::SingleObjectMeshData>& meshSingleVec = meshStatic->GetSingleObjectMesDataVec();
         meshSingleChildrenVec.reserve(meshSingleVec.size());
 
         for (const MeshStatic::SingleObjectMeshData& meshSingle : meshSingleVec)
         {
-            const Ref<Material>& materiel = meshSingle._Material;
-            const Ref<MeshSingle>& meshSingel = meshSingle._MeshSingle;
+            const Ref<Material>& materiel = meshSingle.m_Material;
+            const Ref<MeshSingle>& meshSingel = meshSingle.m_MeshSingle;
             const glm::mat4& matrix = meshSingle.LocaleCildrenMatrix;
             const std::string& name = meshSingle.NodeName;
 
@@ -360,19 +361,19 @@ case key: \
 
             Entity entity = scene->CreateEntity("Directionel");
             CameraComponent& camnerC = entity.AddComponent<CameraComponent>();
-            camnerC.Camera.SetOrthoGrafic(size, nearClip, farClip);
-            camnerC.Primary = false;
+            camnerC.m_Camera.SetOrthoGraphic(size, nearClip, farClip);
+            camnerC.m_Primary = false;
             RenderTargetComponent& renderTargetC = entity.AddComponent<RenderTargetComponent>();
             ModelMatrixComponent& modelC = entity.GetComponent<ModelMatrixComponent>();
-            modelC.Locale = glm::inverse(view);
+            modelC.m_Locale = glm::inverse(view);
             
-            renderTargetC.Target = CreateRef<RenderTarget>(fb);
-            const glm::uvec2& size = fb->GetFrambufferSize();
+            renderTargetC.m_Target = CreateRef<RenderTarget>(fb);
+            const glm::uvec2& size = fb->GetFramebufferSize();
             glm::ivec2 sizeInt = static_cast<glm::ivec2>(size);
             glm::ivec4 viewSize{ sizeInt.x, sizeInt.y, 0, 0, };
             
-            renderTargetC.RenderPassName = "Shadow";
-            renderTargetC.StroeIndex = 0xFFFFFFFFu;
+            renderTargetC.m_RenderPassName = "Shadow";
+            renderTargetC.m_StoreIndex = 0xFFFFFFFFu;
             entity.UpadteTransformFromMatrix();
             entity.UpdateMatrix();
 #endif // !RY_RENERER_DESIGN_CURENT_MAIN
@@ -446,12 +447,12 @@ case key: \
 #elif TEST_SCENE_STATE_10
         Ref<MeshSource> cubeSource = cube->GetMeshSource();
         std::vector<MeshStatic::SingleObjectMeshData> singleMeshDatasVec = cube->GetSingleObjectMesDataVec();
-        Ref<Material> materiel = singleMeshDatasVec.at(0)._Material;
+        Ref<Material> materiel = singleMeshDatasVec.at(0).m_Material;
         MaterielShaderData data = Material::GetMaterielDataFromMateriel<MaterielShaderData>(materiel);
         data.AmbientLigthe = 0.15f;
         data.Color = glm::vec3(0.11f, data.Color.g, 0.11f);
         Ref<Texture> tex = materiel->GetAlbedoTextures();
-        singleMeshDatasVec.at(0)._Material = CreateRef<DefaultMaterial>(data, tex);
+        singleMeshDatasVec.at(0).m_Material = CreateRef<DefaultMaterial>(data, tex);
         Ref<MeshStatic> cubePlane = CreateRef<MeshStatic>(cubeSource, singleMeshDatasVec);
         CreateStaticMeshEntity("Plane", scene, matrixPlane, cubePlane);
         float multiyplyerCube = 2.5f;
@@ -594,7 +595,7 @@ case key: \
         
         {
             const SpriteRendererComponent& sprite = entity.GetComponent<SpriteRendererComponent>();
-            const Weak<Texture>& textureWeak = sprite.Texture;
+            const Weak<Texture>& textureWeak = sprite.m_Texture;
             Ref<Texture> texture = textureWeak.lock();
             RY_CORE_ASSERT(nullptr != texture, "No Texture Set");
         }
@@ -603,7 +604,7 @@ case key: \
         {
 
             const SpriteRendererComponent& sprite = entityCopy.GetComponent<SpriteRendererComponent>();
-            const Weak<Texture>& textureWeak = sprite.Texture;
+            const Weak<Texture>& textureWeak = sprite.m_Texture;
             Ref<Texture> texture = textureWeak.lock();
             RY_CORE_ASSERT(nullptr != texture, "No Texture Set");
         }
@@ -687,10 +688,10 @@ case key: \
             Entity entiy = aktiveScene->CreateEntity("Test ");
             SpriteRendererComponent& spriteC = entiy.AddComponent<SpriteRendererComponent>();
             TransformComponent& trasC = entiy.GetComponent<TransformComponent>();
-            spriteC.Texture = cubeMapTest;
-            spriteC.Color.b = 0.5f;
-            trasC.Scale *= 2.0f;
-            trasC.Transaltion.x = 4.0f;
+            spriteC.m_Texture = cubeMapTest;
+            spriteC.m_Color.b = 0.5f;
+            trasC.m_Scale *= 2.0f;
+            trasC.m_Transform.x = 4.0f;
             AssetManager::CreatLocaleAsset(cubeMapTest);
 
             entiy.UpdateMatrix();
@@ -741,11 +742,11 @@ case key: \
             SpriteRendererComponent& spriteC = entiy.AddComponent<SpriteRendererComponent>();
             TransformComponent& trasC = entiy.GetComponent<TransformComponent>();
             AssetManager::CreatLocaleAsset(cubeMapTest);
-            spriteC.Color.b = 0.5f;
+            spriteC.m_Color.b = 0.5f;
 
-            spriteC.Texture = cubeMapTest;
-            trasC.Scale *= 2.0f;
-            trasC.Transaltion.x = 0.0f;
+            spriteC.m_Texture = cubeMapTest;
+            trasC.m_Scale *= 2.0f;
+            trasC.m_Transform.x = 0.0f;
             entiy.UpdateMatrix();
 
         }
@@ -810,12 +811,12 @@ case key: \
             Entity entiy = aktiveScene->CreateEntity("Test ");
             SpriteRendererComponent& spriteC = entiy.AddComponent<SpriteRendererComponent>();
             TransformComponent& trasC = entiy.GetComponent<TransformComponent>();
-            spriteC.Color.b = 0.5f;
+            spriteC.m_Color.b = 0.5f;
 
-            spriteC.Texture = cubeMapTest;
+            spriteC.m_Texture = cubeMapTest;
             AssetManager::CreatLocaleAsset(cubeMapTest);
-            trasC.Scale *= 2.0f;
-            trasC.Transaltion.x = 0.0f;
+            trasC.m_Scale *= 2.0f;
+            trasC.m_Transform.x = 0.0f;
 
             entiy.UpdateMatrix();
 
@@ -852,11 +853,11 @@ case key: \
             Entity entiy = aktiveScene->CreateEntity("Test 3d Texture");
             SpriteRendererComponent& spriteC = entiy.AddComponent<SpriteRendererComponent>();
             TransformComponent& trasC = entiy.GetComponent<TransformComponent>();
-            spriteC.Color.b = 0.5f;
+            spriteC.m_Color.b = 0.5f;
 
-            spriteC.Texture = texture3D;
-            trasC.Scale *= 2.0f;
-            trasC.Transaltion.x = -2.0f;
+            spriteC.m_Texture = texture3D;
+            trasC.m_Scale *= 2.0f;
+            trasC.m_Transform.x = -2.0f;
             AssetManager::CreatLocaleAsset(texture3D);
 
             entiy.UpdateMatrix();
@@ -884,7 +885,7 @@ case key: \
                 1u,
             };
             TextureSpecification specArray = spec;
-            specArray.Target == TextureTarget::Texture2D_Array;
+            specArray.Target = TextureTarget::Texture2D_Array;
             Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
 
             std::vector<uint8_t> pixelDataVec;
@@ -902,9 +903,9 @@ case key: \
             linkedTextureArray->SetTextureToArray(0,texture0);
             linkedTextureArray->SetTextureToArray(1,texture1);
             linkedTextureArray->SetTextureToArray(2,texture2);
-            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataReadyOnGPU());
             linkedTextureArray->UpdateDataGPU();
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
 
             linkedTextureArray->Bind(1u);
             linkedTextureArray->UnBind(1u);
@@ -928,7 +929,7 @@ case key: \
             };
 
             TextureSpecification specArray = spec;
-            specArray.Target == TextureTarget::Texture2D_Array;
+            specArray.Target = TextureTarget::Texture2D_Array;
             Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
 
             std::vector<uint8_t> pixelDataVec;
@@ -946,15 +947,15 @@ case key: \
             linkedTextureArray->SetTextureToArray(0, texture0);
             linkedTextureArray->SetTextureToArray(1, texture1);
             linkedTextureArray->SetTextureToArray(2, texture2);
-            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataReadyOnGPU());
             linkedTextureArray->UpdateDataGPU();
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
 
             linkedTextureArray->Bind(1u);
             linkedTextureArray->UnBind(1u);
 
             linkedTextureArray->ClearTextures();
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
             RY_CORE_ASSERT(0u == linkedTextureArray->GetTextureCount());
 
         }
@@ -977,7 +978,7 @@ case key: \
             };
 
             TextureSpecification specArray = spec;
-            specArray.Target == TextureTarget::Texture2D_Array;
+            specArray.Target = TextureTarget::Texture2D_Array;
             Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
 
             std::vector<uint8_t> pixelDataVec;
@@ -995,19 +996,19 @@ case key: \
             linkedTextureArray->SetTextureToArray(0, texture0);
             linkedTextureArray->SetTextureToArray(1, texture1);
             linkedTextureArray->SetTextureToArray(2, texture2);
-            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataReadyOnGPU());
             linkedTextureArray->UpdateDataGPU();
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
             linkedTextureArray->SetTextureToArray(3, texture3);
-            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataReadyOnGPU());
             linkedTextureArray->UpdateDataGPU();
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
 
             linkedTextureArray->Bind(1u);
             linkedTextureArray->UnBind(1u);
 
             linkedTextureArray->ClearTextures();
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
             RY_CORE_ASSERT(0u == linkedTextureArray->GetTextureCount());
         }
 
@@ -1028,7 +1029,7 @@ case key: \
             };
 
             TextureSpecification specArray = spec;
-            specArray.Target == TextureTarget::Texture2D_Array;
+            specArray.Target = TextureTarget::Texture2D_Array;
             Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
 
             std::vector<uint8_t> pixelDataVec;
@@ -1046,69 +1047,69 @@ case key: \
             linkedTextureArray->SetTextureToArray(0, texture0);
             linkedTextureArray->SetTextureToArray(1, texture1);
             linkedTextureArray->SetTextureToArray(2, texture2);
-            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataReadyOnGPU());
             linkedTextureArray->UpdateDataGPU();
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
-            linkedTextureArray->SetTextureToArray(3, texture3);
-            linkedTextureArray->SetTextureToArray(3, nullptr);
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
-
-            linkedTextureArray->Bind(1u);
-            linkedTextureArray->UnBind(1u);
-
-            linkedTextureArray->ClearTextures();
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
-            RY_CORE_ASSERT(0u == linkedTextureArray->GetTextureCount());
-        }
-
-        {
-            constexpr uint32_t size = 4u;
-            constexpr uint32_t textureCount = 3u;
-            constexpr uint8_t pixelData = 0xff;
-            constexpr uint32_t pixelByteSize = sizeof(uint32_t);
-            uint32_t withe = size;
-            uint32_t height = size + 1u;
-            uint32_t depth = 1u;
-
-
-            TextureSpecification spec{
-                withe, height, depth,
-                TextureTarget::Texture2D,
-                TextureFormat::RGBA8,
-                1u,
-            };
-
-            TextureSpecification specArray = spec;
-            specArray.Target == TextureTarget::Texture2D_Array;
-            Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
-
-            std::vector<uint8_t> pixelDataVec;
-            uint32_t byteSize = withe * height * depth * pixelByteSize;
-            uint32_t pixelCount = withe * height * depth;
-            pixelDataVec.resize(pixelCount, pixelData);
-
-
-            Ref<Texture> texture0 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
-            Ref<Texture> texture1 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
-            Ref<Texture> texture2 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
-            Ref<Texture> texture3 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
-
-            linkedTextureArray->ResizeTextureArray(4);
-            linkedTextureArray->SetTextureToArray(0, texture0);
-            linkedTextureArray->SetTextureToArray(1, texture1);
-            linkedTextureArray->SetTextureToArray(2, texture2);
-            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
-            linkedTextureArray->UpdateDataGPU();
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
             linkedTextureArray->SetTextureToArray(3, texture3);
             linkedTextureArray->SetTextureToArray(3, nullptr);
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
+
+            linkedTextureArray->Bind(1u);
+            linkedTextureArray->UnBind(1u);
+
+            linkedTextureArray->ClearTextures();
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
+            RY_CORE_ASSERT(0u == linkedTextureArray->GetTextureCount());
+        }
+
+        {
+            constexpr uint32_t size = 4u;
+            constexpr uint32_t textureCount = 3u;
+            constexpr uint8_t pixelData = 0xff;
+            constexpr uint32_t pixelByteSize = sizeof(uint32_t);
+            uint32_t withe = size;
+            uint32_t height = size + 1u;
+            uint32_t depth = 1u;
+
+
+            TextureSpecification spec{
+                withe, height, depth,
+                TextureTarget::Texture2D,
+                TextureFormat::RGBA8,
+                1u,
+            };
+
+            TextureSpecification specArray = spec;
+            specArray.Target = TextureTarget::Texture2D_Array;
+            Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
+
+            std::vector<uint8_t> pixelDataVec;
+            uint32_t byteSize = withe * height * depth * pixelByteSize;
+            uint32_t pixelCount = withe * height * depth;
+            pixelDataVec.resize(pixelCount, pixelData);
+
+
+            Ref<Texture> texture0 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture1 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture2 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+            Ref<Texture> texture3 = Texture::Create(spec, pixelDataVec.data(), pixelDataVec.size());
+
+            linkedTextureArray->ResizeTextureArray(4);
+            linkedTextureArray->SetTextureToArray(0, texture0);
+            linkedTextureArray->SetTextureToArray(1, texture1);
+            linkedTextureArray->SetTextureToArray(2, texture2);
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataReadyOnGPU());
+            linkedTextureArray->UpdateDataGPU();
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
+            linkedTextureArray->SetTextureToArray(3, texture3);
+            linkedTextureArray->SetTextureToArray(3, nullptr);
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
 
             linkedTextureArray->Bind(1u);
             linkedTextureArray->UnBind();
 
             linkedTextureArray->ClearTextures();
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
             RY_CORE_ASSERT(0u == linkedTextureArray->GetTextureCount());
 
         }
@@ -1133,7 +1134,7 @@ case key: \
             };
 
             TextureSpecification specArray = spec;
-            specArray.Target == TextureTarget::Texture2D_Array;
+            specArray.Target = TextureTarget::Texture2D_Array;
             Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
 
             std::vector<uint8_t> pixelDataVec;
@@ -1152,22 +1153,22 @@ case key: \
             linkedTextureArray->SetTextureToArray(0, texture0);
             linkedTextureArray->SetTextureToArray(1, texture1);
             linkedTextureArray->SetTextureToArray(2, texture2);
-            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataReadyOnGPU());
             linkedTextureArray->UpdateDataGPU();
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
             texture1->SetData(pixelDataVec.data(), pixelDataVec.size());
-            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataReadyOnGPU());
             linkedTextureArray->UpdateDataGPU();
 
             linkedTextureArray->SetTextureToArray(3, texture3);
             linkedTextureArray->SetTextureToArray(3, nullptr);
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
 
             linkedTextureArray->Bind(1u);
             linkedTextureArray->UnBind();
 
             linkedTextureArray->ClearTextures();
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
         }
 
         {
@@ -1190,7 +1191,7 @@ case key: \
             };
 
             TextureSpecification specArray = spec;
-            specArray.Target == TextureTarget::Texture2D_Array;
+            specArray.Target = TextureTarget::Texture2D_Array;
             Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
 
             std::vector<uint8_t> pixelDataVec;
@@ -1209,23 +1210,23 @@ case key: \
             linkedTextureArray->SetTextureToArray(0, texture0);
             linkedTextureArray->SetTextureToArray(1, texture1);
             linkedTextureArray->SetTextureToArray(2, texture2);
-            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataReadyOnGPU());
             linkedTextureArray->UpdateDataGPU();
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
             texture1->SetData(pixelDataVec.data(), pixelDataVec.size());
-            RY_CORE_ASSERT(!linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(!linkedTextureArray->IsDataReadyOnGPU());
             linkedTextureArray->UpdateDataGPU();
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
 
             linkedTextureArray->SetTextureToArray(3, texture3);
             linkedTextureArray->SetTextureToArray(3, nullptr);
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
 
             linkedTextureArray->Bind(1u);
             linkedTextureArray->UnBind();
 
             linkedTextureArray->ClearTextures();
-            RY_CORE_ASSERT(linkedTextureArray->IsDataRaydyOnGPU());
+            RY_CORE_ASSERT(linkedTextureArray->IsDataReadyOnGPU());
         }
 
 
@@ -1589,7 +1590,7 @@ case key: \
             entiy.AddComponent<SpriteRendererComponent>();
             TransformComponent& trasC = entiy.GetComponent<TransformComponent>();
 
-            trasC.Transaltion = glm::vec3(
+            trasC.m_Transform = glm::vec3(
                 Utils::RandomFloatRange(25, -25),
                 Utils::RandomFloatRange(25, -25),
                 Utils::RandomFloatRange(25, -25)
@@ -1701,7 +1702,7 @@ case key: \
 #endif
         Renderer::ShutdownEditor();
         Renderer::Shutdown();
-        Project::ShutDown();
+        Project::Shutdown();
 
         RY_CORE_WARN("OnDetach Done!");
     }
@@ -1730,7 +1731,7 @@ case key: \
             m_AktiveScene = newScene;
 
             m_Scene_HPanel.SetContext(m_AktiveScene);
-            m_EditorScenePath = Project::GetActive()->GetEditorAssetManger()->GetMetadata(m_NextScene->Handle).FilePath;
+            m_EditorScenePath = Project::GetActive()->GetEditorAssetManger()->GetMetadata(m_NextScene->Handle).m_FilePath;
             m_ViewPortPannel.SetNewAktiveSecen(m_AktiveScene);
 
             m_NextScene = nullptr;
@@ -2107,7 +2108,7 @@ case key: \
             m_Project = Project::GetActive();
             m_AssetManger = m_Project->GetEditorAssetManger();
             ProjectConfig config = m_Project->GetConfig();
-            std::filesystem::path startScene = config.StartScene;
+            std::filesystem::path startScene = config.m_StartScene;
             if (!startScene.empty())
             {
                 m_AssetManger->GetAssetHandle(startScene);
@@ -2122,9 +2123,9 @@ case key: \
 
     void EditorLayer::SaveProject()
     {
-        if(m_Project && m_Project->GetConfig().ProjectRady)
+        if(m_Project && m_Project->GetConfig().m_ProjectRady)
         {
-            m_Project->SaveActive(m_Project->GetConfig().ProjectPath / (m_Project->GetConfig().name + ".ryproj"));
+            m_Project->SaveActive(m_Project->GetConfig().m_ProjectPath / (m_Project->GetConfig().m_Name + ".ryproj"));
         }
     }
 
@@ -2193,7 +2194,7 @@ case key: \
         {
             const AssetMetadata metadata = m_AssetManger->GetMetadata(handle);
             SceneSerializer serialzer(m_AktiveScene);
-            serialzer.Serialize(metadata.FilePath);
+            serialzer.Serialize(metadata.m_FilePath);
         }
         else
         {

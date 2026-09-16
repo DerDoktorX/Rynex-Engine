@@ -28,12 +28,12 @@ namespace Rynex {
 
 	struct BufferKey
 	{
-		std::string scope;
-		std::string name;
+		std::string m_Scope;
+		std::string m_Name;
 
 
 		BufferKey()
-			: scope(), name()
+			: m_Scope(), m_Name()
 		{
 			RY_CORE_WARN("Default BufferKey is empty by default!");
 		}
@@ -43,39 +43,39 @@ namespace Rynex {
 
 
 		BufferKey(const std::string& scope)
-			: scope(scope)
-			, name()
+			: m_Scope(scope)
+			, m_Name()
 		{
 		}
 
 		BufferKey(const std::string& scope, const std::string& name)
-			: scope(scope)
-			, name(name)
+			: m_Scope(scope)
+			, m_Name(name)
 		{
 		}
 
 		explicit BufferKey(std::string&& scope)
-			: scope(scope)
-			, name()
+			: m_Scope(scope)
+			, m_Name()
 		{
 		}
 
 		explicit BufferKey(std::string&& scope, std::string&& name)
-			: scope(scope)
-			, name(name)
+			: m_Scope(scope)
+			, m_Name(name)
 		{
 		}
 
 		explicit BufferKey(std::string&& scope, const std::string& name)
-			: scope(scope)
-			, name(name)
+			: m_Scope(scope)
+			, m_Name(name)
 		{
 		}
 
-		bool operator==(const BufferKey& rigth) const
+		bool operator==(const BufferKey& right) const
 		{
-			bool isScope = scope == rigth.scope;
-			bool isName = name == rigth.name;
+			const bool isScope = m_Scope == right.m_Scope;
+			const bool isName = m_Name == right.m_Name;
 
 			return isScope && isName;
 		};
@@ -83,18 +83,18 @@ namespace Rynex {
 		size_t GetHash() const
 		{
 			size_t hash;
-			if(!scope.empty() && !name.empty())
+			if(!m_Scope.empty() && !m_Name.empty())
 			{
-				std::string hashName = scope + '.' + name;
+				std::string hashName = m_Scope + '.' + m_Name;
 				hash = robin_hood::hash<std::string>{}(hashName);
 			}
-			else if(scope.empty())
+			else if(m_Scope.empty())
 			{
-				hash = robin_hood::hash<std::string>{}(scope);
+				hash = robin_hood::hash<std::string>{}(m_Scope);
 			}
 			else
 			{
-				hash = robin_hood::hash<std::string>{}(name);
+				hash = robin_hood::hash<std::string>{}(m_Name);
 			}
 			return hash;
 		}
@@ -123,13 +123,13 @@ namespace Rynex {
 
 		struct RenderBuffer
 		{
-			Memory::DynamicDataStruct dataBuffer;
-			BufferGPU buffer = Ref<IndexBuffer>(nullptr);
+			Memory::DynamicDataStruct m_DataBuffer;
+			BufferGPU m_Buffer = Ref<IndexBuffer>(nullptr);
 
 
 			operator bool() const
 			{
-				if (std::holds_alternative<Ref<IndexBuffer>>(buffer))
+				if (std::holds_alternative<Ref<IndexBuffer>>(m_Buffer))
 				{
 					RY_CORE_ERROR("This RenderBuffer has a Ref<IndexBuffer> as buffer what is set by default! but not vaild!");
 					return false;
@@ -143,7 +143,7 @@ namespace Rynex {
 						bool isCreatedRef = ref != nullptr;
 						RY_CORE_ASSERT(isCreatedRef,"This RenderBuffer has a Ref<IndexBuffer> as buffer what is set by default! but not vaild!");
 						return isCreatedRef;
-					}, buffer);
+					}, m_Buffer);
 			}
 		};
 
@@ -153,8 +153,8 @@ namespace Rynex {
 #ifndef RY_HASH_MAP_FOR_BUFFER_AND_ELEMENT_ONLY
 		struct RenderBufferScope
 		{
-			std::vector<RenderBufferGPU> scopeBufferVec;
-			HashMapFlat<std::string, BufferPtrGPUVec> ellmentNameScopeHashMap;
+			std::vector<RenderBufferGPU> m_ScopeBufferVec;
+			HashMapFlat<std::string, BufferPtrGPUVec> m_ElementNameScopeHashMap;
 		};
 #endif
 		
@@ -198,8 +198,8 @@ namespace Rynex {
 		bool HasElement(const std::string& name);
 
 		const BufferGPU& GetBuffer(const std::string& name) const;
-		const BufferGPU& GetBufferFromScopeName(const std::string& scope, const std::string& name) const;
-		const BufferGPU& GetBufferFromScopeName(const std::string& scopeName) const;
+        BufferGPU GetBufferFromScopeName(const std::string& scope, const std::string& name) const;
+        BufferGPU GetBufferFromScopeName(const std::string& scopeName) const;
 
 		template<typename T>
 		Ref<T> GetBufferAs(const std::string& name) const
@@ -227,7 +227,7 @@ namespace Rynex {
 			return *buffer;
 		}
 
-		const RenderBufferGPU& GetRenderBuffer(const std::string& name) const;
+        RenderBufferGPU GetRenderBuffer(const std::string& name) const;
 
 
 #ifdef RY_HASH_MAP_FOR_BUFFER_AND_ELEMENT_ONLY
@@ -292,7 +292,7 @@ namespace Rynex {
 		void SetElement(const std::string& name, const T& value, uint32_t index = 0)
 		{
 
-			HashMapFlat<std::string, BufferPtrGPUVec>& inhartendEllmentNameScopeHashMap = m_InhartendScopeBuffer.ellmentNameScopeHashMap;
+			HashMapFlat<std::string, BufferPtrGPUVec>& inhartendEllmentNameScopeHashMap = m_InhartendScopeBuffer.m_ElementNameScopeHashMap;
 			HashMapFlat<std::string, BufferPtrGPUVec>::iterator it = inhartendEllmentNameScopeHashMap.begin();
 
 			if (it == inhartendEllmentNameScopeHashMap.end())
@@ -305,7 +305,7 @@ namespace Rynex {
 
 			for (RenderBufferGPU renderBufferGPU : bufferPtrGPUVec)
 			{
-				renderBufferGPU->dataBuffer.Set(name, index, value);
+				renderBufferGPU->m_DataBuffer.Set(name, index, value);
 			}
 		}
 
@@ -322,8 +322,8 @@ namespace Rynex {
 
 				renderBuffer = CreateRef<RenderBuffer>();
 
-				renderBuffer->buffer = buffer;
-				renderBuffer->dataBuffer = Memory::DynamicDataStruct(layout, arrayCount);
+				renderBuffer->m_Buffer = buffer;
+				renderBuffer->m_DataBuffer = Memory::DynamicDataStruct(layout, arrayCount);
 
 				InsertRenderBufferGPU(renderBuffer, scopeName);
 			}
@@ -331,8 +331,8 @@ namespace Rynex {
 			{				
 				RenderBufferGPU& renderBuffer = pos->second;
 
-				renderBuffer->buffer = buffer;
-				renderBuffer->dataBuffer = Memory::DynamicDataStruct(layout, arrayCount);
+				renderBuffer->m_Buffer = buffer;
+				renderBuffer->m_DataBuffer = Memory::DynamicDataStruct(layout, arrayCount);
 
 				OverrideRenderBufferGPU(renderBuffer, scopeName);
 			}
@@ -350,9 +350,9 @@ namespace Rynex {
 
 		void PrintScope() const;
 		bool IsInScope(const std::string& name) const;
-		std::string&& GetScopeToName(const std::string& name) const;
+        std::string GetScopeToName(const std::string& name) const;
 
-		std::string&& GetScopeName();
+        std::string GetScopeName();
 		void PopScope();
 
 	private:

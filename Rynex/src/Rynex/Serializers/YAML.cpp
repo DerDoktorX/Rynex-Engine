@@ -2,8 +2,10 @@
 #include "YAML.h"
 
 #include <Rynex/Asset/Base/AssetManager.h>
+#include <Rynex/Renderer/Rendering/Renderer.h>
 
 #include <yaml-cpp/yaml.h>
+
 
 
 
@@ -229,16 +231,16 @@ namespace YAML {
 
 	Emitter& operator<<(Emitter& out, const Rynex::BufferElement& element)
 	{
-		std::string_view view = magic_enum::enum_name(element.type);
+		std::string_view view = magic_enum::enum_name(element.m_Type);
 
 
 		out << YAML::Flow;
 		out << YAML::BeginSeq;
 
-		out << YAML::Value << magic_enum::enum_name(element.type);
-		out << YAML::Value << element.name;
-		if (element.normilized)
-			out << YAML::Value << element.normilized;
+		out << YAML::Value << magic_enum::enum_name(element.m_Type);
+		out << YAML::Value << element.m_Name;
+		if (element.m_Normalized)
+			out << YAML::Value << element.m_Normalized;
 
 		out << YAML::EndSeq;
 
@@ -372,10 +374,10 @@ namespace YAML {
 	Emitter& operator<<(Emitter& out, const Rynex::FramebufferTextureSpecification& framebufferTextureSpecification)
 	{
 		out << YAML::BeginMap;
-		out << YAML::Key << "TextureFormat" << framebufferTextureSpecification.TextureFormat;
-		out << YAML::Key << "Samples" << framebufferTextureSpecification.Samples;
-		out << YAML::Key << "TextureWrapping" << framebufferTextureSpecification.TextureWrapping;
-		out << YAML::Key << "TextureFiltering" << framebufferTextureSpecification.TextureFiltering;
+		out << YAML::Key << "TextureFormat" << framebufferTextureSpecification.m_TextureFormat;
+		out << YAML::Key << "Samples" << framebufferTextureSpecification.m_Samples;
+		out << YAML::Key << "TextureWrapping" << framebufferTextureSpecification.m_TextureWrapping;
+		out << YAML::Key << "TextureFiltering" << framebufferTextureSpecification.m_TextureFiltering;
 		out << YAML::Key << "Compare" << framebufferTextureSpecification.Compare;
 		out << YAML::EndMap;
 		return out;
@@ -385,12 +387,12 @@ namespace YAML {
 	{
 		out << YAML::BeginMap;
 		out << YAML::Key << "ProjectionType" << camera.GetProjectionType();
-		out << YAML::Key << "PerspectivVerticleFOV" << camera.GetPerspectivVerticleFOV();
-		out << YAML::Key << "PerspectivNearClipe" << camera.GetPerspectivNearClipe();
-		out << YAML::Key << "PerspectivFarClipe" << camera.GetPerspectivFarClipe();
+		out << YAML::Key << "PerspectivVerticleFOV" << camera.GetPerspectiveVerticalFOV();
+		out << YAML::Key << "PerspectivNearClipe" << camera.GetPerspectiveNearClip();
+		out << YAML::Key << "PerspectivFarClipe" << camera.GetPerspectiveFarClip();
 		out << YAML::Key << "OrthographicSize" << camera.GetOrthographicSize();
-		out << YAML::Key << "OrthographicNearClipe" << camera.GetOrthographicNearClipe();
-		out << YAML::Key << "OrthographicFarClipe" << camera.GetOrthographicFarClipe();
+		out << YAML::Key << "OrthographicNearClipe" << camera.GetOrthographicNearClip();
+		out << YAML::Key << "OrthographicFarClipe" << camera.GetPerspectiveFarClip();
 
 		out << YAML::EndMap;
 
@@ -401,7 +403,7 @@ namespace YAML {
 	Emitter& operator<<(Emitter& out, const Rynex::FramebufferAttachmentSpecification& framebufferAttachmentSpecification)
 	{
 		out << YAML::BeginSeq;
-		for (const Rynex::FramebufferTextureSpecification& framTexSpec : framebufferAttachmentSpecification.Attachments)
+		for (const Rynex::FramebufferTextureSpecification& framTexSpec : framebufferAttachmentSpecification.m_Attachments)
 		{
 			out << framTexSpec;
 		}
@@ -413,14 +415,14 @@ namespace YAML {
 	{
 		out << YAML::BeginMap;
 
-		out << YAML::Key << "Width" << YAML::Value << specification.Width;
-		out << YAML::Key << "Height" << YAML::Value << specification.Height;
-		out << YAML::Key << "Depth" << YAML::Value << specification.Depth;
+		out << YAML::Key << "Width" << YAML::Value << specification.m_Width;
+		out << YAML::Key << "Height" << YAML::Value << specification.m_Height;
+		out << YAML::Key << "Depth" << YAML::Value << specification.m_Depth;
 
-		out << YAML::Key << "Attachments" << specification.Attachments;
-		out << YAML::Key << "Target" << specification.Target;
-		out << YAML::Key << "Samples" << specification.Samples;
-		out << YAML::Key << "SwapChainTarget" << specification.SwapChainTarget;
+		out << YAML::Key << "Attachments" << specification.m_Attachments;
+		out << YAML::Key << "Target" << specification.m_Target;
+		out << YAML::Key << "Samples" << specification.m_Samples;
+		out << YAML::Key << "SwapChainTarget" << specification.m_SwapChainTarget;
 
 		out << YAML::EndSeq;
 		return out;
@@ -438,15 +440,15 @@ namespace YAML {
 	
 	bool convert<Rynex::SceneCamera::ProjectionType>::decode(const Node& node, Rynex::SceneCamera::ProjectionType& projectionType)
 	{
-		std::string projectionTypeStr = node.as<std::string>();
+		const std::string projectionTypeStr = node.as<std::string>();
 		std::optional<Rynex::SceneCamera::ProjectionType> optionle = magic_enum::enum_cast<Rynex::SceneCamera::ProjectionType>(projectionTypeStr);
-		projectionType = optionle.value_or(Rynex::SceneCamera::ProjectionType::Perspectiv);
+		projectionType = optionle.value_or(Rynex::SceneCamera::ProjectionType::Perspective);
 		return true;
 	}
 
 	bool convert<Rynex::TextureWrappingMode>::decode(const Node& node, Rynex::TextureWrappingMode& textureWrappingMode)
 	{
-		std::string textureWrappingModeStr = node.as<std::string>();
+		const std::string textureWrappingModeStr = node.as<std::string>();
 		std::optional<Rynex::TextureWrappingMode> optionle = magic_enum::enum_cast<Rynex::TextureWrappingMode>(textureWrappingModeStr);
 		textureWrappingMode = optionle.value_or(Rynex::TextureWrappingMode::Default);
 		return true;
@@ -455,43 +457,43 @@ namespace YAML {
 
 	bool convert<Rynex::TextureFilteringMode>::decode(const Node& node, Rynex::TextureFilteringMode& textureFilteringMode)
 	{
-		std::string textureFilteringModeStr = node.as<std::string>();
-		std::optional<Rynex::TextureFilteringMode> optionle = magic_enum::enum_cast<Rynex::TextureFilteringMode>(textureFilteringModeStr);
-		textureFilteringMode = optionle.value_or(Rynex::TextureFilteringMode::Default);
+		const std::string textureFilteringModeStr = node.as<std::string>();
+		std::optional<Rynex::TextureFilteringMode> optional = magic_enum::enum_cast<Rynex::TextureFilteringMode>(textureFilteringModeStr);
+		textureFilteringMode = optional.value_or(Rynex::TextureFilteringMode::Default);
 		return true;
 	}
 	
 
 	bool convert<Rynex::TextureCompareModes>::decode(const Node& node, Rynex::TextureCompareModes& textureCompareModes)
 	{
-		std::string textureCompareModesStr = node.as<std::string>();
-		std::optional<Rynex::TextureCompareModes> optionle = magic_enum::enum_cast<Rynex::TextureCompareModes>(textureCompareModesStr);
-		textureCompareModes = optionle.value_or(Rynex::TextureCompareModes::Default);
+		const std::string textureCompareModesStr = node.as<std::string>();
+		std::optional<Rynex::TextureCompareModes> optional = magic_enum::enum_cast<Rynex::TextureCompareModes>(textureCompareModesStr);
+		textureCompareModes = optional.value_or(Rynex::TextureCompareModes::Default);
 		return true;
 	}
 	
 
 	bool convert<Rynex::TextureFormat>::decode(const Node& node, Rynex::TextureFormat& textureFormat)
 	{
-		std::string textureFormatStr = node.as<std::string>();
-		std::optional<Rynex::TextureFormat> optionle = magic_enum::enum_cast<Rynex::TextureFormat>(textureFormatStr);
-		textureFormat = optionle.value_or(Rynex::TextureFormat::Default);
+		const std::string textureFormatStr = node.as<std::string>();
+		std::optional<Rynex::TextureFormat> optional = magic_enum::enum_cast<Rynex::TextureFormat>(textureFormatStr);
+		textureFormat = optional.value_or(Rynex::TextureFormat::Default);
 		return true;
 	}
 
 	bool convert<Rynex::TextureTarget>::decode(const Node& node, Rynex::TextureTarget& textureFormat)
 	{
-		std::string textureTargetStr = node.as<std::string>();
-		std::optional<Rynex::TextureTarget> optionle = magic_enum::enum_cast<Rynex::TextureTarget>(textureTargetStr);
-		textureFormat = optionle.value_or(Rynex::TextureTarget::Default);
+		const std::string textureTargetStr = node.as<std::string>();
+		std::optional<Rynex::TextureTarget> optional = magic_enum::enum_cast<Rynex::TextureTarget>(textureTargetStr);
+		textureFormat = optional.value_or(Rynex::TextureTarget::Default);
 		return true;
 	}
 
 	bool convert<Rynex::ShaderDataType>::decode(const Node& node, Rynex::ShaderDataType& textureFormat)
 	{
-		std::string textureTargetStr = node.as<std::string>();
-		std::optional<Rynex::ShaderDataType> optionle = magic_enum::enum_cast<Rynex::ShaderDataType>(textureTargetStr);
-		textureFormat = optionle.value_or(Rynex::ShaderDataType::None);
+		const std::string textureTargetStr = node.as<std::string>();
+		std::optional<Rynex::ShaderDataType> optional = magic_enum::enum_cast<Rynex::ShaderDataType>(textureTargetStr);
+		textureFormat = optional.value_or(Rynex::ShaderDataType::None);
 		return true;
 	}
 
@@ -508,10 +510,10 @@ namespace YAML {
 
 	bool convert<Rynex::FramebufferTextureSpecification>::decode(const Node& node, Rynex::FramebufferTextureSpecification& framebufferTextureSpecification)
 	{
-		framebufferTextureSpecification.TextureFormat = node["TextureFormat"].as<Rynex::TextureFormat>();
-		framebufferTextureSpecification.Samples = node["Samples"].as<uint32_t>();
-		framebufferTextureSpecification.TextureWrapping = node["TextureWrapping"].as<Rynex::TextureWrappingSpecification>();
-		framebufferTextureSpecification.TextureFiltering = node["TextureFiltering"].as<Rynex::TextureFilteringMode>();
+		framebufferTextureSpecification.m_TextureFormat = node["TextureFormat"].as<Rynex::TextureFormat>();
+		framebufferTextureSpecification.m_Samples = node["Samples"].as<uint32_t>();
+		framebufferTextureSpecification.m_TextureWrapping = node["TextureWrapping"].as<Rynex::TextureWrappingSpecification>();
+		framebufferTextureSpecification.m_TextureFiltering = node["TextureFiltering"].as<Rynex::TextureFilteringMode>();
 		framebufferTextureSpecification.Compare = node["Compare"].as<Rynex::TextureCompareModes>();
 
 		return true;
@@ -520,22 +522,22 @@ namespace YAML {
 	bool convert<Rynex::SceneCamera>::decode(const Node& node, Rynex::SceneCamera& sceneCamera)
 	{
 		sceneCamera.SetProjectionType(node["ProjectionType"].as<Rynex::SceneCamera::ProjectionType>());
-		sceneCamera.SetPerspectivVerticleFOV(node["PerspectivVerticleFOV"].as<float>());
-		sceneCamera.SetPerspectivNearClipe(node["PerspectivNearClipe"].as<float>());
-		sceneCamera.SetPerspectivFarClipe(node["PerspectivFarClipe"].as<float>());
-		sceneCamera.SetOrthograficSize(node["OrthographicSize"].as<float>());
-		sceneCamera.SetOrthograficNearClipe(node["OrthographicNearClipe"].as<float>());
-		sceneCamera.SetOrthograficFarClipe(node["OrthographicFarClipe"].as<float>());
+		sceneCamera.SetPerspectiveVerticalFOV(node["PerspectivVerticleFOV"].as<float>());
+		sceneCamera.SetPerspectiveNearClip(node["PerspectivNearClipe"].as<float>());
+		sceneCamera.SetPerspectiveFarClip(node["PerspectivFarClipe"].as<float>());
+		sceneCamera.SetOrthographicSize(node["OrthographicSize"].as<float>());
+		sceneCamera.SetOrthographicFarClip(node["OrthographicNearClipe"].as<float>());
+		sceneCamera.SetOrthographicNearClip(node["OrthographicFarClipe"].as<float>());
 
 		return true;
 	}
 
 	bool convert<Rynex::FramebufferAttachmentSpecification>::decode(const Node& node, Rynex::FramebufferAttachmentSpecification& framebufferAttachmentSpecification)
 	{
-		framebufferAttachmentSpecification.Attachments.reserve(node.size());
+		framebufferAttachmentSpecification.m_Attachments.reserve(node.size());
 		for (const Node& nodeAttchment : node)
 		{
-			framebufferAttachmentSpecification.Attachments.emplace_back(nodeAttchment.as<Rynex::FramebufferTextureSpecification>());
+			framebufferAttachmentSpecification.m_Attachments.emplace_back(nodeAttchment.as<Rynex::FramebufferTextureSpecification>());
 		}
 
 		return true;
@@ -543,15 +545,15 @@ namespace YAML {
 
 	bool convert<Rynex::FramebufferSpecification>::decode(const Node& node, Rynex::FramebufferSpecification& specification)
 	{
-		specification.Width = node["Width"].as<uint32_t>();
-		specification.Height = node["Height"].as<uint32_t>();
-		specification.Depth = node["Depth"].as<uint32_t>();
+		specification.m_Width = node["Width"].as<uint32_t>();
+		specification.m_Height = node["Height"].as<uint32_t>();
+		specification.m_Depth = node["Depth"].as<uint32_t>();
 
 
-		specification.Attachments = node["Attachments"].as<Rynex::FramebufferAttachmentSpecification>();
-		specification.Target = node["Target"].as<Rynex::TextureTarget>();
-		specification.Samples = node["Samples"].as<uint32_t>();
-		specification.SwapChainTarget = node["SwapChainTarget"].as<bool>();
+		specification.m_Attachments = node["Attachments"].as<Rynex::FramebufferAttachmentSpecification>();
+		specification.m_Target = node["Target"].as<Rynex::TextureTarget>();
+		specification.m_Samples = node["Samples"].as<uint32_t>();
+		specification.m_SwapChainTarget = node["SwapChainTarget"].as<bool>();
 
 		return true;
 	}
@@ -567,8 +569,8 @@ namespace YAML {
 		const Node& autoCompressNode = node["AutoCompress"];
 		bool autoCompress = autoCompressNode ? autoCompressNode.as<bool>() : false;
 
-		const Node& instanIncreaseNode = node["InstastancIncreas"];
-		uint32_t instancIncrease = instanIncreaseNode ? instanIncreaseNode.as<uint32_t>() : 0u;
+		const Node& instancesIncreaseNode = node["InstastancIncreas"];
+		uint32_t instancesIncrease = instancesIncreaseNode ? instancesIncreaseNode.as<uint32_t>() : 0u;
 
 
 
@@ -578,7 +580,7 @@ namespace YAML {
 			Rynex::BufferElement elements = nodeElements[i].as<Rynex::BufferElement>();
 			elementsVec.emplace_back(elements);
 		}
-		layout = Rynex::BufferLayout(elementsVec, instancIncrease);
+		layout = Rynex::BufferLayout(elementsVec, instancesIncrease);
 		layout.SetAutoCompress(autoCompress);
 		return true;
 
@@ -590,12 +592,12 @@ namespace YAML {
 		std::optional<Rynex::ShaderDataType> optionel = magic_enum::enum_cast<Rynex::ShaderDataType>(shaderDataTypeStr);
 
 
-		element.type = optionel.value_or(Rynex::ShaderDataType::None);
-		element.name = node[1].as<std::string>();
-		element.normilized = node.size() < 3 ? false : node[2].as<bool>();
+		element.m_Type = optionel.value_or(Rynex::ShaderDataType::None);
+		element.m_Name = node[1].as<std::string>();
+		element.m_Normalized = node.size() < 3 ? false : node[2].as<bool>();
 
 
-		element = Rynex::BufferElement(element.type, element.name, true, 0u, element.normilized);
+		element = Rynex::BufferElement(element.m_Type, element.m_Name, true, 0u, element.m_Normalized);
 		return true;
 	}
 
@@ -961,14 +963,14 @@ namespace Serializer {
 	
 	void AssetFormate(YAML::Emitter& out, Rynex::AssetHandle handle)
 	{
-		Rynex::Ref<Rynex::Project> project = Rynex::Project::GetActive();
+		const Rynex::Ref<Rynex::Project> project = Rynex::Project::GetActive();
 		Rynex::Ref<Rynex::EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
-		Rynex::AssetMetadata metadata = editorAssetManger->GetMetadata(handle);
-		const std::filesystem::path& filePath = metadata.FilePath;
-		const std::filesystem::path& pathMarked = metadata.PathMarker;
+		const Rynex::AssetMetadata metadata = editorAssetManger->GetMetadata(handle);
+		const std::filesystem::path& filePath = metadata.m_FilePath;
+		const std::filesystem::path& pathMarked = metadata.m_PathMarker;
 
-		std::string filePathStr = filePath.string();
-		std::string pathMarkedStr = pathMarked.string();
+		const std::string filePathStr = filePath.string();
+		const std::string pathMarkedStr = pathMarked.string();
 
 		
 		out << YAML::BeginMap;
@@ -988,7 +990,7 @@ namespace Deserialize {
 
 
     template<typename T>
-    bool AssetFormateType(YAML::Node nodeE, Rynex::Ref<T>* entityC, bool async)
+    static bool AssetFormateType(YAML::Node nodeE, Rynex::Ref<T>* entityC, bool async)
     {
         if (!nodeE)
             return false;
@@ -996,16 +998,16 @@ namespace Deserialize {
         Rynex::FileSystem::Path path;
         Rynex::FileSystem::Path pathMarked;
 
-        if (YAML::Node nodeAtribut = nodeE["Path-ProjectMarker"])
-            pathMarked = nodeAtribut.as<std::string>();
+        if (YAML::Node nodeAttribute = nodeE["Path-ProjectMarker"])
+            pathMarked = nodeAttribute.as<std::string>();
 
-        if (YAML::Node nodeAtribut = nodeE["Path"])
-            path = nodeAtribut.as<std::string>();
+        if (YAML::Node nodeAttribute = nodeE["Path"])
+            path = nodeAttribute.as<std::string>();
 
 
 
         Rynex::AssetHandle handle = nodeE["Handle"].as<uint64_t>();
-        Rynex::AssetFindeInfo info = Rynex::AssetFindeInfo(handle, path, pathMarked);
+        Rynex::AssetFindeInfo info(handle, path, pathMarked);
         *entityC = Rynex::AssetManager::FindAsset<T>(info);
 
         return true;

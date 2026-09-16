@@ -57,11 +57,11 @@ namespace Rynex {
 		ImGuiTreeNodeFlags flags = (IsNodeSelected(nodes) ? ImGuiTreeNodeFlags_Selected : 0);
 		flags |= ImGuiTreeNodeFlags_OpenOnArrow;
 		flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
-		std::vector<MeshSource::EntityNodes>& childrens = nodes.Childrens;
+		std::vector<MeshSource::EntityNodes>& childrens = nodes.m_Childrens;
 		if(childrens.empty())
 			flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
 
-		std::string& name = nodes.NodeName;
+		std::string& name = nodes.m_NodeName;
 		std::string idName = (name + std::to_string(id));
 		ImGui::PushID(idName.c_str());
 
@@ -71,7 +71,7 @@ namespace Rynex {
 			const Ref<MeshSource> source = m_MeshObject->GetMeshSource();
 			const std::vector<Ref<MeshSingle>>& meshSingleVec = source->GetMeshSingleVecConst();
 			
-			for (uint32_t meshIndex : nodes.ObjectMeshIndexVec)
+			for (uint32_t meshIndex : nodes.m_ObjectMeshIndexVec)
 			{
 				m_MeshSingleSelcted = meshSingleVec.at(meshIndex);
 				m_SelectionNode = MeshSource::EntityNodes{};
@@ -99,7 +99,7 @@ namespace Rynex {
 
 	bool MeshPannel::IsNodeSelected(const MeshSource::EntityNodes& node) const
 	{
-		return node == m_SelectionNode || CheckMeshes(m_MeshSingleSelcted, node.ObjectMeshIndexVec);
+		return node == m_SelectionNode || CheckMeshes(m_MeshSingleSelcted, node.m_ObjectMeshIndexVec);
 	}
 
 	bool MeshPannel::CheckMeshes(const Ref<MeshSingle>& meshSingle, const std::vector<uint32_t>& meshLocalIndexVec)
@@ -107,7 +107,7 @@ namespace Rynex {
 		if (nullptr == meshSingle)
 			return false;
 
-		uint32_t localeIndex = meshSingle->GetModelLocalMesheIndex();
+		uint32_t localeIndex = meshSingle->GetModelLocalMeshIndex();
 		for (const uint32_t& index : meshLocalIndexVec)
 		{
 			if (localeIndex == index)

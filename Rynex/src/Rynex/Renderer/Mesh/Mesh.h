@@ -24,31 +24,31 @@
 #endif
 namespace Rynex {
 
-	struct MeshVerteices
+	struct MeshVertices
 	{
-		glm::vec3 Postion;
-		glm::vec2 TexCorrds; // UV
-		glm::vec3 Normale;
+		glm::vec3 m_Position;
+		glm::vec2 m_TextureCords; // UV
+		glm::vec3 m_Normale;
 
 
-		MeshVerteices() = default;
-		MeshVerteices(const MeshVerteices& mv) = default;
+		MeshVertices() = default;
+		MeshVertices(const MeshVertices& mv) = default;
 
 		
 	};
 
-	constexpr bool operator==(const MeshVerteices& left, const MeshVerteices& rigth)
+	constexpr bool operator==(const MeshVertices& left, const MeshVertices& rigth)
 	{
-		return left.Postion == rigth.Postion
-			&& left.TexCorrds == rigth.TexCorrds
-			&& left.Normale == rigth.Normale;
+		return left.m_Position == rigth.m_Position
+			&& left.m_TextureCords == rigth.m_TextureCords
+			&& left.m_Normale == rigth.m_Normale;
 	}
 
-	constexpr bool operator!=(const MeshVerteices& left, const MeshVerteices& rigth)
+	constexpr bool operator!=(const MeshVertices& left, const MeshVertices& rigth)
 	{
-		return left.Postion != rigth.Postion
-			|| left.TexCorrds != rigth.TexCorrds
-			|| left.Normale != rigth.Normale;
+		return left.m_Position != rigth.m_Position
+			|| left.m_TextureCords != rigth.m_TextureCords
+			|| left.m_Normale != rigth.m_Normale;
 	}
 
 	class MeshStatic;
@@ -60,13 +60,13 @@ namespace Rynex {
 
 	typedef int ObjectMeshIndexVec;
 	typedef int MaterialIndex;
-	typedef int EnitiytID;
+	typedef int EntityID;
 	
 
 	struct MeshEntity
 	{
-		Ref<Material> _Material;
-		uint32_t LocaleMeshIndex;
+		Ref<Material> m_Material;
+		uint32_t m_LocaleMeshIndex;
 	};
 
 	
@@ -85,42 +85,43 @@ namespace Rynex {
 		
 		struct PerDrawObject
 		{
-			uint32_t Count;
-			uint32_t InstancesCount;
-			uint32_t FirstIndex;
-			int BaseVertex;
-			uint32_t BaseInstance;
+			uint32_t m_Count;
+			uint32_t m_InstancesCount;
+			uint32_t m_FirstIndex;
+			int m_BaseVertex;
+			uint32_t m_BaseInstance;
 		};
 
 		struct MeshMaterielIndex
 		{
-			int MaterielIndex = -1;
+			int m_MaterielIndex = -1;
 		};
 
 		struct MeshMateriel
 		{
-			uint32_t MaterielIndex;
+			uint32_t m_MaterielIndex;
 		};
 
 		struct MeshRenderObject
 		{
-			Ref<MeshSingle>	Mesh;
-			Ref<Material>	Material;
-			std::string		NodeName;
+			Ref<MeshSingle>	m_Mesh;
+			Ref<Material>	m_Material;
+			std::string		m_NodeName;
 
-			glm::mat4		Matrix;
+			glm::mat4		m_Matrix;
 
-			uint32_t		LocaleIndexMesh;
-			uint32_t		LocaleIndexMateriel;
+			uint32_t		m_LocaleIndexMesh;
+			uint32_t		m_LocaleIndexMateriel;
 
 		};
 
-	public:
+	// public member methode --------------------------------------------------------------------------------------------------
 		Mesh() = default;
-		Mesh(const UUID& handdle)
-			: Asset(handdle)
+
+        explicit Mesh(const UUID& handle)
+			: Asset(handle)
 		{ }
-		virtual ~Mesh() {}
+        virtual ~Mesh() = default;
 
 		
 		virtual Mesh::Type GetMeshType() const = 0;

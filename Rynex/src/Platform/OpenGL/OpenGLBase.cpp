@@ -346,7 +346,7 @@ namespace OpenGL {
 		{
 			RY_INTERNLE_GET_OPENGL_MACRO_CASE(Rynex::BufferType::ShaderStorage, GL_SHADER_STORAGE_BUFFER);
 			RY_INTERNLE_GET_OPENGL_MACRO_CASE(Rynex::BufferType::Vertex, GL_ARRAY_BUFFER);
-			RY_INTERNLE_GET_OPENGL_MACRO_CASE(Rynex::BufferType::DrawIndrirect, GL_DRAW_INDIRECT_BUFFER);
+			RY_INTERNLE_GET_OPENGL_MACRO_CASE(Rynex::BufferType::DrawIndirect, GL_DRAW_INDIRECT_BUFFER);
 			RY_INTERNLE_GET_OPENGL_MACRO_CASE(Rynex::BufferType::Uniform, GL_UNIFORM_BUFFER);
 			case Rynex::BufferType::None:
 			RY_INTERNLE_GET_OPENGL_MACRO_DEFAULT(Rynex::BufferType);
@@ -388,7 +388,7 @@ namespace OpenGL {
 					result |= GL_MAP_WRITE_BIT;
 					break;
 				}
-				case Rynex::BufferFlag::BufferFlagBit::Presistent:
+				case Rynex::BufferFlag::BufferFlagBit::Persistence:
 				{
 					result |= GL_MAP_PERSISTENT_BIT;
 					break;

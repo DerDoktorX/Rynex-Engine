@@ -78,22 +78,22 @@ namespace Rynex {
 				{
 					CalculatMinMax(data, i + postionElement.offset, postionElement);
 				}
-				glm::vec3 differenze = m_AABB.Min - m_AABB.Max;
+				glm::vec3 differenze = m_AABB.m_Min - m_AABB.m_Max;
 				glm::vec3 half = glm::vec3(0.5f, 0.5f, 0.5f) * differenze;
-				m_Sphere.Center = m_AABB.Max + half;
+				m_Sphere.Center = m_AABB.m_Max + half;
 				break;
 			}
 		}
 		
-		RY_CORE_INFO("Succesfull Create AABB Box! Min({0}, {1}, {2})  Max({3}, {4}, {5})", m_AABB.Min.x, m_AABB.Min.y, m_AABB.Min.z, m_AABB.Max.x, m_AABB.Max.y, m_AABB.Max.z);
+		RY_CORE_INFO("Succesfull Create AABB Box! Min({0}, {1}, {2})  Max({3}, {4}, {5})", m_AABB.m_Min.x, m_AABB.m_Min.y, m_AABB.m_Min.z, m_AABB.m_Max.x, m_AABB.m_Max.y, m_AABB.m_Max.z);
 		float extremValue[6] = {
-			m_AABB.Min[0],
-			m_AABB.Min[1],
-			m_AABB.Min[2],
+			m_AABB.m_Min[0],
+			m_AABB.m_Min[1],
+			m_AABB.m_Min[2],
 
-			m_AABB.Max[0],
-			m_AABB.Max[1],
-			m_AABB.Max[2]
+			m_AABB.m_Max[0],
+			m_AABB.m_Max[1],
+			m_AABB.m_Max[2]
 		};
 		m_Sphere.Radius = 0.0f;
 
@@ -134,9 +134,9 @@ namespace Rynex {
 					uint32_t vertexBytePos = vertexIndex * stride;
 					CalculatMinMax(dataVec, vertexBytePos + postionElement.offset, postionElement);
 				}
-				glm::vec3 differenze = m_AABB.Min - m_AABB.Max;
+				glm::vec3 differenze = m_AABB.m_Min - m_AABB.m_Max;
 				glm::vec3 half = glm::vec3(0.5f, 0.5f, 0.5f) * differenze;
-				m_Sphere.Center = m_AABB.Max + half;
+				m_Sphere.Center = m_AABB.m_Max + half;
 				m_Sphere.Radius = 0.0f;
 				for (const uint32_t& vertexIndex : indices32ByteVec)
 				{
@@ -147,32 +147,32 @@ namespace Rynex {
 			}
 		}
 
-		RY_CORE_INFO("Succesfull Create AABB Box! Min({0}, {1}, {2})  Max({3}, {4}, {5})", m_AABB.Min.x, m_AABB.Min.y, m_AABB.Min.z, m_AABB.Max.x, m_AABB.Max.y, m_AABB.Max.z);
+		RY_CORE_INFO("Succesfull Create AABB Box! Min({0}, {1}, {2})  Max({3}, {4}, {5})", m_AABB.m_Min.x, m_AABB.m_Min.y, m_AABB.m_Min.z, m_AABB.m_Max.x, m_AABB.m_Max.y, m_AABB.m_Max.z);
 		
 
 	}
 
 	void BoundingVolume::SetBoxAABB(std::array<glm::vec3, 8>& points)
 	{
-		if (RY_MIN_FLOAT != m_AABB.Max.x)
+		if (RY_MIN_FLOAT != m_AABB.m_Max.x)
 		{
-			m_AABB.Max = glm::vec3(RY_MIN_FLOAT, RY_MIN_FLOAT, RY_MIN_FLOAT);
-			m_AABB.Min = glm::vec3(RY_MAX_FLOAT, RY_MAX_FLOAT, RY_MAX_FLOAT);
+			m_AABB.m_Max = glm::vec3(RY_MIN_FLOAT, RY_MIN_FLOAT, RY_MIN_FLOAT);
+			m_AABB.m_Min = glm::vec3(RY_MAX_FLOAT, RY_MAX_FLOAT, RY_MAX_FLOAT);
 		}
 		for (auto& point : points)
 		{
-			Utils::CheckAndSetAABB(&m_AABB.Min.x, &m_AABB.Max.x, point.x);
-			Utils::CheckAndSetAABB(&m_AABB.Min.y, &m_AABB.Max.y, point.y);
-			Utils::CheckAndSetAABB(&m_AABB.Min.z, &m_AABB.Max.z, point.z);
+			Utils::CheckAndSetAABB(&m_AABB.m_Min.x, &m_AABB.m_Max.x, point.x);
+			Utils::CheckAndSetAABB(&m_AABB.m_Min.y, &m_AABB.m_Max.y, point.y);
+			Utils::CheckAndSetAABB(&m_AABB.m_Min.z, &m_AABB.m_Max.z, point.z);
 		}
 		float extremValue[6] = {
-			m_AABB.Min[0],
-			m_AABB.Min[1],
-			m_AABB.Min[2],
+			m_AABB.m_Min[0],
+			m_AABB.m_Min[1],
+			m_AABB.m_Min[2],
 
-			m_AABB.Max[0],
-			m_AABB.Max[1],
-			m_AABB.Max[2]
+			m_AABB.m_Max[0],
+			m_AABB.m_Max[1],
+			m_AABB.m_Max[2]
 		};
 
 		m_Sphere.Radius = 0.0f;
@@ -186,13 +186,13 @@ namespace Rynex {
 
 	glm::vec3 BoundingVolume::GetMin(const glm::mat4& model) const
 	{
-		glm::vec4 min = model * glm::vec4(m_AABB.Min, 1.0f);
+		glm::vec4 min = model * glm::vec4(m_AABB.m_Min, 1.0f);
 		return glm::vec3(min / min.w) ;
 	}
 
 	glm::vec3 BoundingVolume::GetMax(const glm::mat4& model) const
 	{
-		glm::vec4 max = model * glm::vec4(m_AABB.Max, 1.0f);
+		glm::vec4 max = model * glm::vec4(m_AABB.m_Max, 1.0f);
 		return glm::vec3(max / max.w);
 	}
 
@@ -235,7 +235,7 @@ namespace Rynex {
 
 	void BoundingVolume::CalculatMinMax(const std::vector<unsigned char>& data, uint32_t offset, BufferElement element)
 	{
-		switch (element.type)
+		switch (element.m_Type)
 		{
 		case ShaderDataType::Float2:
 		{
@@ -296,7 +296,7 @@ namespace Rynex {
 		}
 		default:
 		{
-			RY_CORE_ASSERT(false, ("Not Seport Data Formate {0}, for Box Min Max", (int)element.type));
+			RY_CORE_ASSERT(false, ("Not Seport Data Formate {0}, for Box Min Max", (int)element.m_Type));
 			break;
 		}
 		}
@@ -304,7 +304,7 @@ namespace Rynex {
 
 	void BoundingVolume::FindeRadius(const std::vector<unsigned char>& data, uint32_t offset, BufferElement element)
 	{
-		switch (element.type)
+		switch (element.m_Type)
 		{
 		case ShaderDataType::Float2:
 		{
@@ -356,72 +356,72 @@ namespace Rynex {
 		}
 		default:
 		{
-			RY_CORE_ASSERT(false, ("Not Seport Data Formate {0}, for Box Min Max", (int)element.type));
+			RY_CORE_ASSERT(false, ("Not Seport Data Formate {0}, for Box Min Max", (int)element.m_Type));
 			break;
 		}
 		}
 	}
 	void BoundingVolume::CheckValues(glm::vec<2, float>* value)
 	{
-		Utils::CheckAndSetAABB(&m_AABB.Min.x, &m_AABB.Max.x, value->x);
-		Utils::CheckAndSetAABB(&m_AABB.Min.y, &m_AABB.Max.y, value->y);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.x, &m_AABB.m_Max.x, value->x);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.y, &m_AABB.m_Max.y, value->y);
 	}
 
 	void BoundingVolume::CheckValues(glm::vec<3, float>* value)
 	{
-		Utils::CheckAndSetAABB(&m_AABB.Min.x, &m_AABB.Max.x, value->x);
-		Utils::CheckAndSetAABB(&m_AABB.Min.y, &m_AABB.Max.y, value->y);
-		Utils::CheckAndSetAABB(&m_AABB.Min.z, &m_AABB.Max.z, value->z);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.x, &m_AABB.m_Max.x, value->x);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.y, &m_AABB.m_Max.y, value->y);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.z, &m_AABB.m_Max.z, value->z);
 	}
 
 	void BoundingVolume::CheckValues(glm::vec<4, float>* value)
 	{
 
-		Utils::CheckAndSetAABB(&m_AABB.Min.x, &m_AABB.Max.x, value->x);
-		Utils::CheckAndSetAABB(&m_AABB.Min.y, &m_AABB.Max.y, value->y);
-		Utils::CheckAndSetAABB(&m_AABB.Min.z, &m_AABB.Max.z, value->z);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.x, &m_AABB.m_Max.x, value->x);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.y, &m_AABB.m_Max.y, value->y);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.z, &m_AABB.m_Max.z, value->z);
 	}
 
 
 	void BoundingVolume::CheckValues(glm::vec<2, int>* value)
 	{
-		Utils::CheckAndSetAABB(&m_AABB.Min.x, &m_AABB.Max.x, value->x);
-		Utils::CheckAndSetAABB(&m_AABB.Min.y, &m_AABB.Max.y, value->y);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.x, &m_AABB.m_Max.x, value->x);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.y, &m_AABB.m_Max.y, value->y);
 	}
 
 	void BoundingVolume::CheckValues(glm::vec<3, int>* value)
 	{
-		Utils::CheckAndSetAABB(&m_AABB.Min.x, &m_AABB.Max.x, value->x);
-		Utils::CheckAndSetAABB(&m_AABB.Min.y, &m_AABB.Max.y, value->y);
-		Utils::CheckAndSetAABB(&m_AABB.Min.z, &m_AABB.Max.z, value->z);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.x, &m_AABB.m_Max.x, value->x);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.y, &m_AABB.m_Max.y, value->y);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.z, &m_AABB.m_Max.z, value->z);
 	}
 
 	void BoundingVolume::CheckValues(glm::vec<4, int>* value)
 	{
-		Utils::CheckAndSetAABB(&m_AABB.Min.x, &m_AABB.Max.x, value->x);
-		Utils::CheckAndSetAABB(&m_AABB.Min.y, &m_AABB.Max.y, value->y);
-		Utils::CheckAndSetAABB(&m_AABB.Min.z, &m_AABB.Max.z, value->z);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.x, &m_AABB.m_Max.x, value->x);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.y, &m_AABB.m_Max.y, value->y);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.z, &m_AABB.m_Max.z, value->z);
 	}
 
 
 	void BoundingVolume::CheckValues(glm::vec<2, uint32_t>* value)
 	{
-		Utils::CheckAndSetAABB(&m_AABB.Min.x, &m_AABB.Max.x, value->x);
-		Utils::CheckAndSetAABB(&m_AABB.Min.y, &m_AABB.Max.y, value->y);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.x, &m_AABB.m_Max.x, value->x);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.y, &m_AABB.m_Max.y, value->y);
 	}
 
 	void BoundingVolume::CheckValues(glm::vec<3, uint32_t>* value)
 	{
-		Utils::CheckAndSetAABB(&m_AABB.Min.x, &m_AABB.Max.x, value->x);
-		Utils::CheckAndSetAABB(&m_AABB.Min.y, &m_AABB.Max.y, value->y);
-		Utils::CheckAndSetAABB(&m_AABB.Min.z, &m_AABB.Max.z, value->z);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.x, &m_AABB.m_Max.x, value->x);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.y, &m_AABB.m_Max.y, value->y);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.z, &m_AABB.m_Max.z, value->z);
 	}
 
 	void BoundingVolume::CheckValues(glm::vec<4, uint32_t>* value)
 	{
-		Utils::CheckAndSetAABB(&m_AABB.Min.x, &m_AABB.Max.x, value->x);
-		Utils::CheckAndSetAABB(&m_AABB.Min.y, &m_AABB.Max.y, value->y);
-		Utils::CheckAndSetAABB(&m_AABB.Min.z, &m_AABB.Max.z, value->z);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.x, &m_AABB.m_Max.x, value->x);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.y, &m_AABB.m_Max.y, value->y);
+		Utils::CheckAndSetAABB(&m_AABB.m_Min.z, &m_AABB.m_Max.z, value->z);
 	}
 
 	void BoundingVolume::CheckRadius(glm::vec<3, float>* value)

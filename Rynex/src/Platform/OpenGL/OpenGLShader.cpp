@@ -334,8 +334,8 @@ namespace Rynex {
 			{
 			case ShaderType::Vertex:					return GL_VERTEX_SHADER;
 			case ShaderType::Fragment:				return GL_FRAGMENT_SHADER;
-			case ShaderType::TeselationControl:		return GL_TESS_CONTROL_SHADER;
-			case ShaderType::TeselationEvelution:		return GL_TESS_EVALUATION_SHADER;
+			case ShaderType::TessellationControl:		return GL_TESS_CONTROL_SHADER;
+			case ShaderType::TessellationEvolution:		return GL_TESS_EVALUATION_SHADER;
 			case ShaderType::Compute:					return GL_COMPUTE_SHADER;
 			case ShaderType::Geometry:				return GL_GEOMETRY_SHADER;
 			case ShaderType::MeshShader:		
@@ -357,8 +357,8 @@ namespace Rynex {
 			if (type == OpenGLShader::g_FragementShaderToken[0] 
 				|| type == OpenGLShader::g_FragementShaderToken[1])		return ShaderType::Fragment;
 			if (type == OpenGLShader::g_GemotryShaderToken)				return ShaderType::Geometry;
-			if (type == OpenGLShader::g_TeseltionControllShaderToken)	return ShaderType::TeselationControl;
-			if (type == OpenGLShader::g_TeseltionEvalutionShaderToken)	return ShaderType::TeselationEvelution;
+			if (type == OpenGLShader::g_TeseltionControllShaderToken)	return ShaderType::TessellationControl;
+			if (type == OpenGLShader::g_TeseltionEvalutionShaderToken)	return ShaderType::TessellationEvolution;
 			if (type == OpenGLShader::g_ComputeShaderToken)				return ShaderType::Compute;
 
 			RY_CORE_ASSERT(false, "Unkowne Shader Type!");
@@ -864,7 +864,7 @@ namespace Rynex {
 				if (maxLocation <= location)
 					maxLocation = location + 1;
 				BufferElement& ellments = bufferElementVec.emplace_back(shaderType, name);
-				ellments.count = location;
+				ellments.m_Count = location;
 			}
 			size_t count = bufferElementVec.size();
 			if(1u == count)
@@ -875,7 +875,7 @@ namespace Rynex {
 			std::sort(bufferElementVec.begin(), bufferElementVec.end(),
 				[&](BufferElement& a, BufferElement& b)
 				{
-					return a.count < b.count;
+					return a.m_Count < b.m_Count;
 				}
 			);
 			
@@ -1037,7 +1037,7 @@ namespace Rynex {
 	void OpenGLShader::SetPatcheVertecies(uint32_t count)
 	{
 		RY_CORE_ASSERT(count != 0 , "Patch Verticies need more then 0 Verticies!");
-		constexpr int tessCombValue = static_cast<int>(ShaderType::TeselationControl) | static_cast<int>(ShaderType::TeselationEvelution);
+		constexpr int tessCombValue = static_cast<int>(ShaderType::TessellationControl) | static_cast<int>(ShaderType::TessellationEvolution);
 		int valueTessControl = m_ShaderType & tessCombValue;
 		bool result = valueTessControl;
 

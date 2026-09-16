@@ -67,12 +67,12 @@ namespace Rynex {
         AlbedoMap,
         NormaleMap,
         SpecularMap,
-        BumbMap,
-        HigthMap,
-        RougnessMap,
+        BumMap,
+        HighMap,
+        RoughnessMap,
         MetalicMap,
-        DiplacmentMap,
-        InviremtnMap,
+        DisplacementMap,
+        EnvironmentMap,
 
         ReflectionMap_0,
         ReflectionMap_1,
@@ -99,14 +99,14 @@ namespace Rynex {
     // ----------------------------------------------------------
     struct MaterialParamDescriptor
     {
-        std::string         name;                           // GLSL-side uniform / slot name
-        ShaderDataType      type = ShaderDataType::None;
-        uint32_t            byteOffset  = 0;                // offset inside the packed param block
-        uint32_t            byteSize    = 0;                // sizeof the value
-        uint32_t            arrayCount  = 1;                // >1 for small inline arrays
+        std::string         m_Name;                           // GLSL-side uniform / slot name
+        ShaderDataType      m_Type = ShaderDataType::None;
+        uint32_t            m_ByteOffset  = 0;                // offset inside the packed param block
+        uint32_t            m_ByteSize    = 0;                // sizeof the value
+        uint32_t            m_ArrayCount  = 1;                // >1 for small inline arrays
 
         // Texture-specific: which logical slot index (0..15)
-        uint8_t             textureSlotIndex = 0xFF;
+        uint8_t             m_TextureSlotIndex = 0xFF;
     };
 
 
@@ -140,10 +140,10 @@ namespace Rynex {
     // ----------------------------------------------------------
     struct TextureSlotDescriptor
     {
-        std::string  name;              // sampler name in shader
-        TextureTypes semanticType;      // albedo / normal / roughness …
-        uint8_t      bindingSlot;       // explicit GPU binding point
-        bool         optional = true;   // false → blueprint compilation fails without it
+        std::string  m_Name;              // sampler name in shader
+        TextureTypes m_SemanticType;      // albedo / normal / roughness …
+        uint8_t      m_BindingSlot;       // explicit GPU binding point
+        bool         m_Optional = true;   // false → blueprint compilation fails without it
     };
 
 

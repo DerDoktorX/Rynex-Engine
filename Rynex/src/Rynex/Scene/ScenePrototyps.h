@@ -6,11 +6,12 @@
 namespace Rynex {
 	class Entity;
 	class Scene;
+    class SceneCamera;
 
 	struct CameraComponent;
 	struct SpriteRendererComponent;
 	struct MaterialComponent;
-	struct GeomtryComponent;
+	struct GeometryComponent;
 	struct ScriptComponent;
 	struct FrameBufferComponent;
 	struct RenderTargetComponent;
@@ -21,18 +22,18 @@ namespace Rynex {
 	struct StaticMeshComponent;
 
 	
-	struct DrirectionleLigthComponent;
-	struct PointLigthComponent;
-	struct SpotLigthComponent;
-	struct ParticelComponente;
+	struct DirectionLightComponent;
+	struct PointLightComponent;
+	struct SpotLightComponent;
+	struct ParticleComponent;
 
-	struct RealtionShipUUIDComponent;
+	struct RelationshipUUIDComponent;
 
 	struct TextComponent;
 	struct ViewMatrixComponent;
-	struct ProjtionViewMatrixComponent;
-	struct InverseProjtionViewMatrixComponent;
-	struct WorldViewFustrumComponent;
+	struct ProjectionViewMatrixComponent;
+	struct InverseProjectionViewMatrixComponent;
+	struct WorldViewFrustumComponent;
 
 	struct TransformComponent;
 

@@ -176,7 +176,7 @@ namespace Rynex {
 			template<typename T>
 			SizeType GetBytesSizeOffset(const BufferElement* elementPtr, SizeType indexArray) const
 			{
-				SizeType elementSize = elementPtr->size;
+				SizeType elementSize = elementPtr->m_Size;
 				RY_CORE_ASSERT(sizeof(T) == elementSize, "Type size mismatch");
 				RY_CORE_ASSERT(indexArray < m_Count, "Array Overflow");
 

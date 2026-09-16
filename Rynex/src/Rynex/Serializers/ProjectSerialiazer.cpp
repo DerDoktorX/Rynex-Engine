@@ -68,24 +68,24 @@ namespace Rynex {
 			out << YAML::Key << "Project" << YAML::Value;
 			{
 				out << YAML::BeginMap;// Project
-				out << YAML::Key << "Name" << YAML::Value << config.name;
+				out << YAML::Key << "Name" << YAML::Value << config.m_Name;
 				
-				std::filesystem::path projectFolder = config.ProjectPath;
-				SERLIZE_PATH(ProjectPath);
-				SERLIZE_PATH(AssetDirectory);
-				SERLIZE_PATH(AssetRegistryPath);
+				std::filesystem::path projectFolder = config.m_ProjectPath;
+				SERLIZE_PATH(m_ProjectPath);
+				SERLIZE_PATH(m_AssetDirectory);
+				SERLIZE_PATH(m_AssetRegistryPath);
 				
-				SERLIZE_PATH(LastScene);
-				SERLIZE_PATH(StartScene);
+				SERLIZE_PATH(m_LastScene);
+				SERLIZE_PATH(m_StartScene);
 				
-				SERLIZE_PATH(ScriptCorePath);
-				SERLIZE_PATH(ScriptAppPath);
+				SERLIZE_PATH(m_ScriptCorePath);
+				SERLIZE_PATH(m_ScriptAppPath);
 
 				
-				if ("00:00-00.00.0000" == config.CreateDate)
-					config.CreateDate = AssetRegistry::GetCurrentTimeStr();
+				if ("00:00-00.00.0000" == config.m_CreateDate)
+					config.m_CreateDate = AssetRegistry::GetCurrentTimeStr();
 				
-				out << YAML::Key << "CreateDate" << YAML::Value << config.CreateDate;
+				out << YAML::Key << "CreateDate" << YAML::Value << config.m_CreateDate;
 				out << YAML::Key << "LastOpenDate" << YAML::Value << AssetRegistry::GetCurrentTimeStr();
 				
 				out << YAML::EndMap; // Project
@@ -126,21 +126,21 @@ namespace Rynex {
 		std::filesystem::path parentProjectFile = filepath.parent_path();
 		std::string parentProjectFileStr = parentProjectFile.generic_string();
 		parentProjectFile = parentProjectFileStr;
-		config.name = projectNode["Name"].as<std::string>();
-		config.ProjectPath = parentProjectFileStr;
+		config.m_Name = projectNode["Name"].as<std::string>();
+		config.m_ProjectPath = parentProjectFileStr;
 
-		DESERLIZE_PATH(ProjectPath);
-		DESERLIZE_PATH(AssetDirectory);
-		DESERLIZE_PATH(AssetRegistryPath);
+		config.m_ProjectPath = Utils::DeserlizeFilePathNode(projectNode["ProjectPath"], parentProjectFile);
+		config.m_AssetDirectory = Utils::DeserlizeFilePathNode(projectNode["AssetDirectory"], parentProjectFile);
+		config.m_AssetRegistryPath = Utils::DeserlizeFilePathNode(projectNode["AssetRegistryPath"], parentProjectFile);
 
-		DESERLIZE_PATH(StartScene);
-		DESERLIZE_PATH(LastScene);
-		DESERLIZE_PATH(ScriptAppPath);
-		DESERLIZE_PATH(ScriptCorePath);
+		config.m_StartScene = Utils::DeserlizeFilePathNode(projectNode["StartScene"], parentProjectFile);
+		config.m_LastScene = Utils::DeserlizeFilePathNode(projectNode["LastScene"], parentProjectFile);
+		config.m_ScriptAppPath = Utils::DeserlizeFilePathNode(projectNode["ScriptAppPath"], parentProjectFile);
+		config.m_ScriptCorePath = Utils::DeserlizeFilePathNode(projectNode["ScriptCorePath"], parentProjectFile);
 		
 		
-		config.LastOpenDate = projectNode["LastOpenDate"].as<std::string>();
-		config.ProjectRady = true;
+		config.m_LastOpenDate = projectNode["LastOpenDate"].as<std::string>();
+		config.m_ProjectRady = true;
 		RY_LOG_ENABLE_NUMBER;
 
 		return true;

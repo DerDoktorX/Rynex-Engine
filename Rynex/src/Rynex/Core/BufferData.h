@@ -9,8 +9,8 @@ namespace Rynex {
 
 	struct BufferData
 	{
-		uint8_t* Data = nullptr;
-		uint64_t Size = 0;
+		uint8_t* m_Data = nullptr;
+		uint64_t m_Size = 0;
 
 		BufferData() = default;
 
@@ -23,8 +23,8 @@ namespace Rynex {
 
 		static BufferData Copy(BufferData other)
 		{
-			BufferData result(other.Size);
-			memcpy(result.Data, other.Data, other.Size);
+			BufferData result(other.m_Size);
+			memcpy(result.m_Data, other.m_Data, other.m_Size);
 			return result;
 		}
 
@@ -32,26 +32,26 @@ namespace Rynex {
 		{
 			Release();
 
-			Data = (uint8_t*)malloc(size);
-			Size = size;
+			m_Data = (uint8_t*)malloc(size);
+			m_Size = size;
 		}
 
 		void Release()
 		{
-			free(Data);
-			Data = nullptr;
-			Size = 0;
+			free(m_Data);
+			m_Data = nullptr;
+			m_Size = 0;
 		}
 
 		template<typename T>
 		T* As()
 		{
-			RY_CORE_ASSERT(Data, "is nulptr");
-			return (T*)Data;
+			RY_CORE_ASSERT(m_Data, "is nulptr");
+			return (T*)m_Data;
 		}
 		operator bool() const
 		{
-			return (bool)Data;
+			return (bool)m_Data;
 		}
 	};
 
@@ -105,14 +105,14 @@ namespace Rynex {
 		template<typename T>
 		T& As() const
 		{
-			RY_CORE_ASSERT(0 != m_Buffer.Size);
+			RY_CORE_ASSERT(0 != m_Buffer.m_Size);
 			return *m_Buffer.As<T>();
 		}
 
 		template<typename T>
 		T& As(uint32_t index) const
 		{
-			RY_CORE_ASSERT(0 != m_Buffer.Size);
+			RY_CORE_ASSERT(0 != m_Buffer.m_Size);
 			RY_CORE_ASSERT(index < m_Count);
 			return *m_Buffer.As<T>();
 		}

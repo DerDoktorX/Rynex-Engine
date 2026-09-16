@@ -11,6 +11,13 @@ add_executable(
         Rynex-Editor
         ${SOURCE_FILES}
 )
+set_target_properties(Rynex-Editor PROPERTIES CXX_STANDARD 17)
+if(MSVC)
+    target_compile_options(Rynex-Editor PRIVATE /std:c++17)
+else()
+    # for other Compiler (GCC, Clang) functionary Default-Way
+    target_compile_features(Rynex-Editor PRIVATE cxx_std_17)
+endif()
 
 target_include_directories(
         Rynex-Editor
@@ -23,6 +30,7 @@ target_link_libraries(
         PRIVATE
         Rynex
 )
+
 
 target_compile_definitions(
       Rynex-Editor

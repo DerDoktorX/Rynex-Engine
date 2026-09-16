@@ -255,8 +255,8 @@ namespace Rynex{
 				case TextureWrappingMode::ClampBorder:		return GL_CLAMP_TO_BORDER;
 				case TextureWrappingMode::ClampEdge:		return GL_CLAMP_TO_EDGE;
 				case TextureWrappingMode::MirrorClampEdge:  return GL_MIRROR_CLAMP_TO_EDGE;
-				case TextureWrappingMode::MirrorRepeate:	return GL_MIRRORED_REPEAT;
-				case TextureWrappingMode::Repeate:			return GL_REPEAT;
+				case TextureWrappingMode::MirrorRepeat:	return GL_MIRRORED_REPEAT;
+				case TextureWrappingMode::Repeat:			return GL_REPEAT;
 
 				default:
 				{
@@ -273,8 +273,8 @@ namespace Rynex{
 			{
 				case TextureFilteringMode::Linear:	return GL_LINEAR;
 				case TextureFilteringMode::Nearest:	return GL_NEAREST;
-				case TextureFilteringMode::LinearMidmapLinear:	return GL_NEAREST_MIPMAP_LINEAR;
-				case TextureFilteringMode::LinearMidmapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
+				case TextureFilteringMode::LinearMidMapLinear:	return GL_NEAREST_MIPMAP_LINEAR;
+				case TextureFilteringMode::LinearMidMapNearest:	return GL_NEAREST_MIPMAP_NEAREST;
 				default:
 				{
 					RY_CORE_ASSERT(false, "Error SetTextureFiltering whrong TextureFilteringMode!");
@@ -343,13 +343,13 @@ namespace Rynex{
 			}
 		}
 
-		static GLenum GetAccesType(Acces acces)
+		static GLenum GetAccesType(Access acces)
 		{
 			switch (acces)
 			{		
-			case Acces::Read:		return GL_READ_ONLY;
-			case Acces::Write:		return GL_WRITE_ONLY;
-			case Acces::ReadWrite:	return GL_READ_WRITE;
+			case Access::Read:		return GL_READ_ONLY;
+			case Access::Write:		return GL_WRITE_ONLY;
+			case Access::ReadWrite:	return GL_READ_WRITE;
 			default:
 				break;
 			}
@@ -537,7 +537,7 @@ namespace Rynex{
 		m_Data.clear();
 	}
 
-	bool OpenGLTextureStorageModern::IsTransferd()
+	bool OpenGLTextureStorageModern::IsTransfer()
 	{
 		return m_FanceObject.IsTransfered();
 	}
@@ -550,7 +550,7 @@ namespace Rynex{
 		GL_CHECK_LOOP();
 	}
 
-	void OpenGLTextureStorageModern::BindImage(Acces acces, uint32_t slot) const
+	void OpenGLTextureStorageModern::BindImage(Access acces, uint32_t slot) const
 	{
 		RY_CORE_ASSERT(0u != m_RendererIDTex);
 
@@ -559,7 +559,7 @@ namespace Rynex{
 		glBindImageTexture(slot, m_RendererIDTex, 0, GL_FALSE, 0, Utils::GetAccesType(acces), objectType.interleFormat);
 	}
 
-	void OpenGLTextureStorageModern::UnBindImage(Acces acces, uint32_t slot) const
+	void OpenGLTextureStorageModern::UnBindImage(Access acces, uint32_t slot) const
 	{
 		RY_CORE_ASSERT(0u != m_RendererIDTex);
 
@@ -861,15 +861,15 @@ namespace Rynex{
 	void OpenGLTextureStorageModern::SetupeSpecficationVaribels()
 	{
 		Utils::CheckSpecifaictionValuesAorB(m_Specification.FilteringMode, 
-			TextureFilteringMode::LinearMidmapLinear, TextureFilteringMode::Linear,
+			TextureFilteringMode::LinearMidMapLinear, TextureFilteringMode::Linear,
 			0 != m_Specification.GenerateMips);
 		Utils::CheckSpecifaictionValues(m_Specification.Target, TextureTarget::Texture2D);
 
 		Utils::CheckSpecifaictionValues(m_Specification.Format, TextureFormat::RGBA8);
 
-		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.T, TextureWrappingMode::Repeate);
-		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.R, TextureWrappingMode::Repeate);
-		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.S, TextureWrappingMode::Repeate);
+		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.T, TextureWrappingMode::Repeat);
+		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.R, TextureWrappingMode::Repeat);
+		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.S, TextureWrappingMode::Repeat);
 
 		m_Object.SetObjectType({
 			Utils::TexTarget(m_Specification.Target, 1 < m_Specification.Samples),
@@ -1164,7 +1164,7 @@ namespace Rynex{
 	void OpenGLLinkedTextureArray::SetupeSpecficationVaribels()
 	{
 		Utils::CheckSpecifaictionValuesAorB(m_Specification.FilteringMode,
-			TextureFilteringMode::LinearMidmapLinear, TextureFilteringMode::Linear,
+			TextureFilteringMode::LinearMidMapLinear, TextureFilteringMode::Linear,
 			m_Specification.GenerateMips != 0);
 		Utils::CheckSpecifaictionValues(m_Specification.Target, TextureTarget::Texture2D_Array);
 		Utils::CheckSpecifaictionValues(m_Specification.Target, TextureTarget::TextureCubeMap_Array, TextureTarget::TextureCubeMap);
@@ -1174,9 +1174,9 @@ namespace Rynex{
 
 		Utils::CheckSpecifaictionValues(m_Specification.Format, TextureFormat::RGBA8);
 
-		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.T, TextureWrappingMode::Repeate);
-		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.R, TextureWrappingMode::Repeate);
-		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.S, TextureWrappingMode::Repeate);
+		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.T, TextureWrappingMode::Repeat);
+		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.R, TextureWrappingMode::Repeat);
+		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.S, TextureWrappingMode::Repeat);
 
 		m_Object.SetObjectType({
 			Utils::TexTarget(m_Specification.Target, m_Specification.Samples > 1),
@@ -1337,7 +1337,7 @@ namespace Rynex{
 		m_ChangedTextureInidicesVec.erase(pos);
 	}
 
-	bool OpenGLLinkedTextureArray::IsTransferd()
+	bool OpenGLLinkedTextureArray::IsTransfer()
 	{
 		return m_FanceObject.IsTransfered();
 	}
@@ -1348,7 +1348,7 @@ namespace Rynex{
 		OpenGLRenderCommand::BindTextureSlot(slot, m_RendererIDTex);
 	}
 
-	void OpenGLLinkedTextureArray::BindImage(Acces access, uint32_t slot) const
+	void OpenGLLinkedTextureArray::BindImage(Access access, uint32_t slot) const
 	{
 		RY_CORE_ASSERT(0u != m_RendererIDTex);
 		const auto& objectType = m_Object.GetObjectType();
@@ -1361,7 +1361,7 @@ namespace Rynex{
 
 	}
 
-	void OpenGLLinkedTextureArray::UnBindImage(Acces acces, uint32_t slot) const
+	void OpenGLLinkedTextureArray::UnBindImage(Access acces, uint32_t slot) const
 	{
 		RY_CORE_ASSERT(0u != m_RendererIDTex);
 		const auto& objectType = m_Object.GetObjectType();
@@ -1380,7 +1380,7 @@ namespace Rynex{
 	{
 		RY_CORE_ASSERT(index < m_LinkedTexturesVec.size());
 		const TextureSpecification& spec = texture->GetSpecification();
-		bool specNotEqual = !m_Specification.IsEqualWitheOutTexturTarget(spec);
+		bool specNotEqual = !m_Specification.IsEqualWitheOutTextureTarget(spec);
 		bool specTarget1DtEqual = (m_Specification.Target == TextureTarget::Texture1D_Array && spec.Target == TextureTarget::Texture1D);
 		bool specTarget2DEqual = (m_Specification.Target == TextureTarget::Texture2D_Array && spec.Target == TextureTarget::Texture2D);
 		bool specTargetCubeMapEqual = (m_Specification.Target == TextureTarget::TextureCubeMap_Array && spec.Target == TextureTarget::TextureCubeMap);
@@ -1592,7 +1592,7 @@ namespace Rynex{
 	}
 	
 
-	bool OpenGLLinkedTextureArray::IsDataRaydyOnGPU() const
+	bool OpenGLLinkedTextureArray::IsDataReadyOnGPU() const
 	{
 		return m_ChangedTextureInidicesVec.empty();
 	}

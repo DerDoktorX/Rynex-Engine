@@ -221,8 +221,8 @@ namespace Rynex {
 			for (const IndexSubMesh& subMeshInicies : subMeshIniciesVec)
 			{
 				RenderProxy& proxy = renderProxySortedProxyVec.AtProxy(subMeshInicies.renderProxyKey, subMeshInicies.proxyIndex);
-				RY_CORE_ASSERT(proxy.entity == entity, "We update the whrong Enity in the Proxy!");
-				RY_CORE_ASSERT(proxy.subMesh == subMeshInicies.subMesh, "We update the whrong SubMesh in the Proxy!");
+				RY_CORE_ASSERT(proxy.m_Entity == entity, "We update the whrong Enity in the Proxy!");
+				RY_CORE_ASSERT(proxy.m_SubMesh == subMeshInicies.subMesh, "We update the whrong SubMesh in the Proxy!");
 			}
 		}
 	}
@@ -234,8 +234,8 @@ namespace Rynex {
 			for (const IndexSubMesh& subMeshInicies : subMeshIniciesVec)
 			{
 				RenderProxy& proxy = renderProxySortedProxyVec.AtProxy(subMeshInicies.proxyIndex);
-				RY_CORE_ASSERT(proxy.entity == entity, "We update the whrong Enity in the Proxy!");
-				RY_CORE_ASSERT(proxy.subMesh == subMeshInicies.subMesh, "We update the whrong SubMesh in the Proxy!");
+				RY_CORE_ASSERT(proxy.m_Entity == entity, "We update the whrong Enity in the Proxy!");
+				RY_CORE_ASSERT(proxy.m_SubMesh == subMeshInicies.subMesh, "We update the whrong SubMesh in the Proxy!");
 			}
 		}
 	}
@@ -247,8 +247,8 @@ namespace Rynex {
 			for (const IndexSubMesh& subMeshInicies : subMeshIniciesVec)
 			{
 				RenderProxy& proxy = renderProxyMapProxyVec.AtProxy(subMeshInicies.renderProxyKey, subMeshInicies.proxyIndex);
-				RY_CORE_ASSERT(proxy.entity == entity, "We update the whrong Enity in the Proxy!");
-				RY_CORE_ASSERT(proxy.subMesh == subMeshInicies.subMesh, "We update the whrong SubMesh in the Proxy!");
+				RY_CORE_ASSERT(proxy.m_Entity == entity, "We update the whrong Enity in the Proxy!");
+				RY_CORE_ASSERT(proxy.m_SubMesh == subMeshInicies.subMesh, "We update the whrong SubMesh in the Proxy!");
 			}
 		}
 	}

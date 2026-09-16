@@ -52,9 +52,9 @@ namespace Rynex {
 
            
 
-            entityNodes.NodeName = std::string{ aiName.data, aiName.length };
+            entityNodes.m_NodeName = std::string{ aiName.data, aiName.length };
 
-            entityNodes.Matrics = glm::mat4{
+            entityNodes.m_Matrics = glm::mat4{
                 aiMatrix.a1,    aiMatrix.b1,    aiMatrix.c1,    aiMatrix.d1,
                 aiMatrix.a2,    aiMatrix.b2,    aiMatrix.c2,    aiMatrix.d2,
                 aiMatrix.a3,    aiMatrix.b3,    aiMatrix.c3,    aiMatrix.d3,
@@ -63,23 +63,23 @@ namespace Rynex {
 
 
             uint32_t meshSize = node->mNumMeshes;
-            entityNodes.ObjectMeshIndexVec.reserve(meshSize);
+            entityNodes.m_ObjectMeshIndexVec.reserve(meshSize);
             uint32_t* aiMeshIndexPtr = node->mMeshes;
 
             for (uint32_t i = 0; i < meshSize; aiMeshIndexPtr++, i++)
-                entityNodes.ObjectMeshIndexVec.emplace_back(*aiMeshIndexPtr);
+                entityNodes.m_ObjectMeshIndexVec.emplace_back(*aiMeshIndexPtr);
 
             uint32_t childrenSize = node->mNumChildren;
             aiNode** nodeChildrens = node->mChildren;
            
            
 
-            entityNodes.Childrens.reserve(childrenSize);
+            entityNodes.m_Childrens.reserve(childrenSize);
             for (uint32_t i = 0; i < childrenSize; nodeChildrens++, i++)
             {
                 ProcessHirachie(
                     *nodeChildrens,
-                    entityNodes.Childrens.emplace_back<MeshSource::EntityNodes>(
+                    entityNodes.m_Childrens.emplace_back<MeshSource::EntityNodes>(
                         MeshSource::EntityNodes{}
                     )
                 );
@@ -108,7 +108,7 @@ namespace Rynex {
             }
         }
 
-        static MeshSource::_Material ReadMaterielData(aiMaterial* materiel,const std::filesystem::path& assetPath)
+        static MeshSource::MaterialMesh ReadMaterielData(aiMaterial* materiel,const std::filesystem::path& assetPath)
         {
             std::vector<std::filesystem::path> filePaths;
             aiString aiName = materiel->GetName();
@@ -125,7 +125,7 @@ namespace Rynex {
             else
                 baseColor = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
 
-            return MeshSource::_Material{
+            return MeshSource::MaterialMesh{
                 std::string{ aiName.data, aiName.length },
                 static_cast<uint32_t>(-1),
                 std::move(filePaths),
@@ -133,7 +133,7 @@ namespace Rynex {
             };
         }
 
-        static void ProcessMateriels(const aiScene* scene, std::vector<MeshSource::_Material>& materielVec, const std::filesystem::path& assetPath)
+        static void ProcessMateriels(const aiScene* scene, std::vector<MeshSource::MaterialMesh>& materielVec, const std::filesystem::path& assetPath)
         {
             uint32_t size = scene->mNumMaterials;
             aiMaterial** aiMaterials = scene->mMaterials;
@@ -141,7 +141,7 @@ namespace Rynex {
 
             for (uint32_t i = 0; i < size; aiMaterials++, i++)
             {
-                MeshSource::_Material& materiel = materielVec.emplace_back<MeshSource::_Material>(
+                MeshSource::MaterialMesh& materiel = materielVec.emplace_back<MeshSource::MaterialMesh>(
                     ReadMaterielData(*aiMaterials, assetPath)
                 );
                 materiel.MaterielIndex = i;
@@ -153,20 +153,20 @@ namespace Rynex {
 
 #pragma region Mesh
 
-        static float ReadMeshVertex(std::vector<MeshVerteices>& vertexData, aiVector3D* vericiesPtr, uint32_t size, glm::vec3 centerPos)
+        static float ReadMeshVertex(std::vector<MeshVertices>& vertexData, aiVector3D* vericiesPtr, uint32_t size, glm::vec3 centerPos)
         {
             float boundingSpehreRadius = 0.0f;
             vertexData.reserve(size);
             for (uint32_t i = 0; i < size; i++)
             {
-                MeshVerteices& mesVert = vertexData.emplace_back<MeshVerteices>(
-                    MeshVerteices{
+                MeshVertices& mesVert = vertexData.emplace_back<MeshVertices>(
+                    MeshVertices{
                         glm::vec3{vericiesPtr->x, vericiesPtr->y, vericiesPtr->z},
                         glm::vec2{0.0f, 0.0f},
                         glm::vec3{0.0f, 0.0f, 0.0f}
                     }
                 );
-                glm::vec3 center = mesVert.Postion - centerPos;
+                glm::vec3 center = mesVert.m_Position - centerPos;
                 float distenz = glm::length(center);
                 boundingSpehreRadius = boundingSpehreRadius < distenz ? distenz : boundingSpehreRadius;
                 vericiesPtr++;
@@ -175,20 +175,20 @@ namespace Rynex {
 
         }
 
-        static float ReadMeshVertex(std::vector<MeshVerteices>& vertexData, aiVector3D* vericiesPtr, aiVector3D* normalesPtr, uint32_t size, glm::vec3 centerPos)
+        static float ReadMeshVertex(std::vector<MeshVertices>& vertexData, aiVector3D* vericiesPtr, aiVector3D* normalesPtr, uint32_t size, glm::vec3 centerPos)
         {
             float boundingSpehreRadius = 0.0f;
             vertexData.reserve(size);
             for (uint32_t i = 0; i < size; i++)
             {
-                MeshVerteices& mesVert = vertexData.emplace_back<MeshVerteices>(
-                    MeshVerteices{
+                MeshVertices& mesVert = vertexData.emplace_back<MeshVertices>(
+                    MeshVertices{
                         glm::vec3(vericiesPtr->x, vericiesPtr->y, vericiesPtr->z),
                         glm::vec2{0.0f, 0.0f },
                         glm::vec3(normalesPtr->x, normalesPtr->y, normalesPtr->z)
                     }
                 );
-                glm::vec3 center = mesVert.Postion - centerPos;
+                glm::vec3 center = mesVert.m_Position - centerPos;
                 float distenz = glm::length(center);
                 boundingSpehreRadius = boundingSpehreRadius < distenz ? distenz : boundingSpehreRadius;
 
@@ -198,20 +198,20 @@ namespace Rynex {
             return boundingSpehreRadius;
         }
 
-        static float ReadMeshVertex(std::vector<MeshVerteices>& vertexData, aiVector3D* vericiesPtr, aiVector3D* normalesPtr, aiVector3D* coordes, uint32_t size, glm::vec3 centerPos)
+        static float ReadMeshVertex(std::vector<MeshVertices>& vertexData, aiVector3D* vericiesPtr, aiVector3D* normalesPtr, aiVector3D* coordes, uint32_t size, glm::vec3 centerPos)
         {
             float boundingSpehreRadius = 0.0f;
             vertexData.reserve(size);
             for (uint32_t i = 0; i < size; i++)
             {
-                MeshVerteices& mesVert = vertexData.emplace_back<MeshVerteices>(
-                    MeshVerteices{
+                MeshVertices& mesVert = vertexData.emplace_back<MeshVertices>(
+                    MeshVertices{
                         glm::vec3{vericiesPtr->x, vericiesPtr->y, vericiesPtr->z},
                         glm::vec2{coordes->x, -coordes->y},
                         glm::vec3{normalesPtr->x, normalesPtr->y, normalesPtr->z}
                     }
                 );
-                glm::vec3 center = mesVert.Postion - centerPos;
+                glm::vec3 center = mesVert.m_Position - centerPos;
                 float distenz = glm::length(center);
                 boundingSpehreRadius = boundingSpehreRadius < distenz ? distenz : boundingSpehreRadius;
                 coordes++;
@@ -245,7 +245,7 @@ namespace Rynex {
 
         static MeshSource::SourceMesh ReadVertexData(aiMesh* mesh, std::vector<MeshSource::SourceVertex>& vertexSourceData, std::vector<aiVector3D*>& vertexPosArrayPtrList)
         {
-            std::vector<MeshVerteices> vertexData;
+            std::vector<MeshVertices> vertexData;
             std::vector<uint32_t> indciesData;
             aiString aiName = mesh->mName;
             
@@ -334,7 +334,7 @@ namespace Rynex {
                 MeshSource::SourceMesh& vertexSource = meshes.emplace_back<MeshSource::SourceMesh>(
                     ReadVertexData(*aiMeshes, vertexSourceData, vertexPosArrayPtrList)
                 );
-                vertexSource.MeshIndex = i;
+                vertexSource.m_MeshIndex = i;
             }
             vertexSourceData.shrink_to_fit();
         }
@@ -343,7 +343,7 @@ namespace Rynex {
 
 #pragma endregion
 
-        static void ReadeSourceData(const aiScene* scene, std::vector<MeshSource::SourceMesh>& meshes, std::vector<MeshSource::SourceVertex>& vertexSourceData, std::vector<MeshSource::_Material>& materieles, MeshSource::EntityNodes& entityNodes, const std::filesystem::path& assetPath)
+        static void ReadeSourceData(const aiScene* scene, std::vector<MeshSource::SourceMesh>& meshes, std::vector<MeshSource::SourceVertex>& vertexSourceData, std::vector<MeshSource::MaterialMesh>& materieles, MeshSource::EntityNodes& entityNodes, const std::filesystem::path& assetPath)
         {
             ProcessMeshes(scene, meshes, vertexSourceData);
             RY_CORE_INFO("Finshed Loading Meshes {} and {} Mesh Gemotry", meshes.size(), vertexSourceData.size());
@@ -360,7 +360,7 @@ namespace Rynex {
     
     Ref<MeshSource> ModelImporter::ImportModel(AssetHandle handle, const AssetMetadata& metadata)
     {
-        std::filesystem::path filePath = metadata.AbsolutePath;
+        std::filesystem::path filePath = metadata.m_AbsolutePath;
         Ref<MeshSource> model = LoadModel(filePath);
         return model;
     }
@@ -393,7 +393,7 @@ namespace Rynex {
         }
 
         std::vector<MeshSource::SourceMesh> meshes;
-        std::vector<MeshSource::_Material> materieles;
+        std::vector<MeshSource::MaterialMesh> materieles;
         MeshSource::EntityNodes entityNodes;
         std::vector<MeshSource::SourceVertex> vertexSourceData;
         Utils::ReadeSourceData(scene, meshes, vertexSourceData, materieles, entityNodes, path.parent_path());

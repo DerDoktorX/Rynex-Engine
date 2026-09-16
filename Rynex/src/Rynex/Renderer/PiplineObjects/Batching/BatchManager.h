@@ -49,7 +49,7 @@ namespace Rynex {
 		Ref<VertexBuffer> instanceObjectBuffer;
 		Ref<UniformBuffer> materielUB;
 		std::vector<Batch::Render3DMeshObject> rendeObjectVec;
-		std::vector<Batch::Render3DMeshObjectTrasform> rendeObjectTransformVec;
+		std::vector<Batch::Render3DMeshObjectTransform> rendeObjectTransformVec;
 
 		Memory::DynamicDataStruct rendeObjectDynamicElementStruct;
 		std::vector<RenderProxyDynamicEllmenenttData> renderProxyDynamicDataTypeVec;
@@ -87,7 +87,7 @@ namespace Rynex {
 			curentIndex++;
 		}
 
-		void AddRenderObject(const Batch::Render3DMeshObjectTrasform& renderObjectTrasform)
+		void AddRenderObject(const Batch::Render3DMeshObjectTransform& renderObjectTrasform)
 		{
 			uint32_t count = rendeObjectTransformVec.size();
 			if (count <= curentIndex)
@@ -100,7 +100,7 @@ namespace Rynex {
 			}
 			else
 			{
-				Batch::Render3DMeshObjectTrasform& objectTrasform = rendeObjectTransformVec.at(curentIndex);
+				Batch::Render3DMeshObjectTransform& objectTrasform = rendeObjectTransformVec.at(curentIndex);
 				if (objectTrasform != renderObjectTrasform)
 				{
 					objectTrasform = renderObjectTrasform;

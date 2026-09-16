@@ -37,7 +37,7 @@ namespace Rynex {
 
 		virtual void BindLessTex() override;
 		virtual void UnBindLessTex() override;
-		virtual uint64_t GetBindlesHandle()const override  { return m_BindlesHandle; }
+		virtual uint64_t GetBindlessHandle()const override  { return m_BindlesHandle; }
 		virtual bool IsBindLessTexActiv() const override { return m_BindlesActive; }
 
 		virtual void SetData(void* dataPtr, uint32_t size) override;
@@ -48,10 +48,10 @@ namespace Rynex {
 
 		virtual void FreeCurrentData() override;
 
-		virtual bool IsTransferd() override;
+		virtual bool IsTransfer() override;
 		virtual void Bind(uint32_t slot = 0) const override;
-		virtual void BindImage(Acces acces, uint32_t slot = 0) const override;
-		virtual void UnBindImage(Acces acces, uint32_t slot = 0) const override;
+		virtual void BindImage(Access acces, uint32_t slot = 0) const override;
+		virtual void UnBindImage(Access acces, uint32_t slot = 0) const override;
 		virtual void UnBind(uint32_t slot = 0) const override;
 
 		virtual bool operator==(const Texture& other)const override
@@ -137,19 +137,19 @@ namespace Rynex {
 		OpenGLLinkedTextureArray(const TextureSpecification& spec);
 		virtual ~OpenGLLinkedTextureArray();
 
-		virtual const TextureSpecification& GetVaildTextureSpecification() const override { return m_Specification; }
+		virtual const TextureSpecification& GetValidTextureSpecification() const override { return m_Specification; }
 
-		virtual uint32_t GetVaildTextureWidth() const override { return m_Specification.Width; }
-		virtual uint32_t GetVaildTextureHeight() const override { return m_Specification.Height; }
-		virtual uint32_t GetVaildTextureDepth() const override { return m_Specification.Depth; }
+		virtual uint32_t GetValidTextureWidth() const override { return m_Specification.Width; }
+		virtual uint32_t GetValidTextureHeight() const override { return m_Specification.Height; }
+		virtual uint32_t GetValidTextureDepth() const override { return m_Specification.Depth; }
 
 		virtual uint32_t GetRenderID() const override { return m_RendererIDTex; }
 
-		virtual bool IsTransferd() override;
+		virtual bool IsTransfer() override;
 
 		virtual void Bind(uint32_t slot = 0) const override;
-		virtual void BindImage(Acces acces, uint32_t slot = 0) const override;
-		virtual void UnBindImage(Acces acces, uint32_t slot = 0) const override;
+		virtual void BindImage(Access acces, uint32_t slot = 0) const override;
+		virtual void UnBindImage(Access acces, uint32_t slot = 0) const override;
 		virtual void UnBind(uint32_t slot = 0) const override;
 
 
@@ -164,7 +164,7 @@ namespace Rynex {
 		virtual uint32_t GetTextureCount() const override;
 		virtual void ClearTextures() override;
 
-		virtual bool IsDataRaydyOnGPU() const override;
+		virtual bool IsDataReadyOnGPU() const override;
 		virtual void UpdateDataGPU() override;
 
 		virtual void ResizeDimensions1D(uint32_t width) override;

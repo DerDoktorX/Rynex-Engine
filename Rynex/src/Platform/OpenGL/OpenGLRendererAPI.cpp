@@ -472,11 +472,11 @@ namespace Rynex {
 		Ref<OpenGLVertexArray> vertexArrayGL = std::static_pointer_cast<OpenGLVertexArray>(vertexArray);
 		GLenum mode = vertexArrayGL->GetPrimitvOpenGLMode();
 
-		uint32_t indexCount = drawObject.Count;
-		uint32_t indexfirst = drawObject.FirstIndex;
-		uint32_t instancesCount = drawObject.InstancesCount;
-		uint32_t baseInstances = drawObject.BaseInstance;
-		int baseVertex = drawObject.BaseVertex;
+		uint32_t indexCount = drawObject.m_Count;
+		uint32_t indexfirst = drawObject.m_FirstIndex;
+		uint32_t instancesCount = drawObject.m_InstancesCount;
+		uint32_t baseInstances = drawObject.m_BaseInstance;
+		int baseVertex = drawObject.m_BaseVertex;
 		void* indexOffset = (void*)(indexfirst * sizeof(uint32_t));
 		
 		GL_CHECK_LOOP();

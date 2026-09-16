@@ -48,7 +48,7 @@ namespace Rynex {
 		, m_DebugePackage(DebugCamerPackage())
 	{
 		CameraData& camerData = m_CamerPackage.ConfigData();
-		camerData.ProjectionMatrix = projection;
+		camerData.m_ProjectionMatrix = projection;
 		SetCamerDataModel(model);
 	}
 
@@ -59,14 +59,14 @@ namespace Rynex {
 		, m_DebugePackage(DebugCamerPackage())
 	{
 		DisplayData diplayData = m_DisplayPackage.ConfigData();
-		const glm::uvec3& size = fb->GetFrambufferSize();
-		diplayData.ViewPortConf.x = static_cast<int>(size.x);
-		diplayData.ViewPortConf.y = static_cast<int>(size.y);
-		diplayData.ViewPortConf.w = 0;
-		diplayData.ViewPortConf.z = 0;
+		const glm::uvec3& size = fb->GetFramebufferSize();
+		diplayData.m_ViewPortConf.x = static_cast<int>(size.x);
+		diplayData.m_ViewPortConf.y = static_cast<int>(size.y);
+		diplayData.m_ViewPortConf.w = 0;
+		diplayData.m_ViewPortConf.z = 0;
 
 		CameraData& camerData = m_CamerPackage.ConfigData();
-		camerData.ProjectionMatrix = projection;
+		camerData.m_ProjectionMatrix = projection;
 		SetCamerDataModel(model);
 	}
 
@@ -97,7 +97,7 @@ namespace Rynex {
 		
 		SetDisplayDataModel(viewPass.ViewSpace);
 
-		glm::mat4 debugMat4 = glm::inverse(camerData.ViewProjectionMatrix);
+		glm::mat4 debugMat4 = glm::inverse(camerData.m_ViewProjectionMatrix);
 		m_DebugePackage.SetData(debugMat4);
 
 		SetFrambuffer(viewPass.FrameBuffer);
@@ -109,13 +109,13 @@ namespace Rynex {
 	{
 		CameraData& camerData = m_CamerPackage.ConfigData();
 		glm::mat4 view = glm::inverse(model);
-		camerData.ViewMatrix = view;
-		camerData.ViewProjectionMatrix = camerData.ViewMatrix * camerData.ProjectionMatrix;
-		camerData.Position = glm::vec3(model[3].x, model[3].y, model[3].z);
-		camerData.ViewDirection = glm::vec3(view[0].z, view[1].z, view[2].z);
+		camerData.m_ViewMatrix = view;
+		camerData.m_ViewProjectionMatrix = camerData.m_ViewMatrix * camerData.m_ProjectionMatrix;
+		camerData.m_Position = glm::vec3(model[3].x, model[3].y, model[3].z);
+		camerData.m_ViewDirection = glm::vec3(view[0].z, view[1].z, view[2].z);
 
 		
-		glm::mat4 debugMat4 = glm::inverse(camerData.ViewProjectionMatrix);
+		glm::mat4 debugMat4 = glm::inverse(camerData.m_ViewProjectionMatrix);
 		m_DebugePackage.SetData(debugMat4);
 	}
 
@@ -123,23 +123,23 @@ namespace Rynex {
 	{ 
 		CameraData& camerData = m_CamerPackage.ConfigData();
 		glm::mat4 model = glm::inverse(view);
-		camerData.ViewMatrix = view;
-		camerData.ViewProjectionMatrix = camerData.ViewMatrix * camerData.ProjectionMatrix;
-		camerData.Position = glm::vec3(model[3]);
-		camerData.ViewDirection = glm::vec3(view[0].z, view[1].z, view[2].z);
+		camerData.m_ViewMatrix = view;
+		camerData.m_ViewProjectionMatrix = camerData.m_ViewMatrix * camerData.m_ProjectionMatrix;
+		camerData.m_Position = glm::vec3(model[3]);
+		camerData.m_ViewDirection = glm::vec3(view[0].z, view[1].z, view[2].z);
 
-		glm::mat4 debugMat4 = glm::inverse(camerData.ViewProjectionMatrix);
+		glm::mat4 debugMat4 = glm::inverse(camerData.m_ViewProjectionMatrix);
 		m_DebugePackage.SetData(debugMat4);
 	}
 
 	void CamerRenderPackages::SetCamerDataProjection(const glm::mat4& projection)
 	{
 		CameraData& camerData = m_CamerPackage.ConfigData();
-		camerData.ProjectionMatrix = projection;
-		camerData.ViewProjectionMatrix = camerData.ViewMatrix * camerData.ProjectionMatrix;
+		camerData.m_ProjectionMatrix = projection;
+		camerData.m_ViewProjectionMatrix = camerData.m_ViewMatrix * camerData.m_ProjectionMatrix;
 
 
-		glm::mat4 debugMat4 = glm::inverse(camerData.ViewProjectionMatrix);
+		glm::mat4 debugMat4 = glm::inverse(camerData.m_ViewProjectionMatrix);
 		m_DebugePackage.SetData(debugMat4);
 	}
 
@@ -149,14 +149,14 @@ namespace Rynex {
 
 
 		glm::mat4 model = glm::inverse(view);
-		camerData.ViewMatrix = view;
-		camerData.ProjectionMatrix = projection;
+		camerData.m_ViewMatrix = view;
+		camerData.m_ProjectionMatrix = projection;
 
-		camerData.ViewProjectionMatrix = camerData.ViewMatrix * camerData.ProjectionMatrix;
-		camerData.Position = glm::vec3(model[3]);
-		camerData.ViewDirection = glm::vec3(view[0].z, model[1].z, model[2].z);
+		camerData.m_ViewProjectionMatrix = camerData.m_ViewMatrix * camerData.m_ProjectionMatrix;
+		camerData.m_Position = glm::vec3(model[3]);
+		camerData.m_ViewDirection = glm::vec3(view[0].z, model[1].z, model[2].z);
 
-		glm::mat4 debugMat4 = glm::inverse(camerData.ViewProjectionMatrix);
+		glm::mat4 debugMat4 = glm::inverse(camerData.m_ViewProjectionMatrix);
 		m_DebugePackage.SetData(debugMat4);
 	}
 
@@ -169,43 +169,43 @@ namespace Rynex {
 
 	void CamerRenderPackages::SetCamerPackageOnSlot(Ref<ShaderDrawList>& list, uint32_t bindSlot)
 	{
-		RY_CORE_ASSERT(bindSlot < list->GetBindeUniform().size(), "Data Overflow!");
-		list->GetBindeUniform()[bindSlot] = m_CamerPackage.GetBuffer();
+		RY_CORE_ASSERT(bindSlot < list->GetBindUniform().size(), "Data Overflow!");
+		list->GetBindUniform()[bindSlot] = m_CamerPackage.GetBuffer();
 	}
 
 	void CamerRenderPackages::SeteDisplayPackageOnSlot(Ref<ShaderDrawList>& list, uint32_t bindSlot)
 	{
-		RY_CORE_ASSERT(bindSlot < list->GetBindeUniform().size(), "Data Overflow!");
-		list->GetBindeUniform()[bindSlot] = m_DisplayPackage.GetBuffer();
+		RY_CORE_ASSERT(bindSlot < list->GetBindUniform().size(), "Data Overflow!");
+		list->GetBindUniform()[bindSlot] = m_DisplayPackage.GetBuffer();
 	}
 
 	void CamerRenderPackages::SeteDebugePackageOnSlot(Ref<ShaderDrawList>& list, uint32_t bindSlot)
 	{
-		RY_CORE_ASSERT(bindSlot < list->GetBindeUniform().size(), "Data Overflow!");
-		list->GetBindeUniform()[bindSlot] = m_DebugePackage.GetBuffer();
+		RY_CORE_ASSERT(bindSlot < list->GetBindUniform().size(), "Data Overflow!");
+		list->GetBindUniform()[bindSlot] = m_DebugePackage.GetBuffer();
 	}
 
 	void CamerRenderPackages::DrawPass()
 	{
 		UpdateBuffers();
-		m_RenderTarget.DrawPilines();
+		m_RenderTarget.DrawPiplineList();
 		m_RenderTarget.DrawBufferList();
 
-		m_RenderTarget.SortePilineAlphaList();
-		m_RenderTarget.DrawAlphaPilines();
+		m_RenderTarget.SortedPiplineAlphaList();
+		m_RenderTarget.DrawAlphaPiplineList();
 
-		m_RenderTarget.ClearPilines();
-		m_RenderTarget.ClearAlphaPilines();
+		m_RenderTarget.ClearPiplineList();
+		m_RenderTarget.ClearAlphaPiplineList();
 	}
 
 	void CamerRenderPackages::DrawPass(int modes)
 	{
 		UpdateBuffers();
-		m_RenderTarget.DrawPilines(modes);
+		m_RenderTarget.DrawPiplineList(modes);
 		m_RenderTarget.DrawBufferList(modes);
 		
-		m_RenderTarget.SortePilineAlphaList();
-		m_RenderTarget.DrawAlphaPilines(modes);
+		m_RenderTarget.SortedPiplineAlphaList();
+		m_RenderTarget.DrawAlphaPiplineList(modes);
 
 	}
 
@@ -216,7 +216,7 @@ namespace Rynex {
 		m_DebugePackage.DestroyPackege();
 
 		m_RenderTarget.ClearShaderDrawList();
-		m_RenderTarget.ClearFrambuffer();
+		m_RenderTarget.ClearFramebuffer();
 	}
 
 	void CamerRenderPackages::UpdateBuffers()

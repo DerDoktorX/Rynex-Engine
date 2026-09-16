@@ -28,7 +28,7 @@ namespace Rynex {
 		DisplayPackage& GetDisplayPackage() { UpdateBuffers();  return m_DisplayPackage; }
 		DebugCamerPackage& GetDebugPackage() { UpdateBuffers(); return m_DebugePackage; }
 
-		[[nodiscard]] glm::vec4 GetViewSpace() const { return m_DisplayPackage.GetData().ViewPortConf; }
+		[[nodiscard]] glm::vec4 GetViewSpace() const { return m_DisplayPackage.GetData().m_ViewPortConf; }
 		
 
 
@@ -59,7 +59,7 @@ namespace Rynex {
 
 		void DestoryBuffers();
 
-		uint32_t GetPilineBaseCount() const { return m_RenderTarget.GetPilineBaseCount(); }
+		uint32_t GetPilineBaseCount() const { return m_RenderTarget.GetPiplineListBaseCount(); }
 		uint32_t GetDrawListCount() const { return m_RenderTarget.GetDrawListCount(); }
 
 	private:

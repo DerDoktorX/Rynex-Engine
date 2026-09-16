@@ -41,7 +41,7 @@ namespace Rynex {
 
 	bool ProxyDrawCallGenarter::SetRenderMeshBatch(const RenderProxy& proxy)
 	{
-		return SetRenderMeshBatch(proxy.meshBatch);
+		return SetRenderMeshBatch(proxy.m_MeshBatch);
 	}
 
 	bool ProxyDrawCallGenarter::SetRenderMeshBatch(const RenderMeshBatch& renderMeshBatch)
@@ -96,8 +96,8 @@ namespace Rynex {
 #if 0
 		RenderProxy& proxy = groupView.First();
 
-		SetRenderMeshBatch(groupView.renderMeshBatch);
-		NextDrawCall(groupView.renderMeshBatch);
+		SetRenderMeshBatch(groupView.m_RenderMeshBatch);
+		NextDrawCall(groupView.m_RenderMeshBatch);
 
 
 		for (RenderProxy& renderProxy : groupView)
@@ -107,7 +107,7 @@ namespace Rynex {
 		}
 		SetubShaderDrawList();
 #else
-		BeforFirstProxy(groupView.renderMeshBatch);
+		BeforFirstProxy(groupView.m_RenderMeshBatch);
 		for (RenderProxy& renderProxy : groupView)
 		{
 			AddProxyData(renderProxy);
@@ -129,7 +129,7 @@ namespace Rynex {
 		}
 
 
-		m_CurentDrawCall.drawElement.InstancesCount++;
+		m_CurentDrawCall.m_DrawElement.m_InstancesCount++;
 	}
 
 	void ProxyDrawCallGenarter::AddTranfromModelData(const glm::mat4& modelMatrix)
@@ -148,7 +148,7 @@ namespace Rynex {
 		{
 			proxy.Check();
 			m_ProxyPtr = &proxy;
-			NextDrawCall(proxy.meshBatch);
+			NextDrawCall(proxy.m_MeshBatch);
 		}
 	}
 
@@ -167,8 +167,8 @@ namespace Rynex {
 
 	void ProxyDrawCallGenarter::FinishLastDrawCall()
 	{
-		if (nullptr == m_CurentDrawCall.shaderProgramm || (nullptr == m_CurentDrawCall.vao && 0u == m_CurentDrawCall.indicesCount && nullptr == m_CurentDrawCall.drawBuffer &&
-				(0u == m_CurentDrawCall.drawElement.InstancesCount || 0u == m_CurentDrawCall.drawElement.Count || -1 == m_CurentDrawCall.drawElement.BaseVertex)))
+		if (nullptr == m_CurentDrawCall.m_ShaderProgram || (nullptr == m_CurentDrawCall.m_VAO && 0u == m_CurentDrawCall.m_IndicesCount && nullptr == m_CurentDrawCall.m_DrawBuffer &&
+				(0u == m_CurentDrawCall.m_DrawElement.m_InstancesCount || 0u == m_CurentDrawCall.m_DrawElement.m_Count || -1 == m_CurentDrawCall.m_DrawElement.m_BaseVertex)))
 		{
 			RY_CORE_ERROR("m_CurentDrawCall has some critel reource not set!");
 			return;
@@ -265,7 +265,7 @@ namespace Rynex {
 		BufferLayout layout = dynamicDataStruct.GetLayout();
 		DynamicStructPtr dataPtr = dynamicDataStruct.Data();
 		const uint64_t layouteBytesSize = dynamicDataStruct.LayouteBytesSize();
-		const uint64_t& instanceCount = m_CurentDrawCall.drawElement.InstancesCount;
+		const uint64_t& instanceCount = m_CurentDrawCall.m_DrawElement.m_InstancesCount;
 
 		const uint64_t count = dynamicDataStruct.Size();
 		const uint64_t dynamicDataStructByteSize = dynamicDataStruct.BufferByteSize();
@@ -289,10 +289,10 @@ namespace Rynex {
 			static const BufferLayout layoutDepth = BufferLayout({
 			   { SDT::Float4x4 ,"TransformMatrix" },
 			}, 1u);
-			Batch::Render3DMeshObjectTrasform* dataBufferPtr = m_BatchRenderObjectVAOPtr->rendeObjectTransformVec.data();
+			Batch::Render3DMeshObjectTransform* dataBufferPtr = m_BatchRenderObjectVAOPtr->rendeObjectTransformVec.data();
 			uint8_t* dataPtr = reinterpret_cast<uint8_t*>(dataBufferPtr);
 			uint64_t layouteBytesSize = sizeof(Batch::Render3DMeshObject);
-			const uint32_t& instaceCount = m_CurentDrawCall.drawElement.InstancesCount;
+			const uint32_t& instaceCount = m_CurentDrawCall.m_DrawElement.m_InstancesCount;
 
 			const uint64_t bytesSize = layouteBytesSize * instaceCount;
 			UplodedeVertexBufferFromContainer(m_BatchRenderObjectVAOPtr->instanceObjectBuffer, layoutDepth, flag, dataPtr, bytesSize);
@@ -308,7 +308,7 @@ namespace Rynex {
 		Batch::Render3DMeshObject* dataBufferPtr = m_BatchRenderObjectVAOPtr->rendeObjectVec.data();
 		uint8_t* dataPtr = reinterpret_cast<uint8_t*>(dataBufferPtr);
 		uint64_t layouteBytesSize = sizeof(Batch::Render3DMeshObject);
-		const uint32_t& instaceCount = m_CurentDrawCall.drawElement.InstancesCount;
+		const uint32_t& instaceCount = m_CurentDrawCall.m_DrawElement.m_InstancesCount;
 		const uint64_t bytesSize = layouteBytesSize * instaceCount;
 		UplodedeVertexBufferFromContainer(m_BatchRenderObjectVAOPtr->instanceObjectBuffer, layoutShade, flag, dataPtr, bytesSize);
 	}
@@ -322,7 +322,7 @@ namespace Rynex {
 
 	void ProxyDrawCallGenarter::AddProxyDataStatic()
 	{
-		const int& entityID = m_ProxyPtr->entity;
+		const int& entityID = m_ProxyPtr->m_Entity;
 #ifdef RY_USE_SINGLE_DATA_STRUCTS_FOR_DATA
 		const glm::mat4& transfromMatrix = *m_ModelMatrixPtr;
 		const glm::mat4& normaleMatrix = *m_NormaleMatrixPtr;
@@ -335,7 +335,7 @@ namespace Rynex {
 			return;
 		}
 #else
-		const glm::mat4& transfromMatrix = m_ProxyPtr->model;
+		const glm::mat4& transfromMatrix = m_ProxyPtr->m_Model;
 		if (m_RenderTragetLayoute.Empty())
 		{
 			Batch::Render3DMeshObject batchedRenderObjectVAO = Batch::Render3DMeshObject{
@@ -360,7 +360,7 @@ namespace Rynex {
 
 #endif
 	{
-		RY_CORE_ASSERT(nullptr != m_CurentDrawCall.vao);
+		RY_CORE_ASSERT(nullptr != m_CurentDrawCall.m_VAO);
 
 		if (nullptr == vertexBuffer)
 		{
@@ -369,7 +369,7 @@ namespace Rynex {
 #else
 			vertexBuffer = VertexBuffer::Create(dataPtr, bytesSize, flag, layoute);
 #endif
-			m_CurentDrawCall.vao->AddVertexBuffer(vertexBuffer, layoute);
+			m_CurentDrawCall.m_VAO->AddVertexBuffer(vertexBuffer, layoute);
 		}
 		else
 		{
@@ -459,7 +459,7 @@ namespace Rynex {
 		{
 			buffer = Renderer::GetPackegeCamerUniformMain();
 		}
-		m_CurentDrawCall.GetBindeUniform().at(bindSlotCameraUB) = buffer;
+		m_CurentDrawCall.GetBindUniform().at(bindSlotCameraUB) = buffer;
 	}
 
 	void ProxyDrawCallGenarter::AddDrawListGlobleResourcesShadow()
@@ -496,8 +496,8 @@ namespace Rynex {
 				if (nullptr == ub)
 					return;
 
-				m_CurentDrawCall.GetBindeUniform().at(bindSlotShadowUB) = ub;
-				m_CurentDrawCall.GetBindeTextures().at(bindSlotShadowUB) = tex;
+				m_CurentDrawCall.GetBindUniform().at(bindSlotShadowUB) = ub;
+				m_CurentDrawCall.GetBindTextures().at(bindSlotShadowUB) = tex;
 				foundCount++;
 				
 			}
@@ -506,8 +506,8 @@ namespace Rynex {
 		if (maxCount <= foundCount)
 			return;
 
-		m_CurentDrawCall.GetBindeUniform().at(bindSlotShadowUB) = Renderer::GetPackegeCamerUniformMain();
-		m_CurentDrawCall.GetBindeTextures().at(bindSlotDepthShadowTex) = Texture::White();
+		m_CurentDrawCall.GetBindUniform().at(bindSlotShadowUB) = Renderer::GetPackegeCamerUniformMain();
+		m_CurentDrawCall.GetBindTextures().at(bindSlotDepthShadowTex) = Texture::White();
 
 	}
 
@@ -540,27 +540,27 @@ namespace Rynex {
 		{
 			m_BatchRenderObjectVAOPtr->materielUB = materiel->GetMaterielUniformBuffer();
 		}
-		m_CurentDrawCall.drawElement.BaseInstance = 0;
-		m_CurentDrawCall.drawElement.BaseVertex = 0;
-		m_CurentDrawCall.vao = vertexArrayObject;
-		m_CurentDrawCall.drawElement.Count = iab->GetCount();
+		m_CurentDrawCall.m_DrawElement.m_BaseInstance = 0;
+		m_CurentDrawCall.m_DrawElement.m_BaseVertex = 0;
+		m_CurentDrawCall.m_VAO = vertexArrayObject;
+		m_CurentDrawCall.m_DrawElement.m_Count = iab->GetCount();
 
 		if(materiel->HasSpecForDraw(m_RenderTragetLayoute, levelLOD))
 		{
 			// Renderer::GetDrawContext().PushScope("Materiel", materiel->Handle);
 			m_DrawSpecifcation = materiel->GetDrawSpecification(m_RenderTragetLayoute, levelLOD);
-			m_CurentDrawCall.shaderProgramm = materiel->GetShaderForDraw(m_RenderTragetLayoute, levelLOD);
+			m_CurentDrawCall.m_ShaderProgram = materiel->GetShaderForDraw(m_RenderTragetLayoute, levelLOD);
 
 			if (!m_RenderTragetLayoute.Empty())
 			{
-				m_CurentDrawCall.GetBindeTextures().at(bindTexAlbedo) = materiel->GetTextureForDraw(m_RenderTragetLayoute, levelLOD).front();
-				m_CurentDrawCall.GetBindeUniform().at(bindSlotMaterielUB) = m_BatchRenderObjectVAOPtr->materielUB;
+				m_CurentDrawCall.GetBindTextures().at(bindTexAlbedo) = materiel->GetTextureForDraw(m_RenderTragetLayoute, levelLOD).front();
+				m_CurentDrawCall.GetBindUniform().at(bindSlotMaterielUB) = m_BatchRenderObjectVAOPtr->materielUB;
 			}
-			m_CurentDrawCall.renderMode = materiel->GetRenderMode(m_RenderTragetLayoute, levelLOD);
+			m_CurentDrawCall.m_RenderMode = materiel->GetRenderMode(m_RenderTragetLayoute, levelLOD);
 
 		}
 		
-		m_CurentDrawCall.drawElement.InstancesCount = 0;
+		m_CurentDrawCall.m_DrawElement.m_InstancesCount = 0;
 
 	}
 
@@ -580,7 +580,7 @@ namespace Rynex {
 		case RenderProxyDynamicEllmenenttData::EntityID:
 		{
 			RY_CORE_ASSERT(nullptr != m_ProxyPtr, "not set ptr");
-			const int& entityID = m_ProxyPtr->entity;
+			const int& entityID = m_ProxyPtr->m_Entity;
 			dynamicData.Set<int>(elementIndex, arrayIndex, entityID);
 			break;
 		}
@@ -590,7 +590,7 @@ namespace Rynex {
 			RY_CORE_ASSERT(nullptr != m_ModelMatrixPtr, "not set ptr");
 			const glm::mat4& transfromMatrix = *m_ModelMatrixPtr;
 #else
-			const glm::mat4& transfromMatrix = m_ProxyPtr->model;
+			const glm::mat4& transfromMatrix = m_ProxyPtr->m_Model;
 #endif
 			dynamicData.Set<glm::mat4>(elementIndex, arrayIndex, transfromMatrix);
 			break;
@@ -601,7 +601,7 @@ namespace Rynex {
 			RY_CORE_ASSERT(nullptr != m_NormaleMatrixPtr, "not set ptr");
 			const glm::mat4& normaleMatrix = *m_NormaleMatrixPtr;
 #else
-			const glm::mat4& transfromMatrix = m_ProxyPtr->model;
+			const glm::mat4& transfromMatrix = m_ProxyPtr->m_Model;
 			glm::mat4 normaleMatrix = glm::inverse(glm::transpose(transfromMatrix));
 #endif
 			dynamicData.Set<glm::mat4>(elementIndex, arrayIndex, normaleMatrix);
@@ -706,7 +706,7 @@ namespace Rynex {
 
 	bool ProxyDrawCallGenarter::CheckMaterielConfigs(const RenderProxy& proxy)
 	{
-		return CheckMaterielConfigs(proxy.meshBatch);
+		return CheckMaterielConfigs(proxy.m_MeshBatch);
 	}
 
 	void ProxyDrawCallGenarter::BeforFirstProxy(RenderMeshBatch& meshBatch)

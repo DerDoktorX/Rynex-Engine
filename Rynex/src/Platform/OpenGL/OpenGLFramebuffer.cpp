@@ -51,25 +51,25 @@ namespace Rynex {
 
 		static void TexturDefaultTypesColor(FramebufferTextureSpecification* attachment)
 		{
-			TexFilter& filter = attachment->TextureFiltering;
+			TexFilter& filter = attachment->m_TextureFiltering;
 			if (filter == TexFilter::Default)
 				filter = TexFilter::Nearest;
 
-			TexFrom& fromat = attachment->TextureFormat;
+			TexFrom& fromat = attachment->m_TextureFormat;
 			if (fromat == TexFrom::Default)
 				fromat = TexFrom::Depth24Stencil8;
 
-			TextureWrappingMode& warpT = attachment->TextureWrapping.T;
+			TextureWrappingMode& warpT = attachment->m_TextureWrapping.T;
 			if (warpT == TexWarp::Default)
-				warpT = TexWarp::Repeate;
+				warpT = TexWarp::Repeat;
 
-			TextureWrappingMode& warpR = attachment->TextureWrapping.R;
+			TextureWrappingMode& warpR = attachment->m_TextureWrapping.R;
 			if (warpR == TexWarp::Default)
 				warpR = TexWarp::None;
 
-			TextureWrappingMode& warpS = attachment->TextureWrapping.S;
+			TextureWrappingMode& warpS = attachment->m_TextureWrapping.S;
 			if (warpS == TexWarp::Default)
-				warpS = TexWarp::Repeate;
+				warpS = TexWarp::Repeat;
 		}
 
 		static bool IsDeathTex(TextureFormat format)
@@ -115,23 +115,23 @@ namespace Rynex {
 
 		static void TexturDefaultTypesDepth(FramebufferTextureSpecification* attachment)
 		{
-			TexFilter& filter = attachment->TextureFiltering;
+			TexFilter& filter = attachment->m_TextureFiltering;
 			if (filter == TexFilter::Default)
 				filter = TexFilter::Nearest;
 
-			TexFrom& fromat = attachment->TextureFormat;
+			TexFrom& fromat = attachment->m_TextureFormat;
 			if (fromat == TexFrom::Default)
 				fromat = TexFrom::Depth24Stencil8;
 
-			TextureWrappingMode& warpT = attachment->TextureWrapping.T;
+			TextureWrappingMode& warpT = attachment->m_TextureWrapping.T;
 			if (warpT == TexWarp::Default)
 				warpT = TexWarp::ClampEdge;
 
-			TextureWrappingMode& warpR = attachment->TextureWrapping.R;
+			TextureWrappingMode& warpR = attachment->m_TextureWrapping.R;
 			if (warpR == TexWarp::Default)
 				warpR = TexWarp::None;
 
-			TextureWrappingMode& warpS = attachment->TextureWrapping.S;
+			TextureWrappingMode& warpS = attachment->m_TextureWrapping.S;
 			if (warpS == TexWarp::Default)
 				warpS = TexWarp::ClampEdge;
 		}
@@ -143,10 +143,10 @@ namespace Rynex {
 	{
 
 		
-		uint32_t& withe = m_Specification.Width;
-		uint32_t& height = m_Specification.Height;
-		uint32_t& depth = m_Specification.Depth;
-		TextureTarget& target = m_Specification.Target;
+		uint32_t& withe = m_Specification.m_Width;
+		uint32_t& height = m_Specification.m_Height;
+		uint32_t& depth = m_Specification.m_Depth;
+		TextureTarget& target = m_Specification.m_Target;
 
 		switch (target)
 		{
@@ -175,26 +175,26 @@ namespace Rynex {
 
 		m_Size = { withe , height, depth };
 		constexpr uint32_t midmapsLevel = 0u;
-		for (FramebufferTextureSpecification& attachment : m_Specification.Attachments)
+		for (FramebufferTextureSpecification& attachment : m_Specification.m_Attachments)
 		{
-			bool depthFormat = Utils::IsDeathTex(attachment.TextureFormat);
+			bool depthFormat = Utils::IsDeathTex(attachment.m_TextureFormat);
 			if (nullptr == m_DepthAttachment && depthFormat)
 			{
 				Utils::TexturDefaultTypesDepth(&attachment);
 				TextureSpecification spec = {
 					withe, height, depth,
 					target,
-					attachment.TextureFormat,
-					attachment.Samples,
-					attachment.TextureFiltering,
-					attachment.TextureWrapping,
+					attachment.m_TextureFormat,
+					attachment.m_Samples,
+					attachment.m_TextureFiltering,
+					attachment.m_TextureWrapping,
 					attachment.Compare,
 					midmapsLevel
 				};
 				m_DepthAttachment = CreateRef<OpenGLTextureStorageModern>(spec);
 
 				uint32_t countColorTex = m_ColorAttachmentsTex.size();
-				uint32_t countAttachmentsCount = m_Specification.Attachments.Attachments.size();
+				uint32_t countAttachmentsCount = m_Specification.m_Attachments.m_Attachments.size();
 				uint32_t expexteColorCount = countAttachmentsCount - 1u;
 				if (expexteColorCount != countColorTex)
 				{
@@ -207,10 +207,10 @@ namespace Rynex {
 				TextureSpecification spec = {
 					withe, height, depth,
 					target,
-					attachment.TextureFormat,
-					attachment.Samples,
-					attachment.TextureFiltering,
-					attachment.TextureWrapping,
+					attachment.m_TextureFormat,
+					attachment.m_Samples,
+					attachment.m_TextureFiltering,
+					attachment.m_TextureWrapping,
 					attachment.Compare,
 					midmapsLevel
 
@@ -333,7 +333,7 @@ namespace Rynex {
 		OnFramebufferDataChangeAction(index);
 	}
 
-	bool OpenGLFramebuffer::SetTextureForDepthAttchment(const Ref<Texture>& texture)
+	bool OpenGLFramebuffer::SetTextureForDepthAttachment(const Ref<Texture>& texture)
 	{
 		if(nullptr == m_DepthAttachment || nullptr == texture || m_DepthAttachment->GetSpecification() != texture->GetSpecification())
 		{
@@ -355,7 +355,7 @@ namespace Rynex {
 		return true;
 	}
 
-	bool OpenGLFramebuffer::SetTextureForColorAttchment(const Ref<Texture>& texture, uint32_t atchmentIndex)
+	bool OpenGLFramebuffer::SetTextureForColorAttachment(const Ref<Texture>& texture, uint32_t atchmentIndex)
 	{
 
 		if (m_ColorAttachmentsTex.size() <= atchmentIndex || nullptr == texture || m_ColorAttachmentsTex.at(atchmentIndex)->GetSpecification() != texture->GetSpecification())
@@ -436,15 +436,15 @@ namespace Rynex {
 	void OpenGLFramebuffer::Bind(float width, float height, float x, float y)
 	{
 		OpenGLRenderCommand::BindFramebuffer(m_RendererID);
-		GLsizei widthS = width == 0.0f ? m_Specification.Width : width;
-		GLsizei heightS = height == 0.0f ? m_Specification.Height : height;
+		GLsizei widthS = width == 0.0f ? m_Specification.m_Width : width;
+		GLsizei heightS = height == 0.0f ? m_Specification.m_Height : height;
 		glViewport(x, y, widthS, heightS);
 	}
 
 	void OpenGLFramebuffer::UnBind()
 	{
-		GLsizei widthS = m_Specification.Width;
-		GLsizei heightS = m_Specification.Height;
+		GLsizei widthS = m_Specification.m_Width;
+		GLsizei heightS = m_Specification.m_Height;
 		uint32_t defaultTexture = OpenGLRenderCommand::GetDefaultFrambufferRenderID();
 		glm::uvec2 windowSize = OpenGL::GetMainWindowCurentSize();
 		OpenGLRenderCommand::BindFramebuffer(defaultTexture);
@@ -464,13 +464,13 @@ namespace Rynex {
 		m_DepthAttachment->Bind(slot);
 	}
 
-	void OpenGLFramebuffer::BindColorAttachmentImage(Acces acces, uint32_t index, uint32_t slot) const
+	void OpenGLFramebuffer::BindColorAttachmentImage(Access acces, uint32_t index, uint32_t slot) const
 	{
 		RY_CORE_ASSERT(index < m_ColorAttachmentsTex.size(), "Error: OpenGLFramebuffer::BindColorAttachmentImage!");
 		m_ColorAttachmentsTex[index]->BindImage(acces, slot);
 	}
 
-	void OpenGLFramebuffer::BindDeathAttachmentImage(Acces acces, uint32_t slot) const
+	void OpenGLFramebuffer::BindDeathAttachmentImage(Access acces, uint32_t slot) const
 	{
 		m_DepthAttachment->BindImage(acces, slot);
 	}
@@ -699,10 +699,10 @@ namespace Rynex {
 			RY_CORE_WARN("Faild Resize frambueffer to {0}, {1}", width, height);
 			return;
 		}
-		m_Size = { width , height, m_Specification.Depth };
-		m_Specification.Width = m_Size.x;
-		m_Specification.Height = m_Size.y;
-		m_Specification.Depth = m_Size.z;
+		m_Size = { width , height, m_Specification.m_Depth };
+		m_Specification.m_Width = m_Size.x;
+		m_Specification.m_Height = m_Size.y;
+		m_Specification.m_Depth = m_Size.z;
 
 		RY_CORE_TRACE("Resize frambueffer to {0}, {1}, {2}", m_Size.x, m_Size.y, m_Size.z);
 		Invalidate();
@@ -719,7 +719,7 @@ namespace Rynex {
 		return pixeldata;
 	}
 
-	const glm::uvec3& OpenGLFramebuffer::GetFrambufferSize()
+	const glm::uvec3& OpenGLFramebuffer::GetFramebufferSize()
 	{
 		return m_Size;
 	}

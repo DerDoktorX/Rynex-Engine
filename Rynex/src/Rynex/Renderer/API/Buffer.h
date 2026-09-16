@@ -4,7 +4,7 @@
 
 
 namespace Rynex {
-	
+
 	enum class DataType : uint8_t
 	{
 
@@ -16,23 +16,23 @@ namespace Rynex {
 		Int,							// Single signed 32-bit integer per component. (For GL_RED: [R0(32b), R1(32b), ...])
 		HalfFloat,						// Single 16-bit half-precision float per component. (For GL_RGB: [R0(16f), G0(16f), B0(16f), R1(16f), ...])
 		Float,							// Single 32-bit single-precision float per component. (For GL_RGBA: [R0(32f), G0(32f), B0(32f), A0(32f), ...])
-		UnsingnedBtye,					// Single unsigned 8-bit integer per component. (For GL_RGBA: [R0, G0, B0, A0, R1, G1, ...])
-		UnsingnedBtye_3_3_2,			// 8 bits total: 3 bits Red, 3 bits Green, 2 bits Blue.  (For GL_RGB: [Byte: 0bRRRGGGBB, ...])
-		UnsingnedBtye_2_3_3_Rev,		// 8 bits total: Reversed order of 3_3_2.  (For GL_RGB: [Byte: 0bBBGGGRRR, ...])
+		UnsignedByte,					// Single unsigned 8-bit integer per component. (For GL_RGBA: [R0, G0, B0, A0, R1, G1, ...])
+		UnsignedByte_3_3_2,			// 8 bits total: 3 bits Red, 3 bits Green, 2 bits Blue.  (For GL_RGB: [Byte: 0bRRRGGGBB, ...])
+		UnsignedByte_2_3_3_Rev,		// 8 bits total: Reversed order of 3_3_2.  (For GL_RGB: [Byte: 0bBBGGGRRR, ...])
 
-		UnsingnedShort,					// Single unsigned 16-bit integer per component. (For GL_RGB: [R0(16b), G0(16b), R1(16b), ...])
-		UnsingnedShort_5_6_5,			// 16 bits total: 5 bits Red, 6 bits Green, 5 bits Blue. (For GL_RG: [Short: 0bRRRRRGGGGGGBBBBB, ...] or [{ Byte: 0bRRRRRGGG, Byte: 0bGGGBBBBB }, ... ])
-		UnsingnedShort_5_6_5_Rev,		// 16 bits total: Reversed order of 5_6_5. (For GL_RGB: [Short: 0bBBBBBGGGGGGRRRRR, ...] or [{ Byte: 0bBBBBBGGG, Byte: 0bGGGRRRRR }, ... ])
-		UnsingnedShort_4_4_4_4,			// 16 bits total: 4 bits each for Red, Green, Blue, Alpha. (For GL_RGBA: Short: 0bRRRRGGGGBBBBAAAA or [{ Byte: 0bRRRRGGGG, Byte: 0bBBBBAAAA}, ... ])
-		UnsingnedShort_4_4_4_4_Rev,		// 16 bits total: Reversed order of 4_4_4_4. (For GL_RGBA: Short: 0bAAAABBBBGGGGRRRR or [{ Byte: 0bAAAABBBB, Byte: 0bGGGGRRRR }, ... ])
-		UnsingnedShort_5_5_5_1,			// 16 bits total: 5 bits each for R,G,B, 1 bit for Alpha.  (For GL_RGBA: Short: 0bRRRRRGGGGGBBBBBA or [{ Byte: 0bRRRRRGGGG, Byte: 0bGBBBBBA }, ... ])
-		UnsingnedShort_1_5_5_5_Rev,		// 16 bits total: Reversed order of 5_5_5_1 (1 bit Alpha first).. (For GL_RGBA: Short: 0bARRRRRGGGGGBBBBB or [{ Byte: 0bARRRRRGGG, Byte: 0bGGBBBBBA }, ... ])
+		UnsignedShort,					// Single unsigned 16-bit integer per component. (For GL_RGB: [R0(16b), G0(16b), R1(16b), ...])
+		UnsignedShort_5_6_5,			// 16 bits total: 5 bits Red, 6 bits Green, 5 bits Blue. (For GL_RG: [Short: 0bRRRRRGGGGGGBBBBB, ...] or [{ Byte: 0bRRRRRGGG, Byte: 0bGGGBBBBB }, ... ])
+		UnsignedShort_5_6_5_Rev,		// 16 bits total: Reversed order of 5_6_5. (For GL_RGB: [Short: 0bBBBBBGGGGGGRRRRR, ...] or [{ Byte: 0bBBBBBGGG, Byte: 0bGGGRRRRR }, ... ])
+		UnsignedShort_4_4_4_4,			// 16 bits total: 4 bits each for Red, Green, Blue, Alpha. (For GL_RGBA: Short: 0bRRRRGGGGBBBBAAAA or [{ Byte: 0bRRRRGGGG, Byte: 0bBBBBAAAA}, ... ])
+		UnsignedShort_4_4_4_4_Rev,		// 16 bits total: Reversed order of 4_4_4_4. (For GL_RGBA: Short: 0bAAAABBBBGGGGRRRR or [{ Byte: 0bAAAABBBB, Byte: 0bGGGGRRRR }, ... ])
+		UnsignedShort_5_5_5_1,			// 16 bits total: 5 bits each for R,G,B, 1 bit for Alpha.  (For GL_RGBA: Short: 0bRRRRRGGGGGBBBBBA or [{ Byte: 0bRRRRRGGGG, Byte: 0bGBBBBBA }, ... ])
+		UnsignedShort_1_5_5_5_Rev,		// 16 bits total: Reversed order of 5_5_5_1 (1 bit Alpha first).. (For GL_RGBA: Short: 0bARRRRRGGGGGBBBBB or [{ Byte: 0bARRRRRGGG, Byte: 0bGGBBBBBA }, ... ])
 
-		UnsingnedInt,					// Single signed 32-bit integer per component.. (For GL_RED: [R0(32b), R1(32b), ...])
-		UnsingnedInt_8_8_8_8,			// 32 bits total: 8 bits each for Red, Green, Blue, Alpha. (Int: 0xRRGGBBAA (in memory: [RR, GG, BB, AA, ... ]))
-		UnsingnedInt_8_8_8_8_Rev,		// 32 bits total: Reversed component order (often BGRA). (Int: 0xRRGGBBAA (in memory: [AA, BB, GG, RR, ... ]))
-		UnsingnedInt_10_10_10_2,		// 32 bits total: 10 bits each for R,G,B, 2 bits for Alpha. (For GL_RGBA: [Int: 0bRRRRRRRRRRGGGGGGGGGGBBBBBBBBBBAA, ...] or [{Byte: 0bRRRRRRRR, Byte: 0bRRGGGGGG, Byte: GGGGBBBB, Byte: BBBBBBAA}, ... ])
-		UnsingnedInt_2_10_10_10_Rev,	// 32 bits total: Reversed order (2 bit Alpha, then 10-bit B,G,R). (For GL_RGBA:[Int: 0bAABBBBBBBBBBGGGGGGGGGGRRRRRRRRRR] or [{Byte: 0b AABBBBBB, Byte: 0bBBBBGGGG, Byte: 0bGGGGGGRR, Byte: 0bRRRRRRRR}, ... ])
+		UnsignedInt,					// Single signed 32-bit integer per component.. (For GL_RED: [R0(32b), R1(32b), ...])
+		UnsignedInt_8_8_8_8,			// 32 bits total: 8 bits each for Red, Green, Blue, Alpha. (Int: 0xRRGGBBAA (in memory: [RR, GG, BB, AA, ... ]))
+		UnsignedInt_8_8_8_8_Rev,		// 32 bits total: Reversed component order (often BGRA). (Int: 0xRRGGBBAA (in memory: [AA, BB, GG, RR, ... ]))
+		UnsignedInt_10_10_10_2,		// 32 bits total: 10 bits each for R,G,B, 2 bits for Alpha. (For GL_RGBA: [Int: 0bRRRRRRRRRRGGGGGGGGGGBBBBBBBBBBAA, ...] or [{Byte: 0bRRRRRRRR, Byte: 0bRRGGGGGG, Byte: GGGGBBBB, Byte: BBBBBBAA}, ... ])
+		UnsignedInt_2_10_10_10_Rev,	// 32 bits total: Reversed order (2 bit Alpha, then 10-bit B,G,R). (For GL_RGBA:[Int: 0bAABBBBBBBBBBGGGGGGGGGGRRRRRRRRRR] or [{Byte: 0b AABBBBBB, Byte: 0bBBBBGGGG, Byte: 0bGGGGGGRR, Byte: 0bRRRRRRRR}, ... ])
 		
 	};
 
@@ -69,16 +69,16 @@ namespace Rynex {
 
 		Uniform, Vertex, Index,
 		ShaderStorage,
-		DrawIndrirect
+		DrawIndirect
 	};
 	namespace BufferFlag {
 		enum BufferFlagBit : uint8_t
 		{
-			None = 0, // None is like Static, like no changes Optimize flage
+			None = 0, // None is like Static, like no changes Optimize flag
 			Dynamic = BIT(0),
 			Read = BIT(1),
 			Write = BIT(2),
-			Presistent = BIT(3),
+			Persistence = BIT(3),
 			Coherent = BIT(4),
 			Client = BIT(5)
 		};
@@ -109,11 +109,11 @@ namespace Rynex {
 			case ShaderDataType::Uint4:			return sizeof(uint32_t) * 4u;
 			case ShaderDataType::Uint3x3:		return sizeof(uint32_t) * 3u * 3u;
 			case ShaderDataType::Uint4x4:		return sizeof(uint32_t) * 4u * 4u;
-			default: 
-				std::string_view nameType = magic_enum::enum_name(type);
+			default:
+				const std::string_view nameType = magic_enum::enum_name(type);
 				RY_CORE_ERROR("ShaderDataType {} not defined", nameType.data());
 		}
-		RY_CORE_ASSERT(false, "Uknokn ShaderDataType!");
+		RY_CORE_ASSERT(false, "Unknown ShaderDataType!");
 		return std::numeric_limits<uint32_t>::max();
 	};
 
@@ -121,43 +121,43 @@ namespace Rynex {
 
 	struct BufferElement
 	{
-		std::string name;
-		ShaderDataType type;
-		bool active;
+		std::string m_Name;
+		ShaderDataType m_Type;
+		bool m_Active;
 
 		uint32_t offset;
-		uint32_t size;
-		bool normilized;
-		uint32_t count;
+		uint32_t m_Size;
+		bool m_Normalized;
+		uint32_t m_Count;
 		
 		BufferElement()
-			: name("Unkown now"), type(SDT::None), active(false)
-			, offset(0u), size(0u), normilized(false), count(0u)
+			: m_Name("Unknown now"), m_Type(SDT::None), m_Active(false)
+			, offset(0u), m_Size(0u), m_Normalized(false), m_Count(0u)
 		{
 		}
 
 		BufferElement(const BufferElement&) = default;
 
 		BufferElement(const BufferElement& buffer, uint32_t count)
-			: name(buffer.name), type(buffer.type), active(buffer.active), size(buffer.size), offset(0u), normilized(buffer.normilized), count(count)
+			: m_Name(buffer.m_Name), m_Type(buffer.m_Type), m_Active(buffer.m_Active), m_Size(buffer.m_Size), offset(0u), m_Normalized(buffer.m_Normalized), m_Count(count)
 		{
 		}
 
 		BufferElement(ShaderDataType type, const std::string& name, bool active = true, uint32_t count = 1u, bool normilized = false)
-			: name(name), type(type), active(active), size(ShaderDataTypeSize(type)), offset(0u), normilized(normilized), count(count)
+			: m_Name(name), m_Type(type), m_Active(active), m_Size(ShaderDataTypeSize(type)), offset(0u), m_Normalized(normilized), m_Count(count)
 		{
 		}
 
 		uint64_t GetHash() const
 		{
-			uint64_t hashType = static_cast<uint64_t>(this->type);
-			uint64_t hashActive = this->active ? 1ull : 0ull;
+			const uint64_t hashType = static_cast<uint64_t>(this->m_Type);
+			const uint64_t hashActive = this->m_Active ? 1ull : 0ull;
 
-			uint64_t hashOffset = static_cast<uint64_t>(this->offset);
+			const uint64_t hashOffset = this->offset;
 
-			uint64_t hashSize = static_cast<uint64_t>(this->size);
-			uint64_t hashNormilized = this->normilized ? 1ull : 0ull;
-			uint64_t hashCount = static_cast<uint64_t>(this->count);
+			const uint64_t hashSize = this->m_Size;
+			const uint64_t hashNormalized = this->m_Normalized ? 1ull : 0ull;
+			const uint64_t hashCount = this->m_Count;
 
 			uint64_t hash = 0;
 			hash += 1 * hashType;
@@ -165,7 +165,7 @@ namespace Rynex {
 			hash += 3 * hashOffset;
 
 			hash += 4 * hashSize;
-			hash += 5 * hashNormilized;
+			hash += 5 * hashNormalized;
 			hash += 6 * hashCount;
 
 			return hash;
@@ -174,7 +174,7 @@ namespace Rynex {
 		
 		uint32_t GetCompontsCount() const
 		{
-			switch (type)
+			switch (m_Type)
 			{
 			case ShaderDataType::Float:			return 1;
 			case ShaderDataType::Float2:		return 2;
@@ -200,12 +200,12 @@ namespace Rynex {
 
 		bool operator==(const BufferElement& elemnet) const
 		{
-			RY_CORE_ASSERT(this->count == elemnet.count, "Decied If we can left that!");
-			bool result =(this->name ==  elemnet.name)
-				&& ( this->type == elemnet.type) 
-				&& ( this->size == elemnet.size) 
-				&& ( this->count == elemnet.count) 
-				&& ( this->active ==  elemnet.active);
+			RY_CORE_ASSERT(this->m_Count == elemnet.m_Count, "Decied If we can left that!");
+			bool result =(this->m_Name ==  elemnet.m_Name)
+				&& ( this->m_Type == elemnet.m_Type)
+				&& ( this->m_Size == elemnet.m_Size)
+				&& ( this->m_Count == elemnet.m_Count)
+				&& ( this->m_Active ==  elemnet.m_Active);
 			RY_CORE_ASSERT(!result || this->GetHash() == elemnet.GetHash());
 
 			return result;
@@ -335,8 +335,8 @@ namespace Rynex {
 			{
 				elements.offset = offset;
 				m_HashNumber += i * elements.GetHash();
-				offset += elements.size;
-				m_Stride += elements.size;
+				offset += elements.m_Size;
+				m_Stride += elements.m_Size;
 				m_Length++;
 				m_BufferCount += elements.GetCompontsCount();
 				i++;

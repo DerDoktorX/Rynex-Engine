@@ -26,9 +26,9 @@ namespace Rynex {
 
 			}
 
-			static Ref<Material> GetMaterielTexturesSingle(const MeshSource::_Material& materielSource)
+			static Ref<Material> GetMaterielTexturesSingle(const MeshSource::MaterialMesh& materielSource)
 			{
-				const std::vector<std::filesystem::path>& pathVec = materielSource.TexturesMatieral;
+				const std::vector<std::filesystem::path>& pathVec = materielSource.m_TexturesMaterial;
 				uint32_t count = pathVec.size();
 
 				std::vector<Ref<Texture>> materielTextureVec;
@@ -40,7 +40,7 @@ namespace Rynex {
 					Ref<Texture>& texture = materielTextureVec.at(i);
 					GenareteTextureInPlace(path, texture);
 				}
-				const glm::vec4& baseColor = materielSource.BaseColor;
+				const glm::vec4& baseColor = materielSource.m_BaseColor;
 				glm::vec3 color = glm::vec3(baseColor.r, baseColor.g, baseColor.b);
 				float alpha = baseColor.a;
 				float shinines = 0.0f;
@@ -67,14 +67,14 @@ namespace Rynex {
 			}
 
 
-			static void MaterielBufferSingle(const MeshSource::SourceMesh& meshSource, const std::vector<MeshSource::_Material>& materielsSources, std::vector<Ref<Material>>& materiels)
+			static void MaterielBufferSingle(const MeshSource::SourceMesh& meshSource, const std::vector<MeshSource::MaterialMesh>& materielsSources, std::vector<Ref<Material>>& materiels)
 			{
 
-				uint32_t materielIndex = meshSource.MaterielIndex;
+				uint32_t materielIndex = meshSource.m_MaterielIndex;
 				uint32_t sizeSources = materielsSources.size();
 				RY_CORE_ASSERT(materielIndex < sizeSources, "Buffer OverFlow");
 
-				const MeshSource::_Material& materielSource = materielsSources.at(materielIndex);
+				const MeshSource::MaterialMesh& materielSource = materielsSources.at(materielIndex);
 
 				uint32_t size = materiels.size();
 				RY_CORE_ASSERT(materielIndex < size, "Buffer OverFlow");
@@ -129,24 +129,24 @@ namespace Rynex {
 					, BufferFlag::None
 				);
 				
-				perDrawObject.BaseInstance = 0u;
-				perDrawObject.BaseVertex = 0u;
-				perDrawObject.FirstIndex = 0u;
-				perDrawObject.Count = indicesVec.size();
-				perDrawObject.InstancesCount = 0;
+				perDrawObject.m_BaseInstance = 0u;
+				perDrawObject.m_BaseVertex = 0u;
+				perDrawObject.m_FirstIndex = 0u;
+				perDrawObject.m_Count = indicesVec.size();
+				perDrawObject.m_InstancesCount = 0;
 			}
 
 			static void GenaretSingleMeshBuffer(const MeshSource::OptimizeMeshData& data, SingleMeshBuffers& gpuMeshBufferRef, const MeshSource::SourceMesh& vertexSource, const UUID& meshSourceHandle)
 			{
 
 				BufferLayout layoute = BufferLayout({
-						  { ShaderDataType::Float3, MeshSource::s_VerexBufferAtributePostionName	}
-						, { ShaderDataType::Float2, MeshSource::s_VerexBufferAtributeTextureCoordName }
-						, { ShaderDataType::Float3,  MeshSource::s_VerexBufferAtributeNormaleName	}
+						  { ShaderDataType::Float3, MeshSource::s_VertexBufferAttributePositionName	}
+						, { ShaderDataType::Float2, MeshSource::s_VertexBufferAttributeTextureCoordName }
+						, { ShaderDataType::Float3,  MeshSource::s_VertexBufferAttributeNormaleName	}
 				});
 				gpuMeshBufferRef.VertexBufferAtributeRef = VertexBuffer::Create(
-					data.VerticesDataVec.data()
-					, data.VerticesDataVec.size() * sizeof(MeshVerteices)
+					data.m_VerticesDataVec.data()
+					, data.m_VerticesDataVec.size() * sizeof(MeshVertices)
 					, BufferFlag::None
 					, layoute
 				);
@@ -155,22 +155,22 @@ namespace Rynex {
 				SetMeshBufferSetup(
 					gpuMeshBufferRef.VertexBufferAtributeRef
 					, gpuMeshBufferRef.ShadeIndexBufferRef
-					, data.ShadeIndicesDataVec
+					, data.m_ShadeIndicesDataVec
 					, gpuMeshBufferRef.ShadePerDrawObjectRef
 				);
 
 				SetMeshBufferSetup(
 					gpuMeshBufferRef.VertexBufferAtributeRef
 					, gpuMeshBufferRef.DepthIndexBufferRef
-					, data.DepthIndicesDataVec
+					, data.m_DepthIndicesDataVec
 					, gpuMeshBufferRef.DepthPerDrawObjectRef
 				);
-				uint32_t meshIndex = vertexSource.MeshIndex;
-				uint32_t meshDataIndex = vertexSource.MeshDataIndex;
+				uint32_t meshIndex = vertexSource.m_MeshIndex;
+				uint32_t meshDataIndex = vertexSource.m_MeshDataIndex;
 
-				const BoundingVolume& volume = vertexSource.Volume;
-				const UUID& meshHandle = vertexSource.MeshHandle;
-				const std::string& meshName = vertexSource.MeshName;
+				const BoundingVolume& volume = vertexSource.m_Volume;
+				const UUID& meshHandle = vertexSource.m_MeshHandle;
+				const std::string& meshName = vertexSource.m_MeshName;
 
 				gpuMeshBufferRef.MeshSingleRef = CreateRef<MeshSingle>(
 					meshDataIndex
@@ -199,9 +199,9 @@ namespace Rynex {
 			}
 #pragma region BatchedResouces
 
-			static Ref<Material> GetMaterielTexturesBatching(const MeshSource::_Material& materielSource, MapVector<int64_t, Ref<Texture>>& textureMap)
+			static Ref<Material> GetMaterielTexturesBatching(const MeshSource::MaterialMesh& materielSource, MapVector<int64_t, Ref<Texture>>& textureMap)
 			{
-				const std::vector<std::filesystem::path>& paths = materielSource.TexturesMatieral;
+				const std::vector<std::filesystem::path>& paths = materielSource.m_TexturesMaterial;
 				Ref<Texture> materielTexture = nullptr;
 				for (const std::filesystem::path& p : paths)
 				{
@@ -224,7 +224,7 @@ namespace Rynex {
 
 
 				}
-				const glm::vec4& baseColor = materielSource.BaseColor;
+				const glm::vec4& baseColor = materielSource.m_BaseColor;
 				glm::vec3 color = glm::vec3(baseColor.r, baseColor.g, baseColor.b);
 				float alpha = baseColor.a;
 				float shinines = 0.0f;
@@ -245,13 +245,13 @@ namespace Rynex {
 				return materiel;
 			}
 
-			static void MaterielBufferBatching(const MeshSource::SourceMesh& meshSource, const std::vector<MeshSource::_Material>& materielsSources, std::vector<Mesh::MeshMaterielIndex>& materielBuffer, std::vector<Ref<Material>>& materiels, MapVector<int64_t, Ref<Texture>>& textureMap)
+			static void MaterielBufferBatching(const MeshSource::SourceMesh& meshSource, const std::vector<MeshSource::MaterialMesh>& materielsSources, std::vector<Mesh::MeshMaterielIndex>& materielBuffer, std::vector<Ref<Material>>& materiels, MapVector<int64_t, Ref<Texture>>& textureMap)
 			{
-				uint32_t materielIndex = meshSource.MaterielIndex;
+				uint32_t materielIndex = meshSource.m_MaterielIndex;
 				uint32_t sizeSources = materielsSources.size();
 				RY_CORE_ASSERT(materielIndex < sizeSources, "Buffer OverFlow");
 				
-				const MeshSource::_Material& materielSource = materielsSources.at(materielIndex);
+				const MeshSource::MaterialMesh& materielSource = materielsSources.at(materielIndex);
 
 				uint32_t size = materiels.size();
 				RY_CORE_ASSERT(materielIndex < size, "Buffer OverFlow");
@@ -293,7 +293,7 @@ namespace Rynex {
 
 			static void PerDrawObjectBufferBatching(const MeshSource::SourceMesh& meshSource, std::vector<Mesh::PerDrawObject>& pdoIndicesVec, std::vector<uint32_t>& indicies, uint32_t vertexCount)
 			{
-				const std::vector<uint32_t>& meshIndex = meshSource.ObjectMeshIndexVec;
+				const std::vector<uint32_t>& meshIndex = meshSource.m_ObjectMeshIndexVec;
 				PerDrawObjectBufferBatching(meshIndex, pdoIndicesVec, indicies, vertexCount);
 			}
 
@@ -322,25 +322,25 @@ namespace Rynex {
 
 			static void BatchIncicies(const MeshSource::SourceMesh& meshSource, std::vector<uint32_t>& indicies)
 			{
-				const std::vector<uint32_t>& meshIndex = meshSource.ObjectMeshIndexVec;
+				const std::vector<uint32_t>& meshIndex = meshSource.m_ObjectMeshIndexVec;
 				BatchIncicies(meshIndex, indicies);
 			}
 
 
 
-			static void BatchVertices(const std::vector<MeshVerteices>& meshVertices, std::vector<MeshVerteices>& vertices)
+			static void BatchVertices(const std::vector<MeshVertices>& meshVertices, std::vector<MeshVertices>& vertices)
 			{
-				std::vector<MeshVerteices>::const_iterator beginMeshVertices = meshVertices.begin();
-				std::vector<MeshVerteices>::const_iterator endMeshVertices = meshVertices.end();
+				std::vector<MeshVertices>::const_iterator beginMeshVertices = meshVertices.begin();
+				std::vector<MeshVertices>::const_iterator endMeshVertices = meshVertices.end();
 
-				std::vector<MeshVerteices>::const_iterator postionBatchedVertices = vertices.end();
+				std::vector<MeshVertices>::const_iterator postionBatchedVertices = vertices.end();
 
-				vertices.insert<std::vector<MeshVerteices>::const_iterator>(postionBatchedVertices, beginMeshVertices, endMeshVertices);
+				vertices.insert<std::vector<MeshVertices>::const_iterator>(postionBatchedVertices, beginMeshVertices, endMeshVertices);
 			}
 
-			static void BatchVertices(const MeshSource::SourceMesh& meshSource, std::vector<MeshVerteices>& vertices)
+			static void BatchVertices(const MeshSource::SourceMesh& meshSource, std::vector<MeshVertices>& vertices)
 			{
-				const std::vector<MeshVerteices>& meshVertices = meshSource.MeshVerteices;
+				const std::vector<MeshVertices>& meshVertices = meshSource.m_MeshVertices;
 				BatchVertices(meshVertices, vertices);
 			}
 #pragma endregion
@@ -551,7 +551,7 @@ namespace Rynex {
 
 	}
 
-	MeshSource::MeshSource(std::vector<MeshSource::_Material>&& materiel, std::vector<MeshSource::SourceMesh>&& meshes, std::vector<MeshSource::SourceVertex>&& vertexSourceData, EntityNodes&& nodes)
+	MeshSource::MeshSource(std::vector<MeshSource::MaterialMesh>&& materiel, std::vector<MeshSource::SourceMesh>&& meshes, std::vector<MeshSource::SourceVertex>&& vertexSourceData, EntityNodes&& nodes)
 		: m_SourceMateriel(std::move(materiel))
 		, m_SourceMeshes(std::move(meshes))
 		, m_SourceVertexData(std::move(vertexSourceData))
@@ -588,25 +588,25 @@ namespace Rynex {
 		}
 	}
 
-	void MeshSource::SepareteMeshes()
+	void MeshSource::SeparateMeshes()
 	{
 
 
 		uint32_t countMehes = 0;
 		for(MeshSource::SourceMesh& m : m_SourceMeshes)
 		{
-			countMehes += Utils::MeshSepration::SepaerateBFS_DFS(m.ObjectMeshIndexVec);
+			countMehes += Utils::MeshSepration::SepaerateBFS_DFS(m.m_ObjectMeshIndexVec);
 		}
 		RY_CORE_INFO("This Moddel has Maby {} Meshes Insted off {}!", countMehes, m_SourceMeshes.size());
 	}
 
-	void MeshSource::OptimizeMesh(std::vector<MeshVerteices>& verticies, std::vector<uint32_t>& indicies, OptimizeMeshData& optMesh)
+	void MeshSource::OptimizeMesh(std::vector<MeshVertices>& verticies, std::vector<uint32_t>& indicies, OptimizeMeshData& optMesh)
 	{
 		size_t numVerticies = verticies.size();
 		size_t numIndicies = indicies.size();
 
 
-		MeshVerteices* verticiesPtr = verticies.data();
+		MeshVertices* verticiesPtr = verticies.data();
 		uint32_t* indiciesPtr = indicies.data();
 
 		std::vector<uint32_t> remap(numIndicies);
@@ -614,50 +614,50 @@ namespace Rynex {
 		size_t optVertexCount = meshopt_generateVertexRemap(remap.data(),
 			indicies.data(), numIndicies,
 			verticies.data(), numVerticies,
-			sizeof(MeshVerteices)
+			sizeof(MeshVertices)
 		);
 
-		optMesh.VerticesDataVec.resize(optVertexCount);
+		optMesh.m_VerticesDataVec.resize(optVertexCount);
 		std::vector<unsigned int> optInicies;
 		optInicies.resize(numIndicies);
 
 
-		MeshVerteices* optVerticiesPtr = optMesh.VerticesDataVec.data();
+		MeshVertices* optVerticiesPtr = optMesh.m_VerticesDataVec.data();
 
 		uint32_t* optIndiciesPtr = optInicies.data();
 
 
 		meshopt_remapIndexBuffer(optIndiciesPtr, indiciesPtr, numIndicies, remap.data());
-		meshopt_remapVertexBuffer(optVerticiesPtr, verticiesPtr, numVerticies, sizeof(MeshVerteices), remap.data());
+		meshopt_remapVertexBuffer(optVerticiesPtr, verticiesPtr, numVerticies, sizeof(MeshVertices), remap.data());
 
 
 		meshopt_optimizeVertexCache(optIndiciesPtr, optIndiciesPtr, numIndicies, optVertexCount);
 
 		meshopt_optimizeOverdraw(optIndiciesPtr, optIndiciesPtr, numIndicies,
-			&(optVerticiesPtr[0].Postion.x), optVertexCount, sizeof(MeshVerteices), 1.05f);
+			&(optVerticiesPtr[0].m_Position.x), optVertexCount, sizeof(MeshVertices), 1.05f);
 
 		meshopt_optimizeVertexFetch(optVerticiesPtr,
 			optIndiciesPtr, numIndicies,
-			optVerticiesPtr, optVertexCount, sizeof(MeshVerteices));
+			optVerticiesPtr, optVertexCount, sizeof(MeshVertices));
 
 
 		float thershold = 0.75f;
 		size_t targetIndexCount = (size_t)(numIndicies * thershold);
 		float targetError = 0.2f;
-		optMesh.ShadeIndicesDataVec.resize(numIndicies);
-		uint32_t* simpliefiedIniciesPtr = optMesh.ShadeIndicesDataVec.data();
+		optMesh.m_ShadeIndicesDataVec.resize(numIndicies);
+		uint32_t* simpliefiedIniciesPtr = optMesh.m_ShadeIndicesDataVec.data();
 
 		size_t optIndexCount = meshopt_simplify(simpliefiedIniciesPtr, optIndiciesPtr, numIndicies,
-			&optVerticiesPtr[0].Postion.x, optVertexCount, sizeof(MeshVerteices), targetIndexCount, targetError);
-		optMesh.ShadeIndicesDataVec.resize(optIndexCount);
+			&optVerticiesPtr[0].m_Position.x, optVertexCount, sizeof(MeshVertices), targetIndexCount, targetError);
+		optMesh.m_ShadeIndicesDataVec.resize(optIndexCount);
 
 	}
 
-	bool MeshSource::HasMeshDataGerated()
+	bool MeshSource::HasMeshDataGenerated()
 	{
-		bool value =!m_VABvec.empty()
-			&& !m_ShadeIABvec.empty()
-			&& !m_DepthIABvec.empty()
+		bool value =!m_VABVec.empty()
+			&& !m_ShadeIABVec.empty()
+			&& !m_DepthIABVec.empty()
 			&& !m_MaterialsVec.empty()
 			&& CheckAllRefsValid(m_StorageBuffer)
 			&& m_TexturesMap.Empty();
@@ -665,13 +665,13 @@ namespace Rynex {
 		return value;
 	}
 
-	void MeshSource::GenarteMeshesGPUBufferBatched()
+	void MeshSource::GenerateMeshesGPUBufferBatched()
 	{
 		ClearVecData();
 		uint32_t vertexCount = 0;
 
 		std::vector<glm::mat4> sboMattrices;
-		std::vector<MeshVerteices> vertices;
+		std::vector<MeshVertices> vertices;
 
 		std::vector<uint32_t> shadeIndicies;
 		std::vector<uint32_t> depthIndicies;
@@ -695,28 +695,28 @@ namespace Rynex {
 			
 			
 			MeshSource::OptimizeMeshData optMesh = std::move(MeshSource::OptimizeMeshVec(meshSour));
-			Utils::GenrateLoop::PerDrawObjectBufferBatching(optMesh.ShadeIndicesDataVec, m_ShadePerDrawObjectVec, shadeIndicies, vertexCount);
-			Utils::GenrateLoop::PerDrawObjectBufferBatching(optMesh.DepthIndicesDataVec, m_DepthPerDrawObjectVec, depthIndicies, vertexCount);
+			Utils::GenrateLoop::PerDrawObjectBufferBatching(optMesh.m_ShadeIndicesDataVec, m_ShadePerDrawObjectVec, shadeIndicies, vertexCount);
+			Utils::GenrateLoop::PerDrawObjectBufferBatching(optMesh.m_DepthIndicesDataVec, m_DepthPerDrawObjectVec, depthIndicies, vertexCount);
 
-			Utils::GenrateLoop::BatchIncicies(optMesh.ShadeIndicesDataVec, shadeIndicies);
-			Utils::GenrateLoop::BatchIncicies(optMesh.DepthIndicesDataVec, depthIndicies);
-			Utils::GenrateLoop::BatchVertices(optMesh.VerticesDataVec, vertices);
+			Utils::GenrateLoop::BatchIncicies(optMesh.m_ShadeIndicesDataVec, shadeIndicies);
+			Utils::GenrateLoop::BatchIncicies(optMesh.m_DepthIndicesDataVec, depthIndicies);
+			Utils::GenrateLoop::BatchVertices(optMesh.m_VerticesDataVec, vertices);
 			vertexCount = vertices.size();
 
 		}
 
-		Ref<VertexBuffer>& vab = m_VABvec.emplace_back(VertexBuffer::Create(
+		Ref<VertexBuffer>& vab = m_VABVec.emplace_back(VertexBuffer::Create(
 			vertices.data(),
-			vertices.size() * sizeof(MeshVerteices),
+			vertices.size() * sizeof(MeshVertices),
 			BufferFlag::None,
 			{
-				{ ShaderDataType::Float3, MeshSource::s_VerexBufferAtributePostionName	},
-				{ ShaderDataType::Float2, MeshSource::s_VerexBufferAtributeTextureCoordName	},
-				{ ShaderDataType::Float3,  MeshSource::s_VerexBufferAtributeNormaleName		}
+				{ ShaderDataType::Float3, MeshSource::s_VertexBufferAttributePositionName	},
+				{ ShaderDataType::Float2, MeshSource::s_VertexBufferAttributeTextureCoordName	},
+				{ ShaderDataType::Float3,  MeshSource::s_VertexBufferAttributeNormaleName		}
 			}
 		));
-		Ref<IndexBuffer>& ibShade = m_ShadeIABvec.emplace_back(IndexBuffer::Create(shadeIndicies.data(), shadeIndicies.size(), BufferFlag::None));
-		Ref<IndexBuffer>& ibDepth = m_DepthIABvec.emplace_back(IndexBuffer::Create(depthIndicies.data(), depthIndicies.size(), BufferFlag::None));
+		Ref<IndexBuffer>& ibShade = m_ShadeIABVec.emplace_back(IndexBuffer::Create(shadeIndicies.data(), shadeIndicies.size(), BufferFlag::None));
+		Ref<IndexBuffer>& ibDepth = m_DepthIABVec.emplace_back(IndexBuffer::Create(depthIndicies.data(), depthIndicies.size(), BufferFlag::None));
 
 		m_StorageBuffer = StorageBuffer::Create(materielBuffer.data(), materielBuffer.size() * sizeof(Mesh::MeshMaterielIndex), BufferFlag::None);
 
@@ -725,10 +725,10 @@ namespace Rynex {
 		for (uint32_t i = 0; i < size; i++)
 		{
 			const MeshSource::SourceMesh& meshSour = m_SourceMeshes.at(i);
-			const UUID& meshHandle = meshSour.MeshHandle;
+			const UUID& meshHandle = meshSour.m_MeshHandle;
 			const UUID& meshSourceHandle = this->Handle;
-			const std::string& meshName = meshSour.MeshName;
-			const BoundingVolume& volume = meshSour.Volume;
+			const std::string& meshName = meshSour.m_MeshName;
+			const BoundingVolume& volume = meshSour.m_Volume;
 			Ref<MeshSingle> singleMesh = CreateRef<MeshSingle>(i, meshHandle, meshSourceHandle, meshName, volume);
 
 			Ref<MeshSingle>& singleMeshRef = m_SingleMeshVec.emplace_back<Ref<MeshSingle>>( Ref<MeshSingle>{ singleMesh } );
@@ -737,7 +737,7 @@ namespace Rynex {
 
 	}
 
-	void MeshSource::GenarteMeshDataIndevdiuelBuffer()
+	void MeshSource::GenerateMeshDataIndividuallyBuffer()
 	{
 		ClearVecData();
 		SearchInSourceDataForIdenticalVerteices();
@@ -754,8 +754,8 @@ namespace Rynex {
 		for (uint32_t i = 0; i < countMesh; i++)
 		{
 			MeshSource::SourceMesh& meshSour = m_SourceMeshes.at(i);
-			uint32_t meshIndex = meshSour.MeshIndex;
-			uint32_t meshDataIndex = meshSour.MeshDataIndex;
+			uint32_t meshIndex = meshSour.m_MeshIndex;
+			uint32_t meshDataIndex = meshSour.m_MeshDataIndex;
 			if (i != meshIndex)
 			{
 				RY_CORE_WARN("In MeshSource GenarteMeshesGPUBufferSingle we expexted now after index {} thesame Index as Meshindex {}!", i, meshIndex);
@@ -766,9 +766,9 @@ namespace Rynex {
 			MeshSource::OptimizeMeshData optMesh = std::move(MeshSource::OptimizeMeshVec(sourceVertex));
 
 			Utils::GenrateLoop::SingleMeshBuffers gpuMeshBufferRef{
-				m_VABvec.at(meshDataIndex)
-				, m_ShadeIABvec.at(meshDataIndex)
-				, m_DepthIABvec.at(meshDataIndex)
+				m_VABVec.at(meshDataIndex)
+				, m_ShadeIABVec.at(meshDataIndex)
+				, m_DepthIABVec.at(meshDataIndex)
 				, m_ShadePerDrawObjectVec.at(meshDataIndex)
 				, m_DepthPerDrawObjectVec.at(meshDataIndex)
 				, m_SingleMeshVec.at(meshDataIndex)
@@ -812,33 +812,33 @@ namespace Rynex {
 		for (MeshSource::SourceMesh& m : m_SourceMeshes)
 		{
 			OptimizeMeshData optMesh;
-			OptimizeMeshVec(m.MeshVerteices, m.ObjectMeshIndexVec);
+			OptimizeMeshVec(m.m_MeshVertices, m.m_ObjectMeshIndexVec);
 		}
 	}
 
-	void MeshSource::OptimizeMeshVec(std::vector<MeshVerteices>& verticies, std::vector<uint32_t>& indiciesShade)
+	void MeshSource::OptimizeMeshVec(std::vector<MeshVertices>& verticies, std::vector<uint32_t>& indiciesShade)
 	{
 		OptimizeMeshData origMesh;
-		origMesh.ShadeIndicesDataVec = indiciesShade;
-		origMesh.VerticesDataVec = verticies;
+		origMesh.m_ShadeIndicesDataVec = indiciesShade;
+		origMesh.m_VerticesDataVec = verticies;
 
 		OptimizeMeshData optMesh;
-		OptimizeMeshDublication(origMesh, optMesh);
-		OptimizeMeshTrinagleChache(optMesh);
+		OptimizeMeshDuplication(origMesh, optMesh);
+		OptimizeMeshTriangleCache(optMesh);
 
 		OptimizeMeshOverdraw(optMesh, 1.03f);
-		OptimizeMeshFatch(optMesh);
-		OptimizeMeshTrinagleStripsGenerate(optMesh);
+		OptimizeMeshFetch(optMesh);
+		OptimizeMeshTriangleStripsGenerate(optMesh);
 
-		indiciesShade = std::move(optMesh.ShadeIndicesDataVec);
-		verticies = std::move(optMesh.VerticesDataVec);
+		indiciesShade = std::move(optMesh.m_ShadeIndicesDataVec);
+		verticies = std::move(optMesh.m_VerticesDataVec);
 	}
 
 	MeshSource::OptimizeMeshData MeshSource::OptimizeMeshVec(MeshSource::SourceMesh& m)
 	{
 		MeshSource::SourceVertex sourceVertex= MeshSource::SourceVertex{
-			m.MeshVerteices
-			, m.ObjectMeshIndexVec
+			m.m_MeshVertices
+			, m.m_ObjectMeshIndexVec
 		};
 		return MeshSource::OptimizeMeshVec(sourceVertex);
 	}
@@ -847,34 +847,34 @@ namespace Rynex {
 	{
 		
 		OptimizeMeshData origMesh;
-		origMesh.VerticesDataVec = m.MeshVerteices;
-		origMesh.ShadeIndicesDataVec = m.ObjectMeshIndexVec;
+		origMesh.m_VerticesDataVec = m.m_MeshVertices;
+		origMesh.m_ShadeIndicesDataVec = m.m_ObjectMeshIndexVec;
 
 		OptimizeMeshData optMesh;
-		OptimizeMeshDublication(origMesh, optMesh);
-		optMesh.DepthIndicesDataVec = optMesh.ShadeIndicesDataVec;
+		OptimizeMeshDuplication(origMesh, optMesh);
+		optMesh.m_DepthIndicesDataVec = optMesh.m_ShadeIndicesDataVec;
 
 		float chacheOpt = RY_MESH_OPTIMIZE_OVERDRAW_VALUE;
-		OptimizeMeshTrinagleChache(optMesh);
+		OptimizeMeshTriangleCache(optMesh);
 		OptimizeMeshOverdraw(optMesh, chacheOpt);
-		OptimizeMeshFatch(optMesh);
+		OptimizeMeshFetch(optMesh);
 
 
-		optMesh.DepthIndicesDataVec = optMesh.ShadeIndicesDataVec;
+		optMesh.m_DepthIndicesDataVec = optMesh.m_ShadeIndicesDataVec;
 		return optMesh;
 	}
 
-	void MeshSource::OptimizeMeshDublication(OptimizeMeshData& origMesh, OptimizeMeshData& optMesh)
+	void MeshSource::OptimizeMeshDuplication(OptimizeMeshData& origMesh, OptimizeMeshData& optMesh)
 	{
-		std::vector<MeshVerteices>& verticiesOrig = origMesh.VerticesDataVec;
-		std::vector<uint32_t>& indiciesOrig = origMesh.ShadeIndicesDataVec;
+		std::vector<MeshVertices>& verticiesOrig = origMesh.m_VerticesDataVec;
+		std::vector<uint32_t>& indiciesOrig = origMesh.m_ShadeIndicesDataVec;
 
 		size_t numVerticiesOrig = verticiesOrig.size();
 		size_t numIndiciesOrig = indiciesOrig.size();
 
-		size_t vertexByteSizeLayoute = sizeof(MeshVerteices);
+		size_t vertexByteSizeLayoute = sizeof(MeshVertices);
 
-		const MeshVerteices* verticiesOrigReadPtr = verticiesOrig.data();
+		const MeshVertices* verticiesOrigReadPtr = verticiesOrig.data();
 		const uint32_t* indiciesOrigReadPtr = indiciesOrig.data();
 		
 		RY_CORE_ASSERT(!verticiesOrig.empty());
@@ -891,28 +891,28 @@ namespace Rynex {
 			vertexByteSizeLayoute
 		);
 
-		OptimizeMeshDublicationRemapVertexBuffer(verticiesOrig, optMesh.VerticesDataVec, remap, optVertexCount);
-		OptimizeMeshDublicationRemapIndexBuffer(indiciesOrig, optMesh.ShadeIndicesDataVec, remap);
+		OptimizeMeshDuplicationRemapVertexBuffer(verticiesOrig, optMesh.m_VerticesDataVec, remap, optVertexCount);
+		OptimizeMeshDuplicationRemapIndexBuffer(indiciesOrig, optMesh.m_ShadeIndicesDataVec, remap);
 	}
 
-	void MeshSource::OptimizeMeshDublicationRemapVertexBuffer(const std::vector<MeshVerteices>& origVericesVec, std::vector<MeshVerteices>& optVericesVec, const std::vector<uint32_t>& remap, uint32_t optVertexCount)
+	void MeshSource::OptimizeMeshDuplicationRemapVertexBuffer(const std::vector<MeshVertices>& origVericesVec, std::vector<MeshVertices>& optVericesVec, const std::vector<uint32_t>& remap, uint32_t optVertexCount)
 	{
 		size_t numVerticiesOrig = origVericesVec.size();
-		const MeshVerteices* verticiesOrigPtr = origVericesVec.data();
+		const MeshVertices* verticiesOrigPtr = origVericesVec.data();
 
 		RY_CORE_ASSERT(!origVericesVec.empty());
 		RY_CORE_ASSERT(!remap.empty());
 
 		optVericesVec.resize(optVertexCount);
-		MeshVerteices* verticiesOptPtr = optVericesVec.data();
+		MeshVertices* verticiesOptPtr = optVericesVec.data();
 
 		const uint32_t* remapPtr = remap.data();
-		size_t vertexByteSizeLayoute = sizeof(MeshVerteices);
+		size_t vertexByteSizeLayoute = sizeof(MeshVertices);
 
 		meshopt_remapVertexBuffer(verticiesOptPtr, verticiesOrigPtr, numVerticiesOrig, vertexByteSizeLayoute, remapPtr);
 	}
 
-	void MeshSource::OptimizeMeshDublicationRemapIndexBuffer(const std::vector<uint32_t>& origIndiciesVec, std::vector<uint32_t>& optIndiciesVec, const std::vector<uint32_t>& remap)
+	void MeshSource::OptimizeMeshDuplicationRemapIndexBuffer(const std::vector<uint32_t>& origIndiciesVec, std::vector<uint32_t>& optIndiciesVec, const std::vector<uint32_t>& remap)
 	{
 		size_t numIndiciesOrig = origIndiciesVec.size();
 		const uint32_t* indiciesOrigPtr = origIndiciesVec.data();
@@ -928,11 +928,11 @@ namespace Rynex {
 		meshopt_remapIndexBuffer(indiciesOptPtr, indiciesOrigPtr, numIndiciesOrig, remapPtr);
 	}
 
-	void MeshSource::OptimizeMeshTrinagleChache(OptimizeMeshData& meshBuffers)
+	void MeshSource::OptimizeMeshTriangleCache(OptimizeMeshData& meshBuffers)
 	{
-		std::vector<MeshVerteices>& verticiesVec = meshBuffers.VerticesDataVec;
-		std::vector<uint32_t>& indiciesShadeVec = meshBuffers.ShadeIndicesDataVec;
-		std::vector<uint32_t>& indiciesDepthVec = meshBuffers.DepthIndicesDataVec;
+		std::vector<MeshVertices>& verticiesVec = meshBuffers.m_VerticesDataVec;
+		std::vector<uint32_t>& indiciesShadeVec = meshBuffers.m_ShadeIndicesDataVec;
+		std::vector<uint32_t>& indiciesDepthVec = meshBuffers.m_DepthIndicesDataVec;
 
 
 		RY_CORE_ASSERT(!verticiesVec.empty());
@@ -955,10 +955,10 @@ namespace Rynex {
 		meshopt_optimizeVertexCache(indiciesDepthOrigPtrWhrite, indiciesDepthOrigPtrRead, numDepthIndicies, numVerticies);
 	}
 
-	void MeshSource::OptimizeMeshTrinagleStripsChache(OptimizeMeshData& meshBuffers)
+	void MeshSource::OptimizeMeshTriangleStripsCache(OptimizeMeshData& meshBuffers)
 	{
-		std::vector<MeshVerteices>& verticiesVec = meshBuffers.VerticesDataVec;
-		std::vector<uint32_t>& indiciesVec = meshBuffers.ShadeIndicesDataVec;		
+		std::vector<MeshVertices>& verticiesVec = meshBuffers.m_VerticesDataVec;
+		std::vector<uint32_t>& indiciesVec = meshBuffers.m_ShadeIndicesDataVec;		
 
 		size_t numVerticies = verticiesVec.size();
 		size_t numIndicies = indiciesVec.size();
@@ -972,15 +972,15 @@ namespace Rynex {
 		meshopt_optimizeVertexCacheStrip(indiciesOrigPtrWhrite, indiciesOrigPtrRead, numIndicies, numVerticies);
 	}
 
-	void MeshSource::OptimizeMeshTrinagleStripsGenerate(OptimizeMeshData& meshBuffers)
+	void MeshSource::OptimizeMeshTriangleStripsGenerate(OptimizeMeshData& meshBuffers)
 	{
-		std::vector<MeshVerteices>& verticiesVec = meshBuffers.VerticesDataVec;
-		std::vector<uint32_t>& indiciesVec = meshBuffers.ShadeIndicesDataVec;
+		std::vector<MeshVertices>& verticiesVec = meshBuffers.m_VerticesDataVec;
+		std::vector<uint32_t>& indiciesVec = meshBuffers.m_ShadeIndicesDataVec;
 
 		size_t numVerticies = verticiesVec.size();
 		size_t numIndicies = indiciesVec.size();
 
-		size_t vertexByteSizeLayoute = sizeof(MeshVerteices);
+		size_t vertexByteSizeLayoute = sizeof(MeshVertices);
 
 		RY_CORE_ASSERT(!verticiesVec.empty());
 		RY_CORE_ASSERT(!indiciesVec.empty());
@@ -1019,8 +1019,8 @@ namespace Rynex {
 			RY_CORE_FATAL("efficencis Settings is {} under 1.0f then sugested! Setting Efficiently: {}", lowerEfficientlySetting, efficiently);
 		}
 
-		const std::vector<MeshVerteices>& verticiesVec = meshBuffers.VerticesDataVec;
-		std::vector<uint32_t>& indiciesVec = meshBuffers.ShadeIndicesDataVec;
+		const std::vector<MeshVertices>& verticiesVec = meshBuffers.m_VerticesDataVec;
+		std::vector<uint32_t>& indiciesVec = meshBuffers.m_ShadeIndicesDataVec;
 
 		size_t numVerticies = verticiesVec.size();
 		size_t numIndicies = indiciesVec.size();
@@ -1028,8 +1028,8 @@ namespace Rynex {
 		const uint32_t* indiciesOrigPtrRead = indiciesVec.data();
 		uint32_t* indiciesOrigPtrWhrite = indiciesVec.data();
 
-		const float* offsetVertexLayoutPostionReadPtr = &verticiesVec[0].Postion.x;
-		size_t vertexByteSizeLayoute = sizeof(MeshVerteices);
+		const float* offsetVertexLayoutPostionReadPtr = &verticiesVec[0].m_Position.x;
+		size_t vertexByteSizeLayoute = sizeof(MeshVertices);
 
 		RY_CORE_ASSERT(!verticiesVec.empty());
 		RY_CORE_ASSERT(!indiciesVec.empty());
@@ -1042,22 +1042,22 @@ namespace Rynex {
 
 	}
 
-	void MeshSource::OptimizeMeshFatch(OptimizeMeshData& meshBuffers)
+	void MeshSource::OptimizeMeshFetch(OptimizeMeshData& meshBuffers)
 	{
-		std::vector<MeshVerteices>& verticiesVec = meshBuffers.VerticesDataVec;
-		std::vector<uint32_t>& indiciesVec = meshBuffers.ShadeIndicesDataVec;
+		std::vector<MeshVertices>& verticiesVec = meshBuffers.m_VerticesDataVec;
+		std::vector<uint32_t>& indiciesVec = meshBuffers.m_ShadeIndicesDataVec;
 
 		size_t numVerticies = verticiesVec.size();
 		size_t numIndicies = indiciesVec.size();
 
-		const MeshVerteices* verticiesPtrRead = verticiesVec.data();
-		MeshVerteices* verticiesPtrWhrite = verticiesVec.data();
+		const MeshVertices* verticiesPtrRead = verticiesVec.data();
+		MeshVertices* verticiesPtrWhrite = verticiesVec.data();
 		uint32_t* indiciesPtrWhrite = indiciesVec.data();
 
 		RY_CORE_ASSERT(!verticiesVec.empty());
 		RY_CORE_ASSERT(!indiciesVec.empty());
 
-		size_t vertexByteSizeLayoute = sizeof(MeshVerteices);
+		size_t vertexByteSizeLayoute = sizeof(MeshVertices);
 
 		size_t uniceVertices = meshopt_optimizeVertexFetch(
 			verticiesPtrWhrite,
@@ -1068,9 +1068,9 @@ namespace Rynex {
 
 	void MeshSource::OptimizeMeshShadow(OptimizeMeshData& meshBuffers)
 	{
-		std::vector<MeshVerteices>& verticiesVec = meshBuffers.VerticesDataVec;
-		std::vector<uint32_t>& shadeIndiciesVec = meshBuffers.ShadeIndicesDataVec;
-		std::vector<uint32_t>& depthIndiciesVec = meshBuffers.DepthIndicesDataVec;
+		std::vector<MeshVertices>& verticiesVec = meshBuffers.m_VerticesDataVec;
+		std::vector<uint32_t>& shadeIndiciesVec = meshBuffers.m_ShadeIndicesDataVec;
+		std::vector<uint32_t>& depthIndiciesVec = meshBuffers.m_DepthIndicesDataVec;
 
 		size_t numVerticies = verticiesVec.size();
 		size_t numShadeIndicies = shadeIndiciesVec.size();
@@ -1086,11 +1086,11 @@ namespace Rynex {
 		RY_CORE_ASSERT(!depthIndiciesVec.empty());
 
 		size_t numDepthIndicies = depthIndiciesVec.size();
-		size_t vertexByteSizeLayoute = sizeof(MeshVerteices);
+		size_t vertexByteSizeLayoute = sizeof(MeshVertices);
 		size_t postionByteSizeLayoute = sizeof(glm::vec3);
 
 
-		const float* offsetVertexLayoutPostionReadPtr = &verticiesVec[0].Postion.x;
+		const float* offsetVertexLayoutPostionReadPtr = &verticiesVec[0].m_Position.x;
 		const uint32_t* indiciesShadePtrRead = depthIndiciesVec.data();
 		uint32_t* indiciesDepthPtrWhrite = depthIndiciesVec.data();
 
@@ -1104,18 +1104,18 @@ namespace Rynex {
 
 	void MeshSource::OptimizeMeshLOD(OptimizeMeshData& meshBuffers, float prozentigReduseIndices, float errorSimplefly)
 	{
-		std::vector<MeshVerteices>& verticiesVec = meshBuffers.VerticesDataVec;
-		std::vector<uint32_t>& indiciesVec = meshBuffers.ShadeIndicesDataVec;
+		std::vector<MeshVertices>& verticiesVec = meshBuffers.m_VerticesDataVec;
+		std::vector<uint32_t>& indiciesVec = meshBuffers.m_ShadeIndicesDataVec;
 
 		size_t numVerticies = verticiesVec.size();
 		size_t numIndicies = indiciesVec.size();
 
-		size_t vertexByteSizeLayoute = sizeof(MeshVerteices);
+		size_t vertexByteSizeLayoute = sizeof(MeshVertices);
 
 		RY_CORE_ASSERT(!verticiesVec.empty());
 		RY_CORE_ASSERT(!indiciesVec.empty());
 
-		const float* offsetVertexLayoutPostionReadPtr = &verticiesVec[0].Postion.x;
+		const float* offsetVertexLayoutPostionReadPtr = &verticiesVec[0].m_Position.x;
 		const uint32_t* indiciesReadPtr = indiciesVec.data();
 
 		size_t targetIndexCount = (size_t)(numIndicies * prozentigReduseIndices);
@@ -1143,7 +1143,7 @@ namespace Rynex {
 		);
 		simpleflyIndicies.resize(optIndexCount);
 
-		meshBuffers.ShadeIndicesDataVec = std::move(simpleflyIndicies);
+		meshBuffers.m_ShadeIndicesDataVec = std::move(simpleflyIndicies);
 	}
 
 
@@ -1152,9 +1152,9 @@ namespace Rynex {
 	{
 		m_ShadePerDrawObjectVec.clear();
 		m_ShadePerDrawObjectVec.shrink_to_fit();
-		m_ShadeIABvec.clear();
-		m_DepthIABvec.clear();
-		m_VABvec.clear();
+		m_ShadeIABVec.clear();
+		m_DepthIABVec.clear();
+		m_VABVec.clear();
 		m_SingleMeshVec.clear();
 
 		for (Ref<Material>& m : m_MaterialsVec)
@@ -1172,10 +1172,10 @@ namespace Rynex {
 		m_ShadePerDrawObjectVec.resize(count);
 		m_DepthPerDrawObjectVec.resize(count);
 
-		m_ShadeIABvec.resize(count, nullptr);
-		m_DepthIABvec.resize(count, nullptr);
+		m_ShadeIABVec.resize(count, nullptr);
+		m_DepthIABVec.resize(count, nullptr);
 
-		m_VABvec.resize(count, nullptr);
+		m_VABVec.resize(count, nullptr);
 
 		m_SingleMeshVec.resize(count, nullptr);
 	}
@@ -1203,8 +1203,8 @@ namespace Rynex {
 				if (IsIndexPresentInVec(dublicatedListB, y))
 					continue;
 
-				const std::vector<MeshVerteices>* aVec = &m_SourceVertexData.at(x).MeshVerteices;
-				const std::vector<MeshVerteices>* bVec = &m_SourceVertexData.at(y).MeshVerteices;
+				const std::vector<MeshVertices>* aVec = &m_SourceVertexData.at(x).m_MeshVertices;
+				const std::vector<MeshVertices>* bVec = &m_SourceVertexData.at(y).m_MeshVertices;
 
 				if (CheckVertexArraysIdentical(aVec, bVec))
 				{
@@ -1243,7 +1243,7 @@ namespace Rynex {
 
 	
 
-	bool MeshSource::CheckVertexArraysIdentical(const std::vector<MeshVerteices>* aVec, const std::vector<MeshVerteices>* bVec)
+	bool MeshSource::CheckVertexArraysIdentical(const std::vector<MeshVertices>* aVec, const std::vector<MeshVertices>* bVec)
 	{
 		uint32_t size = aVec->size();
 		if (size != bVec->size())
@@ -1258,8 +1258,8 @@ namespace Rynex {
 
 		for (uint32_t i = 0; i < size; i++)
 		{
-			const MeshVerteices& a = aVec->at(i);
-			const MeshVerteices& b = bVec->at(i);
+			const MeshVertices& a = aVec->at(i);
+			const MeshVertices& b = bVec->at(i);
 			if (a != b)
 				return false;
 		}
@@ -1291,13 +1291,13 @@ namespace Rynex {
 		return true;
 	}
 
-	uint32_t MeshSource::GetIndexVertexArraysIdentical(const std::vector<MeshSource::SourceVertex>& list, const std::vector<MeshVerteices>* verticesVec, const std::vector<uint32_t>* indiciesVec)
+	uint32_t MeshSource::GetIndexVertexArraysIdentical(const std::vector<MeshSource::SourceVertex>& list, const std::vector<MeshVertices>* verticesVec, const std::vector<uint32_t>* indiciesVec)
 	{
 		for (uint32_t i = 0; i < list.size(); i++)
 		{
 			const MeshSource::SourceVertex& e = list.at(i);
-			const std::vector<MeshVerteices>* vecVertices = &e.MeshVerteices;
-			const std::vector<uint32_t>* vecIndicies = &e.ObjectMeshIndexVec;
+			const std::vector<MeshVertices>* vecVertices = &e.m_MeshVertices;
+			const std::vector<uint32_t>* vecIndicies = &e.m_ObjectMeshIndexVec;
 			if (CheckVertexArraysIdentical(vecVertices, verticesVec) 
 				&& CheckVertexArraysIdentical(vecIndicies, indiciesVec))
 				return i;

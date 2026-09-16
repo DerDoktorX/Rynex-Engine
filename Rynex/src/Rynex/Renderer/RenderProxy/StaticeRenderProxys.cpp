@@ -361,7 +361,7 @@ namespace Rynex {
 
         const RenderProxy& firstProxy = renderProxyVec.AtSortedProxy(proxyIndex);
 
-        const glm::mat4& firstModelMatrix = firstProxy.model;
+        const glm::mat4& firstModelMatrix = firstProxy.m_Model;
         glm::mat4 firstNormlaeMatrix = glm::inverse(glm::transpose(firstModelMatrix));
 
         const Ref<Material>& materiel = firstProxy.materiel;
@@ -391,7 +391,7 @@ namespace Rynex {
         Render3DMeshObject renderObject = {
             firstModelMatrix
             , firstNormlaeMatrix
-            , glm::ivec4{firstProxy.entity, -10.0f, -21.0f, -32.0f}
+            , glm::ivec4{firstProxy.m_Entity, -10.0f, -21.0f, -32.0f}
         };
         batchRendererObjectVAO->AddRenderObject(renderObject);
 
@@ -438,13 +438,13 @@ namespace Rynex {
                 break;
 
 
-            const glm::mat4& modelMatrix = proxy.model;
+            const glm::mat4& modelMatrix = proxy.m_Model;
             glm::mat4 normaleMatrix = glm::inverse(glm::transpose(modelMatrix));
 
             Render3DMeshObject renderObject = {
                modelMatrix
                 , normaleMatrix
-                , glm::ivec4{proxy.entity, -10.0f, -21.0f, -32.0f}
+                , glm::ivec4{proxy.m_Entity, -10.0f, -21.0f, -32.0f}
             };
             batchRendererObjectVAO->AddRenderObject(renderObject);
 
@@ -508,7 +508,7 @@ namespace Rynex {
 
 
         Mesh::PerDrawObject drawElement = drawCallResource.perDrawObject;
-        drawElement.InstancesCount = batchVAO.curentIndex;
+        drawElement.m_InstancesCount = batchVAO.curentIndex;
 
         constexpr uint32_t bindSlotCameraUB = 1;
         constexpr uint32_t bindSlotShadowUB = 2;
@@ -517,25 +517,25 @@ namespace Rynex {
         constexpr uint32_t bindSlotMaterielTex = 0;
         constexpr uint32_t bindSlotDepthShadowTex = 1;
 
-        RY_CORE_ASSERT(0 < drawElement.InstancesCount);
+        RY_CORE_ASSERT(0 < drawElement.m_InstancesCount);
 
         const Ref<VertexArray>& vao = batchVAO.vertexArray;
         ShaderDrawResource drawListRef = CreateShaderDrawResource();
 
 
         ShaderDrawResource* drawList = &drawListRef;
-        drawList->renderMode = drawCallResource.renderMode;
-        drawList->indicesCount = drawElement.InstancesCount;
-        drawList->drawElement = drawElement;
-        drawList->vao = vao;
-        drawList->shaderProgramm = drawCallResource.shader;
+        drawList->m_RenderMode = drawCallResource.renderMode;
+        drawList->m_IndicesCount = drawElement.m_InstancesCount;
+        drawList->m_DrawElement = drawElement;
+        drawList->m_VAO = vao;
+        drawList->m_ShaderProgram = drawCallResource.shader;
 
-        drawList->GetBindeUniform().at(bindSlotMaterielUB) = batchVAO.materielUB;
-        drawList->GetBindeUniform().at(bindSlotCameraUB) = drawResources.cameraBuffer;
-        drawList->GetBindeUniform().at(bindSlotShadowUB) = drawResources.shadowCameraBuffer;
+        drawList->GetBindUniform().at(bindSlotMaterielUB) = batchVAO.materielUB;
+        drawList->GetBindUniform().at(bindSlotCameraUB) = drawResources.cameraBuffer;
+        drawList->GetBindUniform().at(bindSlotShadowUB) = drawResources.shadowCameraBuffer;
 
-        drawList->GetBindeTextures().at(bindSlotMaterielTex) = drawCallResource.texture;
-        drawList->GetBindeTextures().at(bindSlotDepthShadowTex) = drawResources.textureShadow;
+        drawList->GetBindTextures().at(bindSlotMaterielTex) = drawCallResource.texture;
+        drawList->GetBindTextures().at(bindSlotDepthShadowTex) = drawResources.textureShadow;
 
         m_DrawCallsVec.emplace_back(drawListRef);
 

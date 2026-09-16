@@ -14,7 +14,7 @@ namespace Rynex{
 
 	Ref<Texture> TextureImporter::ImportTexture(AssetHandle handle, const AssetMetadata& metadata)
 	{
-		std::filesystem::path filePath = metadata.AbsolutePath;
+		std::filesystem::path filePath = metadata.m_AbsolutePath;
 		return LoadTexture(filePath);
 	}
 
@@ -50,8 +50,8 @@ namespace Rynex{
 		spec.Target = TextureTarget::Texture2D;
 		spec.FilteringMode = TextureFilteringMode::Linear;
 		spec.WrappingSpec = {
-			TextureWrappingMode::Repeate,
-			TextureWrappingMode::Repeate,
+			TextureWrappingMode::Repeat,
+			TextureWrappingMode::Repeat,
 		};
 		if(stbi_is_hdr(pathChar))
 		{

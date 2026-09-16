@@ -8,7 +8,7 @@ namespace Rynex {
 	{
 	public: 
 		static Ref<Asset> ImportAsset(AssetHandle handle, const AssetMetadata& metadata);
-		static bool ReLoadeAsset(AssetHandle handle, const AssetMetadata& metadata);
+		static bool ReLoadAsset(AssetHandle handle, const AssetMetadata& metadata);
 
 		static Ref<Asset> ImportFromAssetPack();
 	};

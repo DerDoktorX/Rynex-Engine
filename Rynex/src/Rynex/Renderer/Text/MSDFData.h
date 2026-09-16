@@ -7,8 +7,8 @@
 namespace Rynex {
 	struct MSDFData
 	{
-		std::vector<msdf_atlas::GlyphGeometry> Glyphs;
-		msdf_atlas::FontGeometry FontGeometry;
+		std::vector<msdf_atlas::GlyphGeometry> m_Glyphs;
+		msdf_atlas::FontGeometry m_FontGeometry;
 	};
 
 }

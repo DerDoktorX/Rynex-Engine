@@ -51,7 +51,7 @@ namespace Rynex{
 	enum class TextureFilteringMode : uint8_t;
 	enum class TextureCompareModes : uint8_t;
 	enum class TextureWrappingMode : uint8_t;
-	enum class Acces : uint8_t;
+	enum class Access : uint8_t;
 
 	struct TextureWrappingSpecification;
 	struct TextureSpecification;
@@ -70,5 +70,14 @@ namespace Rynex{
 
 	// VertexArray.h
 	class VertexArray;
+
+    namespace RenderMode {
+        enum RenderMode : uint16_t;
+    }
+
+    namespace ShaderType {
+        enum ShaderType : uint8_t;
+    }
+
 
 }

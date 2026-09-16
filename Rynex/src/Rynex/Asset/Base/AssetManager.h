@@ -104,7 +104,7 @@ namespace Rynex {
 			if (!metaData.GetDisc())
 				RY_CORE_WARN("Asset is Interal and has no File Path!");
 
-			return metaData.PathMarker;
+			return metaData.m_PathMarker;
 		}
 
 		template<typename T>
@@ -194,7 +194,7 @@ namespace Rynex {
 		static AssetHandle CreatLocaleAsset(Ref<T> asset)
 		{
 			AssetMetadata metadata = AssetMetadata();
-			metadata.Type = asset->GetType();
+			metadata.m_Type = asset->GetType();
 			Ref<Project> project = Project::GetActive();
 			Ref<AssetManagerBase> assetManger = project->GetAssetManger();
 			AssetHandle handle = Project::GetActive()->GetAssetManger()->CreatLocaleAsset(asset, metadata);

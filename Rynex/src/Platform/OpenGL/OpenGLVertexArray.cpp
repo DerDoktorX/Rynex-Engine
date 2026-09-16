@@ -765,12 +765,12 @@ namespace Rynex {
 	{
 		constexpr GLuint bytesPerCompent = sizeof(float);
 		constexpr GLint maxCompontsCount = 4;
-		const GLenum glType = Utils::ShaderDaterTyToOpenGLBaseType(element.type);
+		const GLenum glType = Utils::ShaderDaterTyToOpenGLBaseType(element.m_Type);
 		const GLint elmenCount = element.GetCompontsCount() + ellementReserverdComponts;
-		const GLboolean normalize = element.normilized ? GL_TRUE : GL_FALSE;
+		const GLboolean normalize = element.m_Normalized ? GL_TRUE : GL_FALSE;
 		const GLuint ellementReserverdCompontsBytes = ellementReserverdComponts * bytesPerCompent;
 		const GLuint realtivOffset = element.offset - ellementReserverdCompontsBytes;
-		const GLuint expextedOffsetPos = element.size + element.offset;
+		const GLuint expextedOffsetPos = element.m_Size + element.offset;
 
 		GLint usedElementCount = 0;
 		GLint notSetElementCount = elmenCount;
@@ -820,12 +820,12 @@ namespace Rynex {
 	{
 		constexpr GLuint bytesPerCompent = sizeof(int);
 		constexpr GLint maxCompontsCount = 4;
-		const GLenum glType = Utils::ShaderDaterTyToOpenGLBaseType(element.type);
+		const GLenum glType = Utils::ShaderDaterTyToOpenGLBaseType(element.m_Type);
 		const GLint elmenCount = element.GetCompontsCount() + ((maxCompontsCount - ellementReserverdComponts) % maxCompontsCount);
-		const GLboolean normalize = element.normilized ? GL_TRUE : GL_FALSE;
+		const GLboolean normalize = element.m_Normalized ? GL_TRUE : GL_FALSE;
 		const GLuint ellementReserverdCompontsBytes = ((maxCompontsCount - ellementReserverdComponts) % maxCompontsCount ) * bytesPerCompent;
 		const GLuint realtivOffset = element.offset - ellementReserverdCompontsBytes;
-		const GLuint expextedOffsetPos = element.size + element.offset;
+		const GLuint expextedOffsetPos = element.m_Size + element.offset;
 
 		GLint usedElementCount = 0;
 		GLint notSetElementCount = elmenCount;
@@ -871,12 +871,12 @@ namespace Rynex {
 	{
 		constexpr GLuint bytesPerCompent = sizeof(uint32_t);
 		constexpr GLint maxCompontsCount = 4;
-		const GLenum glType = Utils::ShaderDaterTyToOpenGLBaseType(element.type);
+		const GLenum glType = Utils::ShaderDaterTyToOpenGLBaseType(element.m_Type);
 		const GLint elmenCount = element.GetCompontsCount();
-		const GLboolean normalize = element.normilized ? GL_TRUE : GL_FALSE;
+		const GLboolean normalize = element.m_Normalized ? GL_TRUE : GL_FALSE;
 		const GLuint ellementReserverdCompontsBytes = ellementReserverdComponts * bytesPerCompent;
 		const GLuint realtivOffset = element.offset - ellementReserverdCompontsBytes;
-		const GLuint expextedOffsetPos = element.size + element.offset;
+		const GLuint expextedOffsetPos = element.m_Size + element.offset;
 
 		GLint usedElementCount = 0;
 		GLint notSetElementCount = elmenCount;
@@ -963,14 +963,14 @@ namespace Rynex {
 		bool compress = layout.AutoCompress();
 		for (const BufferElement& elements : layout)
 		{
-			if (!elements.active)
+			if (!elements.m_Active)
 			{
 				offsetEllment++;
 				continue;
 			}
 
 			if (compress && 0u != unUsedElementsPalces 
-				&& Utils::ShaderDaterTypeSameType(elements.type, lastShaderDataType)
+				&& Utils::ShaderDaterTypeSameType(elements.m_Type, lastShaderDataType)
 				&& elements.GetCompontsCount() <= unUsedElementsPalces)
 			{
 				offsetEllment--;
@@ -980,7 +980,7 @@ namespace Rynex {
 				unUsedElementsPalces = 0;
 			}
 
-			switch (elements.type)
+			switch (elements.m_Type)
 			{
 			case ShaderDataType::Float:
 			case ShaderDataType::Float2:
@@ -1010,7 +1010,7 @@ namespace Rynex {
 				RY_CORE_ASSERT(false);
 				break;
 			}
-			lastShaderDataType = elements.type;
+			lastShaderDataType = elements.m_Type;
 
 #ifdef RY_CHNAGE_OF_ORGNISE_LAYOUTE_INSTANC_INCREASE
 			divisor = elements.instanceIncreas;

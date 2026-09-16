@@ -107,9 +107,9 @@ namespace Rynex {
 		int result = Result_None;
 
 		CheckObject(m_Shader, shader, result, Result_NotAllowedShader, Result_NoShaderSpaceLeft);
-		CheckObject(m_SingleMeshObject._MeshSingle, singleMesh._MeshSingle, result, Result_NotAllowedRenderShape, Result_NoRenderShapeSpaceLeft );
-		const Ref<Material>& materiel = singleMesh._Material;
-		CheckObject(m_SingleMeshObject._Material, materiel, result,  Result_NotAllowedShadeDefinition, Result_NoShadeDefinitionSpaceLeft);
+		CheckObject(m_SingleMeshObject.m_MeshSingle, singleMesh.m_MeshSingle, result, Result_NotAllowedRenderShape, Result_NoRenderShapeSpaceLeft );
+		const Ref<Material>& materiel = singleMesh.m_Material;
+		CheckObject(m_SingleMeshObject.m_Material, materiel, result,  Result_NotAllowedShadeDefinition, Result_NoShadeDefinitionSpaceLeft);
 		
 		if(nullptr != materiel)
 			CheckObject(m_AlbdeoTex, materiel->GetAlbedoTextures(), result, Result_NotAllowedTexture, Result_NoTextexurSpaceLeft);
@@ -121,13 +121,13 @@ namespace Rynex {
 	{
 		m_Shader = shader;
 		m_SingleMeshObject = singleMesh;
-		const Ref<Material>& materiel = m_SingleMeshObject._Material;
+		const Ref<Material>& materiel = m_SingleMeshObject.m_Material;
 
 		m_AlbdeoTex = materiel->GetAlbedoTextures();
 		m_RenderMode = materiel->GetShadeRenderMode();
 		m_MaterielBuffer = materiel->GetMaterielUniformBuffer();
 
-		Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 		CheckVAOFromMeshSingleShade(m_VertexArray, meshSingle);
 
 	}
@@ -211,7 +211,7 @@ namespace Rynex {
 
 	void SingleMeshPiplineRenderShade::DrawNow(int flags)
 	{
-		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 
 		
 		if (nullptr == m_Shader 
@@ -227,11 +227,11 @@ namespace Rynex {
 		}
 		BeforeDrawCall();
 
-		Mesh::PerDrawObject drawElement = meshSingle->GetShadePerDrawObjectIndrect();
+		Mesh::PerDrawObject drawElement = meshSingle->GetShadePerDrawObjectIndirect();
 		RenderCommand::SetMode(flags);
 		BindResources();
 		RY_CORE_ASSERT(0 < m_InstencCount);
-		drawElement.InstancesCount = m_InstencCount;
+		drawElement.m_InstancesCount = m_InstencCount;
 		
 		RenderCommand::DrawElement(m_VertexArray, drawElement);
 #if RY_UNBIND
@@ -279,8 +279,8 @@ namespace Rynex {
 		RY_DESTROY_REF(m_AlbdeoTex);
 		RY_DESTROY_REF(m_CameraBuffer);
 		RY_DESTROY_REF(m_LigthBuffer);
-		RY_DESTROY_REF(m_SingleMeshObject._Material);
-		RY_DESTROY_REF(m_SingleMeshObject._MeshSingle);
+		RY_DESTROY_REF(m_SingleMeshObject.m_Material);
+		RY_DESTROY_REF(m_SingleMeshObject.m_MeshSingle);
 	}
 
 	void SingleMeshPiplineRenderShade::ClearRenderObjects()
@@ -292,7 +292,7 @@ namespace Rynex {
 
 	uint64_t SingleMeshPiplineRenderShade::GetVertexBufferNumber() const
 	{
-		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 		uint64_t number = 0ull;
 		uint32_t i = 0;
 		const Ref<VertexBuffer>& buffer = meshSingle->GetVertexBuffer();
@@ -307,7 +307,7 @@ namespace Rynex {
 
 	uint64_t SingleMeshPiplineRenderShade::GetIndexBufferNumber() const
 	{
-		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 		const Ref<IndexBuffer>& iab = meshSingle->GetShadeIndexBuffer();
 		uint64_t number = reinterpret_cast<uint64_t>(iab.get());
 		return number;
@@ -427,7 +427,7 @@ namespace Rynex {
 		int result = Result_None;
 
 		CheckObject(m_Shader, shader, result, Result_NotAllowedShader, Result_NoShaderSpaceLeft);
-		CheckObject(m_SingleMeshObject._MeshSingle, singleMesh._MeshSingle, result, Result_NotAllowedRenderShape, Result_NoRenderShapeSpaceLeft);
+		CheckObject(m_SingleMeshObject.m_MeshSingle, singleMesh.m_MeshSingle, result, Result_NotAllowedRenderShape, Result_NoRenderShapeSpaceLeft);
 
 		return result;
 	}
@@ -436,11 +436,11 @@ namespace Rynex {
 	{
 		m_Shader = shader;
 		m_SingleMeshObject = singleMesh;
-		const Ref<Material>& materiel = m_SingleMeshObject._Material;
+		const Ref<Material>& materiel = m_SingleMeshObject.m_Material;
 
 		m_RenderMode = materiel->GetDepthRenderMode();
 
-		Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 		CheckVAOFromMeshSingleDepth(m_VertexArray, meshSingle);
 
 	}
@@ -514,7 +514,7 @@ namespace Rynex {
 
 	void SingleMeshPiplineRenderDepth::DrawNow(int flags)
 	{
-		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 
 		if (nullptr == m_Shader
 			|| nullptr == m_VertexArray
@@ -525,7 +525,7 @@ namespace Rynex {
 		}
 		BeforeDrawCall();
 
-		const Mesh::PerDrawObject& drawElement = meshSingle->GetDepthPerDrawObjectIndrect();
+		const Mesh::PerDrawObject& drawElement = meshSingle->GetDepthPerDrawObjectIndirect();
 		RenderCommand::SetMode(flags);
 		BindResources();
 
@@ -570,8 +570,8 @@ namespace Rynex {
 		m_RenderMode = 0;
 		RY_DESTROY_REF(m_Shader);
 		RY_DESTROY_REF(m_LigthBuffer);
-		RY_DESTROY_REF(m_SingleMeshObject._Material);
-		RY_DESTROY_REF(m_SingleMeshObject._MeshSingle);
+		RY_DESTROY_REF(m_SingleMeshObject.m_Material);
+		RY_DESTROY_REF(m_SingleMeshObject.m_MeshSingle);
 	}
 
 	void SingleMeshPiplineRenderDepth::ClearRenderObjects()
@@ -583,7 +583,7 @@ namespace Rynex {
 
 	uint64_t SingleMeshPiplineRenderDepth::GetVertexBufferNumber() const
 	{
-		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 		const Ref<VertexBuffer>& vab = meshSingle->GetVertexBuffer();
 		uint64_t number = 0ull;
 		uint64_t i = 0u;
@@ -598,7 +598,7 @@ namespace Rynex {
 
 	uint64_t SingleMeshPiplineRenderDepth::GetIndexBufferNumber() const
 	{
-		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject._MeshSingle;
+		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 		const Ref<IndexBuffer>& iab = meshSingle->GetDepthIndexBuffer();
 		uint64_t number = reinterpret_cast<uint64_t>(iab.get());
 		return number;

@@ -84,9 +84,9 @@ namespace Rynex {
 		static void ComponentSpriteRendererGUI(Entity e, SpriteRendererComponent& component);
 		static void ComponentScriptGUI(Entity e, ScriptComponent& component);
 		static void ComponentFrameBufferGUI(Entity e, FrameBufferComponent& component);
-		static void ComponentDrirektionleLigthGUI(Entity e, DrirectionleLigthComponent& component);
-		static void ComponentPointLigthGUI(Entity e, PointLigthComponent& component);
-		static void ComponentSpotLigthGUI(Entity e, SpotLigthComponent& component);
+		static void ComponentDrirektionleLigthGUI(Entity e, DirectionLightComponent& component);
+		static void ComponentPointLigthGUI(Entity e, PointLightComponent& component);
+		static void ComponentSpotLigthGUI(Entity e, SpotLightComponent& component);
 		static void ComponentTextGUI(Entity e, TextComponent& component);
 		static void ComponentViewMatrixGUI(Entity e, ViewMatrixComponent& component);
 		static void ComponentStaticMeshGUI(Entity e, ModelMangerComponent& component);

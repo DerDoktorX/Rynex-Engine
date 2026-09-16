@@ -48,10 +48,10 @@ namespace Rynex {
 			if (!metadata)
 			{
 				metadata.SetActive(true);
-				metadata.FilePath = path.GetPath();
-				metadata.Name = path.GetNamePathString();
-				metadata.Type = path.GetAssetFileType();
-				metadata.ChangeTime = GetCurrentTimeStr();
+				metadata.m_FilePath = path.GetPath();
+				metadata.m_Name = path.GetNamePathString();
+				metadata.m_Type = path.GetAssetFileType();
+				metadata.m_ChangeTime = GetCurrentTimeStr();
 			}
 
 			if(findDirectOnDisc)
@@ -61,7 +61,7 @@ namespace Rynex {
 			else
 			{
 				metadata.SetState(AssetState::LostConnection);
-				metadata.ChangeTime = GetCurrentTimeStr();
+				metadata.m_ChangeTime = GetCurrentTimeStr();
 			}
 			std::string extension = path.GetExtensionPathString();
 		    size_t extensionCount = extension.size();
@@ -119,7 +119,7 @@ namespace Rynex {
 
 	AssetHandle AssetRegistry::CreatLocaleAsset(Ref<Asset>& asset, AssetMetadata& metadata)
 	{
-		while (asset->Handle == 0 && IsAssetInRegistry(asset->Handle))
+		while (UUID::Zero() == asset->Handle && IsAssetInRegistry(asset->Handle))
 		{
 			asset->Handle = AssetHandle();
 		}
@@ -176,7 +176,7 @@ namespace Rynex {
 			do {
 				handle = AssetHandle();
 			} 
-			while (handle == 0 || IsAssetInRegistry(handle));
+			while (UUID::Zero() == handle || IsAssetInRegistry(handle));
 			
 			CreateAsset(path, handle);
 			return handle;
@@ -260,7 +260,7 @@ namespace Rynex {
 		{
 			const AssetMetadata& metadata = GetMetadataConst(handle);
 			
-			AssetType type = Asset::GetAssetTypeFromFilePath(metadata.FilePath.filename());
+			AssetType type = Asset::GetAssetTypeFromFilePath(metadata.m_FilePath.filename());
 			RY_CORE_ASSERT(!metadata.GetIntern());
 
 		    AssetBrowserData assetBrowserData(
@@ -270,10 +270,10 @@ namespace Rynex {
 				metadata,
 				type,
 				Asset::GetAssetTypeDragAndDropName(type),
-				metadata.State,
-				metadata.FilePath.filename().string(),
-				metadata.FilePath,
-				metadata.FilePath.string()
+				metadata.m_State,
+				metadata.m_FilePath.filename().string(),
+				metadata.m_FilePath,
+				metadata.m_FilePath.string()
 			);
 			itemes.emplace_back(assetBrowserData);
 		}
@@ -572,7 +572,7 @@ namespace Rynex {
 					return nullptr;
 				}
 
-				switch (metadataC.State)
+				switch (metadataC.m_State)
 				{
 					case AssetState::NotLoaded:
 					case AssetState::LostConnection:
@@ -594,7 +594,7 @@ namespace Rynex {
 							{
 								lastTimeTaskExecute = Application::Get().ExecuteTaskFromThread();
 							}
-						} while (AssetState::Loading == GetMetadata(handle).State);
+						} while (AssetState::Loading == GetMetadata(handle).m_State);
 
 						asset = GetAsset(handle);
 						break;
@@ -785,7 +785,7 @@ namespace Rynex {
 				waitTime = std::chrono::milliseconds(i * 45);
 				if(waitTime != std::chrono::milliseconds(0))
 					std::this_thread::sleep_for(waitTime);
-				result = AssetImporter::ReLoadeAsset(handle, metadataC);
+				result = AssetImporter::ReLoadAsset(handle, metadataC);
 			}
 
 			if(result)
@@ -794,11 +794,11 @@ namespace Rynex {
 			    SetAssetMetadataLockState(handle, std::bind(&EditorAssetManagerThread::SetAssetMetadataStateError, this, std::placeholders::_1));
 
 
-			RY_ASSET_INFO("Asset: {0} Is Now Reloaded", GetMetadata(handle).FilePath.string().c_str());
+			RY_ASSET_INFO("Asset: {0} Is Now Reloaded", GetMetadata(handle).m_FilePath.string().c_str());
 		}
 		else
 		{
-			RY_ASSET_INFO("don't need Reloading Asset: {0}", GetMetadata(handle).FilePath.string().c_str());
+			RY_ASSET_INFO("don't need Reloading Asset: {0}", GetMetadata(handle).m_FilePath.string().c_str());
 		}
 	}
 
@@ -861,7 +861,7 @@ namespace Rynex {
 
     void EditorAssetManagerThread::SetAssetMetadataUpdateContentBrowser(AssetMetadata& metadata)
     {
-	    const FileSystem::Path& path = metadata.Path;
+	    const FileSystem::Path& path = metadata.m_Path;
 	    SetPathUpdateContentBrowser(path);
     }
 
@@ -897,16 +897,16 @@ namespace Rynex {
     {
 	    SetAssetMetadataUpdateContentBrowser(metadata);
 	    metadata.SetState(AssetState::Ready);
-	    metadata.LoadingInTime = std::chrono::steady_clock::now();
-	    RY_CORE_TRACE("AssetState: (Ready) {}", metadata.Name);
+	    metadata.m_LoadingInTime = std::chrono::steady_clock::now();
+	    RY_CORE_TRACE("AssetState: (Ready) {}", metadata.m_Name);
     }
 
     void EditorAssetManagerThread::SetAssetMetadataStateUpdating(int* aboutPtr, AssetMetadata& metadata)
     {
-	    if (AssetState::Updateing == metadata.State)
+	    if (AssetState::Updating == metadata.m_State)
 	        *aboutPtr = 1;
 	    else
-	        metadata.SetState(AssetState::Updateing);
+	        metadata.SetState(AssetState::Updating);
     }
 
     void EditorAssetManagerThread::SetAssetMetadataStateLostConnection(AssetMetadata& metadata)
@@ -914,7 +914,7 @@ namespace Rynex {
 	    SetAssetMetadataUpdateContentBrowser(metadata);
 	    metadata.SetState(AssetState::LostConnection);
 
-	    RY_CORE_TRACE("AssetState: (LostConnection) {}", metadata.Name);
+	    RY_CORE_TRACE("AssetState: (LostConnection) {}", metadata.m_Name);
     }
 
 
@@ -960,7 +960,7 @@ namespace Rynex {
 					m_PathRegistry.Write(
 						[this, &mapHandleRegister](std::map<FileSystem::Path, AssetHandle>& mapPathRegister)
 						{
-							std::filesystem::path path = Project::GetActiveAssetRegistryPath();
+							const std::filesystem::path path = Project::GetActiveAssetRegistryPath();
 							EditorAssetMangerSerialzation::DeserilzeThread(path, &mapHandleRegister, &mapPathRegister);
 						}
 					);
@@ -979,17 +979,17 @@ namespace Rynex {
 			if(IsAssetLoaded(handle))
 			{
 				const AssetMetadata metadata = GetMetadata(handle);
-				AssetState state = metadata.State;
-				std::chrono::steady_clock::time_point loadtime = metadata.LoadingInTime;
+				AssetState state = metadata.m_State;
+				std::chrono::steady_clock::time_point loadtime = metadata.m_LoadingInTime;
 				switch (state)
 				{
 				case Rynex::AssetState::Loading:
-				case Rynex::AssetState::Updateing:
+				case Rynex::AssetState::Updating:
 				case Rynex::AssetState::Uploading:
 					return false;
 				case Rynex::AssetState::LostConnection:
 				case Rynex::AssetState::Error:
-					RY_ASSET_INFO("Maybe Connection to {} is Now longer lost!", metadata.FilePath.string().c_str());
+					RY_ASSET_INFO("Maybe Connection to {} is Now longer lost!", metadata.m_FilePath.string().c_str());
 				case Rynex::AssetState::Ready:
 				default:
 					if (loadtime != std::chrono::steady_clock::time_point::min())
@@ -1065,7 +1065,7 @@ namespace Rynex {
 							CheckAssetFileExist(handle);
 							const AssetMetadata metadata = GetMetadata(handle);
 
-							AssetType type = Asset::GetAssetTypeFromFilePath(metadata.FilePath);
+							AssetType type = Asset::GetAssetTypeFromFilePath(metadata.m_FilePath);
 
 							RY_CORE_ASSERT(!metadata.GetIntern());
 
@@ -1076,10 +1076,10 @@ namespace Rynex {
                                 metadata,
                                 type,
                                 Asset::GetAssetTypeDragAndDropName(type),
-                                metadata.State,
-                                metadata.Path.GetNamePathString(),
-                                metadata.Path,
-                                metadata.Path.GetPathString()
+                                metadata.m_State,
+                                metadata.m_Path.GetNamePathString(),
+                                metadata.m_Path,
+                                metadata.m_Path.GetPathString()
                             );
 
 							itemes.emplace_back(assetBrowserDataThreade);
@@ -1143,7 +1143,7 @@ namespace Rynex {
 			m_WorkingThreadMutex.lock();
 			m_WorkingThread.emplace_back(std::async(std::launch::async, [this](AssetHandle handleLem)->void {
 				const AssetMetadata metadata = GetMetadata(handleLem);
-				RY_ASSET_WARN("Execute Modified Event -> Asset: '{}'", metadata.FilePath.string().c_str());
+				RY_ASSET_WARN("Execute Modified Event -> Asset: '{}'", metadata.m_FilePath.string().c_str());
 				ReLodeAsset(handleLem);
 			}, handle));
 			m_WorkingThreadMutex.unlock();
@@ -1151,7 +1151,7 @@ namespace Rynex {
 		else
 		{
 			const AssetMetadata metadata = GetMetadata(handle);
-			RY_ASSET_WARN("Blocked Modified Event -> Asset: '{}'", metadata.FilePath.string().c_str());
+			RY_ASSET_WARN("Blocked Modified Event -> Asset: '{}'", metadata.m_FilePath.string().c_str());
 		}
 
 	}
@@ -1190,12 +1190,12 @@ namespace Rynex {
 		if (!metaData)
 			return false;
 
-		const AssetState& state = metaData.State;
-		if (!IsAssetPathExtensionValid(metaData.FilePath))
+		const AssetState& state = metaData.m_State;
+		if (!IsAssetPathExtensionValid(metaData.m_FilePath))
 		{
 			 SetAssetMetadataLockState(handle, std::bind(&EditorAssetManagerThread::SetAssetMetadataStateError, this, std::placeholders::_1));;
 		}
-		else if ((state == AssetState::LostConnection || state == AssetState::Error) && !metaData.Path.IsExisting())
+		else if ((state == AssetState::LostConnection || state == AssetState::Error) && !metaData.m_Path.IsExisting())
 		{
 		    SetAssetMetadataLockState(handle, std::bind(&EditorAssetManagerThread::SetAssetMetadataStateLostConnection, this, std::placeholders::_1));
 		}
@@ -1340,7 +1340,7 @@ namespace Rynex {
 				{
 				    m_HandleRegistry.GetRefLemda([](AssetMetadata& metaData)-> void
 					{
-					    RY_CORE_FATAL_IF(AssetState::Ready == metaData.State || AssetState::Loading == metaData.State, "Interesting Stat is not Ready or Current Loading, but is stored in LoadedAssets Map! \nMaby Youst Asyc Action");
+					    RY_CORE_FATAL_IF(AssetState::Ready == metaData.m_State || AssetState::Loading == metaData.m_State, "Interesting Stat is not Ready or Current Loading, but is stored in LoadedAssets Map! \nMaby Youst Asyc Action");
 					}, handle);
 
 				}
@@ -1371,14 +1371,14 @@ namespace Rynex {
 		AssetMetadata metaData;
 		metaData.SetActive(true);
 		metaData.SetFilePath(path);
-		metaData.Name = path.GetNamePathString();
-		metaData.Type = path.GetAssetFileType();
-		metaData.ChangeTime = AssetRegistry::GetCurrentTimeStr();
+		metaData.m_Name = path.GetNamePathString();
+		metaData.m_Type = path.GetAssetFileType();
+		metaData.m_ChangeTime = AssetRegistry::GetCurrentTimeStr();
 	    AssetState state = IsFileAssetExist(path) ? AssetState::NotLoaded : AssetState::LostConnection;
 		metaData.SetState(state);
 
 		AssetHandle handle;
-		while (handle == 0 || IsAssetHandleValid(handle))
+		while (UUID::Zero() == handle || IsAssetHandleValid(handle))
 			handle = AssetHandle();
 
 		std::string pathString = path.GetPathString();
@@ -1395,11 +1395,11 @@ namespace Rynex {
 			m_RegistryChanges = true;
 		}
 		m_HandleRegistry.Add(handle, metaData);
-		m_PathRegistry.Add(metaData.AbsolutePath, handle);
-		m_PathRegistry.Add(metaData.RealtivePath, handle);
+		m_PathRegistry.Add(metaData.m_AbsolutePath, handle);
+		m_PathRegistry.Add(metaData.m_RelativePath, handle);
 
-		if(m_PathRegistry.IsFound(metaData.FilePath))
-			m_PathRegistry.Add(metaData.FilePath, handle);
+		if(m_PathRegistry.IsFound(metaData.m_FilePath))
+			m_PathRegistry.Add(metaData.m_FilePath, handle);
 	}
 
 	void EditorAssetManagerThread::DeleteDirectory(const FileSystem::Path& path)
@@ -1424,14 +1424,14 @@ namespace Rynex {
 			const AssetMetadata metadata = m_HandleRegistry.GetCopy(handle);
 			if (metadata.GetDisc())
 			{
-			    const FileSystem::Path& pathKey = metadata.Path;
+			    const FileSystem::Path& pathKey = metadata.m_Path;
 				m_PathRegistry.Remove(pathKey);
 
 				if (m_PathRegistry.IsFound(pathKey))
 					m_PathRegistry.Remove(pathKey);
 
 
-			    RY_CORE_TRACE("Remove Asset: {} {}", metadata.Name, handle);
+			    RY_CORE_TRACE("Remove Asset: {} {}", metadata.m_Name, handle);
 			}
 			m_HandleRegistry.Remove(handle);
 

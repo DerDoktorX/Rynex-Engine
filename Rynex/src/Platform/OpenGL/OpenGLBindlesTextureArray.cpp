@@ -299,7 +299,7 @@ namespace Rynex {
 
 		for (const Ref<Texture>& tex : m_TexturesMap)
 		{
-			uint64_t bindlesTexHandle = tex->GetBindlesHandle();
+			uint64_t bindlesTexHandle = tex->GetBindlessHandle();
 			bindlesTextureHandleVec.emplace_back(bindlesTexHandle);
 		}
 		const uint8_t* bindlesTexHandlesDataPtr = reinterpret_cast<const uint8_t*>(bindlesTextureHandleVec.data());
@@ -322,7 +322,7 @@ namespace Rynex {
 			uint32_t offsetBytes = index * sizeof(uint64_t);
 			uint32_t sizeBytes = sizeof(uint64_t);
 
-			uint64_t bindlesTexHandle = ptrTex->GetBindlesHandle();
+			uint64_t bindlesTexHandle = ptrTex->GetBindlessHandle();
 			const uint64_t* bindlesTexHandlesDataPtr = &bindlesTexHandle;
 
 			const uint8_t* bindlesTexHandlesByteDataPtr = reinterpret_cast<const uint8_t*>(bindlesTexHandlesDataPtr);

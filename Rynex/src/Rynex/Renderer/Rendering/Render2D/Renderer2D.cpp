@@ -7,6 +7,7 @@
 #include <Rynex/Renderer/RenderCommand.h>
 #include <Rynex/Renderer/Text/MSDFData.h>
 #include <Rynex/Asset/Import/TextureImporter.h>
+#include <Rynex/Scene/Components.h>
 
 #define TEST_RENDERER_QUADE_001 1
 #define TEST_RENDERER_TEXT_001 1
@@ -379,7 +380,7 @@ namespace Rynex {
 
 	void Renderer2D::SubmitSpriteSingle(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
 	{
-		Ref<Texture> tex = src.Texture.lock();
+		Ref<Texture> tex = src.m_Texture.lock();
 		SubmitQuadSingle(transform, tex, entityID);
 		
 	}
@@ -434,24 +435,24 @@ namespace Rynex {
 	void Renderer2D::SubmitSprite(const glm::mat4& transfrom, SpriteRendererComponent& src, int entityID)
 	{
 #if RY_RENDER2D_TEST_BATCHING_SBO_UPDATE
-		if(src.Signel == RenderSginale::NotInit || src.Signel == RenderSginale::UpdateData)
+		if(src.Signel == RenderSignale::NotInit || src.Signel == RenderSignale::UpdateData)
 		{
-			if (Ref<Texture> tex = src.Texture.lock())
+			if (Ref<Texture> tex = src.m_Texture.lock())
 				SubmitQuad(transfrom, tex, entityID);
 			else
-				SubmitQuad(transfrom, src.Color, entityID);
+				SubmitQuad(transfrom, src.m_Color, entityID);
 
-			src.Signel = RenderSginale::Darw;
+			src.Signel = RenderSignale::Draw;
 		}
-		else if (src.Signel == RenderSginale::Darw)
+		else if (src.Signel == RenderSignale::Draw)
 		{
 			s_Storarage2D.QuadesT.MoveElementPtr();
 		}
 #else
-		if (Ref<Texture> tex = src.Texture.lock())
+		if (Ref<Texture> tex = src.m_Texture.lock())
 			SubmitQuad(transfrom, tex, entityID);
 		else
-			SubmitQuad(transfrom, src.Color, entityID);
+			SubmitQuad(transfrom, src.m_Color, entityID);
 #endif
 	}
 
@@ -685,7 +686,7 @@ namespace Rynex {
 	void Renderer2D::SubmitString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const TextParams& textParams, int entityID)
 	{
 		const MSDFData* data = font->GetMSDFData();
-		const msdf_atlas::FontGeometry& fontGeometry = data->FontGeometry;
+		const msdf_atlas::FontGeometry& fontGeometry = data->m_FontGeometry;
 		const msdfgen::FontMetrics& metrics = fontGeometry.getMetrics();
 		Ref<Texture> fontAtlas = font->GetAtlasTexture();
 		int textureIndex = s_Storarage2D.Text.AddTexture(fontAtlas);
@@ -804,7 +805,7 @@ namespace Rynex {
 
 	void Renderer2D::SubmitStringCom(const glm::mat4& transform, TextComponent& textC, int entityID)
 	{
-		SubmitString(textC.TextString, textC.FontAsset, transform, { textC.Color, textC.Kerning, textC.LineSpacing }, entityID);
+		SubmitString(textC.m_TextString, textC.m_FontAsset, transform, { textC.m_Color, textC.m_Kerning, textC.m_LineSpacing }, entityID);
 	}
 
 	void Renderer2D::SubmitRenderDrawListText(RenderTarget& target, const Ref<UniformBuffer>& camerbuffer, const Ref<UniformBuffer>& displaybuffer)

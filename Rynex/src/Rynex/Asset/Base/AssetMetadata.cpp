@@ -7,10 +7,10 @@ namespace Rynex {
 	void AssetMetadata::SetFilePath(const std::filesystem::path& path)
 	{
 
-		FileSystem::Path fileSystemPath = FileSystem::Path(AbsolutePath);
-		RealtivePath = fileSystemPath.GetRelativePath();
-		AbsolutePath = fileSystemPath.GetAbsolutePath();
-		PathMarker = fileSystemPath.GetMarkedPathString();
+		FileSystem::Path fileSystemPath = FileSystem::Path(m_AbsolutePath);
+		m_RelativePath = fileSystemPath.GetRelativePath();
+		m_AbsolutePath = fileSystemPath.GetAbsolutePath();
+		m_PathMarker = fileSystemPath.GetMarkedPathString();
 
 
 		
@@ -20,11 +20,11 @@ namespace Rynex {
 
 	void AssetMetadata::SetFilePath(const FileSystem::Path& path)
 	{
-		Path = path;
+		m_Path = path;
 
-		RealtivePath = path.GetRelativePath();
-		AbsolutePath = path.GetAbsolutePath();
-		FilePath = path.GetRelativePath();
+		m_RelativePath = path.GetRelativePath();
+		m_AbsolutePath = path.GetAbsolutePath();
+		m_FilePath = path.GetRelativePath();
 		
 	}
 

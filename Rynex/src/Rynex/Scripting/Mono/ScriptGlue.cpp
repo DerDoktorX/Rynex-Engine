@@ -1332,7 +1332,7 @@ namespace Rynex {
 		Scene* scene = ScriptingEngine::GetSceneContext();
 		std::string entityTag = Utils::MonoStringToString(entityNameM);
 		Entity entity = scene->GetEntityByName(entityTag);
-		*entityID = entity ? entity.GetUUID() : UUID(0);
+		*entityID = entity ? entity.GetUUID() : UUID::Zero();
 		return entity;
 	}
 

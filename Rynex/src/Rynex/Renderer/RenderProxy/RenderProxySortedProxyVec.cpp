@@ -99,7 +99,7 @@ namespace Rynex {
         RenderProxyKey renderProxyKey = -1;
         for (const RenderProxy& proxy : m_SortedProxyVec)
         {
-            if (proxy.entity  == entity &&  proxy.subMesh == subMesh)
+            if (proxy.m_Entity  == entity &&  proxy.m_SubMesh == subMesh)
             {
                 renderProxyKey = proxy.GetKey();
                 break;

@@ -11,10 +11,10 @@ namespace Rynex{
 	enum class ShaderResourceType
 	{
 		None = 0,
-		LocalModel, LocalColor, MainCamerPos, EnitiyID, 
-		MainCameraViewMatrix, MainCamerProjectionMatrix, MainCameraViewProjectionMatrix,
-		GlobleResource,
-		AmbientLigths, PointLigths, SpotLigths, DrirektionLigths,
+		LocalModel, LocalColor, MainCameraPos, EntityID,
+		MainCameraViewMatrix, MainCameraProjectionMatrix, MainCameraViewProjectionMatrix,
+		GlobalResource,
+		AmbientLights, PointLights, SpotLights, DirectionLights,
 		ShadowTexture
 	};
 
@@ -39,8 +39,8 @@ namespace Rynex{
 			Vertex = BIT(1),
 			Compute = BIT(2),
 			Geometry = BIT(3),
-			TeselationControl = BIT(4),
-			TeselationEvelution = BIT(5),
+			TessellationControl = BIT(4),
+			TessellationEvolution = BIT(5),
 			MeshShader = BIT(6)
 		};
 		static constexpr const size_t s_Count = 8;
@@ -49,8 +49,6 @@ namespace Rynex{
 
 	class RYNEX_API Shader : public Asset
 	{
-	public:
-		
 	public:
 		~Shader() = default;
 

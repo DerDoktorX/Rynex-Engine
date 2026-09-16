@@ -21,8 +21,12 @@ namespace Rynex {
 		UUID(const UUID&) = default;
 
 		operator uint64_t() const { return m_UUID; }
+	    bool operator == (const UUID& uuid) const
+		{
+		    return uuid.m_UUID == m_UUID;
+		}
 
-
+	    static UUID Zero() { return UUID(0ull); }
 	private:
 		uint64_t m_UUID;
 	};

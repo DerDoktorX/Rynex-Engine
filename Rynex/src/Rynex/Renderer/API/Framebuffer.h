@@ -9,7 +9,7 @@ namespace Rynex {
 	{
 		Nono = 0,
 		MainViewPort,
-		RelativToMainViewPort,
+		RelativeToMainViewPort,
 		StaticSize
 	};
 
@@ -21,122 +21,125 @@ namespace Rynex {
 
 		FramebufferTextureSpecification(const FramebufferTextureSpecification&) = default;
 
-		FramebufferTextureSpecification(TextureFormat format)
-			: TextureFormat(format) { }
+		FramebufferTextureSpecification(const TextureFormat format)
+			: m_TextureFormat(format) { }
 
-		FramebufferTextureSpecification(TextureFormat format, uint32_t samples)
-			: TextureFormat(format), Samples(samples) { }
+		FramebufferTextureSpecification(const TextureFormat format, const uint32_t samples)
+			: m_TextureFormat(format), m_Samples(samples) { }
 
-		FramebufferTextureSpecification(TextureFormat format, uint32_t samples, TextureWrappingSpecification wrapping)
-			: TextureFormat(format), Samples(samples), TextureWrapping(wrapping) { }
+		FramebufferTextureSpecification(const TextureFormat format, const uint32_t samples, const TextureWrappingSpecification wrapping)
+			: m_TextureFormat(format), m_Samples(samples), m_TextureWrapping(wrapping) { }
 
-		FramebufferTextureSpecification(TextureFormat format, uint32_t samples, TextureFilteringMode filtering)
-			: TextureFormat(format), Samples(samples), TextureFiltering(filtering) { }
+		FramebufferTextureSpecification(const TextureFormat format, const uint32_t samples, const TextureFilteringMode filtering)
+			: m_TextureFormat(format), m_Samples(samples), m_TextureFiltering(filtering) { }
 
-		FramebufferTextureSpecification(TextureFormat format, uint32_t samples, TextureWrappingSpecification wrapping, TextureFilteringMode filtering)
-			: TextureFormat(format), Samples(samples), TextureWrapping(wrapping), TextureFiltering(filtering) { }
+		FramebufferTextureSpecification(const TextureFormat format, const uint32_t samples, const TextureWrappingSpecification wrapping, const TextureFilteringMode filtering)
+			: m_TextureFormat(format), m_Samples(samples), m_TextureWrapping(wrapping), m_TextureFiltering(filtering) { }
 
-		FramebufferTextureSpecification(TextureFormat format, uint32_t samples, TextureWrappingSpecification wrapping, TextureFilteringMode filtering, TextureCompareModes compare)
-			: TextureFormat(format), Samples(samples), TextureWrapping(wrapping), TextureFiltering(filtering), Compare(compare) { }
+		FramebufferTextureSpecification(const TextureFormat format, const uint32_t samples, const TextureWrappingSpecification wrapping, const TextureFilteringMode filtering, const TextureCompareModes compare)
+			: m_TextureFormat(format), m_Samples(samples), m_TextureWrapping(wrapping), m_TextureFiltering(filtering), Compare(compare) { }
 		
 
-		TextureFormat TextureFormat = TextureFormat::RGBA8;
+		TextureFormat m_TextureFormat = TextureFormat::RGBA8;
 		
-		uint32_t Samples = 1;
-		TextureWrappingSpecification TextureWrapping = {
+		uint32_t m_Samples = 1;
+		TextureWrappingSpecification m_TextureWrapping{
 			TextureWrappingMode::ClampEdge,
 			TextureWrappingMode::ClampEdge,
 			TextureWrappingMode::ClampEdge
 		};
-		TextureFilteringMode TextureFiltering = TextureFilteringMode::Linear;
+		TextureFilteringMode m_TextureFiltering = TextureFilteringMode::Linear;
 		TextureCompareModes Compare = TextureCompareModes::None;
-		bool operator ==(FramebufferTextureSpecification& framebufferTextureSpecification)
-		{
-			return (framebufferTextureSpecification.TextureFormat == TextureFormat) && 
-				(framebufferTextureSpecification.TextureFiltering == TextureFiltering) &&
-				(framebufferTextureSpecification.TextureWrapping == TextureWrapping);
+		bool operator ==(const FramebufferTextureSpecification framebufferTextureSpecification) const
+        {
+			return (framebufferTextureSpecification.m_TextureFormat == m_TextureFormat) &&
+				(framebufferTextureSpecification.m_TextureFiltering == m_TextureFiltering) &&
+				(framebufferTextureSpecification.m_TextureWrapping == m_TextureWrapping);
 		}
 	};
 
 	struct RYNEX_API FramebufferAttachmentSpecification
 	{
+	    std::vector<FramebufferTextureSpecification> m_Attachments;
+
 		FramebufferAttachmentSpecification() = default;
-		FramebufferAttachmentSpecification(std::initializer_list<FramebufferTextureSpecification> attachments)
-			: Attachments(attachments) {}
-		FramebufferAttachmentSpecification(std::vector<FramebufferTextureSpecification>& attachments)
-			: Attachments(attachments) {}
+		FramebufferAttachmentSpecification(const std::initializer_list<FramebufferTextureSpecification> attachments)
+			: m_Attachments(attachments) {}
+
+        explicit FramebufferAttachmentSpecification(const std::vector<FramebufferTextureSpecification>& attachments)
+			: m_Attachments(attachments) {}
 
 		std::vector<FramebufferTextureSpecification>::iterator begin()
 		{
-			return Attachments.begin();
+			return m_Attachments.begin();
 		}
 
 		std::vector<FramebufferTextureSpecification>::iterator end()
 		{
-			return Attachments.end();
+			return m_Attachments.end();
 		}
 
 		std::vector<FramebufferTextureSpecification>::const_iterator begin() const
 		{
-			return Attachments.begin();
+			return m_Attachments.begin();
 		}
 
 		std::vector<FramebufferTextureSpecification>::const_iterator end() const
 		{
-			return Attachments.end();
+			return m_Attachments.end();
 		}
 
-		FramebufferTextureSpecification& operator[](uint32_t index)
+		FramebufferTextureSpecification& operator[](const uint32_t index)
 		{
-			RY_CORE_ASSERT(index < Attachments.size());
-			return Attachments[index];
+			RY_CORE_ASSERT(index < m_Attachments.size());
+			return m_Attachments[index];
 		}
 
-		const FramebufferTextureSpecification& operator[](uint32_t index) const
+		const FramebufferTextureSpecification& operator[](const uint32_t index) const
 		{
-			RY_CORE_ASSERT(index < Attachments.size());
-			return Attachments[index];
+			RY_CORE_ASSERT(index < m_Attachments.size());
+			return m_Attachments[index];
 		}
 
-		std::vector<FramebufferTextureSpecification> Attachments;
+
 	};
 
 	struct RYNEX_API FramebufferSpecification
 	{
-		uint32_t Width, Height, Depth;
-		FramebufferAttachmentSpecification Attachments;
-		TextureTarget Target;
-		uint32_t Samples;
-		bool SwapChainTarget;
+		uint32_t m_Width, m_Height, m_Depth;
+		FramebufferAttachmentSpecification m_Attachments;
+		TextureTarget m_Target;
+		uint32_t m_Samples;
+		bool m_SwapChainTarget;
 
 		FramebufferSpecification()
-			: Width(1u), Height(1u), Depth(1u)
-			, Attachments({}), Target(TextureTarget::Texture2D)
-			, Samples(1u), SwapChainTarget(false)
+			: m_Width(1u), m_Height(1u), m_Depth(1u)
+			, m_Attachments({}), m_Target(TextureTarget::Texture2D)
+			, m_Samples(1u), m_SwapChainTarget(false)
 		{
 		}
 
-		FramebufferSpecification(uint32_t width, uint32_t height, uint32_t depth
-			, FramebufferAttachmentSpecification atchemnts = FramebufferAttachmentSpecification()
-			, TextureTarget target = TextureTarget::Texture2D
-			, uint32_t samples = 1u
-			, bool swapChainTarget = false
+		FramebufferSpecification(const uint32_t width, const uint32_t height, const uint32_t depth
+			, const FramebufferAttachmentSpecification& attachment = FramebufferAttachmentSpecification()
+			, const TextureTarget target = TextureTarget::Texture2D
+			, const uint32_t samples = 1u
+			, const bool swapChainTarget = false
 			)
-			: Width(width), Height(height), Depth(depth)
-			, Attachments(atchemnts), Target(target)
-			, Samples(samples), SwapChainTarget(swapChainTarget)
+			: m_Width(width), m_Height(height), m_Depth(depth)
+			, m_Attachments(attachment), m_Target(target)
+			, m_Samples(samples), m_SwapChainTarget(swapChainTarget)
 		{
 
 		}
 
-		FramebufferSpecification(uint32_t width, uint32_t height
-			, FramebufferAttachmentSpecification atchemnts = FramebufferAttachmentSpecification()
-			, uint32_t samples = 1u
-			, bool swapChainTarget = false
+		FramebufferSpecification(const uint32_t width, const uint32_t height
+			, const FramebufferAttachmentSpecification& attachment = FramebufferAttachmentSpecification()
+			, const uint32_t samples = 1u
+			, const bool swapChainTarget = false
 		)
-			: Width(width), Height(height), Depth(1u)
-			, Attachments(atchemnts), Target(TextureTarget::Texture2D)
-			, Samples(samples), SwapChainTarget(swapChainTarget)
+			: m_Width(width), m_Height(height), m_Depth(1u)
+			, m_Attachments(attachment), m_Target(TextureTarget::Texture2D)
+			, m_Samples(samples), m_SwapChainTarget(swapChainTarget)
 		{
 		}
 
@@ -160,8 +163,8 @@ namespace Rynex {
 		virtual void ClearDeathAttachment(float value = 1.0f) = 0;
 		virtual const FramebufferSpecification& GetFramebufferSpecification() const = 0;
 
-		virtual bool SetTextureForDepthAttchment(const Ref<Texture>& texture) = 0;
-		virtual bool SetTextureForColorAttchment(const Ref<Texture>& texture, uint32_t atchmentIndex) = 0;
+		virtual bool SetTextureForDepthAttachment(const Ref<Texture>& texture) = 0;
+		virtual bool SetTextureForColorAttachment(const Ref<Texture>& texture, uint32_t attachmentIndex) = 0;
 
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const = 0;
 		virtual uint32_t GetDeathAttachmentRendererID() const = 0;
@@ -173,9 +176,9 @@ namespace Rynex {
 
 		virtual Ref<Texture> GetDepthTexture() const = 0;
 
-		virtual void Resize2D(uint32_t withe, uint32_t heigth) = 0;
+		virtual void Resize2D(uint32_t withe, uint32_t height) = 0;
 		virtual int ReadPixel(uint32_t attachmentsIndex, int x, int y) = 0;
-		virtual const glm::uvec3& GetFrambufferSize() = 0;
+		virtual const glm::uvec3& GetFramebufferSize() = 0;
 
 		virtual void Bind(float width = 0.0f, float height = 0.0f, float x = 0.0f, float y = 0.0f) = 0;
 		virtual void UnBind() = 0;
@@ -183,11 +186,11 @@ namespace Rynex {
 		virtual void BindColorAttachment(uint32_t index = 0, uint32_t slot = 0) const = 0;
 		virtual void BindDeathAttachment(uint32_t slot = 0) const = 0;
 
-		virtual void BindColorAttachmentImage(Acces acces, uint32_t index = 0, uint32_t slot = 0) const = 0;
-		virtual void BindDeathAttachmentImage(Acces acces, uint32_t slot = 0) const = 0;
+		virtual void BindColorAttachmentImage(Access access, uint32_t index = 0, uint32_t slot = 0) const = 0;
+		virtual void BindDeathAttachmentImage(Access access, uint32_t slot = 0) const = 0;
 
 		static AssetType GetStaticType() { return AssetType::Framebuffer; }
-		AssetType GetType() const { return GetStaticType(); }
+		AssetType GetType() const override { return GetStaticType(); }
 	};
 }
 

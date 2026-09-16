@@ -23,8 +23,8 @@ namespace Rynex {
 		virtual void ClearAttachment(uint32_t index, const glm::vec3& value) override;
 		virtual void ClearAttachment(const uint32_t index, const glm::vec4& value) override;
 
-		virtual bool SetTextureForDepthAttchment(const Ref<Texture>& texture) override;
-		virtual bool SetTextureForColorAttchment(const Ref<Texture>& texture, uint32_t atchmentIndex) override;
+		virtual bool SetTextureForDepthAttachment(const Ref<Texture>& texture) override;
+		virtual bool SetTextureForColorAttachment(const Ref<Texture>& texture, uint32_t atchmentIndex) override;
 
 
 		virtual void ClearDeathAttachment(float value) override;
@@ -42,7 +42,7 @@ namespace Rynex {
 
 		virtual void Resize2D(uint32_t width, uint32_t height) override;
 		virtual int ReadPixel(uint32_t index, int x, int y) override;
-		virtual const glm::uvec3& GetFrambufferSize() override;
+		virtual const glm::uvec3& GetFramebufferSize() override;
 
 		virtual void Bind(float width = 0.0f, float height = 0.0f, float x = 0.0f, float y = 0.0f) override;
 		virtual void UnBind() override;
@@ -50,8 +50,8 @@ namespace Rynex {
 		virtual void BindColorAttachment(uint32_t index = 0, uint32_t slot = 0) const override;
 		virtual void BindDeathAttachment(uint32_t slot = 0) const override;
 
-		virtual void BindColorAttachmentImage(Acces acces, uint32_t index = 0, uint32_t slot = 0) const override;
-		virtual void BindDeathAttachmentImage(Acces acces, uint32_t slot = 0) const override;
+		virtual void BindColorAttachmentImage(Access acces, uint32_t index = 0, uint32_t slot = 0) const override;
+		virtual void BindDeathAttachmentImage(Access acces, uint32_t slot = 0) const override;
 
 		uint32_t GetRenderID() const { return m_RendererID; }
 

@@ -53,7 +53,7 @@ namespace Rynex {
         m_Camera = editorLayer->GetEditorCamera();
        
         FramebufferSpecification fbSpec, fbSpec2;
-        fbSpec.Attachments = {
+        fbSpec.m_Attachments = {
             {
                 TexFrom::RGBA32F, 1u,
                 { TexWarp::ClampEdge,  TexWarp::ClampEdge, TexWarp::ClampEdge, },
@@ -71,13 +71,13 @@ namespace Rynex {
             }
         };
 
-        fbSpec.Width = 1280;
-        fbSpec.Height = 720;
-        fbSpec2.Samples = m_TextureSampleCount;
+        fbSpec.m_Width = 1280;
+        fbSpec.m_Height = 720;
+        fbSpec2.m_Samples = m_TextureSampleCount;
 
 
         m_Framebuffer = Framebuffer::Create(fbSpec);
-        fbSpec2.Attachments = {
+        fbSpec2.m_Attachments = {
             {
                 TexFrom::RGBA32F, 1u,
                 { TexWarp::ClampEdge,  TexWarp::ClampEdge, TexWarp::ClampEdge, },
@@ -89,9 +89,9 @@ namespace Rynex {
                 TexFilter::Nearest
             }
         };
-        fbSpec2.Width = 1280;
-        fbSpec2.Height = 720;
-        fbSpec2.Samples = 1u;
+        fbSpec2.m_Width = 1280;
+        fbSpec2.m_Height = 720;
+        fbSpec2.m_Samples = 1u;
 
         m_SelectedFramebuffer = Framebuffer::Create(fbSpec2);
         m_SelctedTarget.SetFramebuffer(m_SelectedFramebuffer);
@@ -153,7 +153,7 @@ namespace Rynex {
         RY_DESTROY_REF(m_Camera);
         RY_DESTROY_REF(m_Filtering);
 
-        RY_DESTROY_REF(m_MaterialC.material);
+        RY_DESTROY_REF(m_MaterialC.m_Material);
         RY_DESTROY_REF(m_AktiveScene);
         m_SelctedTarget.SetFramebuffer(nullptr);
         m_GizmoType = nullptr;
@@ -372,7 +372,7 @@ namespace Rynex {
 #endif
         const Ref<Framebuffer>& fb = m_SelctedTarget.GetFramebuffer();
 
-        glm::uvec3 sizeUint = fb->GetFrambufferSize();
+        glm::uvec3 sizeUint = fb->GetFramebufferSize();
         glm::ivec2 size = glm::ivec2(sizeUint);
 
         glm::ivec4 viwportSize = glm::ivec4(size, 0, 0);
@@ -417,28 +417,28 @@ namespace Rynex {
             if (e.HasComponent<SpriteRendererComponent>())
             {
                 SpriteRendererComponent& spriteC = e.GetComponent<SpriteRendererComponent>();
-                Renderer2D::SubmitSprite(modelC.Globle, spriteC, e.GetEntityHandle());
+                Renderer2D::SubmitSprite(modelC.m_Global, spriteC, e.GetEntityHandle());
                 (*drawCount)++;
             }
             if (e.HasComponent<TextComponent>())
             {
 
                 TextComponent& textC = e.GetComponent<TextComponent>();
-                Renderer2D::SubmitStringCom(modelC.Globle, textC, e.GetEntityHandle());
+                Renderer2D::SubmitStringCom(modelC.m_Global, textC, e.GetEntityHandle());
                 (*drawCount)++;
             }
 
             if (e.HasComponent<CameraComponent>())
             {
                 CameraComponent& cameraC = e.GetComponent<CameraComponent>();
-                Renderer2D::SubmitCameraIcon(modelC.Globle, e.GetEntityHandle());
+                Renderer2D::SubmitCameraIcon(modelC.m_Global, e.GetEntityHandle());
                 (*drawCount)++;
             }
 #if 0
             if (e.HasComponent<StaticSingleComponetsMeshComponent>())
             {
                 StaticSingleComponetsMeshComponent& meshStaticC = e.GetComponent<StaticSingleComponetsMeshComponent>();
-                Renderer3D::MeshCompontDirekt(modelC.Globle, meshStaticC, e.GetEntityHandle());
+                Renderer3D::MeshCompontDirekt(modelC.m_Global, meshStaticC, e.GetEntityHandle());
                 (*drawCount)++;
             }
 #else
@@ -446,7 +446,7 @@ namespace Rynex {
             if (e.HasComponent<ModelMangerComponent>())
             {
                 ModelMangerComponent& meshStaticC = e.GetComponent<ModelMangerComponent>();
-                Renderer3D::MeshCompontDirekt(modelC.Globle, meshStaticC, e.GetEntityHandle());
+                Renderer3D::MeshCompontDirekt(modelC.m_Global, meshStaticC, e.GetEntityHandle());
                 (*drawCount)++;
             }
 #endif
@@ -799,9 +799,9 @@ namespace Rynex {
     {
         m_Filtering->Bind();
         m_Filtering->SetUniformValue("u_MauseInViewPixelPos", &m_MauseInViewPixelPos, ShaderDataType::Float2);
-        m_SelectedFramebuffer->BindColorAttachmentImage(Acces::Read, 0, 0);
-        m_Framebuffer->BindColorAttachmentImage(Acces::Read, m_RenderOnAtachment, 1);
-        m_Image->BindImage(Acces::Write, 2);
+        m_SelectedFramebuffer->BindColorAttachmentImage(Access::Read, 0, 0);
+        m_Framebuffer->BindColorAttachmentImage(Access::Read, m_RenderOnAtachment, 1);
+        m_Image->BindImage(Access::Write, 2);
 
     	uint32_t withe = m_WindowSize.x;
     	uint32_t heigth = m_WindowSize.y;
@@ -984,9 +984,9 @@ namespace Rynex {
             {
                 Entity camerEntt = m_AktiveScene->GetEntityPrimaryCamera();
                 const CameraComponent& cameraComp = camerEntt.GetComponent<CameraComponent>();
-                const Camera& camera = cameraComp.Camera;
+                const Camera& camera = cameraComp.m_Camera;
                 const glm::mat4& camerProj = camera.GetProjektion();
-                camerView = glm::inverse(camerEntt.GetComponent<ModelMatrixComponent>().Globle);
+                camerView = glm::inverse(camerEntt.GetComponent<ModelMatrixComponent>().m_Global);
                 break;
             }
             default:
@@ -1019,10 +1019,10 @@ namespace Rynex {
         glm::vec3 transation, rotation, scale;
         Math::DecomposeTransform(transform, transation, rotation, scale);
 
-        glm::vec3 dealteRotation = rotation - tc.Rotation;
-        tc.Transaltion = transation;
-        tc.Rotation += dealteRotation;
-        tc.Scale = scale;
+        glm::vec3 dealteRotation = rotation - tc.m_Rotation;
+        tc.m_Transform = transation;
+        tc.m_Rotation += dealteRotation;
+        tc.m_Scale = scale;
         selectedEntity.UpdateMatrix();
 #endif
         
@@ -1049,12 +1049,12 @@ namespace Rynex {
                 Renderer2D::DrawSprite(transformC.GetTransform(), spriteC, slelcted.GetEntityHandle());
                 Renderer2D::EndScene();
             }
-            else  if (slelcted.HasComponent<GeomtryComponent>() && slelcted.HasComponent<MaterialComponent>())
+            else  if (slelcted.HasComponent<GeometryComponent>() && slelcted.HasComponent<MaterialComponent>())
             {
                 Renderer3D::BeginScene(mainCamera, viewMatrix);
-                GeomtryComponent geomtryC = slelcted.GetComponent<GeomtryComponent>();
+                GeometryComponent geomtryC = slelcted.GetComponent<GeometryComponent>();
                 MaterialComponent materialC = slelcted.GetComponent<MaterialComponent>();
-                Ref<VertexArray> vertexArray = geomtryC.Geometry;
+                Ref<VertexArray> vertexArray = geomtryC.m_Geometry;
                 if ( vertexArray != nullptr)
                 {
                     Renderer3D::BeforDrawEntity(materialC, transformC.GetTransform(), slelcted.GetEntityHandle());
@@ -1083,7 +1083,7 @@ namespace Rynex {
                 if(parent!=-1)
                 {
                     MaterialComponent materialC = Entity((entt::entity)parent, m_AktiveScene.get()).GetComponent<MaterialComponent>();
-                    if (dynamicMeshC.meshR != nullptr)
+                    if (dynamicMeshC.m_MeshR != nullptr)
                     {
                         Renderer3D::DrawModdel(materialC, transformC.GetTransform(), dynamicMeshC, slelcted.GetEntityHandle());
                     }
@@ -1114,7 +1114,7 @@ namespace Rynex {
         my -= m_WindowBounds[0].y;
         
         glm::vec2 viewPortSize = m_WindowBounds[1] - m_WindowBounds[0];
-        const glm::uvec2& fbSize = m_Framebuffer->GetFrambufferSize();
+        const glm::uvec2& fbSize = m_Framebuffer->GetFramebufferSize();
 
         if (static_cast<uint32_t>(viewPortSize.x) != fbSize.x || static_cast<uint32_t>(viewPortSize.y) != fbSize.y)
         {

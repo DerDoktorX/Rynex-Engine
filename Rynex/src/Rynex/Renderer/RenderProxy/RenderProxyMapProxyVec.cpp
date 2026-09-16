@@ -223,7 +223,7 @@ namespace Rynex {
         if (it == m_GroupMap.end())
             return it->second.Add(proxy);
 
-        RenderProxyGroup& proxyGroup = m_GroupMap[key] = RenderProxyGroup(proxy.meshBatch);
+        RenderProxyGroup& proxyGroup = m_GroupMap[key] = RenderProxyGroup(proxy.m_MeshBatch);
         return proxyGroup.Add(proxy);
     }
 
@@ -311,7 +311,7 @@ namespace Rynex {
             {
                 if (!group.IsValid(i))
                     continue;
-                if (proxies[i].entity == entity && proxies[i].subMesh == subMesh)
+                if (proxies[i].m_Entity == entity && proxies[i].m_SubMesh == subMesh)
                     return { key, i };
             }
         }

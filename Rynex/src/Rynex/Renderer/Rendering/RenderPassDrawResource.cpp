@@ -1,5 +1,5 @@
 #include "rypch.h"
-#include "RenderPassDrawResoucs.h"
+#include "RenderPassDrawResource.h"
 #include <Rynex/Renderer/Materials/Material.h>
 #include <Rynex/Renderer/RenderProxy/Proxy.h>
 
@@ -7,16 +7,16 @@ namespace Rynex {
 
         
 
-        RenderPassDrawResoucs::RenderPassDrawResoucs()
+        RenderPassDrawResource::RenderPassDrawResource()
         {
         }
 
-        RenderPassDrawResoucs::~RenderPassDrawResoucs()
+        RenderPassDrawResource::~RenderPassDrawResource()
         {
         }
 
 
-        void RenderPassDrawResoucs::SetOutPutLayout(const BufferLayout& outPut)
+        void RenderPassDrawResource::SetOutPutLayout(const BufferLayout& outPut)
         {
             m_OutPutLayout = outPut;
             m_LatFrameBatchedRenderObjectsMap.clear();
@@ -24,7 +24,7 @@ namespace Rynex {
             RY_CORE_WARN("when out put is set We need to reset the lists!");
         }
 
-        void RenderPassDrawResoucs::SubmiteVisebleObjects(RenderProxyPtr renderProxy, int lodTier)
+        void RenderPassDrawResource::SubmitVisibleObjects(RenderProxyPtr renderProxy, int lodTier)
         {
             const Ref<Material>& materiel = renderProxy->GetMaterial();
             const Ref<MeshSingle>& mesh = renderProxy->GetMesh();
@@ -34,35 +34,35 @@ namespace Rynex {
 #endif
             Batch3DKey key = Batch3DKey(materiel, mesh, m_OutPutLayout, lodTier);
             Batch3DData& batch = m_BatchedRenderObjectsMap[key];
-            SubmiteToList(renderProxy, lodTier, batch);
+            SubmitToList(renderProxy, lodTier, batch);
         }
 
-        void RenderPassDrawResoucs::ClearFrame()
+        void RenderPassDrawResource::ClearFrame()
         {
             m_LatFrameBatchedRenderObjectsMap.clear();
             m_LatFrameBatchedRenderObjectsMap = m_BatchedRenderObjectsMap;
             m_BatchedRenderObjectsMap.clear();
         }
 
-        void RenderPassDrawResoucs::GenrateDrawCalls(std::vector<DrawCall>& drawCallList)
+        void RenderPassDrawResource::GenerateDrawCalls(std::vector<DrawCall>& drawCallList)
         {
         }
 
-        void RenderPassDrawResoucs::SubmiteToList(RenderProxy* proxy, int lodTier, std::vector< std::pair<int, RenderProxy*>>& list)
+        void RenderPassDrawResource::SubmitToList(RenderProxy* proxy, int lodTier, std::vector< std::pair<int, RenderProxy*>>& list)
         {
             list.emplace_back(lodTier, proxy);
         }
 
-        void RenderPassDrawResoucs::DrawCallsFromList(std::vector<DrawCall>& drawCallList, const Batch3DKey& key, std::vector<std::pair<int, RenderProxy*>>& list)
+        void RenderPassDrawResource::DrawCallsFromList(std::vector<DrawCall>& drawCallList, const Batch3DKey& key, std::vector<std::pair<int, RenderProxy*>>& list)
         {
         }
 
-        void RenderPassDrawResoucs::SubmiteToList(RenderProxy* proxy, int lodTier, std::vector< std::pair<int, RenderProxy>>& list)
+        void RenderPassDrawResource::SubmitToList(RenderProxy* proxy, int lodTier, std::vector< std::pair<int, RenderProxy>>& list)
         {
             list.emplace_back(lodTier, *proxy);
         }
 
-        void RenderPassDrawResoucs::DrawCallsFromList(std::vector<DrawCall>& drawCallList, const Batch3DKey& key, std::vector<std::pair<int, RenderProxy>>& list)
+        void RenderPassDrawResource::DrawCallsFromList(std::vector<DrawCall>& drawCallList, const Batch3DKey& key, std::vector<std::pair<int, RenderProxy>>& list)
         {
             int drawSpec = key.m_DrawSpec;
 

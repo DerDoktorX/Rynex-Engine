@@ -8,20 +8,20 @@ namespace Rynex {
 
 	const UUID& MeshStatic::SingleObjectMeshData::GetHandle() const
 	{
-		RY_CORE_ASSERT(nullptr != _MeshSingle, "Nullptr Created Object!");
-		return _MeshSingle->Handle;
+		RY_CORE_ASSERT(nullptr != m_MeshSingle, "Nullptr Created Object!");
+		return m_MeshSingle->Handle;
 	}
 
 	const Mesh::PerDrawObject& MeshStatic::SingleObjectMeshData::GetShadePerDrawObjectIndrect() const
 	{
-		RY_CORE_ASSERT(nullptr != _MeshSingle, "Nullptr Created Object!");
-		return _MeshSingle->GetShadePerDrawObjectIndrect();
+		RY_CORE_ASSERT(nullptr != m_MeshSingle, "Nullptr Created Object!");
+		return m_MeshSingle->GetShadePerDrawObjectIndirect();
 	}
 
 	const Mesh::PerDrawObject& MeshStatic::SingleObjectMeshData::GetDepthPerDrawObjectIndrect() const
 	{
-		RY_CORE_ASSERT(nullptr != _MeshSingle, "Nullptr Created Object!");
-		return _MeshSingle->GetDepthPerDrawObjectIndrect();
+		RY_CORE_ASSERT(nullptr != m_MeshSingle, "Nullptr Created Object!");
+		return m_MeshSingle->GetDepthPerDrawObjectIndirect();
 	}
 
 	MeshStatic::MeshStatic()
@@ -89,8 +89,8 @@ namespace Rynex {
 		int* it = offsetData.data() + offset;
 		for (const SingleObjectMeshData& meshSingle : m_SingleObjectDataVec)
 		{
-			const Mesh::PerDrawObject& drawIndrect = meshSingle._MeshSingle->GetShadePerDrawObjectIndrect();
-			const uint32_t& instaencesCount = drawIndrect.InstancesCount;
+			const Mesh::PerDrawObject& drawIndrect = meshSingle.m_MeshSingle->GetShadePerDrawObjectIndirect();
+			const uint32_t& instaencesCount = drawIndrect.m_InstancesCount;
 			*it = curentOffset; 
 			curentOffset += instaencesCount * steps;
 			it++;
@@ -135,13 +135,13 @@ namespace Rynex {
 
 	void MeshStatic::SetDefaultMateriel(SingleObjectMeshData& singleMeshData, MapVector<UUID, MaterielShaderData>& defaultMaterielMap)
 	{
-		const Ref<Material>& materiel = singleMeshData._Material;
+		const Ref<Material>& materiel = singleMeshData.m_Material;
 		singleMeshData.LocaleIndexMateriel = Material::SetupMaterielObjectMapVector<UUID, MaterielShaderData>(materiel, defaultMaterielMap, m_BindlesAlbedoTextureArray);
 	}
 
 	void MeshStatic::SetOffsetObject(const SingleObjectMeshData& singleMeshData, MapVector<UUID, int>& offsetObjectMap, int& offsetValue)
 	{
-		const UUID& meshHandle = singleMeshData._MeshSingle->Handle;
+		const UUID& meshHandle = singleMeshData.m_MeshSingle->Handle;
 		if (!offsetObjectMap.HasKey(meshHandle))
 		{
 			int size = 0;
@@ -156,18 +156,18 @@ namespace Rynex {
 
 	void MeshStatic::SetDrawObject(const SingleObjectMeshData& singleMeshData, MapVector<UUID, Mesh::PerDrawObject>& drawObjectMap)
 	{
-		const UUID& meshHandle = singleMeshData._MeshSingle->Handle;
+		const UUID& meshHandle = singleMeshData.m_MeshSingle->Handle;
 		if (!drawObjectMap.HasKey(meshHandle))
 		{
 			const Mesh::PerDrawObject& cmd = singleMeshData.GetShadePerDrawObjectIndrect();
 			
 			Mesh::PerDrawObject& cmdRef = drawObjectMap.AddData(meshHandle, cmd);
-			cmdRef.InstancesCount = 1;
+			cmdRef.m_InstancesCount = 1;
 		}
 		else
 		{
 			Mesh::PerDrawObject& cmdRef = drawObjectMap.GetKeyData(meshHandle);
-			cmdRef.InstancesCount++;
+			cmdRef.m_InstancesCount++;
 		}
 	}
 
@@ -236,7 +236,7 @@ namespace Rynex {
 		uint32_t i = 0;
 		for (SingleObjectMeshData& meshData : m_SingleObjectDataVec)
 		{
-			RY_DESTROY_REF(meshData._Material);
+			RY_DESTROY_REF(meshData.m_Material);
 			i++;
 		}
 		m_SingleObjectDataVec.clear();
@@ -260,20 +260,20 @@ namespace Rynex {
 		Ref<MeshSource> source = m_Source.lock();
 		RY_CORE_ASSERT(source != nullptr);
 
-		const std::vector<MeshSource::EntityNodes>& childrens = sourceNodes.Childrens;
-		glm::mat4 globleMatrix = parentMatrix * sourceNodes.Matrics;
-		const std::string& nameNode = sourceNodes.NodeName;
+		const std::vector<MeshSource::EntityNodes>& childrens = sourceNodes.m_Childrens;
+		glm::mat4 globleMatrix = parentMatrix * sourceNodes.m_Matrics;
+		const std::string& nameNode = sourceNodes.m_NodeName;
 		const std::vector<MeshSource::SourceMesh>& sourceMeshesVec = source->GetMeshSourcesConst();
 		const std::vector<Ref<MeshSingle>>& singleMeshVec = source->GetMeshSingleVecConst();
 		const std::vector<Ref<Material>>& materielVec = source->GetMaterialsVecConst();
 
 
-		for (const uint32_t& meshIndex : sourceNodes.ObjectMeshIndexVec)
+		for (const uint32_t& meshIndex : sourceNodes.m_ObjectMeshIndexVec)
 		{
 			const MeshSource::SourceMesh& meshSource = sourceMeshesVec.at(meshIndex);
-			uint32_t indexMateriel = meshSource.MaterielIndex;
-			uint32_t meshDataIndex = meshSource.MeshDataIndex;
-			RY_CORE_ASSERT(meshIndex == meshSource.MeshIndex, "Index Are not expexted Equel!");
+			uint32_t indexMateriel = meshSource.m_MaterielIndex;
+			uint32_t meshDataIndex = meshSource.m_MeshDataIndex;
+			RY_CORE_ASSERT(meshIndex == meshSource.m_MeshIndex, "Index Are not expexted Equel!");
 
 			const Ref<Material>& materiel = materielVec.at(indexMateriel);
 			const Ref<MeshSingle>& meshSingle = singleMeshVec.at(meshDataIndex);
@@ -294,7 +294,7 @@ namespace Rynex {
 	template<>
 	void MeshStatic::SetMeshData<UUID, MaterielShaderData>(const SingleObjectMeshData& singleMeshData, MapVector<UUID, MaterielShaderData>& defaultMaterielMap)
 	{
-		const Ref<Material>& materiel = singleMeshData._Material;
+		const Ref<Material>& materiel = singleMeshData.m_Material;
 		Material::SetupMaterielObjectMapVector<UUID, MaterielShaderData>(materiel, defaultMaterielMap, m_BindlesAlbedoTextureArray);
 	}
 

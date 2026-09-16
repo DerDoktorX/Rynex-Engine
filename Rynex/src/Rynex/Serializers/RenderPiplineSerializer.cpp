@@ -55,10 +55,10 @@ namespace Rynex {
 								out << YAML::Flow;
 								out << YAML::BeginSeq;
 
-								out << ellement.type;
-								out << ellement.name;
-								if (!ellement.normilized)
-									out << ellement.normilized;
+								out << ellement.m_Type;
+								out << ellement.m_Name;
+								if (!ellement.m_Normalized)
+									out << ellement.m_Normalized;
 								out << source;
 
 								out << YAML::EndSeq;

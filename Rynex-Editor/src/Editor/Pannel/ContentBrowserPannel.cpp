@@ -150,7 +150,7 @@ namespace Rynex {
 		switch (state)
 		{
 			case AssetState::Error:			    return ImVec4(0.95, 0.05, 0.1, 1.0);
-			case AssetState::Updateing:		    return ImVec4(0.3, 0.5, 0.7, 1.0);
+			case AssetState::Updating:		    return ImVec4(0.3, 0.5, 0.7, 1.0);
 			case AssetState::LostConnection:	return ImVec4(0.75, 0.1, 0.05, 1.0);
 			case AssetState::Loading:		    return ImVec4(0.85, 0.275, 0.05, 1.0);
 			case AssetState::Ready:			    return ImVec4(0.2, 0.8, 0.3, 1.0);
@@ -490,7 +490,7 @@ namespace Rynex {
 				if(filePath != "")
 					ImGui::Text("AssetHandle(UUID): (%ull), Realtiv FilePath: %s", handle, filePath.c_str());
 				else
-					ImGui::Text("AssetHandle(UUID): (%ull), Data Type: %i", handle, (int)metadata.Type);
+					ImGui::Text("AssetHandle(UUID): (%ull), Data Type: %i", handle, (int)metadata.m_Type);
 			}
 			ImGui::End();
 		}

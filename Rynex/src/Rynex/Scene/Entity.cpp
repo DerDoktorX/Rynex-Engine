@@ -25,22 +25,34 @@ namespace Rynex {
 		}
 	}
 
+    Entity::Entity()
+        : m_State(State::None)
+        , m_EntityHandle(entt::null)
+	    , m_Scene()
+    {
+
+    }
+
 	Entity::Entity(entt::entity handle, Scene* scene)
-		: m_EntityHandle(handle)
+        : m_State(State::None)
+        , m_EntityHandle(handle)
+        , m_Scene()
 	{
 		if (nullptr != scene)
 			m_Scene = Scene::GetRefInPlace(scene);
+	    RY_CORE_WARN_IF(nullptr == scene, "Entity::Entity created withe Scene nullptr!!! (Error on methode execute call Scene)");
+
 	}
 
 	Entity Entity::AddChildrenEntity(const std::string& name)
 	{
 		Ref<Scene> scene = m_Scene.lock();
-
+	    RY_CORE_ASSERT(nullptr != scene, "Scene is nullptr! (Scene could be deleted or never existed)");
 
 		Entity childe = scene->CreateEntity(name);
 		UUID childID = childe.GetUUID();
-		RealtionShipUUIDComponent& rlsCchild = childe.GetComponent<RealtionShipUUIDComponent>() ;
-		rlsCchild.parent = GetUUID();
+		RelationshipUUIDComponent& rlsCchild = childe.GetComponent<RelationshipUUIDComponent>() ;
+		rlsCchild.m_Parent = GetUUID();
 		std::vector<UUID>& childrens = GetChildrens();
 		childrens.push_back(childID);
 		
@@ -49,13 +61,14 @@ namespace Rynex {
 
 	Entity Entity::CopyEntity()
 	{
-		Ref<Scene> scene = m_Scene.lock();
+		const Ref<Scene> scene = m_Scene.lock();
+	    RY_CORE_ASSERT(nullptr != scene, "Scene is nullptr! (Scene could be deleted or never existed)");
 
 		std::string tagCopy = GetTagName();
-		uint32_t index = tagCopy.find(" Copy");
+		const uint32_t index = tagCopy.find(" Copy");
 		if (index < tagCopy.size())
 		{
-			std::string fromCopy = tagCopy.substr(index);
+			const std::string fromCopy = tagCopy.substr(index);
 			int copyCount = Utils::ExtractIntegerWords(fromCopy);
 			copyCount++;
 			tagCopy = tagCopy.substr(0, index + 6);
@@ -68,10 +81,10 @@ namespace Rynex {
 		Entity copy = scene->CreateEntity(tagCopy);
 		copy.GetUUID();
 		Scene::CopyComponentToEntity(copy, Entity(m_EntityHandle, scene.get()));
-		RealtionShipUUIDComponent& realtionshipC = copy.GetComponent<RealtionShipUUIDComponent>();
+		RelationshipUUIDComponent& relationshipC = copy.GetComponent<RelationshipUUIDComponent>();
 
 
-		realtionshipC = RealtionShipUUIDComponent();
+		relationshipC = RelationshipUUIDComponent();
 		return copy;
 	}
 
@@ -80,6 +93,7 @@ namespace Rynex {
 	void Entity::DestroyEntity()
 	{
 		Ref<Scene> scene = m_Scene.lock();
+	    RY_CORE_ASSERT(nullptr != scene, "Scene is nullptr! (Scene could be deleted or never existed)");
 
 		std::string name = GetTagName();
 		Entity parent = GetParentEntity();
@@ -104,7 +118,7 @@ namespace Rynex {
 		{
 			Entity childEntity = scene->GetEntitiyByUUID(idChild);
 			RY_CORE_ASSERT(childEntity.IsVaild());
-			childEntity.GetComponent<RealtionShipUUIDComponent>().parent = idPrarent;
+			childEntity.GetComponent<RelationshipUUIDComponent>().m_Parent = idPrarent;
 		}
 		
 		if (HasComponent<ModelMangerComponent>())
@@ -114,6 +128,7 @@ namespace Rynex {
 	void Entity::DestroyEntityChildrens()
 	{
 		Ref<Scene> scene = m_Scene.lock();
+	    RY_CORE_ASSERT(nullptr != scene, "Scene is nullptr! (Scene could be deleted or never existed)");
 
 		std::vector<UUID> cildresCopy = GetChildrens();
 		for (auto& childe : cildresCopy)
@@ -143,6 +158,7 @@ namespace Rynex {
 		
 		std::vector<UUID> childrenCopy = e.GetChildrens();
 		Ref<Scene> scene = m_Scene.lock();
+	    RY_CORE_ASSERT(nullptr != scene, "Scene is nullptr! (Scene could be deleted or never existed)");
 
 		for (UUID childCopyID : childrenCopy)
 		{
@@ -155,9 +171,9 @@ namespace Rynex {
 				UUID childID = childE.GetUUID();
 				Scene::CopyComponentToEntity(childE, childCopyE);
 
-				RealtionShipUUIDComponent& rlsh_C = childE.GetComponent<RealtionShipUUIDComponent>();
-				rlsh_C.childrens.clear();
-				rlsh_C.parent = parentID;
+				RelationshipUUIDComponent& rlsh_C = childE.GetComponent<RelationshipUUIDComponent>();
+				rlsh_C.m_Childrens.clear();
+				rlsh_C.m_Parent = parentID;
 
 				childE.CopyChildres(childCopyE);
 
@@ -189,13 +205,13 @@ namespace Rynex {
 		ModelMatrixComponent& entityMatrix4x4C = GetComponent<ModelMatrixComponent>();
 		if (Entity parent = GetParentEntity())
 		{
-			glm::mat4& parentMat = parent.GetComponent<ModelMatrixComponent>().Globle;
-			entityMatrix4x4C.Globle = parentMat * entityMatrix4x4C.Locale;
+			glm::mat4& parentMat = parent.GetComponent<ModelMatrixComponent>().m_Global;
+			entityMatrix4x4C.m_Global = parentMat * entityMatrix4x4C.m_Locale;
 			UpdateComponent(entityMatrix4x4C);
 		}
 		else
 		{
-			entityMatrix4x4C.Globle = entityMatrix4x4C.Locale;
+			entityMatrix4x4C.m_Global = entityMatrix4x4C.m_Locale;
 			UpdateComponent(entityMatrix4x4C);
 		}
 
@@ -203,8 +219,8 @@ namespace Rynex {
 		if (HasComponent<ViewMatrixComponent>())
 		{
 			ViewMatrixComponent& view = GetComponent<ViewMatrixComponent>();
-			view.Locale = glm::inverse(entityMatrix4x4C.Locale);
-			view.Globle = glm::inverse(entityMatrix4x4C.Globle);
+			view.m_Locale = glm::inverse(entityMatrix4x4C.m_Locale);
+			view.m_Global = glm::inverse(entityMatrix4x4C.m_Global);
 			UpdateComponent(view);
 		}
 
@@ -213,6 +229,8 @@ namespace Rynex {
 			ModelMangerComponent& staticMesh = GetComponent<ModelMangerComponent>();
 
 		Ref<Scene> scene = m_Scene.lock();
+	    RY_CORE_ASSERT(nullptr != scene, "Scene is nullptr! (Scene could be deleted or never existed)");
+
 		for (UUID& childID : GetChildrens())
 		{
 			Entity child = scene->GetEntitiyByUUID(childID);
@@ -228,7 +246,7 @@ namespace Rynex {
 	{
 		TransformComponent& entityTransformC = GetComponent<TransformComponent>();
 		ModelMatrixComponent& entityMatrix4x4C = GetComponent<ModelMatrixComponent>();
-		const glm::mat4& matrix = entityMatrix4x4C.Locale;
+		const glm::mat4& matrix = entityMatrix4x4C.m_Locale;
 
 		entityTransformC.SetTransform(matrix);
 
@@ -239,7 +257,7 @@ namespace Rynex {
 	{
 		TransformComponent& entityTransformC = GetComponent<TransformComponent>();
 		ModelMatrixComponent& entityMatrix4x4C = GetComponent<ModelMatrixComponent>();
-		entityMatrix4x4C.Locale = entityTransformC.GetTransform();
+		entityMatrix4x4C.m_Locale = entityTransformC.GetTransform();
 		UpdateComponent(entityMatrix4x4C);
 
 
@@ -265,8 +283,8 @@ namespace Rynex {
 		}
 		std::vector<UUID>::iterator pos = childrens.begin() + i;
 		childrens.erase(pos);
-		RealtionShipUUIDComponent& realtionShipComp = e.GetComponent<RealtionShipUUIDComponent>();
-		realtionShipComp.parent = UUID(0ull);
+		RelationshipUUIDComponent& relationshipC = e.GetComponent<RelationshipUUIDComponent>();
+		relationshipC.m_Parent = UUID::Zero();
 		return true;
 
 	}
@@ -290,8 +308,8 @@ namespace Rynex {
 		}
 		childrens.emplace_back(addId);
 
-		RealtionShipUUIDComponent& realtionShipComp = e.GetComponent<RealtionShipUUIDComponent>();
-		realtionShipComp.parent = this->GetUUID();
+		RelationshipUUIDComponent& realtionShipComp = e.GetComponent<RelationshipUUIDComponent>();
+		realtionShipComp.m_Parent = this->GetUUID();
 		return true;
 	}
 
@@ -302,13 +320,13 @@ namespace Rynex {
 		
 		if (Entity parent = GetParentEntity())
 		{
-			glm::mat4& parentMat = parent.GetComponent<ModelMatrixComponent>().Globle;
-			entityMatrix4x4C.Globle = parentMat * entityMatrix4x4C.Locale;
+			glm::mat4& parentMat = parent.GetComponent<ModelMatrixComponent>().m_Global;
+			entityMatrix4x4C.m_Global = parentMat * entityMatrix4x4C.m_Locale;
 			UpdateComponent(entityMatrix4x4C);
 		}
 		else
 		{
-			entityMatrix4x4C.Globle = entityMatrix4x4C.Locale;
+			entityMatrix4x4C.m_Global = entityMatrix4x4C.m_Locale;
 			UpdateComponent(entityMatrix4x4C);
 		}
 
@@ -316,8 +334,8 @@ namespace Rynex {
 		if (HasComponent<ViewMatrixComponent>())
 		{
 			ViewMatrixComponent& viewC = GetComponent<ViewMatrixComponent>();
-			viewC.Locale = glm::inverse(entityMatrix4x4C.Locale);
-			viewC.Globle = glm::inverse(entityMatrix4x4C.Globle);
+			viewC.m_Locale = glm::inverse(entityMatrix4x4C.m_Locale);
+			viewC.m_Global = glm::inverse(entityMatrix4x4C.m_Global);
 			UpdateComponent(viewC);			
 
 		}

@@ -30,7 +30,7 @@ namespace Rynex {
 				RY_CASE_RETURN(BufferType::ShaderStorage, GL_SHADER_STORAGE_BUFFER);
 				RY_CASE_RETURN(BufferType::Index, GL_ELEMENT_ARRAY_BUFFER);
 				RY_CASE_RETURN(BufferType::Vertex, GL_ARRAY_BUFFER);
-				RY_CASE_RETURN(BufferType::DrawIndrirect, GL_DRAW_INDIRECT_BUFFER);
+				RY_CASE_RETURN(BufferType::DrawIndirect, GL_DRAW_INDIRECT_BUFFER);
 				RY_CASE_RETURN(BufferType::Uniform, GL_UNIFORM_BUFFER);
 			default:
 				RY_CORE_ASSERT(false, "BufferData, GL_STATIC_DRAW");
@@ -757,9 +757,9 @@ namespace Rynex {
 		uint32_t size = 0ul;
 		for (const BufferElement& element : m_Layout)
 		{
-			size += element.size;
+			size += element.m_Size;
 			uint8_t size16 = size % 16;
-      		RY_CORE_ASSERT(!(element.size > 16 && size16 != 0));
+      		RY_CORE_ASSERT(!(element.m_Size > 16 && size16 != 0));
 
 		}
 	}

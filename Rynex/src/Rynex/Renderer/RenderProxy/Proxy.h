@@ -34,183 +34,183 @@ namespace Rynex{
 
 	struct StaticMeshInstanceBatchRenderProxy
 	{
-		RenderMeshBatch meshBatch;
+		RenderMeshBatch m_MeshBatch;
 
-		std::vector<glm::mat4> model;
-		std::vector<glm::mat4> normale;
-		int entity;
+		std::vector<glm::mat4> n_Model;
+		std::vector<glm::mat4> m_Normale;
+		int m_Entity;
 		
 	};
 
 	struct RenderProxy
 	{
-		RenderMeshBatch meshBatch;
+		RenderMeshBatch m_MeshBatch;
 #ifndef RY_USE_SINGLE_DATA_STRUCTS_FOR_DATA
-		glm::mat4 model;	
+		glm::mat4 m_Model;
 #endif
-		int entity;
-		uint32_t subMesh;
+		int m_Entity;
+		uint32_t m_SubMesh;
 
 		void Check() const
 		{
-			meshBatch.Check();
-			RY_CORE_ASSERT(-1 != entity, "Invaild Proxy Mesh!");
-			RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() != subMesh, "Invaild Proxy Mesh!");
+			m_MeshBatch.Check();
+			RY_CORE_ASSERT(-1 != m_Entity, "Invaild Proxy Mesh!");
+			RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() != m_SubMesh, "Invaild Proxy Mesh!");
 		}
 
 		
 
-		RenderProxyKey GetKey() const { return meshBatch.GetKey(); }
+		RenderProxyKey GetKey() const { return m_MeshBatch.GetKey(); }
 
-		Ref<Material>& GetMaterial() { return meshBatch.materiel; }
-		Ref<MeshSingle>& GetMesh() { return meshBatch.mesh; }
+		Ref<Material>& GetMaterial() { return m_MeshBatch.materiel; }
+		Ref<MeshSingle>& GetMesh() { return m_MeshBatch.mesh; }
 
-		const Ref<Material>& GetMaterial() const { return meshBatch.materiel; }
-		const Ref<MeshSingle>& GetMesh() const { return meshBatch.mesh; }
+		const Ref<Material>& GetMaterial() const { return m_MeshBatch.materiel; }
+		const Ref<MeshSingle>& GetMesh() const { return m_MeshBatch.mesh; }
 	};
 
 	struct RenderProxyRef
 	{
-		int& entityRef;
-		uint32_t& subMesh;
-		Ref<MeshSingle>& meshRef;
-		Ref<Material>& materielRef;
+		int& m_EntityRef;
+		uint32_t& m_SubMeshRef;
+		Ref<MeshSingle>& m_MeshRef;
+		Ref<Material>& m_MaterielRef;
 	};
 
 	struct ProxyGroupViewConst
 	{
-		RenderProxy const* data = nullptr;
-		const uint32_t    count = 0;
-		const RenderMeshBatch renderMeshBatch;
+		RenderProxy const* m_DataPtr = nullptr;
+		const uint32_t    m_Count = 0;
+		const RenderMeshBatch m_RenderMeshBatch;
 		
 
 		const RenderProxy* begin() const
 		{
-			RY_CORE_ASSERT(nullptr != data);
-			return data;
+			RY_CORE_ASSERT(nullptr != m_DataPtr);
+			return m_DataPtr;
 		}
 
 		const RenderProxy* end()   const
 		{
-			RY_CORE_ASSERT(nullptr != data);
-			return data + count;
+			RY_CORE_ASSERT(nullptr != m_DataPtr);
+			return m_DataPtr + m_Count;
 		}
 
-		bool     Empty() const { return 0 ==  count; }
-		uint32_t Size()  const { return count; }
+		bool     Empty() const { return 0 ==  m_Count; }
+		uint32_t Size()  const { return m_Count; }
 
 		const RenderProxy& operator[](uint32_t i) const
 		{
-			RY_CORE_ASSERT(nullptr != data);
-			RY_CORE_ASSERT(i < count);
+			RY_CORE_ASSERT(nullptr != m_DataPtr);
+			RY_CORE_ASSERT(i < m_Count);
 
-			return data[i];
+			return m_DataPtr[i];
 		}
 
 		const RenderProxy& At(uint32_t i) const
 		{
-			RY_CORE_ASSERT(nullptr != data);
-			return data[i];
+			RY_CORE_ASSERT(nullptr != m_DataPtr);
+			return m_DataPtr[i];
 		}
 	};
 
 	struct ProxyGroupView
 	{
-		RenderProxy* data = nullptr;
-		const uint32_t     count = 0;
-		RenderMeshBatch& renderMeshBatch;
+		RenderProxy* m_DataPtr = nullptr;
+		const uint32_t     m_Count = 0;
+		RenderMeshBatch& m_RenderMeshBatch;
 		ProxyGroupView(RenderProxy* data, const uint32_t count)
-			: data(data)
-			, count(count)
-			, renderMeshBatch(data->meshBatch)
+			: m_DataPtr(data)
+			, m_Count(count)
+			, m_RenderMeshBatch(data->m_MeshBatch)
 		{
 		}
 
 		ProxyGroupView(RenderProxy* data, const uint32_t count, RenderMeshBatch& meshBatch)
-			: data(data)
-			, count(count)
-			, renderMeshBatch(meshBatch)
+			: m_DataPtr(data)
+			, m_Count(count)
+			, m_RenderMeshBatch(meshBatch)
 		{
 		}
 		RenderProxy* begin() 
 		{ 
-			RY_CORE_ASSERT(nullptr != data);
-			return data;
+			RY_CORE_ASSERT(nullptr != m_DataPtr);
+			return m_DataPtr;
 		}
 
 		const RenderProxy* begin() const 
 		{
-			RY_CORE_ASSERT(nullptr == data);
-			return data; 
+			RY_CORE_ASSERT(nullptr == m_DataPtr);
+			return m_DataPtr;
 		}
 
 		RenderProxy* end() 
 		{
-			RY_CORE_ASSERT(nullptr != data);
-			return data + count;
+			RY_CORE_ASSERT(nullptr != m_DataPtr);
+			return m_DataPtr + m_Count;
 		}
 
 		const RenderProxy* end()   const 
 		{ 
-			RY_CORE_ASSERT(nullptr != data);
-			return data + count; 
+			RY_CORE_ASSERT(nullptr != m_DataPtr);
+			return m_DataPtr + m_Count;
 		}
 
-		bool     Empty() const { return 0 == count; }
-		uint32_t Size()  const { return count; }
+		bool     Empty() const { return 0 == m_Count; }
+		uint32_t Size()  const { return m_Count; }
 
 		RenderProxy& First()
 		{
-			RY_CORE_ASSERT(nullptr != data);
-			RY_CORE_ASSERT(0 < count);
-			return data[0];
+			RY_CORE_ASSERT(nullptr != m_DataPtr);
+			RY_CORE_ASSERT(0 < m_Count);
+			return m_DataPtr[0];
 		}
 
 		const RenderProxy& First() const
 		{
-			RY_CORE_ASSERT(nullptr != data);
-			RY_CORE_ASSERT(0 < count);
-			return data[0];
+			RY_CORE_ASSERT(nullptr != m_DataPtr);
+			RY_CORE_ASSERT(0 < m_Count);
+			return m_DataPtr[0];
 		}
 		RenderProxy& Last()
 		{
-			RY_CORE_ASSERT(nullptr != data);
-			uint32_t lastIndex = count - 1;
-			return data[lastIndex];
+			RY_CORE_ASSERT(nullptr != m_DataPtr);
+			uint32_t lastIndex = m_Count - 1;
+			return m_DataPtr[lastIndex];
 		}
 
 		const RenderProxy& Last() const
 		{
-			RY_CORE_ASSERT(nullptr != data);
-			uint32_t lastIndex = count - 1;
-			return data[lastIndex];
+			RY_CORE_ASSERT(nullptr != m_DataPtr);
+			uint32_t lastIndex = m_Count - 1;
+			return m_DataPtr[lastIndex];
 		}
 
 		RenderProxy& operator[](uint32_t i) 
 		{ 
-			RY_CORE_ASSERT(nullptr != data);
-			RY_CORE_ASSERT(i < count);
+			RY_CORE_ASSERT(nullptr != m_DataPtr);
+			RY_CORE_ASSERT(i < m_Count);
 
-			return data[i]; 
+			return m_DataPtr[i];
 		}
 
 		const RenderProxy& operator[](uint32_t i) const
 		{ 
-			RY_CORE_ASSERT(nullptr != data);
-			RY_CORE_ASSERT(i < count);
+			RY_CORE_ASSERT(nullptr != m_DataPtr);
+			RY_CORE_ASSERT(i < m_Count);
 
-			return data[i]; 
+			return m_DataPtr[i];
 		}
 
 		RenderProxy& At(uint32_t i) 
 		{ 
-			RY_CORE_ASSERT(nullptr != data);
-			return data[i]; 
+			RY_CORE_ASSERT(nullptr != m_DataPtr);
+			return m_DataPtr[i];
 		}
 		const RenderProxy& At(uint32_t i) const 
 		{ 
-			RY_CORE_ASSERT(nullptr != data);
-			return data[i];
+			RY_CORE_ASSERT(nullptr != m_DataPtr);
+			return m_DataPtr[i];
 		}
 	};
 

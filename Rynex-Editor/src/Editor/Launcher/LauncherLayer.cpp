@@ -229,9 +229,9 @@ namespace Rynex {
 		Application::Get().SubmiteToMainThreedQueue([this](){
 			
 
-			Ref<Project> project = Project::GetActive()->CreatNewPorject(m_ProjectPath, m_ProjectName);
+			Ref<Project> project = Project::GetActive()->CreatNewProject(m_ProjectPath, m_ProjectName);
 			ApplicationSpecification& spec = Application::Get().GetSpecification();
-			std::string path = (project->GetConfig().ProjectPath / m_ProjectName).string();
+			std::string path = (project->GetConfig().m_ProjectPath / m_ProjectName).string();
 			spec.CommandLineArgs.Args++;
 			spec.CommandLineArgs.Args[1] = (char*)path.c_str();
 			Application::Get().PushLayer(new EditorLayer());

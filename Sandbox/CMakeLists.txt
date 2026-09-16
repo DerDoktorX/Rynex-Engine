@@ -23,6 +23,13 @@ target_link_libraries(
       PRIVATE
       Rynex
 )
+set_target_properties(Sandbox PROPERTIES CXX_STANDARD 17)
+if(MSVC)
+    target_compile_options(Sandbox PRIVATE /std:c++17)
+else()
+    # for other Compiler (GCC, Clang) functionary Default-Way
+    target_compile_features(Sandbox PRIVATE cxx_std_17)
+endif()
 
 target_compile_definitions(
       Sandbox

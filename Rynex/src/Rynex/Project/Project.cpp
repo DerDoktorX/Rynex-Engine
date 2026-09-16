@@ -72,12 +72,12 @@ namespace Rynex {
             std::filesystem::path rynexRootParentDir = rynexRootDir.parent_path();
 
             std::filesystem::path origePreamke = rynexRootDir / std::filesystem::path("SandboxProject/Assets/Scripts/premake5.lua");
-            if (!CreateProjectScriptPremake(pConfig.ProjectPath, rynexRootDir, origePreamke))
+            if (!CreateProjectScriptPremake(pConfig.m_ProjectPath, rynexRootDir, origePreamke))
                 return false;
             
             std::filesystem::path premakeDir = std::filesystem::path("vendor/bin/premake/premake5.exe");
             std::filesystem::path scriptPath = rynexRootParentDir / premakeDir;
-            RY_CREATE_SETUP_SCRIPT(pConfig.ProjectPath, scriptPath);
+            RY_CREATE_SETUP_SCRIPT(pConfig.m_ProjectPath, scriptPath);
            
             return true;
         }
@@ -102,22 +102,22 @@ namespace Rynex {
         static bool CreateProjectFolderStruct(ProjectConfig& pConfig, const std::filesystem::path& pFolder, const std::string& name = "")
         {
             bool result = false;
-            pConfig.name = name=="" ? "Project-Create-Test": name;
-            std::filesystem::path pwFolder = SetupFolder(pFolder, pConfig.name);
+            pConfig.m_Name = name=="" ? "Project-Create-Test": name;
+            std::filesystem::path pwFolder = SetupFolder(pFolder, pConfig.m_Name);
             
-            pConfig.ProjectPath = pwFolder;
-            pConfig.AppDirektory = pwFolder.parent_path();
-            pConfig.AssetDirectory = SetupFolder(pwFolder, "Assets");
+            pConfig.m_ProjectPath = pwFolder;
+            pConfig.m_AppDirectory = pwFolder.parent_path();
+            pConfig.m_AssetDirectory = SetupFolder(pwFolder, "Assets");
             SetupFolder(pwFolder, "Assets/Scene");
             SetupFolder(pwFolder, "Assets/Texture");
             SetupFolder(pwFolder, "Assets/Models");
             SetupFolder(pwFolder, "Assets/Scripts");
             SetupFolder(pwFolder, "Assets/Shaders");
 
-            pConfig.ScriptAppPath = SetupFolder(pwFolder, "Binaries"); 
-            pConfig.ScriptCorePath = pConfig.ScriptAppPath;
-            pConfig.ScriptAppPath /= "Sanbox.dll";
-            pConfig.ScriptCorePath /= "Rynex-ScriptingCore.dll";
+            pConfig.m_ScriptAppPath = SetupFolder(pwFolder, "Binaries"); 
+            pConfig.m_ScriptCorePath = pConfig.m_ScriptAppPath;
+            pConfig.m_ScriptAppPath /= "Sanbox.dll";
+            pConfig.m_ScriptCorePath /= "Rynex-ScriptingCore.dll";
             SetupFolder(pwFolder, "Intermediates");
 
             result = true;
@@ -146,15 +146,15 @@ namespace Rynex {
 
             auto now = std::chrono::system_clock::now();
             std::time_t now_c = std::chrono::system_clock::to_time_t(now);
-            pConfig.LastOpenDate = ConvertTimeAsStringTimePoint(now_c);
-            pConfig.CreateDate = ConvertTimeAsStringTimePoint(now_c);
+            pConfig.m_LastOpenDate = ConvertTimeAsStringTimePoint(now_c);
+            pConfig.m_CreateDate = ConvertTimeAsStringTimePoint(now_c);
 
            
 
             std::filesystem::path assetRegistryFileName = std::filesystem::path("AssetRegistry.ryr");
-            pConfig.AssetRegistryPath = pConfig.ProjectPath / assetRegistryFileName;
+            pConfig.m_AssetRegistryPath = pConfig.m_ProjectPath / assetRegistryFileName;
 
-            pConfig.ProjectRady = true;
+            pConfig.m_ProjectRady = true;
             
         }
 
@@ -173,15 +173,15 @@ namespace Rynex {
 
     Ref<Project> Project::New()
     {
-        s_ActiveInstancProject = CreateRef<Project>();
-        return s_ActiveInstancProject;
+        s_ActiveInstanceProject = CreateRef<Project>();
+        return s_ActiveInstanceProject;
     }
 
   
 
-    Ref<Project> Project::CreatNewPorject()
+    Ref<Project> Project::CreatNewProject()
     {
-        if(s_ActiveInstancProject && s_ActiveInstancProject->m_Config.ProjectRady)
+        if(s_ActiveInstanceProject && s_ActiveInstanceProject->m_Config.m_ProjectRady)
         {
             char answer;
             printf_s("\n Did you want that your current progress in the current Project get lost?\n> (y/n): ");
@@ -189,7 +189,7 @@ namespace Rynex {
             switch (answer)
             {
             case 'y':
-                SaveActive(s_ActiveInstancProject->m_Config.ProjectPath);
+                SaveActive(s_ActiveInstanceProject->m_Config.m_ProjectPath);
                 break;
             case 'n':
                 break;
@@ -197,14 +197,14 @@ namespace Rynex {
                 break;
             }
         }
-        s_ActiveInstancProject.reset();
-        s_ActiveInstancProject = CreateRef<Project>();
-        ProjectConfig& pConfig = s_ActiveInstancProject->m_Config;
+        s_ActiveInstanceProject.reset();
+        s_ActiveInstanceProject = CreateRef<Project>();
+        ProjectConfig& pConfig = s_ActiveInstanceProject->m_Config;
         Utils::CreateProject(pConfig);
-        std::filesystem::path fileNamePath = pConfig.name + ".ryproj";
-        std::filesystem::path filePath = pConfig.ProjectPath / filePath;
+        std::filesystem::path fileNamePath = pConfig.m_Name + ".ryproj";
+        std::filesystem::path filePath = pConfig.m_ProjectPath / filePath;
         Project::SaveActive(filePath);
-        Ref<EditorAssetManagerThread> editorAssetManager = s_ActiveInstancProject->GetEditorAssetManger();
+        Ref<EditorAssetManagerThread> editorAssetManager = s_ActiveInstanceProject->GetEditorAssetManger();
 
        if (editorAssetManager)
        {
@@ -214,22 +214,22 @@ namespace Rynex {
        {
            Ref<EditorAssetManagerThread> editorAssetManagerN = CreateRef<EditorAssetManagerThread>();
            editorAssetManagerN->SerializeAssetRegistry();
-           s_ActiveInstancProject->m_AssetManger = editorAssetManagerN;
+           s_ActiveInstanceProject->m_AssetManger = editorAssetManagerN;
        }
-       return s_ActiveInstancProject;
+       return s_ActiveInstanceProject;
     }
 
-    Ref<Project> Project::CreatNewPorject(const std::filesystem::path& projectPath, const std::string& name)
+    Ref<Project> Project::CreatNewProject(const std::filesystem::path& projectPath, const std::string& name)
     {
         
         Ref<Project> project = CreateRef<Project>();
-        ProjectConfig& pConfig = s_ActiveInstancProject->m_Config;
+        ProjectConfig& pConfig = s_ActiveInstanceProject->m_Config;
         Utils::CreateProject(pConfig, projectPath, name);
-        std::filesystem::path fileNamePath = pConfig.name + ".ryproj";
-        std::filesystem::path filePath = pConfig.ProjectPath / filePath;
+        std::filesystem::path fileNamePath = pConfig.m_Name + ".ryproj";
+        std::filesystem::path filePath = pConfig.m_ProjectPath / filePath;
 
         Project::SaveActive(filePath);
-        Ref<EditorAssetManagerThread> editorAssetManager = s_ActiveInstancProject->GetEditorAssetManger();
+        Ref<EditorAssetManagerThread> editorAssetManager = s_ActiveInstanceProject->GetEditorAssetManger();
 
 
 
@@ -241,9 +241,9 @@ namespace Rynex {
         {
             Ref<EditorAssetManagerThread> editorAssetManagerN = CreateRef<EditorAssetManagerThread>();
             editorAssetManagerN->SerializeAssetRegistry();
-            s_ActiveInstancProject->m_AssetManger = editorAssetManagerN;
+            s_ActiveInstanceProject->m_AssetManger = editorAssetManagerN;
         }
-        s_ActiveInstancProject = project;
+        s_ActiveInstanceProject = project;
         return project;
     }
 
@@ -252,9 +252,9 @@ namespace Rynex {
     Ref<Project> Project::Load(const std::filesystem::path& path)
     {
         RY_CORE_INFO("Load Project from Path: '{0}'",path.string().c_str());
-        if(!s_ActiveInstancProject)
+        if(!s_ActiveInstanceProject)
         {
-            RY_DESTROY_REF(s_ActiveInstancProject);
+            RY_DESTROY_REF(s_ActiveInstanceProject);
         }
         
         Ref<Project> project = Project::New();
@@ -262,16 +262,16 @@ namespace Rynex {
         ProjectSerialiazer serialiazer(project);
         if (serialiazer.Deserlize(path))
         {
-            project->m_Config.ProjectPath = FileSystem::Path(path.parent_path()).GetAbsolutePath();
+            project->m_Config.m_ProjectPath = FileSystem::Path(path.parent_path()).GetAbsolutePath();
 
             Ref<EditorAssetManagerThread> editorAssetManager = CreateRef<EditorAssetManagerThread>();
             editorAssetManager->OnAttach();
-            s_ActiveInstancProject->m_AssetManger = editorAssetManager;
+            s_ActiveInstanceProject->m_AssetManger = editorAssetManager;
 
             // editorAssetManager->DeserializeAssetRegistry();
             RY_CORE_ERROR("Project Loading For Editor Sucese");
 
-            return s_ActiveInstancProject;
+            return s_ActiveInstanceProject;
         }
         RY_CORE_ERROR("Project Loading Faild");
         
@@ -281,10 +281,10 @@ namespace Rynex {
     bool Project::SaveActive(const std::filesystem::path& path)
     {
         RY_CORE_ASSERT(path.has_filename(), "no File!");
-        ProjectSerialiazer serializer(s_ActiveInstancProject);
+        ProjectSerialiazer serializer(s_ActiveInstanceProject);
         if (serializer.Serlize(path))
         {
-            s_ActiveInstancProject->m_Config.ProjectPath = s_ActiveInstancProject->m_Config.ProjectPath.empty() ? path.parent_path() : s_ActiveInstancProject->m_Config.ProjectPath;
+            s_ActiveInstanceProject->m_Config.m_ProjectPath = s_ActiveInstanceProject->m_Config.m_ProjectPath.empty() ? path.parent_path() : s_ActiveInstanceProject->m_Config.m_ProjectPath;
             RY_CORE_INFO("Save Project Settings Under '{}'", path.string().c_str());
             return true;
         }
