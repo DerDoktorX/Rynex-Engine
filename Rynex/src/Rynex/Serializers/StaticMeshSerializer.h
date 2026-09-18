@@ -7,10 +7,10 @@ namespace Rynex {
 	class MeshStatic;
 	class MeshSource;
 
-	class StaticMeshSerialzation
+	class StaticMeshSerializer
 	{
 	public:
-		StaticMeshSerialzation(const Ref<MeshStatic>& meshSource);
+		StaticMeshSerializer(const Ref<MeshStatic>& meshSource);
 
 		bool Serialize(const std::filesystem::path& filepath);
 		bool Deserialize(const std::filesystem::path& filepath);

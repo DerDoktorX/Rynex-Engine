@@ -4,10 +4,10 @@
 namespace Rynex {
 	class Project;
 
-	class RYNEX_API ProjectSerialiazer
+	class RYNEX_API ProjectSerializer
 	{
 	public:
-		ProjectSerialiazer(Ref<Project> project);
+		ProjectSerializer(Ref<Project> project);
 
 		bool Serlize(const std::filesystem::path& filepath);
 		bool Deserlize(const std::filesystem::path& filepath);

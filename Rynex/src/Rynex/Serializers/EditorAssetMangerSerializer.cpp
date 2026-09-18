@@ -1,5 +1,5 @@
 #include "rypch.h"
-#include "EditorAssetMangerSerialzation.h"
+#include "EditorAssetMangerSerializer.h"
 #include "YAML.h"
 
 #include <Rynex/Asset/EditorAssetManager.h>
@@ -725,7 +725,7 @@ namespace Rynex {
 		}
 	}
 
-	bool EditorAssetMangerSerialzation::SerilzeThread(const std::filesystem::path& filepath, std::map<AssetHandle, AssetMetadata>* handleReg)
+	bool EditorAssetMangerSerializer::SerilzeThread(const std::filesystem::path& filepath, std::map<AssetHandle, AssetMetadata>* handleReg)
 	{
 		
 		YAML::Emitter out;
@@ -767,7 +767,7 @@ namespace Rynex {
 		return true;
 	}
 
-	bool EditorAssetMangerSerialzation::DeserilzeThread(const std::filesystem::path& filepath, std::map<AssetHandle, AssetMetadata>* handleReg, std::map<FileSystem::Path, AssetHandle>* pathReg)
+	bool EditorAssetMangerSerializer::DeserilzeThread(const std::filesystem::path& filepath, std::map<AssetHandle, AssetMetadata>* handleReg, std::map<FileSystem::Path, AssetHandle>* pathReg)
 	{
 		RY_CORE_INFO("Deserialize Path: '{0}'", filepath.string().c_str());
 		RY_REMBER_FUNC_CHANGE("After Testing remove Utils::TestFileSystemClass from this methode and funktion self!");

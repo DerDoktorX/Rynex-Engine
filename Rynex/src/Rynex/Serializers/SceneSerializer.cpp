@@ -6,7 +6,7 @@
 #include <Rynex/Scene/Components.h>
 #include <Rynex/Asset/Base/AssetManager.h>
 #include <Rynex/Renderer/API/Buffer.h>
-
+#include <Rynex/Serializers/VersionSerializer.h>
 
 #include <yaml-cpp/yaml.h>
 #include <fstream>
@@ -654,7 +654,16 @@ namespace Utils {
 				path = nodeAtribut.as<std::string>();
 			if (YAML::Node nodeAtribut = nodeE["Path-ProjectMarker"])
 				makredPathStr = nodeAtribut.as<std::string>();
+#if 1
+		    uint64_t version = 0;
+		    VersionSerializer handleSerializer(0, {{0, "Handle"}, {1, "m_Handle"}});
+
+		    uint64_t vhandle;
+		    handleSerializer.Deserialize(nodeE, vhandle);
+		    AssetHandle handle = vhandle;
+#else
 			AssetHandle handle = nodeE["Handle"].as<uint64_t>();
+#endif
 
 			AssetFindeInfo info(handle, makredPathStr, path);
 
@@ -698,7 +707,7 @@ namespace Utils {
 		RY_CORE_WARN("Begin Serialize a Scene from '{}'", path);
 		YAML::Emitter out;
 		out << YAML::BeginMap;
-		out << YAML::Key << "Scene" << YAML::Value << "Untiteld";
+		out << YAML::Key << "Scene" << YAML::Value << "Untitled";
 		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
 		m_Scene->m_Registry.each([&](auto entityID)
 			{

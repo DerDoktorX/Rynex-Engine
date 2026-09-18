@@ -6,7 +6,7 @@
 #include <Rynex/Asset/Base/AssetImporter.h>
 #include <Rynex/Project/Project.h>
 
-#include <Rynex/Serializers/EditorAssetMangerSerialzation.h>
+#include <Rynex/Serializers/EditorAssetMangerSerializer.h>
 
 
 namespace Rynex {
@@ -944,7 +944,7 @@ namespace Rynex {
 			[](std::map<AssetHandle, AssetMetadata>& map)
 			{
 				std::filesystem::path path = Project::GetActiveAssetRegistryPath();
-				EditorAssetMangerSerialzation::SerilzeThread(path, &map);
+				EditorAssetMangerSerializer::SerilzeThread(path, &map);
 			}
 		);
 	}
@@ -961,7 +961,7 @@ namespace Rynex {
 						[this, &mapHandleRegister](std::map<FileSystem::Path, AssetHandle>& mapPathRegister)
 						{
 							const std::filesystem::path path = Project::GetActiveAssetRegistryPath();
-							EditorAssetMangerSerialzation::DeserilzeThread(path, &mapHandleRegister, &mapPathRegister);
+							EditorAssetMangerSerializer::DeserilzeThread(path, &mapHandleRegister, &mapPathRegister);
 						}
 					);
 

@@ -12,7 +12,7 @@
 namespace Rynex {
 
 	
-	class StaticMeshSerialzation;
+	class StaticMeshSerializer;
 
 	class RYNEX_API MeshStatic : public Mesh
 	{
@@ -147,6 +147,6 @@ namespace Rynex {
 		bool									m_Change;
 	private:
 
-		friend StaticMeshSerialzation;
+		friend StaticMeshSerializer;
 	};
 }

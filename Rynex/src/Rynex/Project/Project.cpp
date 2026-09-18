@@ -1,7 +1,7 @@
 #include "rypch.h"
 #include "Project.h"
 
-#include <Rynex/Serializers/ProjectSerialiazer.h>
+#include <Rynex/Serializers/ProjectSerializer.h>
 #include <Rynex/Utils/PlatformUtils.h>
 #include <Rynex/Project/Path.h>
 
@@ -259,7 +259,7 @@ namespace Rynex {
         
         Ref<Project> project = Project::New();
 
-        ProjectSerialiazer serialiazer(project);
+        ProjectSerializer serialiazer(project);
         if (serialiazer.Deserlize(path))
         {
             project->m_Config.m_ProjectPath = FileSystem::Path(path.parent_path()).GetAbsolutePath();
@@ -281,7 +281,7 @@ namespace Rynex {
     bool Project::SaveActive(const std::filesystem::path& path)
     {
         RY_CORE_ASSERT(path.has_filename(), "no File!");
-        ProjectSerialiazer serializer(s_ActiveInstanceProject);
+        ProjectSerializer serializer(s_ActiveInstanceProject);
         if (serializer.Serlize(path))
         {
             s_ActiveInstanceProject->m_Config.m_ProjectPath = s_ActiveInstanceProject->m_Config.m_ProjectPath.empty() ? path.parent_path() : s_ActiveInstanceProject->m_Config.m_ProjectPath;

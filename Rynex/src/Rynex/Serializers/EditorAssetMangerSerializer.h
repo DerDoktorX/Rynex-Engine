@@ -11,7 +11,7 @@ namespace Rynex {
 	class AssetRegistry;
 	
 
-	class EditorAssetMangerSerialzation
+	class EditorAssetMangerSerializer
 	{
 	public:
 		static bool Serilze(const std::filesystem::path& filepath, AssetRegistry& assetRegistry);

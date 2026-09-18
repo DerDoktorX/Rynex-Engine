@@ -1,5 +1,5 @@
 #include "rypch.h"
-#include "ProjectSerialiazer.h"
+#include "ProjectSerializer.h"
 #include <Rynex/Project/Project.h>
 
 
@@ -52,12 +52,12 @@ namespace Rynex {
 	}
 
 
-	ProjectSerialiazer::ProjectSerialiazer(Ref<Project> project)
+	ProjectSerializer::ProjectSerializer(Ref<Project> project)
 		: m_Project(project)
 	{
 	}
 
-	bool ProjectSerialiazer::Serlize(const std::filesystem::path& filepath)
+	bool ProjectSerializer::Serlize(const std::filesystem::path& filepath)
 	{
 		ProjectConfig& config = m_Project->GetConfig();
 		RY_LOG_DISABLE_NUMBER;
@@ -102,7 +102,7 @@ namespace Rynex {
 		return true;
 	}
 
-	bool ProjectSerialiazer::Deserlize(const std::filesystem::path& filepath)
+	bool ProjectSerializer::Deserlize(const std::filesystem::path& filepath)
 	{
 		ProjectConfig& config = m_Project->GetConfig();
 		RY_LOG_DISABLE_NUMBER;

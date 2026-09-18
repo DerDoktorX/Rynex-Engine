@@ -28,7 +28,7 @@
 #include <Rynex/Renderer/Rendering/Render3D/IndirectDrawMap.h>
 #include <Rynex/Renderer/Mesh/MeshStatic.h>
 
-#include <Rynex/Serializers/StaticMeshSerialzation.h>
+#include <Rynex/Serializers/StaticMeshSerializer.h>
 
 #include <Rynex/Renderer/PiplineObjects/Piplines/PiplineBase.h>
 
@@ -512,7 +512,7 @@ case key: \
     static Ref<MeshStatic> TestDeserliceStaticMesh(const std::filesystem::path& filePath)
     {
         Ref<MeshStatic> mesh = CreateRef<MeshStatic>();
-        StaticMeshSerialzation serialzation(mesh);
+        StaticMeshSerializer serialzation(mesh);
         
         
         Ref<MeshStatic> meshOrig;
@@ -538,7 +538,7 @@ case key: \
     {
         Ref<MeshStatic> mesh;
         mesh = Mesh::CreateStaticMesh(filePath);
-        StaticMeshSerialzation serialzation(mesh);
+        StaticMeshSerializer serialzation(mesh);
 
         std::filesystem::path projectPath = Project::GetActiveProjectDirectory();
         std::string fileStr = filePath.string();

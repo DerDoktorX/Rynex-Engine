@@ -1,7 +1,7 @@
 #include "rypch.h"
 #include "MeshImporter.h"
 
-#include <Rynex/Serializers/StaticMeshSerialzation.h>
+#include <Rynex/Serializers/StaticMeshSerializer.h>
 #include <Rynex/Project/Project.h>
 #include <Rynex/Asset/Base/AssetManager.h>
 
@@ -15,7 +15,7 @@ namespace Rynex {
 	Ref<MeshStatic> MeshImporter::LoadMesh(const std::filesystem::path& path)
 	{
 		Ref<MeshStatic> meshStatic = CreateRef<MeshStatic>();
-		StaticMeshSerialzation serializer(meshStatic);
+		StaticMeshSerializer serializer(meshStatic);
 		serializer.Deserialize(path);
 		return meshStatic;
 	}
@@ -23,7 +23,7 @@ namespace Rynex {
 	bool MeshImporter::ReLoadeMesh(AssetHandle handle, const std::filesystem::path& path)
 	{
 		Ref<MeshStatic> meshStatic = AssetManager::GetAsset<MeshStatic>(handle);
-		StaticMeshSerialzation serializer(meshStatic);
+		StaticMeshSerializer serializer(meshStatic);
 		return serializer.Deserialize(path);
 	}
 }

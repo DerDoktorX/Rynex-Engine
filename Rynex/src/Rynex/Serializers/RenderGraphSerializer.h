@@ -3,10 +3,10 @@
 namespace Rynex {
 	class RenderGraph;
 
-	class RenderGraphSerializers
+	class RenderGraphSerializer
 	{
 	public:
-		RenderGraphSerializers();
+		RenderGraphSerializer();
 
 		bool Serialize(const std::filesystem::path& filepath);
 		bool Deserialize(const std::filesystem::path& filepath);

@@ -1,5 +1,5 @@
 #include "rypch.h"
-#include "StaticMeshSerialzation.h"
+#include "StaticMeshSerializer.h"
 
 #include <Rynex/Renderer/Mesh/MeshStatic.h>
 #include <Rynex/Asset/Base/AssetManager.h>
@@ -296,12 +296,12 @@ namespace Rynex {
 		}
 
 	}
-	StaticMeshSerialzation::StaticMeshSerialzation(const Ref<MeshStatic>& meshStatic)
+	StaticMeshSerializer::StaticMeshSerializer(const Ref<MeshStatic>& meshStatic)
 		: m_MeshStatic(meshStatic)
 	{
 	}
 
-	bool StaticMeshSerialzation::Serialize(const std::filesystem::path& filepath)
+	bool StaticMeshSerializer::Serialize(const std::filesystem::path& filepath)
 	{
 		RY_CORE_WARN("Begin Serialize a MeshSource in '{}'", filepath);
 
@@ -335,7 +335,7 @@ namespace Rynex {
 		return true;
 	}
 
-	bool StaticMeshSerialzation::Deserialize(const std::filesystem::path& filepath)
+	bool StaticMeshSerializer::Deserialize(const std::filesystem::path& filepath)
 	{
 		YAML::Node data;
 		try
@@ -368,7 +368,7 @@ namespace Rynex {
 		return true;
 	}
 
-	bool StaticMeshSerialzation::DeserializeMeshNodes(const YAML::Node& meshNodes, Ref<MeshSource>& sourceMesh)
+	bool StaticMeshSerializer::DeserializeMeshNodes(const YAML::Node& meshNodes, Ref<MeshSource>& sourceMesh)
 	{
 		m_MeshStatic->Cear();
 		if (!meshNodes)

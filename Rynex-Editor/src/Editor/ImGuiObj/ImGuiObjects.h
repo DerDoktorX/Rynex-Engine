@@ -18,6 +18,22 @@ namespace Rynex {
 		bool m_Fished;
 	};
 
+    class ImGuiScopeStyleColor
+    {
+    public:
+        ImGuiScopeStyleColor(const std::string& name);
+        ImGuiScopeStyleColor(const char* name);
+        ImGuiScopeStyleColor(const char* name, uint32_t number);
+        ~ImGuiScopeStyleColor();
+
+        void PushStyleColor(const std::string& name);
+        void PushStyleColor(const char* name);
+
+        void PopStyleColor();
+    private:
+        bool m_Fished;
+    };
+
 	enum class ImGuiFlagButten
 	{
 		None = 0,

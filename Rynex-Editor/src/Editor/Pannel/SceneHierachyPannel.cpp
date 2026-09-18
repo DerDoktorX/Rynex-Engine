@@ -2,10 +2,11 @@
 #include "SceneHierachyPannel.h"
 
 
-#include <Rynex/Core/Input.h>
-#include <Rynex/Asset/Base/AssetManager.h>
-#include <Rynex/Utils/EnumString.h>
+
 #include <Rynex/Scene/Components.h>
+
+#include <Rynex/Asset/Base/AssetManager.h>
+#include <Rynex/Core/Input.h>
 #ifdef RY_SCRIPT_ENGINE
 	#include <Rynex/Scripting/Mono/ScriptingEngine.h>
 #endif
@@ -13,7 +14,7 @@
 #include <Rynex/Renderer/Rendering/Renderer.h>
 #include <Rynex/Renderer/Materials/Material.h>
 #include <Rynex/Renderer/RenderProxy/StaticeRenderProxys.h>
-
+#include <Editor/ImGuiObj/ImGuiVector.h>
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -38,617 +39,7 @@ namespace Rynex {
 		}
 		
 
-		static bool DrawIvec4ControlerR(const std::string& label, glm::ivec4& values, glm::ivec4&& resetValue, float columeWith = 80.0f)
-		{
-			bool changes = false;
-			ImGuiIO& io = ImGui::GetIO();
-			ImFont* boldFont = io.Fonts->Fonts[0];
 
-			ImGui::PushID(label.c_str());
-			ImGui::Columns(2, label.c_str(), false);
-			ImGui::SetColumnWidth(0, columeWith);
-			ImGui::Text(label.c_str());
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip(magic_enum::enum_name(ShaderDataType::Float4).data());
-			ImGui::NextColumn();
-
-			ImGui::PushMultiItemsWidths(4, ImGui::CalcItemWidth());
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0.0f , 0.0f });
-
-			float lineHeigth = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-			ImVec2 butenSize = { lineHeigth - 2.0f, lineHeigth };
-
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("X", butenSize))
-			{
-				values.x = resetValue.x;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value %i", resetValue.x);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragInt("##X", &values.x, 1.0f, 0.0f, 0.0f, "%i") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("Y", butenSize))
-			{
-				values.y = resetValue.y;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value %i", resetValue.y);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragInt("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%i") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("Z", butenSize))
-			{
-				values.z = resetValue.z;
-				changes = true;
-			}
-
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value %i", resetValue.z);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragInt("##Z", &values.z, 1.0f, 0.0f, 0.0f, "%i") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.85f, 0.8f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.8f, 0.95f, 0.9f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.7f, 0.85f, 0.8f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("W", butenSize))
-			{
-				values.w = resetValue.w;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value %i", resetValue.w);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragInt("##W", &values.w, 1.0f, 0.0f, 0.0f, "%i") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-			ImGui::PopStyleVar();
-
-			ImGui::Columns(1);
-			ImGui::PopID();
-			return changes;
-		}
-
-
-		static bool DrawVec4Controler(const std::string& label, glm::vec4& values, float resetValue = 0.0f, float columeWith = 80.0f)
-		{
-			bool changes = false;
-			ImGuiIO& io = ImGui::GetIO();
-			ImFont* boldFont = io.Fonts->Fonts[0];
-
-			ImGui::PushID(label.c_str());
-			ImGui::Columns(2);
-			ImGui::SetColumnWidth(0, columeWith);
-			ImGui::Text(label.c_str());
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip(magic_enum::enum_name(ShaderDataType::Float4).data());
-			ImGui::NextColumn();
-
-			ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0.0f , 0.0f });
-
-			float lineHeigth = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-			ImVec2 butenSize = { lineHeigth + 3.0f, lineHeigth };
-
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("X", butenSize))
-			{
-				values.x = resetValue;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value %.1f", resetValue);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("Y", butenSize))
-			{
-				values.y = resetValue;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value %.1f", resetValue);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("Z", butenSize))
-			{
-				values.z = resetValue;
-				changes = true;
-			}
-
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value %.1f", resetValue);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.85f, 0.8f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.8f, 0.95f, 0.9f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.7f, 0.85f, 0.8f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if ( ImGui::Button("W", butenSize) )
-			{
-				values.z = resetValue;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value %.1ff", resetValue);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragFloat("##W", &values.z, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-			ImGui::PopStyleVar();
-
-			ImGui::Columns(1);
-			ImGui::PopID();
-			return changes;
-		}
-
-		static bool DrawVec4ControlerR(const std::string& label, glm::vec4& values, glm::vec4&& resetValue, float columeWith = 80.0f)
-		{
-			bool changes = false;
-			ImGuiIO& io = ImGui::GetIO();
-			ImFont* boldFont = io.Fonts->Fonts[0];
-
-			ImGui::PushID(label.c_str());
-			ImGui::Columns(2, label.c_str(), false);
-			ImGui::SetColumnWidth(0, columeWith);
-			ImGui::Text(label.c_str());
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip(magic_enum::enum_name(ShaderDataType::Float4).data());
-			ImGui::NextColumn();
-
-			ImGui::PushMultiItemsWidths(4, ImGui::CalcItemWidth());
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0.0f , 0.0f });
-
-			float lineHeigth = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-			ImVec2 butenSize = { lineHeigth + 3.0f, lineHeigth };
-
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("X", butenSize))
-			{
-				values.x = resetValue.x;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value %.1f", resetValue.x);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("Y", butenSize))
-			{
-				values.y = resetValue.y;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value %.1f", resetValue.y);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("Z", butenSize))
-			{
-				values.z = resetValue.z;
-				changes = true;
-			}
-
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value %.1f", resetValue.z);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.85f, 0.8f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.8f, 0.95f, 0.9f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.7f, 0.85f, 0.8f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("W", butenSize))
-			{
-				values.w = resetValue.w;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value %.1ff", resetValue.w);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragFloat("##W", &values.w, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-			ImGui::PopStyleVar();
-
-			ImGui::Columns(1);
-			ImGui::PopID();
-			return changes;
-		}
-
-		static bool DrawVec3ControlerR(const std::string& label, glm::vec3& values, glm::vec3& resetValue, float columeWith = 80.0f)
-		{
-			bool changes = false;
-			ImGuiIO& io = ImGui::GetIO();
-			ImFont* boldFont = io.Fonts->Fonts[0];
-
-			ImGui::PushID(label.c_str());
-			ImGui::Columns(2, label.c_str(), false);
-			ImGui::SetColumnWidth(0, columeWith);
-			ImGui::Text(label.c_str());
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip(magic_enum::enum_name(ShaderDataType::Float3).data());
-			ImGui::NextColumn();
-
-			ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0.0f , 0.0f });
-
-			float lineHeigth = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-			ImVec2 butenSize = { lineHeigth - 2.0f, lineHeigth };
-
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("X", butenSize))
-			{
-				values.x = resetValue.x;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value  %.1f", resetValue);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("Y", butenSize))
-			{
-				values.y = resetValue.y;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value  %.1f", resetValue);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("Z", butenSize))
-			{
-				values.z = resetValue.z;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value  %.1f", resetValue);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-			ImGui::PopStyleVar();
-
-			ImGui::Columns(1);
-			ImGui::PopID();
-			return changes;
-		}
-
-		static bool DrawVec3Controler(const std::string& label, glm::vec3& values, float resetValue = 0.0f, float columeWith = 80.0f)
-		{
-			bool changes = false;
-			ImGuiIO& io = ImGui::GetIO();
-			ImFont* boldFont = io.Fonts->Fonts[0];
-
-			ImGui::PushID(label.c_str());
-			ImGui::Columns(2, label.c_str(), false);
-			ImGui::SetColumnWidth(0, columeWith);
-			ImGui::Text(label.c_str());
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip(magic_enum::enum_name(ShaderDataType::Float4).data());
-			ImGui::NextColumn();
-
-			ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
-			ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2{0.0f , 0.0f});
-
-			float lineHeigth = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-			ImVec2 butenSize = { lineHeigth - 2.0f, lineHeigth };
-
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("X", butenSize))
-			{
-				values.x = resetValue;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value  %.1f", resetValue);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f" ) || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-			
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("Y", butenSize))
-			{
-				values.y = resetValue;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value  %.1f", resetValue);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("Z", butenSize))
-			{
-				values.z = resetValue;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value  %.1f", resetValue);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragFloat("##Z", &values.z, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-			ImGui::PopStyleVar();
-
-			ImGui::Columns(1);
-			ImGui::PopID();
-			return changes;
-		}
-
-
-		static bool DrawVec2Controler(const std::string & label, glm::vec2& values, float resetValue = 0.0f, float columeWith = 80.0f)
-		{
-			bool changes = false;
-			ImGuiIO& io = ImGui::GetIO();
-			ImFont* boldFont = io.Fonts->Fonts[0];
-
-			ImGui::PushID(label.c_str());
-			ImGui::Columns(2);
-			ImGui::SetColumnWidth(0, columeWith);
-			ImGui::Text(label.c_str());
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip(magic_enum::enum_name(ShaderDataType::Float2).data());
-			ImGui::NextColumn();
-
-			ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0.0f , 0.0f });
-
-			float lineHeigth = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-			ImVec2 butenSize = { lineHeigth + 3.0f, lineHeigth };
-
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("X", butenSize))
-			{
-				values.x = resetValue;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value %.1f", resetValue);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragFloat("##X", &values.x, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("Y", butenSize))
-			{
-				values.y = resetValue;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value %.1f", resetValue);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragFloat("##Y", &values.y, 0.1f, 0.0f, 0.0f, "%.2f") || changes;
-			ImGui::PopItemWidth();
-			ImGui::SameLine();
-
-			ImGui::PopStyleVar();
-
-			ImGui::Columns(1);
-			ImGui::PopID();
-			return changes;
-		}
-		
-
-		static bool DrawFloatControler(const std::string& label, float* values, float resetValue = 0.0f, float min = 0.0f, float max = 0.0f, float columeWith = 80.0f)
-		{
-			bool changes = false;
-			ImGuiIO& io = ImGui::GetIO();
-			ImFont* boldFont = io.Fonts->Fonts[0];
-
-			float lineHeigth = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-			ImVec2 butenSize = { lineHeigth + 3.0f, lineHeigth };
-
-			ImGui::PushID(label.c_str());
-			ImGui::Columns(2);
-			ImGui::SetColumnWidth(0, columeWith);
-			ImGui::Text(label.c_str());
-			ImGui::NextColumn();
-
-			ImGui::PushMultiItemsWidths(1, ImGui::CalcItemWidth());
-
-
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-			ImGui::PushFont(boldFont);
-			if (ImGui::Button("F", butenSize))
-			{
-				*values = resetValue;
-				changes = true;
-			}
-			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip("Reset Value %.1f", resetValue);
-			ImGui::PopFont();
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine();
-			changes = ImGui::DragFloat("##F", values, 0.1f, min, max, "%.2f") || changes;
-			ImGui::PopItemWidth();
-
-			ImGui::Columns(1);
-			ImGui::PopID();
-			return changes;
-		}
 
 
 
@@ -1754,7 +1145,7 @@ namespace Rynex {
 
 
 		glm::ivec4 viewSsize = target->GetRenderViewSize();
-		if (Utils::DrawIvec4ControlerR("RenderSize", viewSsize, glm::ivec4{ 1, 1, 0, 0 }, 80.0f))
+		if (UI::DrawIVec4ControllerR("RenderSize", viewSsize, glm::ivec4{ 1, 1, 0, 0 }, 80.0f))
 		{
 			target->ResizeView(viewSsize);
 		}
@@ -1988,10 +1379,10 @@ namespace Rynex {
 	void SceneHierachyPannel::ComponentTransformGUI(Entity e, TransformComponent& component)
 	{
 		bool use = false;
-		use = Utils::DrawVec3Controler("Translation", component.m_Transform) || use;
+		use = UI::DrawVec3ControllerR("Translation", component.m_Transform, glm::vec3(0.0f)) || use;
 		glm::vec3 rotation = glm::degrees(component.m_Rotation);
-		use = Utils::DrawVec3Controler("Rotation", rotation) || use;
-		use = Utils::DrawVec3Controler("Scale", component.m_Scale, 1.0f) || use;
+		use = UI::DrawVec3ControllerR("Rotation", rotation, glm::vec3(0.0f)) || use;
+		use = UI::DrawVec3ControllerR("Scale", component.m_Scale, glm::vec3(0.0f)) || use;
 
 		if (use)
 		{
@@ -2005,10 +1396,10 @@ namespace Rynex {
 	void SceneHierachyPannel::ComponentModelMatrixGUI(Entity e, ModelMatrixComponent& component)
 	{
 		bool use = false;
-		use = Utils::DrawVec4ControlerR("[0][...]", component.m_Locale[0], glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)) || use;
-		use = Utils::DrawVec4ControlerR("[1][...]", component.m_Locale[1], glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)) || use;
-		use = Utils::DrawVec4ControlerR("[2][...]", component.m_Locale[2], glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)) || use;
-		use = Utils::DrawVec4ControlerR("[3][...]", component.m_Locale[3], glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)) || use;
+		use = UI::DrawVec4ControllerR("[0][...]", component.m_Locale[0], glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)) || use;
+		use = UI::DrawVec4ControllerR("[1][...]", component.m_Locale[1], glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)) || use;
+		use = UI::DrawVec4ControllerR("[2][...]", component.m_Locale[2], glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)) || use;
+		use = UI::DrawVec4ControllerR("[3][...]", component.m_Locale[3], glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)) || use;
 
 		if (use)
 		{
@@ -2189,13 +1580,13 @@ namespace Rynex {
 
 
 
-		int delateNumber = -1;
-		int colorAtachments = 0;
+		int deleteNumber = -1;
+		int colorAttachments = 0;
 		size_t i = 0;
 		for (const auto& attachment : fbspec.m_Attachments)
 		{
-			TextureFormat texFormat = attachment.m_TextureFormat;
-			std::string_view format_view = EnumString::GetStringFromEnum<TextureFormat>(texFormat);
+			const TextureFormat texFormat = attachment.m_TextureFormat;
+			std::string_view format_view = magic_enum::enum_name(texFormat);
 
 			ImGui::PushID(format_view.data() + ('0' + i));
 			ImGui::Columns(2, "##FrameBuffer Textures", false);
@@ -2207,7 +1598,7 @@ namespace Rynex {
 			{
 			case TextureFormat::Depth24Stencil8:
 			{
-				textureID = component.m_FrameBuffer->GetColorAttachmentRendererID(colorAtachments);
+				textureID = component.m_FrameBuffer->GetColorAttachmentRendererID(colorAttachments);
 				break;
 			}
 			case TextureFormat::None:
@@ -2226,8 +1617,10 @@ namespace Rynex {
 
 
 			ImGui::SetColumnWidth(1, 100);
-			windowSize.y = windowSize.x / ((float)fbspec.m_Width / fbspec.m_Height);
-			ImTextureID imTextureID = textureID;
+		    const float width = fbspec.m_Width;
+		    const float height = fbspec.m_Height;
+			windowSize.y = windowSize.x / (width / height);
+			const ImTextureID imTextureID = textureID;
 			ImVec2 uv0{ 0.f, 1.f };
 			ImVec2 uv1{ 1.f, 0.f };
 			ImGui::Image(imTextureID, windowSize, uv0, uv1);
@@ -2239,7 +1632,7 @@ namespace Rynex {
 			}
 
 			if (ImGui::Button("Delete", ImVec2(100.0f, 0.0f)))
-				delateNumber = i;
+				deleteNumber = i;
 			ImGui::NextColumn();
 			ImGui::SameLine();
 			ImGui::Columns(1);
@@ -2252,18 +1645,18 @@ namespace Rynex {
 			case TextureFormat::None:
 				break;
 			default:
-				ImGui::Text("On Color Attachment: %i", colorAtachments++);
+				ImGui::Text("On Color Attachment: %i", colorAttachments++);
 			}
 			ImGui::PopID();
 			i++;
 		}
 
-		if (delateNumber != -1)
+		if (deleteNumber != -1)
 		{
-			FramebufferSpecification fbspecNew = fbspec;
+			FramebufferSpecification fbSpecNew = fbspec;
 			
-			fbspecNew.m_Attachments.m_Attachments.erase(fbspecNew.m_Attachments.begin() + delateNumber);
-			component.m_FrameBuffer = Framebuffer::Create(fbspecNew);
+			fbSpecNew.m_Attachments.m_Attachments.erase(fbSpecNew.m_Attachments.begin() + deleteNumber);
+			component.m_FrameBuffer = Framebuffer::Create(fbSpecNew);
 		}
 		
 	}

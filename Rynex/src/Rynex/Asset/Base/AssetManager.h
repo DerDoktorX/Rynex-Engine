@@ -141,7 +141,7 @@ namespace Rynex {
 			Ref<EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
 
 			AssetHandle handle = info.m_Handle;
-			AssetHandle handlePath = editorAssetManger->GetAssetHandle(info.m_Path);
+			AssetHandle handlePath = editorAssetManger->GetAssetHandle(info.m_MarkedPath);
 
 			Ref<T> asset = nullptr;
 
@@ -156,7 +156,7 @@ namespace Rynex {
 			}
 			else
 			{
-				RY_CORE_ASSERT(false,"The to many not valid states to Limited to safely ID The Asset!")
+				RY_CORE_ASSERT(false, "The to many not valid states to Limited to safely ID The Asset!")
 			}
 			return asset;
 		}

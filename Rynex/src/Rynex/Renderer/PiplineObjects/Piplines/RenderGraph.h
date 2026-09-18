@@ -45,7 +45,7 @@ namespace Rynex {
 		BufferLayout m_Layout;
 	};
 	
-	class RenderGraphSerializers;
+	class RenderGraphSerializer;
 
 	class RenderGraph
 	{
@@ -317,6 +317,6 @@ namespace Rynex {
 		Runtime m_Runtime;
 		Serialize m_Serialize;
 	private:
-		friend RenderGraphSerializers;
+		friend RenderGraphSerializer;
 	};
 }
