@@ -29,7 +29,7 @@ namespace Rynex {
         DefaultMaterial();
         DefaultMaterial(const MaterielShaderData& data, const std::vector<Pass>& vec);
 
-        DefaultMaterial(std::vector<std::filesystem::path>&& vecPath, const Ref<Shader>& shaderShade, const Ref<Shader>& shaderDepth);
+        DefaultMaterial(std::vector<FileSystem::Path>&& vecPath, const Ref<Shader>& shaderShade, const Ref<Shader>& shaderDepth);
         DefaultMaterial(const MaterielShaderData& data, Ref<Texture> tex, const Ref<Shader>& shaderShade, const Ref<Shader>& shaderDepth);
         virtual ~DefaultMaterial();
 

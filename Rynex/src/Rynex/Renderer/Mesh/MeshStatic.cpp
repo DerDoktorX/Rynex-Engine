@@ -9,7 +9,7 @@ namespace Rynex {
 	const UUID& MeshStatic::SingleObjectMeshData::GetHandle() const
 	{
 		RY_CORE_ASSERT(nullptr != m_MeshSingle, "Nullptr Created Object!");
-		return m_MeshSingle->Handle;
+		return m_MeshSingle->m_Handle;
 	}
 
 	const Mesh::PerDrawObject& MeshStatic::SingleObjectMeshData::GetShadePerDrawObjectIndrect() const
@@ -141,7 +141,7 @@ namespace Rynex {
 
 	void MeshStatic::SetOffsetObject(const SingleObjectMeshData& singleMeshData, MapVector<UUID, int>& offsetObjectMap, int& offsetValue)
 	{
-		const UUID& meshHandle = singleMeshData.m_MeshSingle->Handle;
+		const UUID& meshHandle = singleMeshData.m_MeshSingle->m_Handle;
 		if (!offsetObjectMap.HasKey(meshHandle))
 		{
 			int size = 0;
@@ -156,7 +156,7 @@ namespace Rynex {
 
 	void MeshStatic::SetDrawObject(const SingleObjectMeshData& singleMeshData, MapVector<UUID, Mesh::PerDrawObject>& drawObjectMap)
 	{
-		const UUID& meshHandle = singleMeshData.m_MeshSingle->Handle;
+		const UUID& meshHandle = singleMeshData.m_MeshSingle->m_Handle;
 		if (!drawObjectMap.HasKey(meshHandle))
 		{
 			const Mesh::PerDrawObject& cmd = singleMeshData.GetShadePerDrawObjectIndrect();

@@ -66,7 +66,7 @@ namespace Rynex {
 	}
 
 
-	DefaultMaterial::DefaultMaterial(std::vector<std::filesystem::path>&& paths, const Ref<Shader>& shaderShade, const Ref<Shader>& shaderDepth)
+	DefaultMaterial::DefaultMaterial(std::vector<FileSystem::Path>&& paths, const Ref<Shader>& shaderShade, const Ref<Shader>& shaderDepth)
 		: m_Change(true)
 		, m_BufferData({
 			glm::vec3{ 1.0f, 1.0f, 1.0f }
@@ -90,21 +90,22 @@ namespace Rynex {
 		, m_PassesVec()
 		, m_LastPassPtr(nullptr)
 	{
-		std::vector<std::filesystem::path> filePaths = std::move(paths);
+		std::vector<FileSystem::Path> filePaths = std::move(paths);
 		if (filePaths.empty())
 		{
 			m_DefaultMap = Texture::White();
 		}
 		else
 		{			
-			const std::filesystem::path& filePath = filePaths.at(1ull);
-			AssetManager::GetAssetAsync(filePath, &m_DefaultMap);
+			const FileSystem::Path& filePath = filePaths.at(1ull);
+		    Ref<Texture>* textureFiledPtr = &m_DefaultMap;
+			AssetManager::GetAssetAsync(filePath, textureFiledPtr);
 			
 		}
 		m_PassesVec = std::vector<Pass>{
 			Pass{
 				shaderShade,
-				Ref<UniformBuffer>(nullptr),
+				Ref<UniformBuffer>{},
 				
 				std::vector<TextureTypes>{ TextureTypes::AlbedoMap }
 				,std::vector<Ref<Texture>>{  m_DefaultMap }

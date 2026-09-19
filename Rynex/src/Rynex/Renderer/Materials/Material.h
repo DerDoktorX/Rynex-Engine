@@ -200,7 +200,7 @@ namespace Rynex {
 		template<typename T>
 		static UUID GetMaterielKey(MapVector<UUID, T>& mapVector, const Ref<Material>& materiel)
 		{
-			const UUID& handle = materiel->Handle;
+			const UUID& handle = materiel->m_Handle;
 			return handle;
 		}
 

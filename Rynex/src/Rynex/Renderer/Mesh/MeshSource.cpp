@@ -13,7 +13,7 @@ namespace Rynex {
 
 		namespace GenrateLoop {
 
-			static void GenareteTextureInPlace(const std::filesystem::path& path, Ref<Texture>& materielTexture)
+			static void GenareteTextureInPlace(const FileSystem::Path& path, Ref<Texture>& materielTexture)
 			{
 				Ref<Texture> texture = AssetManager::GetAsset<Texture>(path);
 				if (nullptr == texture)
@@ -28,7 +28,7 @@ namespace Rynex {
 
 			static Ref<Material> GetMaterielTexturesSingle(const MeshSource::MaterialMesh& materielSource)
 			{
-				const std::vector<std::filesystem::path>& pathVec = materielSource.m_TexturesMaterial;
+				const std::vector<FileSystem::Path>& pathVec = materielSource.m_TexturesMaterial;
 				uint32_t count = pathVec.size();
 
 				std::vector<Ref<Texture>> materielTextureVec;
@@ -36,7 +36,7 @@ namespace Rynex {
 
 				for (uint32_t i = 0; i < count; i++)
 				{
-					const std::filesystem::path& path = pathVec.at(i);
+					const  FileSystem::Path& path = pathVec.at(i);
 					Ref<Texture>& texture = materielTextureVec.at(i);
 					GenareteTextureInPlace(path, texture);
 				}
@@ -201,9 +201,9 @@ namespace Rynex {
 
 			static Ref<Material> GetMaterielTexturesBatching(const MeshSource::MaterialMesh& materielSource, MapVector<int64_t, Ref<Texture>>& textureMap)
 			{
-				const std::vector<std::filesystem::path>& paths = materielSource.m_TexturesMaterial;
+				const std::vector<FileSystem::Path>& paths = materielSource.m_TexturesMaterial;
 				Ref<Texture> materielTexture = nullptr;
-				for (const std::filesystem::path& p : paths)
+				for (const FileSystem::Path& p : paths)
 				{
 
 					Ref<Texture> tex = AssetManager::GetAsset<Texture>(p);
@@ -211,7 +211,7 @@ namespace Rynex {
 						continue;
 
 					Texture* texPtr = tex.get();
-					int64_t key = (int64_t)texPtr;
+					int64_t key = reinterpret_cast<int64_t>(texPtr);
 
 					if (nullptr == materielTexture)
 						materielTexture = tex;
@@ -726,13 +726,13 @@ namespace Rynex {
 		{
 			const MeshSource::SourceMesh& meshSour = m_SourceMeshes.at(i);
 			const UUID& meshHandle = meshSour.m_MeshHandle;
-			const UUID& meshSourceHandle = this->Handle;
+			const UUID& meshSourceHandle = this->m_Handle;
 			const std::string& meshName = meshSour.m_MeshName;
 			const BoundingVolume& volume = meshSour.m_Volume;
 			Ref<MeshSingle> singleMesh = CreateRef<MeshSingle>(i, meshHandle, meshSourceHandle, meshName, volume);
 
 			Ref<MeshSingle>& singleMeshRef = m_SingleMeshVec.emplace_back<Ref<MeshSingle>>( Ref<MeshSingle>{ singleMesh } );
-			RY_CORE_ASSERT(singleMeshRef->Handle == meshHandle, "not The Same");
+			RY_CORE_ASSERT(singleMeshRef->m_Handle == meshHandle, "not The Same");
 		}
 
 	}
@@ -748,7 +748,7 @@ namespace Rynex {
 		uint32_t countMateriel = m_SourceMateriel.size();
 		ReisizeMeshVecData(countMesh);
 		ReisizeMaterielVecData(countMateriel);
-		const UUID& meshSourceHandle = Handle;
+		const UUID& meshSourceHandle = m_Handle;
 		
 
 		for (uint32_t i = 0; i < countMesh; i++)

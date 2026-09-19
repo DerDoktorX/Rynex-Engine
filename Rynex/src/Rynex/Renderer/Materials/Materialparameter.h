@@ -43,7 +43,7 @@ namespace Rynex {
         // Child inherits all of parent's overrides + its own on top.
         static Ref<MaterialParameter> CreateChild(const Ref<MaterialParameter>& parent);
 
-        virtual ~MaterialParameter() = default;
+        virtual ~MaterialParameter() {};
 
         // -- Blueprint & parent linkage --------------------------------
         const Ref<MaterialBlueprint>& GetBlueprint()    const;
@@ -118,7 +118,7 @@ namespace Rynex {
         // -- GPU upload / UBO management ----------------------------
 
         // Write the resolved param block into outBuffer (caller owns memory).
-        // outByteSize must be >= blueprint->GetParamBlockByteSize().
+        // blueprint->GetParamBlockByteSize() must be <= outByteSize.
         void BuildParamData(void* outBuffer, uint32_t outByteSize) const;
 
         // Return (and lazily create) a per-instance UniformBuffer holding

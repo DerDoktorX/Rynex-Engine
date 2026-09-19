@@ -40,7 +40,7 @@ namespace Rynex {
 		{
 			std::string m_NameMateriel;
 			uint32_t MaterielIndex;
-			std::vector<std::filesystem::path> m_TexturesMaterial;
+			std::vector< FileSystem::Path> m_TexturesMaterial;
 			glm::vec4 m_BaseColor{ 1.0f, 1.0f, 1.0f, 1.0f };
 		};
 

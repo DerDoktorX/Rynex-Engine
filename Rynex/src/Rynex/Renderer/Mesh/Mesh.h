@@ -133,10 +133,10 @@ namespace Rynex {
 		static AssetType GetStaticType() { return AssetType::Mesh; }
 		AssetType GetType() const override { return GetStaticType(); }
 
-		static Ref<MeshDynamic> CreateDynamicMesh(const std::filesystem::path& path);
+		static Ref<MeshDynamic> CreateDynamicMesh(const FileSystem::Path& path);
 		static Ref<MeshStatic> CreateStaticMesh(Ref<MeshSource> source);
 		static Ref<MeshStatic> CreateStaticMeshOld(Ref<MeshSource> source);
-		static Ref<MeshStatic> CreateStaticMesh(const std::filesystem::path& path);
+		static Ref<MeshStatic> CreateStaticMesh(const FileSystem::Path& path);
 		
 	};
 

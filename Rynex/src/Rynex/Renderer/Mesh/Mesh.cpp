@@ -325,7 +325,7 @@ namespace Rynex {
         return meshStatic;
     }
 
-    Ref<MeshStatic> Mesh::CreateStaticMesh(const std::filesystem::path& path)
+    Ref<MeshStatic> Mesh::CreateStaticMesh(const FileSystem::Path& path)
     {
         Ref<MeshSource> source = AssetManager::GetAsset<MeshSource>(path);
         Ref<MeshStatic> meshStatic = Mesh::CreateStaticMesh(source);
