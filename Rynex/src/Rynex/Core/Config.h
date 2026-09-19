@@ -52,7 +52,7 @@
 	#define RY_DISABLE_WEAK_PTR 0
 	#define RY_ENABLE_WEBGPU_PILINE 0
 	#define RY_ENABLE_FONT 1
-	#define RY_EDITOR_ASSETMANGER_THREADE 1		// Debgu -> 0: time ~= 5s  | 1: time ~= 36s 
+	#define RY_EDITOR_ASSETMANGER_THREADE 1		// Debug -> 0: time ~= 5s  | 1: time ~= 36s
 	#define RY_MODLE_MESH_INSTECENC_OPTI 1
 
 	#define RY_ENABLE_BINDLES_TEXTURE 0
@@ -74,14 +74,14 @@
 
 	#define RY_RENDER_2D 1
 	#define RY_OLD_RENDER_FUNTION_SCENE_SYSTEM 1
-	// #define RY_ENABLE_DEFAULT_PROJECT
+	#define RY_ENABLE_DEFAULT_PROJECT
 #ifndef RY_ENABLE_DEFAULT_PROJECT
 	#define RY_DEFAULT_PROJECT_PATH
-	#define RY_DEFAULT_PATH_TO_PROJECT(path) path
+	#define RY_DEFAULT_PATH_TO_PROJECT(path)  ::Rynex::FileSystem::Path(path)
 	#define RY_DEFAULT_PATH_PROJECT_FILE RY_DEFAULT_PROJECT_PATH
 #else
 	#define RY_DEFAULT_PROJECT_PATH "D:/dev/Rynex-Test-Projects/Test-Project-System/"
-	#define RY_DEFAULT_PATH_TO_PROJECT(path) path
+	#define RY_DEFAULT_PATH_TO_PROJECT(path) ::Rynex::FileSystem::Path(path)
 	#define RY_DEFAULT_PATH_PROJECT_FILE RY_DEFAULT_PROJECT_PATH "Test-Project-System.ryproj"
 #endif
 	#define RY_AKTIVATE_INTERAL_PATH 0

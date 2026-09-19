@@ -329,7 +329,7 @@ namespace Utils {
 				out << YAML::Key << "Color" << YAML::Value << sc.m_Color;
 				if (Ref<Texture> tex = sc.m_Texture.lock())
 				{
-					SerializerAssetFormate(out, "Texture", tex->Handle);
+					SerializerAssetFormate(out, "Texture", tex->m_Handle);
 				}
 				out << YAML::EndMap;
 			}
@@ -382,7 +382,7 @@ namespace Utils {
 
 				if (nullptr != meshStatic)
 				{
-					const AssetHandle& handle = meshStatic->Handle;
+					const AssetHandle& handle = meshStatic->m_Handle;
 					SerializerAssetFormate(out, "StaticMesh", handle, AssetType::MeshStatic);
 				}
 				out << YAML::EndMap;
@@ -627,15 +627,18 @@ namespace Utils {
 			if (!nodeE)
 				return false;
 
-			std::string path;
+			std::string pathStr;
 			std::string makredPathStr;
 			if (YAML::Node nodeAtribut = nodeE["Path"])
-				path = nodeAtribut.as<std::string>();
+				pathStr = nodeAtribut.as<std::string>();
 			if (YAML::Node nodeAtribut = nodeE["Path-ProjectMarker"])
 				makredPathStr = nodeAtribut.as<std::string>();
 
 			AssetHandle handle = nodeE["Handle"].as<uint64_t>();
-			AssetFindeInfo info = AssetFindeInfo(handle, makredPathStr, path);
+
+		    FileSystem::Path path(pathStr);
+		    FileSystem::Path makredPath(makredPathStr);
+			AssetFindeInfo info = AssetFindeInfo(handle, path, makredPath);
 			*entityC = AssetManager::FindAsset<T>(info);
 			
 			return true;
@@ -648,10 +651,10 @@ namespace Utils {
 			if (!nodeE)
 				return loadePromis;
 
-			std::string path = "";
-			std::string makredPathStr = "";
+			std::string pathStr;
+			std::string makredPathStr;
 			if (YAML::Node nodeAtribut = nodeE["Path"])
-				path = nodeAtribut.as<std::string>();
+				pathStr = nodeAtribut.as<std::string>();
 			if (YAML::Node nodeAtribut = nodeE["Path-ProjectMarker"])
 				makredPathStr = nodeAtribut.as<std::string>();
 #if 1
@@ -664,8 +667,9 @@ namespace Utils {
 #else
 			AssetHandle handle = nodeE["Handle"].as<uint64_t>();
 #endif
-
-			AssetFindeInfo info(handle, makredPathStr, path);
+            FileSystem::Path path(pathStr);
+		    FileSystem::Path makredPath(makredPathStr);
+			AssetFindeInfo info(handle, path, makredPath);
 
 			int entityID = entity.GetEntityHandle();
 			Ref<Scene> scene = entity.GetScene();
@@ -702,7 +706,7 @@ namespace Utils {
 	
 
 
-	void SceneSerializer::Serialize(const std::filesystem::path& path)
+	void SceneSerializer::Serialize(const FileSystem::Path& path)
 	{
 		RY_CORE_WARN("Begin Serialize a Scene from '{}'", path);
 		YAML::Emitter out;
@@ -719,7 +723,7 @@ namespace Utils {
 			});
 		out << YAML::EndMap;
 
-		std::ofstream fout(path);
+		std::ofstream fout(path.GetPathString());
 		RY_CORE_ASSERT(fout);
 		fout << out.c_str();
 
@@ -728,21 +732,23 @@ namespace Utils {
 			Entity entity{ entityID, m_Scene.get() };
 			entity.UpdateMatrix();
 		});
-		RY_CORE_INFO("Ende Scene Serializetation");
+		RY_CORE_INFO("Ende Scene Serialization");
 	}
 
-	void SceneSerializer::SerializeRuntime(const std::filesystem::path& path)
+	void SceneSerializer::SerializeRuntime(const FileSystem::Path& path)
 	{
-		RY_CORE_ASSERT(false, "SceneSerializer::SerializeRuntime not Implementet!");
+		RY_CORE_ASSERT(false, "SceneSerializer::SerializeRuntime not Implemented!");
 	}
 
 
-	bool SceneSerializer::Deserialize(const std::filesystem::path& path)
+	bool SceneSerializer::Deserialize(const FileSystem::Path& systemPath)
 	{
-		RY_CORE_WARN("Begin Serialize a Scene from '{}'", path);
+
+		RY_CORE_WARN("Begin Serialize a Scene from '{}'", systemPath);
 
 		m_Scene->ClearAll();
-		std::ifstream stream(path);
+        std::filesystem::path _path = systemPath.GetPath();
+		std::ifstream stream(_path);
 		std::stringstream strStream;
 		strStream << stream.rdbuf();
 		Ref<EditorAssetManagerThread> editorAssetManger = Project::GetActive()->GetEditorAssetManger();
@@ -944,13 +950,13 @@ namespace Utils {
 			
 			
 		}
-		RY_CORE_INFO("Ende Scene Deserializetion");
+		RY_CORE_INFO("Ende Scene Deserialization");
 		return true;
 	}
 
-	bool SceneSerializer::DeserializeRuntime(const std::filesystem::path& path)
+	bool SceneSerializer::DeserializeRuntime(const FileSystem::Path& path)
 	{
-		RY_CORE_ASSERT(false, "SceneSerializer::DeserializeRuntime not Implementet!");
+		RY_CORE_ASSERT(false, "SceneSerializer::DeserializeRuntime not Implemented!");
 		return false;
 	}
 

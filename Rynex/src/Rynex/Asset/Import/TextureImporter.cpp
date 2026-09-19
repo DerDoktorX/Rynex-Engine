@@ -14,24 +14,24 @@ namespace Rynex{
 
 	Ref<Texture> TextureImporter::ImportTexture(AssetHandle handle, const AssetMetadata& metadata)
 	{
-		std::filesystem::path filePath = metadata.m_AbsolutePath;
+		const FileSystem::Path& filePath = metadata.m_Path;
 		return LoadTexture(filePath);
 	}
 
-	Ref<Texture> TextureImporter::LoadTexture(const std::filesystem::path& path)
+	Ref<Texture> TextureImporter::LoadTexture(const FileSystem::Path& path)
 	{
-		std::filesystem::path extension = path.extension();
+		std::filesystem::path extension = path.GetExtensionPath();
 		if(".png" != extension
 			&& ".jpeg" != extension
 			&& ".jpg" != extension
 			&& ".hdr"  != extension)
 		{
-			RY_CORE_ASSERT(false, "ERROR: TextureImporter::LoadTexture! not sepoted extension {}", extension);
+			RY_CORE_ASSERT(false, "ERROR: TextureImporter::LoadTexture! not supported extension {}", extension);
 			return nullptr;
 		}
 		int width, height, channels, req_comp;
 		stbi_set_flip_vertically_on_load(1);
-		std::string pathStr = path.string();
+		std::string pathStr = path.GetPathString();
 		const char* pathChar = pathStr.c_str();
 		
 		stbi_uc* dataBytePtr = stbi_load(pathChar, &width, &height, &channels, STBI_default); // STBI_rgb_alpha
@@ -39,16 +39,16 @@ namespace Rynex{
 
 		if (nullptr == dataBytePtr)
 		{
-			RY_CORE_ERROR("Coud not Load Image! {}", path);
+			RY_CORE_ERROR("Could not Load Image! {}", pathChar);
 			return nullptr;
 		}
 
 
 		TextureSpecification spec;
-		spec.Width = static_cast<uint32_t>(width);
-		spec.Height = static_cast<uint32_t>(height);
-		spec.Target = TextureTarget::Texture2D;
-		spec.FilteringMode = TextureFilteringMode::Linear;
+		spec.m_Width = static_cast<uint32_t>(width);
+		spec.m_Height = static_cast<uint32_t>(height);
+		spec.m_Target = TextureTarget::Texture2D;
+		spec.m_FilteringMode = TextureFilteringMode::Linear;
 		spec.WrappingSpec = {
 			TextureWrappingMode::Repeat,
 			TextureWrappingMode::Repeat,
@@ -59,22 +59,22 @@ namespace Rynex{
 			{
 				case 1:
 				{
-					spec.Format = TextureFormat::R8;
+					spec.m_Format = TextureFormat::R8;
 					break;
 				}
 				case 2:
 				{
-					spec.Format = TextureFormat::RG8;
+					spec.m_Format = TextureFormat::RG8;
 					break;
 				}
 				case 3:
 				{
-					spec.Format = TextureFormat::RGB8;
+					spec.m_Format = TextureFormat::RGB8;
 					break;
 				}
 				case 4:
 				{
-					spec.Format = TextureFormat::RGBA16F;
+					spec.m_Format = TextureFormat::RGBA16F;
 					break;
 				}
 				default:
@@ -87,22 +87,22 @@ namespace Rynex{
 			{
 				case 1:
 				{
-					spec.Format = TextureFormat::R8;
+					spec.m_Format = TextureFormat::R8;
 					break;
 				}
 				case 2:
 				{
-					spec.Format = TextureFormat::RG8;
+					spec.m_Format = TextureFormat::RG8;
 					break;
 				}
 				case 3:
 				{
-					spec.Format = TextureFormat::S_RGB8;
+					spec.m_Format = TextureFormat::S_RGB8;
 					break;
 				}
 				case 4:
 				{
-					spec.Format = TextureFormat::S_RGBA8;
+					spec.m_Format = TextureFormat::S_RGBA8;
 					break;
 				}
 				default:
@@ -116,15 +116,15 @@ namespace Rynex{
 		std::vector<unsigned char> vData(byteSize);
 		std::memcpy(vData.data(), dataBytePtr, byteSize);
 		texture = Texture::CreateAsync(spec, std::move(vData));
-		RY_CORE_INFO("Succesfull Loade A-Sync Texture {}/{} withe {} Channels from Path {}", width, height, channels, path);
+		RY_CORE_INFO("Successful Load A-Sync Texture {}/{} withe {} Channels from Path {}", width, height, channels, pathChar);
 		
 		stbi_image_free(dataBytePtr);
 		return texture;
 	}
 
-	bool TextureImporter::ReLoadeTexture(AssetHandle handle, const std::filesystem::path& path)
+	bool TextureImporter::ReloadTexture(AssetHandle handle, const FileSystem::Path& path)
 	{
-		std::filesystem::path extension = path.extension();
+		std::filesystem::path extension = path.GetExtensionPath();
 		if (".png" != extension
 			&& ".jpeg" != extension
 			&& ".jpg" != extension
@@ -137,13 +137,13 @@ namespace Rynex{
 		RY_CORE_WARN("In Dev Funktion: ReLoadeTexture2D!");
 		int width, height, channels;
 		stbi_set_flip_vertically_on_load(1);
-		std::string pathStr = path.string();
+		std::string pathStr = path.GetPathString();
 		const char* pathChar = pathStr.c_str();
 		stbi_uc* dataBytePtr = stbi_load(pathChar, &width, &height, &channels, STBI_default);
 
 		if (nullptr == dataBytePtr)
 		{
-			RY_CORE_ERROR("Coud not Load Image! {}", path);
+			RY_CORE_ERROR("Could not Load Image! {}", pathChar);
 			return false;
 		}
 
@@ -156,7 +156,7 @@ namespace Rynex{
 
 	bool TextureImporter::SaveTexture(const Ref<Texture>& tex, const std::filesystem::path& path)
 	{
-		RY_CORE_ASSERT(nullptr != tex, "no vaild Texture!");
+		RY_CORE_ASSERT(nullptr != tex, "no valid Texture!");
 		RY_CORE_ASSERT(path.has_parent_path(), "this Path dont Exist!");
 
 		int width = static_cast<int>(tex->GetWidth());
@@ -164,7 +164,7 @@ namespace Rynex{
 		const TextureSpecification& spec = tex->GetSpecification();
 		int channels = 0;
 		std::vector<uint8_t> dataVec;
-		switch (spec.Format)
+		switch (spec.m_Format)
 		{
 		case TextureFormat::R8:
 		{
@@ -205,8 +205,8 @@ namespace Rynex{
 		void* dataPtr = dataVec.data();
 
 		stbi_flip_vertically_on_write(1);
-		
-		std::string pathStr = path.string();
+
+		const std::string pathStr = path.string();
 		const char* pathChar = pathStr.c_str();
 
 		stbi_write_png(pathChar, width, height, channels, dataPtr, width * channels);

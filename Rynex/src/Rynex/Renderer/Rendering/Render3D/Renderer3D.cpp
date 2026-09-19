@@ -2027,7 +2027,7 @@ namespace Rynex {
 		RY_REMBER_FUNC_CHANGE("Remove the function, maybe we don't need anmory in futer! (The Concept off Rendering Mesh Batches for indrect Rendering)");
 
 		s_Storarage3D->m_BatchedMesh.m_VAO = VertexArray::Create();
-		s_Storarage3D->m_BatchedMesh.m_VAO->SetPrimitv(VertexArray::Primitv::Traingle);
+		s_Storarage3D->m_BatchedMesh.m_VAO->SetPrimitive(VertexArray::Primitive::Triangle);
 	}
 
 	void Renderer3D::InitBatchedMeshArrayVB(const std::vector<uint8_t>& vertices)
@@ -2205,7 +2205,8 @@ namespace Rynex {
 	{
 		if (nullptr == s_Storarage3D->m_ErrorTex)
 		{
-			s_Storarage3D->m_ErrorTex = TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ErrorTex.png");
+		    FileSystem::Path path("Engine-Resources/Resources/Icons/ErrorTex.png");
+			s_Storarage3D->m_ErrorTex = TextureImporter::LoadTexture(path);
 		}
 		return s_Storarage3D->m_ErrorTex;
 	}

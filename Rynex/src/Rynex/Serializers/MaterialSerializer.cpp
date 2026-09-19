@@ -61,8 +61,8 @@ namespace Rynex {
 				Ref<Shader> shader;
 				Ref<RenderPipline> pipline;
 
-				Serializer::AssetFormate(out, "Shader", shader->Handle);
-				Serializer::AssetFormate(out, "Pipline", pipline->Handle);
+				Serializer::AssetFormate(out, "Shader", shader->m_Handle);
+				Serializer::AssetFormate(out, "Pipline", pipline->m_Handle);
 				{
 					out << YAML::Key << "MaterielBuffer";
 					{
@@ -92,7 +92,7 @@ namespace Rynex {
 							out << YAML::Key << "Name" << textureName;
 							out << YAML::Key << "Index" << i;
 
-							Serializer::AssetFormate(out, "Texture", texture->Handle);
+							Serializer::AssetFormate(out, "Texture", texture->m_Handle);
 
 							out << YAML::EndMap;
 						}

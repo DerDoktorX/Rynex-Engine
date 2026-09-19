@@ -303,7 +303,7 @@ namespace Rynex {
 
 
 		// Copy components (except IDComponent and TagComponent)
-		newScene->Handle = other->Handle;
+		newScene->m_Handle = other->m_Handle;
 
 
 		for (Ref<LodePromis<Scene>>& promis : lodingPromisOtherVec)

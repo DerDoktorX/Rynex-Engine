@@ -9,10 +9,10 @@ namespace Rynex {
 
 	Ref<MeshStatic> MeshImporter::ImportMesh(AssetHandle handle, const AssetMetadata& metadata)
 	{
-		return LoadMesh(metadata.m_AbsolutePath);
+		return LoadMesh(metadata.m_Path);
 	}
 
-	Ref<MeshStatic> MeshImporter::LoadMesh(const std::filesystem::path& path)
+	Ref<MeshStatic> MeshImporter::LoadMesh(const FileSystem::Path& path)
 	{
 		Ref<MeshStatic> meshStatic = CreateRef<MeshStatic>();
 		StaticMeshSerializer serializer(meshStatic);
@@ -20,7 +20,7 @@ namespace Rynex {
 		return meshStatic;
 	}
 
-	bool MeshImporter::ReLoadeMesh(AssetHandle handle, const std::filesystem::path& path)
+	bool MeshImporter::ReloadMesh(AssetHandle handle, const FileSystem::Path& path)
 	{
 		Ref<MeshStatic> meshStatic = AssetManager::GetAsset<MeshStatic>(handle);
 		StaticMeshSerializer serializer(meshStatic);

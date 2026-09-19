@@ -13,7 +13,7 @@ namespace Rynex {
 	public:
 		using Iterator = std::vector<Ref<PiplineRenderBase>>::iterator;
 		using ConstIterator = std::vector<Ref<PiplineRenderBase>>::const_iterator;
-	public:
+    // public member methode --------------------------------------------------------------------------------------------------
 #if 0
 		virtual ~PiplineRefBaseVec() {};
 		virtual void Destroy() = 0;
@@ -51,7 +51,7 @@ namespace Rynex {
 
 		virtual ~PiplineRefBaseVec() 
 		{
-			Destroy();
+            PiplineRefBaseVec::Destroy();
 		};
 
 
@@ -63,7 +63,7 @@ namespace Rynex {
 
 		virtual void ResetFramePipline();
 
-		virtual void ResetExpextedIndex();
+		virtual void ResetExpectedIndex();
 
 		virtual uint32_t GetIndexSize() const { return m_PiplineIndex; }
 		virtual uint32_t GetPiplineCount() const { return m_PiplineVec.size(); }
@@ -72,8 +72,8 @@ namespace Rynex {
 
 		virtual Ref<PiplineRenderBase> GetPipline(uint32_t i, RenderTarget& target) { RY_CORE_NOT_IMPL(); return Ref<PiplineRenderBase>(nullptr);}
 		virtual Ref<PiplineRenderBase> GetPipline(uint32_t i, Ref<RenderTarget>& target) { RY_CORE_NOT_IMPL(); return Ref<PiplineRenderBase>(nullptr);}
-		void SetVaildOutPut(const BufferLayout& layout);
-		const BufferLayout& GetVaildOutPut() const;
+		void SetValidOutPut(const BufferLayout& layout);
+		const BufferLayout& GetValidOutPut() const;
 
 		template<typename T>
 		Ref<PiplineRenderBase> GetPiplineType(uint32_t i, RenderTarget& target)
@@ -88,7 +88,7 @@ namespace Rynex {
 			}
 			else
 			{
-				RY_CORE_ASSERT(i == m_PiplineIndex, "Recusted Index is not next higer Index");
+				RY_CORE_ASSERT(i == m_PiplineIndex, "Recused Index is not next higher Index");
 				index = m_PiplineIndex;
 				m_PiplineIndex++;
 

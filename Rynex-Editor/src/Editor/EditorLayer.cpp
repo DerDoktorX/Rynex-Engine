@@ -33,7 +33,6 @@
 #include <Rynex/Renderer/PiplineObjects/Piplines/PiplineBase.h>
 
 #include <Rynex/Asset/Import/TextureImporter.h>
-#include <Rynex/Renderer/Rendering/DrawContext.h>
 
 
 
@@ -295,6 +294,7 @@ case key: \
             0.0f, -1.0f, 0.0f, 1.0f
         );
 
+
         Ref<Shader> shader = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/MeshTestShader.glsl"));
 
         glm::vec3 up;
@@ -359,7 +359,7 @@ case key: \
                 position, background, viewSpaceComplet, mode, 2.2f, fb), ViewPassType::Shadow);
 #elif 1
 
-            Entity entity = scene->CreateEntity("Directionel");
+            Entity entity = scene->CreateEntity("Directional");
             CameraComponent& camnerC = entity.AddComponent<CameraComponent>();
             camnerC.m_Camera.SetOrthoGraphic(size, nearClip, farClip);
             camnerC.m_Primary = false;
@@ -386,7 +386,7 @@ case key: \
 #endif
         }
 #ifdef RY_RENERER_DESIGN_CURENT_MAIN
-        cube = Mesh::CreateStaticMesh("Assets/Models/Cube.gltf");
+        cube = Mesh::CreateStaticMesh(FileSystem::Path("Assets/Models/Cube.gltf"));
 
         CreateStaticMeshEntity("Cube", scene, matrix2, cube);
 #endif // !RY_RENERER_DESIGN_CURENT_MAIN
@@ -489,8 +489,9 @@ case key: \
 
         ship = Mesh::CreateStaticMesh(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/Yamto-Model/scene.gltf"));
         cv = Mesh::CreateStaticMesh(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/CV-Model/scene.gltf"));
-        
-        cube = Mesh::CreateStaticMesh("Assets/Models/Cube.gltf");
+
+
+        cube = Mesh::CreateStaticMesh(FileSystem::Path("Assets/Models/Cube.gltf"));
         cube2 = Mesh::CreateStaticMesh(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/Cube2.gltf"));
         
         sponzer = Mesh::CreateStaticMesh(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/main_sponza/main_sponza/NewSponza_Main_glTF_003.gltf"));
@@ -516,7 +517,8 @@ case key: \
         
         
         Ref<MeshStatic> meshOrig;
-        meshOrig = Mesh::CreateStaticMesh(filePath);
+        FileSystem::Path path(filePath);
+        meshOrig = Mesh::CreateStaticMesh(path);
 
         std::filesystem::path projectPath = Project::GetActiveProjectDirectory();
         std::string fileStr = filePath.string();
@@ -529,15 +531,16 @@ case key: \
         
         std::filesystem::path filePathStMesh = projectPath / fileStaticMeshStr;
         RY_CORE_ASSERT(mesh->GetSingleMeshObjectCount() != meshOrig->GetSingleMeshObjectCount());
-        serialzation.Deserialize(filePathStMesh);
+
+        serialzation.Deserialize(FileSystem::Path(filePathStMesh));
         RY_CORE_ASSERT(mesh->GetSingleMeshObjectCount() == meshOrig->GetSingleMeshObjectCount());
         return mesh;
     }
 
     static void TestSerliceStaticMesh(const std::filesystem::path& filePath)
     {
-        Ref<MeshStatic> mesh;
-        mesh = Mesh::CreateStaticMesh(filePath);
+        FileSystem::Path path(filePath);
+        Ref<MeshStatic> mesh = Mesh::CreateStaticMesh(path);
         StaticMeshSerializer serialzation(mesh);
 
         std::filesystem::path projectPath = Project::GetActiveProjectDirectory();
@@ -550,7 +553,7 @@ case key: \
         fileStaticMeshStr += ".rystmesh";
 
         std::filesystem::path filePathStMesh = projectPath / fileStaticMeshStr;
-        serialzation.Serialize(filePathStMesh);
+        serialzation.Serialize(FileSystem::Path(filePathStMesh));
     }
 
     static void TestSerliceMesh()
@@ -585,9 +588,9 @@ case key: \
 
         std::function<void(Ref<Texture>, Ref<Scene>, int)> onSceneAssetLoadedEntityFunc = Entity::OnAssetLoded<SpriteRendererComponent, Texture>;
         Ref<LodePromisType<Texture, Scene, int>> loadePromis = CreateRef<LodePromisType<Texture, Scene, int>>(scene, onSceneAssetLoadedEntityFunc, entityID2);
-        std::filesystem::path filePath = RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/main_sponza/main_sponza/textures/metal_door_01_BaseColor.png");
+
         loadePromis->ChangeFuncArgs(entityID);
-        AssetManager::GetAssetAsyncPromis<Texture>(filePath, loadePromis);
+        AssetManager::GetAssetAsyncPromis<Texture>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/main_sponza/main_sponza/textures/metal_door_01_BaseColor.png"), loadePromis);
         
         loadePromis->AddRefObject(sceneCopy, onSceneAssetLoadedEntityFunc);
 
@@ -599,7 +602,7 @@ case key: \
             Ref<Texture> texture = textureWeak.lock();
             RY_CORE_ASSERT(nullptr != texture, "No Texture Set");
         }
-        Entity entityCopy = scene->GetEntityByName("hi-Test-asycn-loding");
+        Entity entityCopy = scene->GetEntityByName("hi-Test-async-loading");
         RY_CORE_ASSERT(entityCopy )
         {
 
@@ -885,7 +888,7 @@ case key: \
                 1u,
             };
             TextureSpecification specArray = spec;
-            specArray.Target = TextureTarget::Texture2D_Array;
+            specArray.m_Target = TextureTarget::Texture2D_Array;
             Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
 
             std::vector<uint8_t> pixelDataVec;
@@ -929,7 +932,7 @@ case key: \
             };
 
             TextureSpecification specArray = spec;
-            specArray.Target = TextureTarget::Texture2D_Array;
+            specArray.m_Target = TextureTarget::Texture2D_Array;
             Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
 
             std::vector<uint8_t> pixelDataVec;
@@ -978,7 +981,7 @@ case key: \
             };
 
             TextureSpecification specArray = spec;
-            specArray.Target = TextureTarget::Texture2D_Array;
+            specArray.m_Target = TextureTarget::Texture2D_Array;
             Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
 
             std::vector<uint8_t> pixelDataVec;
@@ -1029,7 +1032,7 @@ case key: \
             };
 
             TextureSpecification specArray = spec;
-            specArray.Target = TextureTarget::Texture2D_Array;
+            specArray.m_Target = TextureTarget::Texture2D_Array;
             Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
 
             std::vector<uint8_t> pixelDataVec;
@@ -1080,7 +1083,7 @@ case key: \
             };
 
             TextureSpecification specArray = spec;
-            specArray.Target = TextureTarget::Texture2D_Array;
+            specArray.m_Target = TextureTarget::Texture2D_Array;
             Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
 
             std::vector<uint8_t> pixelDataVec;
@@ -1134,7 +1137,7 @@ case key: \
             };
 
             TextureSpecification specArray = spec;
-            specArray.Target = TextureTarget::Texture2D_Array;
+            specArray.m_Target = TextureTarget::Texture2D_Array;
             Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
 
             std::vector<uint8_t> pixelDataVec;
@@ -1191,7 +1194,7 @@ case key: \
             };
 
             TextureSpecification specArray = spec;
-            specArray.Target = TextureTarget::Texture2D_Array;
+            specArray.m_Target = TextureTarget::Texture2D_Array;
             Ref<LinkedTextureArray> linkedTextureArray = LinkedTextureArray::Create(specArray);
 
             std::vector<uint8_t> pixelDataVec;
@@ -1230,37 +1233,7 @@ case key: \
         }
 
 
-        {
-            DrawContext context;
-            struct {
-                glm::vec4 color = {1.0f,1.0f, 1.0f,1.0f };
-                glm::vec4 color2 = { -1.0f,-1.0f, -1.0f,-1.0f };
 
-            } dataStruct;
-            Ref<UniformBuffer> buffer = UniformBuffer::Create(&dataStruct, sizeof(dataStruct));
-            context.CreateBuffer("TestBuffer", buffer, BufferLayout({
-                {SDT::Float4, "color"},
-                {SDT::Float4, "color2"}
-            }));
-            context.SetElement("color2", dataStruct.color);
-            context.SetElement("color", dataStruct.color2);
-
-            Ref<UniformBuffer> returnBuffer = context.GetBufferAs<UniformBuffer>("TestBuffer");
-            
-            
-
-            RY_CORE_ASSERT(buffer.get() == returnBuffer.get());
-
-            context.PushScope("Sope");
-            Ref<UniformBuffer> returnBufferScope = context.GetBufferFromScopeNameAs<UniformBuffer>("", "TestBuffer");
-            context.PopScope();
-
-            Ref<UniformBuffer> returnBufferNotScope = context.GetBufferAs<UniformBuffer>("TestBuffer");
-
-            RY_CORE_ASSERT(buffer.get() == returnBufferScope.get());
-            RY_CORE_ASSERT(buffer.get() == returnBufferNotScope.get());
-
-        }
     }
 
 
@@ -1571,7 +1544,7 @@ case key: \
        
         m_Scene_HPanel.SetContext(m_AktiveScene);
 
-        m_Content_BPannel.OnAtache();
+        m_Content_BPannel.OnAttache();
        
         m_EditorCamera = CreateRef<EditorCamera>(30.0f, 1.778f, 0.1, 1000.0f);
         // m_EditorCamera->SetDistance(5.5f);
@@ -1731,7 +1704,7 @@ case key: \
             m_AktiveScene = newScene;
 
             m_Scene_HPanel.SetContext(m_AktiveScene);
-            m_EditorScenePath = Project::GetActive()->GetEditorAssetManger()->GetMetadata(m_NextScene->Handle).m_FilePath;
+            m_EditorScenePath = Project::GetActive()->GetEditorAssetManger()->GetMetadata(m_NextScene->m_Handle).m_FilePath;
             m_ViewPortPannel.SetNewAktiveSecen(m_AktiveScene);
 
             m_NextScene = nullptr;
@@ -2107,16 +2080,17 @@ case key: \
             }
             m_Project = Project::GetActive();
             m_AssetManger = m_Project->GetEditorAssetManger();
-            ProjectConfig config = m_Project->GetConfig();
-            std::filesystem::path startScene = config.m_StartScene;
+            const ProjectConfig& config = m_Project->GetConfig();
+            const std::filesystem::path& startScene = config.m_StartScene;
             if (!startScene.empty())
             {
-                m_AssetManger->GetAssetHandle(startScene);
+                const FileSystem::Path scenePath(startScene);
+                m_AssetManger->GetAssetHandle(scenePath);
                 OpenScene();
                 // OpenScene(startScene);
             }
             
-            m_Content_BPannel = ContentBrowserPannel();
+            m_Content_BPannel = ContentBrowserPanel();
             
         }
     }
@@ -2159,7 +2133,7 @@ case key: \
         m_AktiveScene = CreateRef<Scene>();
         m_ViewPortPannel.SetNewAktiveSecen(m_AktiveScene);
         SceneSerializer serialzer(m_AktiveScene);     
-        serialzer.Deserialize(path);  
+        serialzer.Deserialize(FileSystem::Path(path));
 
         
         m_Scene_HPanel.SetContext(m_AktiveScene);
@@ -2183,18 +2157,19 @@ case key: \
         if (!filepath.empty())
         {
             SceneSerializer serialzer(m_AktiveScene);
-            serialzer.Serialize(filepath);
+            FileSystem::Path path(filepath);
+            serialzer.Serialize(path);
         }
     }
 
     void EditorLayer::SaveCurentScene()
     {
-        AssetHandle handle = m_AktiveScene->Handle;
+        AssetHandle handle = m_AktiveScene->m_Handle;
         if (m_AssetManger->IsAssetHandleValid(handle))
         {
             const AssetMetadata metadata = m_AssetManger->GetMetadata(handle);
             SceneSerializer serialzer(m_AktiveScene);
-            serialzer.Serialize(metadata.m_FilePath);
+            serialzer.Serialize(metadata.m_Path);
         }
         else
         {
@@ -2256,7 +2231,7 @@ case key: \
                 break;
             }
             }
-            ImGui::Text("Curent Scene State: %s", sceneState.c_str());
+            ImGui::Text("Current Scene State: %s", sceneState.c_str());
             ImGui::SameLine(500.0f, 1.0f);
             ImGuiPlayButten();
         }

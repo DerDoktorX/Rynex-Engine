@@ -27,7 +27,7 @@ namespace Rynex {
 		RenderPass MainRenderPassStorage;
 		Memory::StoreSubmite<RenderPass> RenderPassStorage;
 #endif
-		DrawContext drawContext;
+
 	};
 
 	
@@ -41,7 +41,7 @@ namespace Rynex {
 
 
 
-		Ref<UniformBuffer> CamerUB;
+		Ref<UniformBuffer> CameraUB;
 		Ref<UniformBuffer> DisplayUB;
 	};
 
@@ -88,14 +88,14 @@ namespace Rynex {
 		Font::ResetDefault();
 		RenderCommand::Shutdown();
 #ifndef RY_RENDERPASS_DATA_ELEMENT_ARRAY
-		Renderer::ShutdownRenderPass(s_Storage.MainRenderPassStorage);
 
+		Renderer::ShutdownRenderPass(s_Storage.MainRenderPassStorage);
 		for (RenderPass& renderPass : s_Storage.RenderPassStorage)
 		{
 			Renderer::ShutdownRenderPass(renderPass);
 		}
 		s_Storage.RenderPassStorage.Destroy();
-		s_Storage.drawContext.Clear();
+
 
 #else
 		for (RenderPass& renderPassPtr : s_Storage.AllRenderPassStorage)
@@ -136,11 +136,6 @@ namespace Rynex {
 
 
 #pragma region Main
-
-	DrawContext& Renderer::GetDrawContext()
-	{
-		return s_Storage.drawContext;
-	}
 
 	void Renderer::SetOnMainCameraCurentCamera()
 	{

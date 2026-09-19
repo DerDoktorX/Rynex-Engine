@@ -8,8 +8,8 @@ namespace Rynex {
 	{
 	public:
 		static Ref<MeshStatic> ImportMesh(AssetHandle handle, const AssetMetadata& metadata);
-		static Ref<MeshStatic> LoadMesh(const std::filesystem::path& path);
-		static bool ReLoadeMesh(AssetHandle handle, const std::filesystem::path& path);
+		static Ref<MeshStatic> LoadMesh(const FileSystem::Path& path);
+		static bool ReloadMesh(AssetHandle handle, const FileSystem::Path& path);
 	};
 }
 

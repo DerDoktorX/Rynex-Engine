@@ -7,7 +7,7 @@
 #include <Rynex/Renderer/RenderCommand.h>
 
 #include "Pannel/SceneHierachyPannel.h"
-#include "Pannel/ContentBrowserPannel.h"
+#include "Pannel/ContentBrowserPanel.h"
 #include "Pannel/ViewPortPannel.h"
 #include "Pannel/RendererPannel.h"
 #include "Pannel/MenuBarPannel.h"
@@ -110,7 +110,7 @@ namespace Rynex{
 	private:
 		RendererPannel* GetRendererPannel() { return &m_RendererPannel; }
 		SceneHierachyPannel* GetSceneHierachyPannel() { return &m_Scene_HPanel; }
-		ContentBrowserPannel* GetContentBrowserPannel() { return &m_Content_BPannel; }
+		ContentBrowserPanel* GetContentBrowserPannel() { return &m_Content_BPannel; }
 		MenuBarPannel* GetMenuBarPannel() { return &m_MenuBarPannel; }
 		ProjectPannel* GetProjectPannel() { return &m_ProjectPannel; }
 		ViewPortPannel* GetViewPortPannel() { return &m_ViewPortPannel; }
@@ -155,7 +155,7 @@ namespace Rynex{
 		// Panels
 		RendererPannel							m_RendererPannel;
 		SceneHierachyPannel						m_Scene_HPanel;
-		ContentBrowserPannel					m_Content_BPannel;
+		ContentBrowserPanel					m_Content_BPannel;
 		MenuBarPannel							m_MenuBarPannel;
 		ProjectPannel							m_ProjectPannel;
 		ViewPortPannel							m_ViewPortPannel;

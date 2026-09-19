@@ -34,10 +34,11 @@ namespace Rynex {
 	{
 	public:
 		Asset() = default;
-		Asset(const UUID& handle)
-			: Handle(handle)
+
+        explicit Asset(const UUID& handle)
+			: m_Handle(handle)
 		{ }
-		AssetHandle Handle;
+		AssetHandle m_Handle;
 		virtual AssetType GetType() const = 0;
 		virtual ~Asset();
 
@@ -69,7 +70,7 @@ namespace Rynex {
 		static Ref<T> GetRefInPlaceType(T* resourcePtr)
 		{
 			Asset* assetPtr = reinterpret_cast<Asset*>(resourcePtr);
-			Ref<Asset> assetRef = Asset::GetRefInPlace(assetPtr);
+			const Ref<Asset> assetRef = Asset::GetRefInPlace(assetPtr);
 			Ref<T> resourceRef = std::static_pointer_cast<T, Asset>(assetRef);
 			return resourceRef;
 		}
@@ -88,10 +89,10 @@ namespace Rynex {
 		static Weak<T> GetWeakInPlaceType(T* resourcePtr)
 		{
 			Asset* assetPtr = reinterpret_cast<Asset*>(resourcePtr);
-			Weak<Asset> assetWeak = Asset::GetWeakInPlace(assetPtr);
+			const Weak<Asset> assetWeak = Asset::GetWeakInPlace(assetPtr);
 			Weak<T> assetWeakT;
 
-			if (Ref<Asset> assetRef = assetWeak.lock())
+			if (const Ref<Asset> assetRef = assetWeak.lock())
 			{
 				Ref<T> assetRefT = std::static_pointer_cast<T, Asset>(assetRef);
 				assetWeakT = assetRefT;

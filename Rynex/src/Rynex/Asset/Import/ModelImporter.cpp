@@ -47,10 +47,7 @@ namespace Rynex {
 
 
             aiMatrix4x4 aiMatrix = node->mTransformation;
-  
-            
 
-           
 
             entityNodes.m_NodeName = std::string{ aiName.data, aiName.length };
 
@@ -89,7 +86,7 @@ namespace Rynex {
 
 #pragma region _Material
 
-        static void ReadTexureFilePaths(aiMaterial* materiel, aiTextureType type, const std::filesystem::path& assetPath, std::vector<std::filesystem::path>& pathTextures)
+        static void ReadTexureFilePaths(aiMaterial* materiel, aiTextureType type, const FileSystem::Path& assetPath, std::vector<FileSystem::Path>& pathTextures)
         { 
             uint32_t size = materiel->GetTextureCount(type);
 
@@ -101,18 +98,17 @@ namespace Rynex {
             {
                 aiString fileNameString;
                 materiel->GetTexture(type, i, &fileNameString);
-                std::filesystem::path texPath = assetPath / fileNameString.C_Str();
-                texPath = texPath.generic_string();
-                texPath = texPath.lexically_normal();
+                FileSystem::Path texPath(assetPath / fileNameString.C_Str());
+
                 pathTextures.emplace_back(texPath);
             }
         }
 
-        static MeshSource::MaterialMesh ReadMaterielData(aiMaterial* materiel,const std::filesystem::path& assetPath)
+        static MeshSource::MaterialMesh ReadMaterielData(aiMaterial* materiel, const FileSystem::Path& assetPath)
         {
-            std::vector<std::filesystem::path> filePaths;
+            std::vector<FileSystem::Path> filePaths;
             aiString aiName = materiel->GetName();
-           
+
             ReadTexureFilePaths(materiel, aiTextureType_DIFFUSE, assetPath, filePaths);
             ReadTexureFilePaths(materiel, aiTextureType_SPECULAR, assetPath, filePaths);
             ReadTexureFilePaths(materiel, aiTextureType_HEIGHT, assetPath, filePaths);
@@ -133,7 +129,7 @@ namespace Rynex {
             };
         }
 
-        static void ProcessMateriels(const aiScene* scene, std::vector<MeshSource::MaterialMesh>& materielVec, const std::filesystem::path& assetPath)
+        static void ProcessMateriels(const aiScene* scene, std::vector<MeshSource::MaterialMesh>& materielVec, const FileSystem::Path& assetPath)
         {
             uint32_t size = scene->mNumMaterials;
             aiMaterial** aiMaterials = scene->mMaterials;
@@ -343,7 +339,7 @@ namespace Rynex {
 
 #pragma endregion
 
-        static void ReadeSourceData(const aiScene* scene, std::vector<MeshSource::SourceMesh>& meshes, std::vector<MeshSource::SourceVertex>& vertexSourceData, std::vector<MeshSource::MaterialMesh>& materieles, MeshSource::EntityNodes& entityNodes, const std::filesystem::path& assetPath)
+        static void ReadeSourceData(const aiScene* scene, std::vector<MeshSource::SourceMesh>& meshes, std::vector<MeshSource::SourceVertex>& vertexSourceData, std::vector<MeshSource::MaterialMesh>& materieles, MeshSource::EntityNodes& entityNodes, const FileSystem::Path& assetPath)
         {
             ProcessMeshes(scene, meshes, vertexSourceData);
             RY_CORE_INFO("Finshed Loading Meshes {} and {} Mesh Gemotry", meshes.size(), vertexSourceData.size());
@@ -360,35 +356,36 @@ namespace Rynex {
     
     Ref<MeshSource> ModelImporter::ImportModel(AssetHandle handle, const AssetMetadata& metadata)
     {
-        std::filesystem::path filePath = metadata.m_AbsolutePath;
+        const FileSystem::Path& filePath = metadata.m_Path;
         Ref<MeshSource> model = LoadModel(filePath);
         return model;
     }
-    Ref<MeshSource> ModelImporter::LoadModel(const std::filesystem::path& path)
+    Ref<MeshSource> ModelImporter::LoadModel(const FileSystem::Path& path)
     {
-       
         RY_PROFILE_FUNCTION();
         std::chrono::time_point<std::chrono::high_resolution_clock> startTimePoint;
         std::chrono::time_point<std::chrono::high_resolution_clock> endeTimePoint;
-        RY_CORE_INFO("Beginn Loding Moddel {}", path.string());
+        RY_CORE_INFO("Begin Loading Model {}", path);
         startTimePoint = std::chrono::high_resolution_clock::now();
 
-        s_Data.curentFilePathExtention = path.extension();
+        s_Data.curentFilePathExtention = path.GetExtensionPathString();
 
-        Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(path.string().c_str(),
-            aiProcess_Triangulate 
-            | aiProcess_GenSmoothNormals 
+
+        const std::string pathStr = path.GetNamePathString();
+        const char* pathPtr = pathStr.c_str();
+        const uint32_t flags = aiProcess_Triangulate
+            | aiProcess_GenSmoothNormals
             | aiProcess_FlipUVs
             | aiProcess_JoinIdenticalVertices
             | aiProcess_OptimizeMeshes
             | aiProcess_FindInstances
-            | aiProcess_GenBoundingBoxes
-        );
+            | aiProcess_GenBoundingBoxes;
+        Assimp::Importer importer;
+        const aiScene* scene = importer.ReadFile(pathPtr, flags);
 
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
-            RY_CORE_ASSERT(false, ("Error Faild to loade File: {0}", importer.GetErrorString()));
+            RY_CORE_ASSERT(false, ("Error Failed to load File: {0}", importer.GetErrorString()));
             return nullptr;
         }
 
@@ -396,7 +393,8 @@ namespace Rynex {
         std::vector<MeshSource::MaterialMesh> materieles;
         MeshSource::EntityNodes entityNodes;
         std::vector<MeshSource::SourceVertex> vertexSourceData;
-        Utils::ReadeSourceData(scene, meshes, vertexSourceData, materieles, entityNodes, path.parent_path());
+        FileSystem::Path parent = path.GetParent();
+        Utils::ReadeSourceData(scene, meshes, vertexSourceData, materieles, entityNodes, parent);
         Ref<MeshSource> model = CreateRef<MeshSource>(std::move(materieles), std::move(meshes), std::move(vertexSourceData), std::move(entityNodes));
         
         return model;
@@ -404,7 +402,7 @@ namespace Rynex {
 
 
 
-    bool ModelImporter::ReLoadeModel(AssetHandle handle, const std::filesystem::path& path)
+    bool ModelImporter::ReloadModel(AssetHandle handle, const FileSystem::Path& path)
     {
         RY_CORE_NOT_IMPL();
         Ref<MeshSource> model = AssetManager::GetAsset<MeshSource>(handle);

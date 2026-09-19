@@ -18,39 +18,39 @@ namespace Rynex {
 
 	struct AssetBrowserData
 	{
-		bool IsAssset = false;
-		bool IsFolder = false;
-		AssetHandle Handle = 0;
-		AssetMetadata Metadata = AssetMetadata();
-		AssetType Type = AssetType::None;
-		std::string TypeString = "";
-		Ref<Texture> Texture = nullptr;
-		AssetState State = AssetState::None;
+		bool m_IsAsset = false;
+		bool m_IsFolder = false;
+		AssetHandle m_Handle = AssetHandle::Zero();
+		AssetMetadata m_Metadata;
+		AssetType m_Type = AssetType::None;
+		std::string TypeString;
+		Ref<Texture> m_Texture;
+		AssetState m_State = AssetState::None;
 
 		
-		std::string Name = "";
-		FileSystem::Path Path = "";
-		FileSystem::Path RelativProjectPath = "";
-		std::string PathString = "";
+		std::string m_Name;
+		FileSystem::Path m_Path;
+		FileSystem::Path m_RelativeProjectPath;
+		std::string m_PathString;
 
 		AssetBrowserData() = default;
-		AssetBrowserData(bool isAssset, bool isFolder, 
+		AssetBrowserData(bool isAsset, bool isFolder,
 			AssetHandle handle, const AssetMetadata& metadata, 
 			AssetType type,  const std::string& typeString, 
 			AssetState state,const std::string& name, 
 			const FileSystem::Path& path,  const std::string& pathString)
-			: IsAssset(isAssset), 
-			IsFolder(isFolder),
-			Handle(handle),
-			Metadata(metadata),
-			Type(type), 
+			: m_IsAsset(isAsset),
+			m_IsFolder(isFolder),
+			m_Handle(handle),
+			m_Metadata(metadata),
+			m_Type(type),
 			TypeString(typeString), 
-			State(state),
-			Name(name), 
-			Path(path),
-			RelativProjectPath(""), 
-			PathString(pathString), 
-			Texture(nullptr)
+			m_Texture(nullptr),
+			m_State(state),
+			m_Name(name),
+			m_Path(path),
+			m_RelativeProjectPath(""),
+			m_PathString(pathString)
 		{}
 		AssetBrowserData(AssetBrowserData&&) = default;
 		AssetBrowserData(const AssetBrowserData&) = default;
@@ -67,16 +67,20 @@ namespace Rynex {
 	using HandleRegistry = std::map<AssetHandle, AssetMetadata>;
 	using PathRegistry = std::map<FileSystem::Path, AssetHandle>;
 	using DirectoryRegistry = std::map<FileSystem::Path, AssetFileDirectory>;
-	using ContentBrowserItemes = std::vector<AssetBrowserData>;
+
+	using ContentBrowserItems = std::vector<AssetBrowserData>;
 
 	class AssetRegistry
 	{
 	public:
+	    AssetRegistry();
+	    ~AssetRegistry();
+
 		bool IsAssetInRegistry(AssetHandle handle) const;
 		bool IsAssetInRegistry(const FileSystem::Path& path) const;
 		bool IsDirectoryInRegistry(const FileSystem::Path& parentPath) const;
 		bool IsAssetPath(const FileSystem::Path& pathSystem) const;
-		bool IsAssetInteral(AssetHandle handle) const;
+		bool IsAssetInternal(AssetHandle handle) const;
 
 		void CreateAsset(const FileSystem::Path& path, AssetHandle handle = AssetHandle(), AssetMetadata metadata = AssetMetadata(), bool findDirectOnDisc = true);
 		AssetHandle CreatLocaleAsset(Ref<Asset>& asset, AssetMetadata& metadata);
@@ -97,10 +101,10 @@ namespace Rynex {
 
 		const HandleRegistry& GetHandleRegistry() const { return m_HandleRegistry; }
 		const PathRegistry& GetPathRegistry() const { return m_PathRegistry; }
-		const DirectoryRegistry& GetDirectorysRegistry() const { return m_DirectoryRegistry; }
+		const DirectoryRegistry& GetDirectoryRegistry() const { return m_DirectoryRegistry; }
 
-		bool IsCurentAssetState(const FileSystem::Path& showPath) const;
-		ContentBrowserItemes GetCurentAssetInformation(const FileSystem::Path& showPath);
+		bool IsCurrentAssetState(const FileSystem::Path& showPath) const;
+		ContentBrowserItems GetCurrentAssetInformation(const FileSystem::Path& showPath);
 
 		static std::string GetCurrentTimeStr();
 	private:
@@ -108,8 +112,8 @@ namespace Rynex {
 		PathRegistry m_PathRegistry;
 		DirectoryRegistry m_DirectoryRegistry;
 
-		bool m_Changes = true;
-		FileSystem::Path m_CurentPath = "";
+		bool m_Changes;
+		FileSystem::Path m_CurrentPath;
 	};
 
 	

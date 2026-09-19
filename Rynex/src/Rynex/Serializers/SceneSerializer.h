@@ -10,12 +10,12 @@ namespace Rynex {
 	public:
 		SceneSerializer(const Ref<Scene>& scene);
 
-		void Serialize(const std::filesystem::path& path);
-		void SerializeRuntime(const std::filesystem::path& path);
+		void Serialize(const FileSystem::Path& path);
+		void SerializeRuntime(const FileSystem::Path& path);
 
-		bool Deserialize(const std::filesystem::path& path);
+		bool Deserialize(const FileSystem::Path& path);
 		
-		bool DeserializeRuntime(const std::filesystem::path& path);
+		bool DeserializeRuntime(const FileSystem::Path& path);
 	
 	private:
 		Ref<Scene> m_Scene;

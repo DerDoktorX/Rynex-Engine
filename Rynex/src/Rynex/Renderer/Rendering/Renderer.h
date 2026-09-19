@@ -1,14 +1,10 @@
 #pragma once
-#include <Rynex/Core/Range.h>
 #include <Rynex/Renderer/RendererAPI.h>
-#include <Rynex/Renderer/API/ProtypeAPI.h>
 #include <Rynex/Renderer/Camera/Camera.h>
 #include <Rynex/Renderer/Rendering/RenderTarget.h>
-#include <Rynex/Renderer/Camera/CameraBufferLayouts.h>
 #include <Rynex/Renderer/Camera/CamerRenderPack.h>
 #include <Rynex/Renderer/Rendering/StoreSubmite.h>
 #include <Rynex/Renderer/Rendering/PiplineVec.h>
-#include <Rynex/Renderer/Rendering/DrawContext.h>
 
 
 #define RY_SHADOW_COUNT 1
@@ -489,7 +485,7 @@ namespace Rynex {
 		// imgeSize [ Size(x,y) / Offset(z,w) ]
 		static void SetViewSizeMain(const glm::ivec4& imgeSize);
 
-		static DrawContext& GetDrawContext();
+
 
 
 		static void SetOnMainCameraCurentCamera();

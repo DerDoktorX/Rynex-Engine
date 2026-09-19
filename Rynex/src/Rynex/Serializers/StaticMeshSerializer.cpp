@@ -26,7 +26,7 @@ namespace Rynex {
 				return false;
 			}
 			const AssetMetadata metaData = editorAssetManger->GetMetadata(handle);
-			const std::filesystem::path& filePath = metaData.m_FilePath;
+			const FileSystem::Path& filePath = metaData.m_Path;
 			const std::filesystem::path& pathMarked = metaData.m_PathMarker;
 
 			if (!editorAssetManger->IsAssetHandleValid(filePath))
@@ -63,7 +63,7 @@ namespace Rynex {
 				const Ref<EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
 
 				const Ref<Material>& material = object.m_Material;
-				const AssetHandle materielHandle = material->Handle;
+				const AssetHandle materielHandle = material->m_Handle;
 
 				const std::string key = "Material";
 				if(editorAssetManger->IsAssetHandleValid(materielHandle) && !editorAssetManger->IsAssetInteral(materielHandle))
@@ -217,13 +217,13 @@ namespace Rynex {
 		}
 
 	    // TODO: Replace function in the long run.
-		static bool DeserializeMateriel(AssetHandle materialHandle, const std::filesystem::path& path, MeshStatic::SingleObjectMeshData& singleObjectMeshData)
+		static bool DeserializeMateriel(AssetHandle materialHandle, const FileSystem::Path& path, MeshStatic::SingleObjectMeshData& singleObjectMeshData)
 		{
 		    RY_REMBER_FUNC_CHANGE("Remove function replace withe DeserializeAssetFormate!");
 			const Ref<Project> project = Project::GetActive();
 			const Ref<EditorAssetManagerThread> assetManager = project->GetEditorAssetManger();
 			const AssetHandle handleP = assetManager->GetAssetHandle(path);
-			RY_CORE_ASSERT(handleP == materialHandle, "Not Simulare Asset Handle!");
+			RY_CORE_ASSERT(handleP == materialHandle, "Not Simulate Asset Handle!");
 
 			singleObjectMeshData.LocaleIndexMateriel = static_cast<uint32_t>(-1);
 			Ref<Material>& materiel = singleObjectMeshData.m_Material;
@@ -269,9 +269,9 @@ namespace Rynex {
 				    if (const YAML::Node materielFilePathNode = materielNode["FilePath"])
 				    {
 				        AssetHandle materielHandle = materielHandleNode.as<uint64_t>();
-
-					    std::filesystem::path materielFilPath = materielNode["FilePath"].as<std::string>();
-					    resultMateriel = Utils::DeserializeMateriel(materielHandle, materielFilPath, singleObjectMeshData);
+                        std::string pathStr = materielNode["FilePath"].as<std::string>();
+					    FileSystem::Path materielFilPath(pathStr);
+					    resultMateriel = DeserializeMateriel(materielHandle, FileSystem::Path(pathStr), singleObjectMeshData);
 				    }
 					else
 					{
@@ -282,7 +282,7 @@ namespace Rynex {
 				{
 					return false;
 				}
-
+                RY_CORE_WARN_IF(!resultMateriel, "Material Failed some How!");
 			}
 			if (const YAML::Node& objectNode = meshNodes["Node"])
 			{
@@ -301,7 +301,7 @@ namespace Rynex {
 	{
 	}
 
-	bool StaticMeshSerializer::Serialize(const std::filesystem::path& filepath)
+	bool StaticMeshSerializer::Serialize(const FileSystem::Path& filepath)
 	{
 		RY_CORE_WARN("Begin Serialize a MeshSource in '{}'", filepath);
 
@@ -310,7 +310,7 @@ namespace Rynex {
 		out << YAML::BeginMap;
 		{
 			Ref<MeshSource> meshSource = m_MeshStatic->GetMeshSource();
-			AssetHandle sourceHandle = meshSource->Handle;
+			AssetHandle sourceHandle = meshSource->m_Handle;
 			if (!Utils::SerializerAssetFormate(out, "Source-Mesh", sourceHandle))
 				return false;
 
@@ -328,23 +328,23 @@ namespace Rynex {
 		}
 		out << YAML::EndMap;
 
-		std::ofstream fout(filepath);
+		std::ofstream fout(filepath.GetPath());
 		RY_CORE_ASSERT(fout);
 		fout << out.c_str();
 
 		return true;
 	}
 
-	bool StaticMeshSerializer::Deserialize(const std::filesystem::path& filepath)
+	bool StaticMeshSerializer::Deserialize(const FileSystem::Path& filepath)
 	{
 		YAML::Node data;
 		try
 		{
-			data = YAML::LoadFile(filepath.string());
+			data = YAML::LoadFile(filepath.GetPathString());
 		}
 		catch (YAML::ParserException e)
 		{
-			RY_CORE_ERROR("Failed to load project file '{0}'\n     {1}", filepath.string(), e.what());
+			RY_CORE_ERROR("Failed to load project file '{0}'\n     {1}", filepath, e.what());
 			return false;
 		}
 		

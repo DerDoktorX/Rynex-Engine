@@ -7,16 +7,16 @@ namespace Rynex {
 
     Ref<Shader> ShaderImporter::ImportShader(AssetHandle handle, const AssetMetadata& metadata)
     {
-		std::filesystem::path filePath = metadata.m_AbsolutePath;
+		const FileSystem::Path& filePath = metadata.m_Path;
 		return LoadShader(filePath, metadata.m_Name);
     }
 
-	Ref<Shader> ShaderImporter::LoadShader(const std::filesystem::path& path, const std::string& name)
+	Ref<Shader> ShaderImporter::LoadShader(const FileSystem::Path& path, const std::string& name)
 	{
 		std::string result;
 		try
 		{
-			std::string filePath = path.string();
+			std::string filePath = path.GetPathString();
 			auto fileFlag = std::ios::binary | std::ios::in;
 			std::ifstream in(filePath, fileFlag);
 
@@ -29,12 +29,12 @@ namespace Rynex {
 				in.seekg(0, std::ios::beg);
 				in.read(&result[0], result.size());
 				in.close();
-				RY_CORE_INFO("Sucesfull open and close file'{0}'! (LoadShader)", path.string());
+				RY_CORE_INFO("Successful open and close file'{0}'! (LoadShader)", path);
 
 			}
 			else
 			{
-				RY_CORE_ERROR("Coud not open file '{0}' filepath. (LoadShader)", path.string());
+				RY_CORE_ERROR("Could not open file '{0}' filepath. (LoadShader)", path);
 				return nullptr;
 			}
 		}
@@ -56,14 +56,14 @@ namespace Rynex {
 		return shader;
 	}
 
-	bool ShaderImporter::ReLoadeShader(AssetHandle handle, const std::filesystem::path& path)
+	bool ShaderImporter::ReloadShader(AssetHandle handle, const FileSystem::Path& path)
 	{
-		RY_CORE_WARN("In Dev Funktion: ReLoadeShader!");
+		RY_CORE_WARN("In Dev Funktion: ReloadShader!");
 		
 		std::string result;
 
 		try {
-			std::string filePath = path.string();
+			std::string filePath = path.GetPathString();
 			auto fileFlag = std::ios::binary | std::ios::in;
 			std::ifstream in(filePath, fileFlag);
 		
@@ -74,7 +74,7 @@ namespace Rynex {
 				in.seekg(0, std::ios::beg);
 				in.read(&result[0], result.size());
 				in.close();
-				RY_CORE_INFO("Sucesfull open and close file'{0}'! (ReLoadeShader)", path.string());
+				RY_CORE_INFO("Successful open and close file'{0}'! (ReLoadShader)", path);
 			}
 			else
 			{
@@ -84,12 +84,12 @@ namespace Rynex {
 					RY_CORE_FATAL("Logical error on i/o operation '{}'", mes);
 				if(in.bad())
 					RY_CORE_FATAL("Read/write error on i/o operation '{}'", mes);
-				std::string mesStr = path.string();
+				std::string mesStr = path.GetPathString();
 				std::ios_base::iostate rdState = in.rdstate();
 
-				RY_CORE_WARN_IF(std::ios_base::goodbit == rdState, "Coud not open file '{0}' filepath. (ReLoadeShader)  Error Flage: goodbit", mesStr);
-				RY_CORE_ERROR_IF(std::ios_base::badbit == rdState, "Coud not open file '{0}' filepath. (ReLoadeShader)  Error Flage: badbit", mesStr);
-				RY_CORE_FATAL_IF(std::ios_base::failbit == rdState,"Coud not open file '{0}' filepath. (ReLoadeShader)  Error Flage: failbit", mesStr);
+				RY_CORE_WARN_IF(std::ios_base::goodbit == rdState, "Could not open file '{0}' filepath. (ReloadShader)  Error Flag: goodbit", mesStr);
+				RY_CORE_ERROR_IF(std::ios_base::badbit == rdState, "Could not open file '{0}' filepath. (ReloadShader)  Error Flag: badbit", mesStr);
+				RY_CORE_FATAL_IF(std::ios_base::failbit == rdState,"Could not open file '{0}' filepath. (ReloadShader)  Error Flag: failbit", mesStr);
 				return false;
 			}
 		}

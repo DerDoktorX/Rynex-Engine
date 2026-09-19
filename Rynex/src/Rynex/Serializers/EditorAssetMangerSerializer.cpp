@@ -255,7 +255,7 @@ namespace Rynex {
 				constexpr const char* checkPath = "Engine#!#/Engine-Resources/Editor-Assets/shaders/TextureTransform2.glsl";
 				constexpr const char* expextOutPutRealtiv = "Engine-Resources/Editor-Assets/shaders/TextureTransform2.glsl";
 				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetEngineDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
-				
+
 				constexpr const char* expextOutPutMarked = "Engine#!#/Engine-Resources/Editor-Assets/shaders/TextureTransform2.glsl";
 
 				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(expextOutPutOrigne).data());
@@ -292,7 +292,7 @@ namespace Rynex {
 				constexpr const char* expextOutPutRealtiv = "Engine-Resources/Editor-Assets/Texture/ChernoLogo.png";
 				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetProjectDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
 
-				
+
 				constexpr const char* expextOutPutMarked = RY_PATH_PROJECT_MARKER_STR "/Engine-Resources/Editor-Assets/Texture/ChernoLogo.png";
 
 				RY_CORE_TRACE("Check now: {1} {0}", checkPath, magic_enum::enum_name(FileSystem::Path::Origin::Project).data());
@@ -330,7 +330,7 @@ namespace Rynex {
 				constexpr const char* expextOutPutRealtiv = "Engine-Resources/Editor-Assets/Assets/Models/Cube.rystmesh";
 				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetEngineDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
 
-				
+
 				constexpr const char* expextOutPutMarked = "Engine#!#/Engine-Resources/Editor-Assets/Assets/Models/Cube.rystmesh";
 
 				RY_CORE_TRACE("Check now: {1} {0}", expextOutPutAbsoulte, magic_enum::enum_name(expextOutPutOrigne).data());
@@ -370,7 +370,7 @@ namespace Rynex {
 			constexpr const FileSystem::Path::Origin expextOutPutOrigne = FileSystem::Path::Origin::Engine;
 			{
 
-				constexpr const char* checkPath = "Engine#!#/Engine-Resources/Editor-Assets/shaders/TextureTransform2.glsl";				
+				constexpr const char* checkPath = "Engine#!#/Engine-Resources/Editor-Assets/shaders/TextureTransform2.glsl";
 				constexpr const char* expextOutPutRealtiv = "Engine-Resources/Editor-Assets/shaders/TextureTransform2.glsl";
 
 				const std::string expextOutPutAbsoulte = std::filesystem::absolute(FileSystem::Path::GetEngineDirectory() / expextOutPutRealtiv).generic_string();
@@ -398,11 +398,11 @@ namespace Rynex {
 				}
 				else
 				{
-					RY_CORE_ERROR_IF(!resultPath, "Test 1 Marked Path: FAILD! (From Path) {}", pathStr);
-					RY_CORE_ERROR_IF(!resultOrigne, "Test 1 Marked Path: FAILD! (From Origin) {}", magic_enum::enum_name(origne).data());
-					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 1 Marked Path: FAILD! (From Absolute) {}", pathAbsoulteStr);
-					RY_CORE_ERROR_IF(!resultRealtiv, "Test 1 Marked Path: FAILD! (From Realtiv) {}", pathRelativeStr);
-					RY_CORE_ERROR_IF(!resultMarked, "Test 1 Marked Path: FAILD! (From Marked) {}", pathMarkedStr);
+					RY_CORE_ERROR_IF(!resultPath, "Test 1 Marked Path: FAILED! (From Path) {}", pathStr);
+					RY_CORE_ERROR_IF(!resultOrigne, "Test 1 Marked Path: FAILED! (From Origin) {}", magic_enum::enum_name(origne).data());
+					RY_CORE_ERROR_IF(!resultAbsoulte, "Test 1 Marked Path: FAILED! (From Absolute) {}", pathAbsoulteStr);
+					RY_CORE_ERROR_IF(!resultRealtiv, "Test 1 Marked Path: FAILED! (From Realtiv) {}", pathRelativeStr);
+					RY_CORE_ERROR_IF(!resultMarked, "Test 1 Marked Path: FAILED! (From Marked) {}", pathMarkedStr);
 					RY_CORE_ASSERT(false);
 				}
 			}
@@ -446,7 +446,7 @@ namespace Rynex {
 			{
 				constexpr const char* checkPath = "D:/dev/Rynex-Rendering/Engine-Resources/Editor-Assets/Assets/Models/Cube.rystmesh";
 				constexpr const char* expextOutPutRealtiv = "Engine-Resources/Editor-Assets/Assets/Models/Cube.rystmesh";
-				
+
 				const std::string expextOutPutAbsoulte = (FileSystem::Path::GetEngineDirectory() / expextOutPutRealtiv).lexically_normal().generic_string();
 				constexpr const char* expextOutPutMarked = "Engine#!#/Engine-Resources/Editor-Assets/Assets/Models/Cube.rystmesh";
 

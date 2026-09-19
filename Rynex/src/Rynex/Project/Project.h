@@ -106,7 +106,7 @@ namespace Rynex {
 			return s_ActiveInstanceProject->m_Config.m_ScriptCorePath;
 		}
 
-		static void SetActiveLastSceneAsset(const std::filesystem::path& sceneAsset)
+		static void SetActiveLastSceneAsset(const FileSystem::Path& sceneAsset)
 		{
 			RY_CORE_ASSERT(s_ActiveInstanceProject, "Error: Project::SetActiveLastSceneAsset()");
 			if(s_ActiveInstanceProject->m_AssetManger->IsAssetHandleValid(sceneAsset))

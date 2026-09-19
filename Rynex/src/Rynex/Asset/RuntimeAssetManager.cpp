@@ -26,7 +26,7 @@ namespace Rynex {
 
     bool RuntimeAssetManager::IsAssetInteral(AssetHandle handle) const
     {
-        return m_AssetRegistry.IsAssetInteral(handle);
+        return m_AssetRegistry.IsAssetInternal(handle);
     }
 
     Ref<Asset> RuntimeAssetManager::GetAsset(AssetHandle handle)
@@ -44,7 +44,7 @@ namespace Rynex {
                 metadata.SetState(AssetState::Loading);
                 asset = AssetImporter::ImportAsset(handle, metadata);
                 metadata.SetState(AssetState::Ready);
-                asset->Handle = handle;
+                asset->m_Handle = handle;
                 if (!asset) {}
                 m_LoadedAssets[handle] = asset;
             }

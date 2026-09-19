@@ -130,7 +130,7 @@ namespace Rynex {
 			{
 				RY_CORE_ASSERT(nullptr != texture);
 				TextureSpecification spec = texture->GetSpecification();
-				spec.Target = TextureTarget::Texture2D_Array;
+				spec.m_Target = TextureTarget::Texture2D_Array;
 				linkedTextureArray = LinkedTextureArray::Create(spec);
 			}
 			if (linkedTextureArray->GetTextureCount() <= curentIndex)

@@ -4,8 +4,8 @@
 #define RY_PATH_PROJECT_MARKER_STR "Project#!#"
 #define RY_PATH_ENGINE_MARKER_STR "Engine#!#"
 #define RY_PATH_NO_VALID_MARKER_STR "NotVaild!#"
-#define RY_PATH_EXPECT_ENGINE_RELATIVE_START_FOlDER_STR "Editor-Assets/"
-#define RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR "Engine-Resources/" RY_PATH_EXPECT_ENGINE_RELATIVE_START_FOlDER_STR
+#define RY_PATH_EXPECT_ENGINE_RELATIVE_START_FOlDER_STR "Engine-Resources/"
+#define RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR "Engine-Resources/"
 
 #define RY_PATH_PROJECT_MARKER_WSTR L"Project#!#"
 #define RY_PATH_ENGINE_MARKER_WSTR L"Engine#!#"
@@ -23,7 +23,7 @@ namespace Rynex::FileSystem {
 
         inline static constexpr const char* const PATH_MARKER_STR[PATH_MARKER_COUNT]={
             "",								// no marker at all
-            RY_PATH_NO_VALID_MARKER_STR,	// not vaild marker
+            RY_PATH_NO_VALID_MARKER_STR,	// not valid marker
             RY_PATH_ENGINE_MARKER_STR,		// engine marker
             RY_PATH_PROJECT_MARKER_STR		// project marker
         };
@@ -55,10 +55,10 @@ namespace Rynex::FileSystem {
         // --- public methods -------------------------------------------------------------------------------------------------
         Path();
         Path(const Path& file);
-        Path(const std::string& pathStr, Origin origne = Origin::None);
-        Path(const std::string_view& pathView, Origin origne = Origin::None);
-        Path(const std::filesystem::path& path, Origin origne = Origin::None);
-        Path(const char* path, Origin origne = Origin::None);
+        explicit Path(const std::string& pathStr, Origin origin = Origin::None);
+        explicit Path(const std::string_view& pathView, Origin origin = Origin::None);
+        explicit Path(const std::filesystem::path& path, Origin origin = Origin::None);
+        explicit Path(const char* path, Origin origin = Origin::None);
 
         ~Path();
 
@@ -103,52 +103,52 @@ namespace Rynex::FileSystem {
 
         inline bool operator==(const Path& path) const
         {
-            bool resultOrigin = m_Origin == path.m_Origin;
-            bool resultPath = m_Path == path.m_Path;
+            const bool resultOrigin = m_Origin == path.m_Origin;
+            const bool resultPath = m_Path == path.m_Path;
             return resultPath && resultOrigin;
         }
 
         inline bool operator==(const std::filesystem::path& path) const
         {
-            bool resultPath = m_Path == path;
+            const bool resultPath = m_Path == path;
             return resultPath;
         }
 
         inline bool operator==(const std::string& pathStr) const
         {
-            bool resultPath = m_Path == pathStr;
+            const bool resultPath = m_Path == pathStr;
             return resultPath;
         }
 
         inline bool operator==(const char* pathCharPtr) const
         {
-            bool resultPath = m_Path == pathCharPtr;
+            const bool resultPath = m_Path == pathCharPtr;
             return resultPath;
         }
 
 
         inline bool operator!=(const Path& path) const
         {
-            bool resultOrigin = m_Origin != path.m_Origin;
-            bool resultPath = m_Path != path.m_Path;
+            const bool resultOrigin = m_Origin != path.m_Origin;
+            const bool resultPath = m_Path != path.m_Path;
             return resultPath || resultOrigin;
         }
 
         inline bool operator!=(const std::filesystem::path& path) const
         {
-            bool resultPath = m_Path != path;
+            const bool resultPath = m_Path != path;
             return resultPath;
         }
 
         inline bool operator!=(const std::string& pathStr) const
         {
-            bool resultPath = m_Path != pathStr;
+            const bool resultPath = m_Path != pathStr;
             return resultPath;
         }
 
         inline bool operator!=(const char* pathCharPtr) const
         {
-            bool resultPath = m_Path != pathCharPtr;
+            const bool resultPath = m_Path != pathCharPtr;
             return resultPath;
         }
 
@@ -195,6 +195,36 @@ namespace Rynex::FileSystem {
             return m_Path;
         }
 
+        inline Path operator / (const std::filesystem::path& right) const
+        {
+            const std::filesystem::path path = m_Path / right;
+            Path systemPath(path);
+            return systemPath;
+        }
+
+
+
+        inline Path operator/(const std::string& right) const
+        {
+            const std::filesystem::path path = m_Path / right;
+            Path systemPath(path);
+            return systemPath;
+        }
+
+        inline Path operator/(const char* right) const
+        {
+            const std::filesystem::path path = m_Path / right;
+            Path systemPath(path);
+            return systemPath;
+        }
+
+        inline Path operator/(const Path& right) const
+        {
+            const std::filesystem::path path = m_Path / right.m_Path;
+            Path systemPath(path);
+            return systemPath;
+        }
+
         inline Path& operator/=(const std::filesystem::path& path)
         {
             m_Path /= path;
@@ -222,7 +252,7 @@ namespace Rynex::FileSystem {
         {
             return m_Path < path.m_Path;
         }
-        // --- public static methodes ---------------------------------------------------------------------------------------------
+        // --- public static methods ------------------------------------------------------------------------------------------
         static std::filesystem::path GetProjectDirectory();
         static std::filesystem::path GetEngineDirectory();
         static std::filesystem::path GetWorkingDirectory();
@@ -241,7 +271,7 @@ namespace Rynex::FileSystem {
         static bool IsPathMarked(const std::string& markedPathStr);
         static bool IsOriginPathMarked(Origin origin);
         static bool IsStringInPath(const std::filesystem::path& path, const char* searchPtr);
-        static bool IsStringInPath(const std::string& pathStr, const char* searchPtr);
+
 
         static std::filesystem::path RemovePathMarker(const std::string& markedPathStr);
         static std::filesystem::path RemovePathMarker(const std::string& markedPathStr, Origin origin);
@@ -259,10 +289,10 @@ namespace Rynex::FileSystem {
         static void ConvertAbsolutePath(std::filesystem::path& path, Origin origin);
         static std::tuple<std::filesystem::path, Origin> ConvertPathNoMarker(const std::string& pathStr, Origin origin);
         static void ConvertUniversalPath(std::filesystem::path& path);
-        static void ConvertRealtivePathFromAbsolutePath(std::filesystem::path& relativePath, Origin origin);
+        static void ConvertRelativePathFromAbsolutePath(std::filesystem::path& relativePath, Origin origin);
 
         static std::tuple<std::filesystem::path, Origin> ConvertInternalPath(const std::string& pathStr, Origin origin);
-        // --- private constexpr static methodes ----------------------------------------------------------------------------------
+        // --- private constexpr static methods -------------------------------------------------------------------------------
         inline static constexpr uint32_t GetMarkerLength(const char* const marker)
         {
             uint32_t count = 0;
@@ -319,13 +349,14 @@ namespace std {
 	};
 }
 
-
-template<>
-struct fmt::formatter<Rynex::FileSystem::Path> : fmt::formatter<std::filesystem::path>
-{
-    context::iterator format(const Rynex::FileSystem::Path& value, fmt::format_context& ctx) const
+namespace fmt {
+    template<>
+    struct formatter<Rynex::FileSystem::Path> : formatter<std::filesystem::path>
     {
-        const std::filesystem::path& path = value.GetPath();
-        return fmt::formatter<std::filesystem::path>::format(path, ctx);
-    }
-};
+        context::iterator format(const Rynex::FileSystem::Path& value, format_context& ctx) const
+        {
+            const std::filesystem::path& path = value.GetPath();
+            return formatter<std::filesystem::path>::format(path, ctx);
+        }
+    };
+}

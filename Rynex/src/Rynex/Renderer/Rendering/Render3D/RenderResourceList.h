@@ -41,7 +41,7 @@ namespace Rynex {
 
 		_InfoDataNT& Add(const ResourceT& resource, const _N& data)
 		{
-			const std::unordered_map<UUID, uint32_t>::const_iterator& it = m_ResourceFinder.find(resource->Handle);
+			const std::unordered_map<UUID, uint32_t>::const_iterator& it = m_ResourceFinder.find(resource->m_Handle);
 			if (it == m_ResourceFinder.end())
 			{
 				uint32_t index = m_Size;
@@ -61,7 +61,7 @@ namespace Rynex {
 					});
 				
 				
-				m_ResourceFinder[resource->Handle] = index;
+				m_ResourceFinder[resource->m_Handle] = index;
 				m_Size++;
 
 #if RY_RENDER_RESOURCE_DATA_ARRAY
@@ -92,7 +92,7 @@ namespace Rynex {
 		_InfoDataNT GetInfo(const ResourceT& resource)
 		{
 			using ItConst = std::unordered_map<UUID, uint32_t>::iterator;
-			ItConst it = m_ResourceFinder.find(resource->Handle);
+			ItConst it = m_ResourceFinder.find(resource->m_Handle);
 			if (it != m_ResourceFinder.end())
 			{
 				uint32_t index = it->second;
@@ -132,7 +132,7 @@ namespace Rynex {
 
 		uint32_t GetIndex(const ResourceT& resource)
 		{
-			const std::unordered_map<UUID, uint32_t>::const_iterator& it = m_ResourceFinder.find(resource->Handle);
+			const std::unordered_map<UUID, uint32_t>::const_iterator& it = m_ResourceFinder.find(resource->m_Handle);
 			if (it == m_ResourceFinder.end())
 				return it->second;
 			RY_CORE_ASSERT(false);
@@ -142,13 +142,13 @@ namespace Rynex {
 		bool Has(const ResourceT& resource)
 		{
 			using ItConst = std::unordered_map<UUID, uint32_t>::iterator;
-			ItConst it = m_ResourceFinder.find(resource->Handle);
+			ItConst it = m_ResourceFinder.find(resource->m_Handle);
 			return it != m_ResourceFinder.end();
 		}
 
 		void Remove(const ResourceT& resource)
 		{
-			const std::unordered_map<UUID, uint32_t>::const_iterator& it = m_ResourceFinder.find(resource->Handle);
+			const std::unordered_map<UUID, uint32_t>::const_iterator& it = m_ResourceFinder.find(resource->m_Handle);
 			if (it == m_ResourceFinder.end())
 			{
 				RY_CORE_ASSERT(false);
@@ -182,7 +182,7 @@ namespace Rynex {
 				m_Infos.emplace_back<InfoData>(InfoData{ res.Count,  ,res.Resource});
 #endif
 				m_Infos.template emplace_back<_InfoDataNT>(_InfoDataNT{ res });
-				m_ResourceFinder[res.Resource->Handle] = i;
+				m_ResourceFinder[res.Resource->m_Handle] = i;
 				i++;
 			}
 			

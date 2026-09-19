@@ -10,8 +10,8 @@ namespace Rynex {
 	{
 	public:
 		static Ref<Shader> ImportShader(AssetHandle handle, const AssetMetadata& metadata);
-		static Ref<Shader> LoadShader(const std::filesystem::path& path, const std::string& name);
-		static bool ReLoadeShader(AssetHandle handle, const std::filesystem::path& path);
+		static Ref<Shader> LoadShader(const FileSystem::Path& path, const std::string& name);
+		static bool ReloadShader(AssetHandle handle, const FileSystem::Path& path);
 	};
 }
 

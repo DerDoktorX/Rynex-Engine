@@ -224,7 +224,7 @@ namespace Rynex {
 			vao = VertexArray::Create();
 			vao->AddVertexBuffer(vab);
 			vao->SetIndexBuffer(iabShade);
-			vao->SetPrimitv(VertexArray::Primitv::Traingle);
+			vao->SetPrimitive(VertexArray::Primitive::Triangle);
 			return true;
 		}
 
@@ -305,7 +305,7 @@ namespace Rynex {
 			const std::vector<VertexArray::VertexElements>& vabVec = vao->GetVertexBuffers();
 			for (const VertexArray::VertexElements& e : vabVec)
 			{
-				const Ref<VertexBuffer>& buffer = e.Buffer;
+				const Ref<VertexBuffer>& buffer = e.m_Buffer;
 				if (vab == buffer)
 				{
 					return true;

@@ -39,7 +39,7 @@ namespace Rynex {
 			m_DisplaySlot = slot;
 		}
 
-		virtual void Create(const std::filesystem::path& path, uint32_t quadeCount, const N* defaultVertex, const BufferLayout& layout, const Ref<Texture>& defaultTex, const std::string& textureName)
+		virtual void Create(const FileSystem::Path& path, uint32_t quadeCount, const N* defaultVertex, const BufferLayout& layout, const Ref<Texture>& defaultTex, const std::string& textureName)
 		{
 			N* defaultVertexPtr = (N*)defaultVertex;
 			N* defaultVertexBegin = defaultVertexPtr; 

@@ -134,7 +134,7 @@ void Sandbox2D::OnAttach()
 	m_FullScreenQuade = Rynex::VertexArray::Create();
 	m_FullScreenQuade->AddVertexBuffer(vertexBuffer);
 	m_FullScreenQuade->SetIndexBuffer(indexBuffer);
-	m_FullScreenQuade->SetPrimitv(Rynex::VertexArray::Primitv::TraingleStrips);
+	m_FullScreenQuade->SetPrimitive(Rynex::VertexArray::Primitive::TriangleStrips);
 
 	
 	m_FullScreenShader = Rynex::ShaderImporter::LoadShader("Engine-Resources/Editor-Assets/shaders/FullScreeShader.glsl", "FullScreeShader", false);

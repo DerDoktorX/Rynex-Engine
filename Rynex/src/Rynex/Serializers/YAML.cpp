@@ -364,9 +364,9 @@ namespace YAML {
 	{
 		out << YAML::Flow;
 		out << YAML::BeginMap;
-		out << YAML::Key << "S" << textureWrapping.S;
-		out << YAML::Key << "T" << textureWrapping.T;
-		out << YAML::Key << "R" << textureWrapping.R;
+		out << YAML::Key << "S" << textureWrapping.m_S;
+		out << YAML::Key << "T" << textureWrapping.m_T;
+		out << YAML::Key << "R" << textureWrapping.m_R;
 		out << YAML::EndMap;
 		return out;
 	}
@@ -501,9 +501,9 @@ namespace YAML {
 
 	bool convert<Rynex::TextureWrappingSpecification>::decode(const Node& node, Rynex::TextureWrappingSpecification& textureWrapping)
 	{
-		textureWrapping.S = node["S"].as<Rynex::TextureWrappingMode>();
-		textureWrapping.T = node["T"].as<Rynex::TextureWrappingMode>();
-		textureWrapping.R = node["R"].as<Rynex::TextureWrappingMode>();
+		textureWrapping.m_S = node["S"].as<Rynex::TextureWrappingMode>();
+		textureWrapping.m_T = node["T"].as<Rynex::TextureWrappingMode>();
+		textureWrapping.m_R = node["R"].as<Rynex::TextureWrappingMode>();
 
 		return true;
 	}

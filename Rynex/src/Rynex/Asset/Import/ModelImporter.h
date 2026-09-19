@@ -10,9 +10,9 @@ namespace Rynex {
 	{
 	public:
 		static Ref<MeshSource> ImportModel(AssetHandle handle, const AssetMetadata& metadata);
-		static Ref<MeshSource> LoadModel(const std::filesystem::path& path);
+		static Ref<MeshSource> LoadModel(const FileSystem::Path& path);
 
-		static bool ReLoadeModel(AssetHandle handle, const std::filesystem::path& path);
+		static bool ReloadModel(AssetHandle handle, const FileSystem::Path& path);
 	};
 
 }

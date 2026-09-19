@@ -41,7 +41,7 @@ namespace Rynex {
 			Destroy();
 		};
 
-		virtual void Create(const std::filesystem::path& path, uint32_t quadeCount, const BufferLayout& layout, const Ref<Texture>& defaultTex)
+		virtual void Create(const FileSystem::Path& path, uint32_t quadeCount, const BufferLayout& layout, const Ref<Texture>& defaultTex)
 		{
 			
 			m_MaxQuad = quadeCount;
@@ -68,7 +68,7 @@ namespace Rynex {
 			m_DisplaySlot = slot;
 		}
 
-		virtual void Create(const std::filesystem::path& path, uint32_t quadeCount, const BufferLayout& layout, const Ref<Texture>& defaultTex, const std::string& textureName)
+		virtual void Create(const FileSystem::Path& path, uint32_t quadeCount, const BufferLayout& layout, const Ref<Texture>& defaultTex, const std::string& textureName)
 		{
 			
 			m_MaxQuad = quadeCount;

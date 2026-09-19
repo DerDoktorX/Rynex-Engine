@@ -9,8 +9,8 @@ namespace Rynex {
 	{
 	public:
 		static Ref<Scene> ImportScene(AssetHandle handle, const AssetMetadata& metadata);
-		static Ref<Scene> LoadScene(const std::filesystem::path& path);
-		static bool ReLoadingScene(AssetHandle handle, const std::filesystem::path& path);
+		static Ref<Scene> LoadScene(const FileSystem::Path& path);
+		static bool ReloadScene(AssetHandle handle, const FileSystem::Path& path);
 	};
 
 }

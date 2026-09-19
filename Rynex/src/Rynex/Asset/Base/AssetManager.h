@@ -73,7 +73,7 @@ namespace Rynex {
 		
 
 		template<typename T>
-		static Ref<T> GetAsset(const std::filesystem::path& path)
+		static Ref<T> GetAsset(const FileSystem::Path& path)
 		{
 			
 			Ref<Asset> asset = Project::GetActive()->GetAssetManger()->GetAsset(path);
@@ -81,18 +81,18 @@ namespace Rynex {
 		}
 
 		template<typename T>
-		static void GetAssetAsync(const std::filesystem::path& path, Ref<T>* asset)
+		static void GetAssetAsync(const FileSystem::Path& path, Ref<T>* asset)
 		{
 			*asset = nullptr;
-			std::function<void()> processFunc = std::bind(&AssetManager::GetAssetAsyncProcess<T, std::filesystem::path, Ref<T>>, path, asset);
-			RY_SUBMITE_TASK_TO_ASYNC_THREED("get Asset from Path " + path.string(), processFunc);
+			std::function<void()> processFunc = std::bind(&AssetManager::GetAssetAsyncProcess<T, FileSystem::Path, Ref<T>>, path, asset);
+			RY_SUBMITE_TASK_TO_ASYNC_THREED("get Asset from Path " + path.GetPathString(), processFunc);
 		}		
 		
 		template<typename T, typename ...PromisArgs>
-		static void GetAssetAsyncPromis(const std::filesystem::path& path, Ref<LodePromisType<T, PromisArgs ...>> lodePromis)
+		static void GetAssetAsyncPromis(const FileSystem::Path& path, Ref<LodePromisType<T, PromisArgs ...>> lodePromis)
 		{
-			std::function<void()> processFunc = std::bind(&AssetManager::GetAssetAsyncPromisProcessRef<T, std::filesystem::path, LodePromisType<T, PromisArgs ...>>, path, lodePromis);
-			RY_SUBMITE_TASK_TO_ASYNC_THREED("get Asset from Path: " + path.string(), processFunc);
+			std::function<void()> processFunc = std::bind(&AssetManager::GetAssetAsyncPromisProcessRef<T, FileSystem::Path, LodePromisType<T, PromisArgs ...>>, path, lodePromis);
+			RY_SUBMITE_TASK_TO_ASYNC_THREED("get Asset from Path: " + path.GetPathString(), processFunc);
 		}
 
 		static std::filesystem::path GetMarkedAssetPath(AssetHandle handle)
@@ -102,7 +102,7 @@ namespace Rynex {
 
 			const AssetMetadata metaData = assetManger->GetMetadata(handle);
 			if (!metaData.GetDisc())
-				RY_CORE_WARN("Asset is Interal and has no File Path!");
+				RY_CORE_WARN("Asset is Internal and has no File Path!");
 
 			return metaData.m_PathMarker;
 		}
@@ -110,7 +110,7 @@ namespace Rynex {
 		template<typename T>
 		static std::filesystem::path GetMarkedAssetPath(const Ref<T>& asset)
 		{
-			AssetHandle handle = asset->Handle;
+			AssetHandle handle = asset->m_Handle;
 			std::filesystem::path markedtPath = GetMarkedAssetPath(handle);
 			return markedtPath;
 		}
@@ -227,7 +227,7 @@ namespace Rynex {
 		template<typename T, typename N, typename PtrObject>
 		static void GetAssetAsyncProcess(N identifier, PtrObject* assetLem)
 		{
-			Ref<Asset> assetThread = Project::GetActive()->GetAssetManger()->GetAssetAsync(identifier);
+			const Ref<Asset> assetThread = Project::GetActive()->GetAssetManger()->GetAssetAsync(identifier);
 			Ref<T> assetThreadRef = std::static_pointer_cast<T>(assetThread);
 			*assetLem = assetThreadRef;
 		}

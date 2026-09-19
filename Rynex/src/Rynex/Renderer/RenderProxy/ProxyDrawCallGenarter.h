@@ -3,7 +3,7 @@
 #include <Rynex/Renderer/Rendering/Batch3DKey.h>
 #include <Rynex/Renderer/Rendering/RenderTarget.h>
 #include <Rynex/Renderer/PiplineObjects/Batching/BatchManager.h>
-#include <Rynex/Renderer/Rendering/DrawContext.h>
+
 
 namespace Rynex {
 

@@ -138,10 +138,10 @@ namespace Rynex::FileSystem {
 	std::filesystem::path Path::GetRelativePathFromOriginBase(Origin origin) const
 	{
 		std::filesystem::path dstBasePath = GetPathAbsoluteOrigin(origin);
-		std::string_view viewEnum = magic_enum::enum_name(origin);
+
 #ifdef RYPATH_LOG_MSG
+	    std::string_view viewEnum = magic_enum::enum_name(origin);
 		RY_CORE_WARN_IF(!dstBasePath.empty(), "Origin: {} reulted in a empty base this shoud lead to a invaild Path!", viewEnum.data());
-#else
 #endif
 		std::filesystem::path realtiveToBase = m_Path.lexically_relative(dstBasePath);
 		ConvertUniversalPath(realtiveToBase);
@@ -251,7 +251,7 @@ namespace Rynex::FileSystem {
 		std::filesystem::path baseOrigin = GetPathAbsoluteOrigin(m_Origin);
 		std::filesystem::path relativePath = m_Path.lexically_relative(baseOrigin);
 
-		ConvertRealtivePathFromAbsolutePath(relativePath, origne);
+		ConvertRelativePathFromAbsolutePath(relativePath, origne);
 
 		m_Origin = origne;
 		std::filesystem::path nextBaseOrigin = GetPathAbsoluteOrigin(m_Origin);
@@ -445,7 +445,7 @@ namespace Rynex::FileSystem {
 		std::filesystem::path baseOrigin = GetPathAbsoluteOrigin(m_Origin);
 		std::filesystem::path relativePath = m_Path.lexically_relative(baseOrigin);
 
-		ConvertRealtivePathFromAbsolutePath(relativePath, m_Origin);
+		ConvertRelativePathFromAbsolutePath(relativePath, m_Origin);
 
 		return relativePath;
 	}
@@ -665,12 +665,9 @@ namespace Rynex::FileSystem {
 
     bool Path::IsStringInPath(const std::filesystem::path& path, const char* searchPtr)
     {
+	    if (path.empty())
+	        return true;
 	    std::string pathStr = path.string();
-	    return IsStringInPath(pathStr, searchPtr);
-    }
-
-    bool Path::IsStringInPath(const std::string& pathStr, const char* searchPtr)
-    {
 	    size_t pos = pathStr.find(searchPtr);
 	    return std::string::npos != pos;
     }
@@ -828,7 +825,7 @@ namespace Rynex::FileSystem {
 		path = genericPathStr;
 	}
 
-	void Path::ConvertRealtivePathFromAbsolutePath(std::filesystem::path& relativePath, Origin origin)
+	void Path::ConvertRelativePathFromAbsolutePath(std::filesystem::path& relativePath, Origin origin)
 	{
 		switch (origin)
 		{
@@ -847,6 +844,7 @@ namespace Rynex::FileSystem {
 			expextedEndineRealtiveStart = expextedEndineRealtiveStart.parent_path();
 			expextedEndineRealtiveStart = expextedEndineRealtiveStart.generic_string();
 			nameFolder = expextedEndineRealtiveStart.filename().string();
+		    nameFolderStr = nameFolder.c_str();
 
 			if (!IsStringInPath(relativePath, nameFolderStr))
 				relativePath = expextedEndineRealtiveStart / relativePath;

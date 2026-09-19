@@ -36,13 +36,13 @@ namespace Rynex {
 		void* dataPtr = reinterpret_cast<void*>(dataTypePtr);
 
 		TextureSpecification spec;
-		spec.Width = widthUint;
-		spec.Height = heightUint;
-		spec.Depth = 1u;
-		spec.Format = TextureFormat::RGB8;
-		spec.GenerateMips = false;
-		spec.FilteringMode = TextureFilteringMode::Linear;
-		spec.Target = TextureTarget::Texture2D;
+		spec.m_Width = widthUint;
+		spec.m_Height = heightUint;
+		spec.m_Depth = 1u;
+		spec.m_Format = TextureFormat::RGB8;
+		spec.m_GenerateMips = false;
+		spec.m_FilteringMode = TextureFilteringMode::Linear;
+		spec.m_Target = TextureTarget::Texture2D;
 
 		Ref<Texture> texture = Texture::Create(spec, dataPtr, bytesSize);
 		texture->SetData(dataPtr, bytesSize);

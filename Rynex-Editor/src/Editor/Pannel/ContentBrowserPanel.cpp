@@ -1,5 +1,5 @@
 #include <rypch.h>
-#include "ContentBrowserPannel.h"
+#include "ContentBrowserPanel.h"
 
 #include <Rynex/Core/Application.h>
 #include <Rynex/Asset/Base/AssetManager.h>
@@ -47,44 +47,45 @@ namespace Rynex {
 	
 
 	
-	ContentBrowserPannel::ContentBrowserPannel()
+	ContentBrowserPanel::ContentBrowserPanel()
 		: m_Project(nullptr)
 		 , m_BaseDirectory("")
 		 , m_CurrentDirectory(m_BaseDirectory)
 	{
 	}
 	
-	void ContentBrowserPannel::OnAtache()
+	void ContentBrowserPanel::OnAttache()
 	{
 		m_Project = Project::GetActive();
-		RY_CORE_INFO("ContentBrowserPannel::OnAtache Start!");
-		m_DirectoryIcon		= TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ContentBrowser/DirectoryIcon.png");
+		RY_CORE_INFO("ContentBrowserPanel::OnAttache Start!");
+		m_DirectoryIcon		= TextureImporter::LoadTexture(FileSystem::Path("Engine-Resources/Resources/Icons/ContentBrowser/DirectoryIcon.png"));
 		
 		//Files
-		Ref<Texture> defaultIcon = TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ContentBrowser/FileIconDefault.png");
+		FileSystem::Path path("Engine-Resources/Resources/Icons/ContentBrowser/FileIconDefault.png");
+		Ref<Texture> defaultIcon = TextureImporter::LoadTexture(path);
 #if 0
 		AssetManager::CreatLocaleAsset<Texture>(defaultIcon);
 		m_FileIconDefault	= AssetManager::GetAsset<Texture>(defaultIcon->m_Handle);
 #else
 		m_FileIconDefault = defaultIcon;
 #endif
-		m_FileIconError		= TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ContentBrowser/FileIconError.png");
-		m_FileIconScene		= TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ContentBrowser/FileIconScene.png");
-		m_FileIconShader	= TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ContentBrowser/FileIconShader.png");
-		m_FileIconTexture	= TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ContentBrowser/FileIconTexture.png");
+		m_FileIconError		= TextureImporter::LoadTexture(FileSystem::Path("Engine-Resources/Resources/Icons/ContentBrowser/FileIconError.png"));
+		m_FileIconScene		= TextureImporter::LoadTexture(FileSystem::Path("Engine-Resources/Resources/Icons/ContentBrowser/FileIconScene.png"));
+		m_FileIconShader	= TextureImporter::LoadTexture(FileSystem::Path("Engine-Resources/Resources/Icons/ContentBrowser/FileIconShader.png"));
+		m_FileIconTexture	= TextureImporter::LoadTexture(FileSystem::Path("Engine-Resources/Resources/Icons/ContentBrowser/FileIconTexture.png"));
 		m_AssetManger		= m_Project->GetEditorAssetManger();
 
 		m_AssetManger->SerializeAssetRegistry();
-		RY_CORE_INFO("Fished SerialzeAssetRegistry!");
+		RY_CORE_INFO("Fished SerializeAssetRegistry!");
 		m_BaseDirectory = Project::GetActiveAssetDirectory();
 		m_CurrentDirectory = m_BaseDirectory;
 		InitAssetFileWatcher();
 
 
-		RY_CORE_INFO("ContentBrowserPannel::OnAtache Finished!");
+		RY_CORE_INFO("ContentBrowserPanel::OnAttache Finished!");
 	}
 
-	void ContentBrowserPannel::OnDetache()
+	void ContentBrowserPanel::OnDetache()
 	{
 		DestroyAssetFileWatcher();
 
@@ -107,27 +108,27 @@ namespace Rynex {
 		m_FileItemes.shrink_to_fit();
 	}
 
-	void ContentBrowserPannel::OpenAssetPannel()
+	void ContentBrowserPanel::OpenAssetPannel()
 	{
 		m_WindowAssetPannelOpen = true;
 	}
 
-	void ContentBrowserPannel::OpenRegestriyPannel()
+	void ContentBrowserPanel::OpenRegestriyPannel()
 	{
 		m_WindowRegestriyPannellOpen = true;
 	}
 
-	void ContentBrowserPannel::OnImGuiRender()
+	void ContentBrowserPanel::OnImGuiRender()
 	{
 		AssetRegisterPanel();
 
 		AssetPannel();
 		DelateAsset();
-		OnloadeAssetsList();
+		OnLoadAssetsList();
 		
 	}
 
-	void ContentBrowserPannel::GetFileList(const std::filesystem::path& curentPath)
+	void ContentBrowserPanel::GetFileList(const std::filesystem::path& curentPath)
 	{
 		for (auto& p : std::filesystem::directory_iterator(curentPath))
 		{
@@ -163,7 +164,7 @@ namespace Rynex {
 		return ImVec4(0.0, 0, 0.0, 1);
 	}
 
-	void ContentBrowserPannel::AssetPannel()
+	void ContentBrowserPanel::AssetPannel()
 	{
 		if(m_WindowAssetPannelOpen)
 		{
@@ -309,7 +310,7 @@ namespace Rynex {
 			
 	}
 
-	void ContentBrowserPannel::ImGuiAssetFile(AssetBrowserDataThreade& data, float thumbernailSize)
+	void ContentBrowserPanel::ImGuiAssetFile(AssetBrowserDataThreade& data, float thumbernailSize)
 	{
 		std::filesystem::path relativProjectPath = data.RelativProjectPath.GetNamePathString();
 		FileSystem::Path& path = data.Path;
@@ -436,7 +437,7 @@ namespace Rynex {
 			// DelateListeAsset({ fileNameString, m_CurrentDirectory });
 			if (ImGui::MenuItem("Delete Asset + File"));
 			if (ImGui::MenuItem("OnLoade Asset"))
-				OnLoadeAsset(handle);
+				OnLoadAsset(handle);
 			if (ImGui::MenuItem("Details"));
 			ImGui::EndPopup();
 		}
@@ -473,8 +474,8 @@ namespace Rynex {
 		ImGui::PopID();
 		
 	}
-    //AssetRegisterPanel
-	void ContentBrowserPannel::AssetRegisterPanel()
+
+	void ContentBrowserPanel::AssetRegisterPanel()
 	{
 		if(m_WindowRegestriyPannellOpen)
 		{
@@ -487,10 +488,18 @@ namespace Rynex {
 			
 			for (const auto& [handle, metadata, filePath] : m_RegisterItemes)
 			{
-				if(filePath != "")
-					ImGui::Text("AssetHandle(UUID): (%ull), Realtime FilePath: %s", handle, filePath.c_str());
+			    const uint64_t handleNumber = handle;
+				if(filePath.empty())
+				{
+				    const std::string_view typeView = magic_enum::enum_name(metadata.m_Type);
+				    const char* typePtr = typeView.data();
+				    ImGui::Text("AssetHandle(UUID): (%llu), Data Type: %s", handleNumber, typePtr);
+				}
 				else
-					ImGui::Text("AssetHandle(UUID): (%ull), Data Type: %i", handle, (int)metadata.m_Type);
+				{
+				    const char* pathPtr = filePath.c_str();
+				    ImGui::Text("AssetHandle(UUID): (%llu), Realtime FilePath: %s", handleNumber, pathPtr);
+				}
 			}
 			ImGui::End();
 		}
@@ -516,7 +525,7 @@ namespace Rynex {
 	}
 
 
-	void ContentBrowserPannel::NewMenue()
+	void ContentBrowserPanel::NewMenue()
 	{
 		if (ImGui::BeginMenu("Asset")) 
 			NewAsset();
@@ -525,7 +534,7 @@ namespace Rynex {
 		ImGui::EndMenu();
 	}
 
-	void ContentBrowserPannel::NewAsset()
+	void ContentBrowserPanel::NewAsset()
 	{
 		if (ImGui::MenuItem("FrameBuffer"))
 		{
@@ -538,7 +547,7 @@ namespace Rynex {
 		ImGui::EndMenu();
 	}
 
-	void ContentBrowserPannel::NewFile()
+	void ContentBrowserPanel::NewFile()
 	{
 		 if (ImGui::BeginMenu("Asset"))		
 			 NewAsset();
@@ -547,12 +556,12 @@ namespace Rynex {
 	}
 
 
-	void ContentBrowserPannel::DelateListeAsset(DealteAsset deleateAsset)
+	void ContentBrowserPanel::DelateListeAsset(DealteAsset deleateAsset)
 	{
 		m_DealeteAssetList.emplace_back(deleateAsset);
 	}
 
-	void ContentBrowserPannel::DelateAsset()
+	void ContentBrowserPanel::DelateAsset()
 	{
 		
 		for (auto& assetDealte :  m_DealeteAssetList)
@@ -562,12 +571,12 @@ namespace Rynex {
 		}
 	}
 
-	void ContentBrowserPannel::DelateListeFolder(const std::filesystem::path& folderPath)
+	void ContentBrowserPanel::DelateListeFolder(const std::filesystem::path& folderPath)
 	{
 		m_DealeteFolderList.emplace_back(folderPath);
 	}
 
-	void ContentBrowserPannel::DelateFolder()
+	void ContentBrowserPanel::DelateFolder()
 	{
 		for (auto& folderDealte : m_DealeteFolderList)
 		{
@@ -586,20 +595,18 @@ namespace Rynex {
 
 	
 
-	static void OnFileSystemEventProjectDirectory(std::string filepath, const filewatch::Event change_type)
+	static void OnFileSystemEventProjectDirectory(std::string filepath, const filewatch::Event changeType)
 	{
 		RY_CORE_TRACE("Event File Ptah {}", filepath);
-		std::filesystem::path filePath = (Project::GetActiveAssetDirectory() / std::filesystem::path(filepath)).generic_string();
-
-		
-		RY_CORE_TRACE("FileWatcher Project Event Info : {}!", filePath.string().c_str());
-		switch (change_type)
+		std::filesystem::path filePath = Project::GetActiveAssetDirectory() / std::filesystem::path(filepath);
+	    const FileSystem::Path path(filePath);
+	    std::string_view eventView = magic_enum::enum_name(changeType);
+		RY_CORE_TRACE("FileWatcher Project Event Info : {}!", path);
+		switch (changeType)
 		{
 			case filewatch::Event::modified:
 			{
-
 				Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-			    FileSystem::Path path(filePath);
 				assetManger->EventAsyncModified(path);
 
 				break;
@@ -607,62 +614,54 @@ namespace Rynex {
 			case filewatch::Event::added:
 			{
 				Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-			    const FileSystem::Path path(filePath);
 				assetManger->EventAsyncAdded(path);
 				break;
 
 			}
 			case filewatch::Event::removed:
 			{
-
 				Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-			    const FileSystem::Path path(filePath);
 				assetManger->EventAsyncRemoved(path);
 				break;
 			}
 			case filewatch::Event::renamed_new:
 			{
 				Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-			    const FileSystem::Path path(filePath);
 				assetManger->EventAsyncRenamedNew(path);
 				break;
 			}
 			case filewatch::Event::renamed_old:
 			{
 				Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-			    const FileSystem::Path path(filePath);
 				assetManger->EventAsyncRenamedOld(path);
 				break;
 			}
 			default:
-				RY_CORE_FATAL("Thread Not found Event! {0}", filePath);
+				RY_CORE_FATAL("Thread Not found Event! {0} {1}", filePath, eventView);
 				break;
 		}
 		
 	};
 
-	static void OnFileSystemEventEditorAssetDirectory(std::string filepath, const filewatch::Event change_type)
+	static void OnFileSystemEventEditorAssetDirectory(std::string filepath, const filewatch::Event changeType)
 	{
 		RY_CORE_TRACE("Event File Ptah {}", filepath);
-		std::filesystem::path filePath = (RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR / std::filesystem::path(filepath)).generic_string();
-
-		std::string event = GetFileWatcherEventString(change_type);
-		RY_CORE_TRACE("FileWatcher Editor Event: ({}) Info: ({})!", event, filePath.string().c_str());
-		switch (change_type)
+		std::filesystem::path filePath(RY_ENGINE_RESOURCE_FOLDER / std::filesystem::path(filepath));
+        const FileSystem::Path path(filePath);
+		std::string_view eventView = magic_enum::enum_name(changeType);
+		RY_CORE_TRACE("FileWatcher Editor Event: ({}) Info: ({})!", eventView, path);
+		switch (changeType)
 		{
 		case filewatch::Event::modified:
 		{
 
 			Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-		    const FileSystem::Path path(filePath);
 			assetManger->EventAsyncModified(path);
-
 			break;
 		}
 		case filewatch::Event::added:
 		{
 			Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-		    const FileSystem::Path path(filePath);
 			assetManger->EventAsyncAdded(path);
 			break;
 
@@ -670,41 +669,42 @@ namespace Rynex {
 		case filewatch::Event::removed:
 		{
 			Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-			assetManger->EventAsyncRemoved(filePath);
+			assetManger->EventAsyncRemoved(path);
 			break;
 		}
 		case filewatch::Event::renamed_new:
 		{
 			Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-			assetManger->EventAsyncRenamedNew(filePath);
+			assetManger->EventAsyncRenamedNew(path);
 			break;
 		}
 		case filewatch::Event::renamed_old:
 		{
 			Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-			assetManger->EventAsyncRenamedOld(filePath);
+			assetManger->EventAsyncRenamedOld(path);
 			break;
 		}
 		default:
-			RY_CORE_FATAL("Thread Not found Event! {0}", filePath.string().c_str());
+			RY_CORE_FATAL("Thread Not found Event! {0} {1}", filePath, eventView);
 			break;
 		}
 
 	};
 
 
-	void ContentBrowserPannel::InitAssetFileWatcher()
+	void ContentBrowserPanel::InitAssetFileWatcher()
 	{
 		RY_CORE_INFO("Init Asset FileWatcher");
 
 		s_Data = new AssetMangerFileWatcherData();
+
 		{
 			AssetFileWatcher();
 		}
 		
 	}
 
-	void ContentBrowserPannel::DestroyAssetFileWatcher()
+	void ContentBrowserPanel::DestroyAssetFileWatcher()
 	{
 		
 		if (nullptr == s_Data)
@@ -712,39 +712,37 @@ namespace Rynex {
 
 		delete s_Data;
 		s_Data = nullptr;
-
 		RY_CORE_INFO("Destroy Asset FileWatcher");
 	}
 
-	void ContentBrowserPannel::OnloadeAssetsList()
+	void ContentBrowserPanel::OnLoadAssetsList()
 	{
-		for (AssetHandle assetonLoade : m_OnLoadeAsset)
+		for (const AssetHandle assetLoaded : m_OnLoadeAsset)
 		{
-			Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-			assetManger->UnLodeFileAsset(assetonLoade);
+			const Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
+			assetManger->UnLodeFileAsset(assetLoaded);
 		}
 		m_OnLoadeAsset.clear();
 	}
 
-	void ContentBrowserPannel::OnLoadeAsset(AssetHandle handle)
+	void ContentBrowserPanel::OnLoadAsset(AssetHandle handle)
 	{
 		m_OnLoadeAsset.emplace_back(handle);
-		
 	}
 
-	void ContentBrowserPannel::AssetFileWatcher()
+	void ContentBrowserPanel::AssetFileWatcher()
 	{
 		std::string projectFilePathStr = Project::GetActiveAssetDirectory().string();
 		RY_CORE_TRACE("Project-Asset: Watch File Path ({})", projectFilePathStr);
 		s_Data->ProjectAssetFileWatcher = CreateScope<filewatch::FileWatch<std::string>>(projectFilePathStr, OnFileSystemEventProjectDirectory);
 #if RY_EDITOR_ASSET_FILEWATCHER
-		std::string editorFilePathStr = RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR;
-		RY_CORE_TRACE("Editor-Asset: Watch File Path ({})", projectFilePathStr);
+		std::string editorFilePathStr = RY_ENGINE_RESOURCE_FOLDER;
+	    RY_CORE_TRACE("Editor-Asset: Watch File Path ({})", projectFilePathStr);
 		s_Data->EditorAssetFileWatcher = CreateScope<filewatch::FileWatch<std::string>>(editorFilePathStr, OnFileSystemEventEditorAssetDirectory);
 #else
 		s_Data->EditorAssetFileWatcher = nullptr;
 #endif
-		RY_CORE_INFO("New Thread Raedy!");
+		RY_CORE_INFO("New Thread Ready!");
 	}
 
 #endif

@@ -54,13 +54,13 @@ namespace Rynex {
 		CreateFrambuffer() = default;
 	};
 
-	class ContentBrowserPannel
+	class ContentBrowserPanel
 	{
 	public:
-		ContentBrowserPannel();
+		ContentBrowserPanel();
 
 		void OnImGuiRender();
-		void OnAtache();
+		void OnAttache();
 		void OnDetache();
 		void OpenAssetPannel();
 		void OpenRegestriyPannel();
@@ -98,8 +98,8 @@ namespace Rynex {
 		static void InitAssetFileWatcher();
 		static void DestroyAssetFileWatcher();
 
-		void OnloadeAssetsList();
-		void OnLoadeAsset(AssetHandle handle);
+		void OnLoadAssetsList();
+		void OnLoadAsset(AssetHandle handle);
 
 	private:
 		Ref<Project> m_Project;

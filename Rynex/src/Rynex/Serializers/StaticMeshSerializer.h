@@ -12,8 +12,8 @@ namespace Rynex {
 	public:
 		StaticMeshSerializer(const Ref<MeshStatic>& meshSource);
 
-		bool Serialize(const std::filesystem::path& filepath);
-		bool Deserialize(const std::filesystem::path& filepath);
+		bool Serialize(const FileSystem::Path& filepath);
+		bool Deserialize(const FileSystem::Path& filepath);
 	private:
 		bool DeserializeMeshNodes(const YAML::Node& meshNodes, Ref<MeshSource>& sourceMesh);
 	private:

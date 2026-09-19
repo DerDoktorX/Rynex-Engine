@@ -22,20 +22,20 @@ namespace Rynex {
 	};
 
 
-	using AssetsReloadingFunction = std::function <bool(AssetHandle, const std::filesystem::path)>;
+	using AssetsReloadingFunction = std::function<bool(AssetHandle, const FileSystem::Path&)>;
 
-	static std::map<AssetType, AssetsReloadingFunction> s_AssetsReloadeFuncs = {
-		{ AssetType::Texture2D, TextureImporter::ReLoadeTexture },
-		{ AssetType::Texture, TextureImporter::ReLoadeTexture },
-		{ AssetType::Shader, ShaderImporter::ReLoadeShader },
-		{ AssetType::Scene, SceneImporter::ReLoadingScene },
-		{ AssetType::Model, ModelImporter::ReLoadeModel },
-		{ AssetType::MeshSource , ModelImporter::ReLoadeModel },
-		{ AssetType::MeshStatic, MeshImporter::ReLoadeMesh }
+	static std::map<AssetType, AssetsReloadingFunction> s_AssetsReloadeFuncs{
+		// { AssetType::Texture2D,     TextureImporter::ReloadTexture },
+		// { AssetType::Texture,       TextureImporter::ReloadTexture },
+		// { AssetType::Shader,        ShaderImporter::ReloadShader },
+		 { AssetType::Scene,         SceneImporter::ReloadScene },
+		// { AssetType::Model,         ModelImporter::ReloadModel },
+		// { AssetType::MeshSource,    ModelImporter::ReloadModel },
+		// { AssetType::MeshStatic,    MeshImporter::ReloadMesh }
 	};
 	
 	
-	Ref<Asset> AssetImporter::ImportAsset(AssetHandle handle, const AssetMetadata& metadata)
+	Ref<Asset> AssetImporter::ImportAsset(const AssetHandle handle, const AssetMetadata& metadata)
 	{		
 		RY_LOG_DISABLE_NUMBER;
 
@@ -45,11 +45,11 @@ namespace Rynex {
 
 	}
 
-	bool AssetImporter::ReLoadAsset(AssetHandle handle, const AssetMetadata& metadata)
+	bool AssetImporter::ReloadAsset(const AssetHandle handle, const AssetMetadata& metadata)
 	{
 		RY_LOG_DISABLE_NUMBER;
 
-		bool result = s_AssetsReloadeFuncs.at(metadata.m_Type)(handle, metadata.m_AbsolutePath);
+		const bool result = s_AssetsReloadeFuncs.at(metadata.m_Type)(handle, metadata.m_Path);
 	
 		RY_LOG_ENABLE_NUMBER;
 		return result;
