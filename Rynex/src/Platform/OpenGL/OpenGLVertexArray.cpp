@@ -46,25 +46,25 @@ namespace Rynex {
 			return ShaderDaterTyToOpenGLBaseType(typeA) == ShaderDaterTyToOpenGLBaseType(typeB);
 		}
 
-		static uint32_t PrimitvVertxCount( const VertexArray::Primitv& primitv, uint32_t vertexCount)
+		static uint32_t PrimitvVertxCount( const VertexArray::Primitive& primitv, uint32_t vertexCount)
 		{
 			switch (primitv)
 			{
-			case VertexArray::Primitv::Traingle:		return vertexCount / 3u;
-			case VertexArray::Primitv::TraingleStrips:	return vertexCount - 2u;
-			case VertexArray::Primitv::TraingleFan:		return vertexCount - 2u;
-			case VertexArray::Primitv::Line:			return vertexCount / 2u;
-			case VertexArray::Primitv::LineLoop:		return vertexCount - 2u;
-			case VertexArray::Primitv::LineStrips:		return vertexCount - 2u;
-			case VertexArray::Primitv::Points:			return vertexCount;
-			case VertexArray::Primitv::Patches:			return vertexCount;
+			case VertexArray::Primitive::Triangle:		return vertexCount / 3u;
+			case VertexArray::Primitive::TriangleStrips:	return vertexCount - 2u;
+			case VertexArray::Primitive::TriangleFan:		return vertexCount - 2u;
+			case VertexArray::Primitive::Line:			return vertexCount / 2u;
+			case VertexArray::Primitive::LineLoop:		return vertexCount - 2u;
+			case VertexArray::Primitive::LineStrips:		return vertexCount - 2u;
+			case VertexArray::Primitive::Points:			return vertexCount;
+			case VertexArray::Primitive::Patches:			return vertexCount;
 			default: return 0u;
 			}
 		}
 #if RY_OPENGL_VAO_ABSTRACTION_DISABLE
 		static uint32_t VertexCount(const std::vector<Ref<VertexBuffer>>& vertexElements, const Ref<IndexBuffer>& index, const VertexArray::Primitv& primitv)
 #else
-		static uint32_t VertexCount(const std::vector<OpenGLVertexArray::VertexElements>& vertexElements, const Ref<IndexBuffer>& index, const VertexArray::Primitv& primitv)
+		static uint32_t VertexCount(const std::vector<OpenGLVertexArray::VertexElements>& vertexElements, const Ref<IndexBuffer>& index, const VertexArray::Primitive& primitv)
 #endif
 		{
 			if (!vertexElements.empty() && index)
@@ -74,18 +74,18 @@ namespace Rynex {
 			return 0;
 		}
 
-		static GLenum PrimtivGL(VertexArray::Primitv primtiv)
+		static GLenum PrimtivGL(VertexArray::Primitive primtiv)
 		{
 			switch (primtiv)
 			{
-				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitv::Traingle, GL_TRIANGLES);
-				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitv::TraingleStrips, GL_TRIANGLE_STRIP);
-				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitv::TraingleFan, GL_TRIANGLE_FAN);
-				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitv::Line, GL_LINE);
-				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitv::LineLoop, GL_LINE);
-				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitv::LineStrips, GL_LINE_STRIP);
-				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitv::Points, GL_LINE_STRIP);
-				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitv::Patches, GL_PATCHES);
+				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitive::Triangle, GL_TRIANGLES);
+				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitive::TriangleStrips, GL_TRIANGLE_STRIP);
+				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitive::TriangleFan, GL_TRIANGLE_FAN);
+				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitive::Line, GL_LINE);
+				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitive::LineLoop, GL_LINE);
+				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitive::LineStrips, GL_LINE_STRIP);
+				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitive::Points, GL_LINE_STRIP);
+				RY_INTERNLE_GET_OPENGL_MACRO_CASE(VertexArray::Primitive::Patches, GL_PATCHES);
 				RY_INTERNLE_GET_OPENGL_MACRO_DEFAULT(VertexArray::Primitv);
 			}
 		}
@@ -94,7 +94,7 @@ namespace Rynex {
 	uint32_t OpenGLVertexArray::s_LastBindVAO = 0u;
 
 	OpenGLVertexArray::OpenGLVertexArray()
-		: m_Primitv(VertexArray::Primitv::Traingle)
+		: m_Primitv(VertexArray::Primitive::Triangle)
 		, m_PrimitvGL(GL_TRIANGLES)
 	{
 		RY_PROFILE_FUNCTION();
@@ -132,7 +132,7 @@ namespace Rynex {
 #else
 		for (VertexElements& vertexElements : m_VertexElements)
 		{
-			RY_DESTROY_REF(vertexElements.Buffer);
+			RY_DESTROY_REF(vertexElements.m_Buffer);
 		}
 #endif
 		m_VertexElements.clear();
@@ -179,13 +179,13 @@ namespace Rynex {
 #endif
 	}
 
-	void OpenGLVertexArray::SetPrimitv(Primitv primitv)
+	void OpenGLVertexArray::SetPrimitive(Primitive primitv)
 	{
 		m_Primitv = primitv;
 		m_PrimitvGL = Utils::PrimtivGL(m_Primitv);
 	}
 
-	VertexArray::Primitv OpenGLVertexArray::GetPrimitv()
+	VertexArray::Primitive OpenGLVertexArray::GetPrimitive()
 	{
 		return m_Primitv;
 	}
@@ -225,11 +225,11 @@ namespace Rynex {
 		uint32_t i = 0;
 		for (VertexElements& vertexElements : m_VertexElements)
 		{
-			uint32_t size = vertexElements.UseLayout.GetLength();
+			uint32_t size = vertexElements.m_UseLayout.GetLength();
 			glDisableVertexArrayAttrib(m_RendererID, i);
-			Ref<OpenGLVertexBuffer> vertexBufferOpenGL = std::static_pointer_cast<OpenGLVertexBuffer>(vertexElements.Buffer);
+			Ref<OpenGLVertexBuffer> vertexBufferOpenGL = std::static_pointer_cast<OpenGLVertexBuffer>(vertexElements.m_Buffer);
 			vertexBufferOpenGL->RemoveParent(this);
-			RY_DESTROY_REF(vertexElements.Buffer);
+			RY_DESTROY_REF(vertexElements.m_Buffer);
 			i++;
 		}
 #endif
@@ -510,8 +510,8 @@ namespace Rynex {
 		GLint absolutOffset = 0u;
 		for (VertexElements& vElemt : m_VertexElements)
 		{
-			BufferLayout& layout = vElemt.UseLayout;
-			Ref<VertexBuffer> vab = vElemt.Buffer;
+			BufferLayout& layout = vElemt.m_UseLayout;
+			Ref<VertexBuffer> vab = vElemt.m_Buffer;
 			
 			RY_CORE_ASSERT(nullptr != vab);
 			if (vertexBuffer == vab)
@@ -575,7 +575,7 @@ namespace Rynex {
 #else
 		for (VertexElements& bufferEllements : m_VertexElements)
 		{
-			m_Box.SetBoxAABB(bufferEllements.Buffer, m_IndexBuffer, postionElement);
+			m_Box.SetBoxAABB(bufferEllements.m_Buffer, m_IndexBuffer, postionElement);
 		}
 #endif
 	}
@@ -588,17 +588,17 @@ namespace Rynex {
 		return m_RenderResterRiezer;
 	}
 
-	const char* OpenGLVertexArray::GetPrimitvChar() const
+	const char* OpenGLVertexArray::GetPrimitiveChar() const
 	{
 		switch (m_Primitv)
 		{
-			case VertexArray::Primitv::Traingle:		return {"Traingle"};
-			case VertexArray::Primitv::TraingleStrips:	return {"TraingleStrips"};
-			case VertexArray::Primitv::TraingleFan:		return {"TraingleFan"};
-			case VertexArray::Primitv::Line:			return {"Line"};
-			case VertexArray::Primitv::LineLoop:		return {"LineLoop"};
-			case VertexArray::Primitv::LineStrips:		return {"LineStrips"};
-			case VertexArray::Primitv::Points:			return {"Points"};
+			case VertexArray::Primitive::Triangle:		return {"Traingle"};
+			case VertexArray::Primitive::TriangleStrips:	return {"TraingleStrips"};
+			case VertexArray::Primitive::TriangleFan:		return {"TraingleFan"};
+			case VertexArray::Primitive::Line:			return {"Line"};
+			case VertexArray::Primitive::LineLoop:		return {"LineLoop"};
+			case VertexArray::Primitive::LineStrips:		return {"LineStrips"};
+			case VertexArray::Primitive::Points:			return {"Points"};
 			default:
 				break;
 		}
@@ -613,7 +613,7 @@ namespace Rynex {
 	{
 		for (const VertexElements& vElemt : m_VertexElements)
 		{
-			Ref<VertexBuffer> vab = vElemt.Buffer;
+			Ref<VertexBuffer> vab = vElemt.m_Buffer;
 			Ref<OpenGLVertexBuffer> vertexBufferOpenGL = std::static_pointer_cast<OpenGLVertexBuffer>(vab);
 
 			if (vertexBufferOpenGL.get() == vertexBufferPtr)
@@ -631,7 +631,7 @@ namespace Rynex {
 #if 0
 		for (const VertexElements& vElemt : m_VertexElements)
 		{
-			Ref<VertexBuffer> vab = vElemt.Buffer;
+			Ref<VertexBuffer> vab = vElemt.m_Buffer;
 			Ref<OpenGLVertexBuffer> vertexBufferOpenGL = std::static_pointer_cast<OpenGLVertexBuffer>(vab);
 
 			if (vertexBufferOpenGL.get() == vertexBufferPtr)
@@ -689,7 +689,7 @@ namespace Rynex {
 		m_VertexBuffers.emplace_back(vb);
 #endif
 		VertexElements& vertexElemelts = m_VertexElements.emplace_back<VertexElements>(VertexElements{ layout, vb });
-		Ref<OpenGLVertexBuffer> openGLbuffer = std::static_pointer_cast<OpenGLVertexBuffer>(vertexElemelts.Buffer);
+		Ref<OpenGLVertexBuffer> openGLbuffer = std::static_pointer_cast<OpenGLVertexBuffer>(vertexElemelts.m_Buffer);
 		openGLbuffer->AddParent(this);
 		m_RenderResterRiezer = Utils::VertexCount(m_VertexElements, m_IndexBuffer, m_Primitv);
 		
@@ -736,8 +736,8 @@ namespace Rynex {
 		
 		for (VertexElements& vElemt : m_VertexElements)
 		{
-			BufferLayout& layout = vElemt.UseLayout;
-			Ref<VertexBuffer> vab = vElemt.Buffer;
+			BufferLayout& layout = vElemt.m_UseLayout;
+			Ref<VertexBuffer> vab = vElemt.m_Buffer;
 
 			RY_CORE_ASSERT(nullptr != vab);
 			Ref<OpenGLVertexBuffer> vertexBufferOpenGL = std::static_pointer_cast<OpenGLVertexBuffer>(vab);

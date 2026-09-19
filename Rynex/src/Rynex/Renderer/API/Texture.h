@@ -114,17 +114,17 @@ namespace Rynex {
 
 	struct TextureWrappingSpecification
 	{
-		TextureWrappingMode S = TextureWrappingMode::Default;
-		TextureWrappingMode T = TextureWrappingMode::Default;
-		TextureWrappingMode R = TextureWrappingMode::Default;
+		TextureWrappingMode m_S = TextureWrappingMode::Default;
+		TextureWrappingMode m_T = TextureWrappingMode::Default;
+		TextureWrappingMode m_R = TextureWrappingMode::Default;
 
-		TextureWrappingMode operator[](int index) const
+		TextureWrappingMode operator[](const int index) const
 		{
 			switch (index)
 			{
-				case 0:	return S;
-				case 1:	return T;
-				case 2:	return R;
+				case 0:	return m_S;
+				case 1:	return m_T;
+				case 2:	return m_R;
 				default: 
 					RY_CORE_ASSERT(false);
 					return TextureWrappingMode::Default;
@@ -135,79 +135,79 @@ namespace Rynex {
 		{
 			switch (index)
 			{
-			case 0:	return S;
-			case 1:	return T;
-			case 2:	return R;
+			case 0:	return m_S;
+			case 1:	return m_T;
+			case 2:	return m_R;
 			default: 
 				RY_CORE_ASSERT(false);
-				return T;
+				return m_T;
 			}
 		}
 
 		bool operator ==(const TextureWrappingSpecification textureWrappingSpecification) const
 		{
-			return (textureWrappingSpecification.R == R) && (textureWrappingSpecification.S == S) && (textureWrappingSpecification.T == T);
+			return (textureWrappingSpecification.m_R == m_R) && (textureWrappingSpecification.m_S == m_S) && (textureWrappingSpecification.m_T == m_T);
 		}
 
 		bool operator !=(const TextureWrappingSpecification textureWrappingSpecification) const
 		{
-			return (textureWrappingSpecification.R != R) || (textureWrappingSpecification.S != S) || (textureWrappingSpecification.T != T);
+			return (textureWrappingSpecification.m_R != m_R) || (textureWrappingSpecification.m_S != m_S) || (textureWrappingSpecification.m_T != m_T);
 		}
 
 	};
 
 	struct TextureSpecification
 	{
-		uint32_t Width, Height, Depth = 1u;
-		TextureTarget Target = TextureTarget::Texture2D;
-		TextureFormat Format = TextureFormat::RGBA8;
+		uint32_t m_Width, m_Height, m_Depth = 1u;
+		TextureTarget m_Target = TextureTarget::Texture2D;
+		TextureFormat m_Format = TextureFormat::RGBA8;
 		
-		uint32_t Samples = 1u;
-		TextureFilteringMode FilteringMode = TextureFilteringMode::Nearest;
+		uint32_t m_Samples = 1u;
+		TextureFilteringMode m_FilteringMode = TextureFilteringMode::Nearest;
 		TextureWrappingSpecification WrappingSpec{
 			TextureWrappingMode::Repeat,
 			TextureWrappingMode::Repeat,
 		};
-		TextureCompareModes Compare = TextureCompareModes::None;
-		uint32_t GenerateMips = 0u;
+		TextureCompareModes m_Compare = TextureCompareModes::None;
+		uint32_t m_GenerateMips = 0u;
 
 
 		bool operator==(const TextureSpecification& spec) const
 		{
-			return Width == spec.Width
-				&& Height == spec.Height
-				&& Target == spec.Target
-				&& Format == spec.Format
-				&& Samples == spec.Samples
-				&& FilteringMode == spec.FilteringMode
+			return m_Width == spec.m_Width
+				&& m_Height == spec.m_Height
+				&& m_Target == spec.m_Target
+				&& m_Format == spec.m_Format
+				&& m_Samples == spec.m_Samples
+				&& m_FilteringMode == spec.m_FilteringMode
 				&& WrappingSpec == spec.WrappingSpec
-				&& Compare == spec.Compare
-				&& GenerateMips == spec.GenerateMips;
+				&& m_Compare == spec.m_Compare
+				&& m_GenerateMips == spec.m_GenerateMips;
 		}
 
 		bool operator!=(const TextureSpecification& spec) const
 		{
-			return Width != spec.Width
-				|| Height != spec.Height
-				|| Target != spec.Target
-				|| Format != spec.Format
-				|| Samples != spec.Samples
-				|| FilteringMode != spec.FilteringMode
+			return m_Width != spec.m_Width
+				|| m_Height != spec.m_Height
+				|| m_Target != spec.m_Target
+				|| m_Format != spec.m_Format
+				|| m_Samples != spec.m_Samples
+				|| m_FilteringMode != spec.m_FilteringMode
 				|| WrappingSpec != spec.WrappingSpec
-				|| Compare != spec.Compare
-				|| GenerateMips != spec.GenerateMips;
+				|| m_Compare != spec.m_Compare
+				|| m_GenerateMips != spec.m_GenerateMips;
 		}
 
 		bool IsEqualWitheOutTextureTarget(const TextureSpecification& spec)const
 		{
-			return Width == spec.Width
-				&& Height == spec.Height
-				&& Format == spec.Format
-				&& Samples == spec.Samples
-				&& FilteringMode == spec.FilteringMode
+			return m_Width == spec.m_Width
+				&& m_Height == spec.m_Height
+				&& m_Format == spec.m_Format
+				&& m_Samples == spec.m_Samples
+				&& m_FilteringMode == spec.m_FilteringMode
 				&& WrappingSpec == spec.WrappingSpec
-				&& Compare == spec.Compare
-				&& GenerateMips == spec.GenerateMips;
+				&& m_Compare == spec.m_Compare
+				&& m_GenerateMips == spec.m_GenerateMips;
 		}
 	};
 
@@ -224,6 +224,8 @@ namespace Rynex {
 		
 		static Ref<Texture> White();
 		static void Shutdown();
+
+	    // ReSharper disable once CppEnforceOverridingDestructorStyle
 		virtual ~Texture() = default;
 
 		virtual const TextureSpecification& GetSpecification() const = 0;

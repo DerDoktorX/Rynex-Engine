@@ -1,7 +1,5 @@
 #pragma once
 #include <Rynex/Asset/Base/Asset.h>
-
-#include <Rynex/Renderer/API/Framebuffer.h>
 #include <Rynex/Renderer/API/Buffer.h>
 
 

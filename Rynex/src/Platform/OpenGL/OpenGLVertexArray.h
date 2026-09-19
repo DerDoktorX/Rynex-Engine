@@ -14,8 +14,8 @@ namespace Rynex{
 		virtual void Bind() const override;
 		virtual void UnBind() const override;
 
-		virtual void SetPrimitv(Primitv primitv) override;
-		virtual Primitv GetPrimitv() override;
+		virtual void SetPrimitive(Primitive primitv) override;
+		virtual Primitive GetPrimitive() override;
 		virtual void ClearVertexBuffers() override;
 		virtual void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) override;
 		virtual void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer, const BufferLayout& layout)override;
@@ -35,7 +35,7 @@ namespace Rynex{
 		
 
 		virtual uint32_t GetTringleCount() const override;
-		virtual const char* GetPrimitvChar() const override;
+		virtual const char* GetPrimitiveChar() const override;
 		// void RegenerateOpenGLVertexBuffer(OpenGLVertexBuffer* bufferPtr);
 		// void RegenerateOpenGLIndexBuffer(OpenGLIndexBuffer* bufferPtr);
 		uint32_t GetPrimitvOpenGLMode() const { return m_PrimitvGL; }
@@ -72,7 +72,7 @@ namespace Rynex{
 		std::vector<VertexElements> m_VertexElements;
 		
 		Ref<IndexBuffer> m_IndexBuffer;
-		Primitv m_Primitv = Primitv::None;
+		Primitive m_Primitv = Primitive::None;
 		BoundingVolume m_Box;
 		uint32_t m_RenderResterRiezer = 0;
 		uint32_t m_PrimitvGL = 0;

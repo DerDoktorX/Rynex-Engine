@@ -9,20 +9,21 @@ namespace Rynex {
 	public:
 		struct VertexElements
 		{
-			BufferLayout		UseLayout;
-			Ref<VertexBuffer>	Buffer;
+			BufferLayout		m_UseLayout;
+			Ref<VertexBuffer>	m_Buffer;
 		};
-	public:
-		enum class Primitv
+	// enum ------------------------------------------------------------------------------------------------------------------
+		enum class Primitive //Triangle
 		{
 			None = 0,
-			Traingle, TraingleStrips, TraingleFan,
+			Triangle, TriangleStrips, TriangleFan,
 			Line, LineLoop, LineStrips,
 			Points,
 			Patches,
 		};
-	public:
-		virtual ~VertexArray() {}
+	// interface methods ------------------------------------------------------------------------------------------------------
+        // ReSharper disable once CppEnforceOverridingDestructorStyle
+        virtual ~VertexArray() {}
 		static Ref<VertexArray> Create();
 
 		virtual void Bind() const = 0;
@@ -38,18 +39,18 @@ namespace Rynex {
 		virtual uint32_t GetVertexBuffersCount() const = 0;
 		virtual const Ref<IndexBuffer>& GetIndexBuffer() const = 0;
 
-		virtual void SetPrimitv(Primitv primitv) = 0;
-		virtual Primitv GetPrimitv() = 0;
+		virtual void SetPrimitive(Primitive primitive) = 0;
+		virtual Primitive GetPrimitive() = 0;
 
 		virtual const std::vector<VertexArray::VertexElements>& GetVertexBuffers() const = 0;
 		
 		virtual void SetBoxAABB(BufferElement element) = 0;
 		virtual const BoundingVolume GetBoxAABB() const = 0;
 		virtual uint32_t GetTringleCount() const = 0;
-		virtual const char* GetPrimitvChar() const = 0;
-
+		virtual const char* GetPrimitiveChar() const = 0;
+	// enum ------------------------------------------------------------------------------------------------------------------
 		static AssetType GetStaticType() { return AssetType::VertexArray; }
-		AssetType GetType() const { return GetStaticType(); }
+		AssetType GetType() const override { return GetStaticType(); }
 	};
 
 	

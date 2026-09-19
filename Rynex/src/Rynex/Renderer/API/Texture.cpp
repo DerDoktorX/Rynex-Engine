@@ -16,7 +16,7 @@ namespace Rynex {
 	{
 		switch (Renderer::GetAPI())
 		{
-			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Curently not supportet"); return nullptr;
+			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Currently not supported"); return nullptr;
 			case RendererAPI::API::OpenGL:	return CreateRef<OpenGLTextureStorageModern>(spec, data, size);;
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
@@ -27,7 +27,7 @@ namespace Rynex {
 	{
 		switch (Renderer::GetAPI())
 		{
-			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Curently not supportet"); return nullptr;
+			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Currently not supported"); return nullptr;
 			case RendererAPI::API::OpenGL:	return CreateRef<OpenGLTextureStorageModern>(spec, std::move(data));;
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
@@ -38,7 +38,7 @@ namespace Rynex {
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Curently not supportet"); return nullptr;
+		case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Currently not supported"); return nullptr;
 		case RendererAPI::API::OpenGL:	return CreateRef<OpenGLTextureStorageModern>(spec);
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
@@ -53,11 +53,11 @@ namespace Rynex {
 		{
 			constexpr uint32_t withe = 6u, higth = 6u, depth = 1u;
 			s_DefaultTexture = Texture::Create({ withe, higth , depth, TextureTarget::Texture2D, TextureFormat::S_RGBA8, 1,});
-			uint32_t w = 0xffffffff;
-			uint32_t p = 0xff00ffff;
-			uint32_t b = 0x00000000;
+            constexpr uint32_t w = 0xffffffff;
+            constexpr uint32_t p = 0xff00ffff;
+            constexpr uint32_t b = 0x00000000;
 
-			uint32_t notDefinedTexData[36] = { 
+			uint32_t notDefinedTexData[36] = {
 				p, w, p, w, p, w,
 				w, p, w, p, w, p,
 				p, w, b, w, p, w,

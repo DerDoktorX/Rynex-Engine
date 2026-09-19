@@ -59,15 +59,15 @@ namespace Rynex {
 			if (fromat == TexFrom::Default)
 				fromat = TexFrom::Depth24Stencil8;
 
-			TextureWrappingMode& warpT = attachment->m_TextureWrapping.T;
+			TextureWrappingMode& warpT = attachment->m_TextureWrapping.m_T;
 			if (warpT == TexWarp::Default)
 				warpT = TexWarp::Repeat;
 
-			TextureWrappingMode& warpR = attachment->m_TextureWrapping.R;
+			TextureWrappingMode& warpR = attachment->m_TextureWrapping.m_R;
 			if (warpR == TexWarp::Default)
 				warpR = TexWarp::None;
 
-			TextureWrappingMode& warpS = attachment->m_TextureWrapping.S;
+			TextureWrappingMode& warpS = attachment->m_TextureWrapping.m_S;
 			if (warpS == TexWarp::Default)
 				warpS = TexWarp::Repeat;
 		}
@@ -123,15 +123,15 @@ namespace Rynex {
 			if (fromat == TexFrom::Default)
 				fromat = TexFrom::Depth24Stencil8;
 
-			TextureWrappingMode& warpT = attachment->m_TextureWrapping.T;
+			TextureWrappingMode& warpT = attachment->m_TextureWrapping.m_T;
 			if (warpT == TexWarp::Default)
 				warpT = TexWarp::ClampEdge;
 
-			TextureWrappingMode& warpR = attachment->m_TextureWrapping.R;
+			TextureWrappingMode& warpR = attachment->m_TextureWrapping.m_R;
 			if (warpR == TexWarp::Default)
 				warpR = TexWarp::None;
 
-			TextureWrappingMode& warpS = attachment->m_TextureWrapping.S;
+			TextureWrappingMode& warpS = attachment->m_TextureWrapping.m_S;
 			if (warpS == TexWarp::Default)
 				warpS = TexWarp::ClampEdge;
 		}
@@ -255,7 +255,7 @@ namespace Rynex {
 		
 		Ref<OpenGLTextureStorageModern> texture = GetAttechmentTextureFromIndex(index);
 		const TextureSpecification& spec = texture->GetSpecification();
-		TexFrom fromat = spec.Format;
+		TexFrom fromat = spec.m_Format;
 
 		
 		switch (fromat)
@@ -533,13 +533,13 @@ namespace Rynex {
 
 		texture->SetSpecfication({
 				withe, height,depth,
-				attachment.Target,
-				attachment.Format,
+				attachment.m_Target,
+				attachment.m_Format,
 
-				attachment.Samples,
-				attachment.FilteringMode,
+				attachment.m_Samples,
+				attachment.m_FilteringMode,
 				attachment.WrappingSpec,
-				attachment.Compare
+				attachment.m_Compare
 		}, this);
 		ConecetTextureToFramffbuffer(texture, slot);
 	}
@@ -548,7 +548,7 @@ namespace Rynex {
 	void OpenGLFramebuffer::ConecetTextureToFramffbuffer(const Ref<OpenGLTextureStorageModern>& texture, uint32_t slot)
 	{
 		const TextureSpecification& specs = texture->GetSpecification();
-		TextureFormat formate = specs.Format;
+		TextureFormat formate = specs.m_Format;
 		uint32_t attecmentType = Utils::AtchemtType(formate); // Color, Depth, Stencil
 
 		uint32_t targetFromat = texture->GetOpenGLTextureTarget();

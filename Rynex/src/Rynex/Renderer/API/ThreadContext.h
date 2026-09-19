@@ -8,7 +8,8 @@ namespace Rynex {
 	class ThreadContext
 	{
 	public:
-		virtual void Init() = 0;
+        virtual ~ThreadContext() = default;
+        virtual void Init() = 0;
 		virtual void Destroy() = 0;
 		virtual const RendererAPI::API GetRendererAPI() const = 0;
 

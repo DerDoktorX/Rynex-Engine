@@ -139,9 +139,9 @@ namespace Rynex {
 
 		virtual const TextureSpecification& GetValidTextureSpecification() const override { return m_Specification; }
 
-		virtual uint32_t GetValidTextureWidth() const override { return m_Specification.Width; }
-		virtual uint32_t GetValidTextureHeight() const override { return m_Specification.Height; }
-		virtual uint32_t GetValidTextureDepth() const override { return m_Specification.Depth; }
+		virtual uint32_t GetValidTextureWidth() const override { return m_Specification.m_Width; }
+		virtual uint32_t GetValidTextureHeight() const override { return m_Specification.m_Height; }
+		virtual uint32_t GetValidTextureDepth() const override { return m_Specification.m_Depth; }
 
 		virtual uint32_t GetRenderID() const override { return m_RendererIDTex; }
 

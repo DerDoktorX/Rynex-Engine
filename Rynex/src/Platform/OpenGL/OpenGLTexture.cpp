@@ -519,7 +519,7 @@ namespace Rynex{
 	const std::vector<unsigned char> OpenGLTextureStorageModern::GetCurrentRenderData()
 	{
 		
-		uint32_t pbb = Utils::ImageChanelsBytes(m_Specification.Format);
+		uint32_t pbb = Utils::ImageChanelsBytes(m_Specification.m_Format);
 		m_Object.GetData(m_RendererIDTex, m_Data, pbb);
 		return m_Data;
 	}
@@ -580,7 +580,7 @@ namespace Rynex{
 
 	void OpenGLTextureStorageModern::Resize1D(uint32_t width)
 	{
-		switch (m_Specification.Target)
+		switch (m_Specification.m_Target)
 		{
 		case TextureTarget::Texture1D:
 			break;
@@ -593,7 +593,7 @@ namespace Rynex{
 		case TextureTarget::TextureCubeMap:
 		{
 			RY_CORE_WARN("We handle this like a from a CubeMap like Resize2D and use the withe as in put for withe and Heigth!");
-			m_Specification.Height = width;
+			m_Specification.m_Height = width;
 			break;
 		}
 
@@ -603,7 +603,7 @@ namespace Rynex{
 			RY_CORE_ASSERT(false);
 			return;
 		}
-		m_Specification.Width = width;
+		m_Specification.m_Width = width;
 
 		SetupeSpecficationVaribels();
 
@@ -615,7 +615,7 @@ namespace Rynex{
 	void OpenGLTextureStorageModern::Resize2D(uint32_t width, uint32_t height)
 	{
 		
-		switch (m_Specification.Target)
+		switch (m_Specification.m_Target)
 		{
 		case TextureTarget::Texture1D:
 		{
@@ -637,8 +637,8 @@ namespace Rynex{
 			RY_CORE_ASSERT(false);
 			return;
 		}
-		m_Specification.Width = width;
-		m_Specification.Height = height;
+		m_Specification.m_Width = width;
+		m_Specification.m_Height = height;
 
 		SetupeSpecficationVaribels();
 
@@ -648,7 +648,7 @@ namespace Rynex{
 
 	void OpenGLTextureStorageModern::Resize3D(uint32_t width, uint32_t height, uint32_t depth)
 	{
-		const TexTar& targetSpec = m_Specification.Target;
+		const TexTar& targetSpec = m_Specification.m_Target;
 		switch (targetSpec)
 		{		
 		case TextureTarget::Texture2D:
@@ -671,9 +671,9 @@ namespace Rynex{
 			RY_CORE_ASSERT(false);
 			return;
 		}
-		m_Specification.Width = width;
-		m_Specification.Height = height;
-		m_Specification.Depth = depth;
+		m_Specification.m_Width = width;
+		m_Specification.m_Height = height;
+		m_Specification.m_Depth = depth;
 
 		SetupeSpecficationVaribels();
 
@@ -705,7 +705,7 @@ namespace Rynex{
 		};
 		GLenum type = 0;
 
-		switch (m_Specification.Format)
+		switch (m_Specification.m_Format)
 		{
 		case TextureFormat::DepthComp16:
 		{
@@ -853,52 +853,52 @@ namespace Rynex{
 		pixelCount *= dimension.heigth;
 		pixelCount *= dimension.depth;
 
-		const uint32_t bytePerPixel = Utils::ImageChanelsBytes(m_Specification.Format);
+		const uint32_t bytePerPixel = Utils::ImageChanelsBytes(m_Specification.m_Format);
 		const uint32_t byteSize = pixelCount * bytePerPixel;
 		return byteSize;
 	}
 
 	void OpenGLTextureStorageModern::SetupeSpecficationVaribels()
 	{
-		Utils::CheckSpecifaictionValuesAorB(m_Specification.FilteringMode, 
+		Utils::CheckSpecifaictionValuesAorB(m_Specification.m_FilteringMode, 
 			TextureFilteringMode::LinearMidMapLinear, TextureFilteringMode::Linear,
-			0 != m_Specification.GenerateMips);
-		Utils::CheckSpecifaictionValues(m_Specification.Target, TextureTarget::Texture2D);
+			0 != m_Specification.m_GenerateMips);
+		Utils::CheckSpecifaictionValues(m_Specification.m_Target, TextureTarget::Texture2D);
 
-		Utils::CheckSpecifaictionValues(m_Specification.Format, TextureFormat::RGBA8);
+		Utils::CheckSpecifaictionValues(m_Specification.m_Format, TextureFormat::RGBA8);
 
-		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.T, TextureWrappingMode::Repeat);
-		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.R, TextureWrappingMode::Repeat);
-		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.S, TextureWrappingMode::Repeat);
+		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.m_T, TextureWrappingMode::Repeat);
+		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.m_R, TextureWrappingMode::Repeat);
+		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.m_S, TextureWrappingMode::Repeat);
 
 		m_Object.SetObjectType({
-			Utils::TexTarget(m_Specification.Target, 1 < m_Specification.Samples),
-			Utils::FormatData(m_Specification.Format),
-			Utils::InternalFormat(m_Specification.Format),
-			m_Specification.GenerateMips,
-			m_Specification.Samples
+			Utils::TexTarget(m_Specification.m_Target, 1 < m_Specification.m_Samples),
+			Utils::FormatData(m_Specification.m_Format),
+			Utils::InternalFormat(m_Specification.m_Format),
+			m_Specification.m_GenerateMips,
+			m_Specification.m_Samples
 		});
 		m_Object.SetDimension({
-			m_Specification.Width,
-			m_Specification.Height,
-			m_Specification.Depth
+			m_Specification.m_Width,
+			m_Specification.m_Height,
+			m_Specification.m_Depth
 		});
 
 		m_Sampler.SetFilter({
-			Utils::FilteringMode(m_Specification.FilteringMode),
-			Utils::FilteringMode(m_Specification.FilteringMode)
+			Utils::FilteringMode(m_Specification.m_FilteringMode),
+			Utils::FilteringMode(m_Specification.m_FilteringMode)
 		});
 		m_Sampler.SetWarp({
-			Utils::WrappingMode(m_Specification.WrappingSpec.S),
-			Utils::WrappingMode(m_Specification.WrappingSpec.R),
-			Utils::WrappingMode(m_Specification.WrappingSpec.T)
+			Utils::WrappingMode(m_Specification.WrappingSpec.m_S),
+			Utils::WrappingMode(m_Specification.WrappingSpec.m_R),
+			Utils::WrappingMode(m_Specification.WrappingSpec.m_T)
 		});
 		
-		bool comapreUse = m_Specification.Compare == TexComp::None;
+		bool comapreUse = m_Specification.m_Compare == TexComp::None;
 		m_Sampler.SetCompare(
 			OpenGLTextureSampler::CompareOpenGL(
 				comapreUse ? GL_NONE : GL_COMPARE_REF_TO_TEXTURE,
-				comapreUse ? GL_LEQUAL : Utils::CompareFunction(m_Specification.Compare)
+				comapreUse ? GL_LEQUAL : Utils::CompareFunction(m_Specification.m_Compare)
 			)
 		);
 		constexpr std::array<float, 4> borderColorArray = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -1033,9 +1033,9 @@ namespace Rynex{
 	bool OpenGLTextureStorageModern::CopyFromTextureToTexture(const Ref<OpenGLTextureStorageModern>& textureSrc)
 	{
 		glm::uvec3 size = {
-			textureSrc->m_Specification.Width,
-			textureSrc->m_Specification.Height,
-			textureSrc->m_Specification.Depth,
+			textureSrc->m_Specification.m_Width,
+			textureSrc->m_Specification.m_Height,
+			textureSrc->m_Specification.m_Depth,
 		};
 		return CopyFromTextureToTexture(textureSrc, size);
 	}
@@ -1163,49 +1163,49 @@ namespace Rynex{
 
 	void OpenGLLinkedTextureArray::SetupeSpecficationVaribels()
 	{
-		Utils::CheckSpecifaictionValuesAorB(m_Specification.FilteringMode,
+		Utils::CheckSpecifaictionValuesAorB(m_Specification.m_FilteringMode,
 			TextureFilteringMode::LinearMidMapLinear, TextureFilteringMode::Linear,
-			m_Specification.GenerateMips != 0);
-		Utils::CheckSpecifaictionValues(m_Specification.Target, TextureTarget::Texture2D_Array);
-		Utils::CheckSpecifaictionValues(m_Specification.Target, TextureTarget::TextureCubeMap_Array, TextureTarget::TextureCubeMap);
-		Utils::CheckSpecifaictionValues(m_Specification.Target, TextureTarget::Texture2D_Array, TextureTarget::Texture2D);
-		Utils::CheckSpecifaictionValues(m_Specification.Target, TextureTarget::Texture1D_Array, TextureTarget::Texture1D);
-		m_TextureIndexDimension = Utils::GetIndexDimensionFromTextureTagetForTextureArray(m_Specification.Target);
+			m_Specification.m_GenerateMips != 0);
+		Utils::CheckSpecifaictionValues(m_Specification.m_Target, TextureTarget::Texture2D_Array);
+		Utils::CheckSpecifaictionValues(m_Specification.m_Target, TextureTarget::TextureCubeMap_Array, TextureTarget::TextureCubeMap);
+		Utils::CheckSpecifaictionValues(m_Specification.m_Target, TextureTarget::Texture2D_Array, TextureTarget::Texture2D);
+		Utils::CheckSpecifaictionValues(m_Specification.m_Target, TextureTarget::Texture1D_Array, TextureTarget::Texture1D);
+		m_TextureIndexDimension = Utils::GetIndexDimensionFromTextureTagetForTextureArray(m_Specification.m_Target);
 
-		Utils::CheckSpecifaictionValues(m_Specification.Format, TextureFormat::RGBA8);
+		Utils::CheckSpecifaictionValues(m_Specification.m_Format, TextureFormat::RGBA8);
 
-		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.T, TextureWrappingMode::Repeat);
-		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.R, TextureWrappingMode::Repeat);
-		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.S, TextureWrappingMode::Repeat);
+		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.m_T, TextureWrappingMode::Repeat);
+		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.m_R, TextureWrappingMode::Repeat);
+		Utils::CheckSpecifaictionValues(m_Specification.WrappingSpec.m_S, TextureWrappingMode::Repeat);
 
 		m_Object.SetObjectType({
-			Utils::TexTarget(m_Specification.Target, m_Specification.Samples > 1),
-			Utils::FormatData(m_Specification.Format),
-			Utils::InternalFormat(m_Specification.Format),
-			m_Specification.GenerateMips,
-			m_Specification.Samples
+			Utils::TexTarget(m_Specification.m_Target, m_Specification.m_Samples > 1),
+			Utils::FormatData(m_Specification.m_Format),
+			Utils::InternalFormat(m_Specification.m_Format),
+			m_Specification.m_GenerateMips,
+			m_Specification.m_Samples
 			});
 		m_Object.SetDimension({
-			m_Specification.Width,
-			m_Specification.Height,
-			m_Specification.Depth
+			m_Specification.m_Width,
+			m_Specification.m_Height,
+			m_Specification.m_Depth
 			});
 
 		m_Sampler.SetFilter({
-			Utils::FilteringMode(m_Specification.FilteringMode),
-			Utils::FilteringMode(m_Specification.FilteringMode)
+			Utils::FilteringMode(m_Specification.m_FilteringMode),
+			Utils::FilteringMode(m_Specification.m_FilteringMode)
 			});
 		m_Sampler.SetWarp({
-			Utils::WrappingMode(m_Specification.WrappingSpec.S),
-			Utils::WrappingMode(m_Specification.WrappingSpec.R),
-			Utils::WrappingMode(m_Specification.WrappingSpec.T)
+			Utils::WrappingMode(m_Specification.WrappingSpec.m_S),
+			Utils::WrappingMode(m_Specification.WrappingSpec.m_R),
+			Utils::WrappingMode(m_Specification.WrappingSpec.m_T)
 			});
 
-		bool comapreUse = m_Specification.Compare == TexComp::None;
+		bool comapreUse = m_Specification.m_Compare == TexComp::None;
 		m_Sampler.SetCompare(
 			OpenGLTextureSampler::CompareOpenGL(
 				comapreUse ? GL_NONE : GL_COMPARE_REF_TO_TEXTURE,
-				comapreUse ? GL_LEQUAL : Utils::CompareFunction(m_Specification.Compare)
+				comapreUse ? GL_LEQUAL : Utils::CompareFunction(m_Specification.m_Compare)
 			)
 		);
 		constexpr std::array<float, 4> borderColorArray = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -1309,8 +1309,8 @@ namespace Rynex{
 
 	uint32_t OpenGLLinkedTextureArray::GetPerTextureByteSize() const
 	{
-		uint32_t pbb = Utils::ImageChanelsBytes(m_Specification.Format);
-		uint32_t byteSize = m_Specification.Width * m_Specification.Height * m_Specification.Depth * pbb;
+		uint32_t pbb = Utils::ImageChanelsBytes(m_Specification.m_Format);
+		uint32_t byteSize = m_Specification.m_Width * m_Specification.m_Height * m_Specification.m_Depth * pbb;
 		return byteSize;
 	}
 	
@@ -1381,9 +1381,9 @@ namespace Rynex{
 		RY_CORE_ASSERT(index < m_LinkedTexturesVec.size());
 		const TextureSpecification& spec = texture->GetSpecification();
 		bool specNotEqual = !m_Specification.IsEqualWitheOutTextureTarget(spec);
-		bool specTarget1DtEqual = (m_Specification.Target == TextureTarget::Texture1D_Array && spec.Target == TextureTarget::Texture1D);
-		bool specTarget2DEqual = (m_Specification.Target == TextureTarget::Texture2D_Array && spec.Target == TextureTarget::Texture2D);
-		bool specTargetCubeMapEqual = (m_Specification.Target == TextureTarget::TextureCubeMap_Array && spec.Target == TextureTarget::TextureCubeMap);
+		bool specTarget1DtEqual = (m_Specification.m_Target == TextureTarget::Texture1D_Array && spec.m_Target == TextureTarget::Texture1D);
+		bool specTarget2DEqual = (m_Specification.m_Target == TextureTarget::Texture2D_Array && spec.m_Target == TextureTarget::Texture2D);
+		bool specTargetCubeMapEqual = (m_Specification.m_Target == TextureTarget::TextureCubeMap_Array && spec.m_Target == TextureTarget::TextureCubeMap);
 		bool notVaildTargetSet = !(specTarget1DtEqual || specTarget2DEqual || specTargetCubeMapEqual);
 		if (notVaildTargetSet || specNotEqual)
 		{
@@ -1515,9 +1515,9 @@ namespace Rynex{
 		using Type = OpenGLTextureObject::ObjectTypeOpenGL;
 
 		Dimension dimension(
-			m_Specification.Width,
-			m_Specification.Height,
-			m_Specification.Depth
+			m_Specification.m_Width,
+			m_Specification.m_Height,
+			m_Specification.m_Depth
 		);
 		dimension[m_TextureIndexDimension] *= m_LinkedTexturesVec.size();
 
@@ -1545,16 +1545,16 @@ namespace Rynex{
 			{
 				Ref<OpenGLTextureStorageModern> texutureStorage = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(texture);
 				glm::uvec3 dstOffset = {
-					0u, 0u, m_Specification.Depth * index,
+					0u, 0u, m_Specification.m_Depth * index,
 				};
 				glm::uvec3 srcOffset = {
 					0u, 0u, 0u,
 				};
 
 				Dimension dimension(
-					m_Specification.Width,
-					m_Specification.Height,
-					m_Specification.Depth
+					m_Specification.m_Width,
+					m_Specification.m_Height,
+					m_Specification.m_Depth
 				);
 
 				m_Object.CopyFromTextureToTexture(
@@ -1605,9 +1605,9 @@ namespace Rynex{
 			return;
 		}
 		glm::uvec3 textureSize = {
-			m_Specification.Width,
-			m_Specification.Height,
-			m_Specification.Depth,
+			m_Specification.m_Width,
+			m_Specification.m_Height,
+			m_Specification.m_Depth,
 		};
 		glm::uvec3 dstOffset = {
 			0u, 0u, 0u,
@@ -1642,7 +1642,7 @@ namespace Rynex{
 	{
 		RY_CORE_NOT_IMPL();
 
-		m_Specification.Width = width;
+		m_Specification.m_Width = width;
 
 		Invalidate();
 	}
@@ -1651,8 +1651,8 @@ namespace Rynex{
 	{
 		RY_CORE_NOT_IMPL();
 
-		m_Specification.Width = width;
-		m_Specification.Height = height;
+		m_Specification.m_Width = width;
+		m_Specification.m_Height = height;
 
 		Invalidate();
 
