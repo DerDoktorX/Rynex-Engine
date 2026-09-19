@@ -64,7 +64,7 @@ namespace Rynex {
 		Ref<Texture> defaultIcon = TextureImporter::LoadTexture("Engine-Resources/Resources/Icons/ContentBrowser/FileIconDefault.png");
 #if 0
 		AssetManager::CreatLocaleAsset<Texture>(defaultIcon);
-		m_FileIconDefault	= AssetManager::GetAsset<Texture>(defaultIcon->Handle);
+		m_FileIconDefault	= AssetManager::GetAsset<Texture>(defaultIcon->m_Handle);
 #else
 		m_FileIconDefault = defaultIcon;
 #endif
@@ -119,7 +119,7 @@ namespace Rynex {
 
 	void ContentBrowserPannel::OnImGuiRender()
 	{
-		AssetRegestriyPannel();
+		AssetRegisterPanel();
 
 		AssetPannel();
 		DelateAsset();
@@ -312,12 +312,12 @@ namespace Rynex {
 	void ContentBrowserPannel::ImGuiAssetFile(AssetBrowserDataThreade& data, float thumbernailSize)
 	{
 		std::filesystem::path relativProjectPath = data.RelativProjectPath.GetNamePathString();
-		std::filesystem::path path = data.Path.GetPath();
+		FileSystem::Path& path = data.Path;
 		AssetHandle& handle = data.Handle;
 		AssetType& type = data.Type;
 
 		if (relativProjectPath.empty())
-			relativProjectPath = std::filesystem::relative(path, m_BaseDirectory);
+			relativProjectPath = std::filesystem::relative(path.GetAbsoluteBasePath(), m_BaseDirectory);
 
 		std::string& name = data.Name;
 		std::string& typeString = data.TypeString;
@@ -473,12 +473,12 @@ namespace Rynex {
 		ImGui::PopID();
 		
 	}
-
-	void ContentBrowserPannel::AssetRegestriyPannel()
+    //AssetRegisterPanel
+	void ContentBrowserPannel::AssetRegisterPanel()
 	{
 		if(m_WindowRegestriyPannellOpen)
 		{
-			ImGui::Begin("Asset Regestriy", &m_WindowRegestriyPannellOpen, ImGuiWindowFlags_None);
+			ImGui::Begin("Asset register", &m_WindowRegestriyPannellOpen, ImGuiWindowFlags_None);
 			
 			if (m_AssetManger->IsCurrentRegistryAssetChange())
 			{
@@ -488,7 +488,7 @@ namespace Rynex {
 			for (const auto& [handle, metadata, filePath] : m_RegisterItemes)
 			{
 				if(filePath != "")
-					ImGui::Text("AssetHandle(UUID): (%ull), Realtiv FilePath: %s", handle, filePath.c_str());
+					ImGui::Text("AssetHandle(UUID): (%ull), Realtime FilePath: %s", handle, filePath.c_str());
 				else
 					ImGui::Text("AssetHandle(UUID): (%ull), Data Type: %i", handle, (int)metadata.m_Type);
 			}
@@ -599,14 +599,16 @@ namespace Rynex {
 			{
 
 				Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-				assetManger->EventAsyncModified(filePath);
+			    FileSystem::Path path(filePath);
+				assetManger->EventAsyncModified(path);
 
 				break;
 			}
 			case filewatch::Event::added:
 			{
 				Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-				assetManger->EventAsyncAdded(filePath);
+			    const FileSystem::Path path(filePath);
+				assetManger->EventAsyncAdded(path);
 				break;
 
 			}
@@ -614,23 +616,26 @@ namespace Rynex {
 			{
 
 				Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-				assetManger->EventAsyncRemoved(filePath);
+			    const FileSystem::Path path(filePath);
+				assetManger->EventAsyncRemoved(path);
 				break;
 			}
 			case filewatch::Event::renamed_new:
 			{
 				Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-				assetManger->EventAsyncRenamedNew(filePath);
+			    const FileSystem::Path path(filePath);
+				assetManger->EventAsyncRenamedNew(path);
 				break;
 			}
 			case filewatch::Event::renamed_old:
 			{
 				Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-				assetManger->EventAsyncRenamedOld(filePath);
+			    const FileSystem::Path path(filePath);
+				assetManger->EventAsyncRenamedOld(path);
 				break;
 			}
 			default:
-				RY_CORE_FATAL("Thread Not found Event! {0}", filePath.string().c_str());
+				RY_CORE_FATAL("Thread Not found Event! {0}", filePath);
 				break;
 		}
 		
@@ -649,14 +654,16 @@ namespace Rynex {
 		{
 
 			Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-			assetManger->EventAsyncModified(filePath);
+		    const FileSystem::Path path(filePath);
+			assetManger->EventAsyncModified(path);
 
 			break;
 		}
 		case filewatch::Event::added:
 		{
 			Ref<EditorAssetManagerThread> assetManger = Project::GetActive()->GetEditorAssetManger();
-			assetManger->EventAsyncAdded(filePath);
+		    const FileSystem::Path path(filePath);
+			assetManger->EventAsyncAdded(path);
 			break;
 
 		}
