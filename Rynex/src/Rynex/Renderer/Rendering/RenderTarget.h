@@ -27,8 +27,8 @@ namespace Rynex {
 
 	using UniformBindArray = std::array<Ref<UniformBuffer>, g_UniformBindArrayCount>;
 #ifdef RY_SSBO_VARIENTS
-	using StorageBufferVarients = std::variant<Ref<StorageBuffer>, Ref<BindlesTextureArray>>;
-	using StorageBindArray = std::array<StorageBufferVarients, g_StorageBindArrayCount>;
+	using StorageBufferVarints = std::variant<Ref<StorageBuffer>, Ref<BindlesTextureArray>>;
+	using StorageBindArray = std::array<StorageBufferVarints, g_StorageBindArrayCount>;
 #else
 	typedef std::array<Ref<StorageBuffer>, g_StorageBindArrayCount > StorageBindArray;
 #endif
@@ -355,7 +355,7 @@ namespace Rynex {
 				RY_DESTROY_REF(uniform);
 			}
 #ifdef RY_SSBO_VARIENTS
-			for (StorageBufferVarients& storage : m_BindStorage)
+			for (StorageBufferVarints& storage : m_BindStorage)
 			{
 				std::visit([](auto& ref) { RY_DESTROY_REF(ref); }, storage);
 			}

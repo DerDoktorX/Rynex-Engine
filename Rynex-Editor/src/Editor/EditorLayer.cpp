@@ -184,7 +184,7 @@ case key: \
 #endif
             const Ref<Material>& materiel = meshSingle.m_Material;
             const Ref<MeshSingle>& meshSingel = meshSingle.m_MeshSingle;
-            const glm::mat4& matrix = meshSingle.LocaleCildrenMatrix;
+            const glm::mat4& matrix = meshSingle.m_LocaleCildrenMatrix;
             const std::string& name = meshSingle.NodeName;
 
             Entity e = entiy.AddChildrenEntity(name);
@@ -235,7 +235,7 @@ case key: \
         {
             const Ref<Material>& materiel = meshSingle.m_Material;
             const Ref<MeshSingle>& meshSingel = meshSingle.m_MeshSingle;
-            const glm::mat4& matrix = meshSingle.LocaleCildrenMatrix;
+            const glm::mat4& matrix = meshSingle.m_LocaleCildrenMatrix;
             const std::string& name = meshSingle.NodeName;
 
             Entity e = entiy.AddChildrenEntity(name);
@@ -1652,7 +1652,7 @@ case key: \
 
     void EditorLayer::OnDetach()
     {
-        RY_CORE_WARN("OnDetach Aktiv!");
+        RY_CORE_WARN("OnDetach Activ!");
         RY_PROFILE_FUNCTION();
 
         RY_DESTROY_REF(m_AktiveScene);
@@ -1671,10 +1671,15 @@ case key: \
         m_Scene_HPanel.OnDetache();  
         m_MeshPannel.OnDetache();
 #if defined(RY_SCRIPT_ENGINE)
-        ScriptingEngine::Shutdown();
+        if (Renderer::IsInit())
+            Renderer::Init();
 #endif
-        Renderer::ShutdownEditor();
-        Renderer::Shutdown();
+        if (Renderer::IsEditorInit())
+            Renderer::ShutdownEditor();
+        if (Renderer::IsEditorInit())
+            Renderer::Shutdown();
+
+
         Project::Shutdown();
 
         RY_CORE_WARN("OnDetach Done!");

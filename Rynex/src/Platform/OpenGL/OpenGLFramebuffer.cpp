@@ -10,11 +10,11 @@
 #define GL_COLOR_ATTACHMENT_INDEX(x) (GL_COLOR_ATTACHMENT0)
 namespace Rynex {
 
-	static const uint32_t s_MaxFrambufferSize = 8192;
+	constexpr uint32_t s_MAX_FRAMEBUFFER_SIZE = 8192;
 
 	namespace Utils {
 
-		static GLenum AtchemtType(TextureFormat attachmentType)
+		static GLenum AttachmentType(const TextureFormat attachmentType)
 		{
 			switch (attachmentType)
 			{
@@ -104,35 +104,35 @@ namespace Rynex {
 
 			case TextureFormat::Default:
 			case TextureFormat::None:	
-				RY_CORE_ASSERT(false, "None or defout Formats Shoudbe not used!");
+				RY_CORE_ASSERT(false, "None or devout Formats should not used!");
 				break;
 			default:
 				break;
 			}
-			RY_CORE_ASSERT(false, "Not set or not known TexureFormat!");
+			RY_CORE_ASSERT(false, "Not set or not known TextureFormat!");
 			return false;
 		}
 
-		static void TexturDefaultTypesDepth(FramebufferTextureSpecification* attachment)
+		static void TextureDefaultTypesDepth(FramebufferTextureSpecification* attachment)
 		{
 			TexFilter& filter = attachment->m_TextureFiltering;
-			if (filter == TexFilter::Default)
+			if (filter==TexFilter::Default)
 				filter = TexFilter::Nearest;
 
-			TexFrom& fromat = attachment->m_TextureFormat;
-			if (fromat == TexFrom::Default)
-				fromat = TexFrom::Depth24Stencil8;
+			TexFrom& format = attachment->m_TextureFormat;
+			if (format==TexFrom::Default)
+				format = TexFrom::Depth24Stencil8;
 
 			TextureWrappingMode& warpT = attachment->m_TextureWrapping.m_T;
-			if (warpT == TexWarp::Default)
+			if (TexWarp::Default==warpT)
 				warpT = TexWarp::ClampEdge;
 
 			TextureWrappingMode& warpR = attachment->m_TextureWrapping.m_R;
-			if (warpR == TexWarp::Default)
+			if (TexWarp::Default==warpR)
 				warpR = TexWarp::None;
 
 			TextureWrappingMode& warpS = attachment->m_TextureWrapping.m_S;
-			if (warpS == TexWarp::Default)
+			if (TexWarp::Default==warpS)
 				warpS = TexWarp::ClampEdge;
 		}
 
@@ -141,8 +141,6 @@ namespace Rynex {
 	OpenGLFramebuffer::OpenGLFramebuffer(const FramebufferSpecification& spec)
 		: m_Specification(spec)
 	{
-
-		
 		uint32_t& withe = m_Specification.m_Width;
 		uint32_t& height = m_Specification.m_Height;
 		uint32_t& depth = m_Specification.m_Depth;
@@ -157,7 +155,7 @@ namespace Rynex {
 			}
 			case TextureTarget::Default:
 			{
-				RY_CORE_ERROR("We can't see if the target is vaild so we defined Default as TextureTarget::Texture2D");
+				RY_CORE_ERROR("We can't see if the target is valid so we defined Default as TextureTarget::Texture2D");
 				target = TextureTarget::Texture2D;
 				break;
 			}
@@ -167,21 +165,21 @@ namespace Rynex {
 			case TextureTarget::TextureBuffer:
 			default:
 			{
-				RY_CORE_ASSERT(false, "No Vaild TextureTarget for a Frambuffer");
+				RY_CORE_ASSERT(false, "No valid TextureTarget for a Framebuffer");
 				break;
 			}
 		}
 		
 
-		m_Size = { withe , height, depth };
+		m_Size = glm::uvec3{ withe, height, depth };
 		constexpr uint32_t midmapsLevel = 0u;
 		for (FramebufferTextureSpecification& attachment : m_Specification.m_Attachments)
 		{
 			bool depthFormat = Utils::IsDeathTex(attachment.m_TextureFormat);
 			if (nullptr == m_DepthAttachment && depthFormat)
 			{
-				Utils::TexturDefaultTypesDepth(&attachment);
-				TextureSpecification spec = {
+				Utils::TextureDefaultTypesDepth(&attachment);
+				TextureSpecification spec{
 					withe, height, depth,
 					target,
 					attachment.m_TextureFormat,
@@ -195,16 +193,16 @@ namespace Rynex {
 
 				uint32_t countColorTex = m_ColorAttachmentsTex.size();
 				uint32_t countAttachmentsCount = m_Specification.m_Attachments.m_Attachments.size();
-				uint32_t expexteColorCount = countAttachmentsCount - 1u;
-				if (expexteColorCount != countColorTex)
+				uint32_t expectColorCount = countAttachmentsCount - 1u;
+				if (expectColorCount != countColorTex)
 				{
-					RY_CORE_WARN("We Expext the Depth Buffer to be the last Ellement! (Posible problems withe Attachment Index)");
+					RY_CORE_WARN("We Expect the Depth Buffer to be the last Element! (Possible problems withe Attachment Index)");
 				}
 			}
 			else if(!depthFormat)
 			{
-				Utils::TexturDefaultTypesColor(&attachment);
-				TextureSpecification spec = {
+				Utils::TextureDefaultTypesColor(&attachment);
+				TextureSpecification spec{
 					withe, height, depth,
 					target,
 					attachment.m_TextureFormat,
@@ -213,14 +211,13 @@ namespace Rynex {
 					attachment.m_TextureWrapping,
 					attachment.Compare,
 					midmapsLevel
-
 				};
 				Ref<OpenGLTextureStorageModern> tex = CreateRef<OpenGLTextureStorageModern>(spec);
 				m_ColorAttachmentsTex.push_back(tex);
 			}	
 			else
 			{
-				RY_CORE_ERROR("No Farmbuffer Can Use more then one Depth Texture! (We use only the First found Depth Texture!)");
+				RY_CORE_ERROR("No Framebuffer can use more then one Depth Texture! (We use only the First found Depth Texture!)");
 			}
 		}
 		Invalidate();
@@ -250,15 +247,15 @@ namespace Rynex {
 
 	void OpenGLFramebuffer::ClearAttachmentNull(uint32_t index)
 	{
-		
-		GLint drawBuffer = index;
+
+		const GLint drawBuffer = index;
 		
 		Ref<OpenGLTextureStorageModern> texture = GetAttechmentTextureFromIndex(index);
 		const TextureSpecification& spec = texture->GetSpecification();
-		TexFrom fromat = spec.m_Format;
+		TexFrom format = spec.m_Format;
 
 		
-		switch (fromat)
+		switch (format)
 		{
 		case TexFrom::R8:
 		case TexFrom::RG8:
@@ -289,14 +286,16 @@ namespace Rynex {
 			
 
 		default:
-			RY_CORE_ASSERT(false, "This fomate is not expexted!");
+			RY_CORE_ASSERT(false, "This format is not expected!");
 			break;
 		}
 	}
 
 	void OpenGLFramebuffer::ClearAttachment(uint32_t index, int value)
 	{
-		glm::ivec4 value4 = glm::ivec4(value, 0, 0, 0);
+		glm::ivec4 value4{
+		    value, 0, 0, 0
+		};
 		ClearAttachment(index, value4);
 	}
 
@@ -337,46 +336,47 @@ namespace Rynex {
 	{
 		if(nullptr == m_DepthAttachment || nullptr == texture || m_DepthAttachment->GetSpecification() != texture->GetSpecification())
 		{
-			RY_CORE_ERROR("Depth Texture change (SetTextureForDepthAttchment) Faild!");
+			RY_CORE_ERROR("Depth Texture change (SetTextureForDepthAttachment) Failed!");
 			return false;
 		}
 		if(texture.get() == m_DepthAttachment.get())
 		{
-			RY_CORE_WARN("Depth Texture was alrady set by that texture (SetTextureForDepthAttchment)!");
+			RY_CORE_WARN("Depth Texture was already set by that texture (SetTextureForDepthAttachment)!");
 			return true;
 		}
-		Ref<OpenGLTextureStorageModern> openglTexture = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(texture);
-		m_DepthAttachment->RemoveParent(this);
+	    const Ref<OpenGLTextureStorageModern> openglDepthAttachment = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(m_DepthAttachment);
+		const Ref<OpenGLTextureStorageModern> openglTexture = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(texture);
+		openglDepthAttachment->RemoveParent(this);
 		RY_DESTROY_REF(m_DepthAttachment);
 
-		m_DepthAttachment = openglTexture;
-		m_DepthAttachment->AddParent(this);
+		m_DepthAttachment = texture;
+
+		openglTexture->AddParent(this);
 		Invalidate();
 		return true;
 	}
 
-	bool OpenGLFramebuffer::SetTextureForColorAttachment(const Ref<Texture>& texture, uint32_t atchmentIndex)
+	bool OpenGLFramebuffer::SetTextureForColorAttachment(const Ref<Texture>& texture, uint32_t attachmentIndex)
 	{
 
-		if (m_ColorAttachmentsTex.size() <= atchmentIndex || nullptr == texture || m_ColorAttachmentsTex.at(atchmentIndex)->GetSpecification() != texture->GetSpecification())
+		if (m_ColorAttachmentsTex.size() <= attachmentIndex || nullptr == texture || m_ColorAttachmentsTex.at(attachmentIndex)->GetSpecification() != texture->GetSpecification())
 		{
-			RY_CORE_ERROR("Color Texture change on athcment[{}] (SetTextureForDepthAttchment) Faild!", atchmentIndex);
+			RY_CORE_ERROR("Color Texture change on attachment[{}] (SetTextureForDepthAttachment) Failed!", attachmentIndex);
 			return false;
 		}
-		Ref<Texture>& attchmentTexture = m_ColorAttachmentsTex.at(atchmentIndex);
+		Ref<Texture>& attachmentTexture = m_ColorAttachmentsTex.at(attachmentIndex);
 
-		if (attchmentTexture.get() == m_DepthAttachment.get())
+		if (attachmentTexture.get() == m_DepthAttachment.get())
 		{
-			RY_CORE_WARN("Color Texture on atchment[{}] was alrady set by that texture (SetTextureForDepthAttchment)!", atchmentIndex);
+			RY_CORE_WARN("Color Texture on attachment[{}] was already set by that texture (SetTextureForDepthAttachment)!", attachmentIndex);
 			return true;
 		}
-		Ref<OpenGLTextureStorageModern> openglAttchmentTexture = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(attchmentTexture);
-		Ref<OpenGLTextureStorageModern> openglTexture = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(texture);
-		openglAttchmentTexture->RemoveParent(this);
-		RY_DESTROY_REF(attchmentTexture);
-		RY_DESTROY_REF(openglAttchmentTexture);
-
-		attchmentTexture = openglTexture;
+		Ref<OpenGLTextureStorageModern> openglAttachmentTexture = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(attachmentTexture);
+		const Ref<OpenGLTextureStorageModern> openglTexture = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(texture);
+		openglAttachmentTexture->RemoveParent(this);
+		RY_DESTROY_REF(attachmentTexture);
+		RY_DESTROY_REF(openglAttachmentTexture);
+		attachmentTexture = openglTexture;
 		openglTexture->AddParent(this);
 		Invalidate();
 		return true;
@@ -385,7 +385,8 @@ namespace Rynex {
 	void OpenGLFramebuffer::ClearDeathAttachment(float value)
 	{
 		RY_CORE_ASSERT(nullptr != m_DepthAttachment, "no Death Attachment!");
-		uint32_t formate = m_DepthAttachment->GetOpenGLTextureDataFormate();
+	    const Ref<OpenGLTextureStorageModern> openglDepthAttachment = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(m_DepthAttachment);
+		uint32_t formate = openglDepthAttachment->GetOpenGLTextureDataFormate();
 
 		switch (formate)
 		{
@@ -517,19 +518,17 @@ namespace Rynex {
 
 		CreateID();
 
-		uint32_t colorAtchmentCount = SetupTextures();
-		SetFrameBufferStates(colorAtchmentCount);
+		const uint32_t colorAttachmentCount = SetupTextures();
+		SetFrameBufferStates(colorAttachmentCount);
 	}
 
-	void OpenGLFramebuffer::CreateAttechmentTexture(Ref<OpenGLTextureStorageModern>& texture, uint32_t slot)
+	void OpenGLFramebuffer::CreateAttachmentTexture(const  Ref<OpenGLTextureStorageModern>& texture, const uint32_t slot)
 	{
-		uint32_t withe  = m_Size.x;
-		uint32_t height = m_Size.y;
-		uint32_t depth = m_Size.z;
+		const uint32_t withe  = m_Size.x;
+		const uint32_t height = m_Size.y;
+		const uint32_t depth = m_Size.z;
 
 		const TextureSpecification& attachment = texture->GetSpecification();
-		
-
 
 		texture->SetSpecfication({
 				withe, height,depth,
@@ -548,12 +547,12 @@ namespace Rynex {
 	void OpenGLFramebuffer::ConecetTextureToFramffbuffer(const Ref<OpenGLTextureStorageModern>& texture, uint32_t slot)
 	{
 		const TextureSpecification& specs = texture->GetSpecification();
-		TextureFormat formate = specs.m_Format;
-		uint32_t attecmentType = Utils::AtchemtType(formate); // Color, Depth, Stencil
+		const TextureFormat formate = specs.m_Format;
+		const uint32_t attachmentType = Utils::AttachmentType(formate); // Color, Depth, Stencil
 
-		uint32_t targetFromat = texture->GetOpenGLTextureTarget();
-		uint32_t textureRenderID = texture->GetRenderID();
-		uint32_t attachmentTypeSLot = attecmentType + slot;
+		uint32_t targetFormat = texture->GetOpenGLTextureTarget();
+		const uint32_t textureRenderID = texture->GetRenderID();
+		const uint32_t attachmentTypeSLot = attachmentType + slot;
 
 		glNamedFramebufferTexture(m_RendererID, attachmentTypeSLot, textureRenderID, 0);
 	}
@@ -561,67 +560,66 @@ namespace Rynex {
 
 	void OpenGLFramebuffer::OnChildeSpecifcationChange(OpenGLTextureStorageModern* ptrTex)
 	{
-		RY_CORE_WARN("Children Texture of Frambuffer has specifcation changed this is not expected To happen!, maby Change of data is forced by Frambuffer!");
+		RY_CORE_WARN("Children Texture of Framebuffer has specification changed this is not expected To happen!, maby Change of data is forced by Framebuffer!");
 	}
 
 	void OpenGLFramebuffer::OnChildeDataChange(OpenGLTextureStorageModern* ptrTex)
 	{
-		RY_CORE_WARN("Children Texture of Frambuffer has changed this is not expected To happen!, maby Change of data is forced by Frambuffer!");
+		RY_CORE_WARN("Children Texture of Framebuffer has changed this is not expected To happen!, maby Change of data is forced by Framebuffer!");
 	}
 
 	void OpenGLFramebuffer::OnChildeDestroy(OpenGLTextureStorageModern* ptrTex)
 	{
-		RY_CORE_ASSERT(false, "This Funktion Shoud never be called!");
+		RY_CORE_ASSERT(false, "This Funktion Should never be called!");
 	}
 
 	void OpenGLFramebuffer::AddTextureParentToTextures()
 	{
-		for (const Ref<Texture>& texure : m_ColorAttachmentsTex)
+		for (const Ref<Texture>& texture : m_ColorAttachmentsTex)
 		{
-			Ref<OpenGLTextureStorageModern> texureObject = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(texure);
-			texureObject->AddParent(this);
+			const Ref<OpenGLTextureStorageModern> textureObject = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(texture);
+			textureObject->AddParent(this);
 		}
 		if (nullptr != m_DepthAttachment)
 		{
-			m_DepthAttachment->AddParent(this);
+		    const Ref<OpenGLTextureStorageModern> textureObject = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(m_DepthAttachment);
+		    textureObject->AddParent(this);
 		}
 	}
 
-	void OpenGLFramebuffer::SetFrameBufferStates(uint32_t countColorTex)
+	void OpenGLFramebuffer::SetFrameBufferStates(const uint32_t colorTextureCount)
 	{
-		if (countColorTex)
+		if (0 != colorTextureCount)
 		{
-			RY_CORE_ASSERT(countColorTex <= 10, "Error: OpenGLFramebuffer to many Color Attachments!");
-			GLenum buffers[10] = {
+		    constexpr uint32_t MAX_TEXTURE_COUNT = 10u;
+			RY_CORE_ASSERT(colorTextureCount <= MAX_TEXTURE_COUNT, "Error: OpenGLFramebuffer to many Color Attachments!");
+			const GLenum buffers[] = {
 				GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4,
 				GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7, GL_COLOR_ATTACHMENT8, GL_COLOR_ATTACHMENT9,
 			};
-			glNamedFramebufferDrawBuffers(m_RendererID, countColorTex, buffers);
+			glNamedFramebufferDrawBuffers(m_RendererID, colorTextureCount, buffers);
 		}
-		else if (countColorTex == 0)
+		else
 		{
 			glNamedFramebufferDrawBuffer(m_RendererID, GL_NONE);
 			glNamedFramebufferReadBuffer(m_RendererID, GL_NONE);
 		}
-		else
-		{
-			RY_CORE_ASSERT(false, "Not expexted State!");
-		}
-		RY_CORE_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Frambuffer is not Complet!");
+	    const GLenum state = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		RY_CORE_ASSERT(GL_FRAMEBUFFER_COMPLETE == state, "Framebuffer is not Complete!");
 
 	}
 
-	uint32_t OpenGLFramebuffer::SetColoarAtchments(const std::vector<Ref<Texture>>& colorAttachments, uint32_t openglTexTarget)
+	uint32_t OpenGLFramebuffer::SetColorAttachments(const std::vector<Ref<Texture>>& colorAttachments, uint32_t openGLTextureTarget)
 	{
-		uint32_t texSize = colorAttachments.size();
-		if (texSize == 0u)
+		const uint32_t texSize = colorAttachments.size();
+		if (0u == texSize)
 			return 0u;
 
 		uint32_t i = 0;
-		for (const Ref<Texture>& texureObject : colorAttachments)
+		for (const Ref<Texture>& textureObject : colorAttachments)
 		{
-			Ref<OpenGLTextureStorageModern> texutureStorage = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(texureObject);
-			CreateAttechmentTexture(texutureStorage, i);
+			Ref<OpenGLTextureStorageModern> textureStorage = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(textureObject);
+			CreateAttachmentTexture(textureStorage, i);
 			i++;
 		}
 		return i;
@@ -631,9 +629,13 @@ namespace Rynex {
 	uint32_t OpenGLFramebuffer::SetupTextures()
 	{
 		uint32_t colorAttachmentsSize = 0;
-		colorAttachmentsSize += SetColoarAtchments(m_ColorAttachmentsTex);
-		if(m_DepthAttachment != nullptr)
-			CreateAttechmentTexture(m_DepthAttachment, 0u);
+		colorAttachmentsSize += SetColorAttachments(m_ColorAttachmentsTex);
+
+		if(nullptr != m_DepthAttachment)
+		{
+		    Ref<OpenGLTextureStorageModern> openglDepthAttachment = std::static_pointer_cast<OpenGLTextureStorageModern, Texture>(m_DepthAttachment);
+		    CreateAttachmentTexture(openglDepthAttachment, 0u);
+		}
 		return colorAttachmentsSize;
 	}
 
@@ -694,7 +696,7 @@ namespace Rynex {
 
 	void OpenGLFramebuffer::Resize2D(uint32_t width, uint32_t height)
 	{
-		if (width == 0 || height == 0 || width > s_MaxFrambufferSize || height > s_MaxFrambufferSize)
+		if (width == 0 || height == 0 || width > s_MAX_FRAMEBUFFER_SIZE || height > s_MAX_FRAMEBUFFER_SIZE)
 		{
 			RY_CORE_WARN("Faild Resize frambueffer to {0}, {1}", width, height);
 			return;

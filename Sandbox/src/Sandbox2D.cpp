@@ -23,16 +23,16 @@ Sandbox2D::Sandbox2D()
 
 void Sandbox2D::OnAttach()
 {
-	Rynex::Window& window = Rynex::Application::Get().GetWindow();
-	m_ViewPortSize = { window.GetWidth() ,window.GetHeight()};
-	m_WindowPos = { window.GetPosX() ,window.GetPosY() };
-	m_MousePos = { window.GetMousePosX() ,window.GetMousePosY() };
+	const Rynex::Window& window = Rynex::Application::Get().GetWindow();
+	m_ViewPortSize = glm::uvec2{ window.GetWidth() ,window.GetHeight()};
+	m_WindowPos = glm::vec2{ window.GetPosX() ,window.GetPosY() };
+	m_MousePos = glm::vec2{ window.GetMousePosX() ,window.GetMousePosY() };
     m_AktiveScene = Rynex::CreateRef<Rynex::Scene>();
 
-	auto commandLineArgs = Rynex::Application::Get().GetSpecification().CommandLineArgs;
-	if (commandLineArgs.Count > 1)
+	const auto commandLineArgs = Rynex::Application::Get().GetSpecification().CommandLineArgs;
+	if (1 < commandLineArgs.Count)
 	{
-		auto projFilePath = commandLineArgs[1];
+		const auto projFilePath = commandLineArgs[1];
 		if (Rynex::Project::Load(projFilePath))
 		{
 #if defined(RY_SCRIPTING_ENGINE)
@@ -42,19 +42,26 @@ void Sandbox2D::OnAttach()
 			if (!Rynex::Renderer::IsInit())
 				Rynex::Renderer::Init();
 
-			std::filesystem::path startScene = Rynex::Project::GetActive()->GetConfig().m_StartScene;
+			const std::filesystem::path startScene = Rynex::Project::GetActive()->GetConfig().m_StartScene;
 			m_Project = Rynex::Project::GetActive();
 			m_AssetManger = m_Project->GetRuntimeAssetManger();
-			if (startScene.string() != "")
+			if (!startScene.empty())
 			{
-				Rynex::SceneSerializer serialzer(m_AktiveScene);
-				serialzer.Deserialize(startScene.string());
+				Rynex::SceneSerializer serializer(m_AktiveScene);
+			    const Rynex::FileSystem::Path path(startScene);
+				serializer.Deserialize(path);
 			}
 		}
+	    else
+	    {
+	        RY_FATAL("Project found but, not successful loaded exit.");
+	        Rynex::Application::Get().Close();
+	        return;
+	    }
 	}
 	else
 	{
-		std::filesystem::path filepath = "";
+		std::filesystem::path filepath;
 	    constexpr uint32_t MAX_TRY_COUNT = 3u;
 	    uint32_t i = 0u;
 		do
@@ -77,20 +84,27 @@ void Sandbox2D::OnAttach()
 			if (!Rynex::Renderer::IsInit())
 				Rynex::Renderer::Init();
 
-			std::filesystem::path startScene = Rynex::Project::GetActive()->GetConfig().m_StartScene;
+			const std::filesystem::path startScene = Rynex::Project::GetActive()->GetConfig().m_StartScene;
 			m_Project = Rynex::Project::GetActive();
 			m_AssetManger = m_Project->GetRuntimeAssetManger();
-			if (startScene.string() != "")
+			if (!startScene.empty())
 			{
-				Rynex::SceneSerializer serialzer(m_AktiveScene);
-				serialzer.Deserialize(startScene.string());
+				Rynex::SceneSerializer serializer(m_AktiveScene);
+			    const Rynex::FileSystem::Path path(startScene);
+				serializer.Deserialize(path);
 			}
 		}
+	    else
+	    {
+	        RY_FATAL("Project found but, not successful loaded exit.");
+	        Rynex::Application::Get().Close();
+	        return;
+	    }
 
 	}
 	m_AktiveScene->OnRuntimStart();
 
-	Rynex::FramebufferSpecification fbSpec = {
+	const Rynex::FramebufferSpecification fbSpec = {
 		1280ul, 720ul,
 		{
 			{Rynex::TextureFormat::RGBA8},
@@ -98,13 +112,13 @@ void Sandbox2D::OnAttach()
 			{Rynex::TextureFormat::Depth24Stencil8}
 		}
 	};
-	std::vector<Rynex::FramebufferTextureSpecification> framTexSpec;
+
 
 
     m_Framebuffer = Rynex::Framebuffer::Create(fbSpec);
 
 
-	int rendererMode = Rynex::RenderMode::CallFace_None | Rynex::RenderMode::Death_Buffer | Rynex::RenderMode::A_Buffer; // | Rynex::Renderer::WireFrame;
+    constexpr int rendererMode = Rynex::RenderMode::CallFace_None | Rynex::RenderMode::Death_Buffer | Rynex::RenderMode::A_Buffer; // | Rynex::Renderer::WireFrame;
 	Rynex::Renderer::SetMode(rendererMode);
 
 	m_AktiveScene->OnViewportResize(m_ViewPortSize.x, m_ViewPortSize.y);
@@ -256,9 +270,7 @@ void Sandbox2D::OnAttach()
 
 void Sandbox2D::OnDetach()
 {
-	m_AssetManger.reset();
-
-	
+    RY_DESTROY_REF(m_AssetManger)
 	RY_DESTROY_REF(m_AktiveScene);
 	RY_DESTROY_REF(m_Framebuffer);
 	RY_DESTROY_REF(m_ChekbordTex);

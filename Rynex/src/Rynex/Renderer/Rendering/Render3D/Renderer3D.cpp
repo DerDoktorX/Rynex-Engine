@@ -99,7 +99,7 @@ namespace Rynex {
 #if RY_STATIC_OPTIMZE
 		ObjectRendereIndexStaticArray* ObjectRendereIndexArray;
 #else
-		std::vector<ObjectRendereIndex>* m_ObjectRendereIndexVec;
+		std::vector<ObjectRenderIndex>* m_ObjectRendereIndexVec;
 #endif
 	};
 
@@ -357,7 +357,7 @@ namespace Rynex {
 		uint32_t index = 0u;
 		for (const MeshStatic::SingleObjectMeshData& singleObject : singleObjectMeshData)
 		{
-			glm::mat4 globleMatrix = model * singleObject.LocaleCildrenMatrix;
+			glm::mat4 globleMatrix = model * singleObject.m_LocaleCildrenMatrix;
 			const Ref<MeshSingle>& mesh = singleObject.m_MeshSingle;
 			const Ref<Material>& material = singleObject.m_Material;
 
@@ -386,7 +386,7 @@ namespace Rynex {
 		uint32_t index = 0u;
 		for (const MeshStatic::SingleObjectMeshData& singleObject : singleObjectMeshData)
 		{
-			glm::mat4 globleMatrix = model * singleObject.LocaleCildrenMatrix;
+			glm::mat4 globleMatrix = model * singleObject.m_LocaleCildrenMatrix;
 			s_Storarage3D->m_RenderProxysArray[0].UpdateTrasform(entityID, index, globleMatrix);
 			index++;
 		}
@@ -410,7 +410,7 @@ namespace Rynex {
 
 	}
 
-	void Renderer3D::RenderProxysCurent()
+	void Renderer3D::RenderProxysCurrent()
 	{
 		s_Storarage3D->m_RenderProxysArray[0].RenderProxysCurentGenarte();
 		s_Storarage3D->m_RenderProxysArray[0].RenderProxysCurentSubmiteDrawList();
@@ -418,7 +418,7 @@ namespace Rynex {
 
 
 
-	void Renderer3D::MeshCompont(const glm::mat4& model, ModelMangerComponent& comp, int entityID)
+	void Renderer3D::MeshComponent(const glm::mat4& model, ModelMangerComponent& comp, int entityID)
 	{
 		const Ref<MeshStatic>& mesh = comp.m_MeshStatic;
 #if RY_STATIC_SCREEN_DRAW
@@ -448,7 +448,7 @@ namespace Rynex {
 #endif
 	}
 
-	void Renderer3D::MeshCompontMain(const glm::mat4& model, ModelMangerComponent& comp, int entityID)
+	void Renderer3D::MeshComponentMain(const glm::mat4& model, ModelMangerComponent& comp, int entityID)
 	{
 #ifdef RY_RENERER_DESIGN_CURENT_MAIN
 		const Ref<MeshStatic>& mesh = comp.m_MeshStatic;
@@ -456,13 +456,13 @@ namespace Rynex {
 			return;
 		constexpr uint32_t piplineIndex = 0u;
 #if RY_DISABLE_FLAT_2D_VEC
-		std::vector<std::vector<ObjectRendereIndex>>& objectRendereIndexPiplineVec2 = comp.m_ObjectRenderIndexPiplineVec2;
+		std::vector<std::vector<ObjectRenderIndex>>& objectRendereIndexPiplineVec2 = comp.m_ObjectRenderIndexPiplineVec2;
 		if (objectRendereIndexPiplineVec2.size() <= piplineIndex)
 			objectRendereIndexPiplineVec2.emplace_back();
 
-		std::vector<ObjectRendereIndex>& objectRendereIndexPiplineVec = objectRendereIndexPiplineVec2.at(piplineIndex);
+		std::vector<ObjectRenderIndex>& objectRendereIndexPiplineVec = objectRendereIndexPiplineVec2.at(piplineIndex);
 #else
-		Memory::VectorData2D<ObjectRendereIndex>& objectRendereIndexPiplineVec2 = comp.m_ObjectRenderIndexPiplineVec2;
+		Memory::VectorData2D<ObjectRenderIndex>& objectRendereIndexPiplineVec2 = comp.m_ObjectRenderIndexPiplineVec2;
 		if (objectRendereIndexPiplineVec2.SizeDX() <= piplineIndex)
 		{
 			
@@ -472,7 +472,7 @@ namespace Rynex {
 			objectRendereIndexPiplineVec2.Resize2D(nextIndex, count);
 		}
 
-		Memory::VectorData<ObjectRendereIndex> objectRendereIndexPiplineVec = objectRendereIndexPiplineVec2.At(piplineIndex);
+		Memory::VectorData<ObjectRenderIndex> objectRendereIndexPiplineVec = objectRendereIndexPiplineVec2.At(piplineIndex);
 #endif
 		SubmitShadeMeshStaticObjectMain(mesh, s_Storarage3D->m_InstenceShaderShade, model, entityID, objectRendereIndexPiplineVec);
 #else
@@ -481,23 +481,23 @@ namespace Rynex {
 
 	}
 
-	void Renderer3D::MeshCompontCurent(const glm::mat4& model, ModelMangerComponent& comp, int entityID)
+	void Renderer3D::MeshComponentCurrent(const glm::mat4& model, ModelMangerComponent& comp, int entityID)
 	{
 #ifdef RY_RENERER_DESIGN_CURENT_MAIN
 		const Ref<MeshStatic>& mesh = comp.m_MeshStatic;
 		if (nullptr == mesh)
 			return;
-		uint32_t piplineIndex = Renderer::GetCurentIndex();
+		uint32_t piplineIndex = Renderer::GetCurrentIndex();
 #if RY_DISABLE_FLAT_2D_VEC
-		std::vector<std::vector<ObjectRendereIndex>>& objectRendereIndexPiplineVec2 = comp.m_ObjectRenderIndexPiplineVec2;
+		std::vector<std::vector<ObjectRenderIndex>>& objectRendereIndexPiplineVec2 = comp.m_ObjectRenderIndexPiplineVec2;
 		if (objectRendereIndexPiplineVec2.size() <= piplineIndex)
 		{
 			piplineIndex = objectRendereIndexPiplineVec2.size();
 			objectRendereIndexPiplineVec2.emplace_back();
 		}
-		std::vector<ObjectRendereIndex>& objectRendereIndexPiplineVec = objectRendereIndexPiplineVec2.at(piplineIndex);
+		std::vector<ObjectRenderIndex>& objectRendereIndexPiplineVec = objectRendereIndexPiplineVec2.at(piplineIndex);
 #else
-		Memory::VectorData2D<ObjectRendereIndex>& objectRendereIndexPiplineVec2 = comp.m_ObjectRenderIndexPiplineVec2;
+		Memory::VectorData2D<ObjectRenderIndex>& objectRendereIndexPiplineVec2 = comp.m_ObjectRenderIndexPiplineVec2;
 		if (objectRendereIndexPiplineVec2.SizeDX() <= piplineIndex)
 		{
 			piplineIndex = objectRendereIndexPiplineVec2.SizeDX();
@@ -508,31 +508,31 @@ namespace Rynex {
 			else
 				objectRendereIndexPiplineVec2.ResizeX(1+piplineIndex);
 		}
-		Memory::VectorData<ObjectRendereIndex> objectRendereIndexPiplineVec = objectRendereIndexPiplineVec2.At(piplineIndex);
+		Memory::VectorData<ObjectRenderIndex> objectRendereIndexPiplineVec = objectRendereIndexPiplineVec2.At(piplineIndex);
 
 #endif
-		SubmitShadeMeshStaticObjectCurent(mesh, s_Storarage3D->m_InstencShaderDepth, model, entityID, objectRendereIndexPiplineVec);
+		SubmitShadeMeshStaticObjectCurrent(mesh, s_Storarage3D->m_InstencShaderDepth, model, entityID, objectRendereIndexPiplineVec);
 #else
 		RY_CORE_NOT_IMPL();
 #endif
 	}
 
-	void Renderer3D::MeshCompontDirekt(const glm::mat4& model, ModelMangerComponent& comp, int entityID)
+	void Renderer3D::MeshComponentDirect(const glm::mat4& model, ModelMangerComponent& comp, int entityID)
 	{
 		const Ref<MeshStatic>& mesh = comp.m_MeshStatic;
 		if (nullptr == mesh)
 			return;
 
-		SubmitShapeMeshStaticObjectDirekt(mesh, s_Storarage3D->m_InstencShaderShape, model, entityID);
+		SubmitShapeMeshStaticObjectDirect(mesh, s_Storarage3D->m_InstencShaderShape, model, entityID);
 
 	}
 
-	void Renderer3D::MeshCompontSetData(const glm::mat4& model, ModelMangerComponent& comp, int entityID)
+	void Renderer3D::MeshComponentSetData(const glm::mat4& model, ModelMangerComponent& comp, int entityID)
 	{
 		RY_CORE_NOT_IMPL();
 	}
 
-	void Renderer3D::MeshCompont(const glm::mat4& model, StaticMeshComponent& comp, int entityID)
+	void Renderer3D::MeshComponent(const glm::mat4& model, StaticMeshComponent& comp, int entityID)
 	{
 		SingleMeshObject singleMeshObject;
 		singleMeshObject.m_Material = comp.m_Material;
@@ -542,14 +542,14 @@ namespace Rynex {
 			, entityID, comp.m_ObjectRenderIndexPiplineVec);
 	}
 
-	void Renderer3D::MeshCompontMain(const glm::mat4& model, StaticMeshComponent& comp, int entityID)
+	void Renderer3D::MeshComponentMain(const glm::mat4& model, StaticMeshComponent& comp, int entityID)
 	{
 #ifdef RY_RENERER_DESIGN_CURENT_MAIN
 		const Ref<MeshSingle>& mesh = comp.m_MeshSingle;
 		if (nullptr == mesh)
 			return;
 		constexpr uint32_t piplineIndex = 0u;
-		std::vector<ObjectRendereIndex>& objectRendereIndexPiplineVec = comp.m_ObjectRenderIndexPiplineVec;
+		std::vector<ObjectRenderIndex>& objectRendereIndexPiplineVec = comp.m_ObjectRenderIndexPiplineVec;
 		if (objectRendereIndexPiplineVec.size() <= piplineIndex)
 			objectRendereIndexPiplineVec.emplace_back();
 
@@ -557,41 +557,41 @@ namespace Rynex {
 		singleMeshObject.m_Material = comp.m_Material;
 		singleMeshObject.m_MeshSingle = comp.m_MeshSingle;
 
-		ObjectRendereIndex& objectRendereIndexPipline = objectRendereIndexPiplineVec.at(piplineIndex);
+		ObjectRenderIndex& objectRendereIndexPipline = objectRendereIndexPiplineVec.at(piplineIndex);
 		SubmitShadeMeshObjectMain(singleMeshObject, s_Storarage3D->m_InstencShaderDepth, model, entityID, objectRendereIndexPipline);
 #else
 		RY_CORE_NOT_IMPL();
 #endif
 	}
 
-	void Renderer3D::MeshCompontCurent(const glm::mat4& model, StaticMeshComponent& comp, int entityID)
+	void Renderer3D::MeshComponentCurrent(const glm::mat4& model, StaticMeshComponent& comp, int entityID)
 	{
 #ifdef RY_RENERER_DESIGN_CURENT_MAIN
 		const Ref<MeshSingle>& mesh = comp.m_MeshSingle;
 		if (nullptr == mesh)
 			return;
-		uint32_t piplineIndex = Renderer::GetCurentIndex();
-		std::vector<ObjectRendereIndex>& objectRendereIndexPiplineVec = comp.m_ObjectRenderIndexPiplineVec;
+		uint32_t piplineIndex = Renderer::GetCurrentIndex();
+		std::vector<ObjectRenderIndex>& objectRendereIndexPiplineVec = comp.m_ObjectRenderIndexPiplineVec;
 		if (objectRendereIndexPiplineVec.size() <= piplineIndex)
 			objectRendereIndexPiplineVec.emplace_back();
 
 		SingleMeshObject singleMeshObject;
 		singleMeshObject.m_Material = comp.m_Material;
 		singleMeshObject.m_MeshSingle = comp.m_MeshSingle;
-		ObjectRendereIndex& objectRendereIndexPipline = objectRendereIndexPiplineVec.at(piplineIndex);
-		SubmitShadeMeshObjectCurent(singleMeshObject, s_Storarage3D->m_InstencShaderDepth, model, entityID, objectRendereIndexPipline);
+		ObjectRenderIndex& objectRendereIndexPipline = objectRendereIndexPiplineVec.at(piplineIndex);
+		SubmitShadeMeshObjectCurrent(singleMeshObject, s_Storarage3D->m_InstencShaderDepth, model, entityID, objectRendereIndexPipline);
 #else
 		RY_CORE_NOT_IMPL();
 #endif
 
 	}
 
-	void Renderer3D::MeshCompontDirekt(const glm::mat4& model, StaticMeshComponent& comp, int entityID)
+	void Renderer3D::MeshComponentDirect(const glm::mat4& model, StaticMeshComponent& comp, int entityID)
 	{
-		SubmitShapeMeshObjectDirekt(SingleMeshObject{ comp.m_Material, comp.m_MeshSingle }, s_Storarage3D->m_InstencShaderShape, model, entityID);
+		SubmitShapeMeshObjectDirect(SingleMeshObject{ comp.m_Material, comp.m_MeshSingle }, s_Storarage3D->m_InstencShaderShape, model, entityID);
 	}
 
-	void Renderer3D::MeshCompontSetData(const glm::mat4& model, StaticMeshComponent& comp, int entityID)
+	void Renderer3D::MeshComponentSetData(const glm::mat4& model, StaticMeshComponent& comp, int entityID)
 	{
 		RY_CORE_NOT_IMPL();
 	}
@@ -603,7 +603,7 @@ namespace Rynex {
 
 
 
-	void Renderer3D::SubmitShadeMeshStaticObject(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, std::vector<std::vector<ObjectRendereIndex>>& objectRendereVec)
+	void Renderer3D::SubmitShadeMeshStaticObject(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, std::vector<std::vector<ObjectRenderIndex>>& objectRendereVec)
 	{
 		const std::vector<MeshStatic::SingleObjectMeshData>& meshSingleVec = mesh->GetSingleObjectMesDataVec();
 		uint32_t count = meshSingleVec.size();
@@ -625,11 +625,11 @@ namespace Rynex {
 		uint32_t i = 0;
 		for (const MeshStatic::SingleObjectMeshData& meshSingle : meshSingleVec)
 		{
-			std::vector<ObjectRendereIndex>& objectRendere = objectRendereVec.at(i);
-			glm::mat4 modelMatrix = model * meshSingle.LocaleCildrenMatrix;
+			std::vector<ObjectRenderIndex>& objectRendere = objectRendereVec.at(i);
+			glm::mat4 modelMatrix = model * meshSingle.m_LocaleCildrenMatrix;
 
 #ifdef RY_RENDER_3D_SEARCH_FOR_CHANGE
-			std::vector<ObjectRendereIndex> copyObjectRendereIndexVec = objectRendere;
+			std::vector<ObjectRenderIndex> copyObjectRendereIndexVec = objectRendere;
 #endif
 
 
@@ -651,8 +651,8 @@ namespace Rynex {
 			bool fistTimeChanged = true;
 			for (uint32_t j = 0; j < count; j++)
 			{
-				const ObjectRendereIndex& curentObjectRendereIndex = objectRendere.at(j);
-				const ObjectRendereIndex& beforObjectRendereIndex = copyObjectRendereIndexVec.at(j);
+				const ObjectRenderIndex& curentObjectRendereIndex = objectRendere.at(j);
+				const ObjectRenderIndex& beforObjectRendereIndex = copyObjectRendereIndexVec.at(j);
 
 				if (curentObjectRendereIndex != beforObjectRendereIndex)
 				{
@@ -663,8 +663,8 @@ namespace Rynex {
 					}
 					RY_CORE_FATAL(
 						"Changes on ObjectRendereIndex bevor (Batch: {}, Pipline: {}) / After (Batch: {}, Pipline: {})"
-						, beforObjectRendereIndex.BatchIndex, beforObjectRendereIndex.PiplineIndex
-						, curentObjectRendereIndex.BatchIndex, curentObjectRendereIndex.PiplineIndex
+						, beforObjectRendereIndex.m_BatchIndex, beforObjectRendereIndex.m_PiplineIndex
+						, curentObjectRendereIndex.m_BatchIndex, curentObjectRendereIndex.m_PiplineIndex
 					);
 				}
 			}
@@ -675,7 +675,7 @@ namespace Rynex {
 		}
 	}
 
-	void Renderer3D::SubmitShadeMeshStaticObject(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, Memory::VectorData2D<ObjectRendereIndex>& objectRendereVec)
+	void Renderer3D::SubmitShadeMeshStaticObject(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, Memory::VectorData2D<ObjectRenderIndex>& objectRendereVec)
 	{
 		const std::vector<MeshStatic::SingleObjectMeshData>& meshSingleVec = mesh->GetSingleObjectMesDataVec();
 		uint32_t count = meshSingleVec.size();
@@ -697,11 +697,11 @@ namespace Rynex {
 		uint32_t i = 0;
 		for (const MeshStatic::SingleObjectMeshData& meshSingle : meshSingleVec)
 		{
-			Memory::VectorData<ObjectRendereIndex> objectRendere = objectRendereVec.At(i);
-			glm::mat4 modelMatrix = model * meshSingle.LocaleCildrenMatrix;
+			Memory::VectorData<ObjectRenderIndex> objectRendere = objectRendereVec.At(i);
+			glm::mat4 modelMatrix = model * meshSingle.m_LocaleCildrenMatrix;
 
 #ifdef RY_RENDER_3D_SEARCH_FOR_CHANGE
-			std::vector<ObjectRendereIndex> copyObjectRendereIndexVec = objectRendere;
+			std::vector<ObjectRenderIndex> copyObjectRendereIndexVec = objectRendere;
 #endif
 
 
@@ -718,7 +718,7 @@ namespace Rynex {
 		}
 	}
 
-	void Renderer3D::SubmitShadeMeshStaticObjectMain(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, std::vector<ObjectRendereIndex>& objectRendereVec)
+	void Renderer3D::SubmitShadeMeshStaticObjectMain(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, std::vector<ObjectRenderIndex>& objectRendereVec)
 	{
 		const std::vector<MeshStatic::SingleObjectMeshData>& meshSingleVec = mesh->GetSingleObjectMesDataVec();
 		uint32_t count = meshSingleVec.size();
@@ -740,11 +740,11 @@ namespace Rynex {
 		uint32_t i = 0;
 		for (const MeshStatic::SingleObjectMeshData& meshSingle : meshSingleVec)
 		{
-			ObjectRendereIndex& objectRendere = objectRendereVec.at(i);
-			glm::mat4 modelMatrix = model * meshSingle.LocaleCildrenMatrix;
+			ObjectRenderIndex& objectRendere = objectRendereVec.at(i);
+			glm::mat4 modelMatrix = model * meshSingle.m_LocaleCildrenMatrix;
 
 #ifdef RY_RENDER_3D_SEARCH_FOR_CHANGE
-			std::vector<ObjectRendereIndex> copyObjectRendereIndexVec = objectRendere;
+			std::vector<ObjectRenderIndex> copyObjectRendereIndexVec = objectRendere;
 #endif
 
 
@@ -766,8 +766,8 @@ namespace Rynex {
 			bool fistTimeChanged = true;
 			for (uint32_t j = 0; j < count; j++)
 			{
-				const ObjectRendereIndex& curentObjectRendereIndex = objectRendere.at(j);
-				const ObjectRendereIndex& beforObjectRendereIndex = copyObjectRendereIndexVec.at(j);
+				const ObjectRenderIndex& curentObjectRendereIndex = objectRendere.at(j);
+				const ObjectRenderIndex& beforObjectRendereIndex = copyObjectRendereIndexVec.at(j);
 
 				if (curentObjectRendereIndex != beforObjectRendereIndex)
 				{
@@ -778,8 +778,8 @@ namespace Rynex {
 					}
 					RY_CORE_FATAL(
 						"Changes on ObjectRendereIndex bevor (Batch: {}, Pipline: {}) / After (Batch: {}, Pipline: {})"
-						, beforObjectRendereIndex.BatchIndex, beforObjectRendereIndex.PiplineIndex
-						, curentObjectRendereIndex.BatchIndex, curentObjectRendereIndex.PiplineIndex
+						, beforObjectRendereIndex.m_BatchIndex, beforObjectRendereIndex.m_PiplineIndex
+						, curentObjectRendereIndex.m_BatchIndex, curentObjectRendereIndex.m_PiplineIndex
 					);
 				}
 			}
@@ -790,7 +790,7 @@ namespace Rynex {
 		}
 	}
 
-	void Renderer3D::SubmitShadeMeshStaticObjectMain(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, Memory::VectorData<ObjectRendereIndex>& objectRendereVec)
+	void Renderer3D::SubmitShadeMeshStaticObjectMain(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, Memory::VectorData<ObjectRenderIndex>& objectRendereVec)
 	{
 		const std::vector<MeshStatic::SingleObjectMeshData>& meshSingleVec = mesh->GetSingleObjectMesDataVec();
 		uint32_t count = meshSingleVec.size();
@@ -812,11 +812,11 @@ namespace Rynex {
 		uint32_t i = 0;
 		for (const MeshStatic::SingleObjectMeshData& meshSingle : meshSingleVec)
 		{
-			ObjectRendereIndex& objectRendere = objectRendereVec.At(i);
-			glm::mat4 modelMatrix = model * meshSingle.LocaleCildrenMatrix;
+			ObjectRenderIndex& objectRendere = objectRendereVec.At(i);
+			glm::mat4 modelMatrix = model * meshSingle.m_LocaleCildrenMatrix;
 
 #ifdef RY_RENDER_3D_SEARCH_FOR_CHANGE
-			std::vector<ObjectRendereIndex> copyObjectRendereIndexVec = objectRendere;
+			std::vector<ObjectRenderIndex> copyObjectRendereIndexVec = objectRendere;
 #endif
 
 
@@ -838,8 +838,8 @@ namespace Rynex {
 			bool fistTimeChanged = true;
 			for (uint32_t j = 0; j < count; j++)
 			{
-				const ObjectRendereIndex& curentObjectRendereIndex = objectRendere.at(j);
-				const ObjectRendereIndex& beforObjectRendereIndex = copyObjectRendereIndexVec.at(j);
+				const ObjectRenderIndex& curentObjectRendereIndex = objectRendere.at(j);
+				const ObjectRenderIndex& beforObjectRendereIndex = copyObjectRendereIndexVec.at(j);
 
 				if (curentObjectRendereIndex != beforObjectRendereIndex)
 				{
@@ -850,8 +850,8 @@ namespace Rynex {
 					}
 					RY_CORE_FATAL(
 						"Changes on ObjectRendereIndex bevor (Batch: {}, Pipline: {}) / After (Batch: {}, Pipline: {})"
-						, beforObjectRendereIndex.BatchIndex, beforObjectRendereIndex.PiplineIndex
-						, curentObjectRendereIndex.BatchIndex, curentObjectRendereIndex.PiplineIndex
+						, beforObjectRendereIndex.m_BatchIndex, beforObjectRendereIndex.m_PiplineIndex
+						, curentObjectRendereIndex.m_BatchIndex, curentObjectRendereIndex.m_PiplineIndex
 					);
 				}
 			}
@@ -863,7 +863,7 @@ namespace Rynex {
 
 	}
 
-	void Renderer3D::SubmitShadeMeshStaticObjectCurent(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID,std::vector<ObjectRendereIndex>& objectRendereVec)
+	void Renderer3D::SubmitShadeMeshStaticObjectCurrent(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID,std::vector<ObjectRenderIndex>& objectRendereVec)
 	{
 		const std::vector<MeshStatic::SingleObjectMeshData>& meshSingleVec = mesh->GetSingleObjectMesDataVec();
 		uint32_t count = meshSingleVec.size();
@@ -885,18 +885,18 @@ namespace Rynex {
 		uint32_t i = 0;
 		for (const MeshStatic::SingleObjectMeshData& meshSingle : meshSingleVec)
 		{
-			ObjectRendereIndex& objectRendere = objectRendereVec.at(i);
-			glm::mat4 modelMatrix = model * meshSingle.LocaleCildrenMatrix;
+			ObjectRenderIndex& objectRendere = objectRendereVec.at(i);
+			glm::mat4 modelMatrix = model * meshSingle.m_LocaleCildrenMatrix;
 
 #ifdef RY_RENDER_3D_SEARCH_FOR_CHANGE
-			std::vector<ObjectRendereIndex> copyObjectRendereIndexVec = objectRendere;
+			std::vector<ObjectRenderIndex> copyObjectRendereIndexVec = objectRendere;
 #endif
 
 
 #if RY_HASH_GROUPING_OPTIMZE
 			SubmitMeshObjectToHash(meshSingle.m_MeshSingle, meshSingle.m_Material, modelMatrix, entityID, objectRendere);
 #else
-			SubmitShadeMeshObjectCurent(meshSingle, shader, modelMatrix, entityID, objectRendere);
+			SubmitShadeMeshObjectCurrent(meshSingle, shader, modelMatrix, entityID, objectRendere);
 			
 #endif
 
@@ -912,8 +912,8 @@ namespace Rynex {
 			bool fistTimeChanged = true;
 			for (uint32_t j = 0; j < count; j++)
 			{
-				const ObjectRendereIndex& curentObjectRendereIndex = objectRendere.at(j);
-				const ObjectRendereIndex& beforObjectRendereIndex = copyObjectRendereIndexVec.at(j);
+				const ObjectRenderIndex& curentObjectRendereIndex = objectRendere.at(j);
+				const ObjectRenderIndex& beforObjectRendereIndex = copyObjectRendereIndexVec.at(j);
 
 				if (curentObjectRendereIndex != beforObjectRendereIndex)
 				{
@@ -924,8 +924,8 @@ namespace Rynex {
 					}
 					RY_CORE_FATAL(
 						"Changes on ObjectRendereIndex bevor (Batch: {}, Pipline: {}) / After (Batch: {}, Pipline: {})"
-						, beforObjectRendereIndex.BatchIndex, beforObjectRendereIndex.PiplineIndex
-						, curentObjectRendereIndex.BatchIndex, curentObjectRendereIndex.PiplineIndex
+						, beforObjectRendereIndex.m_BatchIndex, beforObjectRendereIndex.m_PiplineIndex
+						, curentObjectRendereIndex.m_BatchIndex, curentObjectRendereIndex.m_PiplineIndex
 					);
 				}
 			}
@@ -936,7 +936,7 @@ namespace Rynex {
 		}
 	}
 
-	void Renderer3D::SubmitShadeMeshStaticObjectCurent(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, Memory::VectorData<ObjectRendereIndex>& objectRendereVec)
+	void Renderer3D::SubmitShadeMeshStaticObjectCurrent(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, Memory::VectorData<ObjectRenderIndex>& objectRendereVec)
 	{
 		const std::vector<MeshStatic::SingleObjectMeshData>& meshSingleVec = mesh->GetSingleObjectMesDataVec();
 		uint32_t count = meshSingleVec.size();
@@ -949,10 +949,10 @@ namespace Rynex {
 		objectRendereVec.ValueBegin();
 		for (const MeshStatic::SingleObjectMeshData& meshSingle : meshSingleVec)
 		{
-			ObjectRendereIndex& objectRendere = objectRendereVec.Get();
-			glm::mat4 modelMatrix = model * meshSingle.LocaleCildrenMatrix;
+			ObjectRenderIndex& objectRendere = objectRendereVec.Get();
+			glm::mat4 modelMatrix = model * meshSingle.m_LocaleCildrenMatrix;
 
-			SubmitShadeMeshObjectCurent(meshSingle, shader, modelMatrix, entityID, objectRendere);
+			SubmitShadeMeshObjectCurrent(meshSingle, shader, modelMatrix, entityID, objectRendere);
 			objectRendereVec.Increase();
 		}
 
@@ -971,7 +971,7 @@ namespace Rynex {
 			uint32_t i = 0u;
 			for (const MeshStatic::SingleObjectMeshData& meshSingle : meshSingleVec)
 			{
-				const glm::mat4& localeMatrix = meshSingle.LocaleCildrenMatrix;
+				const glm::mat4& localeMatrix = meshSingle.m_LocaleCildrenMatrix;
 				glm::mat4 modelMatrix = model * localeMatrix;
 				const Ref<MeshSingle>& singleMesh = meshSingle.m_MeshSingle;
 				const Ref<Material>& material = meshSingle.m_Material;
@@ -979,7 +979,7 @@ namespace Rynex {
 					SingleMeshRender{ singleMesh, material, localeMatrix }
 				);
 
-				std::vector<ObjectRendereIndex>& renderIndex = single.IndexVec;
+				std::vector<ObjectRenderIndex>& renderIndex = single.m_IndexVec;
 				if (material == nullptr)
 				{
 					RY_CORE_WARN("No Materiel is Defnied, we set a nullptr!");
@@ -1002,11 +1002,11 @@ namespace Rynex {
 
 #ifdef RY_RENDER_3D_PRINT
 				std::string indexVecString = "";
-				for (const ObjectRendereIndex& index : renderIndex)
+				for (const ObjectRenderIndex& index : renderIndex)
 				{
 					std::string batchIndexString = 
-						"Batching: " +std::to_string(index.BatchIndex)
-						+ "Pipline: " + std::to_string(index.PiplineIndex);
+						"Batching: " +std::to_string(index.m_BatchIndex)
+						+ "Pipline: " + std::to_string(index.m_PiplineIndex);
 					indexVecString += batchIndexString;
 				}
 				RY_CORE_TRACE("Render3D: Last Mesh {}, used in {}", entityID, i, meshSingle.NodeName, indexVecString);
@@ -1019,8 +1019,8 @@ namespace Rynex {
 			uint32_t i = 0u;
 			for (SingleMeshRender& single : singleMeshRendereVec)
 			{
-				glm::mat4 modelMatrix = model * single.LocaleCildrenMatrix;
-				std::vector<ObjectRendereIndex>& renderIndex = single.IndexVec;
+				glm::mat4 modelMatrix = model * single.m_LocaleCildrenMatrix;
+				std::vector<ObjectRenderIndex>& renderIndex = single.m_IndexVec;
 #if RY_HASH_GROUPING_OPTIMZE
 				const Ref<MeshSingle>& singleMesh = single.m_MeshSingle;
 				const Ref<Material>& material = single.m_Material;
@@ -1030,18 +1030,18 @@ namespace Rynex {
 #else
 
 #ifdef RY_RENDER_3D_SEARCH_FOR_CHANGE
-				std::vector<ObjectRendereIndex> copyObjectRendereIndexVec = renderIndex;
+				std::vector<ObjectRenderIndex> copyObjectRendereIndexVec = renderIndex;
 #endif
 
 				SubmitShadeMeshObject(single, shader, modelMatrix, entityID, renderIndex);
 
 #ifdef RY_RENDER_3D_PRINT
 				std::string indexVecString = "";
-				for (const ObjectRendereIndex& index : renderIndex)
+				for (const ObjectRenderIndex& index : renderIndex)
 				{
 					std::string batchIndexString =
-						"Batching: " + std::to_string(index.BatchIndex)
-						+ "Pipline: " + std::to_string(index.PiplineIndex);
+						"Batching: " + std::to_string(index.m_BatchIndex)
+						+ "Pipline: " + std::to_string(index.m_PiplineIndex);
 					indexVecString += batchIndexString;
 				}
 				RY_CORE_TRACE("Render3D: Enity Submite Mesh {}, used in {}", entityID, i, indexVecString);
@@ -1057,15 +1057,15 @@ namespace Rynex {
 
 				for (uint32_t i = 0; i < count; i++)
 				{
-					const ObjectRendereIndex& curentObjectRendereIndex = renderIndex.at(i);
-					const ObjectRendereIndex& beforObjectRendereIndex = copyObjectRendereIndexVec.at(i);
+					const ObjectRenderIndex& curentObjectRendereIndex = renderIndex.at(i);
+					const ObjectRenderIndex& beforObjectRendereIndex = copyObjectRendereIndexVec.at(i);
 
 					if (curentObjectRendereIndex != beforObjectRendereIndex)
 					{
 						RY_CORE_FATAL(
 							"Changes on ObjectRendereIndex bevor (Batch: {}, Pipline:{}) / After (Batch: {}, Pipline:{})"
-							, beforObjectRendereIndex.BatchIndex, beforObjectRendereIndex.PiplineIndex
-							, curentObjectRendereIndex.BatchIndex, curentObjectRendereIndex.PiplineIndex
+							, beforObjectRendereIndex.m_BatchIndex, beforObjectRendereIndex.m_PiplineIndex
+							, curentObjectRendereIndex.m_BatchIndex, curentObjectRendereIndex.m_PiplineIndex
 						);
 
 					}
@@ -1093,19 +1093,19 @@ namespace Rynex {
 
 
 
-	void Renderer3D::SubmitShapeMeshStaticObjectDirekt(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID)
+	void Renderer3D::SubmitShapeMeshStaticObjectDirect(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID)
 	{
 		const std::vector<MeshStatic::SingleObjectMeshData>& meshSingleVec = mesh->GetSingleObjectMesDataVec();
 		for (const MeshStatic::SingleObjectMeshData& meshSingle : meshSingleVec)
 		{
-			glm::mat4 modelMatrix = model * meshSingle.LocaleCildrenMatrix;
+			glm::mat4 modelMatrix = model * meshSingle.m_LocaleCildrenMatrix;
 
-			SubmitShapeMeshObjectDirekt(meshSingle, shader, modelMatrix, entityID);
+			SubmitShapeMeshObjectDirect(meshSingle, shader, modelMatrix, entityID);
 
 		}
 	}
 
-	void Renderer3D::SubmitMeshObjectToHash(const Ref<MeshSingle>& meshSingle, const Ref<Material>& material, const glm::mat4& model, int entityID, std::vector<ObjectRendereIndex>& objectRendereVec)
+	void Renderer3D::SubmitMeshObjectToHash(const Ref<MeshSingle>& meshSingle, const Ref<Material>& material, const glm::mat4& model, int entityID, std::vector<ObjectRenderIndex>& objectRendereVec)
 	{
 #if !RY_STATIC_OPTIMZE
 		std::vector<RenderEnitityObject>& vec = s_Storarage3D->m_RenderEntityFrame[meshSingle];
@@ -1124,14 +1124,14 @@ namespace Rynex {
 #if RY_STATIC_OPTIMZE
 				ObjectRendereIndexStaticArray& objectRendere = *e.ObjectRendereIndexArray;
 #else
-				std::vector<ObjectRendereIndex>& objectRendere = *e.m_ObjectRendereIndexVec;
+				std::vector<ObjectRenderIndex>& objectRendere = *e.m_ObjectRendereIndexVec;
 #endif
 				SubmitMeshObjectToPipline(meshSingle, e.m_MaterielRef, e.m_Matrix, e.m_EntityID, objectRendere);
 			}
 		}
 	}
 
-	void Renderer3D::SubmitMeshObjectToPipline(const Ref<MeshSingle>& meshSingle, const Ref<Material>& material, const glm::mat4& model, int entityID, std::vector<ObjectRendereIndex>& objectRendere)
+	void Renderer3D::SubmitMeshObjectToPipline(const Ref<MeshSingle>& meshSingle, const Ref<Material>& material, const glm::mat4& model, int entityID, std::vector<ObjectRenderIndex>& objectRendere)
 	{
 		SingleMeshObject singleMesh{ material, meshSingle };
 		SubmitShadeMeshObject(singleMesh, s_Storarage3D->m_InstenceShaderShade, model, entityID, objectRendere);
@@ -1140,7 +1140,7 @@ namespace Rynex {
 	
 
 	
-	void Renderer3D::SubmitShadeMeshObject(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, Memory::VectorData<ObjectRendereIndex>& objectRenderePiplineVec)
+	void Renderer3D::SubmitShadeMeshObject(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, Memory::VectorData<ObjectRenderIndex>& objectRenderePiplineVec)
 	{
 #ifndef RY_RENERER_DESIGN_CURENT_MAIN
 #if !RY_STATIC_SCREEN_DRAW
@@ -1153,7 +1153,7 @@ namespace Rynex {
 		uint32_t piplineIndex = 0;
 		if (objectRenderePiplineVec.size() <= piplineIndex)
 			// if (piplineIndex <= objectRenderePiplineVec.size())
-			objectRenderePiplineVec.emplace_back<ObjectRendereIndex>(ObjectRendereIndex{});
+			objectRenderePiplineVec.emplace_back<ObjectRenderIndex>(ObjectRenderIndex{});
 
 		Ref<PiplineRenderBase> piplineMain = SubmitMeshObjectToRenderTargetShade(cameraPackege, singleMesh, shader, model, entityID, objectRenderePiplineVec.at(piplineIndex));
 		piplineIndex++;
@@ -1171,7 +1171,7 @@ namespace Rynex {
 
 				if (objectRenderePiplineVec.size() <= piplineIndex)
 					// if (piplineIndex <= objectRenderePiplineVec.size())
-					objectRenderePiplineVec.emplace_back<ObjectRendereIndex>(ObjectRendereIndex{});
+					objectRenderePiplineVec.emplace_back<ObjectRenderIndex>(ObjectRenderIndex{});
 #if RY_RENDER_PIPLINE_INSTANCE_SHADOW
 				Ref<PiplineRenderBase> piplineShadow = SubmitMeshObjectToRenderTargetDepth(viewPassShadow.CameraPackege, singleMesh, s_Storarage3D->m_InstencShaderDepth, model, entityID, objectRenderePiplineVec.at(piplineIndex));
 #else
@@ -1214,7 +1214,7 @@ namespace Rynex {
 		Ref<PiplineRenderBase> pipline = SubmitMeshObjectToRenderTargetMain(singleMesh, shader, model, entityID, objectRenderePiplineVec.At(0));
 		
 		Ref<Texture> tex = Texture::White();
-		Ref<UniformBuffer> ub = Renderer::GetPackegeCamerUniformMain();
+		Ref<UniformBuffer> ub = Renderer::GetPackegeCameraUniformMain();
 		pipline->SubmitRenderTargetResurcesReadImg(tex);
 		pipline->SubmitRenderTargetResurcesReadUB(ub);
 
@@ -1222,7 +1222,7 @@ namespace Rynex {
 #endif
 	}
 
-	void Renderer3D::SubmitShadeMeshObject(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, std::vector<ObjectRendereIndex>& objectRenderePiplineVec)
+	void Renderer3D::SubmitShadeMeshObject(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, std::vector<ObjectRenderIndex>& objectRenderePiplineVec)
 	{
 #ifndef RY_RENERER_DESIGN_CURENT_MAIN
 #if !RY_STATIC_SCREEN_DRAW
@@ -1235,7 +1235,7 @@ namespace Rynex {
 		uint32_t piplineIndex = 0;
 		if (objectRenderePiplineVec.size() <= piplineIndex)
 			// if (piplineIndex <= objectRenderePiplineVec.size())
-			objectRenderePiplineVec.emplace_back<ObjectRendereIndex>(ObjectRendereIndex{});
+			objectRenderePiplineVec.emplace_back<ObjectRenderIndex>(ObjectRenderIndex{});
 
 		Ref<PiplineRenderBase> piplineMain = SubmitMeshObjectToRenderTargetShade(cameraPackege, singleMesh, shader, model, entityID, objectRenderePiplineVec.at(piplineIndex));
 		piplineIndex++;
@@ -1253,7 +1253,7 @@ namespace Rynex {
 
 				if (objectRenderePiplineVec.size() <= piplineIndex)
 					// if (piplineIndex <= objectRenderePiplineVec.size())
-					objectRenderePiplineVec.emplace_back<ObjectRendereIndex>(ObjectRendereIndex{});
+					objectRenderePiplineVec.emplace_back<ObjectRenderIndex>(ObjectRenderIndex{});
 #if RY_RENDER_PIPLINE_INSTANCE_SHADOW
 				Ref<PiplineRenderBase> piplineShadow = SubmitMeshObjectToRenderTargetDepth(viewPassShadow.CameraPackege, singleMesh, s_Storarage3D->m_InstencShaderDepth, model, entityID, objectRenderePiplineVec.at(piplineIndex));
 #else
@@ -1291,12 +1291,12 @@ namespace Rynex {
 #else
 		uint32_t piplineIndex = 0;
 		if (objectRenderePiplineVec.size() <= piplineIndex)
-			objectRenderePiplineVec.emplace_back<ObjectRendereIndex>(ObjectRendereIndex{});
+			objectRenderePiplineVec.emplace_back<ObjectRenderIndex>(ObjectRenderIndex{});
 
 		Ref<PiplineRenderBase> pipline = SubmitMeshObjectToRenderTargetMain(singleMesh, shader, model, entityID, objectRenderePiplineVec.at(0));
 
 		Ref<Texture> tex = Texture::White();
-		Ref<UniformBuffer> ub = Renderer::GetPackegeCamerUniformMain();
+		Ref<UniformBuffer> ub = Renderer::GetPackegeCameraUniformMain();
 		pipline->SubmitRenderTargetResurcesReadImg(tex);
 		pipline->SubmitRenderTargetResurcesReadUB(ub);
 
@@ -1305,7 +1305,7 @@ namespace Rynex {
 	}
 
 
-	void Renderer3D::SubmitShadeMeshObjectMain(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRendereIndex& objectRenderePipline)
+	void Renderer3D::SubmitShadeMeshObjectMain(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRenderIndex& objectRenderePipline)
 	{
 #ifdef RY_RENERER_DESIGN_CURENT_MAIN		
 
@@ -1317,10 +1317,10 @@ namespace Rynex {
 		Renderer::ForEchStoredPassedRenderPass(
 			[pipline, &countRef = count](const RenderPass& renderPass)
 			{
-				if ("Shadow" != renderPass.Name)
+				if ("Shadow" != renderPass.m_Name)
 					return;
 
-				const Ref<RenderTarget>& target = renderPass.Target;
+				const Ref<RenderTarget>& target = renderPass.m_Target;
 				if (nullptr == target)
 					return;
 
@@ -1332,7 +1332,7 @@ namespace Rynex {
 				if (nullptr == tex)
 					return;
 
-				const Ref<UniformBuffer>& ub = renderPass.CameraDataPackBufferUB;
+				const Ref<UniformBuffer>& ub = renderPass.m_CameraDataPackBufferUB;
 				if (nullptr == ub)
 					return;
 
@@ -1344,7 +1344,7 @@ namespace Rynex {
 		if (count == 0)
 		{
 			Ref<Texture> tex = Texture::White();
-			Ref<UniformBuffer>& ub = Renderer::GetPackegeCamerUniformMain();
+			Ref<UniformBuffer>& ub = Renderer::GetPackegeCameraUniformMain();
 
 			pipline->SubmitRenderTargetResurcesReadImg(tex);
 			pipline->SubmitRenderTargetResurcesReadUB(ub);
@@ -1353,7 +1353,7 @@ namespace Rynex {
 #elif 1
 		RY_REMBER_FUNC_CHANGE("The folwing code need to remove!");
 		Ref<Texture> tex = Texture::White();
-		Ref<UniformBuffer>& ub = Renderer::GetPackegeCamerUniformMain();
+		Ref<UniformBuffer>& ub = Renderer::GetPackegeCameraUniformMain();
 
 		pipline->SubmitRenderTargetResurcesReadImg(tex);
 		pipline->SubmitRenderTargetResurcesReadUB(ub);
@@ -1365,10 +1365,10 @@ namespace Rynex {
 #endif
 	}
 
-	void Renderer3D::SubmitShadeMeshObjectCurent(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRendereIndex& objectRenderePipline)
+	void Renderer3D::SubmitShadeMeshObjectCurrent(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRenderIndex& objectRenderePipline)
 	{
 #ifdef RY_RENERER_DESIGN_CURENT_MAIN
-		Ref<PiplineRenderBase> pipline = SubmitMeshObjectToRenderTargetCurent(singleMesh, shader, model, entityID, objectRenderePipline);
+		Ref<PiplineRenderBase> pipline = SubmitMeshObjectToRenderTargetCurrent(singleMesh, shader, model, entityID, objectRenderePipline);
 
 		
 
@@ -1380,24 +1380,24 @@ namespace Rynex {
 
 	
 
-	void Renderer3D::SubmitShapeMeshObjectDirekt(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID)
+	void Renderer3D::SubmitShapeMeshObjectDirect(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID)
 	{
 #ifndef RY_RENERER_DESIGN_CURENT_MAIN
 		CamerRenderPackages& cameraPackege = Renderer::GetMainCamerRenderPackagesRef();
 		Ref<PiplineRenderBase> pipline = SubmitMeshObjectToRenderTargetShape(cameraPackege, singleMesh, shader, model, entityID);
 #else
-		Ref<PiplineRenderBase> pipline = SubmitMeshObjectToRenderTargetCurentDirekt(singleMesh, shader, model, entityID);
+		Ref<PiplineRenderBase> pipline = SubmitMeshObjectToRenderTargetCurrentDirect(singleMesh, shader, model, entityID);
 #endif
 	}
 	
 #ifdef RY_RENERER_DESIGN_CURENT_MAIN
-	Ref<PiplineRenderBase> Renderer3D::SubmitMeshObjectToRenderTargetMain(const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRendereIndex& objectRendere)
+	Ref<PiplineRenderBase> Renderer3D::SubmitMeshObjectToRenderTargetMain(const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRenderIndex& objectRendere)
 	{
 		Ref<PiplineRenderBase> pipline = nullptr;
 #if 0
 #if 1
 		const CameraPackege& cameraData = Renderer::GetCameraPackegeMain();
-		const glm::mat4& viewProjtion = cameraData.ViewProjectionMatrix;
+		const glm::mat4& viewProjtion = cameraData.m_ViewProjectionMatrix;
 		const Ref<MeshSingle>& singleMesh = meshObject.m_MeshSingle;
 
 		if (!singleMesh->IsViewFrustum(model, viewProjtion))
@@ -1410,7 +1410,7 @@ namespace Rynex {
 
 		const Ref<MeshSingle>& singleMesh = meshObject.m_MeshSingle;
 		const AABB& aabb = singleMesh->GetAABB();
-		if (!Renderer::IsInsideCurentViewFustrem(aabb, model))
+		if (!Renderer::IsInsideCurrentViewFrustum(aabb, model))
 		{
 			objectRendere.Reset();
 			return pipline;
@@ -1424,14 +1424,14 @@ namespace Rynex {
 		PiplineRefBaseVec& piplineBaseVec = s_Storarage3D->m_InstencPiplineBaseVec;
 
 #elif 1
-		PiplineRefBaseVec& piplineBaseVec = Renderer::GetRenderPiplinesMain();
+		PiplineRefBaseVec& piplineBaseVec = Renderer::GetRenderPiplineMain();
 #else		
 		Ref<RenderTarget>& target = Renderer::GetRenderTargetMain();
 		PiplineRefBaseVec& piplineBaseVec = target->GetPiplineBaseVec();
 #endif
 
-		uint32_t& pilineIndex = objectRendere.PiplineIndex;
-		uint32_t& instenceIndex = objectRendere.BatchIndex;
+		uint32_t& pilineIndex = objectRendere.m_PiplineIndex;
+		uint32_t& instenceIndex = objectRendere.m_BatchIndex;
 
 		PiplineResultState result = PiplineResultState::Result_None;
 		int checkResult = (result & PiplineResultState::Result_Success);
@@ -1481,23 +1481,23 @@ namespace Rynex {
 		RY_CORE_ASSERT(checkResult != 0, "we dident find a Pipline or/and even a new did not work!");
 
 
-		Ref<UniformBuffer>& camerPackedUB = Renderer::GetPackegeCamerUniformMain();
+		Ref<UniformBuffer>& camerPackedUB = Renderer::GetPackegeCameraUniformMain();
 		pipline->SetCameraUniformBuffer(camerPackedUB);
 
 
 		return pipline;
 	}
 
-	Ref<PiplineRenderBase> Renderer3D::SubmitMeshObjectToRenderTargetCurent(const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRendereIndex& objectRendere)
+	Ref<PiplineRenderBase> Renderer3D::SubmitMeshObjectToRenderTargetCurrent(const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRenderIndex& objectRendere)
 	{
 		Ref<PiplineRenderBase> pipline = nullptr;
 #if 0
 #if 0
-		const CameraPackege& cameraData = Renderer::GetCameraPackegeCurent();
-		const glm::mat4& viewProjtion = cameraData.ViewProjectionMatrix;
+		const CameraPackege& cameraData = Renderer::GetCameraPackegeCurrent();
+		const glm::mat4& viewProjtion = cameraData.m_ViewProjectionMatrix;
 		const Ref<MeshSingle>& singleMesh = meshObject.m_MeshSingle;			
 		
-		uint32_t& pilineIndex = objectRendere.PiplineIndex;
+		uint32_t& pilineIndex = objectRendere.m_PiplineIndex;
 
 		if (!singleMesh->IsViewFrustum(model, viewProjtion))
 		{		
@@ -1505,13 +1505,13 @@ namespace Rynex {
 			return pipline;
 		}
 
-		Ref<RenderTarget>& target = Renderer::GetRenderTargetCurent();
-		uint32_t& instenceIndex = objectRendere.BatchIndex;
+		Ref<RenderTarget>& target = Renderer::GetRenderTargetCurrent();
+		uint32_t& instenceIndex = objectRendere.m_BatchIndex;
 #else
 
 		const Ref<MeshSingle>& singleMesh = meshObject.m_MeshSingle;
 		const AABB& aabb = singleMesh->GetAABB();
-		if (!Renderer::IsInsideCurentViewFustrem(aabb, model))
+		if (!Renderer::IsInsideCurrentViewFrustum(aabb, model))
 		{
 			objectRendere.Reset();
 			return pipline;
@@ -1524,7 +1524,7 @@ namespace Rynex {
 #if 0
 		PiplineRefBaseVec& piplineBaseVec = s_Storarage3D->m_InstencPiplineBaseVec;
 #else
-		PiplineRefBaseVec& piplineBaseVec = Renderer::GetRenderPiplinesCurent();
+		PiplineRefBaseVec& piplineBaseVec = Renderer::GetRenderPiplineCurrent();
 #endif
 
 
@@ -1532,8 +1532,8 @@ namespace Rynex {
 		int checkResult = (result & PiplineResultState::Result_Success);
 		const uint32_t countPiplines = piplineBaseVec.GetIndexSize();
 
-		uint32_t& pilineIndex = objectRendere.PiplineIndex;
-		uint32_t& instenceIndex = objectRendere.BatchIndex;
+		uint32_t& pilineIndex = objectRendere.m_PiplineIndex;
+		uint32_t& instenceIndex = objectRendere.m_BatchIndex;
 
 		if (pilineIndex <= countPiplines)
 		{
@@ -1584,17 +1584,17 @@ namespace Rynex {
 		RY_CORE_ASSERT(checkResult != 0, "we dident find a Pipline or/and even a new did not work!");
 
 
-		Ref<UniformBuffer>& camerPackedUB = Renderer::GetPackegeCamerUniformCurent();
+		Ref<UniformBuffer>& camerPackedUB = Renderer::GetPackegeCameraUniformCurrent();
 		pipline->SetCameraUniformBuffer(camerPackedUB);
 
 
 		return pipline;
 	}
 
-	Ref<PiplineRenderBase> Renderer3D::SubmitMeshObjectToRenderTargetCurentDirekt(const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID)
+	Ref<PiplineRenderBase> Renderer3D::SubmitMeshObjectToRenderTargetCurrentDirect(const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID)
 	{
 		Ref<PiplineRenderBase> pipline = nullptr;
-		Ref<RenderTarget>& target = Renderer::GetRenderTargetCurent();
+		Ref<RenderTarget>& target = Renderer::GetRenderTargetCurrent();
 		PiplineRefBaseVec& piplineBaseVec = s_Storarage3D->m_InstencPiplineBaseVec;
 
 		PiplineResultState result = PiplineResultState::Result_None;
@@ -1613,7 +1613,7 @@ namespace Rynex {
 		}
 	
 		RY_CORE_ASSERT(checkResult != 0, "we dident find a Pipline or/and even a new did not work!");
-		Ref<UniformBuffer>& camerPackedUB = Renderer::GetPackegeCamerUniformCurent();
+		Ref<UniformBuffer>& camerPackedUB = Renderer::GetPackegeCameraUniformCurrent();
 		pipline->SetCameraUniformBuffer(camerPackedUB);
 
 
@@ -1797,7 +1797,7 @@ namespace Rynex {
 	}
 
 
-	Ref<PiplineRenderBase> Renderer3D::SubmitMeshObjectToRenderTarget(PiplineRefBaseVec* piplineBaseVecPtr, CamerRenderPackages& cameraPackege, const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRendereIndex& objectRendere)
+	Ref<PiplineRenderBase> Renderer3D::SubmitMeshObjectToRenderTarget(PiplineRefBaseVec* piplineBaseVecPtr, CamerRenderPackages& cameraPackege, const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRenderIndex& objectRendere)
 	{
 #if 0
 		return Ref<PiplineRenderBase>(nullptr);
@@ -1910,7 +1910,7 @@ namespace Rynex {
 #endif
 
 
-	void Renderer3D::PrepairMainScene()
+	void Renderer3D::PrepareMainScene()
 	{
 		RY_CORE_NOT_IMPL();
 		RY_REMBER_FUNC_CHANGE("Remove the function, maybe we don't need anmory in futer!");
@@ -1991,7 +1991,7 @@ namespace Rynex {
 #pragma region MeshArrayVertexArray
 
 
-	glm::uvec2 Renderer3D::GetIndriectOffsetsFromMeshArray(const Ref<MeshStatic>& meshStatic)
+	glm::uvec2 Renderer3D::GetIndictOffsetsFromMeshArray(const Ref<MeshStatic>& meshStatic)
 	{
 		RY_REMBER_FUNC_CHANGE("Remove the function, maybe we don't need anmory in futer! (The Concept off Rendering Mesh Batches for indrect Rendering)");
 
@@ -2116,7 +2116,7 @@ namespace Rynex {
 		hashNumber |= meshNumber << meshHashBitsOffset;
 		hashNumber |= materielNumber << materielHashBitsOffset;
 
-		uint32_t index = Renderer::GetCurentIndex();
+		uint32_t index = Renderer::GetCurrentIndex();
 		std::unordered_map<uint64_t, Weak<PiplineRenderBase>>& hashMapPipline = s_Storarage3D->m_RenderPiplinesHashMap.at(index);
 
 		Weak<PiplineRenderBase>& renderPiplineWeak = hashMapPipline[hashNumber];
@@ -2168,7 +2168,7 @@ namespace Rynex {
 
 
 
-	Ref<Texture> Renderer3D::GetDefoultChekebordTex()
+	Ref<Texture> Renderer3D::GetDefaultCheckerboardTexture()
 	{
 
 		if (nullptr == s_Storarage3D->m_CheckebordTex)
@@ -2273,12 +2273,12 @@ namespace Rynex {
 		
 	}
 
-	void Renderer3D::SubmitRenderIndrectDrawList()
+	void Renderer3D::SubmitRenderIndictDrawList()
 	{
 		RY_REMBER_FUNC_CHANGE("Remove the function, maybe we don't need anmory in futer! (The Concept off indrect Rendering we dont use enymore like that)");
 	}
 
-	void Renderer3D::SubmitRenderSingleIndrectDrawList()
+	void Renderer3D::SubmitRenderSingleIndictDrawList()
 	{
 		RY_REMBER_FUNC_CHANGE("Remove the function, maybe we don't need anmory in futer! (The Concept off indrect Rendering we dont use enymore like that)");
 	}

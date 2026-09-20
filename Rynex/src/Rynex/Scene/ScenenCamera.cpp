@@ -139,7 +139,7 @@ namespace Rynex {
 	std::array<glm::vec4, 8> SceneCamera::GetViewFrustumWorld(const glm::mat4& view) const
 	{
 		std::array<glm::vec4, 8> viewFustremWorld = m_ViewFrustumEdges;
-		glm::mat4 VP = glm::inverse(m_Projektion * view);
+		glm::mat4 VP = glm::inverse(m_Projection * view);
 		for (auto& fust : viewFustremWorld)
 			fust = VP * fust;
 		return viewFustremWorld;
@@ -221,7 +221,7 @@ namespace Rynex {
 		
 		if(m_ProjectionType == ProjectionType::Perspective)
 		{			
-			m_Projektion = glm::perspective(m_PerspectiveFOV, m_AspectRotation, m_PerspectiveNear, m_PerspectiveFar);
+			m_Projection = glm::perspective(m_PerspectiveFOV, m_AspectRotation, m_PerspectiveNear, m_PerspectiveFar);
 		}
 		else
 		{
@@ -230,7 +230,7 @@ namespace Rynex {
 			float orthoBottem = -m_OrthographicSize * 0.5f;
 			float orthoTop = m_OrthographicSize * 0.5f;
 
-			m_Projektion = glm::ortho(
+			m_Projection = glm::ortho(
 				orthoLeft, orthoRigth,
 				orthoBottem, orthoTop,
 				m_OrthographicNear, m_OrthographicFar

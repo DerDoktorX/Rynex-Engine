@@ -430,7 +430,7 @@ namespace Rynex {
 		std::vector<UUID> m_SingleMeshes;
 		std::vector<std::vector<uint32_t>> m_RenderStoreIndexVec2;
 
-		Memory::VectorData2D<ObjectRendereIndex> m_ObjectRenderIndexPiplineVec2;
+		Memory::VectorData2D<ObjectRenderIndex> m_ObjectRenderIndexPiplineVec2;
 
 
 		ModelMangerComponent() = default;
@@ -443,7 +443,7 @@ namespace Rynex {
 		Ref<Material> m_Material;
 		Ref<MeshSingle> m_MeshSingle;
 		std::vector<uint32_t> m_RenderStoreIndexVec;
-		std::vector<ObjectRendereIndex> m_ObjectRenderIndexPiplineVec;
+		std::vector<ObjectRenderIndex> m_ObjectRenderIndexPiplineVec;
 		StaticMeshComponent()
 			: m_EntitySource(0ull)
 			, m_Material(nullptr)
@@ -489,7 +489,7 @@ namespace Rynex {
 	struct EnvironmentMap
 	{
 		Ref<TextureCubeMap> m_TextureCubeMap;
-	    std::vector<ObjectRendereIndex> m_IndexPiplineVec;
+	    std::vector<ObjectRenderIndex> m_IndexPiplineVec;
 
 		EnvironmentMap() = default;
 		EnvironmentMap(const EnvironmentMap&) = default;

@@ -231,7 +231,7 @@ namespace Rynex {
 		{
 			const MeshStatic::SingleObjectMeshData& singleMeshData = meshStatic->GetSingleObjectData(objectIndices.MeshLoclaeIndex);
 			const UUID& meshID = singleMeshData.GetHandle();
-			const glm::mat4& matrixChildren = singleMeshData.LocaleCildrenMatrix;
+			const glm::mat4& matrixChildren = singleMeshData.m_LocaleCildrenMatrix;
 
 			glm::mat4 matrix = enityMatrix * matrixChildren;
 
@@ -265,7 +265,7 @@ namespace Rynex {
 		{
 			const MeshStatic::SingleObjectMeshData& singleMeshData = meshStatic->GetSingleObjectData(objectIndices.MeshLoclaeIndex);
 			const UUID& meshID = singleMeshData.GetHandle();
-			const glm::mat4& matrixChildren = singleMeshData.LocaleCildrenMatrix;
+			const glm::mat4& matrixChildren = singleMeshData.m_LocaleCildrenMatrix;
 
 			glm::mat4 matrix = matrixEnity * matrixChildren;
 

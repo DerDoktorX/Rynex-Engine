@@ -1,0 +1,35 @@
+<profile version="1.0">
+  <option name="myName" value="RynexInspeection" />
+  <inspection_tool class="ClangTidy" enabled="false" level="WARNING" enabled_by_default="false" />
+  <inspection_tool class="Clazy" enabled="false" level="WARNING" enabled_by_default="false" />
+  <inspection_tool class="CppDFAArrayIndexOutOfBounds" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFAConstantConditions" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFAConstantFunctionResult" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFAConstantParameter" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFADeletedPointer" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFAEndlessLoop" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFAInfiniteRecursion" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFAInvalidatedMemory" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFALocalValueEscapesFunction" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFALocalValueEscapesScope" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFALoopConditionNotUpdated" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFAMemoryLeak" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFANotInitializedField" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFANullDereference" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFATimeOver" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFAUnreachableCode" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFAUnreachableFunctionCall" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFAUnreadVariable" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppDFAUnusedValue" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppEnforceDoStatementBraces" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+  <inspection_tool class="CppEnforceForStatementBraces" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+  <inspection_tool class="CppEnforceFunctionDeclarationStyle" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppEnforceNestedNamespacesStyle" enabled="false" level="HINT" enabled_by_default="false" />
+  <inspection_tool class="CppEnforceOverridingDestructorStyle" enabled="true" level="HINT" enabled_by_default="true" editorAttributes="HINT" />
+  <inspection_tool class="CppEnforceTypeAliasCodeStyle" enabled="true" level="WARNING" enabled_by_default="true" />
+  <inspection_tool class="CppEnforceWhileStatementBraces" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
+  <inspection_tool class="CppRedundantMemberInitializer" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+  <inspection_tool class="CppRedundantNamespaceDefinition" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+  <inspection_tool class="CppTooWideScopeInitStatement" enabled="false" level="HINT" enabled_by_default="false" />
+  <inspection_tool class="CppUseAuto" enabled="false" level="HINT" enabled_by_default="false" />
+</profile>

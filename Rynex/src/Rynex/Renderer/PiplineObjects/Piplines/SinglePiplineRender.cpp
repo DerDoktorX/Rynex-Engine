@@ -36,7 +36,7 @@ namespace Rynex {
 	{
 		if (nullptr == m_ShadowTex || nullptr == m_LigthBuffer)
 		{
-			CamerRenderPackages& viewPassPackege = viewPass.CameraPackege;
+			CamerRenderPackages& viewPassPackege = viewPass.m_CameraPackege;
 			CamerRenderPackages::CamerPackage& camerPackage = viewPassPackege.GetCamerPackage();
 			const Ref<UniformBuffer>& camerBuffer = camerPackage.GetBuffer();
 			m_LigthBuffer = camerBuffer;

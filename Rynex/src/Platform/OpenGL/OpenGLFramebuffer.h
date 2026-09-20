@@ -13,7 +13,8 @@ namespace Rynex {
 	class OpenGLFramebuffer : public Framebuffer
 	{
 	public:
-		OpenGLFramebuffer(const FramebufferSpecification& spec);
+        explicit OpenGLFramebuffer(const FramebufferSpecification& spec);
+
 		~OpenGLFramebuffer();
 
 		virtual void ClearAttachmentNull(uint32_t index) override;
@@ -24,7 +25,7 @@ namespace Rynex {
 		virtual void ClearAttachment(const uint32_t index, const glm::vec4& value) override;
 
 		virtual bool SetTextureForDepthAttachment(const Ref<Texture>& texture) override;
-		virtual bool SetTextureForColorAttachment(const Ref<Texture>& texture, uint32_t atchmentIndex) override;
+		virtual bool SetTextureForColorAttachment(const Ref<Texture>& texture, uint32_t attachmentIndex) override;
 
 
 		virtual void ClearDeathAttachment(float value) override;
@@ -67,7 +68,7 @@ namespace Rynex {
 
 
 		void Invalidate();
-		void CreateAttechmentTexture(Ref<OpenGLTextureStorageModern>& texture, uint32_t slot);
+		void CreateAttachmentTexture(const Ref<OpenGLTextureStorageModern>& texture, uint32_t slot);
 
 		void ConecetTextureToFramffbuffer(const Ref<OpenGLTextureStorageModern>& texture, uint32_t slot);
 
@@ -75,7 +76,7 @@ namespace Rynex {
 		void SetFrameBufferStates(uint32_t countColorTex);
 
 
-		uint32_t SetColoarAtchments(const std::vector<Ref<Texture>>& colorAttachments, uint32_t openglTexTarget = 0u);
+		uint32_t SetColorAttachments(const std::vector<Ref<Texture>>& colorAttachments, uint32_t openglTexTarget = 0u);
 
 		uint32_t SetupTextures();
 		void OnFramebufferDataChangeAction();
@@ -83,9 +84,9 @@ namespace Rynex {
 		void OnFramebufferDataChangeAction(Ref<Texture>& texture);
 		void OnFramebufferDataChangeAction(Ref<OpenGLTextureStorageModern>& texture);
 
-	private:
+	// private member variables -----------------------------------------------------------------------------------------------
 		std::vector<Ref<Texture>> m_ColorAttachmentsTex;
-		Ref<OpenGLTextureStorageModern> m_DepthAttachment = nullptr;
+		Ref<Texture> m_DepthAttachment = nullptr;
 		FramebufferSpecification m_Specification;
 
 		uint32_t m_RendererID = 0;

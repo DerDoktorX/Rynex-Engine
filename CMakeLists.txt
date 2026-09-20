@@ -1,5 +1,4 @@
-﻿
-cmake_minimum_required(VERSION 4.3)
+﻿cmake_minimum_required(VERSION 4.3)
 
 
 project(Rynex-Rendering)
@@ -19,7 +18,7 @@ endif()
 
 
 set(RYNEX_BINARY_TARGET "$<CONFIG>")
-# set(RYNEX_BINARY_TARGET "[CONFIG]")
+
 set(RYNEX_ROOT_PROJECT                                  ${CMAKE_CURRENT_LIST_DIR})
 set(RYNEX_PROJECT_BINARY_FOLDER_OUTPUT                  ${RYNEX_ROOT_PROJECT}/bin/${RYNEX_BINARY_TARGET})
 set(RYNEX_PROJECT_LIB_FOLDER_OUTPUT                     ${RYNEX_ROOT_PROJECT}/lib/${RYNEX_BINARY_TARGET})

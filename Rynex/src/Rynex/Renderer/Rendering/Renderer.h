@@ -17,29 +17,28 @@ namespace Rynex {
 
 	class Renderer3D;
 
-	namespace RendererGlobleResourceValues
+	namespace RendererGlobalResourceValues
 	{
 		enum
 		{
 			None = 0
 			, FromOtherRenderTarget = BIT(0)
-			, FromOtherSpecifEntiity = BIT(1)
+			, FromOtherSpecifEntity = BIT(1)
 
 			, CameraModelMatrix = BIT(2) // model don't mean from 3D-Model, it means camer tranfomrtion matrix befor its inversed to view matrix.
 			, CameraViewMatrix = BIT(3)
-			, CameraProjtionMatrix = BIT(4)
+			, CameraProjectionMatrix = BIT(4)
 
-			, CameraViewProjtionMatrix = BIT(6)
-			, CameraPostion = BIT(7)
-			, CameraDriection = BIT(8) // normielzed
-			, CameraScaledTranstionMatrix = BIT(9) // is am matrix that, can be used for shadow Texture mapping, it tranfomrs all values in a texture st-Coord ( most pelpule woude say uv-coord, but its whrong 0-1 is st-Coord ) space.
+			, CameraViewProjectionMatrix = BIT(6)
+			, CameraPosition = BIT(7)
+			, CameraDirection = BIT(8) // normalized
+			, CameraScaledTranslationMatrix = BIT(9) // is am matrix that, can be used for shadow Texture mapping, it tranfomrs all values in a texture st-Coord ( most pelpule woude say uv-coord, but its whrong 0-1 is st-Coord ) space.
 
+			, DealtTimeMilliseconds = BIT(10)
+			, AlphaTimeMilliseconds = BIT(11)
 
-			, DealtTimeMilisecounds = BIT(10)
-			, AlphaTimeMilisecounds = BIT(11)
-
-			, DealtTimeSecounds = BIT(12)
-			, AlphaTimeSecounds = BIT(13)
+			, DealtTimeSeconds = BIT(12)
+			, AlphaTimeSeconds = BIT(13)
 
 
 			, RenderTexture = BIT(14)
@@ -48,40 +47,38 @@ namespace Rynex {
 		};
 	};
 
-	enum class RendereGlobleResurce
+	enum class RenderGlobalResecure
 	{
 		None = 0,
-
-
 	};
 
 	struct RenderSettings
 	{
 
-		int sceneRenderMode = 0;
-		float gammaCorection = 2.2f;
+		int   m_SceneRenderMode = 0;
+		float m_GammaCorrection = 2.2f;
 
 		bool useSceneRenderModeInMainPass = true;
-		bool gammaBackgroundCorction = true;
+		bool m_GammaBackgroundCorrection = true;
 
-		bool drawPiplinesFromRenderTarget = false;
-		bool sortBeforDrawFromRenderTarget = false;
-		bool drawPiplinesFromRenderPass = false;
-		bool drawShaderDrawListFromRenderTarget = false;
-		bool drawShaderDrawListFromRenderPass = true;
+		bool m_DrawPipelinesFromRenderTarget = false;
+		bool m_SortBeforeDrawFromRenderTarget = false;// sortBeforeDrawFromRenderTarget
+		bool m_DrawPipelinesFromRenderPass = false;
+		bool m_DrawShaderDrawListFromRenderTarget = false;
+		bool m_DrawShaderDrawListFromRenderPass = true;
 
-		bool drawRenderProxy = true;// true;
-		bool submiteSceneEntityTo3DRender = false; // false;
+		bool m_DrawRenderProxy = true;// true;
+		bool m_SubmitSceneEntityTo3DRender = false; // false;
 	};
 
 	struct CameraPackege
 	{
-		glm::mat4 ViewMatrix;
-		glm::mat4 ProjetionMatrix;
-		glm::mat4 ViewProjectionMatrix; // VP
-		// glm::mat4 ScaledTranfomrViewProjectionMatrix; // Matrix: STVP  that is M = VP * 0.5 + 0.5, for texure world space
-		glm::vec4 Postion;
-		glm::vec4 Direction;
+		glm::mat4 m_ViewMatrix;
+		glm::mat4 m_ProjectionMatrix;
+		glm::mat4 m_ViewProjectionMatrix; // VP
+		// glm::mat4 ScaledTransformViewProjectionMatrix; // Matrix: STVP  that is M = VP * 0.5 + 0.5, for texure world space
+		glm::vec4 m_Position;
+		glm::vec4 m_Direction;
 	};
 #ifdef RY_RENDERPASS_DATA_ELEMENT_ARRAY
 	struct RenderPassPtr;
@@ -252,23 +249,23 @@ namespace Rynex {
 	
 	struct RenderPass
 	{
-		std::string Name;
-		glm::mat4 ModelMatrix;
-		CameraPackege CameraDataPackege;
-		glm::ivec4 ImageSize;
-		glm::mat4 DebugeMatrix;
-		std::array<Plane, 6> BoundingArray;
-		PiplineRefBaseVec PiplineRefBaseVec;
-		std::vector<ShaderDrawResource> shaderDrawVec;
+		std::string m_Name;
+		glm::mat4 m_ModelMatrix;
+		CameraPackege m_CameraDataPackege;
+		glm::ivec4 m_ImageSize;
+		glm::mat4 m_DebugMatrix;
+		std::array<Plane, 6> m_BoundingArray;
+		PiplineRefBaseVec m_PiplineRefBaseVec;
+		std::vector<ShaderDrawResource> m_ShaderDrawVec;
 
-		Ref<RenderTarget> Target;
-		Ref<UniformBuffer> ViewMatrixUB;
-		Ref<UniformBuffer> ProjetionMatrixUB;
-		Ref<UniformBuffer> ProjetionViewMatrixUB;
-		Ref<UniformBuffer> PostionUB;
-		Ref<UniformBuffer> CameraDataPackBufferUB;
-		Ref<UniformBuffer> ImageSizeUB;
-		Ref<UniformBuffer> DirectionUB;
+		Ref<RenderTarget> m_Target;
+		Ref<UniformBuffer> m_ViewMatrixUB;
+		Ref<UniformBuffer> m_ProjectionMatrixUB;
+		Ref<UniformBuffer> m_ProjectionViewMatrixUB;
+		Ref<UniformBuffer> m_PositionUB;
+		Ref<UniformBuffer> m_CameraDataPackBufferUB;
+		Ref<UniformBuffer> m_ImageSizeUB;
+		Ref<UniformBuffer> m_DirectionUB;
 
 		RenderPass() = default;
 		RenderPass(const RenderPass&) = default;
@@ -277,38 +274,38 @@ namespace Rynex {
 #endif
 	struct ViewPassData
 	{
-		glm::mat4 ProjetionMatrix;
-		glm::mat4 ViewMatrix;
-		glm::mat4 ProjetionViewMatrix;
-		glm::mat4 InverseProjetionViewMatrix;
-		glm::vec3 Postion;
-		glm::vec4 BackGroundColor;
-		glm::ivec4 ViewSpace;	// w/z = withe/heigth | x/y = offset(x/y)
-		int Modes;
-		float GammeCorection = 2.2f;
-		bool RenderEcheFrame = true;
-		bool RenderFrame = true;
+		glm::mat4 m_ProjectionMatrix;
+		glm::mat4 m_ViewMatrix;
+		glm::mat4 m_ProjectionViewMatrix;
+		glm::mat4 m_InverseProjectionViewMatrix;
+		glm::vec3 m_Position;
+		glm::vec4 m_BackGroundColor;
+		glm::ivec4 m_ViewSpace;	// w/z = withe/heigth | x/y = offset(x/y)
+		int m_Modes;
+		float m_GammeCorrection = 2.2f;
+		bool m_RenderEcheFrame = true;
+		bool m_RenderFrame = true;
 
-		Ref<Framebuffer> FrameBuffer;
+		Ref<Framebuffer> m_FrameBuffer;
 
-		ViewPassData(const glm::mat4& projetionMatrix, const glm::mat4& viewMatrix, const glm::vec3& postion,
+		ViewPassData(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix, const glm::vec3& postion,
 			const glm::vec4& backGroundColor, const glm::ivec4& viewSpace,
-			int modes, float gammeCorection, const Ref<Framebuffer>& frameBuffer,
+			int modes, float gammeCorrection, const Ref<Framebuffer>& frameBuffer,
 			bool renderEcheFrame = true, bool renderFrame = true)
-			: ProjetionMatrix(projetionMatrix)
-			, ViewMatrix(viewMatrix)
-			, ProjetionViewMatrix(projetionMatrix* viewMatrix)
-			, InverseProjetionViewMatrix(glm::mat4(0.0f))
-			, Postion(postion)
-			, BackGroundColor(backGroundColor)
-			, ViewSpace(viewSpace)
-			, Modes(modes)
-			, GammeCorection(gammeCorection)
-			, FrameBuffer(frameBuffer)
-			, RenderEcheFrame(renderEcheFrame)
-			, RenderFrame(renderFrame)
+			: m_ProjectionMatrix(projectionMatrix)
+			, m_ViewMatrix(viewMatrix)
+			, m_ProjectionViewMatrix(projectionMatrix * viewMatrix)
+			, m_InverseProjectionViewMatrix(glm::mat4(0.0f))
+			, m_Position(postion)
+			, m_BackGroundColor(backGroundColor)
+			, m_ViewSpace(viewSpace)
+			, m_Modes(modes)
+			, m_GammeCorrection(gammeCorrection)
+			, m_RenderEcheFrame(renderEcheFrame)
+			, m_RenderFrame(renderFrame)
+			, m_FrameBuffer(frameBuffer)
 		{
-			InverseProjetionViewMatrix = glm::inverse(ProjetionViewMatrix);
+			m_InverseProjectionViewMatrix = glm::inverse(m_ProjectionViewMatrix);
 		}
 	};
 	
@@ -319,114 +316,114 @@ namespace Rynex {
 		DepthTest,
 		Shadow,
 		RenderTarget,
-		SlectedView,
-		Custemiced,
+		SelectedView,
+		Costumed,
 		MainView
 	};
 
 	struct StatusRenderPasses
 	{
-		int64_t TimeElpassed;
-		uint32_t DrawCallsCount;
-		uint32_t PiplineCallsCount;
+		int64_t m_TimeElapsed;
+		uint32_t m_DrawCallsCount;
+		uint32_t m_PiplineCallsCount;
 	};
 
 	struct StatusRender
 	{
-		StatusRenderPasses MainPass;
-		std::vector<StatusRenderPasses> SecundaryPasses;
+		StatusRenderPasses m_MainPass;
+		std::vector<StatusRenderPasses> m_SecondaryPasses;
 
 	};
 
 	struct ViewPassStorage
 	{
-		ViewPassType Type;
-		uint32_t Slot;
-		CamerRenderPackages CameraPackege;
+		ViewPassType m_Type;
+		uint32_t m_Slot;
+		CamerRenderPackages m_CameraPackege;
 
 		ViewPassStorage()
-			: Type(ViewPassType())
-			, Slot(0u)
-			, CameraPackege(CamerRenderPackages())
+			: m_Type(ViewPassType())
+			, m_Slot(0u)
+			, m_CameraPackege(CamerRenderPackages())
 		{
 		}
 
 		RenderTarget& GetRenderTaget()
 		{
-			RenderTarget& target = CameraPackege.GetRenderTarget();
+			RenderTarget& target = m_CameraPackege.GetRenderTarget();
 			return target;
 		}
 
 		Ref<UniformBuffer> GetUniformCamera()
 		{
-			CamerRenderPackages::CamerPackage& packeg = CameraPackege.GetCamerPackage();
-			Ref<UniformBuffer> uniformBuffer = packeg.GetBuffer();
+			const CamerRenderPackages::CamerPackage& packed = m_CameraPackege.GetCamerPackage();
+			Ref<UniformBuffer> uniformBuffer = packed.GetBuffer();
 			return uniformBuffer;
 		}
 
 		Ref<UniformBuffer> GetUniformDisplay()
 		{
-			CamerRenderPackages::DisplayPackage& packeg = CameraPackege.GetDisplayPackage();
-			Ref<UniformBuffer> uniformBuffer = packeg.GetBuffer();
+			const CamerRenderPackages::DisplayPackage& packed = m_CameraPackege.GetDisplayPackage();
+			Ref<UniformBuffer> uniformBuffer = packed.GetBuffer();
 			return uniformBuffer;
 		}
 
 		Ref<UniformBuffer> GetUniformDebug()
 		{
-			CamerRenderPackages::DebugCamerPackage& packeg = CameraPackege.GetDebugPackage();
-			Ref<UniformBuffer> uniformBuffer = packeg.GetBuffer();
+			const CamerRenderPackages::DebugCamerPackage& packed = m_CameraPackege.GetDebugPackage();
+			Ref<UniformBuffer> uniformBuffer = packed.GetBuffer();
 			return uniformBuffer;
 		}
 	};
 
-	typedef std::vector<ViewPassStorage> VectorViewPassStorage;
-	typedef Ref<VectorViewPassStorage> RefVectorViewPassStorage;
+	using VectorViewPassStorage = std::vector<ViewPassStorage>;
+	using RefVectorViewPassStorage = Ref<VectorViewPassStorage>;
 
 	struct ElementViewPassStorage
 	{
-		uint32_t PassSlot = 0;
-		RefVectorViewPassStorage Vec;
+		uint32_t m_PassSlot = 0;
+		RefVectorViewPassStorage m_Vec;
 	};
 
-	typedef std::map<std::string, ElementViewPassStorage> MapRefVectorViewPassStorage;
+	using MapRefVectorViewPassStorage = std::map<std::string, ElementViewPassStorage>;
 
-	struct ObjectRendereIndex {
-		uint32_t BatchIndex = 0xFFFFFFFFu;
-		uint32_t PiplineIndex = 0xFFFFFFFFu;
+	struct ObjectRenderIndex {
+		uint32_t m_BatchIndex = 0xFFFFFFFFu;
+		uint32_t m_PiplineIndex = 0xFFFFFFFFu;
 
 		void Reset()
 		{
-			BatchIndex = 0xFFFFFFFFu;
-			PiplineIndex = 0xFFFFFFFFu;
+			m_BatchIndex = 0xFFFFFFFFu;
+			m_PiplineIndex = 0xFFFFFFFFu;
 		}
 	};
 
-	struct SingleMeshRender : public MeshStatic::SingleObjectMeshData
+	struct SingleMeshRender : MeshStatic::SingleObjectMeshData
 	{
-		glm::mat4 GlobelNodeMatrix;
+		glm::mat4 m_GlobalNodeMatrix;
 
-		std::vector<ObjectRendereIndex> IndexVec;
+		std::vector<ObjectRenderIndex> m_IndexVec;
 		SingleMeshRender()
-			: IndexVec()
-			, GlobelNodeMatrix(glm::mat4(1.0f))
-			, MeshStatic::SingleObjectMeshData(nullptr, nullptr, glm::mat4(0.0f), "Default-Name", 0xFFFFFFFFu, 0xFFFFFFFFu)
+			: MeshStatic::SingleObjectMeshData(nullptr, nullptr, glm::mat4(0.0f), "Default-Name", 0xFFFFFFFFu, 0xFFFFFFFFu)
+			, m_GlobalNodeMatrix(glm::mat4(1.0f))
+			, m_IndexVec()
 
 		{
 
 		}
 
 
-		SingleMeshRender(const MeshStatic::SingleObjectMeshData& singleObjectMeshRender)
-			: IndexVec()
-			, GlobelNodeMatrix(glm::mat4(1.0f))
-			, MeshStatic::SingleObjectMeshData(singleObjectMeshRender)
+        explicit SingleMeshRender(const MeshStatic::SingleObjectMeshData& singleObjectMeshRender)
+			: MeshStatic::SingleObjectMeshData(singleObjectMeshRender)
+			, m_GlobalNodeMatrix(glm::mat4(1.0f))
+			, m_IndexVec()
 		{
 		}
 
 		SingleMeshRender(const Ref<MeshSingle>& meshSingle, const Ref<Material>& materiel, const glm::mat4& localeMatrix)
-			: IndexVec()
-			, GlobelNodeMatrix(glm::mat4(0.0f))
-			, MeshStatic::SingleObjectMeshData(meshSingle, materiel, localeMatrix, "Set-No-Same", 0xFFFFFFFFu, 0xFFFFFFFFu)
+			: MeshStatic::SingleObjectMeshData(meshSingle, materiel, localeMatrix, "Set-No-Same", 0xFFFFFFFFu, 0xFFFFFFFFu)
+			, m_GlobalNodeMatrix(glm::mat4(0.0f))
+			, m_IndexVec()
 		{
 		}
 
@@ -434,18 +431,18 @@ namespace Rynex {
 
 		void SetEntityMatrix(const glm::mat4& matrix)
 		{
-			GlobelNodeMatrix = matrix * LocaleCildrenMatrix;
+			m_GlobalNodeMatrix = matrix * m_LocaleCildrenMatrix;
 		}
 
 
 		void ResetIndex()
 		{
-			IndexVec.clear();
+			m_IndexVec.clear();
 		}
 	};
 
 
-	typedef uint16_t RederModeType;
+	using RenderModeType = uint16_t;
 
 	namespace RenderMode {
 		enum RenderMode : uint16_t
@@ -482,73 +479,73 @@ namespace Rynex {
 		static void SetRenderPassNameMain(const std::string& name);
 		static void SetRenderCameraMain(const glm::mat4& model, const Camera& camera);
 		static void SetRenderTargetMain(const Ref<RenderTarget>& target);
-		// imgeSize [ Size(x,y) / Offset(z,w) ]
-		static void SetViewSizeMain(const glm::ivec4& imgeSize);
+		// imageSize [ Size(x,y) / Offset(z,w) ]
+		static void SetViewSizeMain(const glm::ivec4& imageSize);
 
 
 
 
-		static void SetOnMainCameraCurentCamera();
-		static void SetOnCurentPassMainPass();
-		static Ref<UniformBuffer>& GetPackegeCamerUniformMain();
-		static Ref<UniformBuffer>& GetProjetionUniformMain();
-		static Ref<UniformBuffer>& GetProjetionViewUniformMain();
-		static Ref<UniformBuffer>& GetPostionUniformMain();
+		static void SetOnMainCameraCurrentCamera();
+		static void SetOnCurrentPassMainPass();
+		static Ref<UniformBuffer>& GetPackegeCameraUniformMain();
+		static Ref<UniformBuffer>& GetProjectionUniformMain();
+		static Ref<UniformBuffer>& GetProjectionViewUniformMain();
+		static Ref<UniformBuffer>& GetPositionUniformMain();
 		static Ref<UniformBuffer>& GetImageSizeUniformMain();
 		static Ref<UniformBuffer>& GetViewUniformMain();
-		static PiplineRefBaseVec& GetRenderPiplinesMain();
+		static PiplineRefBaseVec& GetRenderPiplineMain();
 		static std::vector<ShaderDrawResource>& GetShaderDrawResourceMain();
-		static std::array<Plane, 6>& GetCamerFustremMain();
+		static std::array<Plane, 6>& GetCameraFrustumMain();
 		static Ref<RenderTarget>& GetRenderTargetMain();
 		static Ref<Framebuffer> GetFramebufferMain();
 		static const CameraPackege& GetCameraPackegeMain();
 
 		static void RenderingPassMain();
-		static void ClearMainPiplines();
-		static bool IsInsideMainViewFustrem(const AABB& aabb, const glm::mat4& modelMatrix);
-		static void ResetMainRenderPassPiplines();
+		static void ClearMainPipline();
+		static bool IsInsideMainViewFrustum(const AABB& aabb, const glm::mat4& modelMatrix);
+		static void ResetMainRenderPassPipline();
 
-		static uint32_t GetCurentIndex();
-		static bool IsCurentEmpty();
-		static void SetNextCurentRenderPass(uint32_t& index);
-		static void CheckCurentRenderPass();
-		static void IncromentCurentRenderPass();
-		static void ResetCurentRenderPassFrame();
+		static uint32_t GetCurrentIndex();
+		static bool IsCurrentEmpty();
+		static void SetNextCurrentRenderPass(uint32_t& index);
+		static void CheckCurrentRenderPass();
+		static void IncrementCurrentRenderPass();
+		static void ResetCurrentRenderPassFrame();
 		
 
 
-		static bool SetCurentPassOnOldIndex(uint32_t index);
-		static void SetCurentPassOnEnd();
+		static bool SetCurrentPassOnOldIndex(uint32_t index);
+		static void SetCurrentPassOnEnd();
 
-		static void SetRenderPassNameCurent(const std::string& name);
+		static void SetRenderPassNameCurrent(const std::string& name);
 
 		
-		static void SetRenderCameraCurent(const glm::mat4& model, const Camera& camera);
-		static void SetRenderCameraCurentUB();
-		static void SetRenderTargetCurent(const Ref<RenderTarget>& target);
+		static void SetRenderCameraCurrent(const glm::mat4& model, const Camera& camera);
+		static void SetRenderCameraCurrentUB();
+		static void SetRenderTargetCurrent(const Ref<RenderTarget>& target);
 
-		// imgeSize [ Size(x,y) / Offset(z,w) ]
-		static void SetViewSizeCurent(const glm::ivec4& imgeSize);
-		static void SetViewSizeCurentUB();
+		// imageSize [ Size(x,y) / Offset(z,w) ]
+		static void SetViewSizeCurrent(const glm::ivec4& imageSize);
+		static void SetViewSizeCurrentUB();
 
-		static Ref<UniformBuffer>& GetPackegeCamerUniformCurent();
-		static Ref<UniformBuffer>& GetViewUniformCurent();
-		static Ref<UniformBuffer>& GetProjetionUniformCurent();
-		static Ref<UniformBuffer>& GetProjetionViewUniformCurent();
-		static Ref<UniformBuffer>& GetPostionUniformCurent();
-		static Ref<UniformBuffer>& GetImageSizeUniformCurent();
-		static Ref<RenderTarget>& GetRenderTargetCurent();
-		static Ref<Framebuffer> GetFramebufferCurent();
-		static PiplineRefBaseVec& GetRenderPiplinesCurent();
-		static std::vector<ShaderDrawResource>& GetShaderDrawResourceCurent();
+		static Ref<UniformBuffer>& GetPackegeCameraUniformCurrent();
+		static Ref<UniformBuffer>& GetViewUniformCurrent();
+		static Ref<UniformBuffer>& GetProjectionUniformCurrent();
+		static Ref<UniformBuffer>& GetProjectionViewUniformCurrent();
+		static Ref<UniformBuffer>& GetPositionUniformCurrent();
+		static Ref<UniformBuffer>& GetImageSizeUniformCurrent();
+		static Ref<RenderTarget>& GetRenderTargetCurrent();
+		static Ref<Framebuffer> GetFramebufferCurrent();
+		static PiplineRefBaseVec& GetRenderPiplineCurrent();
+		static std::vector<ShaderDrawResource>& GetShaderDrawResourceCurrent();
 
-		static std::array<Plane, 6>& GetCamerFustremCurent();
-		static const CameraPackege& GetCameraPackegeCurent();
-		static void ResetCurentRenderPassPiplines();
+		static std::array<Plane, 6>& GetCameraFrustumCurrent();
+		static const CameraPackege& GetCameraPackegeCurrent();
+		static void ResetCurrentRenderPassPipline();
 
-		static void RenderingPassCurent();
-		static void ClearCurentPiplines();
-		static bool IsInsideCurentViewFustrem(const AABB& aabb, const glm::mat4& modelMatrix);
+		static void RenderingPassCurrent();
+		static void ClearCurrentPipline();
+		static bool IsInsideCurrentViewFrustum(const AABB& aabb, const glm::mat4& modelMatrix);
 
 
 		static void ForEchStoredPassedRenderPass(const std::function<void(const RenderPass& pass)>& forEchElementFunc);
@@ -574,8 +571,9 @@ namespace Rynex {
 		static int GetMode();
 
 		static RenderSettings& GetRenderSettings();
-		static bool IsSceneSubmite3DAktive();
+		static bool IsSceneSubmit3DActive();
 		static bool IsInit() { return s_Init; }
+	    static bool IsEditorInit() { return s_EditorInit; }
 
 		inline static RendererAPI::API GetAPI()
 		{
@@ -590,48 +588,48 @@ namespace Rynex {
 		inline static void SetRenderTargetFromRenderPass(RenderPass& renderPass, const Ref<RenderTarget>& target);
 		
 		inline static void InitFromRenderPassDisplayUB(RenderPass& renderPass);
-		inline static void InitFromRenderPassCamerUB(RenderPass& renderPass);
+		inline static void InitFromRenderPassCameraUB(RenderPass& renderPass);
 
 		inline static void ShutdownRenderPass(RenderPass& renderPass);
 		inline static void ShutdownFromRenderPassDisplayUB(RenderPass& renderPass);
-		inline static void ShutdownFromRenderPassCamerUB(RenderPass& renderPass);
+		inline static void ShutdownFromRenderPassCameraUB(RenderPass& renderPass);
 
-		inline static void SetFromRenderPassCamerData(RenderPass& renderPass, const Camera& camer, const glm::mat4& matrix);
-		inline static void SetFromRenderPassCamerUB(RenderPass& renderPass);
+		inline static void SetFromRenderPassCameraData(RenderPass& renderPass, const Camera& camer, const glm::mat4& matrix);
+		inline static void SetFromRenderPassCameraUB(RenderPass& renderPass);
 
-		// imgeSize [ Size(x,y) / Offset(z,w) ]
+		// imageSize [ Size(x,y) / Offset(z,w) ]
 		inline static void SetFromRenderPassDisplayData(RenderPass& renderPass, const glm::ivec4& imgeSize);
 		inline static void SetFromRenderPassDisplayUB(RenderPass& renderPass);
 
-		inline static Ref<UniformBuffer>& GetPackegeCamerUniformFromRenderPass(RenderPass& renderPass);
+		inline static Ref<UniformBuffer>& GetPackegeCameraUniformFromRenderPass(RenderPass& renderPass);
 		inline static Ref<UniformBuffer>& GetViewUniformFromRenderPass(RenderPass& renderPass);
-		inline static Ref<UniformBuffer>& GetProjetionUniformFromRenderPass(RenderPass& renderPass);
-		inline static Ref<UniformBuffer>& GetProjetionViewUniformFromRenderPass(RenderPass& renderPass);
-		inline static Ref<UniformBuffer>& GetPostionUniformFromRenderPass(RenderPass& renderPass);
+		inline static Ref<UniformBuffer>& GetProjectionUniformFromRenderPass(RenderPass& renderPass);
+		inline static Ref<UniformBuffer>& GetProjectionViewUniformFromRenderPass(RenderPass& renderPass);
+		inline static Ref<UniformBuffer>& GetPositionUniformFromRenderPass(RenderPass& renderPass);
 		inline static Ref<UniformBuffer>& GetImageSizeUniformFromRenderPass(RenderPass& renderPass);
 		inline static Ref<RenderTarget>& GetRenderTargetFromRenderPass(RenderPass& renderPass);
 		inline static Ref<Framebuffer> GetFramebufferFromRenderPass(RenderPass& renderPass);
-		inline static std::array<Plane, 6>& GetCamerFustremFromRenderPass(RenderPass& renderPass);
+		inline static std::array<Plane, 6>& GetCameraFrustumFromRenderPass(RenderPass& renderPass);
 		inline static glm::ivec4& GetImageSizeFromRenderPass(RenderPass& renderPass);
 		inline static const CameraPackege& GetCameraPackegeFromRenderPass(RenderPass& renderPass);
 
 		inline static const std::string& GetFromRenderPassName(RenderPass& renderPass);
-		inline static bool IsInsideFromRenderPassViewFustrem(RenderPass& renderPass, const AABB& aabb, const glm::mat4& modelMatrix);
-		inline static bool IsInsideFromRenderPassViewFustrem(RenderPass& renderPass, const Sphere& aabb, const glm::mat4& modelMatrix);
-		inline static bool IsInsideFromRenderPassViewFustrem(RenderPass& renderPass, const Plane& plane, const glm::mat4& modelMatrix);
+		inline static bool IsInsideFromRenderPassViewFrustum(RenderPass& renderPass, const AABB& aabb, const glm::mat4& modelMatrix);
+		inline static bool IsInsideFromRenderPassViewFrustum(RenderPass& renderPass, const Sphere& aabb, const glm::mat4& modelMatrix);
+		inline static bool IsInsideFromRenderPassViewFrustum(RenderPass& renderPass, const Plane& plane, const glm::mat4& modelMatrix);
 		inline static void RenderingPassFromRenderPass(RenderPass& renderPass, StatusRenderPasses& statePass);
 		inline static void RenderingPassFromRenderPass(RenderPass& renderPass, StatusRenderPasses& statePass, const int mode);
-		inline static void ClearPiplinesFromRenderPass(RenderPass& renderPass);
-		inline static void ResetFromRenderPassRenderPassPiplines(RenderPass& renderPass);
-		inline static PiplineRefBaseVec& GetRenderPiplinesFromRenderPass(RenderPass& renderPass);
+		inline static void ClearPiplineFromRenderPass(RenderPass& renderPass);
+		inline static void ResetFromRenderPassRenderPassPipline(RenderPass& renderPass);
+		inline static PiplineRefBaseVec& GetRenderPiplineFromRenderPass(RenderPass& renderPass);
 		inline static std::vector<ShaderDrawResource>& GetShaderDrawResourceFromRenderPass(RenderPass& renderPass);
 
 		inline static void RenderFromRenderPass(RenderPass& renderPass, StatusRenderPasses& statePass);
 		inline static void RenderFromRenderPass(RenderPass& renderPass, StatusRenderPasses& statePass, int mode);
 
-		inline static bool IsInsideFromRenderPassViewFustremAABB(const std::array<Plane, 6>& fustrem, const glm::vec4& max, const glm::vec4& min);
+		inline static bool IsInsideFromRenderPassViewFrustumAABB(const std::array<Plane, 6>& fustrem, const glm::vec4& max, const glm::vec4& min);
 
-		inline static glm::vec4 GetGlobleEge(const glm::mat4& modelMatrix, const glm::vec3& ege);
+		inline static glm::vec4 GetGlobalEge(const glm::mat4& modelMatrix, const glm::vec3& ege);
 		inline static bool IsAABBIntersectWithePlane(const Plane& plane, const glm::vec4& max, const glm::vec4& min);
 
 
@@ -642,17 +640,18 @@ namespace Rynex {
 		static void ClearRenderTargetFromRenderPass(Ref<RenderTarget>& target);
 
 		static void ExtractFrustum(const glm::mat4& viewProj, std::array<Plane, 6>& planes);
-		static Plane CaculateCorectViewFustremPlaneAdd(const glm::vec4& matrixColum, const glm::vec4& matrixRow);
-		static Plane CaculateCorectViewFustremPlaneSub(const glm::vec4& matrixColum, const glm::vec4& matrixRow);
-		static Plane CreateViewFustremPlane(glm::vec4& planeVec4);
+		static Plane CalculateCorrectViewFrustumPlaneAdd(const glm::vec4& matrixColum, const glm::vec4& matrixRow);
+		static Plane CalculateCorrectViewFrustumPlaneSub(const glm::vec4& matrixColum, const glm::vec4& matrixRow);
+		static Plane CreateViewFrustumPlane(glm::vec4& planeVec4);
 
 		static void RenderShaderDrawResourceVec(std::vector<ShaderDrawResource>& shaderDrawResourceVec);
 		static void RenderShaderDrawResourceVec(std::vector<ShaderDrawResource>& shaderDrawResourceVec, const int moode);
 
 
-	private:
+
 		inline static bool s_Init = false;
-	private:
+	    inline static bool s_EditorInit = false;
+	// private friend class --------------------------------------------------------------------------------------------------
 		friend Renderer3D;
 	};
 }

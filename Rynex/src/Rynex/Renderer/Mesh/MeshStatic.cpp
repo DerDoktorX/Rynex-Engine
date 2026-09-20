@@ -67,7 +67,7 @@ namespace Rynex {
 		globleChildrenMat.reserve(m_SingleObjectDataVec.size());
 		for (const SingleObjectMeshData& meshSingle : m_SingleObjectDataVec)
 		{
-			const glm::mat4& matL = meshSingle.LocaleCildrenMatrix;
+			const glm::mat4& matL = meshSingle.m_LocaleCildrenMatrix;
 			globleChildrenMat.emplace_back<glm::mat4>(glm::mat4{ globleMat * matL });
 		}
 		buffer = StorageBuffer::Create(globleChildrenMat.data(), globleChildrenMat.size() * sizeof(glm::mat4), BufferFlag::Dynamic);
@@ -303,7 +303,7 @@ namespace Rynex {
 		globleChildrenMat.clear();
 		for (const SingleObjectMeshData& meshSingle : m_SingleObjectDataVec)
 		{
-			const glm::mat4& matL = meshSingle.LocaleCildrenMatrix;
+			const glm::mat4& matL = meshSingle.m_LocaleCildrenMatrix;
 			globleChildrenMat.emplace_back<glm::mat4>(glm::mat4{ globleMat * matL });
 		}
 		buffer->SetData(globleChildrenMat.data(), globleChildrenMat.size() * sizeof(glm::mat4));
@@ -327,7 +327,7 @@ namespace Rynex {
 
 		for (const SingleObjectMeshData& meshSingle : m_SingleObjectDataVec)
 		{
-			const glm::mat4& matL = meshSingle.LocaleCildrenMatrix;
+			const glm::mat4& matL = meshSingle.m_LocaleCildrenMatrix;
 			*it = glm::mat4{ loaleMat * matL };
 			it += steps;
 		}

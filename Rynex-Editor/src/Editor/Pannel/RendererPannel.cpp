@@ -73,7 +73,7 @@ namespace Rynex {
 	void RendererPannel::OnDetache()
 	{
 		m_EditorLayer = nullptr;
-		m_StatusCopy.SecundaryPasses.clear();
+		m_StatusCopy.m_SecondaryPasses.clear();
 	}
 
 	void RendererPannel::OnEvent(Event& e)
@@ -192,9 +192,9 @@ namespace Rynex {
 			ImGuiDrawRenderTimeMic("ViewPort-Render-Scene", m_SceneRenderTime);
 			ImGuiDrawRenderTimeMic("Render-Scene", m_SceneRenderTime);
 			ImGuiDrawRenderTimeMic("Scene-3D-Submit", m_SceneSubmit3DObjects);
-			ImGuiRenderStatePass("Main-Pass", m_StatusCopy.MainPass);
+			ImGuiRenderStatePass("Main-Pass", m_StatusCopy.m_MainPass);
 			uint32_t i = 0;
-			for(StatusRenderPasses& pass : m_StatusCopy.SecundaryPasses)
+			for(StatusRenderPasses& pass : m_StatusCopy.m_SecondaryPasses)
 			{
 				std::string name = "Pass: " + std::to_string(i);
 				ImGuiRenderStatePass(name, pass);
@@ -496,10 +496,10 @@ namespace Rynex {
 	{
 		const Ref<Scene>& scene = m_EditorLayer->GetAktivScene();
 		if (ImGui::RadioButton("SubmitRenderIndrectDrawList", &m_SubmitFrame3DSceneFuncState, SubmitFrame3DRendererStata::SubmitRenderIndrectDrawList))
-			scene->SetFuncSubmit3DSceneDrawListToFrame(Renderer3D::SubmitRenderIndrectDrawList);
+			scene->SetFuncSubmit3DSceneDrawListToFrame(Renderer3D::SubmitRenderIndictDrawList);
 
 		if (ImGui::RadioButton("SubmitRenderSingleIndrectDrawList", &m_SubmitFrame3DSceneFuncState, SubmitFrame3DRendererStata::SubmitRenderSingleIndrectDrawList))
-			scene->SetFuncSubmit3DSceneDrawListToFrame(Renderer3D::SubmitRenderSingleIndrectDrawList);
+			scene->SetFuncSubmit3DSceneDrawListToFrame(Renderer3D::SubmitRenderSingleIndictDrawList);
 
 		if (ImGui::RadioButton("SubmitRenderMeshDrawList", &m_SubmitFrame3DSceneFuncState, SubmitFrame3DRendererStata::SubmitRenderMeshDrawList))
 			scene->SetFuncSubmit3DSceneDrawListToFrame(Renderer3D::SubmitRenderMeshDrawList);
@@ -662,14 +662,14 @@ namespace Rynex {
 
 	void RendererPannel::ImGuiRenderViewPass(uint32_t id, const ViewPassStorage& viewPass)
 	{
-		int slot = viewPass.Slot;
+		int slot = viewPass.m_Slot;
 		std::string name = "Slot: " + std::to_string(slot);
 
 		std::string idName = name + std::to_string(id);
 		const char* idNameStr = idName.c_str();
 		
 		ImGui::PushID(idNameStr);
-		std::string_view viewStringViewPassType = magic_enum::enum_name(viewPass.Type);
+		std::string_view viewStringViewPassType = magic_enum::enum_name(viewPass.m_Type);
 		const char* nameStr = name.c_str();
 		const char* strViewPassType = viewStringViewPassType.data();
 
@@ -708,12 +708,12 @@ namespace Rynex {
 
 		ImGuiFlagsUser::CheckBoxBoolListUI({ 
 			IMGUI_BOOL_CHECK_BOX(setings.useSceneRenderModeInMainPass)
-			, IMGUI_BOOL_CHECK_BOX(setings.drawPiplinesFromRenderTarget)
-			, IMGUI_BOOL_CHECK_BOX(setings.sortBeforDrawFromRenderTarget)
-			, IMGUI_BOOL_CHECK_BOX(setings.drawShaderDrawListFromRenderTarget)
-			, IMGUI_BOOL_CHECK_BOX(setings.drawRenderProxy)
-			, IMGUI_BOOL_CHECK_BOX(setings.drawPiplinesFromRenderPass)
-			, IMGUI_BOOL_CHECK_BOX(setings.submiteSceneEntityTo3DRender)
+			, IMGUI_BOOL_CHECK_BOX(setings.m_DrawPipelinesFromRenderTarget)
+			, IMGUI_BOOL_CHECK_BOX(setings.m_SortBeforeDrawFromRenderTarget)
+			, IMGUI_BOOL_CHECK_BOX(setings.m_DrawShaderDrawListFromRenderTarget)
+			, IMGUI_BOOL_CHECK_BOX(setings.m_DrawRenderProxy)
+			, IMGUI_BOOL_CHECK_BOX(setings.m_DrawPipelinesFromRenderPass)
+			, IMGUI_BOOL_CHECK_BOX(setings.m_SubmitSceneEntityTo3DRender)
 			, IMGUI_BOOL_CHECK_BOX(testDrawCall)
 			, IMGUI_BOOL_CHECK_BOX(renderProxyInstaecing)
 			, IMGUI_BOOL_CHECK_BOX(useDyamincDatatStruct)

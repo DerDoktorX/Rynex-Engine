@@ -7,12 +7,10 @@ namespace Rynex {
 	struct ShaderDrawEntityList;
 	class PiplineRefBaseVec;
 
-	typedef enum LightSourceEnum {
-
+    enum LightSourceEnum {
 		LightSource_None = 0,
-		LightSource_Directionel = 1,
-
-	}LigthSourceEnum;
+		LightSource_Directional = 1,
+	};
 
 	struct LightSource
 	{
@@ -20,19 +18,18 @@ namespace Rynex {
 		float m_Intensity;
 		glm::vec3 m_Color;
 		int m_Type;
-		glm::vec3 direction;
+		glm::vec3 m_Direction;
 
 		LightSource()
 			: m_Position(0.0f, 0.0f, 0.0f)
-			, m_Color(0.0f, 0.0f, 0.0f)
 			, m_Intensity(0.0f)
-			, direction(0.0f)
-			, m_Type(LigthSourceEnum::LightSource_None)
+			, m_Color(0.0f, 0.0f, 0.0f)
+			, m_Type(LightSourceEnum::LightSource_None)
+			, m_Direction(0.0f)
 		{
-
 		}
-
 		LightSource(const LightSource&) = default;
+
 	};
 	
 	class Renderer3D
@@ -52,22 +49,22 @@ namespace Rynex {
 		static void RemoveMeshComponentRenderProxy(int entityID);
 		static void UpdateEventProxys();
 		static void RenderProxysMain();
-		static void RenderProxysCurent();
+		static void RenderProxysCurrent();
 
-		static void MeshCompont(const glm::mat4& model, ModelMangerComponent& comp, int entityID);
-		static void MeshCompontMain(const glm::mat4& model, ModelMangerComponent& comp, int entityID);
-		static void MeshCompontCurent(const glm::mat4& model, ModelMangerComponent& comp, int entityID);
+		static void MeshComponent(const glm::mat4& model, ModelMangerComponent& comp, int entityID);
+		static void MeshComponentMain(const glm::mat4& model, ModelMangerComponent& comp, int entityID);
+		static void MeshComponentCurrent(const glm::mat4& model, ModelMangerComponent& comp, int entityID);
 
-		static void MeshCompontDirekt(const glm::mat4& model, ModelMangerComponent& comp, int entityID);
-		static void MeshCompontSetData(const glm::mat4& model, ModelMangerComponent& comp, int entityID);
+		static void MeshComponentDirect(const glm::mat4& model, ModelMangerComponent& comp, int entityID);
+		static void MeshComponentSetData(const glm::mat4& model, ModelMangerComponent& comp, int entityID);
 
 
-		static void MeshCompont(const glm::mat4& model, StaticMeshComponent& comp, int entityID);
-		static void MeshCompontMain(const glm::mat4& model, StaticMeshComponent& comp, int entityID);
-		static void MeshCompontCurent(const glm::mat4& model, StaticMeshComponent& comp, int entityID);
+		static void MeshComponent(const glm::mat4& model, StaticMeshComponent& comp, int entityID);
+		static void MeshComponentMain(const glm::mat4& model, StaticMeshComponent& comp, int entityID);
+		static void MeshComponentCurrent(const glm::mat4& model, StaticMeshComponent& comp, int entityID);
 
-		static void MeshCompontDirekt(const glm::mat4& model, StaticMeshComponent& comp, int entityID);
-		static void MeshCompontSetData(const glm::mat4& model, StaticMeshComponent& comp, int entityID);
+		static void MeshComponentDirect(const glm::mat4& model, StaticMeshComponent& comp, int entityID);
+		static void MeshComponentSetData(const glm::mat4& model, StaticMeshComponent& comp, int entityID);
 
 		
 		static void SubmitMeshStaticObjectSetData(const Ref<MeshStatic>& mesh, const glm::mat4& model, int entityID, std::vector<std::vector<uint32_t>>& objectRendereVec2);
@@ -76,58 +73,60 @@ namespace Rynex {
 		static void SubmitMeshObjectSetDataShape(const SingleMeshObject& singleMesh, const glm::mat4& model, int entityID, uint32_t& storeIndex);
 		static void SubmitMeshObjectSetDataDepth(const SingleMeshObject& singleMesh, const glm::mat4& model, int entityID, uint32_t& storeIndex);
 
-		static void SubmitShadeMeshObject(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, std::vector<ObjectRendereIndex>& objectRenderePiplineVec);
-		static void SubmitShadeMeshObject(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, Memory::VectorData<ObjectRendereIndex>& objectRenderePiplineVec);
-		static void SubmitShadeMeshObjectMain(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRendereIndex& objectRenderePipline);
-		static void SubmitShadeMeshObjectCurent(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRendereIndex& objectRenderePipline);
+		static void SubmitShadeMeshObject(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, std::vector<ObjectRenderIndex>& objectRenderePiplineVec);
+		static void SubmitShadeMeshObject(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, Memory::VectorData<ObjectRenderIndex>& objectRenderePiplineVec);
+		static void SubmitShadeMeshObjectMain(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRenderIndex& objectRenderePipline);
+		static void SubmitShadeMeshObjectCurrent(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRenderIndex& objectRenderePipline);
 
-		static void SubmitShapeMeshObjectDirekt(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID);
+		static void SubmitShapeMeshObjectDirect(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID);
 
-		static void SubmitShadeMeshStaticObject(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, std::vector<std::vector<ObjectRendereIndex>>& objectRendereVec);
-		static void SubmitShadeMeshStaticObject(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, Memory::VectorData2D<ObjectRendereIndex>& objectRendereVec);
-		static void SubmitShadeMeshStaticObjectMain(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, std::vector<ObjectRendereIndex>& objectRendereVec);
-		static void SubmitShadeMeshStaticObjectMain(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, Memory::VectorData<ObjectRendereIndex>& objectRendereVec);
+		static void SubmitShadeMeshStaticObject(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, std::vector<std::vector<ObjectRenderIndex>>& objectRendereVec);
+		static void SubmitShadeMeshStaticObject(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, Memory::VectorData2D<ObjectRenderIndex>& objectRendereVec);
+		static void SubmitShadeMeshStaticObjectMain(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, std::vector<ObjectRenderIndex>& objectRendereVec);
+		static void SubmitShadeMeshStaticObjectMain(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, Memory::VectorData<ObjectRenderIndex>& objectRendereVec);
 
 		static void SubmitShadeMeshStaticObject(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, std::vector<SingleMeshRender>& singleMeshRendereVec);
-		static void SubmitShadeMeshStaticObjectCurent(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, std::vector<ObjectRendereIndex>& objectRendereVec);
-		static void SubmitShadeMeshStaticObjectCurent(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, Memory::VectorData<ObjectRendereIndex>& objectRendereVec);
+		static void SubmitShadeMeshStaticObjectCurrent(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, std::vector<ObjectRenderIndex>& objectRendereVec);
+		static void SubmitShadeMeshStaticObjectCurrent(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID, Memory::VectorData<ObjectRenderIndex>& objectRendereVec);
 
 		static void SubmitShadeDataMeshObjectToPipline();
 		static void SubmitDepthDataMeshObjectToPipline();
 
 
-		static void SubmitShapeMeshStaticObjectDirekt(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID);
+		static void SubmitShapeMeshStaticObjectDirect(const Ref<MeshStatic>& mesh, const Ref<Shader>& shader, const glm::mat4& model, int entityID);
 
 
-		static void SubmitMeshObjectToHash(const Ref<MeshSingle>& meshSingle, const Ref<Material>& material, const glm::mat4& model, int entityID, std::vector<ObjectRendereIndex>& objectRendere);
+		static void SubmitMeshObjectToHash(const Ref<MeshSingle>& meshSingle, const Ref<Material>& material, const glm::mat4& model, int entityID, std::vector<ObjectRenderIndex>& objectRendere);
 
 		static void SubmitHashMeshesToPipline();
-		static void SubmitMeshObjectToPipline(const Ref<MeshSingle>& meshSingle, const Ref<Material>& material, const glm::mat4& model, int entityID, std::vector<ObjectRendereIndex>& objectRendere);
+		static void SubmitMeshObjectToPipline(const Ref<MeshSingle>& meshSingle, const Ref<Material>& material, const glm::mat4& model, int entityID, std::vector<ObjectRenderIndex>& objectRendere);
 #ifdef RY_RENERER_DESIGN_CURENT_MAIN
-		static Ref<PiplineRenderBase> SubmitMeshObjectToRenderTargetMain(const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRendereIndex& objectRendere);
-		static Ref<PiplineRenderBase> SubmitMeshObjectToRenderTargetCurent(const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRendereIndex& objectRendere);
-		static Ref<PiplineRenderBase> SubmitMeshObjectToRenderTargetCurentDirekt(const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID);
+		static Ref<PiplineRenderBase> SubmitMeshObjectToRenderTargetMain(const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRenderIndex& objectRendere);
+		static Ref<PiplineRenderBase> SubmitMeshObjectToRenderTargetCurrent(const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRenderIndex& objectRendere);
+		static Ref<PiplineRenderBase> SubmitMeshObjectToRenderTargetCurrentDirect(const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID);
 
 #else
-		static Ref<PiplineRenderBase> SubmitMeshObjectToRenderTargetShade(CamerRenderPackages& cameraPackege,  const SingleMeshObject& meshObject, const Ref<Shader>& shader,const glm::mat4& model, int entityID, ObjectRendereIndex& objectRendere);
-		static Ref<PiplineRenderBase> SubmitMeshObjectToRenderTargetDepth(CamerRenderPackages& cameraPackege, const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRendereIndex& objectRendere);
+		static Ref<PiplineRenderBase> SubmitMeshObjectToRenderTargetShade(CamerRenderPackages& cameraPackege,  const SingleMeshObject& meshObject, const Ref<Shader>& shader,const glm::mat4& model, int entityID, ObjectRenderIndex& objectRendere);
+		static Ref<PiplineRenderBase> SubmitMeshObjectToRenderTargetDepth(CamerRenderPackages& cameraPackege, const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRenderIndex& objectRendere);
 		static Ref<PiplineRenderBase> SubmitMeshObjectToRenderTargetShape(CamerRenderPackages& cameraPackege, const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID);
 
-		static Ref<PiplineRenderBase> SubmitMeshObjectToRenderTarget(PiplineRefBaseVec* piplineBaseVecPtr, CamerRenderPackages& cameraPackege, const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRendereIndex& objectRendere);
+		static Ref<PiplineRenderBase> SubmitMeshObjectToRenderTarget(PiplineRefBaseVec* piplineBaseVecPtr, CamerRenderPackages& cameraPackege, const SingleMeshObject& meshObject, const Ref<Shader>& shader, const glm::mat4& model, int entityID, ObjectRenderIndex& objectRendere);
 #endif
-		static void PrepairMainScene();
+
+		static void PrepareMainScene();
 
 
 
 		static void ClearMeshObjects();
 		
 		// x/r/[0]: BaseVertex,  y/g/[1]: FirstIndex
-		static glm::uvec2 GetIndriectOffsetsFromMeshArray(const Ref<MeshStatic>& meshStatic);
+		static glm::uvec2 GetIndictOffsetsFromMeshArray(const Ref<MeshStatic>& meshStatic);
 		static const Ref<VertexArray>& GetMeshArrayVAO();
-		static void SubmitRenderIndrectDrawList();
-		static void SubmitRenderSingleIndrectDrawList();
+		static void SubmitRenderIndictDrawList();
+		static void SubmitRenderSingleIndictDrawList();
 		static void SubmitRenderMeshDrawList();
-		static Ref<Texture> GetDefoultChekebordTex();
+
+		static Ref<Texture> GetDefaultCheckerboardTexture();
 		static Ref<Texture> GetErrorTex();
 
 		static void ResetTargetRenderPtr();

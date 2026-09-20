@@ -421,8 +421,8 @@ namespace Rynex {
 #else
 		Ref<RenderTarget>& target = Renderer::GetRenderTargetMain();
 		RenderTarget& targetMain = *target;
-		Ref<UniformBuffer>& camerPackedUB = Renderer::GetPackegeCamerUniformMain();
-		Ref<UniformBuffer>& displayUB = Renderer::GetPackegeCamerUniformMain();
+		Ref<UniformBuffer>& camerPackedUB = Renderer::GetPackegeCameraUniformMain();
+		Ref<UniformBuffer>& displayUB = Renderer::GetPackegeCameraUniformMain();
 
 #endif		
 		
@@ -579,7 +579,7 @@ namespace Rynex {
 #ifndef RY_RENERER_DESIGN_CURENT_MAIN
 		const Ref<UniformBuffer>& camerB = Renderer::GetMainPassViewCamerUniform();
 #else
-		const Ref<UniformBuffer>& camerB = Renderer::GetPackegeCamerUniformMain();
+		const Ref<UniformBuffer>& camerB = Renderer::GetPackegeCameraUniformMain();
 #endif
 #if RY_RENDER2D_TEST_BATCHING_SBO
 		
@@ -837,7 +837,7 @@ namespace Rynex {
 		const Ref<UniformBuffer>& camerB = Renderer::GetMainPassViewCamerUniform();
 		const Ref<Framebuffer>& framneB = Renderer::GetMainPassViewFramebuffer();
 #else
-		const Ref<UniformBuffer>& camerB = Renderer::GetPackegeCamerUniformMain();
+		const Ref<UniformBuffer>& camerB = Renderer::GetPackegeCameraUniformMain();
 		Ref<Framebuffer> framneB = Renderer::GetFramebufferMain();
 #endif
 		framneB->Bind();
@@ -929,7 +929,7 @@ namespace Rynex {
 		const Ref<UniformBuffer>& camerB = Renderer::GetMainPassViewCamerUniform();
 		const Ref<UniformBuffer>& displayB = Renderer::GetMainPassViewDisblayUniform();
 #else
-		const Ref<UniformBuffer>& camerB = Renderer::GetPackegeCamerUniformMain();
+		const Ref<UniformBuffer>& camerB = Renderer::GetPackegeCameraUniformMain();
 		Ref<UniformBuffer>& displayB = Renderer::GetViewUniformMain();
 #endif
 		camerB->Bind(0);

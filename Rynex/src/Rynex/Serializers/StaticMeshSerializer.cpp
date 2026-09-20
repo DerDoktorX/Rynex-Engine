@@ -84,7 +84,7 @@ namespace Rynex {
 			{
 				out << YAML::BeginMap;
 				out << YAML::Key << "MeshName" << YAML::Value << object.NodeName;
-				out << YAML::Key << "LocaleCildrenMatrix" << YAML::Value << object.LocaleCildrenMatrix;
+				out << YAML::Key << "LocaleCildrenMatrix" << YAML::Value << object.m_LocaleCildrenMatrix;
 				out << YAML::EndMap;
 			}
 			out << YAML::EndMap;
@@ -288,7 +288,7 @@ namespace Rynex {
 			{
 				std::string objectName = objectNode["MeshName"].as<std::string>();
 				glm::mat4 matrix = objectNode["LocaleCildrenMatrix"].as<glm::mat4>();
-				singleObjectMeshData.LocaleCildrenMatrix = matrix;
+				singleObjectMeshData.m_LocaleCildrenMatrix = matrix;
 				singleObjectMeshData.NodeName = objectName;
 			}
 

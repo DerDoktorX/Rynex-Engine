@@ -82,25 +82,25 @@ namespace Rynex {
 		CameraData& camerData = m_CamerPackage.ConfigData();
 		glm::vec3 forward = glm::normalize(
 			glm::vec3(
-				viewPass.ViewMatrix[0].z,
-				viewPass.ViewMatrix[1].z,
-				viewPass.ViewMatrix[2].z
+				viewPass.m_ViewMatrix[0].z,
+				viewPass.m_ViewMatrix[1].z,
+				viewPass.m_ViewMatrix[2].z
 			));
 		camerData = CameraData{
-			viewPass.ProjetionViewMatrix,
-			viewPass.ViewMatrix,
-			viewPass.ProjetionMatrix,
-			viewPass.Postion,
+			viewPass.m_ProjectionViewMatrix,
+			viewPass.m_ViewMatrix,
+			viewPass.m_ProjectionMatrix,
+			viewPass.m_Position,
 			forward,
-			viewPass.GammeCorection
+			viewPass.m_GammeCorrection
 		};
 		
-		SetDisplayDataModel(viewPass.ViewSpace);
+		SetDisplayDataModel(viewPass.m_ViewSpace);
 
 		glm::mat4 debugMat4 = glm::inverse(camerData.m_ViewProjectionMatrix);
 		m_DebugePackage.SetData(debugMat4);
 
-		SetFrambuffer(viewPass.FrameBuffer);
+		SetFrambuffer(viewPass.m_FrameBuffer);
 	}
 
 	

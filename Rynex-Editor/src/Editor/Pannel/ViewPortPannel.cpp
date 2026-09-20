@@ -390,15 +390,15 @@ namespace Rynex {
 #endif
         Renderer::RenderSubmitSceneMainNow(targetCopy);
 #else
-        Renderer::SetOnMainCameraCurentCamera();
+        Renderer::SetOnMainCameraCurrentCamera();
         int drawCount = 0;
 
 #if 1
         std::function<void(Entity e)> func = std::bind(&RenderEntityAndParentRecusiv, &drawCount, std::placeholders::_1);
         slelcted.ExecuteOnChildrens(func);
 #endif
-        Renderer::RenderingPassCurent();
-        Renderer::ClearCurentPiplines();
+        Renderer::RenderingPassCurrent();
+        Renderer::ClearCurrentPipline();
 #endif 
         return drawCount != 0;
 #endif
@@ -438,7 +438,7 @@ namespace Rynex {
             if (e.HasComponent<StaticSingleComponetsMeshComponent>())
             {
                 StaticSingleComponetsMeshComponent& meshStaticC = e.GetComponent<StaticSingleComponetsMeshComponent>();
-                Renderer3D::MeshCompontDirekt(modelC.m_Global, meshStaticC, e.GetEntityHandle());
+                Renderer3D::MeshComponentDirect(modelC.m_Global, meshStaticC, e.GetEntityHandle());
                 (*drawCount)++;
             }
 #else
@@ -446,7 +446,7 @@ namespace Rynex {
             if (e.HasComponent<ModelMangerComponent>())
             {
                 ModelMangerComponent& meshStaticC = e.GetComponent<ModelMangerComponent>();
-                Renderer3D::MeshCompontDirekt(modelC.m_Global, meshStaticC, e.GetEntityHandle());
+                Renderer3D::MeshComponentDirect(modelC.m_Global, meshStaticC, e.GetEntityHandle());
                 (*drawCount)++;
             }
 #endif
@@ -629,7 +629,7 @@ namespace Rynex {
 #ifndef RY_RENERER_DESIGN_CURENT_MAIN
         uint32_t size = Renderer::GetPassViewSepertSize("Shadow");
 #else
-        uint32_t size = Renderer::GetCurentIndex();
+        uint32_t size = Renderer::GetCurrentIndex();
 #endif
         if (m_ShadowBuffersAttechements.size() != size + 1ull)
             m_ShadowBuffersAttechements.resize(size + 1ull);
@@ -642,10 +642,10 @@ namespace Rynex {
         Renderer::ForEchStoredPassedRenderPassIndex(
             [this](const RenderPass& renderPass, uint32_t indexPass) -> void
             {
-                if ("Shadow" != renderPass.Name)
+                if ("Shadow" != renderPass.m_Name)
                     return;
 
-                const Ref<RenderTarget>& target = renderPass.Target;
+                const Ref<RenderTarget>& target = renderPass.m_Target;
                 if (nullptr == target)
                     return;
 
@@ -657,7 +657,7 @@ namespace Rynex {
                 if (nullptr == tex)
                     return;
 
-                const Ref<UniformBuffer>& ub = renderPass.CameraDataPackBufferUB;
+                const Ref<UniformBuffer>& ub = renderPass.m_CameraDataPackBufferUB;
                 if (nullptr == ub)
                     return;
 
@@ -976,7 +976,7 @@ namespace Rynex {
         {
             case SceneState::Edit:
             {
-                camerProj = m_Camera->GetProjektion();
+                camerProj = m_Camera->GetProjection();
                 camerView = m_Camera->GetViewMatrix();
                 break;
             }
@@ -985,13 +985,13 @@ namespace Rynex {
                 Entity camerEntt = m_AktiveScene->GetEntityPrimaryCamera();
                 const CameraComponent& cameraComp = camerEntt.GetComponent<CameraComponent>();
                 const Camera& camera = cameraComp.m_Camera;
-                const glm::mat4& camerProj = camera.GetProjektion();
+                const glm::mat4& camerProj = camera.GetProjection();
                 camerView = glm::inverse(camerEntt.GetComponent<ModelMatrixComponent>().m_Global);
                 break;
             }
             default:
             {
-                camerProj = m_Camera->GetProjektion();
+                camerProj = m_Camera->GetProjection();
                 camerView = m_Camera->GetViewMatrix();
                 break;
             }
@@ -1037,7 +1037,7 @@ namespace Rynex {
         m_SelectedFramebuffer->Bind();
         RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
         RenderCommand::Clear();
-        Camera& mainCamera = (Camera)m_Camera->GetProjektion();
+        Camera& mainCamera = (Camera)m_Camera->GetProjection();
         glm::mat4 viewMatrix = m_Camera->GetViewMatrix();
         if ((slelcted != Entity() || slelcted != 0) && slelcted.HasComponent<TransformComponent>())
         {

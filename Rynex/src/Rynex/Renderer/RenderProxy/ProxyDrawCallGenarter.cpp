@@ -66,7 +66,7 @@ namespace Rynex {
 
 	void ProxyDrawCallGenarter::SubmiteShaderDrawListCurent()
 	{
-		std::vector<ShaderDrawResource>& shaderDarwResourceVec = Renderer::GetShaderDrawResourceCurent();
+		std::vector<ShaderDrawResource>& shaderDarwResourceVec = Renderer::GetShaderDrawResourceCurrent();
 		std::vector<ShaderDrawResource>::iterator itEnd = shaderDarwResourceVec.end();
 		shaderDarwResourceVec.insert(itEnd, m_DrawCallsVec.begin(), m_DrawCallsVec.end());
 	}
@@ -453,11 +453,11 @@ namespace Rynex {
 		Ref<UniformBuffer> buffer;
 		if (m_RenderTragetLayoute.Empty())
 		{
-			buffer = Renderer::GetPackegeCamerUniformCurent();
+			buffer = Renderer::GetPackegeCameraUniformCurrent();
 		}
 		else
 		{
-			buffer = Renderer::GetPackegeCamerUniformMain();
+			buffer = Renderer::GetPackegeCameraUniformMain();
 		}
 		m_CurentDrawCall.GetBindUniform().at(bindSlotCameraUB) = buffer;
 	}
@@ -477,10 +477,10 @@ namespace Rynex {
 			{
 				if(maxCount <= foundCount)
 					return;
-				if ("Shadow" != renderPass.Name)
+				if ("Shadow" != renderPass.m_Name)
 					return;
 
-				const Ref<RenderTarget>& target = renderPass.Target;
+				const Ref<RenderTarget>& target = renderPass.m_Target;
 				if (nullptr == target)
 					return;
 
@@ -492,7 +492,7 @@ namespace Rynex {
 				if (nullptr == tex)
 					return;
 
-				const Ref<UniformBuffer>& ub = renderPass.CameraDataPackBufferUB;
+				const Ref<UniformBuffer>& ub = renderPass.m_CameraDataPackBufferUB;
 				if (nullptr == ub)
 					return;
 
@@ -506,7 +506,7 @@ namespace Rynex {
 		if (maxCount <= foundCount)
 			return;
 
-		m_CurentDrawCall.GetBindUniform().at(bindSlotShadowUB) = Renderer::GetPackegeCamerUniformMain();
+		m_CurentDrawCall.GetBindUniform().at(bindSlotShadowUB) = Renderer::GetPackegeCameraUniformMain();
 		m_CurentDrawCall.GetBindTextures().at(bindSlotDepthShadowTex) = Texture::White();
 
 	}

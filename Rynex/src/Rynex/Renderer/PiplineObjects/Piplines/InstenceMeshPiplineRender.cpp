@@ -167,7 +167,7 @@ namespace Rynex {
 	{
 		if (nullptr == m_ShadowTex || nullptr == m_LigthBuffer)
 		{
-			CamerRenderPackages& viewPassPackege = viewPass.CameraPackege;
+			CamerRenderPackages& viewPassPackege = viewPass.m_CameraPackege;
 			CamerRenderPackages::CamerPackage& camerPackage = viewPassPackege.GetCamerPackage();
 			const Ref<UniformBuffer>& camerBuffer = camerPackage.GetBuffer();
 			m_LigthBuffer = camerBuffer;
@@ -518,8 +518,8 @@ namespace Rynex {
 	{
 
 		const CameraPackege& packegeMain = Renderer::GetCameraPackegeMain();
-		const CameraPackege& packegeCurent = Renderer::GetCameraPackegeCurent();
-		glm::mat4 psm = computePSMMatrix(packegeMain.ViewMatrix, packegeMain.ProjetionMatrix, packegeCurent.Postion, 0.1, 50);
+		const CameraPackege& packegeCurent = Renderer::GetCameraPackegeCurrent();
+		glm::mat4 psm = computePSMMatrix(packegeMain.m_ViewMatrix, packegeMain.m_ProjectionMatrix, packegeCurent.m_Position, 0.1, 50);
 		m_CameraBuffer = UniformBuffer::Create(
 			&psm, sizeof(glm::mat4)
 		);

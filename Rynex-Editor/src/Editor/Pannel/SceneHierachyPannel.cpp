@@ -821,7 +821,7 @@ namespace Rynex {
 				uint32_t subMesh = 0;
 				for (const MeshStatic::SingleObjectMeshData& singleMeshData : singleObjectMeshDataVec)
 				{
-					glm::mat4 model = transformC.m_Global * singleMeshData.LocaleCildrenMatrix;
+					glm::mat4 model = transformC.m_Global * singleMeshData.m_LocaleCildrenMatrix;
 					const Ref<MeshSingle>& meshSingle = singleMeshData.m_MeshSingle;
 					const Ref<Material>& materiel = singleMeshData.m_Material;
 					staticRenderProxySystem.Add(enitityID, subMesh, meshSingle, materiel, model);
@@ -849,7 +849,7 @@ namespace Rynex {
 				uint32_t subMesh = 0;
 				for (const MeshStatic::SingleObjectMeshData& singleMeshData : singleObjectMeshDataVec)
 				{
-					glm::mat4 model = transformC.m_Global * singleMeshData.LocaleCildrenMatrix;
+					glm::mat4 model = transformC.m_Global * singleMeshData.m_LocaleCildrenMatrix;
 					const Ref<MeshSingle>& meshSingle = singleMeshData.m_MeshSingle;
 					const Ref<Material>& materiel = singleMeshData.m_Material;
 					staticRenderProxySystem.Add(enitityID, subMesh, meshSingle, materiel, model);
@@ -872,7 +872,7 @@ namespace Rynex {
 				uint32_t subMesh = 0;
 				for (const MeshStatic::SingleObjectMeshData& singleMeshData : singleObjectMeshDataVec)
 				{
-					glm::mat4 model = transformC.m_Global * singleMeshData.LocaleCildrenMatrix;
+					glm::mat4 model = transformC.m_Global * singleMeshData.m_LocaleCildrenMatrix;
 					staticRenderProxySystem.UpdateTrasform(enitityID, subMesh, model);
 					subMesh++;
 				}
@@ -902,7 +902,7 @@ namespace Rynex {
 				uint32_t subMesh =0;
 				for (const MeshStatic::SingleObjectMeshData& singleMeshData : singleObjectMeshDataVec)
 				{
-					glm::mat4 model = transformC.m_Global * singleMeshData.LocaleCildrenMatrix;
+					glm::mat4 model = transformC.m_Global * singleMeshData.m_LocaleCildrenMatrix;
 					const Ref<MeshSingle>& meshSingle = singleMeshData.m_MeshSingle;
 					const Ref<Material>& materiel = singleMeshData.m_Material;
 					staticRenderProxySystem.Add(enitityID, subMesh, meshSingle, materiel, model);
@@ -938,7 +938,7 @@ namespace Rynex {
 				uint32_t subMesh = 0;
 				for (const MeshStatic::SingleObjectMeshData& singleMeshData : singleObjectMeshDataVec)
 				{
-					glm::mat4 model = transformC.m_Global * singleMeshData.LocaleCildrenMatrix;
+					glm::mat4 model = transformC.m_Global * singleMeshData.m_LocaleCildrenMatrix;
 					const Ref<MeshSingle>& meshSingle = singleMeshData.m_MeshSingle;
 					const Ref<Material>& materiel = singleMeshData.m_Material;
 					staticRenderProxySystem.Add(enitityID, subMesh, meshSingle, materiel, model);
@@ -959,7 +959,7 @@ namespace Rynex {
 				uint32_t subMesh = 0;
 				for (const MeshStatic::SingleObjectMeshData& singleMeshData : singleObjectMeshDataVec)
 				{
-					glm::mat4 model = transformC.m_Global * singleMeshData.LocaleCildrenMatrix;
+					glm::mat4 model = transformC.m_Global * singleMeshData.m_LocaleCildrenMatrix;
 					uint32_t subMesh = singleMeshData.LocaleIndexMesh;
 					const Ref<MeshSingle>& meshSingle = singleMeshData.m_MeshSingle;
 					const Ref<Material>& materiel = singleMeshData.m_Material;

@@ -26,7 +26,7 @@ namespace Rynex {
 	void EditorCamera::UpdateProjection()
 	{
 		m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
-		m_Projektion = glm::perspective(glm::radians(m_FOV), m_AspectRatio, m_NearClip, m_FarClip);
+		m_Projection = glm::perspective(glm::radians(m_FOV), m_AspectRatio, m_NearClip, m_FarClip);
 		UpdateCenter();
 		UpdateAABB();
 	}
@@ -50,7 +50,7 @@ namespace Rynex {
 
 	void EditorCamera::UpdateAABB()
 	{
-		glm::mat4 iVM = glm::inverse(m_Projektion);
+		glm::mat4 iVM = glm::inverse(m_Projection);
 		m_ViewFustrum = {
 			iVM * glm::vec4(-1.0f, -1.0f, -1.0f, 1.0f),
 			iVM * glm::vec4(-1.0f,  1.0f, -1.0f, 1.0f),

@@ -23,14 +23,14 @@ namespace Rynex {
 			SingleObjectMeshData(const SingleObjectMeshData&) = default;
 			SingleObjectMeshData(const Ref<MeshSingle>& meshSingle, const Ref<Material>& materiel, const glm::mat4& localeMatrix, const std::string& nodeName, uint32_t localeMeshIndex, uint32_t localeMaterielIndex)
 				: SingleMeshObject(materiel, meshSingle)
-				, LocaleCildrenMatrix(localeMatrix)
+				, m_LocaleCildrenMatrix(localeMatrix)
 				, NodeName(nodeName)
 				, LocaleIndexMesh(localeMeshIndex)
 				, LocaleIndexMateriel(localeMaterielIndex)
 			{
 			}
 
-			glm::mat4		LocaleCildrenMatrix;
+			glm::mat4		m_LocaleCildrenMatrix;
 			std::string		NodeName;
 			uint32_t		LocaleIndexMesh;
 			uint32_t		LocaleIndexMateriel;
@@ -43,7 +43,7 @@ namespace Rynex {
 			{
 				bool rMateriel = this->m_Material == data.m_Material;
 				bool rMesh = this->m_MeshSingle == data.m_MeshSingle;
-				bool rMatrix = this->LocaleCildrenMatrix == data.LocaleCildrenMatrix;
+				bool rMatrix = this->m_LocaleCildrenMatrix == data.m_LocaleCildrenMatrix;
 				bool rNodeName = this->NodeName == data.NodeName;
 				bool rIndexMesh = this->LocaleIndexMesh == data.LocaleIndexMesh;
 				bool rIndexMateriel = this->LocaleIndexMateriel == data.LocaleIndexMateriel;
@@ -54,7 +54,7 @@ namespace Rynex {
 			{
 				bool rMateriel = this->m_Material == data.m_Material;
 				bool rMesh = this->m_MeshSingle == data.m_MeshSingle;
-				bool rMatrix = this->LocaleCildrenMatrix == data.LocaleCildrenMatrix;
+				bool rMatrix = this->m_LocaleCildrenMatrix == data.m_LocaleCildrenMatrix;
 				bool rNodeName = this->NodeName != data.NodeName;
 				bool rIndexMesh = this->LocaleIndexMesh != data.LocaleIndexMesh;
 				bool rIndexMateriel = this->LocaleIndexMateriel != data.LocaleIndexMateriel;
@@ -82,7 +82,7 @@ namespace Rynex {
 		const MeshStatic::SingleObjectMeshData& GetSingleObjectData(uint32_t index) const { RY_CORE_ASSERT(index < m_SingleObjectDataVec.size(), "Buffer Overflow"); return m_SingleObjectDataVec.at(index); }
 		const Ref<MeshSingle>& GetMeshFromObject(uint32_t index) const { return GetSingleObjectData(index).m_MeshSingle; }
 		const Ref<Material>& GetMaterialFromObject(uint32_t index) const { return GetSingleObjectData(index).m_Material; }
-		const glm::mat4& GetChildrenMatriceFromObject(uint32_t index) const { return GetSingleObjectData(index).LocaleCildrenMatrix; }
+		const glm::mat4& GetChildrenMatriceFromObject(uint32_t index) const { return GetSingleObjectData(index).m_LocaleCildrenMatrix; }
 		const UUID& GetMeshesIDFromMeshObject(uint32_t index) const { return GetSingleObjectData(index).GetHandle(); }
 		const Mesh::PerDrawObject& GetPerDrawObjectFromMeshObject(uint32_t index) const { return GetSingleObjectData(index).GetShadePerDrawObjectIndrect(); }
 

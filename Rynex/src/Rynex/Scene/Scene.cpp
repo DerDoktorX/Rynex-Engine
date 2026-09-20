@@ -35,7 +35,7 @@ namespace Rynex {
 		{
 			const glm::uvec2& size = fb->GetFramebufferSize();
 			ViewPassData viewPassData = ViewPassData(
-				camera.GetProjektion(), view, postion,
+				camera.GetProjection(), view, postion,
 				color, glm::vec4{ size.x, size.y, 0, 0 },
 				RenderMode::Death_Buffer | RenderMode::A_Buffer | RenderMode::CallFace_Back | RenderMode::Gamma,
 				2.2f,
@@ -177,7 +177,7 @@ namespace Rynex {
 			if(e.HasComponent<CameraComponent>())
 			{
 				CameraComponent& camerC = e.GetComponent<CameraComponent>();
-				const glm::mat4& porjetion = camerC.m_Camera.GetProjektion();
+				const glm::mat4& porjetion = camerC.m_Camera.GetProjection();
 				glm::mat4 viewIn = glm::inverse(modelMatrix);
 				porjetionView = porjetion * viewIn;
 			}
@@ -745,7 +745,7 @@ namespace Rynex {
 			m_Registry.view<ModelMatrixComponent, SpotLightComponent>()
 		};
 
-		Camera mainCamera = Camera(editorCamera->GetProjektion());
+		Camera mainCamera = Camera(editorCamera->GetProjection());
 		const glm::mat4& viewMatrix = editorCamera->GetViewMatrix();
 		const glm::vec3& worldPostionCenterView = editorCamera->GetWorldPostionCenterView();
 
@@ -776,7 +776,7 @@ namespace Rynex {
 
 
 
-		if(Renderer::IsSceneSubmite3DAktive())
+		if(Renderer::IsSceneSubmit3DActive())
 		{
 			Submit3DStaticeEntitysMain(enttRender3DStaticModelView, &m_TimeElpassed3DSubmit);
 		}
@@ -932,7 +932,7 @@ namespace Rynex {
 #pragma region RenderTarget
 	void Scene::RenderRenderTaregtView(EnttRenderTargetView& renderTargetView, EnttRender3DStaticModelView& view3dStaticMesh)
 	{
-		Renderer::ResetCurentRenderPassFrame();
+		Renderer::ResetCurrentRenderPassFrame();
 		renderTargetView.each([&view3dStaticMesh](entt::entity e, RenderTargetComponent& renderTargetC, CameraComponent& cameraC, ModelMatrixComponent& modelC)
 			{
 				if (cameraC.m_Primary || nullptr == renderTargetC.m_Target || nullptr == renderTargetC.m_Target->GetFramebuffer())
@@ -940,30 +940,30 @@ namespace Rynex {
 					return;
 				}
 				SubmitRenderTaregtCurent(cameraC.m_Camera, modelC.m_Global, renderTargetC);
-				if (Renderer::IsSceneSubmite3DAktive())
+				if (Renderer::IsSceneSubmit3DActive())
 				{
 					Submit3DStaticeEntitysCurent(view3dStaticMesh);
 				}
 				RenderNowCurent();
 				ResetRenderTaregtCurent();
 
-				Renderer::IncromentCurentRenderPass();
+				Renderer::IncrementCurrentRenderPass();
 			});
 	}
 
 	void Scene::SubmitRenderTaregtCurent(Camera& camera, const glm::mat4& model, RenderTargetComponent& targetC)
 	{
-		Renderer::SetNextCurentRenderPass(targetC.m_StoreIndex);
-		Renderer::SetRenderPassNameCurent(targetC.m_RenderPassName);
+		Renderer::SetNextCurrentRenderPass(targetC.m_StoreIndex);
+		Renderer::SetRenderPassNameCurrent(targetC.m_RenderPassName);
 
-		Renderer::SetRenderCameraCurent(model, camera);
+		Renderer::SetRenderCameraCurrent(model, camera);
 
-		Renderer::SetRenderCameraCurentUB();
-		Renderer::SetRenderTargetCurent(targetC.m_Target);
+		Renderer::SetRenderCameraCurrentUB();
+		Renderer::SetRenderTargetCurrent(targetC.m_Target);
 		const glm::ivec4& viewSize = targetC.m_Target->GetRenderViewSize();
 
 
-		Renderer::SetViewSizeCurent(viewSize);
+		Renderer::SetViewSizeCurrent(viewSize);
 	}
 
 	void Scene::SubmitRenderTaregtMain(Camera& camera, const glm::mat4& model, RenderTargetComponent& targetC)
@@ -980,18 +980,18 @@ namespace Rynex {
 
 	void Scene::RenderNowCurent()
 	{
-		Renderer::RenderingPassCurent();
+		Renderer::RenderingPassCurrent();
 	}
 
 	void Scene::ResetRenderTaregtMain()
 	{
-		Renderer::ClearMainPiplines();
+		Renderer::ClearMainPipline();
 		Renderer3D::ResetMeshObject();
 	}
 
 	void Scene::ResetRenderTaregtCurent()
 	{
-		Renderer::ClearCurentPiplines();
+		Renderer::ClearCurrentPipline();
 
 		Renderer3D::ResetMeshObject();
 	}
@@ -1023,7 +1023,7 @@ namespace Rynex {
 				uint32_t uEnitityID = entt::to_integral(e);
 				int32_t enitityID = static_cast<int32_t>(uEnitityID);
 
-				Renderer3D::MeshCompont(transformC.m_Global, meshCompC, enitityID);
+				Renderer3D::MeshComponent(transformC.m_Global, meshCompC, enitityID);
 			});
 	}
 
@@ -1035,7 +1035,7 @@ namespace Rynex {
 				uint32_t uEnitityID = entt::to_integral(e);
 				int32_t enitityID = static_cast<int32_t>(uEnitityID);
 
-				Renderer3D::MeshCompontMain(transformC.m_Global, meshCompC, enitityID);
+				Renderer3D::MeshComponentMain(transformC.m_Global, meshCompC, enitityID);
 			});
 	}
 
@@ -1047,7 +1047,7 @@ namespace Rynex {
 				uint32_t uEnitityID = entt::to_integral(e);
 				int32_t enitityID = static_cast<int32_t>(uEnitityID);
 
-				Renderer3D::MeshCompontCurent(transformC.m_Global, meshCompC, enitityID);
+				Renderer3D::MeshComponentCurrent(transformC.m_Global, meshCompC, enitityID);
 			});
 	}
 
@@ -1060,7 +1060,7 @@ namespace Rynex {
 				int32_t enitityID = static_cast<int32_t>(uEnitityID);
 
 
-				Renderer3D::MeshCompont(transformC.m_Global, meshCompC, enitityID);
+				Renderer3D::MeshComponent(transformC.m_Global, meshCompC, enitityID);
 			});
 	}
 
@@ -1215,7 +1215,7 @@ namespace Rynex {
 		for (entt::entity render3dE : view3dStaticMesh)
 		{
 			auto [transformC, meshC] = view3dStaticMesh.get<ModelMatrixComponent, ModelMangerComponent>(render3dE);
-			Renderer3D::MeshCompontSetData(transformC.m_Global, meshC, static_cast<int>(render3dE));
+			Renderer3D::MeshComponentSetData(transformC.m_Global, meshC, static_cast<int>(render3dE));
 
 		}
 		Renderer3D::SubmitShadeDataMeshObjectToPipline();
@@ -1228,7 +1228,7 @@ namespace Rynex {
 		for (entt::entity render3dE : view3dSingleStaticMesh)
 		{
 			auto [transformC, meshC] = view3dSingleStaticMesh.get<ModelMatrixComponent, StaticMeshComponent>(render3dE);
-			Renderer3D::MeshCompontSetData(transformC.m_Global, meshC, static_cast<int>(render3dE));
+			Renderer3D::MeshComponentSetData(transformC.m_Global, meshC, static_cast<int>(render3dE));
 		}
 		Renderer3D::SubmitShadeDataMeshObjectToPipline();
 		Renderer3D::SubmitDepthDataMeshObjectToPipline();
