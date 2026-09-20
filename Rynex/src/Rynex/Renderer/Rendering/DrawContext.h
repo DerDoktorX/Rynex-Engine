@@ -1,8 +1,6 @@
 #pragma once
-
 namespace Rynex {
-    class _DrawContext
+    class DrawContext
     {
     };
 } // Rynex
-
