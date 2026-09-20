@@ -31,7 +31,6 @@ namespace Rynex {
 			case TextureFormat::S_RGBA8:
 			case TextureFormat::RGBA16F:
 			case TextureFormat::RGBA32F:
-		
 				return GL_COLOR_ATTACHMENT0;
 
 			// case TextureFormat::DepthComp:
@@ -44,31 +43,35 @@ namespace Rynex {
 			case TextureFormat::Depth24Stencil8:
 			case TextureFormat::Depth32FStencil8:
 				return GL_DEPTH_STENCIL_ATTACHMENT;
-			}
+            case TextureFormat::None:
+                break;
+            case TextureFormat::Default:
+                break;
+            }
 			RY_CORE_ASSERT(false, "Error: Utils::ImageFormatToGLDataFormat!");
 			return GL_COLOR_ATTACHMENT0;
 		}
 
-		static void TexturDefaultTypesColor(FramebufferTextureSpecification* attachment)
+		static void TextureDefaultTypesColor(FramebufferTextureSpecification* attachment)
 		{
 			TexFilter& filter = attachment->m_TextureFiltering;
-			if (filter == TexFilter::Default)
+			if (TexFilter::Default==filter)
 				filter = TexFilter::Nearest;
 
-			TexFrom& fromat = attachment->m_TextureFormat;
-			if (fromat == TexFrom::Default)
-				fromat = TexFrom::Depth24Stencil8;
+			TexFrom& format = attachment->m_TextureFormat;
+			if ( TexFrom::Default==format)
+				format = TexFrom::Depth24Stencil8;
 
 			TextureWrappingMode& warpT = attachment->m_TextureWrapping.m_T;
-			if (warpT == TexWarp::Default)
+			if (TexWarp::Default==warpT)
 				warpT = TexWarp::Repeat;
 
 			TextureWrappingMode& warpR = attachment->m_TextureWrapping.m_R;
-			if (warpR == TexWarp::Default)
+			if (TexWarp::Default==warpR)
 				warpR = TexWarp::None;
 
 			TextureWrappingMode& warpS = attachment->m_TextureWrapping.m_S;
-			if (warpS == TexWarp::Default)
+			if (TexWarp::Default==warpS)
 				warpS = TexWarp::Repeat;
 		}
 
