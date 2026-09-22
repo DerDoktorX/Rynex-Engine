@@ -22,69 +22,69 @@ namespace Rynex {
 		};
 		struct RenderObject
 		{
-			glm::mat4 ModelMatrix;
-			glm::mat4 NormalMatrix;
-			int EnitityID;
-			int Empty[3] = { -10, -11, -12 };
+			glm::mat4 m_ModelMatrix;
+			glm::mat4 m_NormalMatrix;
+			int m_EnitityID;
+			int m_Empty[3] = { -10, -11, -12 };
 		};
 
 		struct RenderObjectState
 		{
-			RenderObject Object;
-			int EntityID;
-			bool Update;
+			RenderObject m_Object;
+			int m_EntityID;
+			bool m_Update;
 
 			RenderObjectState()
-				: Object({ glm::mat4(0.0f), glm::mat4(0.0f), -1, { -10, -11, -12 } })
-				, EntityID(-1)
-				, Update(true)
+				: m_Object({ glm::mat4(0.0f), glm::mat4(0.0f), -1, { -10, -11, -12 } })
+				, m_EntityID(-1)
+				, m_Update(true)
 			{
 			}
 
 			RenderObjectState(const glm::mat4& modelMatrix, const int entityID)
 			{
-				EntityID = entityID;
+				m_EntityID = entityID;
 				
 				glm::mat4 modelInverse = glm::inverse(modelMatrix);
 				glm::mat4 modelTranspose = glm::transpose(modelInverse);
-				Object.EnitityID = EntityID;
-				Object.ModelMatrix = modelMatrix;
-				Object.NormalMatrix = modelTranspose;
-				Update = true;
+				m_Object.m_EnitityID = m_EntityID;
+				m_Object.m_ModelMatrix = modelMatrix;
+				m_Object.m_NormalMatrix = modelTranspose;
+				m_Update = true;
 			}
 
 			RenderObjectState(const RenderObjectState&) = default;
 
 			void SetObject(const glm::mat4& modelMatrix, const int entityID)
 			{
-				if (entityID != EntityID || modelMatrix != Object.ModelMatrix)
+				if (entityID != m_EntityID || modelMatrix != m_Object.m_ModelMatrix)
 				{
-					glm::mat4 modelInverse = glm::inverse(modelMatrix);
-					glm::mat4 modelTranspose = glm::transpose(modelInverse);
+					const glm::mat4 modelInverse = glm::inverse(modelMatrix);
+					const glm::mat4 modelTranspose = glm::transpose(modelInverse);
 
-					EntityID = entityID;
-					Object.ModelMatrix = modelMatrix;
-					Object.EnitityID = EntityID;
+					m_EntityID = entityID;
+					m_Object.m_ModelMatrix = modelMatrix;
+					m_Object.m_EnitityID = m_EntityID;
 				
-					Object.NormalMatrix = modelTranspose;
-					Update = true;
+					m_Object.m_NormalMatrix = modelTranspose;
+					m_Update = true;
 				}
 			}
 			void Updated()
 			{
-				Update = false;
+				m_Update = false;
 			}
 
 			bool NeedUpdate() const
 			{
-				return Update;
+				return m_Update;
 			}
 			
 
 			bool operator==(const RenderObjectState& renderObject) const
 			{
-				bool resultEntt = this->EntityID == renderObject.EntityID;
-				bool resultModel = this->Object.ModelMatrix == renderObject.Object.ModelMatrix;
+				bool resultEntt = this->m_EntityID == renderObject.m_EntityID;
+				bool resultModel = this->m_Object.m_ModelMatrix == renderObject.m_Object.m_ModelMatrix;
 				return resultEntt && resultModel;
 			}
 
@@ -96,16 +96,16 @@ namespace Rynex {
 
 		virtual ~SingleMeshPiplineRenderShade();
 
-		virtual void SubmitRenderTargetResurces(ViewPassStorage& viewPass) override;
-		virtual void SubmitRenderTargetResurcesReadImg(const Ref<Texture>& texture) override;
-		virtual void SubmitRenderTargetResurcesReadUB(const Ref<UniformBuffer>& buffer)override;
+		virtual void SubmitRenderTargetResource(ViewPassStorage& viewPass) override;
+		virtual void SubmitRenderTargetResourceReadImg(const Ref<Texture>& texture) override;
+		virtual void SubmitRenderTargetResourceReadUB(const Ref<UniformBuffer>& buffer)override;
 
-		virtual BufferLayout GetExpetedOutput() const override
+		virtual BufferLayout GetExpectedOutput() const override
 		{
 			RY_REMBER_FUNC_CHANGE("Implemnt function check if the out put layout matches the out put layout from shader!");
 			return BufferLayout();
 		}
-		virtual void SetExpetedOutput(const BufferLayout& output) override
+		virtual void SetExpectedOutput(const BufferLayout& output) override
 		{
 			RY_REMBER_FUNC_CHANGE("Implemnt function check if the out put layout matches the out put layout from shader!");
 		}
@@ -129,7 +129,7 @@ namespace Rynex {
 		virtual void DrawNow() override;
 		virtual void DrawNow(int flags) override;
 
-		virtual uint32_t GetCurentEntityRender() const override;
+		virtual uint32_t GetCurrentEntityRender() const override;
 		virtual uint32_t GetMaxEntityRender() const override;
 
 		virtual uint32_t GetFrameCountNotUpdate() const override;
@@ -273,24 +273,24 @@ namespace Rynex {
 
 		virtual ~SingleMeshPiplineRenderDepth();
 
-		virtual void SubmitRenderTargetResurces(ViewPassStorage& viewPass) override {};
-		virtual void SubmitRenderTargetResurcesReadUB(const Ref<UniformBuffer>& buffer)override {};
-		virtual void SubmitRenderTargetResurcesReadImg(const Ref<Texture>& texture) override {};
+		virtual void SubmitRenderTargetResource(ViewPassStorage& viewPass) override {};
+		virtual void SubmitRenderTargetResourceReadUB(const Ref<UniformBuffer>& buffer)override {};
+		virtual void SubmitRenderTargetResourceReadImg(const Ref<Texture>& texture) override {};
 
-		virtual BufferLayout GetExpetedOutput() const override
+		virtual BufferLayout GetExpectedOutput() const override
 		{
 			RY_REMBER_FUNC_CHANGE("Implemnt function check if the out put layout matches the out put layout from shader!");
 			return BufferLayout();
 		}
 
-		virtual void SetExpetedOutput(const BufferLayout& output) override
+		virtual void SetExpectedOutput(const BufferLayout& output) override
 		{
 			RY_REMBER_FUNC_CHANGE("Implemnt function check if the out put layout matches the out put layout from shader!");
 		}
 		
 
-		virtual void SetCameraUniformBuffer(Ref<UniformBuffer> camerbuffer) override;
-		virtual void SetDisplayUniformBuffer(Ref<UniformBuffer> dispalaybuffer) override;
+		virtual void SetCameraUniformBuffer(Ref<UniformBuffer> cameraBuffer) override;
+		virtual void SetDisplayUniformBuffer(Ref<UniformBuffer> displayBuffer) override;
 
 		virtual PiplineResultState SubmitEntityMeshObject(const SingleMeshObject& singleMesh, const Ref<Shader>& shader
 			, const glm::mat4& model, uint32_t& storeIndex, int entityID) override;
@@ -305,7 +305,7 @@ namespace Rynex {
 		virtual void DrawNow() override;
 		virtual void DrawNow(int flags) override;
 
-		virtual uint32_t GetCurentEntityRender() const override;
+		virtual uint32_t GetCurrentEntityRender() const override;
 		virtual uint32_t GetMaxEntityRender() const override;
 
 		virtual uint32_t GetFrameCountNotUpdate() const override;

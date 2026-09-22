@@ -1,12 +1,15 @@
 #pragma once
-#include "rypch.h"
+#include <rypch.h>
+
+#include <Rynex/Renderer/API/Buffer.h>
+#include <Rynex/Renderer/API/VertexArray.h>
+#include <Rynex/Renderer/Mesh/MeshSingle.h>
+
 #define RY_ENABLE_ENUM_NAMESPACE_PIPLINE_RENDER 0
 
 #define RY_INTERNEL_CHECK_IF_BIT_IS_SET_PRINT(bit)	RY_CORE_WARN("Flage Set: " bit)
 #define RY_CHECK_IF_BIT_IS_SET_PRINT(value, bit)	if( (value & bit) != 0 ) RY_INTERNEL_CHECK_IF_BIT_IS_SET_PRINT(#bit)
-#include <Rynex/Renderer/API/Buffer.h>
-#include <Rynex/Renderer/API/VertexArray.h>
-#include <Rynex/Renderer/Mesh/MeshSingle.h>
+
 
 
 namespace Rynex {
@@ -15,34 +18,36 @@ namespace Rynex {
 	class Materiel;
 	class RenderTarget;
 
-	class ElementPiplinEntityPtr
+
+	class ElementPiplineEntityPtr
 	{
 	public:
-		virtual ~ElementPiplinEntityPtr() {};
+		virtual ~ElementPiplineEntityPtr() {};
 
 		virtual void SetTransform(const glm::mat4& matrix) = 0;
 		virtual void SetMateriel(Ref<Material> material) = 0;
 
-		virtual bool IsVaild() const = 0;
+		virtual bool IsValid() const = 0;
 		virtual void Clear() = 0;
 		
 	};
 
-	typedef enum PiplineResultState
+	using PiplineResultState = enum PiplineResultState
 	{
-		// Result_None is shoud never happen
+		// Result_None is should never happen
 		Result_None							= 0,
 		Result_Success						= BIT(0),
 		
 
-		// state is set if we have not enough space for more RenderShape / Textexurs / Shading defenition / RenderObject
+		// state is set if we have not enough space for more RenderShape / Textures / Shading definition / RenderObject
 		Result_NoRenderShapeSpaceLeft		= BIT(1),
-		Result_NoTextexurSpaceLeft			= BIT(2),
+
+		Result_NoTextureSpaceLeft			= BIT(2),
 		Result_NoShadeDefinitionSpaceLeft	= BIT(3),
 		Result_NoRenderObjectSpaceLeft		= BIT(4),
 		Result_NoShaderSpaceLeft			= BIT(5),
 
-		// state we dont allowe Resurce  RenderShape / Texture / Shade definition / RenderObject / Shader 
+		// state we dont allow Resource  RenderShape / Texture / Shade definition / RenderObject / Shader
 		Result_NotAllowedRenderShape		= BIT(6),
 		Result_NotAllowedTexture			= BIT(7),
 		Result_NotAllowedShadeDefinition	= BIT(8),
@@ -51,34 +56,33 @@ namespace Rynex {
 
 		Result_Error						= BIT(11),
 
-		Result_AllNoSpaceLeft				= Result_NoTextexurSpaceLeft
-		| Result_NoShadeDefinitionSpaceLeft 
-		| Result_NoRenderObjectSpaceLeft
-
-		| Result_NoRenderShapeSpaceLeft,
+		Result_AllNoSpaceLeft				= Result_NoTextureSpaceLeft
+		    | Result_NoShadeDefinitionSpaceLeft
+		    | Result_NoRenderObjectSpaceLeft
+		    | Result_NoRenderShapeSpaceLeft,
 
 		Result_AllNotAllowed				= Result_NotAllowedTexture 
-		| Result_NotAllowedShadeDefinition 
-		| Result_NotAllowedRenderObject 
-		| Result_NotAllowedShader
+		    | Result_NotAllowedShadeDefinition
+		    | Result_NotAllowedRenderObject
+		    | Result_NotAllowedShader
 
 
-	} PiplineResultState;
+	};
 
-	typedef enum PiplineManagingState
+	using PiplineManagingState = enum PiplineManagingState
 	{
 		// Managing_None is disable all Manager option 
 		Managing_None						= 0,
 
-		// Managing_SortEnabele enable 1 of ... set how to Sort RenderObjcts bevor in draw func draw to Target, disable option to
-		Managing_SortRenderObjEnabele		= BIT(0),
+		// Managing_SortRenderObjEnable enable 1 of ... set how to Sort RenderObjects bevor in draw func draw to Target, disable option to
+		Managing_SortRenderObjEnable		= BIT(0),
 
 
-		// sort withe the postion what is in eth for- and backgund and sort by distence front to back / back to front
+		// sort withe the position what is in eth for- and background and sort by distance front to back / back to front
 		Managing_SortRenderObjFrontToBack	= BIT(1),
 		Managing_SortRenderObjBackToFront	= BIT(2),
 
-		// sort the RenderObj that all, withe the same shadeDefintion index render in order.
+		// sort the RenderObj that all, withe the same shadeDefinition index render in order.
 		// Can used simultaneously, withe Managing_SortRenderObjTexture
 		// Prioritization is based on Managing_SortRenderObjTexture
 		Managing_SortRenderObjShade			= BIT(3),
@@ -90,9 +94,7 @@ namespace Rynex {
 
 		// sort the RenderObj after the Entity Integer
 		Managing_SortRenderObjEntity		= BIT(5)
-
-		
-	} PiplineManagingState;
+	};
 
 		
 
@@ -100,40 +102,39 @@ namespace Rynex {
 	{
 	protected:
 		enum {
-			// Hash_BindingPointMultyplyNumberBitMove defines the bit shift per element when combining 
+			// Hash_BindingPointMultiplyNumberBitMove defines the bit shift per element when combining
 			// multiple pointers into a 64-bit hash. Each pointer is shifted by (index * 16) bits, 
 			// allowing up to 4 pointers (16*4 = 64 bits) to be uniquely combined without overlap.
 			// This creates distinct hash values for different pointer combinations in the vector.
 			// Note: Limited to 4 elements due to 64-bit width, but sufficient for current use case.
-			Hash_BindingPointMultyplyNumberBitMove = 16
+			Hash_BindingPointMultiplyNumberBitMove = 16
 											
 		};
 
 	public:
 
 		virtual ~PiplineRenderBase() {}
+		virtual BufferLayout GetExpectedOutput() const = 0;
+		virtual void SetExpectedOutput(const BufferLayout& input) = 0;
 
-		virtual BufferLayout GetExpetedOutput() const = 0;
-		virtual void SetExpetedOutput(const BufferLayout& input) = 0;
+		// withe This Function you submit Some Resource From the RenderTarget to the Pipline,
+		// like some camera: position, view direction, matrix and / or Render-Textures from the Target (depth-texture(shadow), rgb-texture(miro))
+		virtual void SubmitRenderTargetResource(ViewPassStorage& viewPass) = 0;
+		virtual void SubmitRenderTargetResourceReadImg(const Ref<Texture>& renderTarget) = 0;
+		virtual void SubmitRenderTargetResourceReadUB(const Ref<UniformBuffer>& buffer) = 0;
 
-		// withe This Function you submit Some Resurce From the Rendertaget to the Pipline, 
-		// like some camer: postion, view direction, matrix and / or Rendert-Textures from the Target (depth-texture(shadow), rgb-texture(miro))
-		virtual void SubmitRenderTargetResurces(ViewPassStorage& viewPass) = 0;
-		virtual void SubmitRenderTargetResurcesReadImg(const Ref<Texture>& renderTarget) = 0;
-		virtual void SubmitRenderTargetResurcesReadUB(const Ref<UniformBuffer>& buffer) = 0;
-
-		virtual void SetCameraUniformBuffer(Ref<UniformBuffer> camerbuffer) = 0;
-		virtual void SetDisplayUniformBuffer(Ref<UniformBuffer> camerbuffer) = 0;
+		virtual void SetCameraUniformBuffer(Ref<UniformBuffer> cameraBuffer) = 0;
+		virtual void SetDisplayUniformBuffer(Ref<UniformBuffer> cameraBuffer) = 0;
 
 
 		virtual PiplineResultState SubmitEntityMeshObject(const SingleMeshObject& singleMesh, const Ref<Shader>& shader, const glm::mat4& model, uint32_t& storeIndex, int entityID) = 0;
 		virtual void SubmitRenderObject(const glm::mat4& model, uint32_t& storeIndex, int entityID) = 0;
 
 
-		// Set flags like: sorting_enable, sorting_front_to_back, sorting_back_to_front, caling_in_view for data manging
-		// caling: for check befor Submit in render List if it is view Space of the Camera
-		// sorting: is for manuel sorting bevore rendering, that the closet is render first or last and the furthest the oppsite, (this maniging has the isue that we need to uplode alle the data)
-		// notize: if you want only to change some flags getthe Flags state changing it and set the new flags
+		// Set flags like: sorting_enable, sorting_front_to_back, sorting_back_to_front, calling_in_view for data manging
+		// calling: for check before Submit in render List if it is view Space of the Camera
+		// sorting: is for manuel sorting before rendering, that the closet is render first or last and the furthest the opposite, (this managing has the isue that we need to uplode alle the data)
+		// notice: if you want only to change some flags get the Flags state changing it and set the new flags
 		virtual void SetDataMangingFlags(PiplineManagingState flags) = 0;
 
 		// set the draw flags
@@ -142,31 +143,31 @@ namespace Rynex {
 		virtual PiplineManagingState GetDataMangingFlags() const = 0;
 		virtual int GetRenderFlags() const = 0;
 		
-		// exexute the curend stored RenderObjects, withe the stored Rendergflags, withe a draw call auto clearing is a optione
+		// execute the current stored RenderObjects, withe the stored RenderFlags, withe a draw call auto clearing is a optione
 		virtual void DrawNow() = 0;
 
-		// exexute the curend stored RenderObjects, use the passed renderFlags, withe a draw call auto clearing is a optione
+		// execute the current stored RenderObjects, use the passed renderFlags, withe a draw call auto clearing is a optione
 		virtual void DrawNow(int flags) = 0;
 
 		// how many Render Object has this Object At this timepoint.
-		virtual uint32_t GetCurentEntityRender() const = 0;
+		virtual uint32_t GetCurrentEntityRender() const = 0;
 
 		// how many Render Object this Object ever managed in his life time.
 		virtual uint32_t GetMaxEntityRender() const = 0;
 
-		// how many frames in one ro we didin't need to update One Entity, if there are 0 RenderObjects its Expexted to get a Higher number.
+		// how many frames in one ro we didn't need to update One Entity, if there are 0 RenderObjects its Expexted to get a Higher number.
 		virtual uint32_t GetFrameCountNotUpdate() const = 0;
 
 		// how many often we tolerate that not update.
 		virtual uint32_t GetMaxFrameCountNotUpdate() const = 0;
 
-		// if we have curently no game objects Stored to render
+		// if we have currently no game objects Stored to render
 		virtual bool Empty() const = 0;
 
 		// this function returns: if there is Max RenderObjects Cunt and ths can't take more it returns true to store in a antoher pipline
 		virtual bool IsFull()const = 0;
 
-		// clear the list of render objects, for the next Frame, this fuction is called maybe automticly
+		// clear the list of render objects, for the next Frame, this methode is called maybe automatically
 		virtual void Clear() = 0;
 		virtual void ClearRenderObjects() = 0;
 
@@ -174,13 +175,13 @@ namespace Rynex {
 		virtual bool IsToLongNotUpdated() const
 		{
 			const uint32_t maxFrameCountNotUpdated = this->GetMaxFrameCountNotUpdate();
-			const uint32_t curentFrameCountNotUpdated = this->GetFrameCountNotUpdate();
-			bool result = maxFrameCountNotUpdated < curentFrameCountNotUpdated;
+			const uint32_t currentFrameCountNotUpdated = this->GetFrameCountNotUpdate();
+			const bool result = maxFrameCountNotUpdated < currentFrameCountNotUpdated;
 			return result;
 		}
 
-		// for sorting resurces for draw call exexution order, 0 is not Vaild value
-		// if we, use no index one resurce we get a combined number of the first 2, 3 binding points back
+		// for sorting resources for draw call execution order, 0 is not Valid value
+		// if we, use no index one resource we get a combined number of the first 2, 3 binding points back
 		virtual uint64_t GetShaderNumber() const = 0;
 		virtual uint64_t GetVertexBufferNumber() const = 0;
 		virtual uint64_t GetIndexBufferNumber() const = 0;
@@ -191,27 +192,27 @@ namespace Rynex {
 
 		virtual Ref<PiplineRenderBase> Copy() const = 0;
 
-		static bool SortePiplineRenderBase(const Ref<PiplineRenderBase>& a, const Ref<PiplineRenderBase>& b)
+		static bool SortPiplineRenderBase(const Ref<PiplineRenderBase>& a, const Ref<PiplineRenderBase>& b)
 		{
 			RY_CORE_ASSERT(nullptr != a && nullptr != b);
 			using SortTuple = std::tuple<uint64_t, uint64_t, uint64_t>;
-			SortTuple aTuple = std::make_tuple(
+			const SortTuple aTuple = std::make_tuple(
 				a->GetShaderNumber()
 				, a->GetIndexBufferNumber()
 				, a->GetTextureNumber()
 			);
-			SortTuple bTuple = std::make_tuple(
+			const SortTuple bTuple = std::make_tuple(
 				b->GetShaderNumber()
 				, b->GetIndexBufferNumber()
 				, b->GetTextureNumber()
 
 			);
-			bool result = aTuple < bTuple;
+			const bool result = aTuple < bTuple;
 			return result;
 		}
 
-		// Check if vertex and index buffer are set or not and submit if nesseayr
-		// return shows if we haved updated the buffer or not
+		// Check if vertex and index buffer are set or not and submit if necessary
+		// return shows if we had updated the buffer or not
 		static bool CheckVAOFromMeshSingleShade(Ref<VertexArray>& vao, Ref<MeshSingle>& meshSingle)
 		{
 			if (HasVAOFromMeshSingleSomeShadeBuffer(vao, meshSingle))
@@ -228,8 +229,8 @@ namespace Rynex {
 			return true;
 		}
 
-		// Check if vertex and index buffer are set or not and submit if nesseayr
-		// return shows if we haved updated the buffer or not
+		// Check if vertex and index buffer are set or not and submit if necessary
+		// return shows if we had updated the buffer or not
 		static bool CheckVAOFromMeshSingleDepth(Ref<VertexArray>& vao, Ref<MeshSingle>& meshSingle)
 		{
 			if (HasVAOFromMeshSingleSomeDepthBuffer(vao, meshSingle))
@@ -249,8 +250,8 @@ namespace Rynex {
 
 		}
 
-		// Check if vertex and index buffer are set or not and submit if nesseayr
-		// return shows if we haved updated the buffer or not
+		// Check if vertex and index buffer are set or not and submit if necessary
+		// return shows if we had updated the buffer or not
 		static bool CheckVAOFromMeshSingleShape(Ref<VertexArray>& vao, Ref<MeshSingle>& meshSingle)
 		{
 			return CheckVAOFromMeshSingleShade(vao, meshSingle);
@@ -264,7 +265,7 @@ namespace Rynex {
 			if (nullptr == vao)
 				return false;
 
-			bool result = HasVAOFromMeshSingleShadeIndexBuffer(vao, meshSingle)
+			const bool result = HasVAOFromMeshSingleShadeIndexBuffer(vao, meshSingle)
 				|| HasVAOFromMeshSingleDepthIndexBuffer(vao, meshSingle)
 				|| HasVAOFromMeshSingleVertexBuffer(vao, meshSingle);
 
@@ -278,7 +279,7 @@ namespace Rynex {
 			if (nullptr == vao)
 				return false;
 
-			bool result = HasVAOFromMeshSingleShadeIndexBuffer(vao, meshSingle)
+			const bool result = HasVAOFromMeshSingleShadeIndexBuffer(vao, meshSingle)
 				|| HasVAOFromMeshSingleVertexBuffer(vao, meshSingle);
 			return result;
 		}
@@ -290,7 +291,7 @@ namespace Rynex {
 			if (nullptr == vao)
 				return false;
 
-			bool result = HasVAOFromMeshSingleDepthIndexBuffer(vao, meshSingle)
+			const bool result = HasVAOFromMeshSingleDepthIndexBuffer(vao, meshSingle)
 				|| HasVAOFromMeshSingleVertexBuffer(vao, meshSingle);
 			return result;
 		}
@@ -334,7 +335,7 @@ namespace Rynex {
 			return iabDepth == iab;
 		}
 
-		static void PrintPlineResult(PiplineResultState result)
+		static void PrintPlineResult(const PiplineResultState result)
 		{
 			RY_CHECK_IF_BIT_IS_SET_PRINT(result, Result_None);
 
@@ -344,7 +345,7 @@ namespace Rynex {
 			RY_CHECK_IF_BIT_IS_SET_PRINT(result, Result_NoRenderShapeSpaceLeft);
 			RY_CHECK_IF_BIT_IS_SET_PRINT(result, Result_NoShadeDefinitionSpaceLeft);
 			RY_CHECK_IF_BIT_IS_SET_PRINT(result, Result_NoShaderSpaceLeft);
-			RY_CHECK_IF_BIT_IS_SET_PRINT(result, Result_NoTextexurSpaceLeft);
+			RY_CHECK_IF_BIT_IS_SET_PRINT(result, Result_NoTextureSpaceLeft);
 
 			RY_CHECK_IF_BIT_IS_SET_PRINT(result, Result_NotAllowedRenderObject);
 			RY_CHECK_IF_BIT_IS_SET_PRINT(result, Result_NotAllowedShadeDefinition);

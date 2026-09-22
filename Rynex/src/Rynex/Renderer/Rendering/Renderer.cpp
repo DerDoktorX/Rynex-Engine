@@ -1203,7 +1203,7 @@ namespace Rynex {
 		{
 
 			uint32_t index = 0u;
-#ifdef RY_SSBO_VARIENTS
+#ifdef RY_SHADER_STORAGE_BUFFER_OBJECT_VARIANTS
 			for (auto& resource : shaderDraw.GetBindStorage())
 			{
 				std::visit([index](auto& ssbo)
@@ -1232,7 +1232,7 @@ namespace Rynex {
 			}
 #endif
 			index = 0u;
-#ifdef RY_TEXTURE_VARIENTS
+#ifdef RY_TEXTURE_VARIANTS
 			for (auto& resource : shaderDraw.GetBindTextures())
 			{
 				std::visit([index](auto& texture)
@@ -1289,7 +1289,7 @@ namespace Rynex {
 		{
 
 			uint32_t index = 0u;
-#ifdef RY_SSBO_VARIENTS
+#ifdef RY_SHADER_STORAGE_BUFFER_OBJECT_VARIANTS
 			for (auto& resource : shaderDraw.GetBindStorage())
 			{
 				std::visit([index](auto& ssbo)
@@ -1318,7 +1318,7 @@ namespace Rynex {
 			}
 #endif
 			index = 0u;
-#ifdef RY_TEXTURE_VARIENTS
+#ifdef RY_TEXTURE_VARIANTS
 			for (auto& resource : shaderDraw.GetBindTextures())
 			{
 				std::visit([index](auto& texture)

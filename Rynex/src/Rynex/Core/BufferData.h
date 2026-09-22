@@ -23,16 +23,16 @@ namespace Rynex {
 
 		static BufferData Copy(BufferData other)
 		{
-			BufferData result(other.m_Size);
+			const BufferData result(other.m_Size);
 			memcpy(result.m_Data, other.m_Data, other.m_Size);
 			return result;
 		}
 
-		void Allocate(uint64_t size)
+		void Allocate(const uint64_t size)
 		{
 			Release();
 
-			m_Data = (uint8_t*)malloc(size);
+			m_Data = static_cast<uint8_t*>(malloc(size));
 			m_Size = size;
 		}
 
@@ -46,12 +46,12 @@ namespace Rynex {
 		template<typename T>
 		T* As()
 		{
-			RY_CORE_ASSERT(m_Data, "is nulptr");
-			return (T*)m_Data;
+			RY_CORE_ASSERT(m_Data, "is nullptr");
+			return static_cast<T*>(m_Data);
 		}
 		operator bool() const
 		{
-			return (bool)m_Data;
+			return static_cast<bool>(m_Data);
 		}
 	};
 

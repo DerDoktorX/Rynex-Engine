@@ -474,7 +474,7 @@ namespace Rynex {
 
 		uint32_t indexCount = drawObject.m_Count;
 		uint32_t indexfirst = drawObject.m_FirstIndex;
-		uint32_t instancesCount = drawObject.m_InstancesCount;
+		uint32_t instancesCount = drawObject.m_InstanceCount;
 		uint32_t baseInstances = drawObject.m_BaseInstance;
 		int baseVertex = drawObject.m_BaseVertex;
 		void* indexOffset = (void*)(indexfirst * sizeof(uint32_t));

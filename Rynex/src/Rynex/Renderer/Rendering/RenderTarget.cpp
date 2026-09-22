@@ -24,7 +24,7 @@ namespace Rynex {
             RY_CORE_ASSERT("No Empty Place Found!");
             return false;
         }
-#ifdef RY_SSBO_VARIENTS
+#ifdef RY_SHADER_STORAGE_BUFFER_OBJECT_VARIANTS
 
         template<>
         bool EmplaceSet(const Ref<StorageBuffer>& resourceSet, StorageBindArray& resourceArray)
@@ -55,7 +55,7 @@ namespace Rynex {
         }
 #endif
 
-#ifdef RY_TEXTURE_VARIENTS
+#ifdef RY_TEXTURE_VARIANTS
         template<>
         bool EmplaceSet(const Ref<Texture>& resourceSet, TextureBindArray& resourceArray)
         {
@@ -104,7 +104,7 @@ namespace Rynex {
                     EmplaceSet<T>(resource, resourceArray);
             }
         }
-#ifdef RY_SSBO_VARIENTS
+#ifdef RY_SHADER_STORAGE_BUFFER_OBJECT_VARIANTS
         template<>
         void FindEmptyAndEmplaceSet<StorageBindArray>(const StorageBindArray& resourceEmptyFind, StorageBindArray& resourceArray)
         {
@@ -121,7 +121,7 @@ namespace Rynex {
         }
 #endif
 
-#ifdef RY_TEXTURE_VARIENTS
+#ifdef RY_TEXTURE_VARIANTS
         template<>
         void FindEmptyAndEmplaceSet<TextureBindArray>(const TextureBindArray& resourceEmptyFind, TextureBindArray& resourceArray)
         {
@@ -140,7 +140,7 @@ namespace Rynex {
         }
 #endif
 
-#if defined(RY_TEXTURE_VARIENTS) || defined(RY_SSBO_VARIENTS)
+#if defined(RY_TEXTURE_VARIANTS) || defined(RY_SHADER_STORAGE_BUFFER_OBJECT_VARIANTS)
         static void FindEmptyEqualPalaceShaderDraw(const Ref<ShaderDrawList>& setShaderDraw, std::vector<Weak<ShaderDrawList>>& shaderDrawList)
         {
             for (Weak<ShaderDrawList>& shaderDraw : shaderDrawList)
@@ -169,11 +169,11 @@ namespace Rynex {
         template<typename N>
         static void BindOnArrayIndex(N& bindArray)
         {
-#ifdef RY_TEXTURE_VARIENTS
+#ifdef RY_TEXTURE_VARIANTS
             static_assert(!std::is_same_v<N, TextureBindArray>, "This type is not aloowed here!");
 #endif
 
-#ifdef RY_SSBO_VARIENTS
+#ifdef RY_SHADER_STORAGE_BUFFER_OBJECT_VARIANTS
             static_assert(!std::is_same_v<N, StorageBuffer>, "This type is not aloowed here!");
 #endif
             uint32_t index = 0u;
@@ -193,7 +193,7 @@ namespace Rynex {
         template<typename N>
         static void UnBindOnArrayIndex(N& bindArray)
         {
-#ifdef RY_TEXTURE_VARIENTS
+#ifdef RY_TEXTURE_VARIANTS
             static_assert(!std::is_same_v<N, TextureBindArray>, "This type is not aloowed here!");
 #endif
             uint32_t index = 0u;
@@ -208,7 +208,7 @@ namespace Rynex {
         template<typename N>
         static void BindOnArrayIndexOrder(const N& bindArray)
         {
-#ifdef RY_TEXTURE_VARIENTS
+#ifdef RY_TEXTURE_VARIANTS
             static_assert(!std::is_same_v<N, TextureBindArray>, "This type is not aloowed here!");
 #endif
             uint32_t index = 0u;
@@ -221,7 +221,7 @@ namespace Rynex {
             }
         }
 
-#ifdef RY_TEXTURE_VARIENTS
+#ifdef RY_TEXTURE_VARIANTS
         template<>
         void UnBindOnArrayIndex<TextureBindArray>(TextureBindArray& bindArray)
         {
@@ -278,7 +278,7 @@ namespace Rynex {
         }
 #endif
 
-#ifdef RY_SSBO_VARIENTS
+#ifdef RY_SHADER_STORAGE_BUFFER_OBJECT_VARIANTS
         template<>
         void UnBindOnArrayIndex<StorageBindArray>(StorageBindArray& bindArray)
         {
@@ -578,6 +578,8 @@ namespace Rynex {
 
 
     }
+
+
     RenderTarget::RenderTarget()
         : m_FB(nullptr)
         , m_RenderViewSize(glm::vec4{ 1.0f, 1.0f, 0.0f,0.0f })
@@ -930,7 +932,7 @@ namespace Rynex {
 #endif
 
                 std::sort(drawList->GetBindTextures().begin(), drawList->GetBindTextures().end(),
-#ifdef RY_TEXTURE_VARIENTS
+#ifdef RY_TEXTURE_VARIANTS
                     [](auto& refA, auto& refB)
                     {
                         bool a = std::visit([](auto& value) { return nullptr != value.get(); }, refA);
@@ -955,7 +957,7 @@ namespace Rynex {
                     });
 
                 std::sort(drawList->GetBindStorage().begin(), drawList->GetBindStorage().end(),
-#ifdef RY_SSBO_VARIENTS
+#ifdef RY_SHADER_STORAGE_BUFFER_OBJECT_VARIANTS
                     [](auto& refA, auto& refB)
                     {
                         bool a = std::visit([](auto& value) { return nullptr != value.get(); }, refA);
@@ -993,7 +995,7 @@ namespace Rynex {
 
     void RenderTarget::SortedPiplineList()
     {
-        std::sort(m_PilineBaseVec.begin(), m_PilineBaseVec.end(), &PiplineRenderBase::SortePiplineRenderBase);
+        std::sort(m_PilineBaseVec.begin(), m_PilineBaseVec.end(), &PiplineRenderBase::SortPiplineRenderBase);
     }
 
     void RenderTarget::SortedPiplineAlphaList()
@@ -1293,7 +1295,7 @@ namespace Rynex {
     int RenderTarget::DrawPiplineList()
     {
         int renderModeBevorDraw = Renderer::GetMode();
-#if RY_TEST_SORT_EFICENTS
+#if RY_TEST_SORT_EFFICIENT
         uint64_t lastVAO = 0;
         int countVAOInRow = 0;
         int countVAOInRowMax = 0;
@@ -1326,7 +1328,7 @@ namespace Rynex {
     int RenderTarget::DrawPiplineList(int modes)
     {
         int renderModeBevorDraw = Renderer::GetMode();
-#if RY_TEST_SORT_EFICENTS
+#if RY_TEST_SORT_EFFICIENT
         uint64_t last = 0;
         int countInRow = 0;
         int countInRowMax = 0;

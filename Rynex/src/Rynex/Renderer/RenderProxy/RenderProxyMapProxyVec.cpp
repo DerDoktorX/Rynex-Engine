@@ -147,7 +147,7 @@ namespace Rynex {
         constexpr uint32_t maxFreeListSize = 150u;
         if (maxFreeListSize < m_FreeListVec.size())
         {
-            RY_CORE_WARN("We have large holes in ProxyInidicesVec! {} removed elments!", m_FreeListVec.size());
+            RY_CORE_WARN("We have large holes in ProxyIndicesVec! {} removed elments!", m_FreeListVec.size());
         }
 
         for (uint32_t& proxyAccesIndex : m_ProxyInidicesVec)

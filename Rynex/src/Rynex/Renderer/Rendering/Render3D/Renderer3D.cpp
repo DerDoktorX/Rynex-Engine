@@ -13,6 +13,7 @@
 
 #include <Rynex/Renderer/PiplineObjects/Piplines/SinglePiplineRender.h>
 #include <Rynex/Renderer/PiplineObjects/Piplines/InstenceMeshPiplineRender.h>
+#include <Rynex/Renderer/PiplineObjects/Piplines/PipelineRenderImpl.h>
 #include <Rynex/Renderer/PiplineObjects/Piplines/PiplineBase.h>
 #include <Rynex/Renderer/RenderProxy/StaticeRenderProxys.h>
 
@@ -180,9 +181,9 @@ namespace Rynex {
 		PiplineRefVec<SingleMeshPiplineRenderShade> PiplineNotInFustremVec;
 		PiplineRefVec<SingleMeshPiplineRenderDepth> PiplineDepthVec;
 
-		PiplineRefVec<InstenceMeshPiplineRenderShade> InstencPiplineShadeVec;
-		PiplineRefVec<InstenceMeshPiplineRenderShape> InstencPiplineShapeVec;
-		PiplineRefVec<InstenceMeshPiplineRenderDepth> InstencPiplineDepthVec;
+		PiplineRefVec<InstanceMeshPiplineRenderShade> InstencPiplineShadeVec;
+		PiplineRefVec<InstanceMeshPiplineRenderShape> InstencPiplineShapeVec;
+		PiplineRefVec<InstanceMeshPiplineRenderDepth> InstencPiplineDepthVec;
 #else
 		PiplineRefBaseVec m_SinglePiplineBaseVec;
 		PiplineRefBaseVec m_InstencPiplineBaseVec;
@@ -1215,8 +1216,8 @@ namespace Rynex {
 		
 		Ref<Texture> tex = Texture::White();
 		Ref<UniformBuffer> ub = Renderer::GetPackegeCameraUniformMain();
-		pipline->SubmitRenderTargetResurcesReadImg(tex);
-		pipline->SubmitRenderTargetResurcesReadUB(ub);
+		pipline->SubmitRenderTargetResourceReadImg(tex);
+		pipline->SubmitRenderTargetResourceReadUB(ub);
 
 		RY_REMBER_FUNC_CHANGE("");
 #endif
@@ -1297,8 +1298,8 @@ namespace Rynex {
 
 		Ref<Texture> tex = Texture::White();
 		Ref<UniformBuffer> ub = Renderer::GetPackegeCameraUniformMain();
-		pipline->SubmitRenderTargetResurcesReadImg(tex);
-		pipline->SubmitRenderTargetResurcesReadUB(ub);
+		pipline->SubmitRenderTargetResourceReadImg(tex);
+		pipline->SubmitRenderTargetResourceReadUB(ub);
 
 		RY_REMBER_FUNC_CHANGE("");
 #endif
@@ -1336,8 +1337,8 @@ namespace Rynex {
 				if (nullptr == ub)
 					return;
 
-				pipline->SubmitRenderTargetResurcesReadImg(tex);
-				pipline->SubmitRenderTargetResurcesReadUB(ub);
+				pipline->SubmitRenderTargetResourceReadImg(tex);
+				pipline->SubmitRenderTargetResourceReadUB(ub);
 				countRef++;
 			}
 		);
@@ -1346,8 +1347,8 @@ namespace Rynex {
 			Ref<Texture> tex = Texture::White();
 			Ref<UniformBuffer>& ub = Renderer::GetPackegeCameraUniformMain();
 
-			pipline->SubmitRenderTargetResurcesReadImg(tex);
-			pipline->SubmitRenderTargetResurcesReadUB(ub);
+			pipline->SubmitRenderTargetResourceReadImg(tex);
+			pipline->SubmitRenderTargetResourceReadUB(ub);
 
 		}
 #elif 1
@@ -1355,8 +1356,8 @@ namespace Rynex {
 		Ref<Texture> tex = Texture::White();
 		Ref<UniformBuffer>& ub = Renderer::GetPackegeCameraUniformMain();
 
-		pipline->SubmitRenderTargetResurcesReadImg(tex);
-		pipline->SubmitRenderTargetResurcesReadUB(ub);
+		pipline->SubmitRenderTargetResourceReadImg(tex);
+		pipline->SubmitRenderTargetResourceReadUB(ub);
 
 #endif
 		
@@ -1441,12 +1442,12 @@ namespace Rynex {
 		if (pilineIndex <= countPiplines)
 		{
 #if 1
-			pipline = piplineBaseVec.GetPiplineType<InstenceMeshPiplineRenderShade>(pilineIndex);
+			pipline = piplineBaseVec.GetPiplineType<InstanceMeshPiplineRenderShade>(pilineIndex);
 			result = pipline->SubmitEntityMeshObject(meshObject, shader, model, instenceIndex, entityID);
 			checkResult = (result & PiplineResultState::Result_Success);
 #else
 
-			pipline = piplineBaseVec.GetPiplineTypeRef<InstenceMeshPiplineRenderShade>(pilineIndex);
+			pipline = piplineBaseVec.GetPiplineTypeRef<InstanceMeshPiplineRenderShade>(pilineIndex);
 
 			result = pipline->SubmitEntityMeshObject(meshObject, shader, model, instenceIndex, entityID);
 			pipline->GetFrameCountNotUpdate();
@@ -1458,15 +1459,15 @@ namespace Rynex {
 		while (checkResult == 0 && i <= countPiplines)
 		{
 #if 1
-			pipline = piplineBaseVec.GetPiplineType<InstenceMeshPiplineRenderShade>(i);
+			pipline = piplineBaseVec.GetPiplineType<InstanceMeshPiplineRenderShade>(i);
 			result = pipline->SubmitEntityMeshObject(meshObject, shader, model, instenceIndex, entityID);
 			checkResult = (result & PiplineResultState::Result_Success);
 #else
-			Ref<PiplineRenderBase>& piplineRef = piplineBaseVec.GetPiplineTypeRef<InstenceMeshPiplineRenderShade>(i);
+			Ref<PiplineRenderBase>& piplineRef = piplineBaseVec.GetPiplineTypeRef<InstanceMeshPiplineRenderShade>(i);
 			if (piplineRef->IsToLongNotUpdated())
 			{
 				RY_DESTROY_REF(piplineRef);
-				piplineRef = CreateRef<InstenceMeshPiplineRenderShade>();
+				piplineRef = CreateRef<InstanceMeshPiplineRenderShade>();
 			}
 
 			result = piplineRef->SubmitEntityMeshObject(meshObject, shader, model, instenceIndex, entityID);
@@ -1478,7 +1479,7 @@ namespace Rynex {
 		}
 		if (i > 0)
 			pilineIndex = i - 1;
-		RY_CORE_ASSERT(checkResult != 0, "we dident find a Pipline or/and even a new did not work!");
+		RY_CORE_ASSERT(checkResult != 0, "we didnt find a Pipline or/and even a new did not work!");
 
 
 		Ref<UniformBuffer>& camerPackedUB = Renderer::GetPackegeCameraUniformMain();
@@ -1538,13 +1539,13 @@ namespace Rynex {
 		if (pilineIndex <= countPiplines)
 		{
 #if 0
-			pipline = piplineBaseVec.GetPiplineType<InstenceMeshPiplineRenderDepth>(pilineIndex, target);
+			pipline = piplineBaseVec.GetPiplineType<InstanceMeshPiplineRenderDepth>(pilineIndex, target);
 
 			result = pipline->SubmitEntityMeshObject(meshObject, shader, model, instenceIndex, entityID);
 			pipline->GetFrameCountNotUpdate();
 			checkResult = (result & PiplineResultState::Result_Success);
 #else
-			pipline = piplineBaseVec.GetPiplineType<InstenceMeshPiplineRenderDepth>(pilineIndex);
+			pipline = piplineBaseVec.GetPiplineType<InstanceMeshPiplineRenderDepth>(pilineIndex);
 
 			result = pipline->SubmitEntityMeshObject(meshObject, shader, model, instenceIndex, entityID);
 			pipline->GetFrameCountNotUpdate();
@@ -1557,21 +1558,21 @@ namespace Rynex {
 		{
 #if 0
 #if 1
-			pipline = piplineBaseVec.GetPiplineType<InstenceMeshPiplineRenderDepth>(i, target);	
+			pipline = piplineBaseVec.GetPiplineType<InstanceMeshPiplineRenderDepth>(i, target);	
 			result = pipline->SubmitEntityMeshObject(meshObject, shader, model, instenceIndex, entityID);
 			checkResult = (result & PiplineResultState::Result_Success);
 #else
 			Ref<PiplineRenderBase>& piplineRef = target->GetPiplineIndexOrPush(i);
 			if (nullptr == piplineRef)
-				piplineRef = CreateRef<InstenceMeshPiplineRenderDepth>();
+				piplineRef = CreateRef<InstanceMeshPiplineRenderDepth>();
 			result = piplineRef->SubmitEntityMeshObject(meshObject, shader, model, instenceIndex, entityID);
 			pipline = piplineRef;
 #endif
 		
 #else
-			Ref<PiplineRenderBase> piplineRef = piplineBaseVec.GetPiplineType<InstenceMeshPiplineRenderDepth>(i);
+			Ref<PiplineRenderBase> piplineRef = piplineBaseVec.GetPiplineType<InstanceMeshPiplineRenderDepth>(i);
 			if (nullptr == piplineRef)
-				piplineRef = CreateRef<InstenceMeshPiplineRenderDepth>();
+				piplineRef = CreateRef<InstanceMeshPiplineRenderDepth>();
 			result = piplineRef->SubmitEntityMeshObject(meshObject, shader, model, instenceIndex, entityID);
 			checkResult = (result & PiplineResultState::Result_Success);
 			pipline = piplineRef;
@@ -1606,7 +1607,7 @@ namespace Rynex {
 		uint32_t i = 0;
 		while (checkResult == 0 && i <= countPiplines)
 		{
-			pipline = piplineBaseVec.GetPiplineType<InstenceMeshPiplineRenderShape>(i, target);
+			pipline = piplineBaseVec.GetPiplineType<InstanceMeshPiplineRenderShape>(i, target);
 			result = pipline->SubmitEntityMeshObject(meshObject, shader, model, instenceIndex, entityID);
 			checkResult = (result & PiplineResultState::Result_Success);
 			i++;

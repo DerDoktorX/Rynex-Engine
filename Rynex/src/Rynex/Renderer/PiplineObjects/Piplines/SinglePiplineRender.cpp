@@ -32,7 +32,7 @@ namespace Rynex {
 		RY_DESTROY_REF(m_ModelBuffer);
 	}
 
-	void SingleMeshPiplineRenderShade::SubmitRenderTargetResurces(ViewPassStorage& viewPass)
+	void SingleMeshPiplineRenderShade::SubmitRenderTargetResource(ViewPassStorage& viewPass)
 	{
 		if (nullptr == m_ShadowTex || nullptr == m_LigthBuffer)
 		{
@@ -48,12 +48,12 @@ namespace Rynex {
 		}
 	}
 
-	void SingleMeshPiplineRenderShade::SubmitRenderTargetResurcesReadImg(const Ref<Texture>& texture)
+	void SingleMeshPiplineRenderShade::SubmitRenderTargetResourceReadImg(const Ref<Texture>& texture)
 	{
 		m_ShadowTex = texture;
 	}
 
-	void SingleMeshPiplineRenderShade::SubmitRenderTargetResurcesReadUB(const Ref<UniformBuffer>& buffer)
+	void SingleMeshPiplineRenderShade::SubmitRenderTargetResourceReadUB(const Ref<UniformBuffer>& buffer)
 	{
 		m_LigthBuffer = buffer;
 	}
@@ -112,7 +112,7 @@ namespace Rynex {
 		CheckObject(m_SingleMeshObject.m_Material, materiel, result,  Result_NotAllowedShadeDefinition, Result_NoShadeDefinitionSpaceLeft);
 		
 		if(nullptr != materiel)
-			CheckObject(m_AlbdeoTex, materiel->GetAlbedoTextures(), result, Result_NotAllowedTexture, Result_NoTextexurSpaceLeft);
+			CheckObject(m_AlbdeoTex, materiel->GetAlbedoTextures(), result, Result_NotAllowedTexture, Result_NoTextureSpaceLeft);
 
 		return result;
 	}
@@ -148,11 +148,11 @@ namespace Rynex {
 				{ShaderDataType::Int3, "Empty"},
 			});
 
-			m_ModelBuffer = UniformBuffer::Create(&m_RenderObject.Object, sizeof(RenderObject), layout, UniformBinding_RenderObject);
+			m_ModelBuffer = UniformBuffer::Create(&m_RenderObject.m_Object, sizeof(RenderObject), layout, UniformBinding_RenderObject);
 		}
 		else if (m_RenderObject.NeedUpdate())
 		{
-			m_ModelBuffer->SetData(&m_RenderObject.Object, sizeof(RenderObject));
+			m_ModelBuffer->SetData(&m_RenderObject.m_Object, sizeof(RenderObject));
 			m_RenderObject.Updated();
 		}
 	}
@@ -231,7 +231,7 @@ namespace Rynex {
 		RenderCommand::SetMode(flags);
 		BindResources();
 		RY_CORE_ASSERT(0 < m_InstencCount);
-		drawElement.m_InstancesCount = m_InstencCount;
+		drawElement.m_InstanceCount = m_InstencCount;
 		
 		RenderCommand::DrawElement(m_VertexArray, drawElement);
 #if RY_UNBIND
@@ -239,7 +239,7 @@ namespace Rynex {
 #endif
 	}
 
-	uint32_t SingleMeshPiplineRenderShade::GetCurentEntityRender() const
+	uint32_t SingleMeshPiplineRenderShade::GetCurrentEntityRender() const
 	{
 		return m_InstencCount;
 	}
@@ -298,7 +298,7 @@ namespace Rynex {
 		const Ref<VertexBuffer>& buffer = meshSingle->GetVertexBuffer();
 		{
 			uint64_t numberVAB = reinterpret_cast<uint64_t>(buffer.get());
-			number |= numberVAB << (i * Hash_BindingPointMultyplyNumberBitMove);
+			number |= numberVAB << (i * Hash_BindingPointMultiplyNumberBitMove);
 			i++;
 		}
 		
@@ -323,8 +323,8 @@ namespace Rynex {
 		uint64_t number = 0;
 		uint64_t albedoNumber = reinterpret_cast<uint64_t>(m_AlbdeoTex.get());
 		uint64_t shadowNumber = reinterpret_cast<uint64_t>(m_ShadowTex.get());
-		number |= albedoNumber << (Hash_BindingPointMultyplyNumberBitMove * TextureBinding_Abldoe);
-		number |= shadowNumber << (Hash_BindingPointMultyplyNumberBitMove * TextureBinding_Shadow);
+		number |= albedoNumber << (Hash_BindingPointMultiplyNumberBitMove * TextureBinding_Abldoe);
+		number |= shadowNumber << (Hash_BindingPointMultiplyNumberBitMove * TextureBinding_Shadow);
 		return number;
 	}
 
@@ -335,10 +335,10 @@ namespace Rynex {
 		uint64_t cameraNumber = reinterpret_cast<uint64_t>(m_CameraBuffer.get());
 		uint64_t modelNumber = reinterpret_cast<uint64_t>(m_ModelBuffer.get());
 		uint64_t materilNumber = reinterpret_cast<uint64_t>(m_ModelBuffer.get());
-		number |= ligtheNumber << (Hash_BindingPointMultyplyNumberBitMove * UniformBinding_LigthCamera);
-		number |= cameraNumber << (Hash_BindingPointMultyplyNumberBitMove * UniformBinding_MainCamer);
-		number |= modelNumber << (Hash_BindingPointMultyplyNumberBitMove * UniformBinding_RenderObject);
-		number |= materilNumber << (Hash_BindingPointMultyplyNumberBitMove * UniformBinding_Materiel);
+		number |= ligtheNumber << (Hash_BindingPointMultiplyNumberBitMove * UniformBinding_LigthCamera);
+		number |= cameraNumber << (Hash_BindingPointMultiplyNumberBitMove * UniformBinding_MainCamer);
+		number |= modelNumber << (Hash_BindingPointMultiplyNumberBitMove * UniformBinding_RenderObject);
+		number |= materilNumber << (Hash_BindingPointMultiplyNumberBitMove * UniformBinding_Materiel);
 
 		return number;
 	}
@@ -381,7 +381,7 @@ namespace Rynex {
 		m_LigthBuffer = ligthBuffer;
 	}
 
-	void SingleMeshPiplineRenderDepth::SetDisplayUniformBuffer(Ref<UniformBuffer> dispalaybuffer)
+	void SingleMeshPiplineRenderDepth::SetDisplayUniformBuffer(Ref<UniformBuffer> displayBuffer)
 	{
 
 	}
@@ -532,7 +532,7 @@ namespace Rynex {
 		RenderCommand::DrawElement(m_VertexArray, drawElement);
 	}
 
-	uint32_t SingleMeshPiplineRenderDepth::GetCurentEntityRender() const
+	uint32_t SingleMeshPiplineRenderDepth::GetCurrentEntityRender() const
 	{
 		return m_InstencCount;
 	}
@@ -589,7 +589,7 @@ namespace Rynex {
 		uint64_t i = 0u;
 		
 		uint64_t numberVAB = reinterpret_cast<uint64_t>(vab.get());
-		number |= numberVAB << (i * Hash_BindingPointMultyplyNumberBitMove);
+		number |= numberVAB << (i * Hash_BindingPointMultiplyNumberBitMove);
 		i++;
 		
 
@@ -619,8 +619,8 @@ namespace Rynex {
 		uint64_t number = 0;
 		uint64_t ligtheNumber = reinterpret_cast<uint64_t>(m_ModelBuffer.get());
 		uint64_t modelNumber = reinterpret_cast<uint64_t>(m_LigthBuffer.get());
-		number |= ligtheNumber << (Hash_BindingPointMultyplyNumberBitMove * UniformBinding_LigthCamera);
-		number |= modelNumber << (Hash_BindingPointMultyplyNumberBitMove * UniformBinding_RenderObject);
+		number |= ligtheNumber << (Hash_BindingPointMultiplyNumberBitMove * UniformBinding_LigthCamera);
+		number |= modelNumber << (Hash_BindingPointMultiplyNumberBitMove * UniformBinding_RenderObject);
 		return number;
 	}
 

@@ -1676,7 +1676,7 @@ case key: \
 #endif
         if (Renderer::IsEditorInit())
             Renderer::ShutdownEditor();
-        if (Renderer::IsEditorInit())
+        if (Renderer::IsInit())
             Renderer::Shutdown();
 
 

@@ -18,17 +18,17 @@ namespace Rynex {
 		public:
 			// static_assert((std::is_base_of_v<std::enable_shared_from_this<typename Args>, typename Args> && ...)
 			// 	,"All Typs need to drive from std::enable_shared_from_this<T>.");
-			
-			using ValueTypesVarientWeak = typename std::variant<Weak<Args> ...>;
+			using ValueTypesVariantWeak = typename std::variant<Weak<Args> ...>;
 
 			using HashType = uint64_t;
 			using SizeType = size_t;
-			using DifernzType = int64_t;
+			using DifferenceType = int64_t;
+
 		private:
 			struct Item
 			{
-				HashType hash;
-				ValueTypesVarientWeak weakPtrVarients;
+				HashType m_Hash;
+				ValueTypesVariantWeak m_WeakPtrVariant;
 
 				Item() = delete;				
 				Item(Item&&) = default;
@@ -42,72 +42,72 @@ namespace Rynex {
 				{					
 					static_assert(is_one_of_v<T, Args...>, "Typ T need to exist in Template-Typeliste");
 
-					hash = reinterpret_cast<HashType>(value);
-					weakPtrVarients = Asset::GetWeakInPlaceType<T>(value);
+					m_Hash = reinterpret_cast<HashType>(value);
+					m_WeakPtrVariant = Asset::GetWeakInPlaceType<T>(value);
 				}
 
 				Item& operator=(const Item& item) = default;
 
 				bool operator==(const Item& item) const
 				{
-					return hash == item.hash;
+					return m_Hash == item.m_Hash;
 				}
 
 				bool operator!=(const Item& item) const
 				{
-					return hash != item.hash;
+					return m_Hash != item.m_Hash;
 				}
 
 				bool operator<(const Item& item) const
 				{
-					return hash < item.hash;
+					return m_Hash < item.m_Hash;
 				}
 
 				bool operator<=(const Item& item) const
 				{
-					return hash <= item.hash;
+					return m_Hash <= item.m_Hash;
 				}
 
 				bool operator>(const Item& item) const
 				{
-					return hash > item.hash;
+					return m_Hash > item.m_Hash;
 				}
 
 				bool operator>=(const Item& item) const
 				{
-					return hash >= item.hash;
+					return m_Hash >= item.m_Hash;
 				}
 
 				
 				[[nodiscard]] HashType Hash() const
 				{
-					return hash;
+					return m_Hash;
 				}
 
-				[[nodiscard]] bool IsVaild() const
+				[[nodiscard]] bool IsValid() const
 				{
 					
-					return std::visit([](auto& weakPtr) { return !weakPtr.expired(); }, weakPtrVarients);
+					return std::visit([](auto& weakPtr) { return !weakPtr.expired(); }, m_WeakPtrVariant);
 				}
 
 				template<typename Func>
 				void OnItem(Func&& func) const
 				{
-					std::visit(func, weakPtrVarients);
+					std::visit(func, m_WeakPtrVariant);
 				}
 				template<typename Func>
 				void OnItem(Func&& func)
 				{
-					std::visit(func, weakPtrVarients);
+					std::visit(func, m_WeakPtrVariant);
 				}
 
 				template<typename T>
 				Ref<T> Get() const
 				{
-					static_assert(is_one_of_v<T, Args...>, "Typ T need to exist in Template-Typeliste");
+					static_assert(is_one_of_v<T, Args...>, "Typ T need to exist in Template-Type list");
 
-					if (Weak<T>* weakobjetPtr = std::get_if<Weak<T>>(&weakPtrVarients))
-						return weakobjetPtr->lock();
+					if (Weak<T>* weakObjectPtr = std::get_if<Weak<T>>(&m_WeakPtrVariant))
+						return weakObjectPtr->lock();
 					return nullptr;
 				}
 			};
@@ -129,11 +129,11 @@ namespace Rynex {
 			template<typename T>
 			SizeType Set(T* valuePtr)
 			{
-				static_assert(is_one_of_v<T, Args...>, "Typ T need to exist in Template-Typeliste");
+				static_assert(is_one_of_v<T, Args...>, "Typ T need to exist in Template-Type list");
 
 				Item item(valuePtr);
 			
-				RY_CORE_ASSERT(item.IsVaild(), "value is not vaild");
+				RY_CORE_ASSERT(item.IsValid(), "value is not valid");
 
 
 				const ContainerIt end = m_Container.end();
@@ -146,31 +146,31 @@ namespace Rynex {
 					RY_CORE_ERROR("valuePtr is already in container!");
 					return std::numeric_limits<SizeType>::max();
 				}
-				DifernzType index = end != pos ? pos - begin : 0;
+				DifferenceType index = end != pos ? pos - begin : 0;
 				RY_CORE_ASSERT(0 <= index && index <= m_Container.size(), "index is negative and (not to be Positive)!");
 				m_Container.insert(pos, item);
-				
-				SizeType indexSize = static_cast<SizeType>(index);
+
+				const SizeType indexSize = static_cast<SizeType>(index);
 
 				
 				return indexSize;
 			}
 
 			template<typename T>
-			ContainerIt Finde(const Item& item)
+			ContainerIt Find(const Item& item)
 			{
-				static_assert(is_one_of_v<T, Args...>, "Typ T need to exist in Template-Typeliste");
+				static_assert(is_one_of_v<T, Args...>, "Typ T need to exist in Template-Type list");
 				return std::lower_bound(m_Container.begin(), m_Container.end(), item);
 			}
 
 			template<typename T>
-			ContainerIt Finde(T* valuePtr)
+			ContainerIt Find(T* valuePtr)
 			{
-				static_assert(is_one_of_v<T, Args...>, "Typ T need to exist in Template-Typeliste");
+				static_assert(is_one_of_v<T, Args...>, "Typ T need to exist in Template-Type list");
 				Item item = Item(valuePtr);
-				RY_CORE_ASSERT(item.IsVaild(), "tried to set a Nullptr Value!");
+				RY_CORE_ASSERT(item.IsValid(), "tried to set a Nullptr Value!");
 
-				return Finde(item);
+				return Find(item);
 			}
 
 			template<typename T>
@@ -179,14 +179,14 @@ namespace Rynex {
 				static_assert(is_one_of_v<T, Args...>, "Typ T need to exist in Template-Typeliste");
 
 				Item hasItem = Item(valuePtr);
-				bool result = std::binary_search(m_Container.begin(), m_Container.end(), hasItem);
+				const bool result = std::binary_search(m_Container.begin(), m_Container.end(), hasItem);
 				return result;
 			}
 
 			template<typename Func>
 			void OnValue(SizeType index, Func&& func) const
 			{
-				SizeType count = m_Container.size();
+				const SizeType count = m_Container.size();
 				RY_CORE_ASSERT(index < count, "tried to set a Nullptr Value!");
 				const Item& item = m_Container.at(index);
 				item.OnItem(func);
@@ -195,7 +195,7 @@ namespace Rynex {
 			template<typename Func>
 			void OnValue(SizeType index, Func&& func)
 			{
-				SizeType count = m_Container.size();
+				const SizeType count = m_Container.size();
 				RY_CORE_ASSERT(index < count, "tried to set a Nullptr Value!");
 				Item& item = m_Container.at(index);
 				item.OnItem(func);
@@ -204,9 +204,9 @@ namespace Rynex {
 			template<typename T>
 			Ref<T> Get(SizeType index) const
 			{
-				static_assert(is_one_of_v<T, Args...>, "Typ T need to exist in Template-Typeliste");
+				static_assert(is_one_of_v<T, Args...>, "Typ T need to exist in Template-Type list");
 
-				SizeType count = m_Container.size();
+				const SizeType count = m_Container.size();
 				RY_CORE_ASSERT(index < count, "tried to set a Nullptr Value!");
 				const Item& item = m_Container.at(index);
 				Ref<T> valueRef;
@@ -217,10 +217,10 @@ namespace Rynex {
 			template<typename T>
 			Ref<T> Get(SizeType index)
 			{
-				static_assert(is_one_of_v<T, Args...>, "Typ T need to exist in Template-Typeliste");
+				static_assert(is_one_of_v<T, Args...>, "Typ T need to exist in Template-Type list");
 
 
-				SizeType count = m_Container.size();
+				const SizeType count = m_Container.size();
 				RY_CORE_ASSERT(index < count, "tried to set a Nullptr Value!");
 				Item& item = m_Container.at(index);
 				Ref<T> valueRef = item.Get();
@@ -234,16 +234,16 @@ namespace Rynex {
 
 
 				Item hasItem = Item(valuePtr);
-				if (!hasItem.IsVaild())
+				if (!hasItem.IsValid())
 				{
-					RY_CORE_WARN("we removed a already Destroyd Value from list! is no longer vaild");
+					RY_CORE_WARN("we removed a already Destroyed Value from list! is no longer vaild");
 				}
 				ContainerIt end = m_Container.end();
 				ContainerIt pos = std::lower_bound(m_Container.begin(), end, hasItem);
 				if (pos != end)
 					m_Container.erase(pos);
 				else
-					RY_CORE_ERROR("we removed a already Destroyd Value from list! not found");
+					RY_CORE_ERROR("we removed a already Destroyed Value from list! not found");
 				
 			}
 
@@ -279,17 +279,17 @@ namespace Rynex {
 				m_LopeHole = 0;
 			}
 
-			void FindeNullptrAndRemove()
+			void FindNullptrAndRemove()
 			{				
 				using RitConst = typename Container::const_reverse_iterator;
 				using ItConst = typename Container::const_iterator;
 
-				int i = m_Container.size() - 1;
+
 				ItConst begin = m_Container.begin();
 				for (int i = m_Container.size() - 1; 0 <= i ; i--)
 				{
 					const Item& item = m_Container.at(i);
-					if (item.IsVaild())
+					if (item.IsValid())
 						continue;
 
 					ItConst pos = begin + i;
@@ -309,7 +309,7 @@ namespace Rynex {
 				return m_Container.empty();
 			}
 
-			// in next forech loop we skip exeution for that value if it exist it delet him self automaticly
+			// in next foreach loop we skip execution for that value if it exist it delete him self automaticly
 			template<typename T>
 			void SetLoopJump(T* valuePtr)const
 			{

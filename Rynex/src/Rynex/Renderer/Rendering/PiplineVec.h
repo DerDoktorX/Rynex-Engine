@@ -113,7 +113,7 @@ namespace Rynex {
 			}
 			else
 			{
-				RY_CORE_ASSERT(i == m_PiplineIndex, "Recusted Index is not next higer Index");
+				RY_CORE_ASSERT(i == m_PiplineIndex, "Recused Index is not next higher Index");
 				index = m_PiplineIndex;
 				m_PiplineIndex++;
 

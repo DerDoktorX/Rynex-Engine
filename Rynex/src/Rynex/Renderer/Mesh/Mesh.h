@@ -91,7 +91,7 @@ namespace Rynex {
 		struct PerDrawObject
 		{
 			uint32_t m_Count;
-			uint32_t m_InstancesCount;
+			uint32_t m_InstanceCount;
 			uint32_t m_FirstIndex;
 			int m_BaseVertex;
 			uint32_t m_BaseInstance;

@@ -7,7 +7,7 @@ namespace Rynex {
     class ExecuteEvent
     {
     public:
-        ExecuteEvent(RenderProxysListData& proxy)
+        explicit ExecuteEvent(RenderProxysListData& proxy)
             : m_ProxyRef(proxy)
         {
 
@@ -22,7 +22,7 @@ namespace Rynex {
             uint32_t proxyIndex = m_ProxyRef.AddProxy(proxy, model);
 
        
-            RY_CORE_ASSERT(!Asset::CurrentOnMainThread(), "Expexted not Main Thread!");
+            RY_CORE_ASSERT(!Asset::CurrentOnMainThread(), "Expected not Main Thread!");
             auto& renderProxyVec = m_ProxyRef.m_RenderProxyArrayVec.at(RenderProxysListData::EventData);
 
 
@@ -410,7 +410,7 @@ namespace Rynex {
             RemoveFuncArgs2* removeFuncArgs2Ptr = std::get_if<RemoveFuncArgs2>(&event);
             if (nullptr != removeFuncArgs2Ptr && removeFuncArgs2Ptr->entity == -1)
             {
-                RY_CORE_TRACE("Skip Event becouse invaild: {}", removeFuncArgs2Ptr->entity);
+                RY_CORE_TRACE("Skip Event because invalid: {}", removeFuncArgs2Ptr->entity);
                 CopeyDataEvent();
                 notSyncEventsCount = 0;
                 continue;
