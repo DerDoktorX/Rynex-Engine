@@ -1,5 +1,6 @@
 #pragma once
-#include "Rynex/Core/Config.h"
+#include <Rynex/Core/Config.h>
+
 
 #include <memory>
 #include <unordered_map>
@@ -10,11 +11,7 @@
 #ifdef _WIN32
 
 	#ifdef _WIN64
-		#if RY_GOOGLE_TEST
-				#define RY_DEBUG_BREAK() std::abort()
-		#else
-				#define RY_DEBUG_BREAK() __debugbreak()
-		#endif
+        #define RY_DEBUG_BREAK()  __debugbreak()
 	#else
 		#error "Rynex only Seports x64 Bit Builds or Platforms (x84 Bit or x32 Bit Builds are not seported and x32 Bit Has no Plans to seport in Futer)"
 		#define RY_DEBUG_BREAK()
@@ -445,7 +442,7 @@ namespace Rynex {
 			T valueResult = static_cast<T>(value);
 			RY_CORE_ASSERT(valueResult == value, "not the same Values!");
 			N valueBackwards = static_cast<N>(valueResult);
-			RY_CORE_ASSERT(valueBackwards == value, "not backward Competible!");
+			RY_CORE_ASSERT(valueBackwards == value, "not backward Compatible!");
 
 			return valueResult;
 		}
