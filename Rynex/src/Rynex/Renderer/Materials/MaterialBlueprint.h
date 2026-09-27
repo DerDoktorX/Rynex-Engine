@@ -34,7 +34,7 @@
 
 namespace Rynex {
 
-    class Materialblueprint : public Asset
+    class MaterialBlueprint : public Asset
     {
     public:
         // ----------------------------------------------------------
@@ -84,11 +84,11 @@ namespace Rynex {
 
         // -- Factory -----------------------------------------------
         //   blueprintSourceName: logical name used for shader-library lookup.
-        static Ref<Materialblueprint> Create(const std::string& blueprintSourceName);
-        static Ref<Materialblueprint> CreateAndCompile(const std::string& blueprintSourceName, MaterialQuality quality = MaterialQuality::High);
+        static Ref<MaterialBlueprint> Create(const std::string& blueprintSourceName);
+        static Ref<MaterialBlueprint> CreateAndCompile(const std::string& blueprintSourceName, MaterialQuality quality = MaterialQuality::High);
 
 
-        virtual ~Materialblueprint() = default;
+        virtual ~MaterialBlueprint() = default;
 
 
         // -- Shader-variant registration (called during procedural build) --
