@@ -55,7 +55,7 @@ namespace Rynex {
             MaterialStateFlag               m_StateFlags = MaterialStateFlags::None;
 
             // How instances / material params are batched for this pass.
-            DrawSpecification::BatchConfig  m_BatchConfig = DrawSpecification::None;
+            BatchPresets::BatchProfile      m_BatchProfile;
 
             // Render-mode integer forwarded to RendererAPI::SetMode.
             int                             m_RenderMode = 0;
