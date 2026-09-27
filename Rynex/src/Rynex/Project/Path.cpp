@@ -227,7 +227,7 @@ namespace Rynex::FileSystem {
 
     AssetType Path::GetAssetFileType() const
 	{
-		AssetType assetType = Asset::GetAssetTypeFromFilePath(m_Path);
+		const AssetType assetType = Asset::GetAssetTypeFromFilePath(m_Path);
 		return assetType;
 	}
 
@@ -307,7 +307,7 @@ namespace Rynex::FileSystem {
 		std::filesystem::path path;
 		if (pathStr.empty())
 		{
-			RY_CORE_WARN("Path is empty!");
+			// RY_CORE_WARN("Path is empty!");
 			return std::tuple<std::filesystem::path, Origin>(path, Origin::None);
 		}
 		Origin originPath = GetPathOriginFromMarkerPath(pathStr);
@@ -323,7 +323,7 @@ namespace Rynex::FileSystem {
 			{	
 				path = pathStr;
 #ifdef RY_PATH_LOG_MSG
-				RY_CORE_TRACE_IF(!IsOriginPathMarked(origin), "No Marker in Path and origni is valid!");
+				RY_CORE_TRACE_IF(!IsOriginPathMarked(origin), "No Marker in Path and origin is valid!");
 #else
 				RY_REMBER_FUNC_CHANGE("Remove LOg State if not need!");
 #endif
