@@ -100,7 +100,7 @@ namespace Rynex {
 
 	class PiplineRenderBase
 	{
-	protected:
+	public:
 		enum {
 			// Hash_BindingPointMultiplyNumberBitMove defines the bit shift per element when combining
 			// multiple pointers into a 64-bit hash. Each pointer is shifted by (index * 16) bits, 
@@ -111,7 +111,7 @@ namespace Rynex {
 											
 		};
 
-	public:
+	// public member methode --------------------------------------------------------------------------------------------------
 
 		virtual ~PiplineRenderBase() {}
 		virtual BufferLayout GetExpectedOutput() const = 0;
@@ -337,6 +337,7 @@ namespace Rynex {
 
 		static void PrintPlineResult(const PiplineResultState result)
 		{
+		    RY_CORE_INFO("Pipline State");
 			RY_CHECK_IF_BIT_IS_SET_PRINT(result, Result_None);
 
 			RY_CHECK_IF_BIT_IS_SET_PRINT(result, Result_Success);

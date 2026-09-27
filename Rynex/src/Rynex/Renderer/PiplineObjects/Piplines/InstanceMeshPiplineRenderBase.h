@@ -10,7 +10,9 @@
 
 #define RY_INSTANCE_MESH_PIPLINE_RENDERER_BASE
 
-// #define RY_INSTANCE_MESH_PIPLINE_RENDER_TEMPLATE
+#define RY_INSTANCE_MESH_PIPLINE_RENDER_SHADE_TEMPLATE
+#define RY_INSTANCE_MESH_PIPLINE_RENDER_DEPTH_TEMPLATE
+#define RY_INSTANCE_MESH_PIPLINE_RENDER_SHAPE_TEMPLATE
 namespace Rynex {
 
     class InstanceMeshPiplineRenderBase : public PiplineRenderBase
@@ -77,23 +79,44 @@ namespace Rynex {
 		virtual uint64_t GetStorageBufferNumber() const = 0;
 		virtual Ref<PiplineRenderBase> Copy() const = 0;
 
-	protected:
-		template<typename T>
-		static void CheckObject(Ref<T>& a, const Ref<T>& b, int& result, int notVaildState, int noSpaceLeft = 0)
+        template<typename T>
+		static void CheckObject(Ref<T>& a, const Ref<T>& b, int& result, int notValidState, int noSpaceLeft = 0)
 		{
 			if (a != b && nullptr != a)
 				result = result | noSpaceLeft;
 
 			if (nullptr == b)
-				result = result | notVaildState;
+				result = result | notValidState;
 		}
+        // template<typename ...Args>
+        // constexpr static uint64_t GetResourceNumber(const Args&... resourcePair)
+        // {
+        //     va_list ap;
+        //     va_start(ap, resourcePair);
+        //     int max = va_arg(ap, int);
+        //     return 0ull;
+        // }
+//
+        // template<typename T>
+        // constexpr static uint64_t GetResourceNumber(const std::pair<const Ref<T>&, const uint64_t>& resourcePair)
+        // {
+        //     uint64_t number = 0ull;
+        //     const Ref<T>& resource = resourcePair.first;
+        //     const uint64_t bindingSlot = resourcePair.second;
+        //     const uint64_t numberAlbedo = reinterpret_cast<uint64_t>(resource.get());
+        //     constexpr uint64_t bitsPerBinding = PiplineRenderBase::Hash_BindingPointMultiplyNumberBitMove;
+        //     number |= numberAlbedo << (bindingSlot * bitsPerBinding);
+        //     return number;
+        // }
+	protected:
+
 
 		virtual bool IsExpectedOutPut(const Ref<Shader>& shader) const;
 
 		virtual void BeforeDrawCall() = 0;
 		virtual void BindResources();
 		virtual void UnbindResources();
-	protected:
+	// protected member variables
 		BufferLayout		m_OutPut;
 		SingleMeshObject	m_SingleMeshObject;
 		uint32_t			m_InstanceCount;

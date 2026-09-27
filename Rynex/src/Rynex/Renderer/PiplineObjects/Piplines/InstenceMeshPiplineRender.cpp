@@ -63,7 +63,7 @@ namespace Rynex {
 
 
 
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDER_TEMPLATE
+#ifndef RY_INSTANCE_MESH_PIPLINE_RENDER_SHADE_TEMPLATE
 #pragma region Shade
 
     InstanceMeshPiplineRenderShade::InstanceMeshPiplineRenderShade()
@@ -127,7 +127,6 @@ namespace Rynex {
 		m_MaterielBuffer->UnBind(UniformBinding_Materiel);
 
 
-
 		m_AlbedoTex->UnBind(TextureBinding_Albedo);
 		m_ShadowTex->UnBind(TextureBinding_Shadow);
 	}
@@ -136,7 +135,6 @@ namespace Rynex {
 	bool InstanceMeshPiplineRenderShade::Empty() const
 	{
 		return 0 == m_InstanceCount;
-
 	}
 
 	bool InstanceMeshPiplineRenderShade::IsFull() const
@@ -162,14 +160,12 @@ namespace Rynex {
 	}
 
 
-
 	uint64_t InstanceMeshPiplineRenderShade::GetVertexBufferNumber() const
 	{
 		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 		const Ref<VertexBuffer>& vab = meshSingle->GetVertexBuffer();
 		uint64_t number = 0ull;
 		uint32_t i = 0;
-
 
 		const Ref<VertexBuffer>& buffer = vab;
 		uint64_t numberVAB = reinterpret_cast<uint64_t>(buffer.get());
@@ -276,7 +272,7 @@ namespace Rynex {
 			uint32_t bytesSize = count * sizeof(RenderObject);
 			constexpr uint32_t instanceIndex = 1u;
 			constexpr bool active = true;
-			BufferLayout layout = BufferLayout({
+			BufferLayout layout({
 				{ SDT::Float4x4, "a_ModelMarix" },
 				{ SDT::Float4x4, "a_NormleMatrix" },
 				{ SDT::Int, "a_EntityID" },
@@ -285,7 +281,7 @@ namespace Rynex {
 			layout.SetAutoCompress(true);
 
 			m_ModelBufferVAO = VertexBuffer::Create(dataPtr, bytesSize, BufferFlag::None, layout);
-			RY_CORE_ASSERT(m_VertexArray->GetVertexBuffersCount() != 2)
+			RY_CORE_ASSERT(2 != m_VertexArray->GetVertexBuffersCount())
 			m_VertexArray->AddVertexBuffer(m_ModelBufferVAO);
 		}
 		else if (m_RenderObject.NeedUpdate())
@@ -394,8 +390,9 @@ namespace Rynex {
 
 		CheckObject(m_Shader, shader, result, Result_NotAllowedShader, Result_NoShaderSpaceLeft);
 		CheckObject(m_SingleMeshObject.m_MeshSingle, singleMesh.m_MeshSingle, result, Result_NotAllowedRenderShape, Result_NoRenderShapeSpaceLeft);
-		const Ref<Material>& materiel = singleMesh.m_Material;
-		CheckObject(m_SingleMeshObject.m_Material, materiel, result, Result_NotAllowedShadeDefinition, Result_NoShadeDefinitionSpaceLeft);
+	    const Ref<Material>& materiel = singleMesh.m_Material;
+	    Ref<Material>& materielThis = m_SingleMeshObject.m_Material;
+		CheckObject(materielThis, materiel, result, Result_NotAllowedShadeDefinition, Result_NoShadeDefinitionSpaceLeft);
 
 		if (nullptr != materiel)
 			CheckObject(m_AlbedoTex, materiel->GetAlbedoTextures(), result, Result_NotAllowedTexture, Result_NoTextureSpaceLeft);
@@ -406,7 +403,8 @@ namespace Rynex {
 
 
 #pragma endregion
-
+#endif
+#ifndef RY_INSTANCE_MESH_PIPLINE_RENDER_DEPTH_TEMPLATE
 #pragma region Depth
 
 	InstanceMeshPiplineRenderDepth::InstanceMeshPiplineRenderDepth()
@@ -591,7 +589,7 @@ namespace Rynex {
 			constexpr bool aktive = true;
 			constexpr bool normilze = false;
 			constexpr uint32_t countElements = 0u;
-			BufferLayout layout = BufferLayout({
+			BufferLayout layout({
 				{ SDT::Float4, "a_ModelMarix[0]", aktive, countElements, normilze },
 				{ SDT::Float4, "a_ModelMarix[1]", aktive, countElements, normilze },
 				{ SDT::Float4, "a_ModelMarix[2]", aktive, countElements, normilze },
@@ -612,16 +610,13 @@ namespace Rynex {
 
 			if (bytesSize <= bufferBytesSize && halfByteSize < bytesSize)
 			{
-
 				m_ModelBufferVAO->SetData(dataPtr, bytesSize);
 
 				if (m_VertexArray->GetVertexBuffersCount() != 2)
 					m_VertexArray->AddVertexBuffer(m_ModelBufferVAO);
-
 			}
 			else
 			{
-
 				m_ModelBufferVAO->ResizeBuffer(dataPtr, bytesSize);
 
 				if (m_VertexArray->GetVertexBuffersCount() != 2)
@@ -675,14 +670,14 @@ namespace Rynex {
 
 		CheckObject(m_Shader, shader, result, Result_NotAllowedShader, Result_NoShaderSpaceLeft);
 		CheckObject(m_SingleMeshObject.m_MeshSingle, singleMesh.m_MeshSingle, result, Result_NotAllowedRenderShape, Result_NoRenderShapeSpaceLeft);
-		const Ref<Material>& materielTest = singleMesh.m_Material;
-		const Ref<Material>& materielThis = m_SingleMeshObject.m_Material;
-		if (nullptr == materielTest)
+	    const Ref<Material>& materiel = singleMesh.m_Material;
+	    Ref<Material>& materielThis = m_SingleMeshObject.m_Material;
+		if (nullptr == materiel)
 			return (result | Result_NotAllowedShadeDefinition);
 		if (nullptr == materielThis)
 			return result;
 
-		if(materielThis->GetDepthRenderMode() != materielTest->GetDepthRenderMode())
+		if(materielThis->GetDepthRenderMode() != materiel->GetDepthRenderMode())
 			result |= Result_NotAllowedShadeDefinition | Result_NoShadeDefinitionSpaceLeft;
 
 
@@ -690,8 +685,11 @@ namespace Rynex {
 	}
 
 
-#pragma endregion
 
+#pragma endregion
+#endif
+
+#ifndef RY_INSTANCE_MESH_PIPLINE_RENDER_SHAPE_TEMPLATE
 #pragma region Shape
 
 	InstanceMeshPiplineRenderShape::InstanceMeshPiplineRenderShape()
@@ -766,7 +764,7 @@ namespace Rynex {
 		uint64_t number = 0ull;
 		uint32_t i = 0;
 
-		uint64_t numberVAB = reinterpret_cast<uint64_t>(vab.get());
+		const uint64_t numberVAB = reinterpret_cast<uint64_t>(vab.get());
 		number |= numberVAB << (i * Hash_BindingPointMultiplyNumberBitMove);
 		i++;
 
@@ -777,7 +775,7 @@ namespace Rynex {
 	{
 		const Ref<MeshSingle>& meshSingle = m_SingleMeshObject.m_MeshSingle;
 		const Ref<IndexBuffer>& iab = meshSingle->GetDepthIndexBuffer();
-		uint64_t number = reinterpret_cast<uint64_t>(iab.get());
+		const uint64_t number = reinterpret_cast<uint64_t>(iab.get());
 		return number;
 	}
 
@@ -867,7 +865,7 @@ namespace Rynex {
 			constexpr uint32_t countElements = 0u;
 			constexpr bool normilze = false;
 
-			BufferLayout layout = BufferLayout({
+			BufferLayout layout({
 				{ SDT::Float4, "a_ModelMarix[0]", aktive, countElements, normilze },
 				{ SDT::Float4, "a_ModelMarix[1]", aktive, countElements, normilze },
 				{ SDT::Float4, "a_ModelMarix[2]", aktive, countElements, normilze },
@@ -959,7 +957,8 @@ namespace Rynex {
 		CheckObject(m_Shader, shader, result, Result_NotAllowedShader, Result_NoShaderSpaceLeft);
 		CheckObject(m_SingleMeshObject.m_MeshSingle, singleMesh.m_MeshSingle, result, Result_NotAllowedRenderShape, Result_NoRenderShapeSpaceLeft);
 		const Ref<Material>& materiel = singleMesh.m_Material;
-		CheckObject(m_SingleMeshObject.m_Material, materiel, result, Result_NotAllowedShadeDefinition, Result_NoShadeDefinitionSpaceLeft);
+	    Ref<Material>& materielThis = m_SingleMeshObject.m_Material;
+		CheckObject(materielThis, materiel, result, Result_NotAllowedShadeDefinition, Result_NoShadeDefinitionSpaceLeft);
 
 		if (nullptr != materiel)
 			CheckObject(m_AlbedoTex, materiel->GetAlbedoTextures(), result, Result_NotAllowedTexture, Result_NoTextureSpaceLeft);
@@ -968,8 +967,6 @@ namespace Rynex {
 	}
 
 #pragma endregion
-	
 #endif
-
 
 }

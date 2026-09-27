@@ -10,7 +10,8 @@
 
 #include <Rynex/Renderer/PiplineObjects/Piplines/SinglePiplineRender.h>
 #include <Rynex/Renderer/PiplineObjects/Piplines/InstenceMeshPiplineRender.h>
-#include <Rynex/Renderer/PiplineObjects/Piplines/PipelineRenderImpl.h>
+#include <Rynex/Renderer/PiplineObjects/Piplines/PiplinePolicies.h>
+
 #include <Rynex/Renderer/PiplineObjects/Piplines/PiplineBase.h>
 #include <Rynex/Renderer/RenderProxy/StaticeRenderProxys.h>
 

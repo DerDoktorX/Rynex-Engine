@@ -3,7 +3,7 @@
 
 
 namespace Rynex {
-#ifndef RY_INSTANCE_MESH_PIPLINE_RENDER_TEMPLATE
+#ifndef RY_INSTANCE_MESH_PIPLINE_RENDER_SHADE_TEMPLATE
 	class InstanceMeshPiplineRenderShade : public InstanceMeshPiplineRenderBase
 	{
 	private:
@@ -168,7 +168,9 @@ namespace Rynex {
 
 		RenderObjectState   m_RenderObject;
 	};
+#endif
 
+#ifndef RY_INSTANCE_MESH_PIPLINE_RENDER_DEPTH_TEMPLATE
 	class InstanceMeshPiplineRenderDepth : public InstanceMeshPiplineRenderBase
 	{
 	private:
@@ -294,6 +296,8 @@ namespace Rynex {
 		RenderObjectState m_RenderObject;
 	};
 #endif
+
+#ifndef RY_INSTANCE_MESH_PIPLINE_RENDER_SHAPE_TEMPLATE
 	class InstanceMeshPiplineRenderShape : public InstanceMeshPiplineRenderBase
 	{
 	private:
@@ -334,7 +338,7 @@ namespace Rynex {
 					return;
 
 				instanceIndex = m_EntityIDVec.size();
-				m_ObjectVec.emplace_back(RenderObject());
+				m_ObjectVec.emplace_back(RenderObject{});
 				m_EntityIDVec.emplace_back<int>(-1);
 				
 			}
@@ -363,7 +367,7 @@ namespace Rynex {
 			{
 				elementEntityID = entityID;
 				elementObject.m_ModelMatrix = modelMatrix;
-				m_Update = true;
+				m_Update = false;
 			}
 
 			void Updated()
@@ -433,6 +437,7 @@ namespace Rynex {
 		Ref<Texture> m_AlbedoTex;
 		RenderObjectState m_RenderObject;
 	};
+#endif
 
 }
 
