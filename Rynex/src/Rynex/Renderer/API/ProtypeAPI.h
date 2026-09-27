@@ -29,6 +29,7 @@ namespace Rynex{
 
 
 	// Framebuffer.h
+    enum class FrameBufferImageSize : uint8_t;
 	struct FramebufferTextureSpecification;
 	struct FramebufferAttachmentSpecification;
 	struct FramebufferSpecification;

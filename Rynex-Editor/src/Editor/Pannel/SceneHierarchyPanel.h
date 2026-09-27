@@ -7,29 +7,29 @@
 
 namespace Rynex {
 
-	struct DealeatEntitiy {
+	struct DeleteEntity {
 		Entity Entiy;
 		bool Children;
 
-		DealeatEntitiy(Entity entity, bool children = false)
+		DeleteEntity(Entity entity, bool children = false)
 			: Entiy(entity), Children(children) { }
 
-		DealeatEntitiy(const DealeatEntitiy&) = default;
-		DealeatEntitiy(DealeatEntitiy&&) = default;
+		DeleteEntity(const DeleteEntity&) = default;
+		DeleteEntity(DeleteEntity&&) = default;
 	};
 
-	class SceneHierachyPannel
+	class SceneHierarchyPanel
 	{
 	public:
-		SceneHierachyPannel() = default;
-		SceneHierachyPannel(const Ref<Scene>& scene);
+		SceneHierarchyPanel() = default;
+		SceneHierarchyPanel(const Ref<Scene>& scene);
 
 		void OnDetache();
 		void SetContext(const Ref<Scene>& scene);
-		uint32_t DrawEntityNode(Entity entity, uint32_t hirachiyIndex, bool normale = true);
+		uint32_t DrawEntityNode(Entity entity, uint32_t hierarchyIndex, bool normale = true);
 		void DrawComponents(Entity entity);
 
-		void OpenSceneHierachy();
+		void OpenSceneHierarchy();
 		void OpenProperties();
 		
 		void OnImGuiRender();
@@ -58,25 +58,25 @@ namespace Rynex {
 		
 	private:
 		//Properties
-		// using EntityFunc = std::_Binder<std::_Unforced, void (SceneHierachyPannel::*)(Entity e), Entity&>;
+		// using EntityFunc = std::_Binder<std::_Unforced, void (SceneHierarchyPanel::*)(Entity e), Entity&>;
 		using EntityFunc = std::function<void()>;
 		void DrawProperties();
-		void DeleteEntity(Entity entitiy, bool children);
-		void EcexuterDeleteing();
+		void DeletEntity(Entity entity, bool children);
+		void ExecuteDeleting();
 
 		template<typename T>
 		bool DisplayAddComponentEntry(const std::string& name);
 		
-		void CheckEnttiyForError(Entity& entity);
+		void CheckEntityForError(Entity& entity);
 
-		void AddChiledEntity(Entity e);
+		void AddChildEntity(Entity e);
 
 		void RemoveEntity(Entity e);
-		void RemoveChiledEntity(Entity e);
+		void RemoveChildEntity(Entity e);
 
 		void CopyEntity(Entity e);
-		void SwapEntitys(Entity a, Entity b);
-		uint32_t FindEnitityIndex(Entity e);
+		void SwapEntity(Entity a, Entity b);
+		uint32_t FindEntityIndex(Entity e);
 
 		static void ComponentTransformGUI(Entity e, TransformComponent& component);
 		static void ComponentModelMatrixGUI(Entity e, ModelMatrixComponent& component);
@@ -84,9 +84,9 @@ namespace Rynex {
 		static void ComponentSpriteRendererGUI(Entity e, SpriteRendererComponent& component);
 		static void ComponentScriptGUI(Entity e, ScriptComponent& component);
 		static void ComponentFrameBufferGUI(Entity e, FrameBufferComponent& component);
-		static void ComponentDrirektionleLigthGUI(Entity e, DirectionLightComponent& component);
-		static void ComponentPointLigthGUI(Entity e, PointLightComponent& component);
-		static void ComponentSpotLigthGUI(Entity e, SpotLightComponent& component);
+		static void ComponentDirectionLightGUI(Entity e, DirectionLightComponent& component);
+		static void ComponentPointLightGUI(Entity e, PointLightComponent& component);
+		static void ComponentSpotLightGUI(Entity e, SpotLightComponent& component);
 		static void ComponentTextGUI(Entity e, TextComponent& component);
 		static void ComponentViewMatrixGUI(Entity e, ViewMatrixComponent& component);
 		static void ComponentStaticMeshGUI(Entity e, ModelMangerComponent& component);
@@ -96,7 +96,7 @@ namespace Rynex {
 	private:
 		
 		std::vector<Entity> m_SceneList;
-		std::vector<DealeatEntitiy> m_EntityDelete;
+		std::vector<DeleteEntity> m_EntityDelete;
 		std::vector<EntityFunc> m_ExecuteFunc;
 
 		Ref<Scene> m_Context;

@@ -145,20 +145,20 @@ namespace Rynex {
 	{
 
 		RenderPass& passMain = s_Storage.MainRenderPassStorage;
-		RenderPass& passCurent = s_Storage.RenderPassStorage.GetDataRef();
-		passCurent.m_BoundingArray = passMain.m_BoundingArray;
-		passCurent.m_CameraDataPackBufferUB = passMain.m_CameraDataPackBufferUB;
-		passCurent.m_DirectionUB = passMain.m_DirectionUB;
-		passCurent.m_ModelMatrix = passMain.m_ModelMatrix;
-		passCurent.m_CameraDataPackege = passMain.m_CameraDataPackege;
-		passCurent.m_ProjectionViewMatrixUB = passMain.m_ProjectionViewMatrixUB;
+		RenderPass& passCurrent = s_Storage.RenderPassStorage.GetDataRef();
+		passCurrent.m_BoundingArray = passMain.m_BoundingArray;
+		passCurrent.m_CameraDataPackBufferUB = passMain.m_CameraDataPackBufferUB;
+		passCurrent.m_DirectionUB = passMain.m_DirectionUB;
+		passCurrent.m_ModelMatrix = passMain.m_ModelMatrix;
+		passCurrent.m_CameraDataPackege = passMain.m_CameraDataPackege;
+		passCurrent.m_ProjectionViewMatrixUB = passMain.m_ProjectionViewMatrixUB;
 	}
 
 	void Renderer::SetOnCurrentPassMainPass()
 	{
 		RenderPass& passMain = s_Storage.MainRenderPassStorage;
-		RenderPass* passCurentPtr = s_Storage.RenderPassStorage.GetDataEndPtr();
-		*passCurentPtr = passMain;
+		RenderPass* passCurrentPtr = s_Storage.RenderPassStorage.GetDataEndPtr();
+		*passCurrentPtr = passMain;
 	}
 
 	void Renderer::SetRenderPassNameMain(const std::string& name)
@@ -831,7 +831,7 @@ namespace Rynex {
 
 	}
 
-	inline void Renderer::SetFromRenderPassCameraData(RenderPass& renderPass, const Camera& camer, const glm::mat4& matrix)
+	inline void Renderer::SetFromRenderPassCameraData(RenderPass& renderPass, const Camera& camera, const glm::mat4& matrix)
 	{
 		renderPass.m_ModelMatrix = matrix;
 		CameraPackege& packeg = renderPass.m_CameraDataPackege;
@@ -843,8 +843,7 @@ namespace Rynex {
 			packeg.m_ViewMatrix[2].z,
 			0.0f
 		); // NOT FORWARD DIRECTION
-		packeg.m_ProjectionMatrix = camer.GetProjection();
-		// packeg.ProjetionViewMatrix = packeg.ViewMatrix * packeg.ProjetionMatrix;
+		packeg.m_ProjectionMatrix = camera.GetProjection();
 		packeg.m_ViewProjectionMatrix = packeg.m_ProjectionMatrix * packeg.m_ViewMatrix;
 
 		Renderer::ExtractFrustum(packeg.m_ViewProjectionMatrix, renderPass.m_BoundingArray);
@@ -859,13 +858,6 @@ namespace Rynex {
 		}
 		else
 		{
-			// Renderer::GetDrawContext().CreateBuffer("ProjetionMatrixUB", renderPass.ProjetionMatrixUB, renderPass.ProjetionMatrixUB->GetLayout(), 1u, false);
-			// Renderer::GetDrawContext().CreateBuffer("ViewMatrixUB", renderPass.ViewMatrixUB, renderPass.ViewMatrixUB->GetLayout(), 1u, false);
-			// Renderer::GetDrawContext().CreateBuffer("ProjetionViewMatrixUB", renderPass.ProjetionViewMatrixUB, renderPass.ProjetionViewMatrixUB->GetLayout(), 1u, false);
-			// Renderer::GetDrawContext().CreateBuffer("PostionUB", renderPass.PostionUB, renderPass.PostionUB->GetLayout(), 1u, false);
-			// Renderer::GetDrawContext().CreateBuffer("DirectionUB", renderPass.DirectionUB, renderPass.DirectionUB->GetLayout(), 1u, false);
-			// Renderer::GetDrawContext().CreateBuffer("CameraDataPackBufferUB", renderPass.CameraDataPackBufferUB, renderPass.CameraDataPackBufferUB->GetLayout(), 1u, true);
-
 			renderPass.m_ProjectionMatrixUB->SetData(&packeg->m_ProjectionMatrix, sizeof(packeg->m_ProjectionMatrix));
 			renderPass.m_ViewMatrixUB->SetData(&packeg->m_ViewMatrix, sizeof(packeg->m_ViewMatrix));
 			renderPass.m_ProjectionViewMatrixUB->SetData(&packeg->m_ViewProjectionMatrix, sizeof(packeg->m_ViewProjectionMatrix));
@@ -1203,7 +1195,6 @@ namespace Rynex {
 		{
 
 			uint32_t index = 0u;
-#ifdef RY_SHADER_STORAGE_BUFFER_OBJECT_VARIANTS
 			for (auto& resource : shaderDraw.GetBindStorage())
 			{
 				std::visit([index](auto& ssbo)
@@ -1218,54 +1209,29 @@ namespace Rynex {
 
 				index++;
 			}
-#else
 
-			for (Ref<StorageBuffer>& resource : shaderDraw.GetBindStorage())
-			{
-				if (nullptr != resource)
-				{
-					// if(resource->IsTransferd())
-					resource->Bind(index);
-				}
-
-				index++;
-			}
-#endif
 			index = 0u;
-#ifdef RY_TEXTURE_VARIANTS
+
 			for (auto& resource : shaderDraw.GetBindTextures())
 			{
 				std::visit([index](auto& texture)
 					{
 						if (nullptr == texture)
 							return;
-						// if(resource->IsTransferd())
 						texture->Bind(index);
 
 					}, resource);
 
 				index++;
 			}
-#else
 
-			for (Ref<Texture>& resource : shaderDraw.GetBindTextures())
-			{
-				if (nullptr != resource)
-				{
-					// if(resource->IsTransferd())
-					resource->Bind(index);
-				}
-
-				index++;
-			}
-#endif
 			index = 0u;
 
 			for (Ref<UniformBuffer>& resource : shaderDraw.GetBindUniform())
 			{
 				if (nullptr != resource)
 				{
-					// if(resource->IsTransferd())
+
 					resource->Bind(index);
 				}
 

@@ -24,9 +24,9 @@ namespace Rynex {
 		
 	}
 
-	void ProxyDrawCallGenarter::SetRenderTargetLayoute(const BufferLayout& layoute)
+	void ProxyDrawCallGenarter::SetRenderTargetLayoute(const BufferLayout& layout)
 	{
-		m_RenderTragetLayoute = layoute;
+		m_RenderTragetLayoute = layout;
 	}
 
 	bool ProxyDrawCallGenarter::SetProxyData(RenderProxy& proxy)
@@ -533,6 +533,11 @@ namespace Rynex {
 			vertexArrayObject->SetIndexBuffer(iab);
 			SetArrayDataBufferGPUContainerVertexTransformtion();
 			m_BatchRenderObjectVAOPtr->needUpdate = true;
+		}
+		else if (s_UseDyamincDatatStruct && m_BatchRenderObjectVAOPtr->rendeObjectDynamicElementStruct.Empty())
+		{
+		    SetArrayDataBufferGPUContainerVertexTransformtion();
+		    m_BatchRenderObjectVAOPtr->needUpdate = true;
 		}
 		
 

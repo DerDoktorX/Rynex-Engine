@@ -1,5 +1,5 @@
 #include <rypch.h>
-#include "SceneHierachyPannel.h"
+#include "SceneHierarchyPanel.h"
 
 
 
@@ -27,7 +27,7 @@
 namespace Rynex {
 
 	namespace Utils {
-	
+
 		static void ConvertNummberToChar(uint32_t number, char* charBuffer, uint32_t bufferSize)
 		{
 			uint32_t index = 0;
@@ -37,14 +37,14 @@ namespace Rynex {
 				index++;
 			} while (number != 0 && index < bufferSize);
 		}
-		
+
 
 
 
 
 
 		// This Funktion Add A Butte and You Can Drag and Drop Items From your AssetManger in there, and Add A Dealte For Removing The Asset
-		// The Secound Arge is the not Ref<...> only ... 
+		// The Secound Arge is the not Ref<...> only ...
 		// This Funktion Works only Withe UUID Assets
 #if RY_SCENE_HIERACHY_PANNEL_DRAG_AND_DROP
 		template<typename T>
@@ -190,7 +190,7 @@ namespace Rynex {
 
 			}
 
-			
+
 			if (compontenItem != nullptr)
 			{
 				Ref<T> item = compontenItem->lock();
@@ -206,7 +206,7 @@ namespace Rynex {
 				}
 			}
 			return result;
-			
+
 		}
 
 		static bool DargDropTextureButten(Ref<Texture>* compontenItem)
@@ -228,7 +228,7 @@ namespace Rynex {
 
 		static void DargDropShaderButten(Ref<MeshStatic>* compontenItem)
 		{
-			
+
 			Ref<MeshSource>* meshSource = nullptr;
 			DragDropButtenForAsset<MeshSource>(meshSource, "MeshStatic", AssetType::MeshSource);
 
@@ -248,7 +248,7 @@ namespace Rynex {
 		static void DargDropFontButten(TextComponent& text)
 		{
 			bool pressed = ImGui::Button("Font", ImVec2(100.0f, 0.0f));
-			
+
 
 			if (ImGui::BeginDragDropTarget())
 			{
@@ -264,10 +264,10 @@ namespace Rynex {
 					Ref<EditorAssetManager> editorAssetManager = project->GetEditorAssetManger();
 					const AssetMetadata& metadata = editorAssetManager->GetMetadataConst(*(AssetHandle*)payload->Data);
 #endif
-					
+
 
 					text.m_FontAsset = CreateRef<Font>(metadata.m_FilePath);
-				
+
 				}
 				ImGui::EndDragDropTarget();
 
@@ -300,10 +300,10 @@ namespace Rynex {
 			const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowItemOverlap;
 			if (entity.HasComponent<T>())
 			{
-				
+
 				T& component = entity.GetComponent<T>();
 				ImVec2 contenRegionAvablie = ImGui::GetContentRegionAvail();
-				
+
 				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
 				float linHeigth = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 				ImGui::Separator();
@@ -327,7 +327,7 @@ namespace Rynex {
 
 				if (open)
 				{
-					
+
 					ImGui::PushItemWidth((contenRegionAvablie.x / 3.0f) * 2.0f);
 					std::string_view typeNameStrView = typeid(T).name();
 					std::string idName = "##" + std::string(typeNameStrView.data(), typeNameStrView.size());
@@ -346,18 +346,18 @@ namespace Rynex {
 
 	}
 
-	SceneHierachyPannel::SceneHierachyPannel(const Ref<Scene>& context)
+	SceneHierarchyPanel::SceneHierarchyPanel(const Ref<Scene>& context)
 	{
 		SetContext(context);
 	}
 
-	void SceneHierachyPannel::OnDetache()
+	void SceneHierarchyPanel::OnDetache()
 	{
 		m_Context.reset();
 		m_Context = nullptr;
 	}
 
-	void SceneHierachyPannel::SetContext(const Ref<Scene>& context)
+	void SceneHierarchyPanel::SetContext(const Ref<Scene>& context)
 	{
 		if(m_Context != nullptr)
 		{
@@ -366,24 +366,23 @@ namespace Rynex {
 			m_Context->OnDisconectToRenderer();
 			m_SceneList.clear();
 		}
-		
+
 		RY_CORE_ASSERT(nullptr != context, "nullptr was set!");
 		m_Context = context;
 		m_Context->OnConectToRenderer();
 		TestSubmitStaticProxyLocal();
 		m_SelectionContext = {};
-		Renderer3D::ResetMeshObject();
 		m_Context->m_Registry.each([this](entt::entity e) {
 			Entity entity = Entity(e, m_Context.get());
 			m_SceneList.emplace_back(entity);
 		});
 	}
 
-	uint32_t SceneHierachyPannel::DrawEntityNode(Entity entity, uint32_t hirachIndex, bool normale)
+	uint32_t SceneHierarchyPanel::DrawEntityNode(Entity entity, uint32_t hirachIndex, bool normale)
 	{
 		std::string& tag = entity.GetComponent<TagComponent>().m_Tag;
 		UUID& id = entity.GetComponent<IDComponent>().m_ID;
-		
+
 		ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0);
 		flags |= ImGuiTreeNodeFlags_OpenOnArrow;
 		flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
@@ -392,30 +391,25 @@ namespace Rynex {
 		RelationshipUUIDComponent& realtionship = entity.GetComponent<RelationshipUUIDComponent>();
 		bool parent = !realtionship.m_Childrens.empty(),
 			cildern = UUID::Zero() != realtionship.m_Parent;
-#if 0
-		if (((cildern && !parent) || (cildern && parent)) && normale)
-			return;
-#else
+
 		if (cildern && normale)
 			return hirachIndex;
-#if 1
+
 		if (!entity.IsVisbble())
 			return hirachIndex;
-#endif
-#endif
+
 		hirachIndex++;
 		if (!parent)
 			flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
-		
+
 		std::string idName = (tag + std::to_string(id));
 
 		ImGui::PushID(idName.c_str());
 
-		
-		// ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 0.25, 0.25 });
+
 		bool opende = ImGui::TreeNodeEx(&id, flags, tag.c_str());
-		// ImGui::PopStyleVar();
+
 
 		ImGuiDragDropFlags flagsDragDrop = ImGuiDragDropFlags_None;
 
@@ -424,17 +418,17 @@ namespace Rynex {
 			uint32_t index = entity.GetEntityIndexHandle();
 			ImGui::SetDragDropPayload(s_SceneHierachieDragAndDropRelationShipMoveChar, &index, sizeof(uint32_t));
 
-			ImGui::Text("Drag/and drop Enity: %s", tag.c_str());
+			ImGui::Text("Drag/and drop Entity: %s", tag.c_str());
 
 
 			ImGui::EndDragDropSource();
 		}
-		
+
 		if (ImGui::BeginDragDropTarget())
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(s_SceneHierachieDragAndDropRelationShipMoveChar, flagsDragDrop))
 			{
-				RY_CORE_ASSERT(payload->DataSize == sizeof(uint32_t), "not Expexted Size!");
+				RY_CORE_ASSERT(payload->DataSize == sizeof(uint32_t), "not Expected Size!");
 				const uint32_t* moveEntityIndexHandleToRealtionShipPtr = reinterpret_cast<const uint32_t*>(payload->Data);
 				uint32_t moveEntityIndexHandleToRealtionShip = *moveEntityIndexHandleToRealtionShipPtr;
 				entt::id_type entityType = static_cast<entt::id_type>(moveEntityIndexHandleToRealtionShip);
@@ -473,13 +467,13 @@ namespace Rynex {
 					m_ExecuteFunc.emplace_back(func);
 				}
 
-				
 
 
-			}			
+
+			}
 			ImGui::EndDragDropTarget();
 		}
-		
+
 
 		if (ImGui::IsItemClicked() && Entity() != Input::IsKeyPressed(Key::LeftShift) && m_SelectionContext)
 		{
@@ -490,7 +484,7 @@ namespace Rynex {
 			m_SelectionContext = entity;
 			m_SelectionContextEndeMarker = Entity();
 		}
-		
+
 
 		if (ImGui::BeginPopupContextItem(idName.c_str()))
 		{
@@ -501,20 +495,20 @@ namespace Rynex {
 						CreateEntity("Empty Entity");
 					});
 			}
-			
+
 			if (ImGui::MenuItem("Add Childe Entity"))
 			{
 				m_ExecuteFunc.emplace_back([entity, this]()
 					{
-						AddChiledEntity(entity);
+						AddChildEntity(entity);
 					});
 			}
 
 			if (ImGui::MenuItem("Create Copy"))
 			{
-				m_ExecuteFunc.emplace_back([entity, this]() 
+				m_ExecuteFunc.emplace_back([entity, this]()
 					{
-						CopyEntity(entity); 
+						CopyEntity(entity);
 					});
 			}
 
@@ -530,7 +524,7 @@ namespace Rynex {
 			{
 				m_ExecuteFunc.emplace_back([entity, this]()
 				{
-					RemoveChiledEntity(entity);
+					RemoveChildEntity(entity);
 				});
 			}
 
@@ -542,7 +536,7 @@ namespace Rynex {
 			{
 				m_ExecuteFunc.emplace_back([this]()
 					{
-						RemoveChiledEntity(m_SelectionContext);
+						RemoveChildEntity(m_SelectionContext);
 					});
 			}
 			else if (Input::IsKeyPressed(Key::Delete))
@@ -558,7 +552,7 @@ namespace Rynex {
 		{
 
 			if (parent)
-			{ 
+			{
 				std::vector<UUID>& childrens = entity.GetChildrens();
 				uint32_t size = childrens.size();
 				RY_CORE_ASSERT(size != 0);
@@ -623,9 +617,9 @@ namespace Rynex {
 		return hirachIndex;
 	}
 
-	void SceneHierachyPannel::DrawComponents(Entity entity)
+	void SceneHierarchyPanel::DrawComponents(Entity entity)
 	{
-		
+
 
 		ImGui::Checkbox("Enable Materiel Mesh Config", &m_MeshConfig);
 		// TagComponent
@@ -652,7 +646,7 @@ namespace Rynex {
 		{
 			DisplayAddComponentEntry<ScriptComponent>("Script");
 			DisplayAddComponentEntry<CameraComponent>("Camera");
-				
+
 			if(!m_SelectionContext.HasComponent<MaterialComponent>() && !m_SelectionContext.HasComponent<GeometryComponent>())
 				DisplayAddComponentEntry<SpriteRendererComponent>("Sprite");
 
@@ -661,10 +655,10 @@ namespace Rynex {
 				DisplayAddComponentEntry<MaterialComponent>("Material");
 
 			}
-			
+
 			DisplayAddComponentEntry<FrameBufferComponent>("FrameBuffer");
 
-			
+
 
 			if (!m_SelectionContext.HasComponent<PointLightComponent>() &&
 				!m_SelectionContext.HasComponent<SpotLightComponent>())
@@ -690,35 +684,35 @@ namespace Rynex {
 			ImGui::EndPopup();
 		}
 
-		Utils::DrawComponent<TransformComponent>("Transform", entity, &SceneHierachyPannel::ComponentTransformGUI);
-		Utils::DrawComponent<ModelMatrixComponent>("Matrix", entity, &SceneHierachyPannel::ComponentModelMatrixGUI);
-		Utils::DrawComponent<CameraComponent>("Camera", entity, &SceneHierachyPannel::ComponentCameraGUI);
-		Utils::DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, &SceneHierachyPannel::ComponentSpriteRendererGUI);
-		Utils::DrawComponent<ScriptComponent>("Script", entity, &SceneHierachyPannel::ComponentScriptGUI);
-		Utils::DrawComponent<FrameBufferComponent>("FrameBuffer", entity, &SceneHierachyPannel::ComponentFrameBufferGUI);
-		Utils::DrawComponent<DirectionLightComponent>("Drirektionle-Ligth", entity, &SceneHierachyPannel::ComponentDrirektionleLigthGUI);
-		Utils::DrawComponent<PointLightComponent>("Point-Ligth", entity, &SceneHierachyPannel::ComponentPointLigthGUI);
-		Utils::DrawComponent<SpotLightComponent>("Spot-Ligth", entity, &SceneHierachyPannel::ComponentSpotLigthGUI);
-		Utils::DrawComponent<TextComponent>("Text", entity, &SceneHierachyPannel::ComponentTextGUI);
-		Utils::DrawComponent<ViewMatrixComponent>("View Matrix", entity, &SceneHierachyPannel::ComponentViewMatrixGUI);
-		Utils::DrawComponent<ModelMangerComponent>("Static-Mesh", entity, &SceneHierachyPannel::ComponentStaticMeshGUI);
-		Utils::DrawComponent<StaticMeshComponent>("Static-Single-Mesh", entity, &SceneHierachyPannel::ComponentStaticSingleMeshGUI);
-		Utils::DrawComponent<DynamicMeshComponent>("Dynamic-Mesh", entity, &SceneHierachyPannel::ComponentDynamicMeshGUI);
-		Utils::DrawComponent<RenderTargetComponent>("RenderTarget", entity, &SceneHierachyPannel::ComponentRenderTargetGUI);
+		Utils::DrawComponent<TransformComponent>("Transform", entity, &SceneHierarchyPanel::ComponentTransformGUI);
+		Utils::DrawComponent<ModelMatrixComponent>("Matrix", entity, &SceneHierarchyPanel::ComponentModelMatrixGUI);
+		Utils::DrawComponent<CameraComponent>("Camera", entity, &SceneHierarchyPanel::ComponentCameraGUI);
+		Utils::DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, &SceneHierarchyPanel::ComponentSpriteRendererGUI);
+		Utils::DrawComponent<ScriptComponent>("Script", entity, &SceneHierarchyPanel::ComponentScriptGUI);
+		Utils::DrawComponent<FrameBufferComponent>("FrameBuffer", entity, &SceneHierarchyPanel::ComponentFrameBufferGUI);
+		Utils::DrawComponent<DirectionLightComponent>("Drirektionle-Ligth", entity, &SceneHierarchyPanel::ComponentDirectionLightGUI);
+		Utils::DrawComponent<PointLightComponent>("Point-Ligth", entity, &SceneHierarchyPanel::ComponentPointLightGUI);
+		Utils::DrawComponent<SpotLightComponent>("Spot-Ligth", entity, &SceneHierarchyPanel::ComponentSpotLightGUI);
+		Utils::DrawComponent<TextComponent>("Text", entity, &SceneHierarchyPanel::ComponentTextGUI);
+		Utils::DrawComponent<ViewMatrixComponent>("View Matrix", entity, &SceneHierarchyPanel::ComponentViewMatrixGUI);
+		Utils::DrawComponent<ModelMangerComponent>("Static-Mesh", entity, &SceneHierarchyPanel::ComponentStaticMeshGUI);
+		Utils::DrawComponent<StaticMeshComponent>("Static-Single-Mesh", entity, &SceneHierarchyPanel::ComponentStaticSingleMeshGUI);
+		Utils::DrawComponent<DynamicMeshComponent>("Dynamic-Mesh", entity, &SceneHierarchyPanel::ComponentDynamicMeshGUI);
+		Utils::DrawComponent<RenderTargetComponent>("RenderTarget", entity, &SceneHierarchyPanel::ComponentRenderTargetGUI);
 
 	}
 
-	void SceneHierachyPannel::OpenSceneHierachy()
+	void SceneHierarchyPanel::OpenSceneHierarchy()
 	{
 		m_WindowSceneHierachyOpen = true;
 	}
 
-	void SceneHierachyPannel::OpenProperties()
+	void SceneHierarchyPanel::OpenProperties()
 	{
 		m_WindowPropertiesOpen = true;
 	}
 
-	void SceneHierachyPannel::OnImGuiRender()
+	void SceneHierarchyPanel::OnImGuiRender()
 	{
 		if (m_SelectionContext.GetScenePtr() != m_Context.get())
 			m_SelectionContext = {};
@@ -731,7 +725,7 @@ namespace Rynex {
 			// loop thorw all Entity
 			uint32_t hirachyIndex = 0;
 #if 1
-			
+
 
 
 			m_Context->m_Registry.each([&](entt::entity entityID)
@@ -739,16 +733,16 @@ namespace Rynex {
 				Entity entity{ entityID, m_Context.get() };
 				hirachyIndex = DrawEntityNode(entity, hirachyIndex);
 			});
-			
+
 #else
 			for (Entity entity : m_SceneList)
 			{
 				hirachyIndex = DrawEntityNode(entity, hirachyIndex);
 			}
 #endif
-			
-			EcexuterDeleteing();
-			
+
+			ExecuteDeleting();
+
 
 			if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
 				m_SelectionContext = Entity();
@@ -761,8 +755,8 @@ namespace Rynex {
 				}
 				ImGui::EndPopup();
 			}
-			
-			
+
+
 
 			ImGui::End();
 		}
@@ -775,33 +769,33 @@ namespace Rynex {
 		}
 	}
 
-	void SceneHierachyPannel::CreateEntity(const std::string& name, uint32_t entityNumber)
+	void SceneHierarchyPanel::CreateEntity(const std::string& name, uint32_t entityNumber)
 	{
-	
+
 		m_Context->CreateEntity("Empty Entiy");
-		
+
 	}
 
-	void SceneHierachyPannel::DeleteEntity(Entity entitiy, bool childeren)
+	void SceneHierarchyPanel::DeletEntity(Entity entity, bool childeren)
 	{
-		m_EntityDelete.emplace_back(entitiy, childeren);
+		m_EntityDelete.emplace_back(entity, childeren);
 	}
 
-	void SceneHierachyPannel::EcexuterDeleteing()
+	void SceneHierarchyPanel::ExecuteDeleting()
 	{
 		for (EntityFunc& func : m_ExecuteFunc)
 		{
 			func();
 		}
 		m_ExecuteFunc.clear();
-	
+
 
 		m_EntityDelete.clear();
 		if (!m_SelectionContext)
 			m_SelectionContext = {};
 	}
 
-	void SceneHierachyPannel::TestSubmitStaticProxyLocal()
+	void SceneHierarchyPanel::TestSubmitStaticProxyLocal()
 	{
 		return;
 
@@ -811,7 +805,7 @@ namespace Rynex {
 		int* countStoppAddPtr = &countStoppAdd;
 		view3dStaticMesh.each([&staticRenderProxySystem, countStoppAddPtr](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC)
 			{
-				
+
 				if (nullptr == meshCompC.m_MeshStatic || 2 < (*countStoppAddPtr) )
 					return;
 
@@ -826,10 +820,10 @@ namespace Rynex {
 					const Ref<Material>& materiel = singleMeshData.m_Material;
 					staticRenderProxySystem.Add(enitityID, subMesh, meshSingle, materiel, model);
 					subMesh++;
-					
+
 				}
 				(*countStoppAddPtr)++;
-				
+
 			});
 		staticRenderProxySystem.RenderProxysMainGenarte();
 		staticRenderProxySystem.RenderProxysMainSubmiteDrawList();
@@ -876,7 +870,7 @@ namespace Rynex {
 					staticRenderProxySystem.UpdateTrasform(enitityID, subMesh, model);
 					subMesh++;
 				}
-				
+
 			});
 		staticRenderProxySystem.RenderProxysMainGenarte();
 		staticRenderProxySystem.RenderProxysMainSubmiteDrawList();
@@ -915,11 +909,11 @@ namespace Rynex {
 		staticRenderProxySystem.RenderProxysMainSubmiteDrawList();
 		view3dStaticMesh.each([&staticRenderProxySystem](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC)
 			{
-				
+
 
 				uint32_t uEnitityID = entt::to_integral(e);
 				int32_t enitityID = static_cast<int32_t>(uEnitityID);
-				
+
 				staticRenderProxySystem.Remove(enitityID);
 
 			}
@@ -969,10 +963,10 @@ namespace Rynex {
 
 			});
 
-		
+
 	}
 
-	void SceneHierachyPannel::SwapEntitys(Entity a, Entity b)
+	void SceneHierarchyPanel::SwapEntity(Entity a, Entity b)
 	{
 		bool aNotVaild = a.IsNotVaild();
 		bool bNotVaild = b.IsNotVaild();
@@ -982,8 +976,8 @@ namespace Rynex {
 		if (aNotVaild || bNotVaild || aSceneNotEqual || bSceneNotEqual)
 			return;
 
-		uint32_t indexA = FindEnitityIndex(a);
-		uint32_t indexB = FindEnitityIndex(b);
+		uint32_t indexA = FindEntityIndex(a);
+		uint32_t indexB = FindEntityIndex(b);
 
 		if (m_SceneList.size() <= indexA || m_SceneList.size() <= indexB)
 		{
@@ -995,7 +989,7 @@ namespace Rynex {
 		m_SceneList.at(indexB) = a;
 	}
 
-	uint32_t SceneHierachyPannel::FindEnitityIndex(Entity e)
+	uint32_t SceneHierarchyPanel::FindEntityIndex(Entity e)
 	{
 		if (e.GetScene() != m_Context)
 		{
@@ -1014,7 +1008,7 @@ namespace Rynex {
 			index++;
 		}
 		RY_CORE_ERROR("Not Founded Eneitity In Lolcale Vec! search now Orignel Hirachie if we finde the the Entity the locale Vec will be overitten!");
-		
+
 		uint32_t foundIndex = std::numeric_limits<uint32_t>::max();
 		index = 0u;
 		m_Context->m_Registry.each([searchEnitity = e, this, &foundIndex, &index](entt::entity e) {
@@ -1047,19 +1041,19 @@ namespace Rynex {
 			else
 			{
 				RY_CORE_WARN("We need to Search agian lolcale Vec!");
-				return FindEnitityIndex(e);
+				return FindEntityIndex(e);
 			}
 		}
 
 	}
 
-	void SceneHierachyPannel::DrawProperties()
+	void SceneHierarchyPanel::DrawProperties()
 	{
 		if (m_SelectionContext)
 			DrawComponents(m_SelectionContext);
 	}
 
-	void SceneHierachyPannel::CheckEnttiyForError(Entity& entity)
+	void SceneHierarchyPanel::CheckEntityForError(Entity& entity)
 	{
 		if (entity.HasComponent<ScriptComponent>())
 		{
@@ -1070,29 +1064,29 @@ namespace Rynex {
 			else
 				entity.SetState(Entity::State::Error);
 #endif
-			
+
 		}
 	}
 
 
-	void SceneHierachyPannel::AddChiledEntity(Entity e)
+	void SceneHierarchyPanel::AddChildEntity(Entity e)
 	{
 		e.AddChildrenEntity("Empty Childern Entiy");
 		e.UpdateMatrix();
 	}
 
-	void SceneHierachyPannel::RemoveEntity(Entity e)
+	void SceneHierarchyPanel::RemoveEntity(Entity e)
 	{
 		m_Context->DestroyEntity(e);
 	}
 
-	void SceneHierachyPannel::RemoveChiledEntity(Entity e)
+	void SceneHierarchyPanel::RemoveChildEntity(Entity e)
 	{
 		e.DestroyEntityChildrens();
 		m_Context->DestroyEntity(e);
 	}
 
-	void SceneHierachyPannel::CopyEntity(Entity e)
+	void SceneHierarchyPanel::CopyEntity(Entity e)
 	{
 		Entity copy = e.CopyEntity();
 		copy.CopyChildres(e);
@@ -1102,7 +1096,7 @@ namespace Rynex {
 #pragma region CompontesGUI
 
 
-	void SceneHierachyPannel::ComponentStaticSingleMeshGUI(Entity e, StaticMeshComponent& component)
+	void SceneHierarchyPanel::ComponentStaticSingleMeshGUI(Entity e, StaticMeshComponent& component)
 	{
 		if (nullptr != component.m_MeshSingle)
 		{
@@ -1112,7 +1106,7 @@ namespace Rynex {
 
 	}
 
-	void SceneHierachyPannel::ComponentRenderTargetGUI(Entity e, RenderTargetComponent& component)
+	void SceneHierarchyPanel::ComponentRenderTargetGUI(Entity e, RenderTargetComponent& component)
 	{
 		Ref<RenderTarget>& target = component.m_Target;
 		static char bufferName[64];
@@ -1136,7 +1130,7 @@ namespace Rynex {
 		{
 			if (ImGui::Button("Deltet Target"))
 			{
-				
+
 				RY_DESTROY_REF(target);
 				e.UpdateComponent(component);
 				return;
@@ -1150,9 +1144,9 @@ namespace Rynex {
 			target->ResizeView(viewSsize);
 		}
 		const Ref<Framebuffer>& fb = target->GetFramebuffer();
-		
+
 		constexpr const char* addAttachmentPopUpStrCreate = "POP_UP_Add_Color/Depth-Attachment_Create";
-		
+
 		if (nullptr == fb)
 		{
 			if (ImGui::Button("Create Frambuffer"))
@@ -1187,7 +1181,7 @@ namespace Rynex {
 			for (size_t i = 2; i < textureFormatCount; i++)
 			{
 				TextureFormat textureFormatIndex = static_cast<TextureFormat>(i);
-				
+
 				std::string_view fromatStrView = fromatStrViewArray[i];
 				const char* fileStr = fromatStrView.data();
 				if (ImGui::MenuItem(fileStr))
@@ -1202,7 +1196,7 @@ namespace Rynex {
 						{ TextureWrappingMode::ClampEdge, TextureWrappingMode::ClampEdge, TextureWrappingMode::ClampEdge },
 						TextureFilteringMode::Linear, TextureCompareModes::None
 					);
-					
+
 					fbspecNew.m_Attachments.m_Attachments.emplace_back(texSpec);
 					Ref<Framebuffer> fbCreate = Framebuffer::Create(fbspecNew);
 					target->SetFramebuffer(fbCreate);
@@ -1212,7 +1206,7 @@ namespace Rynex {
 			}
 			ImGui::EndPopup();
 
-			
+
 
 
 		}
@@ -1221,23 +1215,23 @@ namespace Rynex {
 		{
 			return;
 		}
-		
+
 		const FramebufferSpecification& fbspec = fb->GetFramebufferSpecification();
 
 
 		int delateNumber = -1;
 		int colorAtachments = 0;
 		size_t i = 0;
-		
+
 
 		for (const FramebufferTextureSpecification& attachment : fbspec.m_Attachments)
 		{
 			TextureFormat texFormat = attachment.m_TextureFormat;
 			std::string_view format_view = magic_enum::enum_name<TextureFormat>(texFormat);
-			
+
 
 			ImGui::PushID(format_view.data() + ('0' + i));
-			
+
 
 #if 0
 			uint32_t textureID = 0;
@@ -1286,7 +1280,7 @@ namespace Rynex {
 			default:
 				ImGui::Text("On Color Attachment(%zu): %s", i, format_view.data());
 			}
-			
+
 			ImGui::SameLine();
 			if (ImGui::Button("Delete", ImVec2(100.0f, 0.0f)))
 			{
@@ -1294,11 +1288,11 @@ namespace Rynex {
 				selected = true;
 			}
 
-			
-			
-			
-			
-		
+
+
+
+
+
 			ImGui::PopID();
 			colorAtachments++;
 			i++;
@@ -1321,9 +1315,9 @@ namespace Rynex {
 			}
 
 		}
-			
+
 		constexpr const char* addAttachmentPopUpStr = "POP_UP_Add_Color/Depth-Attachment";
-		
+
 		if (ImGui::Button("+", ImVec2{ 25, 25 }))
 		{
 			ImGui::OpenPopup(addAttachmentPopUpStr);
@@ -1346,7 +1340,7 @@ namespace Rynex {
 				const char* fileStr = fromatStrView.data();
 				if (ImGui::MenuItem(fileStr))
 				{
-					
+
 					FramebufferSpecification fbspecNew = fbspec;
 					uint32_t sampleCount = fbspecNew.m_Samples;
 
@@ -1376,13 +1370,13 @@ namespace Rynex {
 		// ImGui::End();
 	}
 
-	void SceneHierachyPannel::ComponentTransformGUI(Entity e, TransformComponent& component)
+	void SceneHierarchyPanel::ComponentTransformGUI(Entity e, TransformComponent& component)
 	{
 		bool use = false;
 		use = UI::DrawVec3ControllerR("Translation", component.m_Transform, glm::vec3(0.0f)) || use;
 		glm::vec3 rotation = glm::degrees(component.m_Rotation);
 		use = UI::DrawVec3ControllerR("Rotation", rotation, glm::vec3(0.0f)) || use;
-		use = UI::DrawVec3ControllerR("Scale", component.m_Scale, glm::vec3(0.0f)) || use;
+		use = UI::DrawVec3ControllerR("Scale", component.m_Scale, glm::vec3(1.0f)) || use;
 
 		if (use)
 		{
@@ -1393,7 +1387,7 @@ namespace Rynex {
 
 	}
 
-	void SceneHierachyPannel::ComponentModelMatrixGUI(Entity e, ModelMatrixComponent& component)
+	void SceneHierarchyPanel::ComponentModelMatrixGUI(Entity e, ModelMatrixComponent& component)
 	{
 		bool use = false;
 		use = UI::DrawVec4ControllerR("[0][...]", component.m_Locale[0], glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)) || use;
@@ -1408,7 +1402,7 @@ namespace Rynex {
 		}
 	}
 
-	void SceneHierachyPannel::ComponentCameraGUI(Entity e, CameraComponent& component)
+	void SceneHierarchyPanel::ComponentCameraGUI(Entity e, CameraComponent& component)
 	{
 		SceneCamera& camera = component.m_Camera;
 		constexpr size_t count = magic_enum::enum_count<SceneCamera::ProjectionType>();
@@ -1488,7 +1482,7 @@ namespace Rynex {
 		glm::ivec2 aspectViewSize = camera.GetViewAspect();
 		if (ImGui::InputInt2("Aspect Window Size", glm::value_ptr(aspectViewSize)))
 		{
-			
+
 			camera.SetViewPortSize(
 				0 < aspectViewSize.x ? aspectViewSize.x : 1u
 				, 0 < aspectViewSize.y ? aspectViewSize.y : 1u
@@ -1507,7 +1501,7 @@ namespace Rynex {
 		}
 	}
 
-	void SceneHierachyPannel::ComponentSpriteRendererGUI(Entity e, SpriteRendererComponent& component)
+	void SceneHierarchyPanel::ComponentSpriteRendererGUI(Entity e, SpriteRendererComponent& component)
 	{
 		ImGui::ColorEdit4("Color", glm::value_ptr(component.m_Color), 0.1f);
 			// Texture
@@ -1519,7 +1513,7 @@ namespace Rynex {
 #endif
 	}
 
-	void SceneHierachyPannel::ComponentScriptGUI(Entity e, ScriptComponent& component)
+	void SceneHierarchyPanel::ComponentScriptGUI(Entity e, ScriptComponent& component)
 	{
 #if defined(RY_SCRIPT_ENGINE)
 		bool sricptClassExist = ScriptingEngine::ClassExists(component.m_Name);
@@ -1563,7 +1557,7 @@ namespace Rynex {
 #endif
 	}
 
-	void SceneHierachyPannel::ComponentFrameBufferGUI(Entity e, FrameBufferComponent& component)
+	void SceneHierarchyPanel::ComponentFrameBufferGUI(Entity e, FrameBufferComponent& component)
 	{
 		Ref<Framebuffer>& frameBuffer = component.m_FrameBuffer;
 
@@ -1654,23 +1648,23 @@ namespace Rynex {
 		if (deleteNumber != -1)
 		{
 			FramebufferSpecification fbSpecNew = fbspec;
-			
+
 			fbSpecNew.m_Attachments.m_Attachments.erase(fbSpecNew.m_Attachments.begin() + deleteNumber);
 			component.m_FrameBuffer = Framebuffer::Create(fbSpecNew);
 		}
-		
+
 	}
 
-	
 
-	void SceneHierachyPannel::ComponentDrirektionleLigthGUI(Entity e, DirectionLightComponent& component)
+
+	void SceneHierarchyPanel::ComponentDirectionLightGUI(Entity e, DirectionLightComponent& component)
 	{
 		ImGui::ColorEdit3("Color: ", glm::value_ptr(component.m_Color));
 		ImGui::DragFloat("Intensitie: ", &component.m_Intensity, 0.01f, -1.0f, 10.0f, "%.2f");
 
 	}
 
-	void SceneHierachyPannel::ComponentPointLigthGUI(Entity e, PointLightComponent& component)
+	void SceneHierarchyPanel::ComponentPointLightGUI(Entity e, PointLightComponent& component)
 	{
 		ImGui::ColorEdit3("Color", glm::value_ptr(component.m_Color));
 		ImGui::DragFloat("Intensitie", &component.m_Intensity, 0.01f, -1.0f, 10.0f, "%.2f");
@@ -1681,7 +1675,7 @@ namespace Rynex {
 		ImGui::DragFloat("Quadratic", &component.m_Quadratic, 0.000001f, -0.00001f, 3.0f, "%.7f");
 	}
 
-	void SceneHierachyPannel::ComponentSpotLigthGUI(Entity e, SpotLightComponent& component)
+	void SceneHierarchyPanel::ComponentSpotLightGUI(Entity e, SpotLightComponent& component)
 	{
 		ImGui::ColorEdit3("Color", glm::value_ptr(component.m_Color));
 		ImGui::DragFloat("Intensitie", &component.m_Intensity, 0.01f, -1.0f, 10.0f, "%.2f");
@@ -1690,7 +1684,7 @@ namespace Rynex {
 		ImGui::DragFloat("Outer", &component.m_Outer, 0.01f, -1.0f, 10.0f, "%.2f");
 	}
 
-	void SceneHierachyPannel::ComponentTextGUI(Entity e, TextComponent& component)
+	void SceneHierarchyPanel::ComponentTextGUI(Entity e, TextComponent& component)
 	{
 		constexpr size_t bufferCount = 2048;
 		static char bufferText[bufferCount];
@@ -1705,11 +1699,11 @@ namespace Rynex {
 		Utils::DargDropFontButten(component);
 	}
 
-	void SceneHierachyPannel::ComponentViewMatrixGUI(Entity e, ViewMatrixComponent& component)
+	void SceneHierarchyPanel::ComponentViewMatrixGUI(Entity e, ViewMatrixComponent& component)
 	{
 	}
 
-	void SceneHierachyPannel::ComponentStaticMeshGUI(Entity e, ModelMangerComponent& component)
+	void SceneHierarchyPanel::ComponentStaticMeshGUI(Entity e, ModelMangerComponent& component)
 	{
 		const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowItemOverlap;
 
@@ -1743,14 +1737,14 @@ namespace Rynex {
 			const std::string& node = object.NodeName;
 			const UUID& id = object.GetHandle();
 			std::string idName = "Mesh-Static-List-Node-" + std::to_string(i);
-	
+
 			ImGui::PushID(idName.c_str());
 			bool opende = ImGui::TreeNodeEx(&id, flags, node.c_str());
 			if (opende)
 			{
-				
-				
-				
+
+
+
 			}
 			ImGui::PopID();
 			i++;
@@ -1759,7 +1753,7 @@ namespace Rynex {
 
 	}
 
-	void SceneHierachyPannel::ComponentDynamicMeshGUI(Entity e, DynamicMeshComponent& component)
+	void SceneHierarchyPanel::ComponentDynamicMeshGUI(Entity e, DynamicMeshComponent& component)
 	{
 	}
 
@@ -1767,7 +1761,7 @@ namespace Rynex {
 
 
 	template<typename T>
-	bool SceneHierachyPannel::DisplayAddComponentEntry(const std::string& name)
+	bool SceneHierarchyPanel::DisplayAddComponentEntry(const std::string& name)
 	{
 		if (!m_SelectionContext.HasComponent<T>())
 		{

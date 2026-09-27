@@ -531,13 +531,10 @@ namespace Rynex {
 				SetupVertexBuffersToLayoutVAO(bindIndex, elementsCount, layout, vertexBufferOpenGL);
 				return;
 			}
-			else
-			{
-				elementsCount += layout.GetLength();
-			}
+		    elementsCount += layout.GetLength();
 			bindIndex++;
 		}
-		RY_CORE_ASSERT(false, "We diden't found this vertex buffer in the curen List!");
+		RY_CORE_ASSERT(false, "We didn't found this vertex buffer in the current List!");
 #else
 		Invalidate();
 #endif
@@ -939,7 +936,7 @@ namespace Rynex {
 
 		if (vertexBufferRenderID == 0)
 		{
-			RY_CORE_ASSERT(false, "not vaild RenderID");
+			RY_CORE_ASSERT(false, "not valid RenderID");
 			return false;
 		}
 		uint32_t strideSize = layout.GetStride();
@@ -960,7 +957,7 @@ namespace Rynex {
 #endif
 		uint32_t unUsedElementsPalces = 0u;
 		ShaderDataType lastShaderDataType = ShaderDataType::None;
-		bool compress = layout.AutoCompress();
+		const bool compress = layout.AutoCompress();
 		for (const BufferElement& elements : layout)
 		{
 			if (!elements.m_Active)

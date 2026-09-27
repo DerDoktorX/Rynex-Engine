@@ -6,7 +6,7 @@
 #include <Rynex/Renderer/API/Framebuffer.h>
 #include <Rynex/Renderer/RenderCommand.h>
 
-#include "Pannel/SceneHierachyPannel.h"
+#include "Pannel/SceneHierarchyPanel.h"
 #include "Pannel/ContentBrowserPanel.h"
 #include "Pannel/ViewPortPannel.h"
 #include "Pannel/RendererPannel.h"
@@ -109,7 +109,7 @@ namespace Rynex{
 		int64_t GetTimerScene3DSubmit() const { return m_AktiveScene->Get3DSubmitTime(); }
 	private:
 		RendererPannel* GetRendererPannel() { return &m_RendererPannel; }
-		SceneHierachyPannel* GetSceneHierachyPannel() { return &m_Scene_HPanel; }
+		SceneHierarchyPanel* GetSceneHierachyPannel() { return &m_Scene_HPanel; }
 		ContentBrowserPanel* GetContentBrowserPannel() { return &m_Content_BPannel; }
 		MenuBarPannel* GetMenuBarPannel() { return &m_MenuBarPannel; }
 		ProjectPannel* GetProjectPannel() { return &m_ProjectPannel; }
@@ -154,7 +154,7 @@ namespace Rynex{
 
 		// Panels
 		RendererPannel							m_RendererPannel;
-		SceneHierachyPannel						m_Scene_HPanel;
+		SceneHierarchyPanel						m_Scene_HPanel;
 		ContentBrowserPanel					m_Content_BPannel;
 		MenuBarPannel							m_MenuBarPannel;
 		ProjectPannel							m_ProjectPannel;

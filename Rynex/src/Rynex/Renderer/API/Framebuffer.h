@@ -5,7 +5,7 @@
 
 namespace Rynex {
 
-	enum class RYNEX_API FrameBufferImageSize : uint8_t
+	enum class FrameBufferImageSize : uint8_t
 	{
 		Nono = 0,
 		MainViewPort,

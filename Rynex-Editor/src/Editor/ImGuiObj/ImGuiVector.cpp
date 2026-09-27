@@ -76,7 +76,7 @@ namespace Rynex::UI {
 
 
 
-            changes = dragFunc(labelDrag, &value, SPEED_DEFAULT_DRAG, MAX_DEFAULT_DRAG, MIN_DEFAULT_DRAG, charValue, FLAG_DEFAULT_DRAG);
+            changes = dragFunc(labelDrag, &value, SPEED_DEFAULT_DRAG, MAX_DEFAULT_DRAG, MIN_DEFAULT_DRAG, charValue, FLAG_DEFAULT_DRAG) || changes;
             ImGui::PopItemWidth();
             ImGui::SameLine();
             return changes;

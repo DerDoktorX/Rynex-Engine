@@ -153,14 +153,14 @@ namespace Rynex {
 		virtual const Ref<Shader>& GetShaderForDraw(const BufferLayout& layout, int lodTier) const = 0;
 		virtual DrawSpecification::BatchConfig GetDrawSpecification(const BufferLayout& layout, int lodTier) const = 0;
 		virtual int GetRenderMode(const BufferLayout& layout, int lodTier) const = 0;
-		virtual int GetLayaoutIndex(const BufferLayout& layout, int lodTier) const = 0;
+		virtual int GetLayoutIndex(const BufferLayout& layout, int lodTier) const = 0;
 
 		virtual bool HasSpecForDraw(const BufferLayout& layout, int lodTier) = 0;
 		virtual std::vector<Ref<Texture>> GetTextureForDraw() = 0;
 		virtual const Ref<Shader>& GetShaderForDraw() = 0;
 		virtual DrawSpecification::BatchConfig GetDrawSpecification() = 0;
 		virtual int GetRenderMode() = 0;
-		virtual int GetLayaoutIndex() = 0;
+		virtual int GetLayoutIndex() = 0;
 
 		virtual Ref<UniformBuffer> GetMaterielUniformBuffer() { return nullptr; }
 

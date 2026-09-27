@@ -367,10 +367,7 @@ namespace Rynex {
 
 
 
-	void Scene::SetFuncSubmit3DSceneDrawListToFrame(const std::function<void()>& func)
-	{
-		Renderer3D::ResetTargetRenderPtr();
-	}
+
 
 	void Scene::OnConectToRenderer()
 	{
@@ -855,7 +852,7 @@ namespace Rynex {
 				uint32_t uEnitityID = entt::to_integral(e);
 				int32_t enitityID = static_cast<int32_t>(uEnitityID);
 
-				Renderer2D::SubmitLigthDirctionelIcon(modelC.m_Global, enitityID);
+				Renderer2D::SubmitLightDirectionIcon(modelC.m_Global, enitityID);
 			});
 	}
 
@@ -866,7 +863,7 @@ namespace Rynex {
 				uint32_t uEnitityID = entt::to_integral(e);
 				int32_t enitityID = static_cast<int32_t>(uEnitityID);
 
-				Renderer2D::SubmitLigthPointIcon(modelC.m_Global, enitityID);
+				Renderer2D::SubmitLightPointIcon(modelC.m_Global, enitityID);
 			});
 
 	}
@@ -878,7 +875,7 @@ namespace Rynex {
 			uint32_t uEnitityID = entt::to_integral(e);
 			int32_t enitityID = static_cast<int32_t>(uEnitityID);
 
-			Renderer2D::SubmitLigthSpotIcon(modelC.m_Global, enitityID);
+			Renderer2D::SubmitLightSpotIcon(modelC.m_Global, enitityID);
 		});
 	}
 
@@ -986,14 +983,11 @@ namespace Rynex {
 	void Scene::ResetRenderTaregtMain()
 	{
 		Renderer::ClearMainPipline();
-		Renderer3D::ResetMeshObject();
 	}
 
 	void Scene::ResetRenderTaregtCurent()
 	{
 		Renderer::ClearCurrentPipline();
-
-		Renderer3D::ResetMeshObject();
 	}
 
 

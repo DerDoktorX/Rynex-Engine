@@ -62,7 +62,7 @@ namespace Rynex {
 	{
 		m_DefaultMap = Texture::White();
 
-		
+
 	}
 
 
@@ -242,13 +242,13 @@ namespace Rynex {
 
 	bool DefaultMaterial::HasSpecForDraw(const BufferLayout& layout, int lodTier) const
 	{
-		int index = GetLayaoutIndex(layout, lodTier);
+		int index = GetLayoutIndex(layout, lodTier);
 		return index != -1;
 	}
 
 	bool DefaultMaterial::HasSpecForDraw(const BufferLayout& layout, int lodTier)
 	{
-		int index = GetLayaoutIndex(layout, lodTier);
+		int index = GetLayoutIndex(layout, lodTier);
 		if (index == -1)
 			return false;
 
@@ -281,7 +281,7 @@ namespace Rynex {
 		return m_LastPassPtr->renderMode;
 	}
 
-	int DefaultMaterial::GetLayaoutIndex()
+	int DefaultMaterial::GetLayoutIndex()
 	{
 		RY_CORE_ASSERT(nullptr != m_LastPassPtr);
 		int differnz = m_LastPassPtr - m_PassesVec.data();
@@ -291,7 +291,7 @@ namespace Rynex {
 
 	std::vector<Ref<Texture>> DefaultMaterial::GetTextureForDraw(const BufferLayout& layout, int lodTier) const
 	{
-		int index = GetLayaoutIndex(layout, lodTier);
+		int index = GetLayoutIndex(layout, lodTier);
 		if (index != -1)
 		{
 			const Pass& pass = m_PassesVec.at(index);
@@ -304,7 +304,7 @@ namespace Rynex {
 
 	const Ref<Shader>& DefaultMaterial::GetShaderForDraw(const BufferLayout& layout, int lodTier) const
 	{
-		int index = GetLayaoutIndex(layout, lodTier);
+		int index = GetLayoutIndex(layout, lodTier);
 		if (index != -1)
 		{
 			const Pass& pass = m_PassesVec.at(index);
@@ -317,7 +317,7 @@ namespace Rynex {
 
 	int DefaultMaterial::GetDrawSpecification(const BufferLayout& layout, int lodTier) const
 	{
-		int index = GetLayaoutIndex(layout, lodTier);
+		int index = GetLayoutIndex(layout, lodTier);
 		if (index != -1)
 		{
 			const Pass& pass = m_PassesVec.at(index);
@@ -329,7 +329,7 @@ namespace Rynex {
 
 	int DefaultMaterial::GetRenderMode(const BufferLayout& layout, int lodTier) const
 	{
-		int index = GetLayaoutIndex(layout, lodTier);
+		int index = GetLayoutIndex(layout, lodTier);
 		if (index != -1)
 		{
 			const Pass& pass = m_PassesVec.at(index);
@@ -339,7 +339,7 @@ namespace Rynex {
 		return RenderMode::None;
 	}
 
-	int DefaultMaterial::GetLayaoutIndex(const BufferLayout& layout, int lodTier) const
+	int DefaultMaterial::GetLayoutIndex(const BufferLayout& layout, int lodTier) const
 	{
 		if (nullptr != m_LastPassPtr)
 		{

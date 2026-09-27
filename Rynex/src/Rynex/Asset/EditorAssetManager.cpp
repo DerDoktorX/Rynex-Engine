@@ -860,8 +860,9 @@ namespace Rynex {
     void EditorAssetManagerThread::SetAssetMetadataLockState(AssetHandle handle,
                                                              std::function<void(AssetMetadata&)> lambder)
     {
-        std::lock_guard<std::mutex> lockPath(m_CurrentPathMutex);
+
         std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
+        std::lock_guard<std::mutex> lockPath(m_CurrentPathMutex);
         m_HandleRegistry.GetRefLemda(lambder, handle);
     }
 
@@ -1281,8 +1282,8 @@ namespace Rynex {
 
         if (IsDirectoryInRegistry(parentFolder))
         {
-            std::lock_guard<std::mutex> lockPath(m_CurrentPathMutex);
             std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
+            std::lock_guard<std::mutex> lockPath(m_CurrentPathMutex);
 
             m_DirectoryRegistry.Write(
                 std::bind(&EditorAssetManagerThread::AddDirectory, this, path, parentFolder, std::placeholders::_1)

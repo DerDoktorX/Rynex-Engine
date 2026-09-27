@@ -371,7 +371,7 @@ namespace Rynex {
         s_Data.curentFilePathExtention = path.GetExtensionPathString();
 
 
-        const std::string pathStr = path.GetNamePathString();
+        const std::string pathStr = path.GetPathString();
         const char* pathPtr = pathStr.c_str();
         const uint32_t flags = aiProcess_Triangulate
             | aiProcess_GenSmoothNormals

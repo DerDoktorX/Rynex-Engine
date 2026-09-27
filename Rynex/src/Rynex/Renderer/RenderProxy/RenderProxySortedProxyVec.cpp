@@ -338,22 +338,26 @@ namespace Rynex {
 
     void RenderProxySortedProxyVec::CheckColsionGroupView()
     {
-        uint32_t i = 0;
-        for (const RenderProxy& proxy : m_SortedProxyVec)
         {
-            uint32_t firstIndex = m_GroupViewsMap.at(proxy.GetKey()).first;
-            uint32_t countGroup = m_GroupViewsMap.at(proxy.GetKey()).second;
-            uint32_t lastIndex = firstIndex + countGroup;
+            uint32_t i = 0;
+            for (const RenderProxy& proxy : m_SortedProxyVec)
+            {
+                uint32_t firstIndex = m_GroupViewsMap.at(proxy.GetKey()).first;
+                uint32_t countGroup = m_GroupViewsMap.at(proxy.GetKey()).second;
+                uint32_t lastIndex = firstIndex + countGroup;
 
-            RY_CORE_ASSERT(firstIndex <= i && i < lastIndex);
-            i++;
+
+                RY_CORE_ASSERT(i < lastIndex, "Index ({}) is higher or equal then lastIndex ({})!", i, lastIndex );
+                RY_CORE_ASSERT(firstIndex <= i, "firstIndex ({}) is greater then Index ({})!", firstIndex, i );
+                i++;
 
 
+            }
         }
         {
             std::map<RenderProxyKey, IndexCountPair> map1;
 
-            BufferLayout renderTragetLayoute = BufferLayout(
+            BufferLayout renderTargetLayout = BufferLayout(
                 {
                     { SDT::Float4, "Color" },
                     { SDT::Int, "Entity" }
@@ -373,8 +377,8 @@ namespace Rynex {
                     constexpr int levelLOD = 0;
                     const Ref<Material>& materiel = proxy.GetMaterial();
                     const Ref<MeshSingle>& mesh = proxy.GetMesh();
-                    DrawSpecification::BatchConfig darwSpec = materiel->GetDrawSpecification(renderTragetLayoute, levelLOD);
-                    curentBatch3DKey = Batch3DKey(materiel, mesh, renderTragetLayoute, levelLOD);
+                    DrawSpecification::BatchConfig darwSpec = materiel->GetDrawSpecification(renderTargetLayout, levelLOD);
+                    curentBatch3DKey = Batch3DKey(materiel, mesh, renderTargetLayout, levelLOD);
 
                     key = proxy.GetKey();
                 }
@@ -390,8 +394,8 @@ namespace Rynex {
                             constexpr int levelLOD = 0;
                             const Ref<Material>& materiel = proxy.GetMaterial();
                             const Ref<MeshSingle>& mesh = proxy.GetMesh();
-                            DrawSpecification::BatchConfig darwSpec = materiel->GetDrawSpecification(renderTragetLayoute, levelLOD);
-                            proxyBatch3DKey = Batch3DKey(materiel, mesh, renderTragetLayoute, levelLOD);
+                            DrawSpecification::BatchConfig drawSpec = materiel->GetDrawSpecification(renderTargetLayout, levelLOD);
+                            proxyBatch3DKey = Batch3DKey(materiel, mesh, renderTargetLayout, levelLOD);
                         }
                         RenderProxyKey proxyKey = proxy.GetKey();
                         uint64_t proxyBatchKeyValue = curentBatch3DKey;
@@ -409,8 +413,8 @@ namespace Rynex {
                         constexpr int levelLOD = 0;
                         const Ref<Material>& materiel = nextProxy.GetMaterial();
                         const Ref<MeshSingle>& mesh = nextProxy.GetMesh();
-                        DrawSpecification::BatchConfig darwSpec = materiel->GetDrawSpecification(renderTragetLayoute, levelLOD);
-                        proxyBatch3DKey = Batch3DKey(materiel, mesh, renderTragetLayoute, levelLOD);
+                        DrawSpecification::BatchConfig drawSpec = materiel->GetDrawSpecification(renderTargetLayout, levelLOD);
+                        proxyBatch3DKey = Batch3DKey(materiel, mesh, renderTargetLayout, levelLOD);
                     }
                 } while (i < proxyCount && proxyBatch3DKey == curentBatch3DKey);
                 

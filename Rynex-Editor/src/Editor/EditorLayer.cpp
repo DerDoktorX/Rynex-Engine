@@ -134,17 +134,6 @@ case key: \
         RY_CORE_INFO("EditorLayer::OnAttach Start!");
         RY_PROFILE_FUNCTION();
 
-#if 0
-        WeightedRandomizer<std::string> randomizer;
-        randomizer.add_item("CS-2", 3.0);           // 30 %
-        randomizer.add_item("HD-2", 3.0);           // 30 %
-        randomizer.add_item("PUBG", 3.0);           // 30 %
-        randomizer.add_item("Sea of Thieves", 1.0); // 10 %
-
-        std::string randome = randomizer.get_random();
-        RY_CORE_FATAL("Randome Gerator {}", randome);
-#endif
-
         m_AktiveScene = CreateRef<Scene>();
         m_EditorScene = CreateRef<Scene>();
 
@@ -647,7 +636,7 @@ case key: \
 
     void EditorLayer::OpenSceneHierachyPannel()
     {
-        m_Scene_HPanel.OpenSceneHierachy();
+        m_Scene_HPanel.OpenSceneHierarchy();
     }
 
     void EditorLayer::OpenPropertiesPannel()

@@ -99,7 +99,7 @@ namespace Rynex {
 	{
 		RY_CORE_ASSERT(0u != target);
 		RY_CORE_ASSERT(0u != m_RendererID);
-		RY_CORE_ASSERT(0u != byteSize, "It snot allwowd to set 0 bytes data!")
+		RY_CORE_ASSERT(0u != byteSize, "It's  not allow to set 0 bytes data!")
 		CopyOffsetMemoryData(dataPtr, offset, byteSize);
 		GL_CHECK();
 		const uint8_t* dataOffsetPtr = m_Data.data() + offset;

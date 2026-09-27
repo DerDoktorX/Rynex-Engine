@@ -39,16 +39,16 @@ namespace Rynex {
 		static void SubmitStringComSingle(const glm::mat4& transform, TextComponent& textC, int entityID);
 
 
-		static void SubmitLigthPointIcon(const glm::mat4& transform, int entityID = -2);
-		static void SubmitLigthSpotIcon(const glm::mat4& transform, int entityID = -2);
-		static void SubmitLigthDirctionelIcon(const glm::mat4& transform, int entityID = -2);
+		static void SubmitLightPointIcon(const glm::mat4& transform, int entityID = -2);
+		static void SubmitLightSpotIcon(const glm::mat4& transform, int entityID = -2);
+		static void SubmitLightDirectionIcon(const glm::mat4& transform, int entityID = -2);
 		static void SubmitCameraIcon(const glm::mat4& transform, int entityID = -2);
 		static void SubmitIcon(const glm::mat4& transform, int index = 0, int entityID = -2);
 
 
-		static void SubmitRenderDrawListQuad(RenderTarget& target, const Ref<UniformBuffer>& camerbuffer, const Ref<UniformBuffer>& displaybuffer);
-		static void SubmitRenderDrawListText(RenderTarget& target, const Ref<UniformBuffer>& camerbuffer, const Ref<UniformBuffer>& displaybuffer);
-		static void SubmitRenderDrawListIcon(RenderTarget& target, const Ref<UniformBuffer>& camerbuffer, const Ref<UniformBuffer>& displaybuffer);
+		static void SubmitRenderDrawListQuad(RenderTarget& target, const Ref<UniformBuffer>& cameraBuffer, const Ref<UniformBuffer>& displayBuffer);
+		static void SubmitRenderDrawListText(RenderTarget& target, const Ref<UniformBuffer>& cameraBuffer, const Ref<UniformBuffer>& displayBuffer);
+		static void SubmitRenderDrawListIcon(RenderTarget& target, const Ref<UniformBuffer>& cameraBuffer, const Ref<UniformBuffer>& displayBuffer);
 
 		static void SubmitRenderDrawList();
 

@@ -252,9 +252,9 @@ namespace Rynex {
                 m_ProxyDrawCallGenarterMain.NextDrawCall(groupView.At(0));
                 m_ProxyDrawCallGenarterMain.AddProxyData();
                 proxyIndex++;
-                for (uint32_t i = 1; i < groupView.Size(); i++)
+                const uint32_t groupCount = groupView.Size();
+                for (uint32_t i = 1u; i < groupCount; i++)
                 {
-                    
                     RenderProxy& renderProxy = groupView.At(i);
                     m_ProxyDrawCallGenarterMain.SetProxyData(renderProxy);
                     m_ProxyDrawCallGenarterMain.AddProxyData();
@@ -272,7 +272,8 @@ namespace Rynex {
 #endif
         
         return proxyIndex == proxyCount;
-    }
+    }// cache
+
 
     bool StaticeRenderProxys::CreateDrawListCurent()
     {

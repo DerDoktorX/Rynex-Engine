@@ -63,12 +63,12 @@ namespace Rynex {
 
 		bool m_DrawPipelinesFromRenderTarget = false;
 		bool m_SortBeforeDrawFromRenderTarget = false;// sortBeforeDrawFromRenderTarget
-		bool m_DrawPipelinesFromRenderPass = false;
+		bool m_DrawPipelinesFromRenderPass = true;
 		bool m_DrawShaderDrawListFromRenderTarget = false;
 		bool m_DrawShaderDrawListFromRenderPass = true;
 
-		bool m_DrawRenderProxy = true;// true;
-		bool m_SubmitSceneEntityTo3DRender = false; // false;
+		bool m_DrawRenderProxy = false;// true;
+		bool m_SubmitSceneEntityTo3DRender = true; // false;
 	};
 
 	struct CameraPackege
@@ -594,7 +594,7 @@ namespace Rynex {
 		inline static void ShutdownFromRenderPassDisplayUB(RenderPass& renderPass);
 		inline static void ShutdownFromRenderPassCameraUB(RenderPass& renderPass);
 
-		inline static void SetFromRenderPassCameraData(RenderPass& renderPass, const Camera& camer, const glm::mat4& matrix);
+		inline static void SetFromRenderPassCameraData(RenderPass& renderPass, const Camera& camera, const glm::mat4& matrix);
 		inline static void SetFromRenderPassCameraUB(RenderPass& renderPass);
 
 		// imageSize [ Size(x,y) / Offset(z,w) ]

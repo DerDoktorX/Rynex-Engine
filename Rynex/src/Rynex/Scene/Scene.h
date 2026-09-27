@@ -214,7 +214,7 @@ namespace Rynex {
 
 		friend class Entity;
 		friend class SceneSerializer;
-		friend class SceneHierachyPannel;
+		friend class SceneHierarchyPanel;
 		friend class SceneRenderer;
 	};
 

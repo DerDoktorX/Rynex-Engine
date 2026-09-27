@@ -38,7 +38,6 @@ namespace Rynex {
 		void ImGuiRenderStatePass(const std::string& name, StatusRenderPasses& pass);
 		void ImGuiVSyncCheckBox();
 		void ImGuiRenderTimeAutoRest();
-		void ImGuiSelectFrameSubmitFunc();
 		void ImGuiRenderMode();
 		void UpdateAregeTime(double timePoint);
 		void ImGuiRenderPiplines();

@@ -10,7 +10,7 @@ namespace Rynex {
 	struct RenderMeshBatch;
 	struct RenderProxy;
 	struct ProxyGroupView;
-	class BatchedRenderObjectVAO;
+	struct BatchedRenderObjectVAO;
 	class Batch3DKey;
 	enum class RenderProxyDynamicEllmenenttData;
 

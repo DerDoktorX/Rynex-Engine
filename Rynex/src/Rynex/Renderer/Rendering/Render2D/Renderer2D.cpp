@@ -557,11 +557,11 @@ namespace Rynex {
 
 
 
-	void Renderer2D::SubmitRenderDrawListQuad(RenderTarget& target, const Ref<UniformBuffer>& camerbuffer, const Ref<UniformBuffer>& displaybuffer)
+	void Renderer2D::SubmitRenderDrawListQuad(RenderTarget& target, const Ref<UniformBuffer>& cameraBuffer, const Ref<UniformBuffer>& displayBuffer)
 	{
 
 
-		if(s_Storarage2D.QuadesT.GenartateShaderDrawList(camerbuffer, displaybuffer))
+		if(s_Storarage2D.QuadesT.GenartateShaderDrawList(cameraBuffer, displayBuffer))
 		{
 			std::vector<ShaderDrawResource>& shaderDrawResourceVec = Renderer::GetShaderDrawResourceMain();
 			const ShaderDrawResource& shaderDrawResource = s_Storarage2D.QuadesT.GetShaderDrawList();
@@ -576,116 +576,23 @@ namespace Rynex {
 
 	void Renderer2D::DrawQuads()
 	{
-#ifndef RY_RENERER_DESIGN_CURENT_MAIN
-		const Ref<UniformBuffer>& camerB = Renderer::GetMainPassViewCamerUniform();
-#else
-		const Ref<UniformBuffer>& camerB = Renderer::GetPackegeCameraUniformMain();
-#endif
-#if RY_RENDER2D_TEST_BATCHING_SBO
+
+		const Ref<UniformBuffer>& cameraB = Renderer::GetPackegeCameraUniformMain();
 		
-		uint32_t count;
-#if 0
-		static uint32_t s_First = 1;
-		if(s_First)
-		{
-			count = s_Storarage2D.QuadesT.FlushData();
-			s_First--;
-		}
-		else
-		{
-			count = s_Storarage2D.QuadesT.Size() * 6u;
-		}
-#else
-		count = s_Storarage2D.QuadesT.FlushData();
-#endif
+		uint32_t count = s_Storarage2D.QuadesT.FlushData();
+
 		if (count > 0)
 		{
-			camerB->Bind(0);
+			cameraB->Bind(0);
 			s_Storarage2D.QuadesT.Bind("u_Textures", 1u);
 			Ref<VertexArray> vertexArray = s_Storarage2D.QuadesT.GetVertexArray();
 			RenderCommand::DrawIndexedMesh(vertexArray, count);
 			s_Storarage2D.QuadesT.UnBind(1u);
 
-#if RY_RENDER2D_TEST_BATCHING_SBO_UPDATE - 1
 			s_Storarage2D.QuadesT.Clear();
 			s_Storarage2D.QuadesT.RestTextur();
-#else
-			s_Storarage2D.QuadesT.Clear();
-#endif
-#if 0
 
-			
-			camerB->Bind(0);
-			s_Storarage2D.QuadesT.Bind("u_Textures", 1);
-
-			RenderCommand::DrawIndexedMesh(vertexArray, count);
-			s_Storarage2D.QuadesT.UnBind();
-
-#if RY_RENDER2D_TEST_BATCHING_SBO_UPDATE - 1
-			s_Storarage2D.QuadesT.Clear();
-			s_Storarage2D.QuadesT.RestTextur();
-#else
-			s_Storarage2D.QuadesT.Clear();
-#endif
-			camerB->Bind(0);
-			s_Storarage2D.QuadesT.Bind("u_Textures", 1);
-
-			RenderCommand::DrawIndexedMesh(vertexArray, count);
-			s_Storarage2D.QuadesT.UnBind();
-
-#if RY_RENDER2D_TEST_BATCHING_SBO_UPDATE - 1
-			s_Storarage2D.QuadesT.Clear();
-			s_Storarage2D.QuadesT.RestTextur();
-#else
-			s_Storarage2D.QuadesT.Clear();
-#endif
-			camerB->Bind(0);
-			s_Storarage2D.QuadesT.Bind("u_Textures", 1);
-
-			RenderCommand::DrawIndexedMesh(vertexArray, count);
-			s_Storarage2D.QuadesT.UnBind();
-
-#if RY_RENDER2D_TEST_BATCHING_SBO_UPDATE - 1
-			s_Storarage2D.QuadesT.Clear();
-			s_Storarage2D.QuadesT.RestTextur();
-#else
-			s_Storarage2D.QuadesT.Clear();
-#endif
-			camerB->Bind(0);
-			s_Storarage2D.QuadesT.Bind("u_Textures", 1);
-
-			RenderCommand::DrawIndexedMesh(vertexArray, count);
-			s_Storarage2D.QuadesT.UnBind();
-
-#if RY_RENDER2D_TEST_BATCHING_SBO_UPDATE - 1
-			s_Storarage2D.QuadesT.Clear();
-			s_Storarage2D.QuadesT.RestTextur();
-#else
-			s_Storarage2D.QuadesT.Clear();
-#endif
-#endif
 		}
-
-
-#else
-#if TEST_RENDERER_QUADE_001
-		
-#endif
-		uint32_t count = s_Storarage2D.Quades.Bind("u_Textures");
-		if (count > 0)
-		{
-			Ref<VertexArray> vertexArray = s_Storarage2D.Quades.GetShadeVertexArray();
-			RenderCommand::DrawIndexedMesh(vertexArray, count);
-			s_Storarage2D.Quades.UnBind();
-			s_Storarage2D.Quades.Clear();
-			s_Storarage2D.Quades.RestTextur();
-		}
-
-#if TEST_RENDERER_QUADE_001
-
-		
-#endif
-#endif
 	}
 
 
@@ -728,7 +635,7 @@ namespace Rynex {
 					char nextCharacter = string[i + 1];
 					double dAdvance;
 					fontGeometry.getAdvance(dAdvance, character, nextCharacter);
-					advance = (float)dAdvance;
+					advance = static_cast<float>(dAdvance);
 				}
 
 				x += fsScale * advance + textParams.Kerning;
@@ -737,7 +644,7 @@ namespace Rynex {
 
 			if (character == '\t')
 			{
-				// NOTE(Yan): is this right?
+
 				x += 4.0f * (fsScale * spaceGlyphAdvance + textParams.Kerning);
 				continue;
 			}
@@ -752,13 +659,13 @@ namespace Rynex {
 
 			double al, ab, ar, at;
 			glyph->getQuadAtlasBounds(al, ab, ar, at);
-			glm::vec2 texCoordMin((float)al, (float)ab);
-			glm::vec2 texCoordMax((float)ar, (float)at);
+			glm::vec2 texCoordMin(static_cast<float>(al), static_cast<float>(ab));
+			glm::vec2 texCoordMax(static_cast<float>(ar), static_cast<float>(at));
 
 			double pl, pb, pr, pt;
 			glyph->getQuadPlaneBounds(pl, pb, pr, pt);
-			glm::vec2 quadMin((float)pl, (float)pb);
-			glm::vec2 quadMax((float)pr, (float)pt);
+			glm::vec2 quadMin(static_cast<float>(pl), static_cast<float>(pb));
+			glm::vec2 quadMax(static_cast<float>(pr), static_cast<float>(pt));
 
 			quadMin *= fsScale, quadMax *= fsScale;
 			quadMin += glm::vec2(x, y);
@@ -830,33 +737,24 @@ namespace Rynex {
 	
 	void Renderer2D::RenderText()
 	{
-#if TEST_RENDERER_TEXT_001
+
 		
 
-#ifndef RY_RENERER_DESIGN_CURENT_MAIN
-		const Ref<UniformBuffer>& camerB = Renderer::GetMainPassViewCamerUniform();
-		const Ref<Framebuffer>& framneB = Renderer::GetMainPassViewFramebuffer();
-#else
+
 		const Ref<UniformBuffer>& camerB = Renderer::GetPackegeCameraUniformMain();
-		Ref<Framebuffer> framneB = Renderer::GetFramebufferMain();
-#endif
-		framneB->Bind();
+		Ref<Framebuffer> framebuffer = Renderer::GetFramebufferMain();
+
+		framebuffer->Bind();
 		camerB->Bind(0);
-#endif
+
 		uint32_t count = s_Storarage2D.Text.Bind("u_Textures");
 		if (count > 0)
 		{
 			Ref<VertexArray> vertexArray = s_Storarage2D.Text.GetVertexArray();
 			RenderCommand::DrawIndexedMesh(vertexArray, count);
-			// s_Storarage2D.Text.UnBind();
 			s_Storarage2D.Text.Clear();
 			s_Storarage2D.Text.RestTextur();
 		}
-
-#if TEST_RENDERER_TEXT_001
-		// framneB->Unbind();
-
-#endif
 	}
 
 
@@ -864,34 +762,34 @@ namespace Rynex {
 
 #pragma region Icons
 
-	void Renderer2D::SubmitLigthPointIcon(const glm::mat4& transform, int entityID)
+	void Renderer2D::SubmitLightPointIcon(const glm::mat4& transform, int entityID)
 	{
-		int textureIndex = IconTexture::PointLigthe;
+		constexpr int textureIndex = IconTexture::PointLigthe;
 		SubmitIcon(transform, textureIndex, entityID);
 	}
 
-	void Renderer2D::SubmitLigthSpotIcon(const glm::mat4& transform, int entityID)
+	void Renderer2D::SubmitLightSpotIcon(const glm::mat4& transform, int entityID)
 	{
-		int textureIndex = IconTexture::SpotLigth;
+		constexpr int textureIndex = IconTexture::SpotLigth;
 		SubmitIcon(transform, textureIndex, entityID);
 	}
 
-	void Renderer2D::SubmitLigthDirctionelIcon(const glm::mat4& transform, int entityID)
+	void Renderer2D::SubmitLightDirectionIcon(const glm::mat4& transform, int entityID)
 	{
-		int textureIndex = IconTexture::DirectionelLigthe;
+		constexpr int textureIndex = IconTexture::DirectionelLigthe;
 		SubmitIcon(transform, textureIndex, entityID);
 	}
 
 	void Renderer2D::SubmitCameraIcon(const glm::mat4& transform, int entityID)
 	{
-		int textureIndex = IconTexture::Camera;
+		constexpr int textureIndex = IconTexture::Camera;
 		SubmitIcon(transform, textureIndex, entityID);
 	}
 
 	void Renderer2D::SubmitIcon(const glm::mat4& transform, int index, int entityID)
 	{
 		const Ref<Texture>& texture = s_Storarage2D.IconTexture[index];
-		int textureIndex = s_Storarage2D.Icon.AddTexture(texture);
+		const int textureIndex = s_Storarage2D.Icon.AddTexture(texture);
 		
 		constexpr size_t iconVertexCount = 4;
 		for (size_t i = 0; i < iconVertexCount; i++)
@@ -899,7 +797,7 @@ namespace Rynex {
 			s_Storarage2D.Icon.Emplace_Back_Push(
 				IconVertex{
 					glm::vec4{ transform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f) },
-					(int)BIT(i),
+					static_cast<int>(BIT(i)),
 					textureIndex,
 					entityID 
 				});
@@ -909,10 +807,10 @@ namespace Rynex {
 
 	}
 	
-	void Renderer2D::SubmitRenderDrawListIcon(RenderTarget& target, const Ref<UniformBuffer>& camerbuffer, const Ref<UniformBuffer>& displaybuffer)
+	void Renderer2D::SubmitRenderDrawListIcon(RenderTarget& target, const Ref<UniformBuffer>& cameraBuffer, const Ref<UniformBuffer>& displayBuffer)
 	{
 
-		s_Storarage2D.Icon.AddShadeDrawListToRenderTarget(target, camerbuffer, displaybuffer);
+		s_Storarage2D.Icon.AddShadeDrawListToRenderTarget(target, cameraBuffer, displayBuffer);
 		s_Storarage2D.Icon.Clear();
 		s_Storarage2D.Icon.RestTextur();
 
@@ -924,17 +822,14 @@ namespace Rynex {
 	void Renderer2D::RenderIcons()
 	{
 
-#if TEST_RENDERER_ICON_001
-#ifndef RY_RENERER_DESIGN_CURENT_MAIN
-		const Ref<UniformBuffer>& camerB = Renderer::GetMainPassViewCamerUniform();
-		const Ref<UniformBuffer>& displayB = Renderer::GetMainPassViewDisblayUniform();
-#else
+
+
 		const Ref<UniformBuffer>& camerB = Renderer::GetPackegeCameraUniformMain();
 		Ref<UniformBuffer>& displayB = Renderer::GetViewUniformMain();
-#endif
+
 		camerB->Bind(0);
 		displayB->Bind(1);
-#endif
+
 		uint32_t count = s_Storarage2D.Icon.Bind("u_Textures");
 		if (count > 0)
 		{
@@ -944,10 +839,6 @@ namespace Rynex {
 			s_Storarage2D.Icon.Clear();
 		}
 
-#if TEST_RENDERER_ICON_001
-
-
-#endif
 	}	
 	
 	

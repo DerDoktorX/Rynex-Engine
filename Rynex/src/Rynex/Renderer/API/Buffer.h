@@ -229,13 +229,13 @@ namespace Rynex {
 		
 		BufferLayout(const BufferLayout&) = default;
 
-		BufferLayout(const std::initializer_list<BufferElement>& element, uint32_t instanceIncreas = 0u)
+		BufferLayout(const std::initializer_list<BufferElement>& element, uint32_t instanceIncrease = 0u)
 			: m_Elements(element)
 			, m_HashNumber(0ull)
 			, m_Length(0ull)
 			, m_BufferCount(0ull)
 			, m_Stride(0ull)
-			, m_InstanceIncreas(instanceIncreas)
+			, m_InstanceIncreas(instanceIncrease)
 			, m_EnabelAutoCompress(false)
 		{
 			CaculateOffsetAndStride();
@@ -266,7 +266,7 @@ namespace Rynex {
 		size_t GetBufferCount() const { return m_BufferCount; };
 		bool Empty() const { return m_Elements.empty(); }
 		bool AutoCompress() const { return m_EnabelAutoCompress; }
-		void SetAutoCompress(bool autoCompres) {m_EnabelAutoCompress = autoCompres;}
+		void SetAutoCompress(bool autoCompres) { m_EnabelAutoCompress = autoCompres;}
 		uint32_t GetInstastancIncreas() const { return m_InstanceIncreas; }
 		bool operator==(const BufferElement& elemnet) const
 		{

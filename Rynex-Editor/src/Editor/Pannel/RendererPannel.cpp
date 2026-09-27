@@ -187,8 +187,7 @@ namespace Rynex {
 			ImGuiRenderTimeHigest();
 			ImGuiDrawRenderTimeMic("Swap", m_SwapUpdateTimeMircoSec);
 			ImGuiDrawRenderTimeMic("ImGui", m_ImGuiUpdateTimeMircoSec);
-			// ImGuiDrawRenderTimeMic("Layers", m_LayersUpdateTimeMircoSec);
-			// ImGuiDrawRenderTimeMic("ViewPort-Update-Scene", m_SceneUpdateTime);
+
 			ImGuiDrawRenderTimeMic("ViewPort-Render-Scene", m_SceneRenderTime);
 			ImGuiDrawRenderTimeMic("Render-Scene", m_SceneRenderTime);
 			ImGuiDrawRenderTimeMic("Scene-3D-Submit", m_SceneSubmit3DObjects);
@@ -201,8 +200,6 @@ namespace Rynex {
 				i++;
 			}
 
-			ImGuiSelectFrameSubmitFunc();
-			
 			ImGuiRenderMode();
 
 			ImGuiVSyncCheckBox();
@@ -492,18 +489,7 @@ namespace Rynex {
 
 	}
 
-	void RendererPannel::ImGuiSelectFrameSubmitFunc()
-	{
-		const Ref<Scene>& scene = m_EditorLayer->GetAktivScene();
-		if (ImGui::RadioButton("SubmitRenderIndrectDrawList", &m_SubmitFrame3DSceneFuncState, SubmitFrame3DRendererStata::SubmitRenderIndrectDrawList))
-			scene->SetFuncSubmit3DSceneDrawListToFrame(Renderer3D::SubmitRenderIndictDrawList);
 
-		if (ImGui::RadioButton("SubmitRenderSingleIndrectDrawList", &m_SubmitFrame3DSceneFuncState, SubmitFrame3DRendererStata::SubmitRenderSingleIndrectDrawList))
-			scene->SetFuncSubmit3DSceneDrawListToFrame(Renderer3D::SubmitRenderSingleIndictDrawList);
-
-		if (ImGui::RadioButton("SubmitRenderMeshDrawList", &m_SubmitFrame3DSceneFuncState, SubmitFrame3DRendererStata::SubmitRenderMeshDrawList))
-			scene->SetFuncSubmit3DSceneDrawListToFrame(Renderer3D::SubmitRenderMeshDrawList);
-	}
 
 	void RendererPannel::ImGuiRenderMode()
 	{
@@ -701,7 +687,7 @@ namespace Rynex {
 		bool& testDrawCall = StaticeRenderProxys::GetTestDrawCall();
 		bool& renderProxyInstaecing = StaticeRenderProxys::GetRenderProxyInstaecing();
 		bool& useDyamincDatatStruct = StaticeRenderProxys::GetUseDyamincDatatStruct();
-
+        bool useDyamincDatatStructCopy = useDyamincDatatStruct;
 #ifdef RY_ALBEDO_TEXTURE_ARRAY
 		bool& testTexturArray = StaticeRenderProxys::GetTestTexturArray();
 #endif
@@ -722,6 +708,10 @@ namespace Rynex {
 			, IMGUI_BOOL_CHECK_BOX(testTexturArray)
 #endif
 		});
+	    // if (useDyamincDatatStructCopy != useDyamincDatatStruct)
+	    // {
+	    //     Renderer3D::ClearBatchesFromRenderProxy();
+	    // }
 		if (ImGui::Button("Clear Batches RenderProxy!"))
 			Renderer3D::ClearBatchesFromRenderProxy();
 	}

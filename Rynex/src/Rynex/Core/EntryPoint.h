@@ -2,51 +2,53 @@
 
 
 
-	extern Rynex::Application* Rynex::CreateApplication(ApplicationCommandLineArgs spec);
+extern Rynex::Application* Rynex::CreateApplication(ApplicationCommandLineArgs spec);
 
 
 
 
 
 
-	int main(int argc, char** argv)
-	{
-		printf("Rynex Engin\n");
-		Rynex::Log::Get().Init();
 
-		
-		RY_PROFILE_BEGIN_SESSION("Startup", "Resources-Engines/Profile/RynexPrifile-Startup.json");
-		RY_CORE_INFO("Initlatione Log!");
-		RY_INFO("Initlatione Log!");
-		std::filesystem::path workingDir = std::filesystem::current_path();
-		workingDir = workingDir.parent_path();
-		std::filesystem::current_path(workingDir);
-		RY_INFO("Working Directory {}", std::filesystem::current_path());
+int main(int argc, char** argv)
+{
+
+	printf("Rynex Engin\n");
+	Rynex::Log::Get().Init();
+
+
+	RY_PROFILE_BEGIN_SESSION("Startup", "Resources-Engines/Profile/RynexPrifile-Startup.json");
+	RY_CORE_INFO("Initlatione Log!");
+	RY_INFO("Initlatione Log!");
+	std::filesystem::path workingDir = std::filesystem::current_path();
+	workingDir = workingDir.parent_path();
+	std::filesystem::current_path(workingDir);
+	RY_INFO("Working Directory {}", std::filesystem::current_path());
 
 
 
 
 #ifdef RY_ENABLE_DEFAULT_PROJECT
-		if (1 == argc)
-		{
-			argv[1] = RY_DEFAULT_PATH_PROJECT_FILE;
-			argc = 2;
-		}
-		Rynex::Application* app = Rynex::CreateApplication({ argc, argv });
-#else
-		Rynex::Application* app = Rynex::CreateApplication({ argc, argv });
-#endif
-		
-
-		RY_PROFILE_END_SESSION();
-
-		RY_PROFILE_BEGIN_SESSION("Runtime", "Profile/RynexPrifile-Runtime.json");
-		app->Run();
-		RY_PROFILE_END_SESSION();
-
-		RY_PROFILE_BEGIN_SESSION("Shutdown", "Profile/RynexPrifile-Shutdown.json");
-		delete app;
-		RY_PROFILE_END_SESSION();
-		Rynex::Log::Get().Shutdown();
+	if (1 == argc)
+	{
+		argv[1] = RY_DEFAULT_PATH_PROJECT_FILE;
+		argc = 2;
 	}
+	Rynex::Application* app = Rynex::CreateApplication({ argc, argv });
+#else
+	Rynex::Application* app = Rynex::CreateApplication({ argc, argv });
+#endif
+
+
+	RY_PROFILE_END_SESSION();
+
+	RY_PROFILE_BEGIN_SESSION("Runtime", "Profile/RynexPrifile-Runtime.json");
+	app->Run();
+	RY_PROFILE_END_SESSION();
+
+	RY_PROFILE_BEGIN_SESSION("Shutdown", "Profile/RynexPrifile-Shutdown.json");
+	delete app;
+	RY_PROFILE_END_SESSION();
+	Rynex::Log::Get().Shutdown();
+}
 
