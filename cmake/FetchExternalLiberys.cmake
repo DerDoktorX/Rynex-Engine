@@ -10,13 +10,13 @@ set(RYNEX_VER_GLM               1.0.1)
 set(RYNEX_VER_YAML_CPP          0.8.0)
 set(RYNEX_VER_IMGUI             v1.91.9-docking)
 set(RYNEX_VER_GLFW              3.4)
-set(RYNEX_VER_ASSIMP            v6.0.4) #  v5.4.3
+set(RYNEX_VER_ASSIMP            v6.0.4)
 set(RYNEX_VER_MESHOPTIMIZER     v0.22)
-# set(RYNEX_VER_MSDF_ATLAS_GEN    v1.3)
 set(RYNEX_VER_MSDF_ATLAS_GEN    v1.2.2)
 set(RYNEX_VER_FREETYPE          VER-2-13-2) # libery from msdfgen-atlas
 set(RYNEX_VER_ZLIB              v1.3.1) # libery from msdfgen-atlas
 set(RYNEX_VER_LIBPNG            v1.6.43) # libery from msdfgen-atlas
+set(RYNEX_VER_GOOGLE_TEST       v1.17.0)
 
 set(FETCHCONTENT_BASE_DIR "${CMAKE_BINARY_DIR}/_fetch" CACHE PATH "Network Verzeichnis fur FetchContent-Verwaltungsdaten")
 set(FETCHCONTENT_UPDATES_DISCONNECTED OFF CACHE BOOL "Kein erneuter Netzwerkzugriff wenn Quellverzeichnis bereits vorhanden")
@@ -269,6 +269,16 @@ rynex_declare(
         ${RYNEX_VER_MESHOPTIMIZER}
 )
 
+# =========================================================================================
+# ====== GoogleTest =======================================================================
+# =========================================================================================
+
+rynex_declare(
+      GoogleTest
+      https://github.com/google/googletest.git
+      ${RYNEX_VER_GOOGLE_TEST}
+)
+
 
 # =========================================================================================
 # =========================================================================================
@@ -286,6 +296,7 @@ rynex_make_available(spdlog)
 rynex_make_available(glm)
 rynex_make_available(glfw)
 rynex_make_available(meshoptimizer)
+rynex_make_available(GoogleTest)
 
 
 # =========================================================================================
@@ -298,7 +309,7 @@ set(IMGUI_DIR "${RYNEX_VENDOR_DIR}/imgui")
 
 if(NOT TARGET imgui)
     add_library(
-            imgui
+          imgui
             STATIC
             "${IMGUI_DIR}/imgui.cpp"
             "${IMGUI_DIR}/imgui_demo.cpp"
@@ -317,7 +328,7 @@ if(NOT TARGET imgui)
     )
 
     target_link_libraries(
-            imgui
+          imgui
             PUBLIC
             glfw
     )

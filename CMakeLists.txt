@@ -76,6 +76,7 @@ add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Rynex/vendor/stb_image/)
 
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Sandbox)
 add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Rynex-Editor)
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/Rynex-Test)
 
 message("cxx dbg flags: ${CMAKE_CXX_FLAGS_DEBUG}")
 message("cxx flags: ${CMAKE_CXX_FLAGS}")

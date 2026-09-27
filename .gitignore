@@ -7,7 +7,6 @@
 IGUI/
 RederDocs/
 # Test Form Project not longer part / Its only basic App.cpp, Layer.h, Layer.cpp,
-Rynex-Test/
 
 # Liberays
 
@@ -41,6 +40,7 @@ Rynex/vendor/glm/
 Rynex/vendor/GLFW/
 Rynex/vendor/msdf-atelas-gen/
 Rynex/vendor/spdlog
+Rynex/vendor/GoogleTest
 
 .claude/
 
