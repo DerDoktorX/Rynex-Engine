@@ -24,7 +24,6 @@ namespace YAML {
 #pragma endregion
 
 
-
 	Emitter& operator<<(Emitter& out, const Rynex::SceneCamera::ProjectionType& projectionType);
 	Emitter& operator<<(Emitter& out, const Rynex::TextureWrappingMode& textureWrappingMode);
 	Emitter& operator<<(Emitter& out, const Rynex::TextureFilteringMode& textureFilteringMode);
@@ -42,6 +41,7 @@ namespace YAML {
 	Emitter& operator<<(Emitter& out, const Rynex::SceneCamera& sceneCamera);
 	Emitter& operator<<(Emitter& out, const Rynex::FramebufferAttachmentSpecification& framebufferAttachmentSpecification);
 	Emitter& operator<<(Emitter& out, const Rynex::FramebufferSpecification& specification);
+    Emitter& operator<<(Emitter& out, const Rynex::FrameBufferImageSize& frameBufferImageSize);
 
 
 	Emitter& operator<<(Emitter& out, const Rynex::BufferElement& element);

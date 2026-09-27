@@ -599,13 +599,15 @@ namespace Rynex {
             SpriteRendererComponent,
 		    CameraComponent,
             ScriptComponent,
-		    MaterialComponent,
+            MaterialComponent,
 		    GeometryComponent,
-		    Matrix3x3Component,
+            Matrix3x3Component,
+            StaticMeshComponent,
+
 		    ModelMatrixComponent,
             ViewMatrixComponent,
 		    FrameBufferComponent,
-		    StaticMeshComponent,
+
 		    RelationshipUUIDComponent,
 		    VisibleComponent,
 		    ModelMangerComponent,
@@ -618,4 +620,24 @@ namespace Rynex {
 		    TextComponent,
 		    RenderTargetComponent
 		 >;
+
+    using SerializeComponents =
+        ComponentGroup<
+        TransformComponent,
+        SpriteRendererComponent,
+        CameraComponent,
+        ScriptComponent,
+        ModelMatrixComponent,
+        ViewMatrixComponent,
+        FrameBufferComponent,
+
+        RelationshipUUIDComponent,
+        VisibleComponent,
+        ModelMangerComponent,
+        DirectionLightComponent,
+        PointLightComponent,
+        SpotLightComponent,
+        TextComponent,
+        RenderTargetComponent
+     >;
 }

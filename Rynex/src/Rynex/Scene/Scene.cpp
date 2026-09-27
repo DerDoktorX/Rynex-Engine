@@ -101,7 +101,7 @@ namespace Rynex {
 				{
 					if (src.HasComponent<Component>())
 						dst.AddOrReplaceComponent<Component>(src.GetComponent<Component>());
-				}(), ...);
+				} (), ...);
 		}
 
 		template<typename... Component>

@@ -46,163 +46,155 @@ namespace Rynex {
 	using RefSceneLodePromisType = Ref<SceneLodePromisType<T>>;
 
 
-	using RefSceneLodePromis = Ref<LodePromis<Scene>>;
 
-	
-
-	struct LodingAsyncPromise
-	{
-		std::vector<RefSceneLodePromisType<Texture>> PromiseTextureLodeVec;
-		std::vector<RefSceneLodePromisType<MeshStatic>> PromiseMeshStaticLodeVec;
-	};
 
 namespace Utils {
 	namespace Serializer {
 
+	    template<typename T>
+	    static void CastDataToValueType(YAML::Emitter& out, const std::string& name, const std::vector<unsigned char>& data)
+	    {
+	        RY_CORE_ASSERT(data.size() == sizeof(T), "Invalid cast size!");
+	        const T* ptr = reinterpret_cast<const T*>(data.data());
+	        T value = *ptr;
+	        out << YAML::Key << name << YAML::Value << value;
+
+	    }
+
 		static void SerializerDynamicData(YAML::Emitter& out, const std::string& name, ShaderDataType type, const std::vector<unsigned char>& data)
-	{
-		switch (type)
-		{
-		case ShaderDataType::Float:
-		{
-			float* value = (float*)data.data();
-			out << YAML::Key << name.c_str() << YAML::Value << *value;
-			break;
-		}
-		case ShaderDataType::Float2:
-		{
-			glm::vec<2, float>* value = (glm::vec<2, float>*)data.data();
-			out << YAML::Key << name.c_str() << YAML::Value << *value;
-			break;
-		}
-		case ShaderDataType::Float3:
-		{
-			glm::vec<3, float>* value = (glm::vec<3, float>*)data.data();
-			out << YAML::Key << name.c_str() << YAML::Value << *value;
-			break;
-		}
-		case ShaderDataType::Float4:
-		{
-			glm::vec<4, float>* value = (glm::vec<4, float>*)data.data();
-			out << YAML::Key << name.c_str() << YAML::Value << *value;
-			break;
-		}
-		case ShaderDataType::Float3x3:
-		{
-			glm::mat<3, 3, float>* value = (glm::mat<3, 3, float>*)data.data();
-			out << YAML::Key << name.c_str() << YAML::Value << *value;
-			break;
-		}
-		case ShaderDataType::Float4x4:
-		{
-			glm::mat<4, 4, float>* value = (glm::mat<4, 4, float>*)data.data();
-			out << YAML::Key << name.c_str() << YAML::Value << *value;
-			break;
-		}
-		case ShaderDataType::Int:
-		{
-			int* value = (int*)data.data();
-			out << YAML::Key << name.c_str() << YAML::Value << *value;
-			break;
-		}
-		case ShaderDataType::Int2:
-		{
-			glm::vec<2, float>* value = (glm::vec<2, float>*)data.data();
-			out << YAML::Key << name.c_str() << YAML::Value << *value;
-			break;
-		}
-		case ShaderDataType::Int3:
-		{
-			glm::vec<3, float>* value = (glm::vec<3, float>*)data.data();
-			out << YAML::Key << name.c_str() << YAML::Value << *value;
-			break;
-		}
-		case ShaderDataType::Int4:
-		{
-			glm::vec<4, float>* value = (glm::vec<4, float>*)data.data();
-			out << YAML::Key << name.c_str() << YAML::Value << *value;
-			break;
-		}
-		}
-	}
+	    {
+	    	switch (type)
+	    	{
+	    	case ShaderDataType::Float:
+	    	{
+	    	    CastDataToValueType<float>(out, name, data);
+	    		break;
+	    	}
+	    	case ShaderDataType::Float2:
+	    	{
+	    	    CastDataToValueType<glm::vec2>(out, name, data);
+	    		break;
+	    	}
+	    	case ShaderDataType::Float3:
+	    	{
+	    	    CastDataToValueType<glm::vec3>(out, name, data);
+	    		break;
+	    	}
+	    	case ShaderDataType::Float4:
+	    	{
+	    	    CastDataToValueType<glm::vec4>(out, name, data);
+	    		break;
+	    	}
+	    	case ShaderDataType::Float3x3:
+	    	{
+	    	    CastDataToValueType<glm::mat3>(out, name, data);
+	    		break;
+	    	}
+	    	case ShaderDataType::Float4x4:
+	    	{
+	    	    CastDataToValueType<glm::mat4>(out, name, data);
+	    		break;
+	    	}
+	    	case ShaderDataType::Int:
+	    	{
+	    	    CastDataToValueType<int>(out, name, data);
+	    		break;
+	    	}
+	    	case ShaderDataType::Int2:
+	    	{
+	    	    CastDataToValueType<glm::ivec2>(out, name, data);
+	    		break;
+	    	}
+	    	case ShaderDataType::Int3:
+	    	{
+	    	    CastDataToValueType<glm::ivec3>(out, name, data);
+	    		break;
+	    	}
+	    	case ShaderDataType::Int4:
+	    	{
+	    	    CastDataToValueType<glm::ivec4>(out, name, data);
+	    		break;
+	    	}
+	    	}
+	    }
 
 		static void SerializerDynamicDataLayout(YAML::Emitter& out, const std::string& name, const BufferLayout& layout, const std::vector<unsigned char>& data)
-	{
-		out << YAML::Key << name.c_str() << YAML::BeginSeq;
+	    {
+	    	out << YAML::Key << name.c_str() << YAML::BeginSeq;
 
 
-		for (uint64_t offset = 0, size = data.size(); offset < size; offset += layout.GetStride())
-		{
-			for (const BufferElement& ellement : layout)
-			{
+	    	for (uint64_t offset = 0, size = data.size(); offset < size; offset += layout.GetStride())
+	    	{
+	    		for (const BufferElement& ellement : layout)
+	    		{
 
-				switch (ellement.m_Type)
-				{
-				case ShaderDataType::Float:
-				{
-					float* value = (float*)(data.data() + offset);
-					out << YAML::Value << *value;
-					break;
-				}
-				case ShaderDataType::Float2:
-				{
-					glm::vec<2, float>* value = (glm::vec<2, float>*)(data.data() + offset);
-					out << YAML::Value << *value;
-					break;
-				}
-				case ShaderDataType::Float3:
-				{
-					glm::vec<3, float>* value = (glm::vec<3, float>*)(data.data() + offset);
-					out << YAML::Value << *value;
-					break;
-				}
-				case ShaderDataType::Float4:
-				{
-					glm::vec<4, float>* value = (glm::vec<4, float>*)(data.data() + offset);
-					out << YAML::Value << *value;
-					break;
-				}
-				case ShaderDataType::Float3x3:
-				{
-					glm::mat<3, 3, float>* value = (glm::mat<3, 3, float>*)(data.data() + offset);
-					out << YAML::Value << *value;
-					break;
-				}
-				case ShaderDataType::Float4x4:
-				{
-					glm::mat<4, 4, float>* value = (glm::mat<4, 4, float>*)(data.data() + offset);
-					out << YAML::Value << *value;
-					break;
-				}
-				case ShaderDataType::Int:
-				{
-					int* value = (int*)(data.data() + offset);
-					out << YAML::Value << *value;
-					break;
-				}
-				case ShaderDataType::Int2:
-				{
-					glm::vec<2, float>* value = (glm::vec<2, float>*)(data.data() + offset);
-					out << YAML::Value << *value;
-					break;
-				}
-				case ShaderDataType::Int3:
-				{
-					glm::vec<3, float>* value = (glm::vec<3, float>*)(data.data() + offset);
-					out << YAML::Value << *value;
-					break;
-				}
-				case ShaderDataType::Int4:
-				{
-					glm::vec<4, float>* value = (glm::vec<4, float>*)(data.data() + offset);
-					out << YAML::Value << *value;
-					break;
-				}
-				}
-			}
-		}
-		out << YAML::EndSeq;
-	}
+	    			switch (ellement.m_Type)
+	    			{
+	    			case ShaderDataType::Float:
+	    			{
+	    				float* value = (float*)(data.data() + offset);
+	    				out << YAML::Value << *value;
+	    				break;
+	    			}
+	    			case ShaderDataType::Float2:
+	    			{
+	    				glm::vec<2, float>* value = (glm::vec<2, float>*)(data.data() + offset);
+	    				out << YAML::Value << *value;
+	    				break;
+	    			}
+	    			case ShaderDataType::Float3:
+	    			{
+	    				glm::vec<3, float>* value = (glm::vec<3, float>*)(data.data() + offset);
+	    				out << YAML::Value << *value;
+	    				break;
+	    			}
+	    			case ShaderDataType::Float4:
+	    			{
+	    				glm::vec<4, float>* value = (glm::vec<4, float>*)(data.data() + offset);
+	    				out << YAML::Value << *value;
+	    				break;
+	    			}
+	    			case ShaderDataType::Float3x3:
+	    			{
+	    				glm::mat<3, 3, float>* value = (glm::mat<3, 3, float>*)(data.data() + offset);
+	    				out << YAML::Value << *value;
+	    				break;
+	    			}
+	    			case ShaderDataType::Float4x4:
+	    			{
+	    				glm::mat<4, 4, float>* value = (glm::mat<4, 4, float>*)(data.data() + offset);
+	    				out << YAML::Value << *value;
+	    				break;
+	    			}
+	    			case ShaderDataType::Int:
+	    			{
+	    				int* value = (int*)(data.data() + offset);
+	    				out << YAML::Value << *value;
+	    				break;
+	    			}
+	    			case ShaderDataType::Int2:
+	    			{
+	    				glm::vec<2, float>* value = (glm::vec<2, float>*)(data.data() + offset);
+	    				out << YAML::Value << *value;
+	    				break;
+	    			}
+	    			case ShaderDataType::Int3:
+	    			{
+	    				glm::vec<3, float>* value = (glm::vec<3, float>*)(data.data() + offset);
+	    				out << YAML::Value << *value;
+	    				break;
+	    			}
+	    			case ShaderDataType::Int4:
+	    			{
+	    				glm::vec<4, float>* value = (glm::vec<4, float>*)(data.data() + offset);
+	    				out << YAML::Value << *value;
+	    				break;
+	    			}
+	    			}
+	    		}
+	    	}
+	    	out << YAML::EndSeq;
+	    }
 
 		static void SerializerAssetFormate(YAML::Emitter& out, const std::string& name, AssetHandle handle)
 		{
@@ -229,7 +221,7 @@ namespace Utils {
 			Ref<EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
 			if (!editorAssetManger->IsAssetHandleValid(handle))
 			{
-				RY_CORE_ERROR("Asset has no vild Handle Serialized in {}", name);
+				RY_CORE_ERROR("Asset has no valid Handle Serialized in {}", name);
 				return;
 			}
 
@@ -242,24 +234,221 @@ namespace Utils {
 				RY_CORE_ERROR("Asset not Serialized in {} ({} == {})", name, metadataType, needMetadataType);
 				return;
 			}
-			const std::filesystem::path& filePath = metadata.m_FilePath;
-			const std::filesystem::path& pathMarked = metadata.m_PathMarker;
-			std::string filePathStr = filePath.string();
-			std::string pathMarkedStr = pathMarked.string();
+			const FileSystem::Path& filePath = metadata.m_Path;
+
 
 			out << YAML::Key << name.c_str();
 			out << YAML::BeginMap;
-			out << YAML::Key << "Path" << filePathStr;
-			out << YAML::Key << "Path-ProjectMarker" << pathMarkedStr;
+			out << YAML::Key << "Path" << filePath.GetPathString();
+			out << YAML::Key << "Path-ProjectMarker" << filePath.GetMarkedPathString();
 			out << YAML::Key << "Handle" << handle;
 			out << YAML::EndMap;
 		}
 
-		static void SerializerModelDyanmic(YAML::Emitter& out, const std::string& name, DynamicMeshComponent& dMeshC)
-		{
-			
-		}		
-		
+
+	    template<typename Component>
+        static void SerializerComponent(YAML::Emitter& out, const Component& component, const Ref<Scene>& scene);
+
+
+	    template<typename Component>
+	    void SerializerComponent(YAML::Emitter& out, const Component& component, const Ref<Scene>& scene)
+	    {
+	        static_assert(false, "No dafault implemtion allwoed!");
+	    }
+
+	    template<>
+        void SerializerComponent<TagComponent>(YAML::Emitter& out, const TagComponent& component, const Ref<Scene>& scene)
+	    {
+	        const std::string& tag = component.m_Tag;
+	        out << YAML::Key << "Tag" <<  tag;
+	    }
+
+	    template<>
+        void SerializerComponent<TransformComponent>(YAML::Emitter& out, const TransformComponent& component, const Ref<Scene>& scene)
+	    {
+	        out << YAML::Key << "Transaltion" << component.m_Transform;
+	        out << YAML::Key << "Rotation" << component.m_Rotation;
+	        out << YAML::Key << "Scale" << component.m_Scale;
+	    }
+
+	    template<>
+        void SerializerComponent<CameraComponent>(YAML::Emitter& out, const CameraComponent& component, const Ref<Scene>& scene)
+	    {
+	        out << YAML::Key << "Camera" << YAML::Value << component.m_Camera;
+	        out << YAML::Key << "Primary" << YAML::Value << component.m_Primary;
+	        out << YAML::Key << "FixedAspectRotaion" << YAML::Value << component.m_FixedAspectRotation;
+	    }
+
+	    template<>
+        void SerializerComponent<ScriptComponent>(YAML::Emitter& out, const ScriptComponent& component, const Ref<Scene>& scene)
+	    {
+	        out << YAML::Key << "ClassName" << YAML::Value << component.m_Name;
+	        out << YAML::Key << "SelectedScript" << YAML::Value << component.m_SelectedScript;
+	    }
+
+	    template<>
+        void SerializerComponent<SpriteRendererComponent>(YAML::Emitter& out, const SpriteRendererComponent& component, const Ref<Scene>& scene)
+	    {
+	        out << YAML::Key << "Color" << YAML::Value << component.m_Color;
+	        if (Ref<Texture> texture = component.m_Texture.lock())
+	        {
+	            ::Serializer::AssetFormate(out, "Texture",texture->m_Handle);
+	        }
+	    }
+
+	    template<>
+        void SerializerComponent<RelationshipUUIDComponent>(YAML::Emitter& out, const RelationshipUUIDComponent& component, const Ref<Scene>& scene)
+	    {
+	        out << YAML::Key << "ParentID" << YAML::Value << component.m_Parent;
+	        out << YAML::Key << "ChildrenIDs" << YAML::Value;
+	        out << YAML::Flow;
+	        out << YAML::BeginSeq;
+	        for (const UUID& idChild : component.m_Childrens)
+	        {
+	            out << YAML::Value << idChild;
+	        }
+	        out << YAML::EndSeq;
+	    }
+
+	    template<>
+        void SerializerComponent<ModelMatrixComponent>(YAML::Emitter& out, const ModelMatrixComponent& component, const Ref<Scene>& scene)
+	    {
+	        out << YAML::Key << "Locale" << YAML::Value << component.m_Locale;
+	        out << YAML::Key << "Global" << YAML::Value << component.m_Global;
+	    }
+
+	    template<>
+        void SerializerComponent<ViewMatrixComponent>(YAML::Emitter& out, const ViewMatrixComponent& component, const Ref<Scene>& scene)
+	    {
+	        out << YAML::Key << "Locale" << YAML::Value << component.m_Locale;
+	        out << YAML::Key << "Global" << YAML::Value << component.m_Global;
+	    }
+
+	    template<>
+        void SerializerComponent<ModelMangerComponent>(YAML::Emitter& out, const ModelMangerComponent& component, const Ref<Scene>& scene)
+	    {
+	        const Ref<MeshStatic>& meshStatic = component.m_MeshStatic;
+
+	        if (nullptr != meshStatic)
+	        {
+	            const AssetHandle& handle = meshStatic->m_Handle;
+	            ::Serializer::AssetFormate(out, "StaticMesh", handle);
+	        }
+	    }
+
+	    template<>
+        void SerializerComponent<TextComponent>(YAML::Emitter& out, const TextComponent& component, const Ref<Scene>& scene)
+	    {
+	        out << YAML::Key << "Color" << YAML::Value << component.m_Color;
+	        out << YAML::Key << "Kerning" << YAML::Value << component.m_Kerning;
+	        out << YAML::Key << "LineSpacing" << YAML::Value << component.m_LineSpacing;
+	        out << YAML::Key << "TextString" << YAML::Value << component.m_TextString;
+	    }
+
+	    template<>
+        void SerializerComponent<DirectionLightComponent>(YAML::Emitter& out, const DirectionLightComponent& component, const Ref<Scene>& scene)
+	    {
+	        out << YAML::Key << "Color" << YAML::Value << component.m_Color;
+	        out << YAML::Key << "Intensity" << YAML::Value << component.m_Intensity;
+	    }
+
+	    template<>
+        void SerializerComponent<PointLightComponent>(YAML::Emitter& out, const PointLightComponent& component, const Ref<Scene>& scene)
+	    {
+	        out << YAML::Key << "Color" << YAML::Value << component.m_Color;
+	        out << YAML::Key << "Intensity" << YAML::Value << component.m_Intensity;
+	        out << YAML::Key << "Distance" << YAML::Value << component.m_Distance;
+	        out << YAML::Key << "Constant" << YAML::Value << component.m_Constant;
+	        out << YAML::Key << "Linear" << YAML::Value << component.m_Linear;
+	        out << YAML::Key << "Quadratic" << YAML::Value << component.m_Quadratic;
+	    }
+
+	    template<>
+        void SerializerComponent<SpotLightComponent>(YAML::Emitter& out, const SpotLightComponent& component, const Ref<Scene>& scene)
+	    {
+	        out << YAML::Key << "Color" << YAML::Value << component.m_Color;
+	        out << YAML::Key << "Intensity" << YAML::Value << component.m_Intensity;
+	        out << YAML::Key << "Distance" << YAML::Value << component.m_Distance;
+	        out << YAML::Key << "Constant" << YAML::Value << component.m_Inner;
+	        out << YAML::Key << "Linear" << YAML::Value << component.m_Outer;
+	    }
+
+	    template<>
+        void SerializerComponent<FrameBufferComponent>(YAML::Emitter& out, const FrameBufferComponent& component, const Ref<Scene>& scene)
+	    {
+	        out << YAML::Key << "ClearColor" << YAML::Value << component.m_ClearColor;
+	        out << YAML::Key << "FrameBufferLayoutIndex" << YAML::Value << component.m_FrameBufferLayoutIndex;
+	        out << YAML::Key << "FramebufferSize" << YAML::Value << component.m_FramebufferSize;
+	        const Ref<Framebuffer>& framebuffer = component.m_FrameBuffer;
+	        if (framebuffer)
+	        {
+	            const FramebufferSpecification& framebufferSpecification= framebuffer->GetFramebufferSpecification();
+	            out << YAML::Key << "FramebufferSpecification" << YAML::Value << framebufferSpecification;
+	        }
+	    }
+
+	    template<>
+        void SerializerComponent<VisibleComponent>(YAML::Emitter& out, const VisibleComponent& component, const Ref<Scene>& scene)
+	    {
+	        out << YAML::Key << "Visible" << YAML::Value << component.m_Visible;
+	    }
+
+	    template<>
+        void SerializerComponent<RenderTargetComponent>(YAML::Emitter& out, const RenderTargetComponent& component, const Ref<Scene>& scene)
+	    {
+	        out << YAML::Key << "RenderPassName" << YAML::Value << component.m_RenderPassName;
+	        const Ref<RenderTarget>& renderTarget = component.m_Target;
+	        if (nullptr != renderTarget)
+	        {
+	            out << YAML::Key << "RenderTarget";
+	            out << YAML::BeginMap;
+	            const Ref<Framebuffer>& framebuffer = renderTarget->GetFramebuffer();
+	            if (nullptr != framebuffer)
+	            {
+	                const FramebufferSpecification& framebufferSpecification= framebuffer->GetFramebufferSpecification();
+	                out << YAML::Key << "FramebufferSpecification" << YAML::Value << framebufferSpecification;
+	            }
+	            out << YAML::EndMap;
+	        }
+	    }
+
+#if 0
+	    template<>
+        void SerializerComponent<EnvironmentMap>(YAML::Emitter& out, const EnvironmentMap& component, const Ref<Scene>& scene)
+	    {
+	        out << YAML::Key << "Visible" << YAML::Value << component.;
+	    }
+#endif
+
+
+		template<typename ...Component>
+	    static void SerializerAnyComponent(YAML::Emitter& out, const Entity entity, const Ref<Scene>& scene)
+	    {
+	        ([&]()
+	        {
+	            if (entity.HasComponent<Component>())
+	            {
+                    std::string_view viewComponentName = typeid(Component).name();
+                    out << YAML::Key << viewComponentName;
+                    out << YAML::BeginMap;
+
+                    const Component& component = entity.GetComponentC<Component>();
+                    SerializerComponent<Component>(out, component, scene);
+
+                    out << YAML::EndMap;
+                }
+	        }(), ...);
+	    }
+
+
+	    template<typename... Component>
+        static void SerializerGroupComponent(ComponentGroup<Component ...>, YAML::Emitter& out, const Entity entity, const Ref<Scene>& scene)
+	    {
+	        SerializerAnyComponent<Component...>(out,  entity, scene);
+	    }
+
+
+
 		
 		static void SerializerEntity(YAML::Emitter& out, Entity entity, const Ref<Scene>& scene)
 		{
@@ -271,6 +460,7 @@ namespace Utils {
 			RY_CORE_ASSERT(entity.HasComponent<IDComponent>(), "Error: Entity has not IDComponent");
 			out << YAML::BeginMap;
 			out << YAML::Key << "Entity" << YAML::Value << entity.GetUUID();
+#ifdef RY_INLINE_ENTITY_COMPENT_SERIALIZATION
 
 			if (entity.HasComponent<TagComponent>())
 			{
@@ -466,6 +656,11 @@ namespace Utils {
 					out << YAML::EndMap;
 				}
 			}
+
+#else
+	        SerializerGroupComponent(SerializeComponents{}, out, entity,scene);
+
+#endif
 
 			out << YAML::EndMap;
 

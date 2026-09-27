@@ -3,7 +3,6 @@
 
 #include <Rynex/Asset/Base/AssetManager.h>
 #include <Rynex/Renderer/Rendering/Renderer.h>
-
 #include <yaml-cpp/yaml.h>
 
 
@@ -11,6 +10,31 @@
 
 namespace YAML {
 
+    template<typename T>
+    static void ConvertEnumFlags(Emitter& out, T enumValueFlags)
+    {
+        uint64_t count = magic_enum::enum_count<T>();
+        ConvertEnumFlags<T>(out, enumValueFlags, count);
+    }
+
+    template<typename T>
+    static void ConvertEnumFlags(Emitter& out, T enumValueFlags, const uint64_t count)
+    {
+        const std::string_view nameView = typeid(T).name();
+        out << YAML::Key << nameView << YAML::Value;
+        out << YAML::Flow;
+        out << YAML::BeginSeq;
+        for (uint64_t i = 1; i < count; i++)
+        {
+            uint64_t enumValue = BIT(i);
+            if (BIT_EQUAL(enumValueFlags, enumValue))
+            {
+                const Rynex::RenderMode::RenderMode typeIndex = static_cast<Rynex::RenderMode::RenderMode>(enumValue);
+                out << YAML::Value << magic_enum::enum_name(typeIndex);
+            }
+        }
+        out << YAML::EndSeq;
+    }
 
 	Emitter& operator<<(Emitter& out, const std::string_view& v)
 	{
@@ -323,38 +347,14 @@ namespace YAML {
 	Emitter& operator<<(Emitter& out, const Rynex::ShaderType::ShaderType& shaderType)
 	{
 		constexpr uint8_t count = Rynex::ShaderType::s_Count;
-		out << YAML::Flow;
-		out << YAML::BeginSeq;
-		for (uint8_t i = 0; i < count; i++)
-		{
-			uint16_t enumValue = BIT(i);
-
-			if (BIT_EQUAL(shaderType, enumValue))
-			{
-				Rynex::ShaderType::ShaderType typeIndex = magic_enum::enum_value<Rynex::ShaderType::ShaderType>(enumValue);
-				out << magic_enum::enum_name(typeIndex);
-			}
-		}
-		out << YAML::EndSeq;
-
+        ConvertEnumFlags(out, shaderType, count);
 		return out;
 	}
 
 	Emitter& operator<<(Emitter& out, const Rynex::RenderMode::RenderMode& renderMode)
 	{
 		constexpr uint16_t count = Rynex::RenderMode::s_Count;
-		out << YAML::Flow;
-		out << YAML::BeginSeq;
-		for (uint16_t i = 1; i < count; i++)
-		{
-			uint16_t enumValue = BIT(i);
-			if (BIT_EQUAL(renderMode, enumValue))
-			{
-				Rynex::RenderMode::RenderMode typeIndex = static_cast<Rynex::RenderMode::RenderMode>(enumValue);
-				out << magic_enum::enum_name(typeIndex);
-			}
-		}
-		out << YAML::EndSeq;
+        ConvertEnumFlags(out, renderMode, count);
 
 		return out;
 	}
@@ -387,12 +387,12 @@ namespace YAML {
 	{
 		out << YAML::BeginMap;
 		out << YAML::Key << "ProjectionType" << camera.GetProjectionType();
-		out << YAML::Key << "PerspectivVerticleFOV" << camera.GetPerspectiveVerticalFOV();
-		out << YAML::Key << "PerspectivNearClipe" << camera.GetPerspectiveNearClip();
-		out << YAML::Key << "PerspectivFarClipe" << camera.GetPerspectiveFarClip();
+		out << YAML::Key << "PerspectiveVerticalFOV" << camera.GetPerspectiveVerticalFOV();
+		out << YAML::Key << "PerspectiveNearClip" << camera.GetPerspectiveNearClip();
+		out << YAML::Key << "PerspectiveFarClip" << camera.GetPerspectiveFarClip();
 		out << YAML::Key << "OrthographicSize" << camera.GetOrthographicSize();
-		out << YAML::Key << "OrthographicNearClipe" << camera.GetOrthographicNearClip();
-		out << YAML::Key << "OrthographicFarClipe" << camera.GetPerspectiveFarClip();
+		out << YAML::Key << "OrthographicNearClip" << camera.GetOrthographicNearClip();
+		out << YAML::Key << "OrthographicFarClip" << camera.GetPerspectiveFarClip();
 
 		out << YAML::EndMap;
 
@@ -403,9 +403,9 @@ namespace YAML {
 	Emitter& operator<<(Emitter& out, const Rynex::FramebufferAttachmentSpecification& framebufferAttachmentSpecification)
 	{
 		out << YAML::BeginSeq;
-		for (const Rynex::FramebufferTextureSpecification& framTexSpec : framebufferAttachmentSpecification.m_Attachments)
+		for (const Rynex::FramebufferTextureSpecification& frameTexSpec : framebufferAttachmentSpecification.m_Attachments)
 		{
-			out << framTexSpec;
+			out << frameTexSpec;
 		}
 		out << YAML::EndSeq;
 		return out;
@@ -428,6 +428,11 @@ namespace YAML {
 		return out;
 	}
 
+    Emitter& operator<<(Emitter& out, const Rynex::FrameBufferImageSize& frameBufferImageSize)
+    {
+        out << YAML::Value << magic_enum::enum_name(frameBufferImageSize);
+	    return out;
+    }
 
 
 #pragma region DcodeFunc
@@ -966,11 +971,10 @@ namespace Serializer {
 		const Rynex::Ref<Rynex::Project> project = Rynex::Project::GetActive();
 		Rynex::Ref<Rynex::EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
 		const Rynex::AssetMetadata metadata = editorAssetManger->GetMetadata(handle);
-		const std::filesystem::path& filePath = metadata.m_FilePath;
-		const std::filesystem::path& pathMarked = metadata.m_PathMarker;
+	    const Rynex::FileSystem::Path& path = metadata.m_Path;
 
-		const std::string filePathStr = filePath.string();
-		const std::string pathMarkedStr = pathMarked.string();
+		const std::string filePathStr = path.GetPathString();
+		const std::string pathMarkedStr = path.GetMarkedPathString();
 
 		
 		out << YAML::BeginMap;
