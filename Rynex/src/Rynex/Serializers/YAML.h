@@ -171,6 +171,12 @@ namespace YAML {
 		static bool decode(const Node& node, Rynex::FramebufferSpecification& specification);
 	};
 
+    template<>
+    struct convert< Rynex::FrameBufferImageSize>
+    {
+        static bool decode(const Node& node,  Rynex::FrameBufferImageSize& frameBufferImageSize);
+    };
+
 	template<>
 	struct convert<Rynex::BufferLayout>
 	{

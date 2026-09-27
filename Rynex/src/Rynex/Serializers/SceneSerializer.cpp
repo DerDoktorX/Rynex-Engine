@@ -369,8 +369,8 @@ namespace Utils {
 	        out << YAML::Key << "Color" << YAML::Value << component.m_Color;
 	        out << YAML::Key << "Intensity" << YAML::Value << component.m_Intensity;
 	        out << YAML::Key << "Distance" << YAML::Value << component.m_Distance;
-	        out << YAML::Key << "Constant" << YAML::Value << component.m_Inner;
-	        out << YAML::Key << "Linear" << YAML::Value << component.m_Outer;
+	        out << YAML::Key << "Inner" << YAML::Value << component.m_Inner;
+	        out << YAML::Key << "Outer" << YAML::Value << component.m_Outer;
 	    }
 
 	    template<>
@@ -882,10 +882,192 @@ namespace Utils {
 			return loadePromis;
 		}
 
-		static bool DeserializeModelDyanmic(YAML::Node & nodeE, DynamicMeshComponent & dMeshC, bool async)
-		{
+	    template<typename Component>
+        static void DeserializeComponent(YAML::Node& node, Component& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec);
 
-		}
+	    template<typename ...Component>
+        static void DeserializeAnyComponent(YAML::Node& parent, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        ([&]()
+            {
+                if (entity.HasComponent<Component>())
+                {
+                    const char* viewComponentName = typeid(Component).name();
+
+                    YAML::Node node = parent[viewComponentName];
+                    if (node)
+                    {
+                        Component& component = entity.AddComponent<Component>();
+                        DeserializeComponent<Component>(node, component, entity, loadingPromisVec);
+                    }
+                }
+            }(), ...);
+	    }
+
+	    template<typename... Component>
+        static void DeserializeGroupComponent(ComponentGroup<Component ...>, YAML::Node& parent, const Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        DeserializeAnyComponent<Component...>(parent, entity, loadingPromisVec);
+	    }
+
+	    template<typename Component>
+        void DeserializeComponent(YAML::Node& node, Component& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        static_assert(false, "No dafault implemtion allwoed!");
+	    }
+
+	    template<>
+        void DeserializeComponent<TagComponent>(YAML::Node& node, TagComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        component.m_Tag = node["Tag"].as<std::string>();
+	    }
+
+	    template<>
+        void DeserializeComponent<TransformComponent>(YAML::Node& node, TransformComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        component.m_Transform = node[ "Transaltion"].as<glm::vec3>();
+	        component.m_Rotation = node[ "Rotation"].as<glm::vec3>();
+	        component.m_Scale = node[ "Scale"].as<glm::vec3>();
+	    }
+
+	    template<>
+        void DeserializeComponent<CameraComponent>(YAML::Node& node, CameraComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        component.m_Camera = node["Camera"].as<SceneCamera>();
+	        component.m_Primary = node["Primary"].as<bool>();
+	        component.m_FixedAspectRotation = node["FixedAspectRotaion"].as<bool>();
+	    }
+
+	    template<>
+        void DeserializeComponent<ScriptComponent>(YAML::Node& node, ScriptComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        component.m_Name = node["ClassName"].as<std::string>();
+	        component.m_SelectedScript = node["SelectedScript"].as<int>();
+	    }
+
+	    template<>
+        void DeserializeComponent<SpriteRendererComponent>(YAML::Node& node, SpriteRendererComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        component.m_Color = node["Color"].as<glm::vec4>();
+
+	        YAML::Node textureNode = node["Texture"];
+	        RefSceneLodePromisType<Texture> promis = Utils::Deserialize::DeserializeAssetFormate<SpriteRendererComponent, Texture>(textureNode, entity, AssetType::Texture2D);
+	        if (nullptr != promis)
+	            loadingPromisVec.emplace_back(promis);
+	    }
+
+	    template<>
+        void DeserializeComponent<RelationshipUUIDComponent>(YAML::Node& node, RelationshipUUIDComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        component.m_Parent = UUID(node["ParentID"].as<uint64_t>());
+	        YAML::Node nodeChildrenIDVec = node["ChildrenIDs"];
+
+	        component.m_Childrens.reserve(nodeChildrenIDVec.size());
+	        for (YAML::Node nodeChildrenID : nodeChildrenIDVec)
+	        {
+	            const uint64_t number = nodeChildrenID.as<uint64_t>();
+	            component.m_Childrens.emplace_back(UUID(number));
+	        }
+	    }
+
+	    template<>
+        void DeserializeComponent<ModelMatrixComponent>(YAML::Node& node, ModelMatrixComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        component.m_Locale = node["Locale"].as<glm::mat4>();
+	        component.m_Global = node["Global"].as<glm::mat4>();
+	    }
+
+	    template<>
+        void DeserializeComponent<ViewMatrixComponent>(YAML::Node& node, ViewMatrixComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        component.m_Locale = node["Locale"].as<glm::mat4>();
+	        component.m_Global = node["Global"].as<glm::mat4>();
+	    }
+
+	    template<>
+        void DeserializeComponent<ModelMangerComponent>(YAML::Node& node, ModelMangerComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        YAML::Node textureNode = node["StaticMesh"];
+	        RefSceneLodePromisType<MeshStatic> promis = Utils::Deserialize::DeserializeAssetFormate<ModelMangerComponent, MeshStatic>(textureNode, entity, AssetType::MeshStatic);
+	        if (nullptr != promis)
+	            loadingPromisVec.emplace_back(promis);
+	    }
+
+	    template<>
+        void DeserializeComponent<TextComponent>(YAML::Node& node, TextComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        component.m_Color = node["Color"].as<glm::vec4>();
+	        component.m_Kerning = node["Kerning"].as<float>();
+
+	        component.m_LineSpacing = node["LineSpacing"].as<float>();
+	        component.m_TextString = node["TextString"].as<std::string>();
+	    }
+
+	    template<>
+        void DeserializeComponent<DirectionLightComponent>(YAML::Node& node, DirectionLightComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        component.m_Color = node["Color"].as<glm::vec3>();
+	        component.m_Intensity = node["Intensity"].as<float>();
+	    }
+
+	    template<>
+        void DeserializeComponent<PointLightComponent>(YAML::Node& node, PointLightComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        component.m_Color = node["Color"].as<glm::vec3>();
+	        component.m_Intensity = node["Intensity"].as<float>();
+	        component.m_Distance = node["Distance"].as<float>();
+	        component.m_Constant = node["Constant"].as<float>();
+	        component.m_Linear = node["Linear"].as<float>();
+	        component.m_Quadratic = node["Quadratic"].as<float>();
+	    }
+
+	    template<>
+        void DeserializeComponent<SpotLightComponent>(YAML::Node& node, SpotLightComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        component.m_Color = node["Color"].as<glm::vec3>();
+	        component.m_Intensity = node["Intensity"].as<float>();
+	        component.m_Distance = node["Distance"].as<float>();
+	        component.m_Inner = node["Inner"].as<float>();
+	        component.m_Outer = node["Outer"].as<float>();
+	    }
+
+	    template<>
+        void DeserializeComponent<FrameBufferComponent>(YAML::Node& node, FrameBufferComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+
+	        component.m_ClearColor = node["ClearColor"].as<glm::vec3>();
+	        component.m_FrameBufferLayoutIndex = node["FrameBufferLayoutIndex"].as<uint32_t>();
+	        component.m_FramebufferSize = node["FramebufferSize"].as<FrameBufferImageSize>();
+
+	        if (const YAML::Node framebufferSpecificationNode = node["FramebufferSpecification"])
+	        {
+	            const FramebufferSpecification framebufferSpecification = framebufferSpecificationNode.as<FramebufferSpecification>();
+	            component.m_FrameBuffer = Framebuffer::Create(framebufferSpecification);
+	        }
+	    }
+
+	    template<>
+        void DeserializeComponent<VisibleComponent>(YAML::Node& node, VisibleComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        component.m_Visible = node["Visible"].as<bool>();
+	    }
+
+	    template<>
+        void DeserializeComponent<RenderTargetComponent>(YAML::Node& node, RenderTargetComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
+	    {
+	        component.m_RenderPassName = node["RenderPassName"].as<std::string>();
+	        if (YAML::Node renderTargetNode = node["RenderTarget"])
+	        {
+	            component.m_Target = CreateRef<RenderTarget>();
+	            if (const YAML::Node framebufferSpecificationNode = renderTargetNode["FramebufferSpecification"])
+	            {
+	                const FramebufferSpecification framebufferSpecification = framebufferSpecificationNode.as<FramebufferSpecification>();
+	                const Ref<Framebuffer> framebuffer = Framebuffer::Create(framebufferSpecification);
+	                component.m_Target->SetFramebuffer(framebuffer);
+	            }
+	        }
+	    }
+
 	}
 }
 
@@ -954,35 +1136,34 @@ namespace Utils {
 
 		std::string sceneName = data["Scene"].as<std::string>();
 		RY_CORE_ASSERT("Deserialize scene '{0}'", sceneName);
-		std::vector<Ref<LodePromis<Scene>>>& lodingPromisVec = m_Scene->m_LoadingPromisVec;
-		lodingPromisVec.clear();
+		std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec = m_Scene->m_LoadingPromisVec;
+		loadingPromisVec.clear();
 
 		YAML::Node entities = data["Entities"];
 		if (entities)
 		{
-			for (YAML::detail::iterator_value entity : entities)
+			for (YAML::detail::iterator_value entityNode : entities)
 			{
-				uint64_t uuid = entity["Entity"].as<uint64_t>();
+				uint64_t uuid = entityNode["Entity"].as<uint64_t>();
+			    std::string name;
+			    if (YAML::Node tagComponent = entityNode["TagComponent"])
+			        name = tagComponent["Tag"].as<std::string>();
+			    Entity entity = m_Scene->CreateEntityWitheUUID(uuid, name);
+#if 1
 
-				std::string name;
-				YAML::Node tagComponent = entity["TagComponent"];
-				if (tagComponent)
-					name = tagComponent["Tag"].as<std::string>();
-				Entity deserializedEntity = m_Scene->CreateEntityWitheUUID(uuid, name);
 
-
-				if (YAML::Node transformComponent = entity["TransformComponent"])
+				if (YAML::Node transformComponent = entityNode["TransformComponent"])
 				{
 					// Entities always have transforms
-					TransformComponent& tc = deserializedEntity.GetComponent<TransformComponent>();
+					TransformComponent& tc = entity.GetComponent<TransformComponent>();
 					tc.m_Transform = transformComponent["Transaltion"].as<glm::vec3>();
 					tc.m_Rotation = transformComponent["Rotation"].as<glm::vec3>();
 					tc.m_Scale = transformComponent["Scale"].as<glm::vec3>();
 				}
 
-				if (YAML::Node realtionShipComponent = entity["RealtionShipComponent"])
+				if (YAML::Node realtionShipComponent = entityNode["RealtionShipComponent"])
 				{
-					RelationshipUUIDComponent& rSc = deserializedEntity.GetComponent<RelationshipUUIDComponent>();
+					RelationshipUUIDComponent& rSc = entity.GetComponent<RelationshipUUIDComponent>();
 					if(realtionShipComponent["Parent"])
 					{
 						UUID parent = realtionShipComponent["Parent"].as<uint64_t>();
@@ -991,7 +1172,7 @@ namespace Utils {
 						{
 							rSc.m_Parent = parent;
 							RelationshipUUIDComponent& rSCparent = parentEntity.GetComponent<RelationshipUUIDComponent>();
-							UUID id = deserializedEntity.GetUUID();
+							UUID id = entity.GetUUID();
 							rSCparent.m_Childrens.push_back(id);
 						}
 
@@ -1011,9 +1192,9 @@ namespace Utils {
 					
 				}
 
-				if (YAML::Node cameraComponent = entity["CameraComponent"])
+				if (YAML::Node cameraComponent = entityNode["CameraComponent"])
 				{
-					CameraComponent& cc = deserializedEntity.AddComponent<CameraComponent>();
+					CameraComponent& cc = entity.AddComponent<CameraComponent>();
 
 					YAML::Node cameraProps = cameraComponent["Camera"];
 					cc.m_Camera = cameraProps.as<SceneCamera>();
@@ -1021,29 +1202,29 @@ namespace Utils {
 					cc.m_FixedAspectRotation = cameraComponent["FixedAspectRotaion"].as<bool>();
 				}
 
-				if (YAML::Node scriptComponent = entity["ScriptComponent"])
+				if (YAML::Node scriptComponent = entityNode["ScriptComponent"])
 				{
-					ScriptComponent& tc = deserializedEntity.AddComponent<ScriptComponent>();
+					ScriptComponent& tc = entity.AddComponent<ScriptComponent>();
 					tc.m_Name = scriptComponent["ClassName"].as<std::string>();
 				}
 
-				if (YAML::Node spriteRendererComponent = entity["SpriteRendererComponent"])
+				if (YAML::Node spriteRendererComponent = entityNode["SpriteRendererComponent"])
 				{
-					SpriteRendererComponent& sc = deserializedEntity.AddComponent<SpriteRendererComponent>();
+					SpriteRendererComponent& sc = entity.AddComponent<SpriteRendererComponent>();
 					sc.m_Color = spriteRendererComponent["Color"].as<glm::vec4>();
 					YAML::Node spriteRendererComponentTexture = spriteRendererComponent["Texture"];
-					RefSceneLodePromisType<Texture> promis = Utils::Deserialize::DeserializeAssetFormate<SpriteRendererComponent, Texture>(spriteRendererComponentTexture, deserializedEntity, AssetType::Texture2D);
+					RefSceneLodePromisType<Texture> promis = Utils::Deserialize::DeserializeAssetFormate<SpriteRendererComponent, Texture>(spriteRendererComponentTexture, entity, AssetType::Texture2D);
 					if (nullptr != promis)
-						lodingPromisVec.emplace_back(promis);
+						loadingPromisVec.emplace_back(promis);
 				}
 				
 
 
-				if (YAML::Node modelMatrixComponentN = entity["ModelMatrixComponent"])
+				if (YAML::Node modelMatrixComponentN = entityNode["ModelMatrixComponent"])
 				{
-					if(!deserializedEntity.HasComponent<ModelMatrixComponent>())
-						deserializedEntity.AddComponent<ModelMatrixComponent>();
-					ModelMatrixComponent& m4c = deserializedEntity.GetComponent<ModelMatrixComponent>();
+					if(!entity.HasComponent<ModelMatrixComponent>())
+						entity.AddComponent<ModelMatrixComponent>();
+					ModelMatrixComponent& m4c = entity.GetComponent<ModelMatrixComponent>();
 					if(modelMatrixComponentN["Matrix4x4"])
 					{
 						m4c.m_Locale = modelMatrixComponentN["Matrix4x4"].as<glm::mat4>();
@@ -1057,29 +1238,29 @@ namespace Utils {
 					}
 				}
 
-				if (YAML::Node viewMatrixComponentN = entity["ViewMatrixComponent"])
+				if (YAML::Node viewMatrixComponentN = entityNode["ViewMatrixComponent"])
 				{
-					if (!deserializedEntity.HasComponent<ViewMatrixComponent>())
-						deserializedEntity.AddComponent<ViewMatrixComponent>();
-					ViewMatrixComponent& viewMatC = deserializedEntity.GetComponent<ViewMatrixComponent>();
+					if (!entity.HasComponent<ViewMatrixComponent>())
+						entity.AddComponent<ViewMatrixComponent>();
+					ViewMatrixComponent& viewMatC = entity.GetComponent<ViewMatrixComponent>();
 					viewMatC.m_Locale = viewMatrixComponentN["Locale"].as<glm::mat4>();
 					viewMatC.m_Global = viewMatrixComponentN["Globle"].as<glm::mat4>();
 				}
 
-				if (YAML::Node staticMeshComponent = entity["StaticMeshComponent"])
+				if (YAML::Node staticMeshComponent = entityNode["StaticMeshComponent"])
 				{
-					ModelMangerComponent& smc = deserializedEntity.AddComponent<ModelMangerComponent>();
+					ModelMangerComponent& smc = entity.AddComponent<ModelMangerComponent>();
 					YAML::Node staticMeshComponentStaticMesh = staticMeshComponent["StaticMesh"];
-					RefSceneLodePromisType<MeshStatic> promis = Utils::Deserialize::DeserializeAssetFormate<ModelMangerComponent, MeshStatic>(staticMeshComponentStaticMesh, deserializedEntity, AssetType::MeshStatic);
+					RefSceneLodePromisType<MeshStatic> promis = Utils::Deserialize::DeserializeAssetFormate<ModelMangerComponent, MeshStatic>(staticMeshComponentStaticMesh, entity, AssetType::MeshStatic);
 					if(nullptr != promis)
-						lodingPromisVec.emplace_back(promis);
+						loadingPromisVec.emplace_back(promis);
 				}
 
 
-				if (YAML::Node textComponent = entity["TextComponent"])
+				if (YAML::Node textComponent = entityNode["TextComponent"])
 				{
-					deserializedEntity.AddComponent<TextComponent>();
-					TextComponent& textC = deserializedEntity.GetComponent<TextComponent>();
+					entity.AddComponent<TextComponent>();
+					TextComponent& textC = entity.GetComponent<TextComponent>();
 					textC.m_FontAsset = Font::GetDefault();
 					textC.m_TextString = textComponent["TextString"].as<std::string>();
 					textC.m_Color = textComponent["Color"].as<glm::vec4>();
@@ -1087,19 +1268,19 @@ namespace Utils {
 					textC.m_LineSpacing = textComponent["LineSpacing"].as<float>();
 					textC.m_Kerning = textComponent["Kerning"].as<float>();
 
-					RY_CORE_ASSERT(deserializedEntity.HasComponent<TextComponent>())
+					RY_CORE_ASSERT(entity.HasComponent<TextComponent>())
 				}
 
-				if (YAML::Node drirektionleComponent = entity["DrirektionleLigthComponent"])
+				if (YAML::Node drirektionleComponent = entityNode["DrirektionleLigthComponent"])
 				{
-					DirectionLightComponent& drirektionleC = deserializedEntity.AddComponent<DirectionLightComponent>();
+					DirectionLightComponent& drirektionleC = entity.AddComponent<DirectionLightComponent>();
 					drirektionleC.m_Color = drirektionleComponent["Color"].as<glm::vec3>();
 					drirektionleC.m_Intensity = drirektionleComponent["Intensitie"].as<float>();
 				}
 
-				if (YAML::Node pointLigthComponent = entity["PointLigthComponent"])
+				if (YAML::Node pointLigthComponent = entityNode["PointLigthComponent"])
 				{
-					PointLightComponent& pointLigthC = deserializedEntity.AddComponent<PointLightComponent>();
+					PointLightComponent& pointLigthC = entity.AddComponent<PointLightComponent>();
 					pointLigthC.m_Color = pointLigthComponent["Color"].as<glm::vec3>();
 					pointLigthC.m_Distance = pointLigthComponent["Distence"].as<float>();
 
@@ -1114,9 +1295,9 @@ namespace Utils {
 
 				}
 
-				if (YAML::Node spotLigthComponent = entity["SpotLigthComponent"])
+				if (YAML::Node spotLigthComponent = entityNode["SpotLigthComponent"])
 				{
-					SpotLightComponent& spotLigthC = deserializedEntity.AddComponent<SpotLightComponent>();
+					SpotLightComponent& spotLigthC = entity.AddComponent<SpotLightComponent>();
 					spotLigthC.m_Color = spotLigthComponent["Color"].as<glm::vec3>();
 					spotLigthC.m_Intensity = spotLigthComponent["Intensitie"].as<float>();
 					spotLigthC.m_Distance = spotLigthComponent["Distence"].as<float>();
@@ -1126,9 +1307,9 @@ namespace Utils {
 					
 				}
 
-				if (YAML::Node frameBufferComponent = entity["FrameBufferComponent"])
+				if (YAML::Node frameBufferComponent = entityNode["FrameBufferComponent"])
 				{
-					FrameBufferComponent& frameC = deserializedEntity.AddComponent<FrameBufferComponent>();
+					FrameBufferComponent& frameC = entity.AddComponent<FrameBufferComponent>();
 
 					if (YAML::Node framebufferSpecifcationNode = frameBufferComponent["FramebufferSpecifcation"])
 					{
@@ -1139,7 +1320,10 @@ namespace Utils {
 					frameC.m_FramebufferSize = (FrameBufferImageSize)frameBufferComponent["FramebufferSize"].as<int>();
 
 				}
-	
+#else
+			    Utils::Deserialize::DeserializeGroupComponent(SerializeComponents{}, entityNode , entity, loadingPromisVec);
+#endif
+
 		}
 
 			
