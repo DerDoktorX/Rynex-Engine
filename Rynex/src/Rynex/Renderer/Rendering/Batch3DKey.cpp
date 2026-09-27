@@ -43,8 +43,8 @@ namespace Rynex {
         constexpr uint64_t lockDrawSpecBitsinvert = ~lockDrawSpecBitsOne;
 
         uint64_t hash = m_DrawSpec;
-        constexpr int geomtryBitDrawSpec = DrawSpecification::ResurceType::Geometry;
-        constexpr int materielBitDrawSpec = DrawSpecification::ResurceType::MaterielPram | DrawSpecification::ResurceType::MaterielTex;
+        constexpr int geomtryBitDrawSpec = DrawSpecification::ResourceType::Geometry;
+        constexpr int materielBitDrawSpec = DrawSpecification::ResourceType::MaterielParameter | DrawSpecification::ResourceType::MaterielTexture;
 
         constexpr uint32_t shaderBitCount = 15;
         constexpr uint32_t meshBitsCount = 15;
@@ -92,8 +92,8 @@ namespace Rynex {
 #else
         uint64_t hash = m_DrawSpec;
 
-        constexpr int geomtryBitDrawSpec = DrawSpecification::ResurceType::Geometry;
-        constexpr int materielBitDrawSpec = DrawSpecification::ResurceType::MaterielPram | DrawSpecification::ResurceType::MaterielTex;
+        constexpr int geomtryBitDrawSpec = DrawSpecification::ResourceType::Geometry;
+        constexpr int materielBitDrawSpec = DrawSpecification::ResourceType::MaterielParameter | DrawSpecification::ResourceType::MaterielTexture;
         uint64_t bitsUsed = 0ull;
         if (0 != m_DrawSpec)
             hash = GetShaderHash(hash, bitsUsed, m_Shader);

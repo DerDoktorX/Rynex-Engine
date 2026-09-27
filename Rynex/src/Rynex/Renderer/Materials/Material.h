@@ -17,10 +17,10 @@ namespace Rynex {
 	namespace DrawSpecification {
 		using BatchConfig = int;
 
-		enum ResurceType : BatchConfig
+		enum ResourceType : int
 		{
-			MaterielPram = 1,
-			MaterielTex = 2,
+			MaterielParameter = 1,
+			MaterielTexture = 2,
 			RenderObject = 3,
 			Geometry = 4
 		};
@@ -31,7 +31,7 @@ namespace Rynex {
 		{
 			Uniform = 1 << s_ResurceTypeBitMove,
 			Vertex = 2 << s_ResurceTypeBitMove,
-			SSBO = 3 << s_ResurceTypeBitMove,
+			ShaderStorageBufferObject = 3 << s_ResurceTypeBitMove,
 			Texture = 4 << s_ResurceTypeBitMove
 		};
 		constexpr int s_BatchingTypeBitMove = BinaryPresentionCount(4) + s_ResurceTypeBitMove;
@@ -39,7 +39,7 @@ namespace Rynex {
 
 		enum Distribution : BatchConfig
 		{
-			DistMultyBind = 1 << s_BatchingTypeBitMove,
+			DistMultyBind = 1 <<  s_BatchingTypeBitMove,
 			DistArray = 2 << s_BatchingTypeBitMove,
 			DistInterleaved = 3 << s_BatchingTypeBitMove
 		};
@@ -48,52 +48,94 @@ namespace Rynex {
 
 		enum TextureMode : BatchConfig
 		{
-			TexNone = 0 << s_DistributionBitMove,
-			TexSparse = 1 << s_DistributionBitMove,
-			TexAtlas = 2 << s_DistributionBitMove,
-			TexBindless = 3 << s_DistributionBitMove,
-			TexArray = 4 << s_DistributionBitMove
-		};
-		constexpr int s_TextureModeBitMove = BinaryPresentionCount(4) + s_DistributionBitMove;
-		constexpr int s_DrawSpecificationCount = s_TextureModeBitMove;
-
-		
-
-		constexpr BatchConfig Config(BatchingType type, Distribution dist)
-		{
-			BatchConfig batchConfig = type | dist;
-			return batchConfig;
+			TextureNone = 0 << s_DistributionBitMove,
+			TextureSparse = 1 << s_DistributionBitMove,
+			TextureAtlas = 2 << s_DistributionBitMove,
+			TextureBindless = 3 << s_DistributionBitMove,
+			TextureArray = 4 << s_DistributionBitMove
 		};
 
-		constexpr BatchConfig Config(BatchingType type, TextureMode mode, Distribution dist)
-		{
-			BatchConfig batchConfig = Config(type, dist) | mode;
-			return batchConfig;
-		};
+	    constexpr int s_TextureModeBitMove = BinaryPresentionCount(4) + s_DistributionBitMove;
+	    constexpr int s_DrawSpecificationCount = s_TextureModeBitMove;
+	    
 
-		constexpr BatchConfig ConfigRes(ResurceType res, BatchConfig batchConfig)
-		{
-			BatchConfig spec = res | batchConfig;
-			return spec;
-		};
+	    constexpr BatchConfig ConfigFlag(BatchingType type, Distribution dist)
+	    {
+	        BatchConfig batchConfig = type | dist;
+	        return batchConfig;
+	    };
 
-		enum {
-			None = 0,
+	    constexpr BatchConfig ConfigFlag(BatchingType type, TextureMode mode, Distribution dist)
+	    {
+	        BatchConfig batchConfig = ConfigFlag(type, dist) | mode;
+	        return batchConfig;
+	    };
+
+	    constexpr BatchConfig ConfigFlagResource(ResourceType res, BatchConfig batchConfig)
+	    {
+	        BatchConfig spec = res | batchConfig;
+	        return spec;
+	    };
+
+	    enum {
+	        None = 0,
+
+            RenderObject_Vertex_Array = ConfigFlagResource(ResourceType::RenderObject, ConfigFlag(BatchingType::Vertex, Distribution::DistArray)),
+            RenderObject_ShaderStorageBufferObject_Array = ConfigFlagResource(ResourceType::RenderObject, ConfigFlag(BatchingType::ShaderStorageBufferObject, Distribution::DistArray)),
+            RenderObject_Uniform_MultyBind = ConfigFlagResource(ResourceType::RenderObject, ConfigFlag(BatchingType::Uniform, Distribution::DistMultyBind)),
+
+            MaterielPram_ShaderStorageBufferObject_Array = ConfigFlagResource(ResourceType::MaterielParameter, ConfigFlag(BatchingType::ShaderStorageBufferObject, Distribution::DistArray)),
+            MaterielParameter_ShaderStorageBufferObject_Interleaved = ConfigFlagResource(ResourceType::MaterielParameter, ConfigFlag(BatchingType::ShaderStorageBufferObject, Distribution::DistInterleaved)),
+            MaterielTexture_Texture_MultyBind = ConfigFlagResource(ResourceType::MaterielTexture, ConfigFlag(BatchingType::Texture, Distribution::DistMultyBind)),
+            MaterielTexture_Texture_Bindles_Array = ConfigFlagResource(ResourceType::MaterielTexture, ConfigFlag(BatchingType::Texture, TextureMode::TextureBindless, Distribution::DistArray)),
 
 
-			RenderObject_Vertex_Array = ConfigRes(ResurceType::RenderObject, Config(BatchingType::Vertex, Distribution::DistArray)),
-			RenderObject_SSBO_Array = ConfigRes(ResurceType::RenderObject, Config(BatchingType::SSBO, Distribution::DistArray)),
-			RenderObject_Uniform_MultyBind = ConfigRes(ResurceType::RenderObject, Config(BatchingType::Uniform, Distribution::DistMultyBind)),
+	        Geometry_ShaderStorageBufferObject_Array = ConfigFlagResource(ResourceType::Geometry, ConfigFlag(BatchingType::ShaderStorageBufferObject, Distribution::DistArray)),
+        };
 
-			MaterielPram_SSBO_Array = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, Distribution::DistArray)),
-			MaterielPram_SSBO_Interleaved = ConfigRes(ResurceType::MaterielPram, Config(BatchingType::SSBO, Distribution::DistInterleaved)),
-			MaterielTex_Texture_MultyBind = ConfigRes(ResurceType::MaterielTex, Config(BatchingType::Texture, Distribution::DistMultyBind)),
-			MaterielTex_Texture_Bindles_Array = ConfigRes(ResurceType::MaterielTex, Config(BatchingType::Texture, TextureMode::TexBindless, Distribution::DistArray)),
-		};
+
+
 
 
 	}
 
+
+    namespace BatchPresets {
+
+	    struct BatchProfile
+	    {
+	        DrawSpecification::BatchConfig m_Transform            = DrawSpecification::None; // ResourceType::RenderObject
+	        DrawSpecification::BatchConfig m_MaterialParameter    = DrawSpecification::None; // ResourceType::MaterialParameter
+	        DrawSpecification::BatchConfig m_MaterialTexture      = DrawSpecification::None; // ResourceType::MaterialTexture
+	        DrawSpecification::BatchConfig m_Geometry             = DrawSpecification::None; // ResourceType::Geometry (no value defined!)
+	    };
+
+	    constexpr BatchProfile TIER_0_SIGNAL{
+	        DrawSpecification::RenderObject_Uniform_MultyBind,
+            DrawSpecification::None,
+            DrawSpecification::MaterielTexture_Texture_MultyBind,
+            DrawSpecification::None
+        };
+	    constexpr BatchProfile TIER_1_INSTANCED{
+	        DrawSpecification::RenderObject_Vertex_Array,
+            DrawSpecification::None,
+            DrawSpecification::MaterielTexture_Texture_MultyBind,
+            DrawSpecification::None
+        };
+	    constexpr BatchProfile TIER_2_INSTANCED_OPTIMIZED_MATERIAL{
+	        DrawSpecification::RenderObject_Vertex_Array,
+            DrawSpecification::MaterielPram_ShaderStorageBufferObject_Array,
+	        DrawSpecification::MaterielTexture_Texture_Bindles_Array,
+            DrawSpecification::None
+        };
+	    constexpr BatchProfile TIER_3_INDIRECT{
+	        DrawSpecification::RenderObject_ShaderStorageBufferObject_Array,
+            DrawSpecification::MaterielPram_ShaderStorageBufferObject_Array,
+	        DrawSpecification::MaterielTexture_Texture_Bindles_Array,
+	        DrawSpecification::Geometry_ShaderStorageBufferObject_Array
+        };
+
+    }
 
 
 	struct Pass
@@ -107,6 +149,7 @@ namespace Rynex {
 		DrawSpecification::BatchConfig drawSpecification;
 		int renderMode;
 	};
+
 	class Material : public Asset
 	{
 	private:
@@ -166,6 +209,10 @@ namespace Rynex {
 
 		static Ref<Material> CreateImport(std::string&& name, std::vector<MeshTexture>&& textures) { return nullptr; };
 
+	    virtual BatchPresets::BatchProfile GetPreferredBatchProfile(const BufferLayout& layout, int lodTier) const
+	    {
+	        return BatchPresets::TIER_1_INSTANCED; // default behaviour - no part Material breaks
+	    }
 	private:
 		template<typename T>
 		static void SetupMaterielObject(T& materielDataObject, int texureAlbedoIndex, int texureSpecularIndex, int texureHeigthIndex);
