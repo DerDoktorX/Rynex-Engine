@@ -527,12 +527,12 @@ namespace YAML {
 	bool convert<Rynex::SceneCamera>::decode(const Node& node, Rynex::SceneCamera& sceneCamera)
 	{
 		sceneCamera.SetProjectionType(node["ProjectionType"].as<Rynex::SceneCamera::ProjectionType>());
-		sceneCamera.SetPerspectiveVerticalFOV(node["PerspectivVerticleFOV"].as<float>());
-		sceneCamera.SetPerspectiveNearClip(node["PerspectivNearClipe"].as<float>());
-		sceneCamera.SetPerspectiveFarClip(node["PerspectivFarClipe"].as<float>());
+		sceneCamera.SetPerspectiveVerticalFOV(node["PerspectiveVerticalFOV"].as<float>());
+		sceneCamera.SetPerspectiveNearClip(node["PerspectiveNearClip"].as<float>());
+		sceneCamera.SetPerspectiveFarClip(node["PerspectiveFarClip"].as<float>());
 		sceneCamera.SetOrthographicSize(node["OrthographicSize"].as<float>());
-		sceneCamera.SetOrthographicFarClip(node["OrthographicNearClipe"].as<float>());
-		sceneCamera.SetOrthographicNearClip(node["OrthographicFarClipe"].as<float>());
+		sceneCamera.SetOrthographicFarClip(node["OrthographicNearClip"].as<float>());
+		sceneCamera.SetOrthographicNearClip(node["OrthographicFarClip"].as<float>());
 
 		return true;
 	}
