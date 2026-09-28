@@ -568,6 +568,7 @@ namespace YAML {
         const std::string shaderDataTypeStr = node[0].as<std::string>();
         std::optional<Rynex::FrameBufferImageSize> optionel = magic_enum::enum_cast<Rynex::FrameBufferImageSize>(shaderDataTypeStr);
         frameBufferImageSize = optionel.value_or(Rynex::FrameBufferImageSize::StaticSize);
+        return true;
     }
 
 

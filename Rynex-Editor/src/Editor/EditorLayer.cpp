@@ -523,6 +523,7 @@ case key: \
 
     bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
     {
+
         if (e.GetRepeatCount() > 0)
             return false;
         bool alt = Input::IsKeyPressed(Key::LeftAlt) || Input::IsKeyPressed(Key::RightAlt);
@@ -605,12 +606,12 @@ case key: \
         default:
             break;
         }
+        return false;
 
     }
 
     bool EditorLayer::OnMousePressed(MouseButtenPressedEvent& e)
     {
- 
         return m_ViewPortPannel.OnMousPressed(e);
     }
 
