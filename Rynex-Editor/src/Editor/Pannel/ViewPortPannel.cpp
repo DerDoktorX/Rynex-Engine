@@ -129,12 +129,12 @@ namespace Rynex {
     {
         RY_PROFILE_SCOPE("ViewPortPannel Update");
 
-        glm::vec2 mousPos = Input::GetMousePosition();        
+        glm::vec2 mousePos = Input::GetMousePosition();
         for (auto& viewPort : m_ViewPorts)
         {
             RY_PROFILE_SCOPE("ViewPortPannel Update for loop Element");
 #if 0
-            viewPort->OnUpdate(mousPos);
+            viewPort->OnUpdate(mousePos);
 #elif 0
             viewPort->OnUpdate({ mx, my });
             

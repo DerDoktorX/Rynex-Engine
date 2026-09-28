@@ -44,7 +44,7 @@ namespace Rynex {
 
 
 		// This Funktion Add A Butte and You Can Drag and Drop Items From your AssetManger in there, and Add A Dealte For Removing The Asset
-		// The Secound Arge is the not Ref<...> only ...
+		// The Second Arge is the not Ref<...> only ...
 		// This Funktion Works only Withe UUID Assets
 #if RY_SCENE_HIERACHY_PANNEL_DRAG_AND_DROP
 		template<typename T>
@@ -82,7 +82,7 @@ namespace Rynex {
 #else
 
 		template<typename Comp>
-		static bool DragDropButtenForAssetMeshStatic(Entity entity, Ref<MeshStatic>& compontenItem, const char* buttenName, AssetType assetType)
+		static bool DragDropButtenForAssetMeshStatic(Entity entity, Ref<MeshStatic>& componentItem, const char* buttenName, AssetType assetType)
 		{
 			bool result = false;
 			ImGui::Button(buttenName, ImVec2(100.0f, 0.0f));
@@ -90,8 +90,8 @@ namespace Rynex {
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(Asset::GetAssetTypeDragAndDropName(assetType).c_str()))
 				{
-					const AssetHandle* handlePtr = reinterpret_cast<const AssetHandle*>(payload->Data);
-					AssetHandle handle = static_cast<AssetHandle>(*handlePtr);
+					const AssetHandle* handlePtr = static_cast<const AssetHandle*>(payload->Data);
+					AssetHandle handle = *handlePtr;
 #if 1
 					const Scene* scenePtrConst = entity.GetScenePtr();
 					Scene* scenePtr = const_cast<Scene*>(scenePtrConst);
@@ -100,21 +100,21 @@ namespace Rynex {
 					Ref<Scene> sceneRef = Scene::GetRefInPlace(scenePtr);
 					std::function<void(Ref<MeshStatic>, Ref<Scene>, int)> func = Entity::OnAssetLoded<Comp, MeshStatic>;
 
-					Ref<LodePromisType<MeshStatic, Scene, int>> promis = CreateRef<LodePromisType<MeshStatic, Scene, int>>(sceneRef, func, entityID);
+					const Ref<LodePromisType<MeshStatic, Scene, int>> promis = CreateRef<LodePromisType<MeshStatic, Scene, int>>(sceneRef, func, entityID);
 					AssetManager::GetAssetAsyncPromis<MeshStatic, Scene, int>(handle, promis);
 #else
-					compontenItem = AssetManager::GetAsset<MeshStatic>(handle);
+					componentItem = AssetManager::GetAsset<MeshStatic>(handle);
 #endif
 				}
 				ImGui::EndDragDropTarget();
 
 			}
-			if (compontenItem != nullptr)
+			if (componentItem != nullptr)
 			{
 				ImGui::SameLine();
-				if (ImGui::Button("Dealte", ImVec2(100.0f, 0.0f)))
+				if (ImGui::Button("Delete", ImVec2(100.0f, 0.0f)))
 				{
-					compontenItem = nullptr;
+					componentItem = nullptr;
 					result = true;
 				}
 			}
@@ -130,12 +130,12 @@ namespace Rynex {
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(Asset::GetAssetTypeDragAndDropName(assetType).c_str()))
 				{
-					const AssetHandle* handlePtr = reinterpret_cast<const AssetHandle*>(payload->Data);
-					AssetHandle handle = static_cast<AssetHandle>(*handlePtr);
+					const AssetHandle* handlePtr = static_cast<const AssetHandle*>(payload->Data);
+					AssetHandle handle = *handlePtr;
 
 					{
-						Ref<Project> project = Project::GetActive();
-						Ref<EditorAssetManagerThread> assetManger = project->GetEditorAssetManger();
+						const Ref<Project> project = Project::GetActive();
+						const Ref<EditorAssetManagerThread> assetManger = project->GetEditorAssetManger();
 						if (!assetManger->IsAssetHandleValid(handle))
 						{
 							uint64_t handleValue = handle;
@@ -143,7 +143,7 @@ namespace Rynex {
 						}
 					}
 					const Scene* scenePtrConst = entity.GetScenePtr();
-					Scene* scenePtr = (Scene*)scenePtrConst;
+					Scene* scenePtr = const_cast<Scene*>(scenePtrConst);
 
 					int entityID = entity.GetEntityHandle();
 					Ref<Scene> sceneRef = Scene::GetRefInPlace(scenePtr);
@@ -155,12 +155,13 @@ namespace Rynex {
 				ImGui::EndDragDropTarget();
 
 			}
-			if (Ref<T> refComponteItem = compontenItem.lock())
+
+			if (Ref<T> refComponentItem = compontenItem.lock())
 			{
 				ImGui::SameLine();
-				if (ImGui::Button("Dealte", ImVec2(100.0f, 0.0f)))
+				if (ImGui::Button("Delete", ImVec2(100.0f, 0.0f)))
 				{
-					refComponteItem = nullptr;
+					refComponentItem = nullptr;
 					compontenItem.reset();
 					result = true;
 				}
@@ -256,15 +257,16 @@ namespace Rynex {
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(Asset::GetAssetTypeDragAndDropName(AssetType::TextFont).c_str()))
 				{
 					// TODO: make Import Class
-					Ref<Project> project = Project::GetActive();
+					const Ref<Project> project = Project::GetActive();
 #if RY_EDITOR_ASSETMANGER_THREADE
-					Ref<EditorAssetManagerThread> editorAssetManager = project->GetEditorAssetManger();
-					const AssetMetadata metadata = editorAssetManager->GetMetadata(*(AssetHandle*)payload->Data);
+					const Ref<EditorAssetManagerThread> editorAssetManager = project->GetEditorAssetManger();
+				    const AssetHandle* assetHandlePtr = static_cast<AssetHandle*>(payload->Data);
+				    const AssetHandle assetHandle = *assetHandlePtr;
+					const AssetMetadata metadata = editorAssetManager->GetMetadata(assetHandle);
 #else
 					Ref<EditorAssetManager> editorAssetManager = project->GetEditorAssetManger();
 					const AssetMetadata& metadata = editorAssetManager->GetMetadataConst(*(AssetHandle*)payload->Data);
 #endif
-
 
 					text.m_FontAsset = CreateRef<Font>(metadata.m_FilePath);
 
@@ -280,7 +282,7 @@ namespace Rynex {
 			if (text.m_FontAsset != nullptr)
 			{
 				ImGui::SameLine();
-				if (ImGui::Button("Dealte", ImVec2(100.0f, 0.0f)))
+				if (ImGui::Button("Delete", ImVec2(100.0f, 0.0f)))
 				{
 					text.m_FontAsset = nullptr;
 				}
@@ -294,10 +296,10 @@ namespace Rynex {
 			return DragDropButtenForAssetMeshStatic<Comp>(e, meshStatic, "Mesh-Static", AssetType::MeshStatic);
 		}
 
-		template<typename T, typename UIFuction>
-		static void DrawComponent(const std::string& name, Entity entity, UIFuction uiFunction)
+		template<typename T, typename UIFunction>
+		static void DrawComponent(const std::string& name, Entity entity, UIFunction uiFunction)
 		{
-			const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowItemOverlap;
+            constexpr ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowItemOverlap;
 			if (entity.HasComponent<T>())
 			{
 
@@ -305,15 +307,15 @@ namespace Rynex {
 				ImVec2 contenRegionAvablie = ImGui::GetContentRegionAvail();
 
 				ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
-				float linHeigth = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+				float linHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 				ImGui::Separator();
-				const void* ptr = (void*)typeid(T).hash_code();
+				const void* ptr = reinterpret_cast<void*>(typeid(T).hash_code());
 				bool open = ImGui::TreeNodeEx(ptr, treeNodeFlags, name.c_str());
 				ImGui::PopStyleVar();
 
-				ImGui::SameLine(contenRegionAvablie.x - linHeigth * 0.5f);
+				ImGui::SameLine(contenRegionAvablie.x - linHeight * 0.5f);
 
-				if (ImGui::Button("+", ImVec2{ linHeigth, linHeigth }))
+				if (ImGui::Button("+", ImVec2{ linHeight, linHeight }))
 					ImGui::OpenPopup("ComponentSettings");
 
 				bool removeComponent = false;
@@ -329,8 +331,8 @@ namespace Rynex {
 				{
 
 					ImGui::PushItemWidth((contenRegionAvablie.x / 3.0f) * 2.0f);
-					std::string_view typeNameStrView = typeid(T).name();
-					std::string idName = "##" + std::string(typeNameStrView.data(), typeNameStrView.size());
+					const std::string_view typeNameStrView = typeid(T).name();
+					const std::string idName = "##" + std::string(typeNameStrView.data(), typeNameStrView.size());
 					ImGui::PushID(idName.c_str());
 					uiFunction(entity, component);
 					ImGui::PopID();
@@ -363,7 +365,7 @@ namespace Rynex {
 		{
 			TestSubmitStaticProxyLocal();
 
-			m_Context->OnDisconectToRenderer();
+			m_Context->OnDisconnectToRenderer();
 			m_SceneList.clear();
 		}
 
@@ -372,7 +374,7 @@ namespace Rynex {
 		m_Context->OnConectToRenderer();
 		TestSubmitStaticProxyLocal();
 		m_SelectionContext = {};
-		m_Context->m_Registry.each([this](entt::entity e) {
+		m_Context->m_Registry.each([this](entt::entity e) -> void {
 			Entity entity = Entity(e, m_Context.get());
 			m_SceneList.emplace_back(entity);
 		});
@@ -496,7 +498,7 @@ namespace Rynex {
 					});
 			}
 
-			if (ImGui::MenuItem("Add Childe Entity"))
+			if (ImGui::MenuItem("Add Child Entity"))
 			{
 				m_ExecuteFunc.emplace_back([entity, this]()
 					{
@@ -522,7 +524,7 @@ namespace Rynex {
 
 			if (ImGui::MenuItem("Delete Entity + Children"))
 			{
-				m_ExecuteFunc.emplace_back([entity, this]()
+				m_ExecuteFunc.emplace_back([entity, this]() -> void
 				{
 					RemoveChildEntity(entity);
 				});
@@ -534,14 +536,14 @@ namespace Rynex {
 		{
 			if (Input::IsKeyPressed(Key::LeftShift) && Input::IsKeyPressed(Key::Delete))
 			{
-				m_ExecuteFunc.emplace_back([this]()
+				m_ExecuteFunc.emplace_back([this]() -> void
 					{
 						RemoveChildEntity(m_SelectionContext);
 					});
 			}
 			else if (Input::IsKeyPressed(Key::Delete))
 			{
-				m_ExecuteFunc.emplace_back([this]()
+				m_ExecuteFunc.emplace_back([this]() -> void
 					{
 						RemoveEntity(m_SelectionContext);
 					});
@@ -553,14 +555,14 @@ namespace Rynex {
 
 			if (parent)
 			{
-				std::vector<UUID>& childrens = entity.GetChildrens();
-				uint32_t size = childrens.size();
+				const std::vector<UUID>& childrens = entity.GetChildrens();
+				const uint32_t size = childrens.size();
 				RY_CORE_ASSERT(size != 0);
-				for (UUID childID : childrens)
+				for (const UUID childID : childrens)
 				{
 					RY_CORE_ASSERT(size == childrens.size());
-					Entity enitytCilds = m_Context->GetEntitiyByUUID(childID);
-					hirachIndex = DrawEntityNode(enitytCilds, hirachIndex, false);
+					const Entity entityChild = m_Context->GetEntitiyByUUID(childID);
+					hirachIndex = DrawEntityNode(entityChild, hirachIndex, false);
 				}
 				ImGui::TreePop();
 			}
@@ -572,9 +574,9 @@ namespace Rynex {
 		{
 			lastTimeHelped = true;
 			constexpr float offsetValue = 8.0f;
-			ImGuiWindow* window = ImGui::GetCurrentWindow();
-			float contentPosY = window->DC.CursorPos.y;
-			float mousePosY = ImGui::GetMousePos().y;
+			const ImGuiWindow* window = ImGui::GetCurrentWindow();
+			const float contentPosY = window->DC.CursorPos.y;
+			const float mousePosY = ImGui::GetMousePos().y;
 			if(contentPosY - offsetValue < mousePosY && contentPosY + offsetValue > mousePosY)
 			{
 				ImVec2 region = ImGui::GetContentRegionAvail();
@@ -585,8 +587,8 @@ namespace Rynex {
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(s_SceneHierachieDragAndDropRelationShipMoveChar))
 					{
-						RY_CORE_ASSERT(payload->DataSize == sizeof(uint32_t), "not Expexted Size!");
-						const uint32_t* moveEntityIndexHandleToRealtionShipPtr = reinterpret_cast<const uint32_t*>(payload->Data);
+						RY_CORE_ASSERT(payload->DataSize == sizeof(uint32_t), "not Expected Size!");
+						const uint32_t* moveEntityIndexHandleToRealtionShipPtr = static_cast<const uint32_t*>(payload->Data);
 						uint32_t moveEntityIndexHandleToRealtionShip = *moveEntityIndexHandleToRealtionShipPtr;
 						entt::id_type entityType = static_cast<entt::id_type>(moveEntityIndexHandleToRealtionShip);
 						entt::entity entityEntt = static_cast<entt::entity>(entityType);
@@ -663,16 +665,16 @@ namespace Rynex {
 			if (!m_SelectionContext.HasComponent<PointLightComponent>() &&
 				!m_SelectionContext.HasComponent<SpotLightComponent>())
 			{
-				DisplayAddComponentEntry<DirectionLightComponent>("Drirektionle-Ligth");
+				DisplayAddComponentEntry<DirectionLightComponent>("Directional-Light");
 			}
 
 			if (!m_SelectionContext.HasComponent<DirectionLightComponent>() &&
 				!m_SelectionContext.HasComponent<SpotLightComponent>())
-				DisplayAddComponentEntry<PointLightComponent>("Point-Ligth");
+				DisplayAddComponentEntry<PointLightComponent>("Point-Light");
 
 			if (!m_SelectionContext.HasComponent<PointLightComponent>() &&
 				!m_SelectionContext.HasComponent<DirectionLightComponent>())
-				DisplayAddComponentEntry<SpotLightComponent>("Spot-Ligth");
+				DisplayAddComponentEntry<SpotLightComponent>("Spot-Light");
 
 			DisplayAddComponentEntry<TextComponent>("Text");
 			DisplayAddComponentEntry<ViewMatrixComponent>("View");
@@ -690,9 +692,9 @@ namespace Rynex {
 		Utils::DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, &SceneHierarchyPanel::ComponentSpriteRendererGUI);
 		Utils::DrawComponent<ScriptComponent>("Script", entity, &SceneHierarchyPanel::ComponentScriptGUI);
 		Utils::DrawComponent<FrameBufferComponent>("FrameBuffer", entity, &SceneHierarchyPanel::ComponentFrameBufferGUI);
-		Utils::DrawComponent<DirectionLightComponent>("Drirektionle-Ligth", entity, &SceneHierarchyPanel::ComponentDirectionLightGUI);
-		Utils::DrawComponent<PointLightComponent>("Point-Ligth", entity, &SceneHierarchyPanel::ComponentPointLightGUI);
-		Utils::DrawComponent<SpotLightComponent>("Spot-Ligth", entity, &SceneHierarchyPanel::ComponentSpotLightGUI);
+		Utils::DrawComponent<DirectionLightComponent>("Directional-Light", entity, &SceneHierarchyPanel::ComponentDirectionLightGUI);
+		Utils::DrawComponent<PointLightComponent>("Point-Light", entity, &SceneHierarchyPanel::ComponentPointLightGUI);
+		Utils::DrawComponent<SpotLightComponent>("Spot-Light", entity, &SceneHierarchyPanel::ComponentSpotLightGUI);
 		Utils::DrawComponent<TextComponent>("Text", entity, &SceneHierarchyPanel::ComponentTextGUI);
 		Utils::DrawComponent<ViewMatrixComponent>("View Matrix", entity, &SceneHierarchyPanel::ComponentViewMatrixGUI);
 		Utils::DrawComponent<ModelMangerComponent>("Static-Mesh", entity, &SceneHierarchyPanel::ComponentStaticMeshGUI);
@@ -720,7 +722,7 @@ namespace Rynex {
 
 		if(m_WindowSceneHierachyOpen)
 		{
-			ImGui::Begin("Scene Hierachy", &m_WindowSceneHierachyOpen);
+			ImGui::Begin("Scene Hierarchy", &m_WindowSceneHierachyOpen);
 
 			// loop thorw all Entity
 			uint32_t hirachyIndex = 0;
@@ -772,11 +774,11 @@ namespace Rynex {
 	void SceneHierarchyPanel::CreateEntity(const std::string& name, uint32_t entityNumber)
 	{
 
-		m_Context->CreateEntity("Empty Entiy");
+		m_Context->CreateEntity("Empty Entity");
 
 	}
 
-	void SceneHierarchyPanel::DeletEntity(Entity entity, bool childeren)
+	void SceneHierarchyPanel::ExecuteDeleteEntity(Entity entity, bool childeren)
 	{
 		m_EntityDelete.emplace_back(entity, childeren);
 	}
@@ -803,7 +805,7 @@ namespace Rynex {
 		StaticeRenderProxys staticRenderProxySystem;
 		int countStoppAdd = 0;
 		int* countStoppAddPtr = &countStoppAdd;
-		view3dStaticMesh.each([&staticRenderProxySystem, countStoppAddPtr](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC)
+		view3dStaticMesh.each([&staticRenderProxySystem, countStoppAddPtr](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC) -> void
 			{
 
 				if (nullptr == meshCompC.m_MeshStatic || 2 < (*countStoppAddPtr) )
@@ -828,7 +830,7 @@ namespace Rynex {
 		staticRenderProxySystem.RenderProxysMainGenarte();
 		staticRenderProxySystem.RenderProxysMainSubmiteDrawList();
 		countStoppAdd = 0;
-		view3dStaticMesh.each([&staticRenderProxySystem, countStoppAddPtr](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC)
+		view3dStaticMesh.each([&staticRenderProxySystem, countStoppAddPtr](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC) -> void
 			{
 
 				if (nullptr == meshCompC.m_MeshStatic || 2 >= (*countStoppAddPtr))
@@ -855,7 +857,7 @@ namespace Rynex {
 		staticRenderProxySystem.RenderProxysMainGenarte();
 		staticRenderProxySystem.RenderProxysMainSubmiteDrawList();
 
-		view3dStaticMesh.each([&staticRenderProxySystem](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC)
+		view3dStaticMesh.each([&staticRenderProxySystem](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC) -> void
 			{
 				if (nullptr == meshCompC.m_MeshStatic)
 					return;
@@ -875,7 +877,7 @@ namespace Rynex {
 		staticRenderProxySystem.RenderProxysMainGenarte();
 		staticRenderProxySystem.RenderProxysMainSubmiteDrawList();
 
-		view3dStaticMesh.each([&staticRenderProxySystem](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC)
+		view3dStaticMesh.each([&staticRenderProxySystem](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC) -> void
 			{
 				if (nullptr == meshCompC.m_MeshStatic)
 					return;
@@ -885,7 +887,7 @@ namespace Rynex {
 				staticRenderProxySystem.Remove(enitityID);
 			});
 
-		view3dStaticMesh.each([&staticRenderProxySystem](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC)
+		view3dStaticMesh.each([&staticRenderProxySystem](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC) -> void
 			{
 				if (nullptr == meshCompC.m_MeshStatic)
 					return;
@@ -907,7 +909,7 @@ namespace Rynex {
 			});
 		staticRenderProxySystem.RenderProxysMainGenarte();
 		staticRenderProxySystem.RenderProxysMainSubmiteDrawList();
-		view3dStaticMesh.each([&staticRenderProxySystem](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC)
+		view3dStaticMesh.each([&staticRenderProxySystem](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC) -> void
 			{
 
 
@@ -921,7 +923,7 @@ namespace Rynex {
 		staticRenderProxySystem.RenderProxysMainGenarte();
 		staticRenderProxySystem.RenderProxysMainSubmiteDrawList();
 
-		view3dStaticMesh.each([&staticRenderProxySystem](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC)
+		view3dStaticMesh.each([&staticRenderProxySystem](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC) -> void
 			{
 				if (nullptr == meshCompC.m_MeshStatic)
 					return;
@@ -942,7 +944,7 @@ namespace Rynex {
 			});
 		staticRenderProxySystem.Clear();
 
-		view3dStaticMesh.each([&staticRenderProxySystem](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC)
+		view3dStaticMesh.each([&staticRenderProxySystem](entt::entity e, ModelMatrixComponent& transformC, ModelMangerComponent& meshCompC) -> void
 			{
 				if (nullptr == meshCompC.m_MeshStatic)
 					return;
@@ -1007,7 +1009,7 @@ namespace Rynex {
 				return index;
 			index++;
 		}
-		RY_CORE_ERROR("Not Founded Eneitity In Lolcale Vec! search now Orignel Hirachie if we finde the the Entity the locale Vec will be overitten!");
+		RY_CORE_ERROR("Not Founded Entity In Locale Vec! search now Original Hierarchic if we find the the Entity the locale Vec will be overwritten!");
 
 		uint32_t foundIndex = std::numeric_limits<uint32_t>::max();
 		index = 0u;
@@ -1022,12 +1024,12 @@ namespace Rynex {
 		});
 		if (foundIndex == std::numeric_limits<uint32_t>::max())
 		{
-			RY_CORE_FATAL("Enitity Not Found Here!");
+			RY_CORE_FATAL("Entity Not Found Here!");
 			return foundIndex;
 		}
 		else
 		{
-			RY_CORE_WARN("We found the enitity Clear the locale List Create the locale list new! (Every change, inorder will get lost)");
+			RY_CORE_WARN("We found the entity Clear the locale List Create the locale list new! (Every change, inorder will get lost)");
 			m_SceneList.clear();
 			m_Context->m_Registry.each([this](entt::entity e) {
 				Entity entity = Entity(e, m_Context.get());
@@ -1040,7 +1042,7 @@ namespace Rynex {
 			}
 			else
 			{
-				RY_CORE_WARN("We need to Search agian lolcale Vec!");
+				RY_CORE_WARN("We need to Search again locale Vec!");
 				return FindEntityIndex(e);
 			}
 		}
@@ -1071,7 +1073,7 @@ namespace Rynex {
 
 	void SceneHierarchyPanel::AddChildEntity(Entity e)
 	{
-		e.AddChildrenEntity("Empty Childern Entiy");
+		e.AddChildrenEntity("Empty Children Entity");
 		e.UpdateMatrix();
 	}
 
@@ -1101,7 +1103,7 @@ namespace Rynex {
 		if (nullptr != component.m_MeshSingle)
 		{
 			uint32_t indexData = component.m_MeshSingle->GetModelLocalMeshIndex();
-			ImGui::Text("StaticSingleComponetsMeshComponent: %u", indexData);
+			ImGui::Text("StaticSingleComponentsMeshComponent: %u", indexData);
 		}
 
 	}
@@ -1128,7 +1130,7 @@ namespace Rynex {
 		}
 		else
 		{
-			if (ImGui::Button("Deltet Target"))
+			if (ImGui::Button("Deleted Target"))
 			{
 
 				RY_DESTROY_REF(target);
@@ -1149,7 +1151,7 @@ namespace Rynex {
 
 		if (nullptr == fb)
 		{
-			if (ImGui::Button("Create Frambuffer"))
+			if (ImGui::Button("Create Framebuffer"))
 			{
 #if 0
 				FramebufferSpecification spec = {
@@ -1166,7 +1168,7 @@ namespace Rynex {
 		}
 		else
 		{
-			if (ImGui::Button("Deltet Frambuffer"))
+			if (ImGui::Button("Deleted Framebuffer"))
 			{
 				target->SetFramebuffer(nullptr);
 				e.UpdateComponent(component);
@@ -1176,13 +1178,13 @@ namespace Rynex {
 		if (ImGui::BeginPopup(addAttachmentPopUpStrCreate))
 		{
 			constexpr size_t count = magic_enum::enum_count<TextureFormat>();
-			constexpr std::array<std::string_view, count> fromatStrViewArray = magic_enum::enum_names<TextureFormat>();
+			constexpr std::array<std::string_view, count> fromateStrViewArray = magic_enum::enum_names<TextureFormat>();
 			size_t textureFormatCount = count;
 			for (size_t i = 2; i < textureFormatCount; i++)
 			{
 				TextureFormat textureFormatIndex = static_cast<TextureFormat>(i);
 
-				std::string_view fromatStrView = fromatStrViewArray[i];
+				std::string_view fromatStrView = fromateStrViewArray[i];
 				const char* fileStr = fromatStrView.data();
 				if (ImGui::MenuItem(fileStr))
 				{
@@ -1212,9 +1214,8 @@ namespace Rynex {
 		}
 
 		if (nullptr == fb)
-		{
 			return;
-		}
+
 
 		const FramebufferSpecification& fbspec = fb->GetFramebufferSpecification();
 

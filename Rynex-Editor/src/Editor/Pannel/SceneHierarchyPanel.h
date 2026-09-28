@@ -61,7 +61,7 @@ namespace Rynex {
 		// using EntityFunc = std::_Binder<std::_Unforced, void (SceneHierarchyPanel::*)(Entity e), Entity&>;
 		using EntityFunc = std::function<void()>;
 		void DrawProperties();
-		void DeletEntity(Entity entity, bool children);
+		void ExecuteDeleteEntity(Entity entity, bool children);
 		void ExecuteDeleting();
 
 		template<typename T>

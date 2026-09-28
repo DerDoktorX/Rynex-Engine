@@ -857,10 +857,8 @@ namespace Rynex {
         return asset;
     }
 
-    void EditorAssetManagerThread::SetAssetMetadataLockState(AssetHandle handle,
-                                                             std::function<void(AssetMetadata&)> lambder)
+    void EditorAssetManagerThread::SetAssetMetadataLockState(AssetHandle handle, std::function<void(AssetMetadata&)> lambder)
     {
-
         std::lock_guard<std::mutex> lockChange(m_ChangesMutex);
         std::lock_guard<std::mutex> lockPath(m_CurrentPathMutex);
         m_HandleRegistry.GetRefLemda(lambder, handle);
@@ -1447,10 +1445,7 @@ namespace Rynex {
     {
         if (!IsAssetHandleValid(handle) || !IsAssetLoaded(handle))
             return;
-        std::lock_guard<std::mutex> lockChang(m_ChangesMutex);
-        std::lock_guard<std::mutex> lockPath(m_CurrentPathMutex);
-        SetAssetMetadataLockState(handle, std::bind(&EditorAssetManagerThread::SetAssetMetadataStateNotLoaded, this,
-                                                    std::placeholders::_1));
+        SetAssetMetadataLockState(handle, std::bind(&EditorAssetManagerThread::SetAssetMetadataStateNotLoaded, this, std::placeholders::_1));
         Ref<Asset> assetRefCopy = m_LoadedAssets.GetCopy(handle);
         Weak<Asset> assetWeakCopy = assetRefCopy;
         RY_DESTROY_REF(assetRefCopy);

@@ -290,7 +290,7 @@ namespace Rynex {
                 m_Change = Utils::InputText("Script App", m_ScriptAppPath, buffer, sizeof(buffer), &m_ChangeValue, 4, ProjectPathSelectDialog::ScriptFile) || m_Change;
                 m_Change = Utils::InputText("Script Core", m_ScriptCorePath, buffer, sizeof(buffer), &m_ChangeValue, 5, ProjectPathSelectDialog::ScriptFile) || m_Change;
                 m_Change = Utils::InputText("Asset Path", m_AssetPath, buffer, sizeof(buffer), &m_ChangeValue, 6, ProjectPathSelectDialog::Directory) || m_Change;
-                m_Change = Utils::InputText("Asset Regiestry", m_AssetRegeistry, buffer, sizeof(buffer), &m_ChangeValue, 7, ProjectPathSelectDialog::AssetRegestry) || m_Change;
+                m_Change = Utils::InputText("Asset Registry", m_AssetRegeistry, buffer, sizeof(buffer), &m_ChangeValue, 7, ProjectPathSelectDialog::AssetRegestry) || m_Change;
 
                 if (m_Change)
                 {

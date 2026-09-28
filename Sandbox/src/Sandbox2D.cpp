@@ -102,7 +102,7 @@ void Sandbox2D::OnAttach()
 	    }
 
 	}
-	m_AktiveScene->OnRuntimStart();
+	m_AktiveScene->OnRuntimeStart();
 
 	const Rynex::FramebufferSpecification fbSpec = {
 		1280ul, 720ul,

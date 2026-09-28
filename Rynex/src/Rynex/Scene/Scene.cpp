@@ -265,7 +265,7 @@ namespace Rynex {
 		{
 			ScriptingEngine::OnRuntimeStop();
 		}
-		OnDisconectToRenderer();
+		OnDisconnectToRenderer();
 #endif
 	}
 
@@ -371,7 +371,7 @@ namespace Rynex {
 
 	void Scene::OnConectToRenderer()
 	{
-		OnDisconectToRenderer();
+		OnDisconnectToRenderer();
 
 
 		RY_CORE_INFO("Conect Scene to Renderer!");
@@ -392,9 +392,10 @@ namespace Rynex {
 
 	}
 
-	void Scene::OnDisconectToRenderer()
+
+	void Scene::OnDisconnectToRenderer()
 	{
-		RY_CORE_INFO("Diconect Scene from Renderer!");
+		RY_CORE_INFO("Disconnect Scene from Renderer!");
 		entt::sink sinkCreateModelMatrixC = m_Registry.on_construct<ModelMatrixComponent>();
 		if (!sinkCreateModelMatrixC.empty())
 			sinkCreateModelMatrixC.disconnect();
@@ -582,7 +583,7 @@ namespace Rynex {
 
 #pragma region Runtime
 
-	void Scene::OnRuntimStart()
+	void Scene::OnRuntimeStart()
 	{
 #if defined(RY_SCRIPT_ENGINE)
 		ScriptingEngine::OnRuntimeStart(this);
@@ -599,7 +600,7 @@ namespace Rynex {
 #endif
 	}
 
-	void Scene::OnRuntimStop()
+	void Scene::OnRuntimeStop()
 	{
 	    m_Registry.view<NativeScriptComponent>().each([](entt::entity e, NativeScriptComponent& nsc)-> void
             {

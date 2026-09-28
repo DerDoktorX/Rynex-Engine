@@ -337,7 +337,6 @@ namespace Rynex {
 		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
 		uint32_t index = s_Storage.RenderPassStorage.GetCurentCount<uint32_t>();
 		SetRenderPassNameFromRenderPass(pass, name);
-
 	}
 
 	void Renderer::SetNextCurrentRenderPass(uint32_t& index)

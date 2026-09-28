@@ -37,7 +37,7 @@ namespace Rynex {
 			: m_TextureFormat(format), m_Samples(samples), m_TextureWrapping(wrapping), m_TextureFiltering(filtering) { }
 
 		FramebufferTextureSpecification(const TextureFormat format, const uint32_t samples, const TextureWrappingSpecification wrapping, const TextureFilteringMode filtering, const TextureCompareModes compare)
-			: m_TextureFormat(format), m_Samples(samples), m_TextureWrapping(wrapping), m_TextureFiltering(filtering), Compare(compare) { }
+			: m_TextureFormat(format), m_Samples(samples), m_TextureWrapping(wrapping), m_TextureFiltering(filtering), m_Compare(compare) { }
 		
 
 		TextureFormat m_TextureFormat = TextureFormat::RGBA8;
@@ -49,7 +49,7 @@ namespace Rynex {
 			TextureWrappingMode::ClampEdge
 		};
 		TextureFilteringMode m_TextureFiltering = TextureFilteringMode::Linear;
-		TextureCompareModes Compare = TextureCompareModes::None;
+		TextureCompareModes m_Compare = TextureCompareModes::None;
 		bool operator ==(const FramebufferTextureSpecification framebufferTextureSpecification) const
         {
 			return (framebufferTextureSpecification.m_TextureFormat == m_TextureFormat) &&

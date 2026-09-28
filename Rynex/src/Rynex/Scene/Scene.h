@@ -72,8 +72,8 @@ namespace Rynex {
 		Entity CreateEntity(const std::string& name = std::string(""));
 		Entity CreateEntityWitheUUID(UUID uuid, const std::string& name = std::string(""), int index = -1);
 		int64_t Get3DSubmitTime() const { return m_TimeElpassed3DSubmit; }
-		void OnRuntimStart();
-		void OnRuntimStop();
+		void OnRuntimeStart();
+		void OnRuntimeStop();
 
 		void DestroyEntity(Entity entity);
 
@@ -121,7 +121,7 @@ namespace Rynex {
 
 
 		void OnConectToRenderer();
-		void OnDisconectToRenderer();
+		void OnDisconnectToRenderer();
 
 		static Ref<Scene> GetRefInPlace(Scene* scenePtr);
 	private:

@@ -102,7 +102,7 @@ namespace Rynex {
 	        		for (const BufferElement& ellement : layout)
 	        		{
 
-	        			switch (ellement.m_Type)
+	        			switch(ellement.m_Type)
 	        			{
 	        			case ShaderDataType::Float:
 	        			{
@@ -164,7 +164,33 @@ namespace Rynex {
 	        				out << YAML::Value << *value;
 	        				break;
 	        			}
-	        			}
+                        case ShaderDataType::None:
+                            break;
+                        case ShaderDataType::Int3x3:
+                            break;
+                        case ShaderDataType::Int4x4:
+                            break;
+                        case ShaderDataType::Uint:
+                            break;
+                        case ShaderDataType::Uint2:
+                            break;
+                        case ShaderDataType::Uint3:
+                            break;
+                        case ShaderDataType::Uint4:
+                            break;
+                        case ShaderDataType::Uint3x3:
+                            break;
+                        case ShaderDataType::Uint4x4:
+                            break;
+                        case ShaderDataType::Texture:
+                            break;
+                        case ShaderDataType::Texture2D:
+                            break;
+                        case ShaderDataType::TextureCube:
+                            break;
+                        case ShaderDataType::TextureArray:
+                            break;
+                        }
 	        		}
 	        	}
 	        	out << YAML::EndSeq;
@@ -199,7 +225,7 @@ namespace Rynex {
 	    			return;
 	    		}
 
-	    		AssetMetadata metadata = editorAssetManger->GetMetadata(handle);
+	    		const AssetMetadata metadata = editorAssetManger->GetMetadata(handle);
 
 	    		if (metadata.m_Type != type)
 	    		{
@@ -353,8 +379,7 @@ namespace Rynex {
 	            out << YAML::Key << "ClearColor" << YAML::Value << component.m_ClearColor;
 	            out << YAML::Key << "FrameBufferLayoutIndex" << YAML::Value << component.m_FrameBufferLayoutIndex;
 	            out << YAML::Key << "FramebufferSize" << YAML::Value << component.m_FramebufferSize;
-	            const Ref<Framebuffer>& framebuffer = component.m_FrameBuffer;
-	            if (framebuffer)
+                if (const Ref<Framebuffer>& framebuffer = component.m_FrameBuffer)
 	            {
 	                const FramebufferSpecification& framebufferSpecification= framebuffer->GetFramebufferSpecification();
 	                out << YAML::Key << "FramebufferSpecification" << YAML::Value << framebufferSpecification;
@@ -376,6 +401,8 @@ namespace Rynex {
 	            {
 	                out << YAML::Key << "RenderTarget";
 	                out << YAML::BeginMap;
+	                glm::vec4 viewSize = renderTarget->GetRenderViewSize();
+	                out << YAML::Key << "RenderViewSize" << YAML::Value << viewSize;
 	                const Ref<Framebuffer>& framebuffer = renderTarget->GetFramebuffer();
 	                if (nullptr != framebuffer)
 	                {
@@ -1023,7 +1050,6 @@ namespace Rynex {
 	        template<>
             void DeserializeComponent<FrameBufferComponent>(YAML::Node& node, FrameBufferComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
 	        {
-
 	            component.m_ClearColor = node["ClearColor"].as<glm::vec3>();
 	            component.m_FrameBufferLayoutIndex = node["FrameBufferLayoutIndex"].as<uint32_t>();
 	            component.m_FramebufferSize = node["FramebufferSize"].as<FrameBufferImageSize>();
@@ -1045,16 +1071,20 @@ namespace Rynex {
             void DeserializeComponent<RenderTargetComponent>(YAML::Node& node, RenderTargetComponent& component, Entity entity, std::vector<Ref<LodePromis<Scene>>>& loadingPromisVec)
 	        {
 	            component.m_RenderPassName = node["RenderPassName"].as<std::string>();
+
 	            if (YAML::Node renderTargetNode = node["RenderTarget"])
 	            {
 	                component.m_Target = CreateRef<RenderTarget>();
+	                const glm::vec4 renderViewSize = renderTargetNode["RenderViewSize"].as<glm::vec4>(glm::vec4{1,1,0,0});
 	                if (const YAML::Node framebufferSpecificationNode = renderTargetNode["FramebufferSpecification"])
 	                {
 	                    const FramebufferSpecification framebufferSpecification = framebufferSpecificationNode.as<FramebufferSpecification>();
 	                    const Ref<Framebuffer> framebuffer = Framebuffer::Create(framebufferSpecification);
 	                    component.m_Target->SetFramebuffer(framebuffer);
 	                }
+	                component.m_Target->ResizeView(renderViewSize);
 	            }
+
 	        }
 
 	}
@@ -1087,7 +1117,7 @@ namespace Rynex {
         out << YAML::Key << "Version" << YAML::Value << version;
 		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
 
-		m_Scene->m_Registry.each([&](auto entityID)
+		m_Scene->m_Registry.each([&](auto entityID)-> void
 			{
 				Entity entity = { entityID, m_Scene.get() };
 				if (!entity)
@@ -1119,10 +1149,14 @@ namespace Rynex {
 	{
 
 		RY_CORE_WARN("Begin Serialize a Scene from '{}'", systemPath);
+        Application::Get().SubmiteToMainThreedQueueWait([this]() -> void
+            {
+                m_Scene->ClearAll();
+            }
+        );
 
-		m_Scene->ClearAll();
-        std::filesystem::path _path = systemPath.GetPath();
-		std::ifstream stream(_path);
+        std::filesystem::path path = systemPath.GetPath();
+		std::ifstream stream(path);
 		std::stringstream strStream;
 		strStream << stream.rdbuf();
 		Ref<EditorAssetManagerThread> editorAssetManger = Project::GetActive()->GetEditorAssetManger();
@@ -1142,8 +1176,8 @@ namespace Rynex {
 		loadingPromisVec.clear();
 
 
-		YAML::Node entities = data["Entities"];
-		if (entities)
+
+		if (YAML::Node entities = data["Entities"])
 		{
 			for (YAML::detail::iterator_value entityNode : entities)
 			{
@@ -1153,6 +1187,7 @@ namespace Rynex {
 			        name = tagComponent["Tag"].as<std::string>();
 			    Entity entity = m_Scene->CreateEntityWitheUUID(uuid, name);
 #ifdef RY_INLINE_ENTITY_COMPENT_DESERIALIZATION
+
 				if (YAML::Node transformComponent = entityNode["TransformComponent"])
 				{
 					// Entities always have transforms
@@ -1325,10 +1360,7 @@ namespace Rynex {
 			    Utils::Deserialize::DeserializeGroupComponent(SerializeComponents{}, entityNode , entity, loadingPromisVec);
 #endif
 
-		}
-
-			
-			
+		    }
 		}
 		RY_CORE_INFO("Ende Scene Deserialization");
 		return true;

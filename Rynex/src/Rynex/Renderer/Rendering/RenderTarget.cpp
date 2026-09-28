@@ -1046,11 +1046,11 @@ namespace Rynex {
         if (nullptr == m_FB)
             return;
         uint32_t count = m_FB->GetAttachmentTexturesSize();
-        m_FB->GetAttachmentsTextures();
+
         m_ClearColorFuncVec.resize(count);
         for (std::function<void(const Ref<Framebuffer>&, uint32_t)>& func : m_ClearColorFuncVec)
         {
-            func = [](const Ref<Framebuffer>& fb, uint32_t index) {
+            func = [](const Ref<Framebuffer>& fb, uint32_t index) -> void {
                 fb->ClearAttachmentNull(index);
             };
         }
@@ -1083,7 +1083,7 @@ namespace Rynex {
         }
         else
         {
-            RY_CORE_ERROR("The set attchment index is not in any expexted Texture formate to Clear it!");
+            RY_CORE_ERROR("The set attachment index is not in any expected Texture formate to Clear it!");
         }
     }
 

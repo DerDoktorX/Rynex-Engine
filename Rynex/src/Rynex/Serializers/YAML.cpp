@@ -378,7 +378,7 @@ namespace YAML {
 		out << YAML::Key << "Samples" << framebufferTextureSpecification.m_Samples;
 		out << YAML::Key << "TextureWrapping" << framebufferTextureSpecification.m_TextureWrapping;
 		out << YAML::Key << "TextureFiltering" << framebufferTextureSpecification.m_TextureFiltering;
-		out << YAML::Key << "Compare" << framebufferTextureSpecification.Compare;
+		out << YAML::Key << "Compare" << framebufferTextureSpecification.m_Compare;
 		out << YAML::EndMap;
 		return out;
 	}
@@ -424,7 +424,7 @@ namespace YAML {
 		out << YAML::Key << "Samples" << specification.m_Samples;
 		out << YAML::Key << "SwapChainTarget" << specification.m_SwapChainTarget;
 
-		out << YAML::EndSeq;
+		out << YAML::EndMap;
 		return out;
 	}
 
@@ -519,7 +519,7 @@ namespace YAML {
 		framebufferTextureSpecification.m_Samples = node["Samples"].as<uint32_t>();
 		framebufferTextureSpecification.m_TextureWrapping = node["TextureWrapping"].as<Rynex::TextureWrappingSpecification>();
 		framebufferTextureSpecification.m_TextureFiltering = node["TextureFiltering"].as<Rynex::TextureFilteringMode>();
-		framebufferTextureSpecification.Compare = node["Compare"].as<Rynex::TextureCompareModes>();
+		framebufferTextureSpecification.m_Compare = node["Compare"].as<Rynex::TextureCompareModes>();
 
 		return true;
 	}

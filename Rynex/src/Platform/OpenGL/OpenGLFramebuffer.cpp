@@ -189,7 +189,7 @@ namespace Rynex {
 					attachment.m_Samples,
 					attachment.m_TextureFiltering,
 					attachment.m_TextureWrapping,
-					attachment.Compare,
+					attachment.m_Compare,
 					midmapsLevel
 				};
 				m_DepthAttachment = CreateRef<OpenGLTextureStorageModern>(spec);
@@ -212,7 +212,7 @@ namespace Rynex {
 					attachment.m_Samples,
 					attachment.m_TextureFiltering,
 					attachment.m_TextureWrapping,
-					attachment.Compare,
+					attachment.m_Compare,
 					midmapsLevel
 				};
 				Ref<OpenGLTextureStorageModern> tex = CreateRef<OpenGLTextureStorageModern>(spec);

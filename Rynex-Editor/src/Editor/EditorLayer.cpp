@@ -306,9 +306,9 @@ case key: \
                 RY_CORE_ASSERT(m_SceneState == SceneState::Play || m_SceneState == SceneState::Simulate, "Error Futer Funktion: EditorLayer::OnSceneStop()");
 
                 if (m_SceneState == SceneState::Play)
-                    m_AktiveScene->OnRuntimStop();
+                    m_AktiveScene->OnRuntimeStop();
                 else if (m_SceneState == SceneState::Simulate)
-                    m_AktiveScene->OnRuntimStop();
+                    m_AktiveScene->OnRuntimeStop();
 
                 m_SceneState = SceneState::Edit;
             }
@@ -867,12 +867,12 @@ case key: \
                 if (m_SceneState == SceneState::Edit || m_SceneState == SceneState::Simulate)
                 {
                     m_SceneState = SceneState::Play;
-                    m_AktiveScene->OnRuntimStart();
+                    m_AktiveScene->OnRuntimeStart();
                 }
                 else if(m_SceneState == SceneState::Play)
                 {
                     m_SceneState = SceneState::Edit;
-                    m_AktiveScene->OnRuntimStop();
+                    m_AktiveScene->OnRuntimeStop();
                 }
 
             }
@@ -887,7 +887,7 @@ case key: \
             if (ImGui::Button("Pause", ImVec2(100, 0)))
             {
                 m_SceneState = SceneState::Edit;
-                m_AktiveScene->OnRuntimStop();
+                m_AktiveScene->OnRuntimeStop();
             }
         }
     }
