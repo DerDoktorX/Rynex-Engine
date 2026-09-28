@@ -14,6 +14,7 @@ namespace Rynex {
 
     class TierClassiefer
     {
+    public:
 #ifdef RY_TIER_GRANULARITY_PER_BATCH
         // a decision for the hole (Mesh-) group.
         // Conflict rule to difference Material-Preference: open,
