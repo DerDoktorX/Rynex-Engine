@@ -114,7 +114,7 @@ namespace Rynex {
 #else
 		uint32_t GetDrawListCount() const { return m_ShadeDrawList.size(); }
 #endif
-		uint32_t GetPiplineListBaseCount() const { return m_PilineBaseVec.size(); }
+		uint32_t GetPiplineListBaseCount() const { return m_PiplineBaseVec.size(); }
 
 		void ClearFramebufferImageList();
 		void ClearFramebufferDepth();
@@ -166,11 +166,11 @@ namespace Rynex {
 #else
 		std::vector<ShaderDrawResource>		m_ShadeDrawList;
 #endif
-		std::vector<Ref<PiplineRenderBase>> m_PilineBaseVec;
+		std::vector<Ref<PiplineRenderBase>> m_PiplineBaseVec;
 
 
 		
-		std::vector<AlphaPiplineBase>		m_PilineAlphaBaseVec;
+		std::vector<AlphaPiplineBase>		m_PiplineAlphaBaseVec;
 		
 
 	};

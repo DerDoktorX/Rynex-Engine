@@ -67,7 +67,7 @@ namespace Rynex {
 
     bool RenderProxySortedIndicesVec::Empty() const
     {
-        RY_CORE_ASSERT(!m_SortedProxyInidicesVec.empty() || (m_SortedProxyInidicesVec.empty() && m_ProxyVec.size() == m_FreeListVec.size()), "if sorted is empty itmplictads that ProxyVec has the same size like the free list!");
+        RY_CORE_ASSERT(!m_SortedProxyInidicesVec.empty() || (m_SortedProxyInidicesVec.empty() && m_ProxyVec.size() == m_FreeListVec.size()), "if sorted is empty implicits that ProxyVec has the same size like the free list!");
         return m_SortedProxyInidicesVec.empty();
     }
 
@@ -76,7 +76,7 @@ namespace Rynex {
         uint32_t count = m_SortedProxyInidicesVec.size();
         uint32_t diff = m_ProxyVec.size() - m_FreeListVec.size();
 
-        RY_CORE_ASSERT(diff == count, "if sorted is size same as ProxyVec and freelist sizes differc!");
+        RY_CORE_ASSERT(diff == count, "if sorted is size same as ProxyVec and freelist sizes differences!");
         return count;
     }
 

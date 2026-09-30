@@ -44,7 +44,7 @@ namespace Rynex {
 
 		uint32_t GetIndexFromFreeList();
 		void AddFreeList(uint32_t proxyAccesIndex);
-	// --- private member varibles --------------------------------------------------------------------------------------------
+	// --- private member variables --------------------------------------------------------------------------------------------
 
 		RenderMeshBatch			 m_MeshBatch;
 		std::vector<RenderProxy> m_ProxyVec;

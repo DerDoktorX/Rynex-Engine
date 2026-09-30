@@ -45,7 +45,7 @@ namespace Rynex {
 
     bool RenderProxySortedProxyVec::Empty() const
     {
-        RY_CORE_ASSERT(!m_SortedProxyVec.empty() || (m_SortedProxyVec.empty() && m_ProxyInidicesVec.size() == m_FreeListVec.size()), "if sorted is empty itmplictads that ProxyVec has the same size like the free list!");
+        RY_CORE_ASSERT(!m_SortedProxyVec.empty() || (m_SortedProxyVec.empty() && m_ProxyInidicesVec.size() == m_FreeListVec.size()), "if sorted is empty implicits that ProxyVec has the same size like the free list!");
         return m_SortedProxyVec.empty();
     }
 
@@ -54,7 +54,7 @@ namespace Rynex {
         uint32_t count = m_SortedProxyVec.size();
         uint32_t diff = m_ProxyInidicesVec.size() - m_FreeListVec.size();
 
-        RY_CORE_ASSERT(diff == count, "if sorted is size same as ProxyVec and freelist sizes differc!");
+        RY_CORE_ASSERT(diff == count, "if sorted is size same as ProxyVec and freelist sizes differ!");
         return count;
     }
 
@@ -140,7 +140,7 @@ namespace Rynex {
         {
             proxyIndex = GetIndexFromFreeList();
             uint32_t& indexProxy = m_ProxyInidicesVec.at(proxyIndex);
-            RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() == indexProxy, "The Stored Value is Vaild!");
+            RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() == indexProxy, "The Stored Value is Valid!");
             indexProxy = proxyIndexInsert;
         }
 #ifdef RY_TEST_CHECK_FOR_IDENTY
@@ -155,7 +155,7 @@ namespace Rynex {
             for (uint32_t y = x + 1; y < count; y++)
             {
                 uint32_t proxyAceesY = m_ProxyInidicesVec.at(y);
-                RY_CORE_ASSERT(proxyAceesX != proxyAceesY, "All proxy Indicies need to be unique, means only one time present!");
+                RY_CORE_ASSERT(proxyAceesX != proxyAceesY, "All proxy Indices need to be unique, means only one time present!");
             }
         }
         RY_REMBER_FUNC_CHANGE("Remove the test if not longer needed!");
@@ -173,7 +173,7 @@ namespace Rynex {
         constexpr uint32_t maxFreeListSize = 150u;
         if (maxFreeListSize < m_FreeListVec.size())
         {
-            RY_CORE_WARN("We have large holes in ProxyInidicesVec! {} removed elments!", m_FreeListVec.size());
+            RY_CORE_WARN("We have large holes in ProxyIndicesVec! {} removed elements!", m_FreeListVec.size());
         }
 
         for (uint32_t& proxyAccesIndex : m_ProxyInidicesVec)
@@ -196,7 +196,7 @@ namespace Rynex {
             for (uint32_t y = x + 1; y < count; y++)
             {
                 uint32_t proxyAceesY = m_ProxyInidicesVec.at(y);
-                RY_CORE_ASSERT(proxyAceesX != proxyAceesY, "All proxy Indicies need to be unique, means only one time present!");
+                RY_CORE_ASSERT(proxyAceesX != proxyAceesY, "All proxy Indices need to be unique, means only one time present!");
             }
         }
         RY_REMBER_FUNC_CHANGE("Remove the test if not longer needed!");
@@ -245,7 +245,7 @@ namespace Rynex {
     {
         RY_CORE_ASSERT(proxyAccesIndex < m_ProxyInidicesVec.size(), "Buffer Overflow!");
         uint32_t proxyIndex = m_ProxyInidicesVec.at(proxyAccesIndex);
-        RY_CORE_ASSERT(UINT32_MAX != proxyIndex, "Proxy Store Index is Not Vaild!");
+        RY_CORE_ASSERT(UINT32_MAX != proxyIndex, "Proxy Store Index is Not Valid!");
         return proxyIndex;
     }
 

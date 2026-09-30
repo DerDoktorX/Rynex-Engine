@@ -393,9 +393,7 @@ namespace YAML {
 		out << YAML::Key << "OrthographicSize" << camera.GetOrthographicSize();
 		out << YAML::Key << "OrthographicNearClip" << camera.GetOrthographicNearClip();
 		out << YAML::Key << "OrthographicFarClip" << camera.GetPerspectiveFarClip();
-
 		out << YAML::EndMap;
-
 		return out;
 	}
 

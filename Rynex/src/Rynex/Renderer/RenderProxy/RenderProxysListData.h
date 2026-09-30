@@ -145,12 +145,12 @@ namespace Rynex {
 
 		bool HasChangedMain() const 
 		{ 
-			RY_CORE_ASSERT(Asset::CurrentOnMainThread(), "Expexxted Main Thread!");
+			RY_CORE_ASSERT(Asset::CurrentOnMainThread(), "Expected Main Thread!");
 			return m_HasChagedMain.at(StateRendering);
 		}
 		bool HasChangedCurent() const 
 		{ 
-			RY_CORE_ASSERT(Asset::CurrentOnMainThread(), "Expexxted Main Thread!");
+			RY_CORE_ASSERT(Asset::CurrentOnMainThread(), "Expected Main Thread!");
 			return m_HasChagedCurent.at(StateRendering);
 		}
 #if defined(RY_PROCESS_ON_THREAD_MAIN) && defined(RY_USE_SORTED_PROXY_LIST)
@@ -160,7 +160,7 @@ namespace Rynex {
 #elif !defined(RY_PROCESS_ON_THREAD_MAIN) && defined(RY_USE_SORTED_PROXY_LIST)
 		RenderProxySortedProxyVec& GetRenderProxyVec()
 		{
-			RY_CORE_ASSERT(Asset::CurrentOnMainThread(), "Expexxted Main Thread!");
+			RY_CORE_ASSERT(Asset::CurrentOnMainThread(), "Expected Main Thread!");
 			return *m_RenderProxyVecPtr;
 		}
 #elif !defined(RY_PROCESS_ON_THREAD_MAIN) && defined(RY_USE_MAP_PROXY_LIST)
@@ -178,7 +178,7 @@ namespace Rynex {
 #endif
 		void ResetChangedMain() 
 		{
-			RY_CORE_ASSERT(Asset::CurrentOnMainThread(), "Expexxted Main Thread!");
+			RY_CORE_ASSERT(Asset::CurrentOnMainThread(), "Expected Main Thread!");
 			m_HasChagedMain.at(StateRendering) = false;
 		}
 

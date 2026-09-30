@@ -12,7 +12,7 @@ namespace Rynex{
 		~RenderPiplineManger();
 		void Destroy();
 		void Clear();
-		void ResetPiplines();
+		void ResetPipline();
 
 		Ref<PiplineRenderBase> GetRenderPipline(const Ref<MeshSingle>& meshSingle, const Ref<Material>& materiel);
 		Ref<PiplineRenderBase> CreateRenderPipline(const Ref<MeshSingle>& meshSingle, const Ref<Material>& materiel);

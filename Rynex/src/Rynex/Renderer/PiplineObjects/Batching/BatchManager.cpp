@@ -20,9 +20,9 @@ namespace Rynex {
 		}
 		catch (std::overflow_error e) 
 		{
-			RY_CORE_FATAL("Exaption: hit in render loop! {}", e.what());
+			RY_CORE_FATAL("Exception: hit in render loop! {}", e.what());
 			m_VertexAtributeObjectHashMap = std::move(HashMapVAO());
-			RY_CORE_INFO("We Replaced the hash map and abourt Rendering!");
+			RY_CORE_INFO("We Replaced the hash map and about Rendering!");
 			return nullptr;
 		}
 		return storeSubmite;

@@ -55,8 +55,8 @@ namespace Rynex {
                 constexpr uint32_t instanceIndex = 1u;
                 constexpr bool active = true;
                 BufferLayout layout({
-                    { SDT::Float4x4, "a_ModelMarix" },
-                    { SDT::Float4x4, "a_NormleMatrix" },
+                    { SDT::Float4x4, "a_ModelMatrix" },
+                    { SDT::Float4x4, "a_NormaleMatrix" },
                     { SDT::Int, "a_EntityID" },
                     { SDT::Int3, "a_Empty" }
                 }, instanceIndex);

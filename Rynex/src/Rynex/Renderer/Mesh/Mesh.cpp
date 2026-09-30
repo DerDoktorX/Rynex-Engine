@@ -118,18 +118,18 @@ namespace Rynex {
 
             uint32_t sizeSourceMesh = meshSourcesVec.size();
             uint32_t sizeObjectMesh = meshSingleVec.size();
-            RY_CORE_ASSERT(sizeSourceMesh == sizeObjectMesh, "Not Equal Size Differenz {}", static_cast<int>(static_cast<int>(sizeSourceMesh) - static_cast<int>(sizeObjectMesh)) );
+            RY_CORE_ASSERT(sizeSourceMesh == sizeObjectMesh, "Not Equal Size Different {}", static_cast<int>(static_cast<int>(sizeSourceMesh) - static_cast<int>(sizeObjectMesh)) );
 
             uint32_t sizeMateriel = materialVec.size();
             const std::string& nameNode = sourceNodes.m_NodeName;
 
             for (const uint32_t& objectMeshIndex : sourceNodes.m_ObjectMeshIndexVec)
             {
-                RY_CORE_ASSERT(objectMeshIndex < sizeObjectMesh, "Higer Mesh Index then Expected {}", objectMeshIndex);
+                RY_CORE_ASSERT(objectMeshIndex < sizeObjectMesh, "Higher Mesh Index then Expected {}", objectMeshIndex);
                 const MeshSource::SourceMesh& vertexSource = meshSourcesVec.at(objectMeshIndex);
                 const uint32_t& indexMateriel = vertexSource.m_MaterielIndex;
 
-                RY_CORE_ASSERT(indexMateriel < sizeMateriel, "Higer Materiel Index then Expected {}", indexMateriel);
+                RY_CORE_ASSERT(indexMateriel < sizeMateriel, "Higher Materiel Index then Expected {}", indexMateriel);
 
                 const Ref<Material>& material = materialVec.at(indexMateriel);
                 const Ref<MeshSingle>& singleMesh = meshSingleVec.at(objectMeshIndex);

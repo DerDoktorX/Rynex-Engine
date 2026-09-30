@@ -273,7 +273,7 @@ namespace Rynex {
 			const MeshSource::SourceMesh& meshSource = sourceMeshesVec.at(meshIndex);
 			uint32_t indexMateriel = meshSource.m_MaterielIndex;
 			uint32_t meshDataIndex = meshSource.m_MeshDataIndex;
-			RY_CORE_ASSERT(meshIndex == meshSource.m_MeshIndex, "Index Are not expexted Equel!");
+			RY_CORE_ASSERT(meshIndex == meshSource.m_MeshIndex, "Index Are not expected equal!");
 
 			const Ref<Material>& materiel = materielVec.at(indexMateriel);
 			const Ref<MeshSingle>& meshSingle = singleMeshVec.at(meshDataIndex);
@@ -319,7 +319,7 @@ namespace Rynex {
 		if (givenSize <= static_cast<int32_t>(size))
 		{
 			uint32_t resizeSize = (offset) + (size * steps);
-			RY_CORE_WARN("Need Resizeing Vector to {}", resizeSize);
+			RY_CORE_WARN("Need resizing vector to {}", resizeSize);
 			globleChildrenMat.resize(resizeSize);
 		}
 

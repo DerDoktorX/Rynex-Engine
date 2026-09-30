@@ -10,7 +10,7 @@ namespace Rynex {
 
 		void Set(uint32_t index);
 
-		void Add(const ShaderDrawResource& drawlist);
+		void Add(const ShaderDrawResource& drawList);
 		bool Empty() const;
 		void Clear();
 

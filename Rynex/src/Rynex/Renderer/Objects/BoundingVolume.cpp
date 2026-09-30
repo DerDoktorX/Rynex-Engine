@@ -85,7 +85,7 @@ namespace Rynex {
 			}
 		}
 		
-		RY_CORE_INFO("Succesfull Create AABB Box! Min({0}, {1}, {2})  Max({3}, {4}, {5})", m_AABB.m_Min.x, m_AABB.m_Min.y, m_AABB.m_Min.z, m_AABB.m_Max.x, m_AABB.m_Max.y, m_AABB.m_Max.z);
+		RY_CORE_INFO("Successful Create AABB Box! Min({0}, {1}, {2})  Max({3}, {4}, {5})", m_AABB.m_Min.x, m_AABB.m_Min.y, m_AABB.m_Min.z, m_AABB.m_Max.x, m_AABB.m_Max.y, m_AABB.m_Max.z);
 		float extremValue[6] = {
 			m_AABB.m_Min[0],
 			m_AABB.m_Min[1],

@@ -56,28 +56,29 @@ namespace Rynex {
 	T Material::GetMaterielDataFromMateriel(const Ref<Material>& material)
 	{
 		static_assert(false, "No Default GetMaterielDataFromMateriel");
+	    return T();
 	}
 
 	template<>
 	MaterielShaderData Material::GetMaterielDataFromMateriel<MaterielShaderData>(const Ref<Material>& material)
 	{
 		const void* ptr = material->GetMaterielDataPtr();
-		const MaterielShaderData* dataPtr = reinterpret_cast<const MaterielShaderData*>(ptr);
+		const MaterielShaderData* dataPtr = static_cast<const MaterielShaderData*>(ptr);
 		MaterielShaderData data = *dataPtr;
 		return data;
 	}
 
 	template<typename T>
-	void Material::SetupMaterielObject(T& materielDataObject, int texureAlbedoIndex, int texureSpecularIndex, int texureHeigthIndex)
+	void Material::SetupMaterielObject(T& materielDataObject, int textureAlbedoIndex, int textureSpecularIndex, int textureHeightIndex)
 	{
 		static_assert(false);
 	}
 
 	template<>
-	void Material::SetupMaterielObject<MaterielShaderData>(MaterielShaderData& materielDataObject, int texureAlbedoIndex, int texureSpecularIndex, int texureHeigthIndex)
+	void Material::SetupMaterielObject<MaterielShaderData>(MaterielShaderData& materielDataObject, int textureAlbedoIndex, int textureSpecularIndex, int textureHeightIndex)
 	{
-		materielDataObject.UseTexure = texureAlbedoIndex;
-		RY_CORE_ASSERT(texureSpecularIndex == -1, "Not Expexted!");
-		RY_CORE_ASSERT(texureHeigthIndex == -1, "Not Expexted!");
+		materielDataObject.UseTexure = textureAlbedoIndex;
+		RY_CORE_ASSERT(textureSpecularIndex == -1, "Not Expected!");
+		RY_CORE_ASSERT(textureHeightIndex == -1, "Not Expected!");
 	}
 }

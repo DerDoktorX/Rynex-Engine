@@ -32,12 +32,12 @@ namespace Rynex {
 	}
 
 	
-	bool MeshSingle::IsViewFrustum(const glm::mat4& model, const glm::mat4& viewProjtion)
+	bool MeshSingle::IsViewFrustum(const glm::mat4& model, const glm::mat4& viewProjection)
 	{
-		glm::mat4 mvp = viewProjtion * model;
+		glm::mat4 mvp = viewProjection * model;
 		const AABB& aabb = m_Bounding.GetAABB();
-		bool isInsideViewFustrem = IsAABBInsideFrustum(mvp, aabb);
-		return isInsideViewFustrem;
+		bool isInsideViewFustrum = IsAABBInsideFrustum(mvp, aabb);
+		return isInsideViewFustrum;
 	}
 
 	

@@ -181,115 +181,115 @@ namespace Rynex {
 				const char* name;
 			};
 
-			constexpr ReservedState resevedTextureHandelsStatesArray[] = {
+			constexpr ReservedState resavedTextureHandelStatesArray[] = {
 					{s_MainTextureNameRuntime, s_MainImageTextureNameSerialize}
 			};
 
-			for (auto& [id, name] : resevedTextureHandelsStatesArray)
+			for (auto& [id, name] : resavedTextureHandelStatesArray)
 			{
-				RY_CORE_FATAL("resved Names and Id Handles: ({}, {})", id, name);
+				RY_CORE_FATAL("resaved Names and Id Handles: ({}, {})", id, name);
 			}
 			RY_CORE_ASSERT(false, "this funktion works only withe ID that is not reserved IDs");
 		}
 
 		
-		void CheckTextureResourceFromRenderPass(uint32_t textureRuntimeID, const std::string& textureSerilzerName) const
+		void CheckTextureResourceFromRenderPass(uint32_t textureRuntimeID, const std::string& textureSerializerName) const
 		{
 			using Map = std::map<std::string, RenderTextureResourceSerialize>;
 			const Map& mapRenderTexture = m_Serialize.renderTextureResourceMap;
 
-			RY_CORE_ASSERT(textureRuntimeID < m_Runtime.maxCountRenderTextureID, "outsid vaild shader id range!");
-			Map::const_iterator it = mapRenderTexture.find(textureSerilzerName);
+			RY_CORE_ASSERT(textureRuntimeID < m_Runtime.maxCountRenderTextureID, "outside valid shader id range!");
+			Map::const_iterator it = mapRenderTexture.find(textureSerializerName);
 			RY_CORE_ASSERT(it != mapRenderTexture.end(), "this name is not found");
 			const uint32_t& renderTextureID = it->second.m_HandleID;
 
 			RY_CORE_ASSERT(renderTextureID == textureRuntimeID, "not equal Index");
 		}
 
-		void CheckShaderResourceFromRenderPass(uint32_t shaderRuntimeID, const std::string& shaderSerilzerName) const
+		void CheckShaderResourceFromRenderPass(uint32_t shaderRuntimeID, const std::string& shaderSerializerName) const
 		{
 			using Map = std::map<std::string, uint32_t>;
 			const Map& mapShader = m_Serialize.shaderMap;
 
-			RY_CORE_ASSERT(shaderRuntimeID < m_Runtime.maxCountShaderID, "outsid vaild shader id range!");
-			Map::const_iterator it = mapShader.find(shaderSerilzerName);
+			RY_CORE_ASSERT(shaderRuntimeID < m_Runtime.maxCountShaderID, "outside valid shader id range!");
+			Map::const_iterator it = mapShader.find(shaderSerializerName);
 			RY_CORE_ASSERT(it != mapShader.end(), "this name is not found");
 			const uint32_t& shaderListNameID = it->second;
 
 			RY_CORE_ASSERT(shaderListNameID == shaderRuntimeID, "not equal Index");
 		}
 
-		void CheckDrawListResourceFromRenderPass(uint32_t drawListRuntimeID, const std::string& drawListSerilzerName) const
+		void CheckDrawListResourceFromRenderPass(uint32_t drawListRuntimeID, const std::string& drawListSerializerName) const
 		{
 			using Map = std::map<std::string, uint32_t>;
 			const Map& mapDrawList = m_Serialize.drawListMap;
 
-			RY_CORE_ASSERT(drawListRuntimeID < m_Runtime.maxCountDrawListID, "outsid vaild shader id range!");
-			Map::const_iterator it = mapDrawList.find(drawListSerilzerName);
+			RY_CORE_ASSERT(drawListRuntimeID < m_Runtime.maxCountDrawListID, "outside valid shader id range!");
+			Map::const_iterator it = mapDrawList.find(drawListSerializerName);
 			RY_CORE_ASSERT(it != mapDrawList.end(), "this name is not found");
 			const uint32_t& shaderListNameID = it->second;
 
 			RY_CORE_ASSERT(shaderListNameID == drawListRuntimeID, "not equal Index");
 		}
 
-		void CheckSingleOutPutTexture(const std::vector<uint32_t>& renderPassesRuntimeoutputVec, const std::vector<std::string>& renderPassesSerilzeOutputVec) const
+		void CheckSingleOutPutTexture(const std::vector<uint32_t>& renderPassesRuntimeOutputVec, const std::vector<std::string>& renderPassesSerializerOutputVec) const
 		{
-			const uint32_t& textureRuntimeID = renderPassesRuntimeoutputVec.front();
-			const std::string& textureSerilzerName = renderPassesSerilzeOutputVec.front();
-			bool isTextureNameMainSerilzer = s_MainImageTextureNameSerialize == textureSerilzerName;
-			bool isTextureNameMainRuntime = s_MainTextureNameRuntime == textureRuntimeID;
-			bool isMain = isTextureNameMainSerilzer && isTextureNameMainRuntime;
-			bool isNotMain = !isTextureNameMainSerilzer && !isTextureNameMainRuntime;
-			bool isVaild = isNotMain || isMain;
-			RY_CORE_ASSERT(isVaild, "not Vaild");
+			const uint32_t& textureRuntimeID = renderPassesRuntimeOutputVec.front();
+			const std::string& textureSerializerName = renderPassesSerializerOutputVec.front();
+			const bool isTextureNameMainSerializer = s_MainImageTextureNameSerialize == textureSerializerName;
+			const bool isTextureNameMainRuntime = s_MainTextureNameRuntime == textureRuntimeID;
+			const bool isMain = isTextureNameMainSerializer && isTextureNameMainRuntime;
+			const bool isNotMain = !isTextureNameMainSerializer && !isTextureNameMainRuntime;
+			const bool isValid = isNotMain || isMain;
+			RY_CORE_ASSERT(isValid, "not Valid");
 
 
 			if (isNotMain)
 			{
-				CheckTextureResourceFromRenderPass(textureRuntimeID, textureSerilzerName);
+				CheckTextureResourceFromRenderPass(textureRuntimeID, textureSerializerName);
 			}
 		}
-		void CheckOutPutsTexture(const std::vector<uint32_t>& renderPassesRuntimeoutputVec, const std::vector<std::string>& renderPassesSerilzeOutputVec) const
+		void CheckOutPutsTexture(const std::vector<uint32_t>& renderPassesRuntimeOutputVec, const std::vector<std::string>& renderPassesSerializeOutputVec) const
 		{
-			const uint32_t countRenderPassesVec = renderPassesRuntimeoutputVec.size();
+			const uint32_t countRenderPassesVec = renderPassesRuntimeOutputVec.size();
 
 
 			for (uint32_t i = 0; i < countRenderPassesVec; i++)
 			{
-				const uint32_t& textureRuntimeID = renderPassesRuntimeoutputVec.at(i);
-				const std::string& textureSerilzerName = renderPassesSerilzeOutputVec.at(i);
+				const uint32_t& textureRuntimeID = renderPassesRuntimeOutputVec.at(i);
+				const std::string& textureSerializeName = renderPassesSerializeOutputVec.at(i);
 
-				CheckTextureResourceFromRenderPass(textureRuntimeID, textureSerilzerName);
+				CheckTextureResourceFromRenderPass(textureRuntimeID, textureSerializeName);
 			}
 		}
 
-		void CheckRenderPassShader(const RenderPassRuntime& renderPassRuntime, const RenderPassSerialize& renderPassSerilze) const
+		void CheckRenderPassShader(const RenderPassRuntime& renderPassRuntime, const RenderPassSerialize& renderPassSerialize) const
 		{
 			const uint32_t& shaderRuntimeID = renderPassRuntime.m_Shader;
-			const std::string& shaderSerilzeName = renderPassSerilze.m_Shader;
-			CheckShaderResourceFromRenderPass(shaderRuntimeID, shaderSerilzeName);
+			const std::string& shaderSerializeName = renderPassSerialize.m_Shader;
+			CheckShaderResourceFromRenderPass(shaderRuntimeID, shaderSerializeName);
 
 		}
 
-		void CheckRenderPassDrawList(const RenderPassRuntime& renderPassRuntime, const RenderPassSerialize& renderPassSerilze) const
+		void CheckRenderPassDrawList(const RenderPassRuntime& renderPassRuntime, const RenderPassSerialize& renderPassSerialize) const
 		{
 			const uint32_t& drawListRuntimeID = renderPassRuntime.m_DrawList;
-			const std::string& drawListSerilzeName = renderPassSerilze.m_DrawList;
+			const std::string& drawListSerilzeName = renderPassSerialize.m_DrawList;
 			CheckDrawListResourceFromRenderPass(drawListRuntimeID, drawListSerilzeName);
 		}
 
 
-		void CheckRenderPassOutput(const RenderPassRuntime& renderPassRuntime, const RenderPassSerialize& renderPassSerilze) const
+		void CheckRenderPassOutput(const RenderPassRuntime& renderPassRuntime, const RenderPassSerialize& renderPassSerialize) const
 		{
 			const uint32_t countRenderPassesVec = renderPassRuntime.m_OutputVec.size();
-			RY_CORE_ASSERT(renderPassRuntime.m_OutputVec.size() == renderPassSerilze.m_OutputVec.size());
+			RY_CORE_ASSERT(renderPassRuntime.m_OutputVec.size() == renderPassSerialize.m_OutputVec.size());
 			if (1u == countRenderPassesVec)
 			{
-				CheckSingleOutPutTexture(renderPassRuntime.m_OutputVec, renderPassSerilze.m_OutputVec);
+				CheckSingleOutPutTexture(renderPassRuntime.m_OutputVec, renderPassSerialize.m_OutputVec);
 			}
 			else
 			{
-				CheckOutPutsTexture(renderPassRuntime.m_OutputVec, renderPassSerilze.m_OutputVec);
+				CheckOutPutsTexture(renderPassRuntime.m_OutputVec, renderPassSerialize.m_OutputVec);
 			}
 		}
 
@@ -303,11 +303,11 @@ namespace Rynex {
 			for (uint32_t i = 0; i < countRenderPassesVec; i++)
 			{
 				const RenderPassRuntime& renderPassRuntime = m_Runtime.renderPassesVec.at(i);
-				const RenderPassSerialize& renderPassSerilze = m_Serialize.renderPassesVec.at(i);
+				const RenderPassSerialize& renderPassSerialize = m_Serialize.renderPassesVec.at(i);
 				RY_CORE_ASSERT(i == renderPassRuntime.m_Name, "not index in order");
-				CheckRenderPassOutput(renderPassRuntime, renderPassSerilze);
-				CheckRenderPassDrawList(renderPassRuntime, renderPassSerilze);
-				CheckRenderPassDrawList(renderPassRuntime, renderPassSerilze);
+				CheckRenderPassOutput(renderPassRuntime, renderPassSerialize);
+				CheckRenderPassDrawList(renderPassRuntime, renderPassSerialize);
+				CheckRenderPassDrawList(renderPassRuntime, renderPassSerialize);
 				
 			}
 		}

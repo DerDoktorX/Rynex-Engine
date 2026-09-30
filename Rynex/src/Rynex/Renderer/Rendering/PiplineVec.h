@@ -137,7 +137,7 @@ namespace Rynex {
 			}
 			else
 			{
-				RY_CORE_ASSERT(i == m_PiplineIndex, "Recusted Index is not next higer Index");
+				RY_CORE_ASSERT(i == m_PiplineIndex, "Recused Index is not next higher Index");
 				index = m_PiplineIndex;
 				m_PiplineIndex++;
 
@@ -167,7 +167,7 @@ namespace Rynex {
 				i = m_PiplineIndex;
 				m_PiplineIndex++;
 			}	
-			RY_CORE_ASSERT(i < m_PiplineIndex, "Esxpet Index to by smaler then index");
+			RY_CORE_ASSERT(i < m_PiplineIndex, "expect Index to by smaller then index");
 			Ref<PiplineRenderBase>& pipline = PiplineRefBaseVec::GetPiplineAtRef(i);
 			return pipline;
 		}
@@ -219,7 +219,7 @@ namespace Rynex {
 			}
 			else
 			{
-				RY_CORE_ASSERT(index == count, "Recusted Index is not next higer Index");
+				RY_CORE_ASSERT(index == count, "Requested Index is not next higher Index");
 				pipline = CreateRef<T>();
 				m_PiplineVec.emplace_back(pipline);
 			}
@@ -231,7 +231,7 @@ namespace Rynex {
 			uint32_t count = m_PiplineVec.size();
 			if (count <= index)
 			{
-				RY_CORE_ASSERT(index == count, "Recusted Index is not next higer Index");
+				RY_CORE_ASSERT(index == count, "Requested Index is not next higher Index");
 				m_PiplineVec.emplace_back(nullptr);
 			}
 			Ref<PiplineRenderBase>& pipline = m_PiplineVec.at(index);
@@ -277,7 +277,7 @@ namespace Rynex {
 			}
 			else
 			{
-				RY_CORE_ASSERT(i == m_PiplineIndex, "Recusted Index is not next higer Index");
+				RY_CORE_ASSERT(i == m_PiplineIndex, "Requested Index is not next higher Index");
 				index = m_PiplineIndex;
 				m_PiplineIndex++;
 
@@ -300,7 +300,7 @@ namespace Rynex {
 			}
 			else
 			{
-				RY_CORE_ASSERT(i == m_PiplineIndex, "Recusted Index is not next higer Index");
+				RY_CORE_ASSERT(i == m_PiplineIndex, "Requested Index is not next higher Index");
 				index = m_PiplineIndex;
 				m_PiplineIndex++;
 
@@ -333,7 +333,7 @@ namespace Rynex {
 			}
 			else
 			{
-				RY_CORE_ASSERT(index == count, "Recusted Index is not next higer Index");
+				RY_CORE_ASSERT(index == count, "Requested Index is not next higher Index");
 				pipline = CreateRef<T>();
 				m_PiplineVec.emplace_back(pipline);
 			}
@@ -376,7 +376,7 @@ namespace Rynex {
 			}
 			else
 			{
-				RY_CORE_ASSERT(index == count, "Recusted Index is not next higer Index");
+				RY_CORE_ASSERT(index == count, "Requested Index is not next higher Index");
 				pipline = CreateRef<N>();
 				vec.emplace_back(pipline);
 			}
@@ -405,7 +405,7 @@ namespace Rynex {
 		void ResetFramePipline()
 		{
 			uint32_t count = m_PiplineVec.size();
-			RY_CORE_ASSERT(m_PiplineIndex <= count, "PilineIndex shoud be not be greater then the stack at max only equel!");
+			RY_CORE_ASSERT(m_PiplineIndex <= count, "PiplineIndex should be not be greater then the stack at max only equal!");
 
 			for (uint32_t i = 0; i < m_PiplineIndex; i++)
 			{
@@ -418,7 +418,7 @@ namespace Rynex {
 		void ResetExpextedIndex()
 		{
 			uint32_t count = m_PiplineVec.size();
-			RY_CORE_ASSERT(m_PiplineIndex <= count, "PilineIndex shoud be not be greater then the stack at max only equel but equal is also not expeted!");
+			RY_CORE_ASSERT(m_PiplineIndex <= count, "PiplineIndex should be not be greater then the stack at max only equal but equal is also not expected!");
 
 			m_PiplineIndex = 0u;
 		}

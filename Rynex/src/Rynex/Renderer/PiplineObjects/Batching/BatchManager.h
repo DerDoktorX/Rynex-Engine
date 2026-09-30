@@ -9,14 +9,14 @@
 #define RY_BATCHING_UPDATE_BUFFER_RANGE_BASED
 namespace Rynex {
 
-	enum class RenderProxyDynamicEllmenenttData
+	enum class RenderProxyDynamicElenenttData
 	{
 		None = 0,
 		EntityID,
 		TransformMatrix,
 		NormaleMatrix,
 
-		MaterilIndex,
+		MaterielIndex,
 		Texture_0_Index,
 		Texture_1_Index,
 		Texture_2_Index,
@@ -52,7 +52,7 @@ namespace Rynex {
 		std::vector<Batch::Render3DMeshObjectTransform> rendeObjectTransformVec;
 
 		Memory::DynamicDataStruct rendeObjectDynamicElementStruct;
-		std::vector<RenderProxyDynamicEllmenenttData> renderProxyDynamicDataTypeVec;
+		std::vector<RenderProxyDynamicElenenttData> renderProxyDynamicDataTypeVec;
 		uint32_t curentIndex;
 		bool needUpdate;
 

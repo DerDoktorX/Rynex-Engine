@@ -210,12 +210,13 @@ namespace Rynex {
 
 		bool m_Running;
 		bool m_Paused;
-	private:
+	// friend class
 
 		friend class Entity;
 		friend class SceneSerializer;
 		friend class SceneHierarchyPanel;
 		friend class SceneRenderer;
+	    friend class SceneTierSystem;
 	};
 
 

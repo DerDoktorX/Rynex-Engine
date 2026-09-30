@@ -11,9 +11,9 @@ namespace Rynex {
 	class RYNEX_API MeshSource : public Mesh
 	{
 	public:
-		inline static constexpr const char* s_VertexBufferAttributePositionName = "a_Postion";
-		inline static constexpr const char* s_VertexBufferAttributeTextureCoordName = "a_UV";
-		inline static constexpr const char* s_VertexBufferAttributeNormaleName = "a_Normals";
+		static constexpr const char* s_VertexBufferAttributePositionName = "a_Position";
+		static constexpr const char* s_VertexBufferAttributeTextureCoordName = "a_UV";
+		static constexpr const char* s_VertexBufferAttributeNormaleName = "a_Normals";
 	public:
 		struct SourceVertex 
 		{
@@ -87,14 +87,14 @@ namespace Rynex {
 		void SetPerDrawObject(const std::vector<Mesh::PerDrawObject>& pdo) { m_ShadePerDrawObjectVec = pdo; }
 
 
-		const Ref<VertexBuffer>& GetVertexBuffer(uint32_t i) const { return m_VABVec.at(i); }
-		const Ref<VertexBuffer>& GetVertexBufferConst(uint32_t i) const { return m_VABVec.at(i); }
+		const Ref<VertexBuffer>& GetVertexBuffer(const uint32_t i) const { return m_VABVec.at(i); }
+		const Ref<VertexBuffer>& GetVertexBufferConst(const uint32_t i) const { return m_VABVec.at(i); }
 
-		const Ref<IndexBuffer>& GetShadeIndexBuffer(uint32_t i) const { return m_ShadeIABVec.at(i); }
-		const Ref<IndexBuffer>& GetDepthIndexBuffer(uint32_t i) const { return m_DepthIABVec.at(i); }
+		const Ref<IndexBuffer>& GetShadeIndexBuffer(const uint32_t i) const { return m_ShadeIABVec.at(i); }
+		const Ref<IndexBuffer>& GetDepthIndexBuffer(const uint32_t i) const { return m_DepthIABVec.at(i); }
 
-		const Ref<IndexBuffer>& GetShadeIndexBufferConst(uint32_t i) const { return m_ShadeIABVec.at(i); }
-		const Ref<IndexBuffer>& GetDepthIndexBufferConst(uint32_t i) const { return m_DepthIABVec.at(i); }
+		const Ref<IndexBuffer>& GetShadeIndexBufferConst(const uint32_t i) const { return m_ShadeIABVec.at(i); }
+		const Ref<IndexBuffer>& GetDepthIndexBufferConst(const uint32_t i) const { return m_DepthIABVec.at(i); }
 
 
 		// ---

@@ -12,7 +12,7 @@ namespace Rynex {
 	struct ProxyGroupView;
 	struct BatchedRenderObjectVAO;
 	class Batch3DKey;
-	enum class RenderProxyDynamicEllmenenttData;
+	enum class RenderProxyDynamicElenenttData;
 
 
 	class ProxyDrawCallGenarter
@@ -27,7 +27,7 @@ namespace Rynex {
 	public:
 		ProxyDrawCallGenarter();
 		~ProxyDrawCallGenarter();
-		void SetRenderTargetLayoute(const BufferLayout& layoute);
+		void SetRenderTargetLayout(const BufferLayout& layoute);
 		bool SetProxyData(RenderProxy& proxy);
 		bool SetRenderMeshBatch(const RenderProxy& proxy);
 		bool SetRenderMeshBatch(const RenderMeshBatch& renderMeshBatch);
@@ -63,8 +63,8 @@ namespace Rynex {
 		void AddProxyDataStatic();
 
 
-		void UplodedeVertexBufferFromContainer(Ref<VertexBuffer>& vertexBuffer, const BufferLayout& layoute, BufferFlagGPU flag, const uint8_t* dataPtr, uint64_t bytesSize);
-		void UplodedeUniformBufferFromContainer(Ref<UniformBuffer>& uniformBuffer, const BufferLayout& layoute, BufferFlagGPU flag, const uint8_t* dataPtr, uint64_t bytesSize);
+		void UplodedeVertexBufferFromContainer(Ref<VertexBuffer>& vertexBuffer, const BufferLayout& layout, BufferFlagGPU flag, const uint8_t* dataPtr, uint64_t bytesSize);
+		void UplodedeUniformBufferFromContainer(Ref<UniformBuffer>& uniformBuffer, const BufferLayout& layout, BufferFlagGPU flag, const uint8_t* dataPtr, uint64_t bytesSize);
 
 
 		void UplodedeStorageBufferFromContainer(Ref<StorageBuffer>& storageBuffer, BufferFlagGPU flag, const uint8_t* dataPtr, uint64_t bytesSize);
@@ -75,7 +75,7 @@ namespace Rynex {
 
 		void PertepairNewDrawCall();
 		void SetProxyBufferData();
-		void SetArrayDataFromProxy(const RenderProxyDynamicEllmenenttData& dynamicElementData, Memory::DynamicDataStruct& dynamicData, uint64_t elementIndex, uint32_t arrayIndex);
+		void SetArrayDataFromProxy(const RenderProxyDynamicElenenttData& dynamicElementData, Memory::DynamicDataStruct& dynamicData, uint64_t elementIndex, uint32_t arrayIndex);
 		void AddDataArray(uint32_t indexVec, Memory::DynamicDataStruct& dynamicDataStruct, uint32_t curentIndex);
 		bool CheckMaterielConfigs(const RenderMeshBatch& meshBatch);
 		bool CheckMaterielConfigs(const RenderProxy& proxy);

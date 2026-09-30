@@ -84,7 +84,7 @@ namespace Rynex {
 			SizeType bufferSizeExpectSize = offsetByteSize + byteSize;
 
 			int differenz =  sizeof(N)-bufferSizeExpectSize;
-			RY_CORE_ASSERT(sizeof(N) >= bufferSizeExpectSize, "Buffer Overfolwe by {} Bytes too large", (-differenz));
+			RY_CORE_ASSERT(sizeof(N) >= bufferSizeExpectSize, "Buffer Overflow by {} Bytes too large", (-differenz));
 			SizeType copyByteSize = byteSize - offsetByteSize;
 
 			m_Update = true;
@@ -367,13 +367,13 @@ namespace Rynex {
 
 		void ForceLoadeRangeDataUp()
 		{
-			RY_CORE_WARN("We Imediedt Push The Date ({}) to Buffer ({}) withe oute Binding!", s_DataNameStr, s_BufferNameStr);
+			RY_CORE_WARN("We immediately Push The Date ({}) to Buffer ({}) withe out Binding!", s_DataNameStr, s_BufferNameStr);
 			LoadeDataUpOffset();
 		}
 
 		void ForceStateDataUptoData()
 		{
-			RY_CORE_WARN("We Imediedt Skip The Data ({}) to be Uploadedt tu Buffer ({}) Untile the Data change another Time!", s_DataNameStr, s_BufferNameStr);
+			RY_CORE_WARN("We immediately Skip The Data ({}) to be Uploaded tu Buffer ({}) Untile the Data change another Time!", s_DataNameStr, s_BufferNameStr);
 			ResetRange();
 		}
 
@@ -498,7 +498,7 @@ namespace Rynex {
 		void LoadeDataUpOffset()
 		{
 			const void* dataPtr = m_ArrayData.data();
-			RY_CORE_ASSERT(m_Range.y >= m_ArrayData.size(), "Greter Range Than Data!");
+			RY_CORE_ASSERT(m_Range.y >= m_ArrayData.size(), "Greater Range Than Data!");
 
 			SizeType elmentByteSize = sizeof(N);
 			SizeType completByteCopySize = m_Range.y * elmentByteSize;
@@ -1233,7 +1233,7 @@ namespace Rynex {
 			int arrayByteSize = elmentByteSize * count;
 
 			int differenz = arrayByteSize - bufferSizeExpectSize;
-			RY_CORE_ASSERT(elmentByteSize >= bufferSizeExpectSize, "Buffer Overfolwe by {} Bytes too large", (-differenz));
+			RY_CORE_ASSERT(elmentByteSize >= bufferSizeExpectSize, "Buffer Overflow by {} Bytes too large", (-differenz));
 			uint32_t copyByteSize = byteSize - offsetByteSize;
 			std::vector<N>& vecData = m_ArrayData.GetVector();
 			const void* offsetDataPtr = dataPtr + offsetByteSize;

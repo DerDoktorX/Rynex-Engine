@@ -758,10 +758,10 @@ namespace Rynex {
 			uint32_t meshDataIndex = meshSour.m_MeshDataIndex;
 			if (i != meshIndex)
 			{
-				RY_CORE_WARN("In MeshSource GenarteMeshesGPUBufferSingle we expexted now after index {} thesame Index as Meshindex {}!", i, meshIndex);
+				RY_CORE_WARN("In MeshSource GenerateMeshesGPUBufferSingle we expected now after index {} the same Index as Mesh index {}!", i, meshIndex);
 			}
 			Utils::GenrateLoop::MaterielBufferSingle(meshSour, m_SourceMateriel, m_MaterialsVec);
-			RY_CORE_ASSERT(meshDataIndex < countDataMesh, "Buffer over vlow with meshData!");
+			RY_CORE_ASSERT(meshDataIndex < countDataMesh, "Buffer overflow with meshData!");
 			MeshSource::SourceVertex& sourceVertex = m_SourceVertexData.at(meshDataIndex);
 			MeshSource::OptimizeMeshData optMesh = std::move(MeshSource::OptimizeMeshVec(sourceVertex));
 
@@ -1216,7 +1216,7 @@ namespace Rynex {
 
 			if (0u < localeMeshCount)
 			{
-				RY_CORE_INFO("We Have found from Mesh Index {}, {} other Meshes they are completly Identical", x, localeMeshCount);
+				RY_CORE_INFO("We Have found from Mesh Index {}, {} other Meshes they are completely Identical", x, localeMeshCount);
 				
 				for (uint32_t i = last; i < dublicatedListB.size(); i++)
 				{
@@ -1235,7 +1235,7 @@ namespace Rynex {
 
 		if (0u < count)
 		{
-			RY_CORE_INFO("We Have found {} Meshes they are completly Identical", count);
+			RY_CORE_INFO("We Have found {} Meshes they are completely Identical", count);
 			
 			
 		}
@@ -1263,7 +1263,7 @@ namespace Rynex {
 			if (a != b)
 				return false;
 		}
-		RY_CORE_TRACE("We have two have Found A complet Identical Meshes!");
+		RY_CORE_TRACE("We have two have Found A complete Identical Meshes!");
 		return true;
 	}
 
@@ -1287,7 +1287,7 @@ namespace Rynex {
 			if (a != b)
 				return false;
 		}
-		RY_CORE_TRACE("We have two have Found A complet Identical Meshes!");
+		RY_CORE_TRACE("We have two have Found A complete Identical Meshes!");
 		return true;
 	}
 

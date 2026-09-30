@@ -6,16 +6,16 @@
 namespace Rynex {
 	enum BatechedResource
 	{
-		BatechedResource_NoBatching = 0,
-		BatechedResource_BindingRange = BIT(0),
-		BatechedResource_Array = BIT(1),
+		BatchedResource_NoBatching = 0,
+		BatchedResource_BindingRange = BIT(0),
+		BatchedResource_Array = BIT(1),
 		
-		BatechedResource_ArrayRanges = BIT(2), // Multyble Resource types in one Array like Texture[Albedo[0], Normale[0],Albedo[1], Normale[1], ..., Albedo[n], Normale[n] ]
-		BatechedResource_BindingRangeArray = BatechedResource_BindingRange | BatechedResource_Array,
+		BatchedResource_ArrayRanges = BIT(2), // Multyble Resource types in one Array like Texture[Albedo[0], Normale[0],Albedo[1], Normale[1], ..., Albedo[n], Normale[n] ]
+		BatchedResource_BindingRangeArray = BatchedResource_BindingRange | BatchedResource_Array,
 		
-		BatechedResource_Texture = BIT(3),
-		BatechedResource_TextureArray = BIT(4),
-		BatechedResource_BindlesTextures = BIT(5)
+		BatchedResource_Texture = BIT(3),
+		BatchedResource_TextureArray = BIT(4),
+		BatchedResource_BindlessTextures = BIT(5)
 	};
 
 
@@ -79,30 +79,30 @@ namespace Rynex {
 			ResizeFromRanges();
 		}
 
-		bool operator== (const TextureTypeSetup& rigthe) const
+		bool operator== (const TextureTypeSetup& right) const
 		{
-			bool bindRangeResult = this->bindingRange == rigthe.bindingRange;
-			bool arrayResult = this->arrayRange == rigthe.arrayRange;
+			bool bindRangeResult = this->bindingRange == right.bindingRange;
+			bool arrayResult = this->arrayRange == right.arrayRange;
 			return bindRangeResult && arrayResult;
 		}
 
-		bool operator!= (const TextureTypeSetup& rigthe) const
+		bool operator!= (const TextureTypeSetup& right) const
 		{
-			bool bindRangeResult = this->bindingRange != rigthe.bindingRange;
-			bool arrayResult = this->bindingRange != rigthe.arrayRange;
+			bool bindRangeResult = this->bindingRange != right.bindingRange;
+			bool arrayResult = this->bindingRange != right.arrayRange;
 			return bindRangeResult || arrayResult;
 		}
 
-		bool HasColision(const TextureTypeSetup& rigthe) const
+		bool HasColision(const TextureTypeSetup& right) const
 		{
-			return (this->bindingRange == rigthe.bindingRange && this->arrayRange.IsColiding(rigthe.arrayRange))
-					|| this->bindingRange.IsColiding(rigthe.bindingRange);
+			return (this->bindingRange == right.bindingRange && this->arrayRange.IsColiding(right.arrayRange))
+					|| this->bindingRange.IsColiding(right.bindingRange);
 		}
 
-		bool HasRangeNoColsion(const TextureTypeSetup& rigthe) const
+		bool HasRangeNoColsion(const TextureTypeSetup& right) const
 		{
-			return (this->bindingRange <= rigthe.bindingRange || this->bindingRange >= rigthe.bindingRange)
-				&& (this->arrayRange <= rigthe.arrayRange || this->arrayRange >= rigthe.arrayRange);
+			return (this->bindingRange <= right.bindingRange || this->bindingRange >= right.bindingRange)
+				&& (this->arrayRange <= right.arrayRange || this->arrayRange >= right.arrayRange);
 		}
 
 		int AddTextureToType(const Ref<Texture>& texture)

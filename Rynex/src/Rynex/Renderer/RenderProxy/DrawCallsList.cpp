@@ -16,9 +16,9 @@ namespace Rynex {
 		m_DrawCallsVecPtr = &m_DrawCallsVecArray[index];
 	}
 
-	void DrawCallsList::Add(const ShaderDrawResource& drawlist)
+	void DrawCallsList::Add(const ShaderDrawResource& drawList)
 	{
-		m_DrawCallsVecPtr->emplace_back(drawlist);
+		m_DrawCallsVecPtr->emplace_back(drawList);
 	}
 
 	bool DrawCallsList::Empty() const

@@ -111,7 +111,7 @@ namespace Rynex {
 				,std::vector<Ref<Texture>>{  m_DefaultMap }
 
 				
-				, DrawSpecification::RenderObject_Vertex_Array
+				, DrawSpecification::Transform_Vertex_Array
 				, m_ShadeRenderMode
 			},
 			Pass{
@@ -119,7 +119,7 @@ namespace Rynex {
 				, Ref<UniformBuffer>(nullptr)
 				, std::vector<TextureTypes>{}
 				, std::vector<Ref<Texture>>{}
-				, DrawSpecification::RenderObject_Vertex_Array
+				, DrawSpecification::Transform_Vertex_Array
 				, m_DepthRenderMode
 			}
 		};
@@ -161,7 +161,7 @@ namespace Rynex {
 				,std::vector<Ref<Texture>>{  m_DefaultMap }
 
 
-				, DrawSpecification::RenderObject_Vertex_Array
+				, DrawSpecification::Transform_Vertex_Array
 				, m_ShadeRenderMode
 			},
 			Pass{
@@ -169,7 +169,7 @@ namespace Rynex {
 				, Ref<UniformBuffer>(nullptr)
 				, std::vector<TextureTypes>{}
 				, std::vector<Ref<Texture>>{}
-				, DrawSpecification::RenderObject_Vertex_Array
+				, DrawSpecification::Transform_Vertex_Array
 				, m_DepthRenderMode
 			}
 		};
@@ -259,26 +259,26 @@ namespace Rynex {
 	std::vector<Ref<Texture>> DefaultMaterial::GetTextureForDraw()
 	{
 		RY_CORE_ASSERT(nullptr != m_LastPassPtr);
-		return m_LastPassPtr->texturesVec;
+		return m_LastPassPtr->m_TexturesVec;
 	}
 
 	const Ref<Shader>& DefaultMaterial::GetShaderForDraw()
 	{
 		RY_CORE_ASSERT(nullptr != m_LastPassPtr);
-		return m_LastPassPtr->shader;
+		return m_LastPassPtr->m_Shader;
 	}
 
 	DrawSpecification::BatchConfig DefaultMaterial::GetDrawSpecification()
 	{
 		RY_CORE_ASSERT(nullptr != m_LastPassPtr);
-		DrawSpecification::BatchConfig drawSpecification = m_LastPassPtr->drawSpecification;
+		DrawSpecification::BatchConfig drawSpecification = m_LastPassPtr->m_DrawSpecification;
 		return drawSpecification;
 	}
 
 	int DefaultMaterial::GetRenderMode()
 	{
 		RY_CORE_ASSERT(nullptr != m_LastPassPtr);
-		return m_LastPassPtr->renderMode;
+		return m_LastPassPtr->m_RenderMode;
 	}
 
 	int DefaultMaterial::GetLayoutIndex()
@@ -295,7 +295,7 @@ namespace Rynex {
 		if (index != -1)
 		{
 			const Pass& pass = m_PassesVec.at(index);
-			return pass.texturesVec;
+			return pass.m_TexturesVec;
 		}
 		RY_CORE_ASSERT(false);
 		std::vector<Ref<Texture>> vec;
@@ -308,7 +308,7 @@ namespace Rynex {
 		if (index != -1)
 		{
 			const Pass& pass = m_PassesVec.at(index);
-			return pass.shader;
+			return pass.m_Shader;
 		}
 		RY_CORE_ASSERT(false);
 		static Ref<Shader> shader = Ref<Shader>(nullptr);
@@ -321,7 +321,7 @@ namespace Rynex {
 		if (index != -1)
 		{
 			const Pass& pass = m_PassesVec.at(index);
-			return pass.drawSpecification;
+			return pass.m_DrawSpecification;
 		}
 		RY_CORE_ASSERT(false);
 		return DrawSpecification::None;
@@ -333,7 +333,7 @@ namespace Rynex {
 		if (index != -1)
 		{
 			const Pass& pass = m_PassesVec.at(index);
-			return pass.renderMode;
+			return pass.m_RenderMode;
 		}
 		RY_CORE_ASSERT(false);
 		return RenderMode::None;
@@ -343,7 +343,7 @@ namespace Rynex {
 	{
 		if (nullptr != m_LastPassPtr)
 		{
-			const Ref<Shader>& shader = m_LastPassPtr->shader;
+			const Ref<Shader>& shader = m_LastPassPtr->m_Shader;
 			if (nullptr != shader)
 			{
 				const BufferLayout& layoutOut = shader->GetOutPut();
@@ -359,7 +359,7 @@ namespace Rynex {
 		for (int i = 0; i < m_PassesVec.size(); i++)
 		{
 			const Pass& pass = m_PassesVec.at(i);
-			const Ref<Shader>& shader = pass.shader;
+			const Ref<Shader>& shader = pass.m_Shader;
 			if (nullptr == shader)
 				continue;
 

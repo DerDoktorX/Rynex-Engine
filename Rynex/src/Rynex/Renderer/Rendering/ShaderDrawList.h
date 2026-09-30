@@ -69,7 +69,7 @@ namespace Rynex {
 
 	struct BindingShaderLayoutDynamic
 	{
-		BindBufferContainer bindeBufferVec;
+		BindBufferContainer bindBufferVec;
 
 	};
 #endif

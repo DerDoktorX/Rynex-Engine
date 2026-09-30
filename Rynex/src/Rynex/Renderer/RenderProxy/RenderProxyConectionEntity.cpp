@@ -130,11 +130,11 @@ namespace Rynex {
 			{
 				subMeshIniciesVec.insert(itPos, IndexSubMesh{ proxyIndex, subMesh, renderProxyKey });
 
-				RY_CORE_INFO("Add Enity {} Submesh {} Index[{}]", entity, subMesh, proxyIndex);
+				RY_CORE_INFO("Add Entity {} Submesh {} Index[{}]", entity, subMesh, proxyIndex);
 			}
 			else
 			{
-				RY_CORE_WARN("Add Enity {} Submesh {} Index[{}] again skip", entity, subMesh, proxyIndex);
+				RY_CORE_WARN("Add Entity {} Submesh {} Index[{}] again skip", entity, subMesh, proxyIndex);
 			}
 		}
 
@@ -165,7 +165,7 @@ namespace Rynex {
 		}
 		else
 		{
-			RY_CORE_WARN(" Submesh {} From Entity {} tried to add again! Abourt Add and removed the new Proxy Again, and instand Trede it like a Update off all proxy Data", subMesh, entity);
+			RY_CORE_WARN(" Submesh {} From Entity {} tried to add again! abort Add and removed the new Proxy Again, and instanced Treed it like a Update off all proxy Data", subMesh, entity);
 			ItInsert it = Memory::GetSortedElementIteratorVector(subMeshIniciesVec, element, sortFunc);
 
 			uint32_t oldProxyIndex = it->proxyIndex;
@@ -202,7 +202,7 @@ namespace Rynex {
 		}
 		else
 		{
-			RY_CORE_WARN(" Submesh {} From Entity {} tried to add again! Abourt Add and removed the new Proxy Again, and instand Trede it like a Update off all proxy Data", subMesh, entity);
+			RY_CORE_WARN(" Submesh {} From Entity {} tried to add again! abort Add and removed the new Proxy Again, and instanced Treed it like a Update off all proxy Data", subMesh, entity);
 			ItInsert it = Memory::GetSortedElementIteratorVector(subMeshIniciesVec, element, sortFunc);
 
 			uint32_t oldProxyIndex = it->proxyIndex;
@@ -221,8 +221,8 @@ namespace Rynex {
 			for (const IndexSubMesh& subMeshInicies : subMeshIniciesVec)
 			{
 				RenderProxy& proxy = renderProxySortedProxyVec.AtProxy(subMeshInicies.renderProxyKey, subMeshInicies.proxyIndex);
-				RY_CORE_ASSERT(proxy.m_Entity == entity, "We update the whrong Enity in the Proxy!");
-				RY_CORE_ASSERT(proxy.m_SubMesh == subMeshInicies.subMesh, "We update the whrong SubMesh in the Proxy!");
+				RY_CORE_ASSERT(proxy.m_Entity == entity, "We update the wrong Entity in the Proxy!");
+				RY_CORE_ASSERT(proxy.m_SubMesh == subMeshInicies.subMesh, "We update the wrong SubMesh in the Proxy!");
 			}
 		}
 	}
@@ -234,8 +234,8 @@ namespace Rynex {
 			for (const IndexSubMesh& subMeshInicies : subMeshIniciesVec)
 			{
 				RenderProxy& proxy = renderProxySortedProxyVec.AtProxy(subMeshInicies.proxyIndex);
-				RY_CORE_ASSERT(proxy.m_Entity == entity, "We update the whrong Enity in the Proxy!");
-				RY_CORE_ASSERT(proxy.m_SubMesh == subMeshInicies.subMesh, "We update the whrong SubMesh in the Proxy!");
+				RY_CORE_ASSERT(proxy.m_Entity == entity, "We update the wrong Entity in the Proxy!");
+				RY_CORE_ASSERT(proxy.m_SubMesh == subMeshInicies.subMesh, "We update the wrong SubMesh in the Proxy!");
 			}
 		}
 	}
@@ -247,8 +247,8 @@ namespace Rynex {
 			for (const IndexSubMesh& subMeshInicies : subMeshIniciesVec)
 			{
 				RenderProxy& proxy = renderProxyMapProxyVec.AtProxy(subMeshInicies.renderProxyKey, subMeshInicies.proxyIndex);
-				RY_CORE_ASSERT(proxy.m_Entity == entity, "We update the whrong Enity in the Proxy!");
-				RY_CORE_ASSERT(proxy.m_SubMesh == subMeshInicies.subMesh, "We update the whrong SubMesh in the Proxy!");
+				RY_CORE_ASSERT(proxy.m_Entity == entity, "We update the wrong Entity in the Proxy!");
+				RY_CORE_ASSERT(proxy.m_SubMesh == subMeshInicies.subMesh, "We update the wrong SubMesh in the Proxy!");
 			}
 		}
 	}
@@ -374,7 +374,7 @@ namespace Rynex {
 				lowerBound = m + 1u;
 
 		}
-		RY_CORE_ERROR("Out side off bounderies (sub mesh Proxy Index) Not Found!");
+		RY_CORE_ERROR("Out side off boundaries (sub mesh Proxy Index) Not Found!");
 
 		return std::numeric_limits<uint32_t>::max();
 	}
@@ -413,7 +413,7 @@ namespace Rynex {
 				lowerBound = m + 1u;
 
 		}
-		RY_CORE_ERROR("Out side off bounderies (IndicesSubMesh Index) Not Found!");
+		RY_CORE_ERROR("Out side off boundaries (IndicesSubMesh Index) Not Found!");
 		return std::numeric_limits<uint32_t>::max();
 	}
 

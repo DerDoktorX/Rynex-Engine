@@ -147,7 +147,7 @@ namespace Rynex {
         }
 
 
-        m_ProxyDrawCallGenarterMain.SetRenderTargetLayoute(BufferLayout({
+        m_ProxyDrawCallGenarterMain.SetRenderTargetLayout(BufferLayout({
            { SDT::Float4, "Color" },
            { SDT::Int, "Entity" }
         }));
@@ -293,7 +293,7 @@ namespace Rynex {
         }
 
 
-        m_ProxyDrawCallGenarterCurent.SetRenderTargetLayoute(BufferLayout({}));
+        m_ProxyDrawCallGenarterCurent.SetRenderTargetLayout(BufferLayout({}));
 #if 1
         uint32_t drawIndex = 0;
         while (proxyIndex < proxyCount)
@@ -304,7 +304,7 @@ namespace Rynex {
 
             m_ProxyDrawCallGenarterCurent.NextDrawCall(proxy);
 
-            // Renderer::GetDrawContext().PushScope("Entitiy", proxyIndex);
+            // Renderer::GetDrawContext().PushScope("Entity", proxyIndex);
             m_ProxyDrawCallGenarterCurent.AddProxyData();
             // Renderer::GetDrawContext().PopScope();
 
@@ -313,7 +313,7 @@ namespace Rynex {
             while (CheckProxyFromIndex(proxyIndex, proxyCount, m_ProxyDrawCallGenarterCurent))
             {
                 RY_CORE_ASSERT(renderProxyKey == renderProxyVec.AtSortedProxy(proxyIndex).GetKey());
-                // Renderer::GetDrawContext().PushScope("Entitiy", proxyIndex);
+                // Renderer::GetDrawContext().PushScope("Entity", proxyIndex);
                 m_ProxyDrawCallGenarterCurent.AddProxyData();
                 // Renderer::GetDrawContext().PopScope();
 
@@ -598,8 +598,8 @@ namespace Rynex {
         Batch::Render3DMeshObject* batchDataPtr = batchedRenderObjectVAO.rendeObjectVec.data();
 
         BufferLayout layout = BufferLayout({
-            { SDT::Float4x4, "a_ModelMarix" },
-            { SDT::Float4x4, "a_NormleMatrix" },
+            { SDT::Float4x4, "a_ModelMatrix" },
+            { SDT::Float4x4, "a_NormaleMatrix" },
             { SDT::Int, "a_EntityID" },
             { SDT::Int3, "a_Empty" }
         }, instanceIndex);

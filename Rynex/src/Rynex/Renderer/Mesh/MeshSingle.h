@@ -34,7 +34,7 @@ namespace Rynex {
 
 		const std::string& GetName() const { return m_Name; }
 
-		bool IsViewFrustum(const glm::mat4& model, const glm::mat4& viewProjtion);
+		bool IsViewFrustum(const glm::mat4& model, const glm::mat4& viewProjection);
 		
 		const BoundingVolume& GetBoundingVolume() const { return m_Bounding; }
 		const AABB& GetAABB() const { return m_Bounding.GetAABB(); }

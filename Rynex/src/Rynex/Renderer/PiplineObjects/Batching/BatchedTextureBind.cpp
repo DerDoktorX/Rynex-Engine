@@ -35,13 +35,13 @@ namespace Rynex {
 
 	int TextureResourceBindRange::AddTexture(const std::vector<Ref<Texture>>& textureVec)
 	{
-		RY_CORE_ASSERT(textureVec.size() == m_TextureTypeVec.size(), "Error not expexted textureType!");
+		RY_CORE_ASSERT(textureVec.size() == m_TextureTypeVec.size(), "Error not expected textureType!");
 		int indexLast = -2;
 		int i = 0;
 		for (const Ref<Texture>& texture : textureVec)
 		{
 			int index = AddTexture(texture, i);
-			RY_CORE_ASSERT(index == indexLast || indexLast == -2, "The index types have difernzes in Count");
+			RY_CORE_ASSERT(index == indexLast || indexLast == -2, "The index types have differences in Count");
 			i++;
 		}
 		return indexLast;

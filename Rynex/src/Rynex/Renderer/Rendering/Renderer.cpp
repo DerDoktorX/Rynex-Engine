@@ -766,7 +766,7 @@ namespace Rynex {
 #else
 		renderPass.m_ProjectionMatrixUB = UniformBuffer::Create(
 			&packeg->m_ProjectionMatrix, sizeof(packeg->m_ProjectionMatrix)
-			, { {SDT::Float4x4, "ProjetionMatrix"} }
+			, { {SDT::Float4x4, "ProjectionMatrix"} }
 			, BufferFlag::Dynamic
 		);
 		renderPass.m_ViewMatrixUB = UniformBuffer::Create(
@@ -781,7 +781,7 @@ namespace Rynex {
 		);
 		renderPass.m_PositionUB = UniformBuffer::Create(
 			&packeg->m_Position, sizeof(packeg->m_Position)
-			, { {SDT::Float4, "Postion"} }
+			, { {SDT::Float4, "Position"} }
 			, BufferFlag::Dynamic
 		);
 		renderPass.m_DirectionUB = UniformBuffer::Create(
@@ -794,9 +794,9 @@ namespace Rynex {
 			packeg, sizeof(CameraPackege)
 			, {
 				{ SDT::Float4x4,	"ViewMatrix" },
-				{ SDT::Float4x4,	"ProjetionMatrix" },
+				{ SDT::Float4x4,	"ProjectionMatrix" },
 				{ SDT::Float4x4,	"ViewProjectionMatrix" },
-				{ SDT::Float4,		"Postion" },
+				{ SDT::Float4,		"Position" },
 				{ SDT::Float4,		"Direction" }
 			}, BufferFlag::Dynamic
 		);

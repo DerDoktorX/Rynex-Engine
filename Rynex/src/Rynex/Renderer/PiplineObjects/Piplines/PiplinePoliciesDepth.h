@@ -28,10 +28,10 @@ namespace Rynex {
                 constexpr bool normilze = false;
                 constexpr uint32_t countElements = 0u;
                 BufferLayout layout({
-                    BufferElement( SDT::Float4, "a_ModelMarix[0]", aktive, countElements, normilze ),
-                    BufferElement( SDT::Float4, "a_ModelMarix[1]", aktive, countElements, normilze ),
-                    BufferElement( SDT::Float4, "a_ModelMarix[2]", aktive, countElements, normilze ),
-                    BufferElement( SDT::Float4, "a_ModelMarix[3]", aktive, countElements, normilze )
+                    BufferElement( SDT::Float4, "a_ModelMatrix[0]", aktive, countElements, normilze ),
+                    BufferElement( SDT::Float4, "a_ModelMatrix[1]", aktive, countElements, normilze ),
+                    BufferElement( SDT::Float4, "a_ModelMatrix[2]", aktive, countElements, normilze ),
+                    BufferElement( SDT::Float4, "a_ModelMatrix[3]", aktive, countElements, normilze )
                 }, instanceAddIndex);
                 // layout.SetAutoCompress(true);
                 return layout;

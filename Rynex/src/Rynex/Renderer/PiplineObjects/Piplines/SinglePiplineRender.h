@@ -11,20 +11,20 @@ namespace Rynex {
 			State_MaxEntityRender = 1,
 			State_MaxNotUpdateDraws = 100,
 
-			TextureBinding_Abldoe = 0,
+			TextureBinding_Albedo = 0,
 			TextureBinding_Shadow = 1,
 
 
 			UniformBinding_RenderObject = 0,
-			UniformBinding_MainCamer = 1,
-			UniformBinding_LigthCamera = 2,
+			UniformBinding_MainCamera = 1,
+			UniformBinding_LightCamera = 2,
 			UniformBinding_Materiel = 3
 		};
 		struct RenderObject
 		{
 			glm::mat4 m_ModelMatrix;
 			glm::mat4 m_NormalMatrix;
-			int m_EnitityID;
+			int m_EntityID;
 			int m_Empty[3] = { -10, -11, -12 };
 		};
 
@@ -45,9 +45,9 @@ namespace Rynex {
 			{
 				m_EntityID = entityID;
 				
-				glm::mat4 modelInverse = glm::inverse(modelMatrix);
-				glm::mat4 modelTranspose = glm::transpose(modelInverse);
-				m_Object.m_EnitityID = m_EntityID;
+				const glm::mat4 modelInverse = glm::inverse(modelMatrix);
+				const glm::mat4 modelTranspose = glm::transpose(modelInverse);
+				m_Object.m_EntityID = m_EntityID;
 				m_Object.m_ModelMatrix = modelMatrix;
 				m_Object.m_NormalMatrix = modelTranspose;
 				m_Update = true;
@@ -64,7 +64,7 @@ namespace Rynex {
 
 					m_EntityID = entityID;
 					m_Object.m_ModelMatrix = modelMatrix;
-					m_Object.m_EnitityID = m_EntityID;
+					m_Object.m_EntityID = m_EntityID;
 				
 					m_Object.m_NormalMatrix = modelTranspose;
 					m_Update = true;
@@ -83,8 +83,8 @@ namespace Rynex {
 
 			bool operator==(const RenderObjectState& renderObject) const
 			{
-				bool resultEntt = this->m_EntityID == renderObject.m_EntityID;
-				bool resultModel = this->m_Object.m_ModelMatrix == renderObject.m_Object.m_ModelMatrix;
+				const bool resultEntt = this->m_EntityID == renderObject.m_EntityID;
+				const bool resultModel = this->m_Object.m_ModelMatrix == renderObject.m_Object.m_ModelMatrix;
 				return resultEntt && resultModel;
 			}
 
@@ -112,8 +112,8 @@ namespace Rynex {
 
 		
 
-		virtual void SetCameraUniformBuffer(Ref<UniformBuffer> camerbuffer) override;
-		virtual void SetDisplayUniformBuffer(Ref<UniformBuffer> dispalaybuffer) override;
+		virtual void SetCameraUniformBuffer(Ref<UniformBuffer> cameraBuffer) override;
+		virtual void SetDisplayUniformBuffer(Ref<UniformBuffer> displayBuffer) override;
 
 		virtual void SubmitRenderObject(const glm::mat4& model, uint32_t& storeIndex, int entityID) override;
 		virtual PiplineResultState SubmitEntityMeshObject(const SingleMeshObject& singleMesh, const Ref<Shader>& shader
@@ -153,8 +153,8 @@ namespace Rynex {
 		virtual Ref<PiplineRenderBase> Copy() const override { return CreateRef<SingleMeshPiplineRenderShade>(*this); }
 
 	private:
-		int CheckSubmiteMeshObject(const Ref<Shader>& shader, const SingleMeshObject& singleMesh);
-		void SubmiteResources(const Ref<Shader>& shader, const SingleMeshObject& singleMesh);
+		int CheckSubmitMeshObject(const Ref<Shader>& shader, const SingleMeshObject& singleMesh);
+		void SubmitResources(const Ref<Shader>& shader, const SingleMeshObject& singleMesh);
 
 		template<typename T>
 		static void CheckObject(Ref<T>& a, const Ref<T>& b, int& result, int notVaildState, int noSpaceLeft = 0)
@@ -173,17 +173,17 @@ namespace Rynex {
 	private:
 		Ref<Shader> m_Shader;
 		Ref<UniformBuffer> m_CameraBuffer;
-		Ref<UniformBuffer> m_LigthBuffer;
+		Ref<UniformBuffer> m_LightBuffer;
 		Ref<UniformBuffer> m_ModelBuffer;
 		Ref<UniformBuffer> m_MaterielBuffer;
 
-		Ref<Texture> m_AlbdeoTex;
+		Ref<Texture> m_AlbedoTex;
 		Ref<Texture> m_ShadowTex;
 		Ref<VertexArray> m_VertexArray;
 
 		RenderObjectState m_RenderObject;
 		SingleMeshObject m_SingleMeshObject;
-		uint32_t m_InstencCount;
+		uint32_t m_InstanceCount;
 		uint32_t m_DrawsAfterLastUpdate;
 		PiplineManagingState m_ManagingMode;
 		int m_RenderMode;
@@ -197,12 +197,12 @@ namespace Rynex {
 			State_MaxEntityRender = 1,
 			State_MaxNotUpdateDraws = 100,
 
-			TextureBinding_Abldoe = 0,
+			TextureBinding_Albedo = 0,
 			TextureBinding_Shadow = 1,
 
 
 			UniformBinding_RenderObject = 0,
-			UniformBinding_LigthCamera = 1,
+			UniformBinding_LightCamera = 1,
 		};
 		struct RenderObject
 		{
@@ -238,8 +238,8 @@ namespace Rynex {
 			{
 				if (entityID != EntityID || modelMatrix != Object.ModelMatrix)
 				{
-					glm::mat4 modelInverse = glm::inverse(modelMatrix);
-					glm::mat4 modelTranspose = glm::transpose(modelInverse);
+					const glm::mat4 modelInverse = glm::inverse(modelMatrix);
+					const glm::mat4 modelTranspose = glm::transpose(modelInverse);
 
 					EntityID = entityID;
 					Object.ModelMatrix = modelMatrix;
@@ -260,8 +260,8 @@ namespace Rynex {
 
 			bool operator==(const RenderObjectState& renderObject) const
 			{
-				bool resultEntt = this->EntityID == renderObject.EntityID;
-				bool resultModel = this->Object.ModelMatrix == renderObject.Object.ModelMatrix;
+				const bool resultEntt = this->EntityID == renderObject.EntityID;
+				const bool resultModel = this->Object.ModelMatrix == renderObject.Object.ModelMatrix;
 				return resultEntt && resultModel;
 			}
 
@@ -328,8 +328,8 @@ namespace Rynex {
 
 		virtual Ref<PiplineRenderBase> Copy() const override { return CreateRef<SingleMeshPiplineRenderDepth>(*this); }
 	private:
-		int CheckSubmiteMeshObject(const Ref<Shader>& shader, const SingleMeshObject& singleMesh);
-		void SubmiteResources(const Ref<Shader>& shader, const SingleMeshObject& singleMesh);
+		int CheckSubmitMeshObject(const Ref<Shader>& shader, const SingleMeshObject& singleMesh);
+		void SubmitResources(const Ref<Shader>& shader, const SingleMeshObject& singleMesh);
 
 		template<typename T>
 		static void CheckObject(Ref<T>& a, const Ref<T>& b, int& result, int notVaildState, int noSpaceLeft = 0)
@@ -346,13 +346,13 @@ namespace Rynex {
 		void UnbindResources();
 	private:
 		Ref<Shader> m_Shader;
-		Ref<UniformBuffer> m_LigthBuffer;
+		Ref<UniformBuffer> m_LightBuffer;
 		Ref<UniformBuffer> m_ModelBuffer;
 
 		Ref<VertexArray> m_VertexArray;
 		RenderObjectState m_RenderObject;
 		SingleMeshObject m_SingleMeshObject;
-		uint32_t m_InstencCount;
+		uint32_t m_InstanceCount;
 		uint32_t m_DrawsAfterLastUpdate;
 		PiplineManagingState m_ManagingMode;
 		int m_RenderMode;

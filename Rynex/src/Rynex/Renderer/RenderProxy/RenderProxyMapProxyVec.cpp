@@ -91,7 +91,7 @@ namespace Rynex {
     {
         RY_CORE_ASSERT(IsValid(stableIndex), "Buffer Overflow!");
         uint32_t proxyIndex = m_ProxyInidicesVec.at(stableIndex);
-        RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() != proxyIndex, "Proxy Store Index is Not Vaild!");
+        RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() != proxyIndex, "Proxy Store Index is Not Valid!");
         return proxyIndex;
     }
 
@@ -114,7 +114,7 @@ namespace Rynex {
         {
             proxyIndex = GetIndexFromFreeList();
             uint32_t& indexProxy = m_ProxyInidicesVec.at(proxyIndex);
-            RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() == indexProxy, "The Stored Value is Vaild!");
+            RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() == indexProxy, "The Stored Value is Valid!");
             indexProxy = proxyAccesIndexInsert;
         }
 #ifdef RY_TEST_CHECK_FOR_IDENTY
@@ -129,7 +129,7 @@ namespace Rynex {
             for (uint32_t y = x + 1; y < count; y++)
             {
                 uint32_t proxyAceesY = m_ProxyInidicesVec.at(y);
-                RY_CORE_ASSERT(proxyAceesX != proxyAceesY, "All proxy Indicies need to be unique, means only one time present!");
+                RY_CORE_ASSERT(proxyAceesX != proxyAceesY, "All proxy Indices need to be unique, means only one time present!");
             }
         }
         RY_REMBER_FUNC_CHANGE("Remove the test if not longer needed!");
@@ -140,14 +140,14 @@ namespace Rynex {
     uint32_t RenderProxyGroup::RemoveProxyIndex(uint32_t proxyAccesIndexRemove)
     {
 
-        uint32_t removeProxyIndex = m_ProxyInidicesVec.at(proxyAccesIndexRemove);
+        const uint32_t removeProxyIndex = m_ProxyInidicesVec.at(proxyAccesIndexRemove);
         m_ProxyInidicesVec.at(proxyAccesIndexRemove) = std::numeric_limits<uint32_t>::max();
 
         AddFreeList(proxyAccesIndexRemove);
         constexpr uint32_t maxFreeListSize = 150u;
         if (maxFreeListSize < m_FreeListVec.size())
         {
-            RY_CORE_WARN("We have large holes in ProxyIndicesVec! {} removed elments!", m_FreeListVec.size());
+            RY_CORE_WARN("We have large holes in ProxyIndicesVec! {} removed elements!", m_FreeListVec.size());
         }
 
         for (uint32_t& proxyAccesIndex : m_ProxyInidicesVec)
@@ -170,7 +170,7 @@ namespace Rynex {
             for (uint32_t y = x + 1; y < count; y++)
             {
                 uint32_t proxyAceesY = m_ProxyInidicesVec.at(y);
-                RY_CORE_ASSERT(proxyAceesX != proxyAceesY, "All proxy Indicies need to be unique, means only one time present!");
+                RY_CORE_ASSERT(proxyAceesX != proxyAceesY, "All proxy Indices need to be unique, means only one time present!");
             }
         }
         RY_REMBER_FUNC_CHANGE("Remove the test if not longer needed!");
@@ -230,7 +230,7 @@ namespace Rynex {
     void RenderProxyMapProxyVec::Remove(uint32_t proxyIndex, RenderProxyKey renderProxyKey)
     {
         Iterator it = m_GroupMap.find(renderProxyKey);
-        RY_CORE_ASSERT(it != m_GroupMap.end(), "Keine Gruppe für diesen Key gefunden!");
+        RY_CORE_ASSERT(it != m_GroupMap.end(), "No group for this Key found!");
 
         it->second.Remove(proxyIndex);
 
@@ -261,14 +261,14 @@ namespace Rynex {
     RenderProxy& RenderProxyMapProxyVec::AtProxy(RenderProxyKey renderProxyKey, uint32_t proxyIndex)
     {
         Iterator it = m_GroupMap.find(renderProxyKey);
-        RY_CORE_ASSERT(it != m_GroupMap.end(), "Proxy Store Key is Not Vaild!");
+        RY_CORE_ASSERT(it != m_GroupMap.end(), "Proxy Store Key is Not Valid!");
         return it->second.AtProxy(proxyIndex);
     }
 
     const RenderProxy& RenderProxyMapProxyVec::AtProxy(RenderProxyKey renderProxyKey, uint32_t proxyIndex) const
     {
         ConstIterator it = m_GroupMap.find(renderProxyKey);
-        RY_CORE_ASSERT(it != m_GroupMap.end(), "Proxy Store Key is Not Vaild!");
+        RY_CORE_ASSERT(it != m_GroupMap.end(), "Proxy Store Key is Not Valid!");
         return it->second.AtProxy(proxyIndex);
     }
 
@@ -284,7 +284,7 @@ namespace Rynex {
     const RenderProxy& RenderProxyMapProxyVec::AtSortedProxy(RenderProxyKey renderProxyKey, uint32_t proxyIndex) const
     {
         ConstIterator it = m_GroupMap.find(renderProxyKey);
-        RY_CORE_ASSERT(it != m_GroupMap.end(), "Proxy Store Key is Not Vaild!");
+        RY_CORE_ASSERT(it != m_GroupMap.end(), "Proxy Store Key is Not Valid!");
         return it->second.AtSortedProxy(proxyIndex);
     }
    
@@ -315,7 +315,7 @@ namespace Rynex {
                     return { key, i };
             }
         }
-        RY_CORE_ERROR("Not found Proxy! Enity: ({}) / SubMesh: ({})", entity, subMesh);
+        RY_CORE_ERROR("Not found Proxy! Entity: ({}) / SubMesh: ({})", entity, subMesh);
         return { RenderProxyKey{0}, std::numeric_limits<uint32_t>::max() };
     }
 

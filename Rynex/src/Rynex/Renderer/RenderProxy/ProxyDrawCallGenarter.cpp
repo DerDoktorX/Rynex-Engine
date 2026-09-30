@@ -24,7 +24,7 @@ namespace Rynex {
 		
 	}
 
-	void ProxyDrawCallGenarter::SetRenderTargetLayoute(const BufferLayout& layout)
+	void ProxyDrawCallGenarter::SetRenderTargetLayout(const BufferLayout& layout)
 	{
 		m_RenderTragetLayoute = layout;
 	}
@@ -170,7 +170,7 @@ namespace Rynex {
 		if (nullptr == m_CurentDrawCall.m_ShaderProgram || (nullptr == m_CurentDrawCall.m_VAO && 0u == m_CurentDrawCall.m_IndicesCount && nullptr == m_CurentDrawCall.m_DrawBuffer &&
 				(0u == m_CurentDrawCall.m_DrawElement.m_InstanceCount || 0u == m_CurentDrawCall.m_DrawElement.m_Count || -1 == m_CurentDrawCall.m_DrawElement.m_BaseVertex)))
 		{
-			RY_CORE_ERROR("m_CurentDrawCall has some critel reource not set!");
+			RY_CORE_ERROR("m_CurrentDrawCall has some write resource not set!");
 			return;
 		}
 		UplodeArrayDataBufferGPU();
@@ -199,7 +199,7 @@ namespace Rynex {
 		if (!s_UseDyamincDatatStruct)
 			return;
 
-		std::vector<RenderProxyDynamicEllmenenttData>& renderProxyDynamicDataTypeVec = m_BatchRenderObjectVAOPtr->renderProxyDynamicDataTypeVec;
+		std::vector<RenderProxyDynamicElenenttData>& renderProxyDynamicDataTypeVec = m_BatchRenderObjectVAOPtr->renderProxyDynamicDataTypeVec;
 		Memory::DynamicDataStruct& dynamicDataStruct = m_BatchRenderObjectVAOPtr->rendeObjectDynamicElementStruct;
 
 	
@@ -214,7 +214,7 @@ namespace Rynex {
 			if (renderProxyDynamicDataTypeVec.size() <= 1)
 			{
 				renderProxyDynamicDataTypeVec.resize(1);
-				renderProxyDynamicDataTypeVec.at(0) = RenderProxyDynamicEllmenenttData::TransformMatrix;
+				renderProxyDynamicDataTypeVec.at(0) = RenderProxyDynamicElenenttData::TransformMatrix;
 			}
 		}
 		else
@@ -232,9 +232,9 @@ namespace Rynex {
 			{
 				renderProxyDynamicDataTypeVec.resize(maxCount);
 
-				renderProxyDynamicDataTypeVec.at(0) = RenderProxyDynamicEllmenenttData::TransformMatrix;
-				renderProxyDynamicDataTypeVec.at(1) = RenderProxyDynamicEllmenenttData::NormaleMatrix;
-				renderProxyDynamicDataTypeVec.at(2) = RenderProxyDynamicEllmenenttData::EntityID;
+				renderProxyDynamicDataTypeVec.at(0) = RenderProxyDynamicElenenttData::TransformMatrix;
+				renderProxyDynamicDataTypeVec.at(1) = RenderProxyDynamicElenenttData::NormaleMatrix;
+				renderProxyDynamicDataTypeVec.at(2) = RenderProxyDynamicElenenttData::EntityID;
 			}
 		}
 	}
@@ -335,28 +335,29 @@ namespace Rynex {
 			return;
 		}
 #else
-		const glm::mat4& transfromMatrix = m_ProxyPtr->m_Model;
+
+		const glm::mat4& transformMatrix = m_ProxyPtr->m_Model;
 		if (m_RenderTragetLayoute.Empty())
 		{
 			Batch::Render3DMeshObject batchedRenderObjectVAO = Batch::Render3DMeshObject{
-				transfromMatrix 
+				transformMatrix
 			};
 			m_BatchRenderObjectVAOPtr->AddRenderObject(batchedRenderObjectVAO);
 			return;
 		}
-		glm::mat4 normaleMatrix = glm::inverse(glm::transpose(transfromMatrix));
+		glm::mat4 normaleMatrix = glm::inverse(glm::transpose(transformMatrix));
 #endif
 		Batch::Render3DMeshObject batchedRenderObjectVAO = Batch::Render3DMeshObject{
-			transfromMatrix, normaleMatrix,
+			transformMatrix, normaleMatrix,
 			glm::vec4{ entityID, -10, -11, -12 }
 		};
 		m_BatchRenderObjectVAOPtr->AddRenderObject(batchedRenderObjectVAO);
 	}
 
 #ifdef RY_OPENGL_USE_ARRAY_BUFFER
-	void ProxyDrawCallGenarter::UplodedeVertexBufferFromContainer(Ref<VertexBuffer>& vertexBuffer, const BufferLayout& layoute, BufferDataUsage usage, const uint8_t* dataPtr, uint64_t bytesSize)
+	void ProxyDrawCallGenarter::UplodedeVertexBufferFromContainer(Ref<VertexBuffer>& vertexBuffer, const BufferLayout& layout, BufferDataUsage usage, const uint8_t* dataPtr, uint64_t bytesSize)
 #else
-	void ProxyDrawCallGenarter::UplodedeVertexBufferFromContainer(Ref<VertexBuffer>& vertexBuffer, const BufferLayout& layoute, BufferFlagGPU flag, const uint8_t* dataPtr, uint64_t bytesSize)
+	void ProxyDrawCallGenarter::UplodedeVertexBufferFromContainer(Ref<VertexBuffer>& vertexBuffer, const BufferLayout& layout, BufferFlagGPU flag, const uint8_t* dataPtr, uint64_t bytesSize)
 
 #endif
 	{
@@ -365,11 +366,11 @@ namespace Rynex {
 		if (nullptr == vertexBuffer)
 		{
 #ifdef RY_OPENGL_USE_ARRAY_BUFFER
-			vertexBuffer = VertexBuffer::Create(dataPtr, bytesSize, usage, layoute);
+			vertexBuffer = VertexBuffer::Create(dataPtr, bytesSize, usage, layout);
 #else
-			vertexBuffer = VertexBuffer::Create(dataPtr, bytesSize, flag, layoute);
+			vertexBuffer = VertexBuffer::Create(dataPtr, bytesSize, flag, layout);
 #endif
-			m_CurentDrawCall.m_VAO->AddVertexBuffer(vertexBuffer, layoute);
+			m_CurentDrawCall.m_VAO->AddVertexBuffer(vertexBuffer, layout);
 		}
 		else
 		{
@@ -407,17 +408,17 @@ namespace Rynex {
 	}
 
 #ifdef RY_OPENGL_OLD_UNIFORM
-	void ProxyDrawCallGenarter::UplodedeUniformBufferFromContainer(Ref<UniformBuffer>& uniformBuffer, const BufferLayout& layoute, BufferDataUsage usage, const uint8_t* dataPtr, uint64_t bytesSize)
+	void ProxyDrawCallGenarter::UplodedeUniformBufferFromContainer(Ref<UniformBuffer>& uniformBuffer, const BufferLayout& layout, BufferDataUsage usage, const uint8_t* dataPtr, uint64_t bytesSize)
 #else
-	void ProxyDrawCallGenarter::UplodedeUniformBufferFromContainer(Ref<UniformBuffer>& uniformBuffer, const BufferLayout& layoute, BufferFlagGPU flag, const uint8_t* dataPtr, uint64_t bytesSize)
+	void ProxyDrawCallGenarter::UplodedeUniformBufferFromContainer(Ref<UniformBuffer>& uniformBuffer, const BufferLayout& layout, BufferFlagGPU flag, const uint8_t* dataPtr, uint64_t bytesSize)
 #endif
 	{
 		if (nullptr == uniformBuffer)
 		{
 #ifdef RY_OPENGL_OLD_UNIFORM
-			uniformBuffer = UniformBuffer::Create(dataPtr, bytesSize, layoute, usage);
+			uniformBuffer = UniformBuffer::Create(dataPtr, bytesSize, layout, usage);
 #else
-			uniformBuffer = UniformBuffer::Create(dataPtr, bytesSize, layoute, flag);
+			uniformBuffer = UniformBuffer::Create(dataPtr, bytesSize, layout, flag);
 #endif
 
 
@@ -428,9 +429,9 @@ namespace Rynex {
 			if (bufferByteSize < bytesSize)
 			{
 #ifdef RY_OPENGL_OLD_UNIFORM
-				uniformBuffer = UniformBuffer::Create(dataPtr, bytesSize, layoute, usage);
+				uniformBuffer = UniformBuffer::Create(dataPtr, bytesSize, layout, usage);
 #else
-				uniformBuffer = UniformBuffer::Create(dataPtr, bytesSize, layoute, flag);
+				uniformBuffer = UniformBuffer::Create(dataPtr, bytesSize, layout, flag);
 #endif
 
 			}
@@ -473,7 +474,7 @@ namespace Rynex {
 		constexpr uint32_t maxCount = 1;
 
 		Renderer::ForEchStoredPassedRenderPass(
-			[&](const RenderPass& renderPass)
+			[&](const RenderPass& renderPass)->void
 			{
 				if(maxCount <= foundCount)
 					return;
@@ -575,107 +576,107 @@ namespace Rynex {
 		
 	}
 
-	void ProxyDrawCallGenarter::SetArrayDataFromProxy(const RenderProxyDynamicEllmenenttData& dynamicElementData, Memory::DynamicDataStruct& dynamicData, uint64_t elementIndex, uint32_t arrayIndex)
+	void ProxyDrawCallGenarter::SetArrayDataFromProxy(const RenderProxyDynamicElenenttData& dynamicElementData, Memory::DynamicDataStruct& dynamicData, uint64_t elementIndex, uint32_t arrayIndex)
 	{
 		switch (dynamicElementData)
 		{
-		case RenderProxyDynamicEllmenenttData::None:
+		case RenderProxyDynamicElenenttData::None:
 			break;
 
-		case RenderProxyDynamicEllmenenttData::EntityID:
+		case RenderProxyDynamicElenenttData::EntityID:
 		{
 			RY_CORE_ASSERT(nullptr != m_ProxyPtr, "not set ptr");
 			const int& entityID = m_ProxyPtr->m_Entity;
 			dynamicData.Set<int>(elementIndex, arrayIndex, entityID);
 			break;
 		}
-		case RenderProxyDynamicEllmenenttData::TransformMatrix:
+		case RenderProxyDynamicElenenttData::TransformMatrix:
 		{
 #ifdef RY_USE_SINGLE_DATA_STRUCTS_FOR_DATA
 			RY_CORE_ASSERT(nullptr != m_ModelMatrixPtr, "not set ptr");
 			const glm::mat4& transfromMatrix = *m_ModelMatrixPtr;
 #else
-			const glm::mat4& transfromMatrix = m_ProxyPtr->m_Model;
+			const glm::mat4& transformMatrix = m_ProxyPtr->m_Model;
 #endif
-			dynamicData.Set<glm::mat4>(elementIndex, arrayIndex, transfromMatrix);
+			dynamicData.Set<glm::mat4>(elementIndex, arrayIndex, transformMatrix);
 			break;
 		}
-		case RenderProxyDynamicEllmenenttData::NormaleMatrix:
+		case RenderProxyDynamicElenenttData::NormaleMatrix:
 		{
 #ifdef RY_USE_SINGLE_DATA_STRUCTS_FOR_DATA
 			RY_CORE_ASSERT(nullptr != m_NormaleMatrixPtr, "not set ptr");
 			const glm::mat4& normaleMatrix = *m_NormaleMatrixPtr;
 #else
-			const glm::mat4& transfromMatrix = m_ProxyPtr->m_Model;
-			glm::mat4 normaleMatrix = glm::inverse(glm::transpose(transfromMatrix));
+			const glm::mat4& transformMatrix = m_ProxyPtr->m_Model;
+			const glm::mat4 normaleMatrix = glm::inverse(glm::transpose(transformMatrix));
 #endif
 			dynamicData.Set<glm::mat4>(elementIndex, arrayIndex, normaleMatrix);
 			break;
 		}
-		case RenderProxyDynamicEllmenenttData::Empty_Int_1:
-		case RenderProxyDynamicEllmenenttData::Empty_Uint_1:
+		case RenderProxyDynamicElenenttData::Empty_Int_1:
+		case RenderProxyDynamicElenenttData::Empty_Uint_1:
 		{
-			int empty0 = -10;
+            constexpr int empty0 = -10;
 			dynamicData.Set<int>(elementIndex, arrayIndex, empty0);
 			break;
 		}
-		case RenderProxyDynamicEllmenenttData::Empty_Int_2:
-		case RenderProxyDynamicEllmenenttData::Empty_Uint_2:
+		case RenderProxyDynamicElenenttData::Empty_Int_2:
+		case RenderProxyDynamicElenenttData::Empty_Uint_2:
 		{
-			glm::ivec2 empty1 = { -10, -11 };
+			constexpr glm::ivec2 empty1 = { -10, -11 };
 			dynamicData.Set<glm::ivec2>(elementIndex, arrayIndex, empty1);
 			break;
 		}
-		case RenderProxyDynamicEllmenenttData::Empty_Int_3:
-		case RenderProxyDynamicEllmenenttData::Empty_Uint_3:
+		case RenderProxyDynamicElenenttData::Empty_Int_3:
+		case RenderProxyDynamicElenenttData::Empty_Uint_3:
 		{
-			glm::ivec3 empty2 = { -10, -11, -12 };
+			constexpr glm::ivec3 empty2 = { -10, -11, -12 };
 			dynamicData.Set<glm::ivec3>(elementIndex, arrayIndex, empty2);
 			break;
 		}
 
-		case RenderProxyDynamicEllmenenttData::Empty_Int_4:
-		case RenderProxyDynamicEllmenenttData::Empty_Uint_4:
+		case RenderProxyDynamicElenenttData::Empty_Int_4:
+		case RenderProxyDynamicElenenttData::Empty_Uint_4:
 		{
-			glm::ivec4 empty3 = { -10, -11, -12, -13 };
+			constexpr glm::ivec4 empty3 = { -10, -11, -12, -13 };
 			dynamicData.Set<glm::ivec4>(elementIndex, arrayIndex, empty3);
 			break;
 		}
 
-		case RenderProxyDynamicEllmenenttData::Empty_Float_1:
+		case RenderProxyDynamicElenenttData::Empty_Float_1:
 		{
-			float empty0 = -10.0f;
+			constexpr float empty0 = -10.0f;
 			dynamicData.Set<float>(elementIndex, arrayIndex, empty0);
 			break;
 		}
-		case RenderProxyDynamicEllmenenttData::Empty_Float_2:
+		case RenderProxyDynamicElenenttData::Empty_Float_2:
 		{
-			glm::vec2 empty1 = { -10.0f, -11.0f };
+			constexpr glm::vec2 empty1 = { -10.0f, -11.0f };
 			dynamicData.Set<glm::vec2>(elementIndex, arrayIndex, empty1);
 			break;
 		}
-		case RenderProxyDynamicEllmenenttData::Empty_Float_3:
+		case RenderProxyDynamicElenenttData::Empty_Float_3:
 		{
-			glm::vec3 empty2 = { -10.0f, -11.0f, -12.0f };
+			constexpr glm::vec3 empty2 = { -10.0f, -11.0f, -12.0f };
 			dynamicData.Set<glm::vec3>(elementIndex, arrayIndex, empty2);
 			break;
 		}
-		case RenderProxyDynamicEllmenenttData::Empty_Float_4:
+		case RenderProxyDynamicElenenttData::Empty_Float_4:
 		{
-			glm::vec4 empty3 = { -10.0f, -11.0f, -12.0f,- 13.0f };
+			constexpr glm::vec4 empty3 = { -10.0f, -11.0f, -12.0f,- 13.0f };
 			dynamicData.Set<glm::vec4>(elementIndex, arrayIndex, empty3);
 			break;
 		}
 
-		case RenderProxyDynamicEllmenenttData::Texture_0_Index:
-		case RenderProxyDynamicEllmenenttData::Texture_1_Index:
-		case RenderProxyDynamicEllmenenttData::Texture_2_Index:
-		case RenderProxyDynamicEllmenenttData::Texture_3_Index:
-		case RenderProxyDynamicEllmenenttData::Texture_4_Index:
-		case RenderProxyDynamicEllmenenttData::Texture_5_Index:
-		case RenderProxyDynamicEllmenenttData::Texture_6_Index:
-		case RenderProxyDynamicEllmenenttData::Texture_7_Index:
-		case RenderProxyDynamicEllmenenttData::MaterilIndex:
+		case RenderProxyDynamicElenenttData::Texture_0_Index:
+		case RenderProxyDynamicElenenttData::Texture_1_Index:
+		case RenderProxyDynamicElenenttData::Texture_2_Index:
+		case RenderProxyDynamicElenenttData::Texture_3_Index:
+		case RenderProxyDynamicElenenttData::Texture_4_Index:
+		case RenderProxyDynamicElenenttData::Texture_5_Index:
+		case RenderProxyDynamicElenenttData::Texture_6_Index:
+		case RenderProxyDynamicElenenttData::Texture_7_Index:
+		case RenderProxyDynamicElenenttData::MaterielIndex:
 		{
 			RY_CORE_FATAL("not defined behavior for enum: {}.", magic_enum::enum_name(dynamicElementData));
 		}
@@ -691,11 +692,11 @@ namespace Rynex {
 	void ProxyDrawCallGenarter::AddDataArray(uint32_t indexVec, Memory::DynamicDataStruct& dynamicData, uint32_t curentIndex)
 	{
 		RY_CORE_ASSERT(nullptr != m_ProxyPtr);
-		uint64_t elementCount = dynamicData.LayoutElementCount();
+		const uint64_t elementCount = dynamicData.LayoutElementCount();
 
 		if (dynamicData.Size() <= curentIndex)
 		{
-			uint64_t resizeSize = curentIndex + 1ull;
+			const uint64_t resizeSize = curentIndex + 1ull;
 			dynamicData.Resize(resizeSize);
 		}
 
@@ -703,7 +704,7 @@ namespace Rynex {
 
 		for(uint64_t i = 0ull; i < elementCount; i++)
 		{
-			const RenderProxyDynamicEllmenenttData& renderProxyDynamicTypeData = m_BatchRenderObjectVAOPtr->renderProxyDynamicDataTypeVec.at(i);
+			const RenderProxyDynamicElenenttData& renderProxyDynamicTypeData = m_BatchRenderObjectVAOPtr->renderProxyDynamicDataTypeVec.at(i);
 			SetArrayDataFromProxy(renderProxyDynamicTypeData, dynamicData, i, curentIndex);
 		}
 		
@@ -732,8 +733,8 @@ namespace Rynex {
 	bool ProxyDrawCallGenarter::CheckMaterielConfigs(const RenderMeshBatch& meshBatch)
 	{
 		constexpr int levelLOD = 0;
-		const Ref<Material>& materiel = meshBatch.materiel;
-		const Ref<MeshSingle>& mesh = meshBatch.mesh;
+		const Ref<Material>& materiel = meshBatch.m_Materiel;
+		const Ref<MeshSingle>& mesh = meshBatch.m_Mesh;
 		DrawSpecification::BatchConfig darwSpec = materiel->GetDrawSpecification(m_RenderTragetLayoute, levelLOD);
 		Batch3DKey batch3DKey = Batch3DKey(materiel, mesh, m_RenderTragetLayoute, levelLOD);
 		bool result = batch3DKey == m_Batch3DKey;

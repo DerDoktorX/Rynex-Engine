@@ -9,23 +9,23 @@ namespace Rynex{
 	using RenderProxyKey = uint64_t;
 	struct RenderMeshBatch
 	{
-		Ref<MeshSingle> mesh = nullptr;
-		Ref<Material> materiel = nullptr;
+		Ref<MeshSingle> m_Mesh = nullptr;
+		Ref<Material> m_Materiel = nullptr;
 
 		void Check() const
 		{
-			RY_CORE_ASSERT(nullptr != mesh, "Invaild Proxy Mesh!");
-			RY_CORE_ASSERT(nullptr != materiel, "Invaild Proxy Mesh!");
+			RY_CORE_ASSERT(nullptr != m_Mesh, "Invalid Proxy Mesh!");
+			RY_CORE_ASSERT(nullptr != m_Materiel, "Invalid Proxy Mesh!");
 		}
 		
 		RenderProxyKey GetKey() const
 		{
-			Ref<Texture> texture = materiel->GetAlbedoTextures();
-			uint64_t keyTextur = robin_hood::hash<void*>{}(texture.get());
-			uint64_t keyMateril = robin_hood::hash<void*>{}(materiel.get());
-			uint64_t keyMesh = robin_hood::hash<void*>{}(mesh.get());
-			uint64_t key = keyTextur;
-			key ^= keyMateril;
+			Ref<Texture> texture = m_Materiel->GetAlbedoTextures();
+			const uint64_t keyTexture = robin_hood::hash<void*>{}(texture.get());
+			const uint64_t keyMateriel = robin_hood::hash<void*>{}(m_Materiel.get());
+			const uint64_t keyMesh = robin_hood::hash<void*>{}(m_Mesh.get());
+			uint64_t key = keyTexture;
+			key ^= keyMateriel;
 			key ^= keyMesh;
 			return key;
 		}
@@ -62,11 +62,11 @@ namespace Rynex{
 
 		RenderProxyKey GetKey() const { return m_MeshBatch.GetKey(); }
 
-		Ref<Material>& GetMaterial() { return m_MeshBatch.materiel; }
-		Ref<MeshSingle>& GetMesh() { return m_MeshBatch.mesh; }
+		Ref<Material>& GetMaterial() { return m_MeshBatch.m_Materiel; }
+		Ref<MeshSingle>& GetMesh() { return m_MeshBatch.m_Mesh; }
 
-		const Ref<Material>& GetMaterial() const { return m_MeshBatch.materiel; }
-		const Ref<MeshSingle>& GetMesh() const { return m_MeshBatch.mesh; }
+		const Ref<Material>& GetMaterial() const { return m_MeshBatch.m_Materiel; }
+		const Ref<MeshSingle>& GetMesh() const { return m_MeshBatch.m_Mesh; }
 	};
 
 	struct RenderProxyRef
