@@ -21,13 +21,10 @@ namespace Rynex {
 		using BufferGPU = std::variant<Ref<Texture>, Ref<LinkedTextureArray>, Ref<BindlesTextureArray>>;
 		using ElementBufferGPU = std::variant<Ref<VertexBuffer>, Ref<StorageBuffer>, Ref<UniformBuffer>>;
 		using ContainerBufferGPU = std::vector<BufferGPU>;
-
-
-
-	public:
+	// public member variable -------------------------------------------------------------------------------------------------
 		ProxyDrawCallGenarter();
 		~ProxyDrawCallGenarter();
-		void SetRenderTargetLayout(const BufferLayout& layoute);
+		void SetRenderTargetLayout(const BufferLayout& layout);
 		bool SetProxyData(RenderProxy& proxy);
 		bool SetRenderMeshBatch(const RenderProxy& proxy);
 		bool SetRenderMeshBatch(const RenderMeshBatch& renderMeshBatch);
@@ -50,6 +47,8 @@ namespace Rynex {
 #if 1
 		virtual void SubmiteDraw(ProxyGroupView& groupView);
 #endif
+	    ShaderDrawResource BuildDrawTemplate(const RenderMeshBatch& meshBatch);
+	    void SubmiteShaderDrawList(std::vector<ShaderDrawResource>& out);
 	private:
 		void FinishLastDrawCall();
 		void ResetCurentDrawCall();

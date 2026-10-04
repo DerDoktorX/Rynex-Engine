@@ -509,7 +509,7 @@ namespace Rynex {
 
 
         Mesh::PerDrawObject drawElement = drawCallResource.perDrawObject;
-        drawElement.m_InstanceCount = batchVAO.curentIndex;
+        drawElement.m_InstancesCount = batchVAO.curentIndex;
 
         constexpr uint32_t bindSlotCameraUB = 1;
         constexpr uint32_t bindSlotShadowUB = 2;
@@ -518,7 +518,7 @@ namespace Rynex {
         constexpr uint32_t bindSlotMaterielTex = 0;
         constexpr uint32_t bindSlotDepthShadowTex = 1;
 
-        RY_CORE_ASSERT(0 < drawElement.m_InstanceCount);
+        RY_CORE_ASSERT(0 < drawElement.m_InstancesCount);
 
         const Ref<VertexArray>& vao = batchVAO.vertexArray;
         ShaderDrawResource drawListRef = CreateShaderDrawResource();
@@ -526,7 +526,7 @@ namespace Rynex {
 
         ShaderDrawResource* drawList = &drawListRef;
         drawList->m_RenderMode = drawCallResource.renderMode;
-        drawList->m_IndicesCount = drawElement.m_InstanceCount;
+        drawList->m_IndicesCount = drawElement.m_InstancesCount;
         drawList->m_DrawElement = drawElement;
         drawList->m_VAO = vao;
         drawList->m_ShaderProgram = drawCallResource.shader;

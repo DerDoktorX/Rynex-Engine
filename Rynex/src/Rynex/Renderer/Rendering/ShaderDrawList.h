@@ -121,14 +121,14 @@ namespace Rynex {
 	RY_NONE_MEBER_OPERATOR_BOOL(ShaderDrawList, == , &&,
 		m_ShaderProgram, m_BindingLayout
 		, m_DrawBuffer, m_VAO, m_IndicesCount
-		, m_DrawElement.m_Count, m_DrawElement.m_InstanceCount, m_DrawElement.m_FirstIndex, m_DrawElement.m_BaseVertex, m_DrawElement.m_BaseInstance
+		, m_DrawElement.m_IndexCount, m_DrawElement.m_InstancesCount, m_DrawElement.m_FirstIndex, m_DrawElement.m_BaseVertex, m_DrawElement.m_BaseInstance
 		, m_RenderMode
 	);
 
 	RY_NONE_MEBER_OPERATOR_BOOL(ShaderDrawList, != , ||,
 		m_ShaderProgram, m_BindingLayout
 		, m_DrawBuffer, m_VAO, m_IndicesCount
-		, m_DrawElement.m_Count, m_DrawElement.m_InstanceCount, m_DrawElement.m_FirstIndex, m_DrawElement.m_BaseVertex, m_DrawElement.m_BaseInstance
+		, m_DrawElement.m_IndexCount, m_DrawElement.m_InstancesCount, m_DrawElement.m_FirstIndex, m_DrawElement.m_BaseVertex, m_DrawElement.m_BaseInstance
 		, m_RenderMode
 	);
 

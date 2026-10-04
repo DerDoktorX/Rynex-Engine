@@ -54,8 +54,8 @@ namespace Rynex{
 		void Check() const
 		{
 			m_MeshBatch.Check();
-			RY_CORE_ASSERT(-1 != m_Entity, "Invaild Proxy Mesh!");
-			RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() != m_SubMesh, "Invaild Proxy Mesh!");
+			RY_CORE_ASSERT(-1 != m_Entity, "Invalid Proxy Mesh!");
+			RY_CORE_ASSERT(std::numeric_limits<uint32_t>::max() != m_SubMesh, "Invalid Proxy Mesh!");
 		}
 
 		
@@ -119,6 +119,7 @@ namespace Rynex{
 		RenderProxy* m_DataPtr = nullptr;
 		const uint32_t     m_Count = 0;
 		RenderMeshBatch& m_RenderMeshBatch;
+
 		ProxyGroupView(RenderProxy* data, const uint32_t count)
 			: m_DataPtr(data)
 			, m_Count(count)

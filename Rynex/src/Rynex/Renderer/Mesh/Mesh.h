@@ -34,7 +34,7 @@ namespace Rynex {
 		MeshVertices() = default;
 		MeshVertices(const MeshVertices& mv) = default;
 
-        MeshVertices(glm::vec3 position, glm::vec2 textureCords, glm::vec3 normale)
+        MeshVertices(const glm::vec3 position, const glm::vec2 textureCords, const glm::vec3 normale)
             : m_Position(position)
             , m_TextureCords(textureCords)
             , m_Normale(normale)
@@ -42,18 +42,18 @@ namespace Rynex {
         }
     };
 
-	constexpr bool operator==(const MeshVertices& left, const MeshVertices& rigth)
+	constexpr bool operator==(const MeshVertices& left, const MeshVertices& right)
 	{
-		return left.m_Position == rigth.m_Position
-			&& left.m_TextureCords == rigth.m_TextureCords
-			&& left.m_Normale == rigth.m_Normale;
+		return left.m_Position == right.m_Position
+			&& left.m_TextureCords == right.m_TextureCords
+			&& left.m_Normale == right.m_Normale;
 	}
 
-	constexpr bool operator!=(const MeshVertices& left, const MeshVertices& rigth)
+    constexpr bool operator!=(const MeshVertices& left, const MeshVertices& right)
 	{
-		return left.m_Position != rigth.m_Position
-			|| left.m_TextureCords != rigth.m_TextureCords
-			|| left.m_Normale != rigth.m_Normale;
+		return left.m_Position != right.m_Position
+			|| left.m_TextureCords != right.m_TextureCords
+			|| left.m_Normale != right.m_Normale;
 	}
 
 	class MeshStatic;
@@ -90,8 +90,8 @@ namespace Rynex {
 		
 		struct PerDrawObject
 		{
-			uint32_t m_Count;
-			uint32_t m_InstanceCount;
+			uint32_t m_IndexCount;
+			uint32_t m_InstancesCount;
 			uint32_t m_FirstIndex;
 			int m_BaseVertex;
 			uint32_t m_BaseInstance;

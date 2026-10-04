@@ -184,7 +184,7 @@ namespace Rynex {
 
 		void ResetChangedCurent()
 		{ 
-			RY_CORE_ASSERT(Asset::CurrentOnMainThread(), "Expexxted Main Thread!");
+			RY_CORE_ASSERT(Asset::CurrentOnMainThread(), "Expected Main Thread!");
 			m_HasChagedCurent.at(StateRendering) = false;
 		}
 

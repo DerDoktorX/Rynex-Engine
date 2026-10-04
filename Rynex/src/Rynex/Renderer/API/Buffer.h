@@ -454,19 +454,19 @@ namespace Rynex {
 
 	struct DrawElementsIndirectCommand
 	{
-		uint32_t indexCount;
-		uint32_t instancesCount;
-		uint32_t firstIndex;
-		int baseVertex;
-		uint32_t baseInstance;
+		uint32_t m_IndexCount;
+		uint32_t m_InstancesCount;
+		uint32_t m_FirstIndex;
+		int m_BaseVertex;
+		uint32_t m_BaseInstance;
 
 		void Default()
 		{
-			indexCount = 0u;
-			instancesCount = 0u;
-			firstIndex = 0u;
-			baseVertex = -1;
-			baseInstance = 0u;
+			m_IndexCount = 0u;
+			m_InstancesCount = 0u;
+			m_FirstIndex = 0u;
+			m_BaseVertex = -1;
+			m_BaseInstance = 0u;
 		}
 	};
 

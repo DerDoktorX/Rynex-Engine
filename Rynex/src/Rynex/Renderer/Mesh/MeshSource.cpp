@@ -132,8 +132,8 @@ namespace Rynex {
 				perDrawObject.m_BaseInstance = 0u;
 				perDrawObject.m_BaseVertex = 0u;
 				perDrawObject.m_FirstIndex = 0u;
-				perDrawObject.m_Count = indicesVec.size();
-				perDrawObject.m_InstanceCount = 0;
+				perDrawObject.m_IndexCount = indicesVec.size();
+				perDrawObject.m_InstancesCount = 0;
 			}
 
 			static void GenaretSingleMeshBuffer(const MeshSource::OptimizeMeshData& data, SingleMeshBuffers& gpuMeshBufferRef, const MeshSource::SourceMesh& vertexSource, const UUID& meshSourceHandle)

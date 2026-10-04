@@ -90,7 +90,7 @@ namespace Rynex {
 		for (const SingleObjectMeshData& meshSingle : m_SingleObjectDataVec)
 		{
 			const Mesh::PerDrawObject& drawIndrect = meshSingle.m_MeshSingle->GetShadePerDrawObjectIndirect();
-			const uint32_t& instaencesCount = drawIndrect.m_InstanceCount;
+			const uint32_t& instaencesCount = drawIndrect.m_InstancesCount;
 			*it = curentOffset; 
 			curentOffset += instaencesCount * steps;
 			it++;
@@ -162,12 +162,12 @@ namespace Rynex {
 			const Mesh::PerDrawObject& cmd = singleMeshData.GetShadePerDrawObjectIndrect();
 			
 			Mesh::PerDrawObject& cmdRef = drawObjectMap.AddData(meshHandle, cmd);
-			cmdRef.m_InstanceCount = 1;
+			cmdRef.m_InstancesCount = 1;
 		}
 		else
 		{
 			Mesh::PerDrawObject& cmdRef = drawObjectMap.GetKeyData(meshHandle);
-			cmdRef.m_InstanceCount++;
+			cmdRef.m_InstancesCount++;
 		}
 	}
 

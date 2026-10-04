@@ -197,7 +197,7 @@ namespace Rynex {
             drawList.m_ShaderProgram = m_Shader;
             drawList.m_VAO = m_VertexArray;
             drawList.m_DrawElement = Geometry::GetDrawObject(m_SingleMeshObject.m_MeshSingle);
-            drawList.m_DrawElement.m_InstanceCount = m_InstanceCount;
+            drawList.m_DrawElement.m_InstancesCount = m_InstanceCount;
 
             BindResources(drawList);      // base binds shader+camera, then m_Resources.Bind()
 

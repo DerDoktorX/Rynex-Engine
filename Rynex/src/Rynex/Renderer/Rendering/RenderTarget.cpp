@@ -493,7 +493,7 @@ namespace Rynex {
                 drawBuffer->UnBind();
 #endif
             }
-            else if(0u != drawElement.m_Count)
+            else if(0u != drawElement.m_IndexCount)
             {
                 RenderCommand::DrawElement(setShaderDraw.m_VAO, drawElement);
             }
@@ -530,7 +530,7 @@ namespace Rynex {
                 uint32_t count = drawBuffer->GetCount();
                 RY_CORE_NOT_IMPL();
             }
-            else if(0u != drawElement.m_Count)
+            else if(0u != drawElement.m_IndexCount)
             {
                 RenderCommand::DrawElement(setShaderDraw.m_VAO, drawElement);
             }

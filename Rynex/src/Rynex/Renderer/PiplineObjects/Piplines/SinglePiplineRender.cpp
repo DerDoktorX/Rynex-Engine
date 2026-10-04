@@ -231,7 +231,7 @@ namespace Rynex {
 		RenderCommand::SetMode(flags);
 		BindResources();
 		RY_CORE_ASSERT(0 < m_InstanceCount);
-		drawElement.m_InstanceCount = m_InstanceCount;
+		drawElement.m_InstancesCount = m_InstanceCount;
 		
 		RenderCommand::DrawElement(m_VertexArray, drawElement);
 #if RY_UNBIND

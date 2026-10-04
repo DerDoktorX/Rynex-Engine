@@ -290,8 +290,8 @@ namespace Rynex {
 	{
 		const Mesh::PerDrawObject& indrectPDO = indrectPDOVec.at(m_ModelLocaleIndex);
 
-		pdoIndrect.m_Count = indrectPDO.m_Count;
-		pdoIndrect.m_InstanceCount = 1;
+		pdoIndrect.m_IndexCount = indrectPDO.m_IndexCount;
+		pdoIndrect.m_InstancesCount = 1;
 		pdoIndrect.m_FirstIndex = indrectPDO.m_FirstIndex;
 		pdoIndrect.m_BaseVertex = indrectPDO.m_BaseVertex;
 		pdoIndrect.m_BaseInstance = 0;

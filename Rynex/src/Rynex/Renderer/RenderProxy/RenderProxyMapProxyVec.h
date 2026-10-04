@@ -13,7 +13,7 @@ namespace Rynex {
 	public:
 		RenderProxyGroup();
 		RenderProxyGroup(const RenderProxyGroup&) = default;
-		RenderProxyGroup(const RenderMeshBatch& renderMeshBatch);
+        explicit RenderProxyGroup(const RenderMeshBatch& renderMeshBatch);
 		~RenderProxyGroup();
 
 		uint32_t Add(const RenderProxy& proxy);

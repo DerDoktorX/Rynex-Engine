@@ -251,7 +251,9 @@ namespace Rynex {
 
 
     }
-    enum class TierPassKind : uint8_t { Shade = 0u, Depth = 1u };   // Main = Shade, Current = Depth (Shadow)
+
+    using TierPassKindUnit = uint8_t;
+    enum class TierPassKind : TierPassKindUnit { None = 0u, Shade, Depth };   // Main = Shade, Current = Depth (Shadow)
 
 
 	struct Pass
@@ -274,7 +276,7 @@ namespace Rynex {
 			TextureStoreIndex = -1
 		};
 	public:
-		virtual ~Material() {};
+        virtual ~Material() {};
 
 		virtual void SetColor(const glm::vec3& color) = 0;
 		virtual glm::vec3 GetColor() const = 0;

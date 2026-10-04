@@ -129,7 +129,7 @@ namespace Rynex {
 		}
 
 
-		m_CurentDrawCall.m_DrawElement.m_InstanceCount++;
+		m_CurentDrawCall.m_DrawElement.m_InstancesCount++;
 	}
 
 	void ProxyDrawCallGenarter::AddTranfromModelData(const glm::mat4& modelMatrix)
@@ -168,7 +168,7 @@ namespace Rynex {
 	void ProxyDrawCallGenarter::FinishLastDrawCall()
 	{
 		if (nullptr == m_CurentDrawCall.m_ShaderProgram || (nullptr == m_CurentDrawCall.m_VAO && 0u == m_CurentDrawCall.m_IndicesCount && nullptr == m_CurentDrawCall.m_DrawBuffer &&
-				(0u == m_CurentDrawCall.m_DrawElement.m_InstanceCount || 0u == m_CurentDrawCall.m_DrawElement.m_Count || -1 == m_CurentDrawCall.m_DrawElement.m_BaseVertex)))
+				(0u == m_CurentDrawCall.m_DrawElement.m_InstancesCount || 0u == m_CurentDrawCall.m_DrawElement.m_IndexCount || -1 == m_CurentDrawCall.m_DrawElement.m_BaseVertex)))
 		{
 			RY_CORE_ERROR("m_CurrentDrawCall has some write resource not set!");
 			return;
@@ -265,7 +265,7 @@ namespace Rynex {
 		BufferLayout layout = dynamicDataStruct.GetLayout();
 		DynamicStructPtr dataPtr = dynamicDataStruct.Data();
 		const uint64_t layouteBytesSize = dynamicDataStruct.LayouteBytesSize();
-		const uint64_t& instanceCount = m_CurentDrawCall.m_DrawElement.m_InstanceCount;
+		const uint64_t& instanceCount = m_CurentDrawCall.m_DrawElement.m_InstancesCount;
 
 		const uint64_t count = dynamicDataStruct.Size();
 		const uint64_t dynamicDataStructByteSize = dynamicDataStruct.BufferByteSize();
@@ -292,7 +292,7 @@ namespace Rynex {
 			Batch::Render3DMeshObjectTransform* dataBufferPtr = m_BatchRenderObjectVAOPtr->rendeObjectTransformVec.data();
 			uint8_t* dataPtr = reinterpret_cast<uint8_t*>(dataBufferPtr);
 			uint64_t layouteBytesSize = sizeof(Batch::Render3DMeshObject);
-			const uint32_t& instaceCount = m_CurentDrawCall.m_DrawElement.m_InstanceCount;
+			const uint32_t& instaceCount = m_CurentDrawCall.m_DrawElement.m_InstancesCount;
 
 			const uint64_t bytesSize = layouteBytesSize * instaceCount;
 			UplodedeVertexBufferFromContainer(m_BatchRenderObjectVAOPtr->instanceObjectBuffer, layoutDepth, flag, dataPtr, bytesSize);
@@ -308,7 +308,7 @@ namespace Rynex {
 		Batch::Render3DMeshObject* dataBufferPtr = m_BatchRenderObjectVAOPtr->rendeObjectVec.data();
 		uint8_t* dataPtr = reinterpret_cast<uint8_t*>(dataBufferPtr);
 		uint64_t layouteBytesSize = sizeof(Batch::Render3DMeshObject);
-		const uint32_t& instaceCount = m_CurentDrawCall.m_DrawElement.m_InstanceCount;
+		const uint32_t& instaceCount = m_CurentDrawCall.m_DrawElement.m_InstancesCount;
 		const uint64_t bytesSize = layouteBytesSize * instaceCount;
 		UplodedeVertexBufferFromContainer(m_BatchRenderObjectVAOPtr->instanceObjectBuffer, layoutShade, flag, dataPtr, bytesSize);
 	}
@@ -549,7 +549,7 @@ namespace Rynex {
 		m_CurentDrawCall.m_DrawElement.m_BaseInstance = 0;
 		m_CurentDrawCall.m_DrawElement.m_BaseVertex = 0;
 		m_CurentDrawCall.m_VAO = vertexArrayObject;
-		m_CurentDrawCall.m_DrawElement.m_Count = iab->GetCount();
+		m_CurentDrawCall.m_DrawElement.m_IndexCount = iab->GetCount();
 
 		if(materiel->HasSpecForDraw(m_RenderTragetLayoute, levelLOD))
 		{
@@ -566,7 +566,7 @@ namespace Rynex {
 
 		}
 		
-		m_CurentDrawCall.m_DrawElement.m_InstanceCount = 0;
+		m_CurentDrawCall.m_DrawElement.m_InstancesCount = 0;
 
 	}
 

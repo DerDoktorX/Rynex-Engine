@@ -88,7 +88,7 @@ namespace Rynex {
 				instenceData
 			});
 			m_Count++;
-			m_MeshIndrect.m_InstanceCount = m_MeshIndrectOrig.m_InstanceCount * m_Count;
+			m_MeshIndrect.m_InstancesCount = m_MeshIndrectOrig.m_InstancesCount * m_Count;
 
 			m_LocaleMeshesOffset = localeMeshesOffset;
 		}
@@ -101,7 +101,7 @@ namespace Rynex {
 			It itIndex = m_InstenceData.begin() + index;
 			m_InstenceData.erase(itIndex);
 
-			m_MeshIndrect.m_InstanceCount = m_MeshIndrectOrig.m_InstanceCount * m_Count;
+			m_MeshIndrect.m_InstancesCount = m_MeshIndrectOrig.m_InstancesCount * m_Count;
 			m_LocaleMeshesOffset = localeMeshesOffset;
 			return index;
 		}
@@ -176,7 +176,7 @@ namespace Rynex {
 
 		void IncreseOffset(int& golblelastOffset)const
 		{
-			golblelastOffset += m_MeshIndrect.m_InstanceCount;
+			golblelastOffset += m_MeshIndrect.m_InstancesCount;
 		}
 	private:
 		const Mesh::PerDrawObject m_MeshIndrectOrig; // This is The Origenale, for one Don't Touche
