@@ -317,7 +317,7 @@ namespace Rynex {
 			m_BufferCount = 0ull;
 		}
 
-		uint64_t GetHash() const
+		Hash64 GetHash() const
 		{
 			return m_HashNumber;
 		}
@@ -345,7 +345,7 @@ namespace Rynex {
 		
 	private:
 		std::vector<BufferElement> m_Elements;
-		uint64_t m_HashNumber = 0ull;
+		Hash64 m_HashNumber = 0ull;
 		size_t m_Length = 0ull;
 		size_t m_BufferCount = 0ull;
 		size_t m_Stride = 0ull;

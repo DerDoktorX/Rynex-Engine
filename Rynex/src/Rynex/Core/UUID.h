@@ -2,6 +2,7 @@
 
 namespace Rynex {
 
+    using Hash64 = uint64_t;
 	enum class ResurceType
 	{
 		None = 0,
@@ -17,10 +18,10 @@ namespace Rynex {
 	{
 	public:
 		UUID();
-		UUID(uint64_t uuid);
+		UUID(Hash64 uuid);
 		UUID(const UUID&) = default;
 
-		operator uint64_t() const { return m_UUID; }
+		operator Hash64() const { return m_UUID; }
 	    bool operator == (const UUID& uuid) const
 		{
 		    return uuid.m_UUID == m_UUID;
@@ -33,7 +34,7 @@ namespace Rynex {
 
 	    static UUID Zero() { return UUID(0ull); }
 	private:
-		uint64_t m_UUID;
+		Hash64 m_UUID;
 	};
 
 	
@@ -46,7 +47,7 @@ namespace std {
 	{
 		[[nodiscard]] static std::size_t operator()(const Rynex::UUID& uuid) noexcept
 		{
-			return (uint64_t)uuid;
+			return (Rynex::Hash64)uuid;
 		}
 	};
 
