@@ -45,15 +45,28 @@ namespace Rynex {
 	public:
 		struct BitFlag
 		{			
-			char* name = "Unknown Name";
-			int bitMarker = 0;
-			ImGuiFlagButten flag;
+			const char* m_Name = "Unknown Name";
+			int m_BitMarker = 0;
+			ImGuiFlagButten m_Flag;
+
+		    explicit BitFlag(const char* name, int valuePtr, const ImGuiFlagButten flag)
+		        : m_Name(name)
+		        , m_BitMarker()
+		        , m_Flag(flag)
+		    {
+		    }
 		};
 
 		struct CheckBoxBool
 		{
-			char* name = "Unknown Name";
-			bool* valuePtr;
+			const char* m_Name = "Unknown Name";
+			bool* m_ValuePtr;
+
+		    explicit CheckBoxBool(const char* name, bool* valuePtr)
+		        : m_Name(name)
+		        , m_ValuePtr(valuePtr)
+		    {
+		    }
 		};
 	public:
 		static bool FlagUI(int& flag, const std::initializer_list<BitFlag>& bitFlagList);

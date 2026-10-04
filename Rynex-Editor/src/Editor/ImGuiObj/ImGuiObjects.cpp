@@ -95,7 +95,7 @@ namespace Rynex {
 		for (const CheckBoxBool& chexBoxData : valuesList)
 		{
 			ImGuiScopeID Id("CheckBox " + std::to_string(i));
-			input = ImGui::Checkbox(chexBoxData.name, chexBoxData.valuePtr) || input;
+			input = ImGui::Checkbox(chexBoxData.m_Name, chexBoxData.m_ValuePtr) || input;
 			i++;
 		}
 		return input;

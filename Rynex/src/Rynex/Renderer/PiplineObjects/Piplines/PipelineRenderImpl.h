@@ -7,11 +7,31 @@
 
 namespace Rynex {
 
+
+
+    RY_DEFINE_HAS_STATIC_MEMBER(Make(std::declval<const glm::mat4&>(), std::declval<int>()), InstanceLayoutMethodeRenderObject);
+    RY_DEFINE_HAS_INSTANCE_MEMBER(SubmitRenderTargetResource(std::declval<ViewPassStorage&>()), ResourcesMethodeSubmitRenderTargetResource);
+    RY_DEFINE_HAS_INSTANCE_MEMBER(SubmitRenderTargetResourceReadImg(std::declval<const Ref<Texture>&>()), ResourcesMethodeSubmitRenderTargetResourceReadImg);
+    RY_DEFINE_HAS_INSTANCE_MEMBER(SubmitRenderTargetResourceReadUB(std::declval<const Ref<UniformBuffer>&>()), ResourcesMethodeSubmitRenderTargetResourceReadUB);
+    RY_DEFINE_HAS_INSTANCE_MEMBER(GetIndirectBufferNumber(), ResourcesMethodeGetIndirectBufferNumber);
+    RY_DEFINE_HAS_INSTANCE_MEMBER(GetTextureNumber(), ResourcesMethodeGetTextureNumber);
+    RY_DEFINE_HAS_INSTANCE_MEMBER(GetStorageBufferNumber(), ResourcesMethodeGetStorageBufferNumber);
+    RY_DEFINE_HAS_INSTANCE_MEMBER(GetUniformBufferNumber(), ResourcesMethodeGetUniformBufferNumber);
+    RY_DEFINE_HAS_INSTANCE_MEMBER(AcquireFromMaterial(std::declval<const Ref<Material>&>()), ResourcesMethodeAcquireFromMaterial);
+
     template<typename InstanceLayout, typename Resources, typename Geometry>
     class PipelineRenderImpl : public InstanceMeshPiplineRenderBase
     {
+        static_assert(HasMemberStatic_InstanceLayoutMethodeRenderObject_v<InstanceLayout>,              "InstanceLayout has no static methode Make");
+        static_assert(HasMemberInstance_ResourcesMethodeSubmitRenderTargetResource_v<Resources>,        "Resources has no instance methode SubmitRenderTargetResource");
+        static_assert(HasMemberInstance_ResourcesMethodeSubmitRenderTargetResourceReadImg_v<Resources>, "Resources has no instance methode SubmitRenderTargetResourceReadImg");
+        static_assert(HasMemberInstance_ResourcesMethodeSubmitRenderTargetResourceReadUB_v<Resources>,  "Resources has no instance methode SubmitRenderTargetResourceReadUB");
+        static_assert(HasMemberInstance_ResourcesMethodeGetIndirectBufferNumber_v<Resources>,           "Resources has no instance methode GetIndirectBufferNumber");
+        static_assert(HasMemberInstance_ResourcesMethodeGetTextureNumber_v<Resources>,                  "Resources has no instance methode GetTextureNumber");
+        static_assert(HasMemberInstance_ResourcesMethodeGetStorageBufferNumber_v<Resources>,            "Resources has no instance methode GetStorageBufferNumber");
+        static_assert(HasMemberInstance_ResourcesMethodeGetUniformBufferNumber_v<Resources>,            "Resources has no instance methode GetUniformBufferNumber");
+        static_assert(HasMemberInstance_ResourcesMethodeAcquireFromMaterial_v<Resources>,               "Resources has no instance methode AcquireFromMaterial");
     public:
-
         using RenderObject = typename InstanceLayout::RenderObject;
         static_assert(0 < sizeof(RenderObject), "RenderObject needs Data!");
         PipelineRenderImpl()

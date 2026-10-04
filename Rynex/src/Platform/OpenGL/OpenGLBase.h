@@ -14,7 +14,7 @@
 
 #define RY_INTERNLE_GET_OPENGL_MACRO_DEFAULT(rynexEnumType)\
 	default:\
-		RY_CORE_ASSERT(false, "Not Defined " RY_STRINGIFY_MOAKRO(rynexEnumType) "Enum" RY_STRINGIFY_MOAKRO(__FUNCSIG__) );\
+		RY_CORE_ASSERT(false, "Not Defined " RY_STRINGIFY_MACRO(rynexEnumType) "Enum" RY_STRINGIFY_MACRO(__FUNCSIG__) );\
 		return 0;
 
 #define RY_GET_OPENGL_RESULT_INT(glMarco, ptr)\

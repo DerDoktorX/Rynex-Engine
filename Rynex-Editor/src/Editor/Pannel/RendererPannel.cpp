@@ -16,7 +16,7 @@
 
 
 // #define IMGUI_BOOL_CHECK_BOX(value) { #value, &value }
-#define IMGUI_BOOL_CHECK_BOX(value) ImGuiFlagsUser::CheckBoxBool{ RY_STRINGIFY_MOAKRO(#value), &value }
+#define IMGUI_BOOL_CHECK_BOX(value) ImGuiFlagsUser::CheckBoxBool{ RY_STRINGIFY_MACRO(value), &value }
 
 
 namespace Rynex {
@@ -210,7 +210,7 @@ namespace Rynex {
 			{
 				
 				bool* staicresultion = viewPortPannel->GetStaicResultionState();
-				if(ImGui::Checkbox("Staitic Resultion", staicresultion))
+				if(ImGui::Checkbox("Statice Reseultion", staicresultion))
 					viewPortPannel->OnStaicResultion();
 				glm::ivec2* size = viewPortPannel->GetStaicResultionSizePtr();
 				if(!*staicresultion)
@@ -218,7 +218,7 @@ namespace Rynex {
 					ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 					ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
 				}
-					if (ImGui::DragInt2("Staice Size", glm::value_ptr(*size), 1.0f, 1, 8000))
+					if (ImGui::DragInt2("Statice Size", glm::value_ptr(*size), 1.0f, 1, 8000))
 						viewPortPannel->OnStaicResultion();
 
 				if (!*staicresultion)
@@ -418,11 +418,11 @@ namespace Rynex {
 	{
 		float fps = m_HigestTS[1].GetFPS();
 		float sec = m_HigestTS[1].GetMillsecounds();
-		ImGui::PushID("##ImGuiRenderTimeHigest");
+		ImGui::PushID("##ImGuiRenderTimeHighest");
 #if 0
 		ImGui::Text("Higest: Time(%.1f) / FPS(%.1f)", sec, fps);
 #else
-		ImGui::Text("Higest: Time(%.1f)", sec, fps);
+		ImGui::Text("Highest: Time(%.1f)", sec, fps);
 #endif
 		ImGui::PopID();
 	}
@@ -708,10 +708,7 @@ namespace Rynex {
 			, IMGUI_BOOL_CHECK_BOX(testTexturArray)
 #endif
 		});
-	    // if (useDyamincDatatStructCopy != useDyamincDatatStruct)
-	    // {
-	    //     Renderer3D::ClearBatchesFromRenderProxy();
-	    // }
+
 		if (ImGui::Button("Clear Batches RenderProxy!"))
 			Renderer3D::ClearBatchesFromRenderProxy();
 	}

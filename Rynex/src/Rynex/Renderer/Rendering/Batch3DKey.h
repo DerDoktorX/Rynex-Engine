@@ -35,12 +35,12 @@ namespace Rynex {
 		int m_LOD_Level;
 	private:
 		friend RenderPassDrawResource;
-		RY_ADD_NONE_MEBER_OPERATOR_FUNC_AS_FRIND(::Rynex::Batch3DKey, bool, == );
-		RY_ADD_NONE_MEBER_OPERATOR_FUNC_AS_FRIND(::Rynex::Batch3DKey, bool, != );
+		RY_ADD_NONE_MEMBER_OPERATOR_FUNC_AS_FRIND(::Rynex::Batch3DKey, bool, == );
+		RY_ADD_NONE_MEMBER_OPERATOR_FUNC_AS_FRIND(::Rynex::Batch3DKey, bool, != );
 	};
 
-	RY_NONE_MEBER_OPERATOR_BOOL(::Rynex::Batch3DKey, == , &&, m_Materiel, m_Mesh, m_Shader, m_DrawSpec, m_RenderMode, m_LOD_Level);
-	RY_NONE_MEBER_OPERATOR_BOOL(::Rynex::Batch3DKey, != , ||, m_Materiel, m_Mesh, m_Shader, m_DrawSpec, m_RenderMode, m_LOD_Level);
+	RY_NONE_MEMBER_OPERATOR_BOOL(::Rynex::Batch3DKey, == , &&, m_Materiel, m_Mesh, m_Shader, m_DrawSpec, m_RenderMode, m_LOD_Level);
+	RY_NONE_MEMBER_OPERATOR_BOOL(::Rynex::Batch3DKey, != , ||, m_Materiel, m_Mesh, m_Shader, m_DrawSpec, m_RenderMode, m_LOD_Level);
 
 }
 

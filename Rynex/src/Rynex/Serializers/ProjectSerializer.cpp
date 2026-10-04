@@ -8,10 +8,10 @@
 
 #define YAML_AKTIV 0
 #define	DESERLIZE_PATH(name)	config.name = \
-		Utils::DeserlizeFilePathNode(projectNode[RY_STRINGIFY_MOAKRO(name)], parentProjectFile)
+		Utils::DeserlizeFilePathNode(projectNode[RY_STRINGIFY_MACRO(name)], parentProjectFile)
 
 #define	SERLIZE_PATH(name)	Utils::SerlizeFilePathNode(\
-	out, RY_STRINGIFY_MOAKRO(name), \
+	out, RY_STRINGIFY_MACRO(name), \
 	config.name, \
 	projectFolder)
 

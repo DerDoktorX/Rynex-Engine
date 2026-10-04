@@ -49,23 +49,23 @@ namespace Rynex {
 		double m_Alpha;
 
 	private:
-		RY_ADD_NONE_MEBER_OPERATOR_FUNC_AS_FRIND(TimeStep, bool, ==);
-		RY_ADD_NONE_MEBER_OPERATOR_FUNC_AS_FRIND(TimeStep, bool, !=);
+		RY_ADD_NONE_MEMBER_OPERATOR_FUNC_AS_FRIND(TimeStep, bool, ==);
+		RY_ADD_NONE_MEMBER_OPERATOR_FUNC_AS_FRIND(TimeStep, bool, !=);
 
-		RY_ADD_NONE_MEBER_OPERATOR_FUNC_AS_FRIND(TimeStep, bool, < );
-		RY_ADD_NONE_MEBER_OPERATOR_FUNC_AS_FRIND(TimeStep, bool, <=);
+		RY_ADD_NONE_MEMBER_OPERATOR_FUNC_AS_FRIND(TimeStep, bool, < );
+		RY_ADD_NONE_MEMBER_OPERATOR_FUNC_AS_FRIND(TimeStep, bool, <=);
 
-		RY_ADD_NONE_MEBER_OPERATOR_FUNC_AS_FRIND(TimeStep, bool, > );
-		RY_ADD_NONE_MEBER_OPERATOR_FUNC_AS_FRIND(TimeStep, bool, >=);
+		RY_ADD_NONE_MEMBER_OPERATOR_FUNC_AS_FRIND(TimeStep, bool, > );
+		RY_ADD_NONE_MEMBER_OPERATOR_FUNC_AS_FRIND(TimeStep, bool, >=);
 
 	};
 
-	RY_NONE_MEBER_OPERATOR_BOOL(TimeStep, ==, &&, m_Alpha, m_Delta);
-	RY_NONE_MEBER_OPERATOR_BOOL(TimeStep, != , &&, m_Alpha, m_Delta);
-	RY_NONE_MEBER_OPERATOR_BOOL(TimeStep, < , &&, m_Alpha, m_Delta);
-	RY_NONE_MEBER_OPERATOR_BOOL(TimeStep, <=, &&, m_Alpha, m_Delta);
-	RY_NONE_MEBER_OPERATOR_BOOL(TimeStep, > , &&, m_Alpha, m_Delta);
-	RY_NONE_MEBER_OPERATOR_BOOL(TimeStep, >=, &&, m_Alpha, m_Delta);
+	RY_NONE_MEMBER_OPERATOR_BOOL(TimeStep, ==, &&, m_Alpha, m_Delta);
+	RY_NONE_MEMBER_OPERATOR_BOOL(TimeStep, != , &&, m_Alpha, m_Delta);
+	RY_NONE_MEMBER_OPERATOR_BOOL(TimeStep, < , &&, m_Alpha, m_Delta);
+	RY_NONE_MEMBER_OPERATOR_BOOL(TimeStep, <=, &&, m_Alpha, m_Delta);
+	RY_NONE_MEMBER_OPERATOR_BOOL(TimeStep, > , &&, m_Alpha, m_Delta);
+	RY_NONE_MEMBER_OPERATOR_BOOL(TimeStep, >=, &&, m_Alpha, m_Delta);
 
 
 

@@ -122,14 +122,47 @@
 #define FRACTURE(a, b)				(a / b)
 #define FRACTURE_FORM(a, b, x)		( FRACTURE( (a),(x) ) * (b) )
 #define FRACTURE_ONE(x, a)			FRACTURE_FORM(a-1, a, x)
+//RY_COMBINE_MACRO
+#define RY_COMBINE_MACRO(x,y) x##y
+#define RY_EXPAND_MACRO(x) x
+#define RY_STRINGIFY_MACRO(x) #x
+
+
+/**
+ * this macro build a template type variable and types to check if some Type has as instance a member in some kind off way variable/methode Name.
+ * if you want to check for a methode dont forget methode brackets and you need also to set the parameter Types that this methode should provide (std::declval<T>)
+ * Example Foo.Get(); -> RY_DEFINE_HAS_INSTANCE_MEMBER(Get(), FooMethodeGet) -> HasMemberInstance_FooMethodeGet_v<T>
+ * @param member Name of variable or methode you want to test for template this
+ * @param name Name of variable or methode you can get the results internal we add HasMemberInstance_ before your result name and after your name we add _v.
+ */
+#define RY_DEFINE_HAS_INSTANCE_MEMBER(member, name)                                                                 \
+    template <typename T, typename = void>                                                                          \
+    struct _HasMemberInstance_##name : std::false_type {};                                                          \
+    template <typename T>                                                                                           \
+    struct _HasMemberInstance_##name<T, std::void_t<decltype(std::declval<T>().member)>>  : std::true_type {};      \
+    template <typename T>                                                                                           \
+    inline constexpr bool HasMemberInstance_##name##_v = _HasMemberInstance_##name<T>::value;
+
+
+/**
+ * this macro build a template type variable and types to check if some Type has a statice member in some kind off way variable/methode Name.
+ * if you want to check for a methode dont forget methode brackets and you need also to set the parameter Types that this methode should provide (std::declval<T>).
+ * Example Foo::Get(std::string key); -> RY_DEFINE_HAS_STATIC_MEMBER(Get(std::declval<std::string>), MethodeGet) -> HasMemberStatic_MethodeGet_v<T>
+ * @param member Name of variable or methode you want to test for template this
+ * @param name Name of variable or methode you can get the results internal we add HasMemberStatic_ before your result name and after your name we add _v.
+ */
+#define RY_DEFINE_HAS_STATIC_MEMBER(member, name)                                                   \
+    template <typename T, typename = void>                                                          \
+    struct _HasMemberStatic_##name : std::false_type {};                                            \
+    template <typename T>                                                                           \
+    struct _HasMemberStatic_##name<T, std::void_t<decltype(T::member)>>  : std::true_type {};       \
+    template <typename T>                                                                           \
+    inline constexpr bool HasMemberStatic_##name##_v = _HasMemberStatic_##name<T>::value;
 
 
 
 
 
-#define RY_COMBINE_MOAKRO(x,y) x##y
-#define RY_EXPAND_MOAKRO(x) x
-#define RY_STRINGIFY_MOAKRO(x) #x
 
 
 
@@ -138,7 +171,7 @@
 
 #pragma region ActionPerArgMacros
 
-#define RY_GET_INTERNEL_PLEAZHOLDER(n, macro)		RY_COMBINE_MOAKRO(macro, n)
+#define RY_GET_INTERNEL_PLEAZHOLDER(n, macro)		RY_COMBINE_MACRO(macro, n)
 
 #define RY_INTERNEL_ARG_N( \
           _1, _2, _3, _4, _5, _6, _7, _8, _9,_10, \
@@ -158,31 +191,31 @@
          19,18,17,16,15,14,13,12,11,10, \
          9,8,7,6,5,4,3,2,1,0
 
-#define RY_INTERNEL_NARG_(...)						RY_EXPAND_MOAKRO(RY_INTERNEL_ARG_N(__VA_ARGS__))
+#define RY_INTERNEL_NARG_(...)						RY_EXPAND_MACRO(RY_INTERNEL_ARG_N(__VA_ARGS__))
 #define RY_INTERNEL_NARG(...)						RY_INTERNEL_NARG_(__VA_ARGS__, RY_INTERNEL_RSEQ_N())
 
 
 #define RY_ACTOIN_PER_ARG(macro, ...)									RY_GET_INTERNEL_PLEAZHOLDER(  RY_INTERNEL_NARG( __VA_ARGS__ ) , macro  )
 
-#define RY_ACTOIN_PER_ARG_USE_0(_1, macro, ...)																						RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(							__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_2(_1, _2, macro, ...)																					RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2,					__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_3(_1, _2, _3, macro, ...)																				RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3,				__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_4(_1, _2, _3, _4, macro, ...)																			RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4,			__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_5(_1, _2, _3, _4, _5, macro, ...)																		RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5,		__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_6(_1, _2, _3, _4, _5, _6, macro, ...)																	RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6,	__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_7(_1, _2, _3, _4, _5, _6, _7, macro, ...)																RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7,	__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_8(_1, _2, _3, _4, _5, _6, _7,  _8, macro, ...)														RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,	__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_9(_1, _2, _3, _4, _5, _6, _7,  _8,  _9, macro, ...)													RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9,	__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_10(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, macro, ...)												RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10,	__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_11(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, macro, ...)											RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11,	__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_12(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, macro, ...)									RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11,	_12,__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_13(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, macro, ...)								RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11, _12, _13,	__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_14(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, macro, ...)							RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11, _12, _13, _14,	__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_15(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, macro, ...)						RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11, _12, _13, _14, _15,	__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_16(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, _16, macro, ...)				RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11, _12, _13, _14, _15, _16,	__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_17(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, _16, _17, macro, ...)			RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11, _12, _13, _14, _15,	_16, _17,	__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_18(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, macro, ...)		RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11, _12, _13, _14, _15,	_16, _17, _18,		__VA_ARGS__ )  )
-#define RY_ACTOIN_PER_ARG_USE_19(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, macro, ...)	RY_EXPAND_MOAKRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11, _12, _13, _14, _15,	_16, _17, _18, _19,		__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_0(_1, macro, ...)																						RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(							__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_2(_1, _2, macro, ...)																					RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2,					__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_3(_1, _2, _3, macro, ...)																				RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3,				__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_4(_1, _2, _3, _4, macro, ...)																			RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4,			__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_5(_1, _2, _3, _4, _5, macro, ...)																		RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5,		__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_6(_1, _2, _3, _4, _5, _6, macro, ...)																	RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6,	__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_7(_1, _2, _3, _4, _5, _6, _7, macro, ...)																RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7,	__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_8(_1, _2, _3, _4, _5, _6, _7,  _8, macro, ...)														RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,	__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_9(_1, _2, _3, _4, _5, _6, _7,  _8,  _9, macro, ...)													RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9,	__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_10(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, macro, ...)												RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10,	__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_11(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, macro, ...)											RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11,	__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_12(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, macro, ...)									RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11,	_12,__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_13(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, macro, ...)								RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11, _12, _13,	__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_14(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, macro, ...)							RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11, _12, _13, _14,	__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_15(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, macro, ...)						RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11, _12, _13, _14, _15,	__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_16(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, _16, macro, ...)				RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11, _12, _13, _14, _15, _16,	__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_17(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, _16, _17, macro, ...)			RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11, _12, _13, _14, _15,	_16, _17,	__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_18(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, macro, ...)		RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11, _12, _13, _14, _15,	_16, _17, _18,		__VA_ARGS__ )  )
+#define RY_ACTOIN_PER_ARG_USE_19(_1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, macro, ...)	RY_EXPAND_MACRO(  RY_ACTOIN_PER_ARG(macro, __VA_ARGS__)(_1, _2, _3, _4, _5, _6 ,_7, _8,  _9, _10, _11, _12, _13, _14, _15,	_16, _17, _18, _19,		__VA_ARGS__ )  )
 
 
 
@@ -207,7 +240,7 @@
 	macro, ...) macro
 
 
-#define RY_BIND_MEMBER_FUNC(...)		RY_EXPAND_MOAKRO(																			\
+#define RY_BIND_MEMBER_FUNC(...)		RY_EXPAND_MACRO(																			\
 													RY_BIND_MEMBER_FUNC_INTERNALE_GET_MACRO(										\
 														__VA_ARGS__																	\
 														, RY_BIND_MEMBER_FUNC_INTERNALE_ARGS, RY_BIND_MEMBER_FUNC_INTERNALE_ARGS	\
@@ -240,67 +273,67 @@
 #define RY_NONE_MEBER_OPERATOR_INTERNALE_MACRO_SPECIAL(operation, varibleLeftName, varibleRigthName) \
 	varibleLeftName operation varibleRigthName
 
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_0(operation, conector, macro)
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_1(operation, conector, macro, _1)																							macro(operation, _1) 
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_2(operation, conector, macro, _1, _2)																						macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_1(operation, conector, macro, _2)
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_3(operation, conector, macro, _1, _2, _3)																					macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_2(operation, conector, macro, _2, _3)
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_4(operation, conector, macro, _1, _2, _3, _4)																				macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_3(operation, conector, macro, _2, _3, _4)
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_5(operation, conector, macro, _1, _2, _3, _4, _5)																			macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_4(operation, conector, macro, _2, _3, _4, _5)
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_6(operation, conector, macro, _1, _2, _3, _4, _5, _6)																		macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_5(operation, conector, macro, _2, _3, _4, _5, _6)					
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_7(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7)																	macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_6(operation, conector, macro, _2, _3, _4, _5, _6, _7)				
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_8(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8)																macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_7(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8)			
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_9(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8, _9)															macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_8(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9)		
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_10(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10)														macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_9(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10)
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_11(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11)												macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_10(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11)
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_12(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12)											macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_11(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12)
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_13(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13)										macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_12(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13)
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_14(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14)									macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_13(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14)
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_15(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15)							macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_14(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15)
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_16(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, _16)						macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_15(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16)
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_17(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, _16, _17)					macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_16(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17)
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_18(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, _16, _17, _18)				macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_17(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18)
-#define RY_NONE_MEBER_OPERATOR_PLACEHOLDER_19(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19)		macro(operation, _1) conector RY_NONE_MEBER_OPERATOR_PLACEHOLDER_18(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_0(operation, conector, macro)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_1(operation, conector, macro, _1)																							macro(operation, _1)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_2(operation, conector, macro, _1, _2)																						macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_1(operation, conector, macro, _2)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_3(operation, conector, macro, _1, _2, _3)																					macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_2(operation, conector, macro, _2, _3)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_4(operation, conector, macro, _1, _2, _3, _4)																				macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_3(operation, conector, macro, _2, _3, _4)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_5(operation, conector, macro, _1, _2, _3, _4, _5)																			macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_4(operation, conector, macro, _2, _3, _4, _5)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_6(operation, conector, macro, _1, _2, _3, _4, _5, _6)																		macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_5(operation, conector, macro, _2, _3, _4, _5, _6)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_7(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7)																	macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_6(operation, conector, macro, _2, _3, _4, _5, _6, _7)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_8(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8)																macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_7(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_9(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8, _9)															macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_8(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_10(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10)														macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_9(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_11(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11)												macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_10(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_12(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12)											macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_11(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_13(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13)										macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_12(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_14(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14)								macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_13(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_15(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15)							macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_14(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_16(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, _16)						macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_15(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_17(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, _16, _17)					macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_16(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_18(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, _16, _17, _18)			macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_17(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18)
+#define RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_19(operation, conector, macro, _1, _2, _3, _4, _5, _6, _7, _8,  _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19)		macro(operation, _1) conector RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_18(operation, conector, macro, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19)
 
 
 
-#define RY_NONE_MEBER_OPERATOR_FUNC(typeIn, typeOut, operation, macro, ...)						\
+#define RY_NONE_MEMBER_OPERATOR_FUNC(typeIn, typeOut, operation, macro, ...)						\
 		inline typeOut operator operation (const typeIn & a, const typeIn & b)					\
 		{																						\
-			typeOut result = RY_EXPAND_MOAKRO(macro(operation, __VA_ARGS__));					\
+			typeOut result = RY_EXPAND_MACRO(macro(operation, __VA_ARGS__));					\
 			return result;																		\
 		}
 
-#define RY_NONE_MEBER_OPERATOR_FUNC_TYPE(typeLeftIn, typeRigthtIn, typeOut, operation, macro, ...)		\
+#define RY_NONE_MEMBER_OPERATOR_FUNC_TYPE(typeLeftIn, typeRigthtIn, typeOut, operation, macro, ...)		\
 		inline typeOut operator operation (const typeLeftIn & a, const typeRigthtIn & b)				\
 		{																								\
-			typeOut result = RY_EXPAND_MOAKRO(macro(operation, __VA_ARGS__));							\
+			typeOut result = RY_EXPAND_MACRO(macro(operation, __VA_ARGS__));							\
 			return result;																				\
 		}
 
-#define RY_NONE_MEBER_OPERATOR_FUNC_SPECIAL(typeLeftIn, valueLeftIn, typeRigthtIn, valueRigthIn, typeOut, valueOperationLeft, valueOperationRigth, operation, macro, ...)	\
+#define RY_NONE_MEMBER_OPERATOR_FUNC_SPECIAL(typeLeftIn, valueLeftIn, typeRigthtIn, valueRigthIn, typeOut, valueOperationLeft, valueOperationRigth, operation, macro, ...)	\
 		inline typeOut operator operation (typeLeftIn valueLeftIn, typeRigthtIn valueRigthIn)								\
 		{																													\
-			typeOut result = RY_EXPAND_MOAKRO(macro(operation, valueOperationLeft, valueOperationRigth, __VA_ARGS__));		\
+			typeOut result = RY_EXPAND_MACRO(macro(operation, valueOperationLeft, valueOperationRigth, __VA_ARGS__));		\
 			return result;																									\
 		}																													\
 
 		
-#define RY_NONE_MEBER_OPERATOR_BOOL_EQEUAL_AND_NOT_EQUAL_TYPE(typeInA, valueInA, typeInB, valueInB, valueOperationA, valueOperationB)										\
-	RY_NONE_MEBER_OPERATOR_FUNC_SPECIAL(typeInA, valueInA, typeInB, valueInB, bool, valueOperationA, valueOperationB, ==,RY_NONE_MEBER_OPERATOR_INTERNALE_MACRO_SPECIAL)		\
-	RY_NONE_MEBER_OPERATOR_FUNC_SPECIAL(typeInA, valueInA, typeInB, valueInB, bool, valueOperationA, valueOperationB, !=,RY_NONE_MEBER_OPERATOR_INTERNALE_MACRO_SPECIAL)		\
+#define RY_NONE_MEMBER_OPERATOR_BOOL_EQUAL_AND_NOT_EQUAL_TYPE(typeInA, valueInA, typeInB, valueInB, valueOperationA, valueOperationB)										\
+	RY_NONE_MEMBER_OPERATOR_FUNC_SPECIAL(typeInA, valueInA, typeInB, valueInB, bool, valueOperationA, valueOperationB, ==,RY_NONE_MEBER_OPERATOR_INTERNALE_MACRO_SPECIAL)		\
+	RY_NONE_MEMBER_OPERATOR_FUNC_SPECIAL(typeInA, valueInA, typeInB, valueInB, bool, valueOperationA, valueOperationB, !=,RY_NONE_MEBER_OPERATOR_INTERNALE_MACRO_SPECIAL)		\
 
-#define RY_NONE_MEBER_OPERATOR_BOOL_EQEUAL_AND_NOT_EQUAL_OBJECT(typeIn, valueOperation) \
-	RY_NONE_MEBER_OPERATOR_BOOL_EQEUAL_AND_NOT_EQUAL_TYPE(typeIn, rigth, typeIn, left, RY_COMBINE_MOAKRO(rigth., valueOperation), RY_COMBINE_MOAKRO(left., valueOperation))
-
-
-#define RY_NONE_MEBER_OPERATOR_INTERNALE_GET_MACRO(operation, conector, ...)		\
-		RY_ACTOIN_PER_ARG_USE_3(operation, conector, RY_NONE_MEBER_OPERATOR_INTERNALE_MACRO, RY_NONE_MEBER_OPERATOR_PLACEHOLDER_, __VA_ARGS__)
-
-#define RY_NONE_MEBER_OPERATOR_BOOL(typeIn, operation, conector, ...) \
-	RY_NONE_MEBER_OPERATOR_FUNC_TYPE(typeIn, typeIn, bool, operation, RY_NONE_MEBER_OPERATOR_INTERNALE_GET_MACRO, conector, __VA_ARGS__)
+#define RY_NONE_MEMBER_OPERATOR_BOOL_EQUAL_AND_NOT_EQUAL_OBJECT(typeIn, valueOperation) \
+	RY_NONE_MEMBER_OPERATOR_BOOL_EQUAL_AND_NOT_EQUAL_TYPE(typeIn, rigth, typeIn, left, RY_COMBINE_MACRO(rigth., valueOperation), RY_COMBINE_MACRO(left., valueOperation))
 
 
-#define RY_ADD_NONE_MEBER_OPERATOR_FUNC_AS_FRIND(typeIn, typeOut, operation) friend typeOut operator operation (const typeIn & a, const typeIn & b)
+#define RY_NONE_MEMBER_OPERATOR_INTERNALE_GET_MACRO(operation, conector, ...)		\
+		RY_ACTOIN_PER_ARG_USE_3(operation, conector, RY_NONE_MEBER_OPERATOR_INTERNALE_MACRO, RY_NONE_MEMBER_OPERATOR_PLACEHOLDER_, __VA_ARGS__)
+
+#define RY_NONE_MEMBER_OPERATOR_BOOL(typeIn, operation, conector, ...) \
+	RY_NONE_MEMBER_OPERATOR_FUNC_TYPE(typeIn, typeIn, bool, operation, RY_NONE_MEMBER_OPERATOR_INTERNALE_GET_MACRO, conector, __VA_ARGS__)
+
+
+#define RY_ADD_NONE_MEMBER_OPERATOR_FUNC_AS_FRIND(typeIn, typeOut, operation) friend typeOut operator operation (const typeIn & a, const typeIn & b)
 
 
 #pragma endregion
@@ -562,25 +595,7 @@ namespace std {
 			return 0ull;
 		}
 	};
-#if 0
-	template<typename T>
-	struct hash<Rynex::Scope<T>>
-	{
-		std::size_t operator()(const Rynex::Scope<T>& ptrObject) const
-		{
-			if (nullptr == ptrObject)
-			{
-				std::string_view strView = typeid(T).name();
-				RY_CORE_ASSERT(false, "Rynex::Ref<{}>(nullptr) Is not Exapteble!", strView.data());
-				return 0ull;
-			}
-			T* ptrObject = ptrObject.get();
-			int64_t ptrAdresse = (int64_t)ptrObject;
-			uint64_t ptrUadresse = (uint64_t)ptrAdresse;
-			return ptrUadresse;
-		}
-	};
-#endif
+
 }
 
 #pragma endregion
