@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #if defined(RY_SCRIPT_ENGINE)
 
 #include "ScriptingEngine.h"

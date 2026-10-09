@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "RenderTarget.h"
 #include <Rynex/Renderer/RenderCommand.h>
 #include <Rynex/Renderer/Rendering/Renderer.h>

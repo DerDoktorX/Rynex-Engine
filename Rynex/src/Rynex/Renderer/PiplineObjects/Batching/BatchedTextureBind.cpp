@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "BatchedTextureBind.h"
 
 #include <Rynex/Renderer/API/Texture.h>

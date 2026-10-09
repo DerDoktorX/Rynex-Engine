@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "OpenGLThreadContext.h"
 
 #include <Rynex/Core/Window.h>

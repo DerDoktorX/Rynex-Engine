@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "OpenGLRenderCommand.h"
 
 namespace Rynex {

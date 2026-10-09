@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "Texture.h"
 
 #include <Rynex/Renderer/Rendering/Renderer.h>

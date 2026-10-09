@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "StaticeRenderProxys.h"
 
 #include <Rynex/Renderer/RenderProxy/Proxy.h>

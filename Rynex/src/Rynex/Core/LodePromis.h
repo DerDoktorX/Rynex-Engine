@@ -1,5 +1,5 @@
 #pragma once
-#include "rypch.h"
+#include <rypch.h>
 
 namespace Rynex {
 	template<typename N>

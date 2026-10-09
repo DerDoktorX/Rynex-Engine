@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "VertexArray.h"
 
 #include <Rynex/Renderer/Rendering/Renderer.h>

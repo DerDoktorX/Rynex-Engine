@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "DynamicDataStruct.h"
 
 namespace Rynex {

@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "CamerController.h"
 
 #include <Rynex/Core/Input.h>

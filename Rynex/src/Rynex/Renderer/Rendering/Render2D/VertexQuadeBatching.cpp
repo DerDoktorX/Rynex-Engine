@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "VertexQuadeBatching.h"
 
 namespace Rynex {

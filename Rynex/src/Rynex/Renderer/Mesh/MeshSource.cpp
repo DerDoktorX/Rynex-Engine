@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "MeshSource.h"
 #include <Rynex/Renderer/Materials/DefaultMaterial.h>
 #include <Rynex/Asset/Base/AssetManager.h>

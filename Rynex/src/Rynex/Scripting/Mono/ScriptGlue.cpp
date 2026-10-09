@@ -1,5 +1,5 @@
 
-#include "rypch.h"
+#include <rypch.h>
 #include "ScriptGlue.h"
 
 #if defined(RY_SCRIPT_ENGINE)

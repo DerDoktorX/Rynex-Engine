@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "TextureImporter.h"
 
 #include <Rynex/Asset/Base/AssetManager.h>

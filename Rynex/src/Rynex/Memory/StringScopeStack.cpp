@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "StringScopeStack.h"
 
 namespace Rynex {

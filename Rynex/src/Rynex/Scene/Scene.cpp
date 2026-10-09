@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "Scene.h"
 
 #include <Rynex/Scene/Entity.h>

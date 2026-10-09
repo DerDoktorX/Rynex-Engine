@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "MeshImporter.h"
 
 #include <Rynex/Serializers/StaticMeshSerializer.h>

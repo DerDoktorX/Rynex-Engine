@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "AssetMetadata.h"
 #include <Rynex/Project/Project.h>
 

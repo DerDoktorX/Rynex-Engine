@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "BoundingVolume.h"
 
 #include <Rynex/Core/Assert.h>

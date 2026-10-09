@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "SceneImporter.h"
 
 #include <Rynex/Serializers/SceneSerializer.h>

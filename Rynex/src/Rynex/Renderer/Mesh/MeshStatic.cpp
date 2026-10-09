@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "MeshStatic.h"
 
 #include <Rynex/Renderer/Rendering/Render3D/Renderer3D.h>

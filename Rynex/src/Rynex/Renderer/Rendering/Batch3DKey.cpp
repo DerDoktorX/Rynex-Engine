@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "Batch3DKey.h"
 
 namespace Rynex {

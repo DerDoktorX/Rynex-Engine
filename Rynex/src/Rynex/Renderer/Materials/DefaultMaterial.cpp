@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "DefaultMaterial.h"
 
 #include <Rynex/Core/Application.h>

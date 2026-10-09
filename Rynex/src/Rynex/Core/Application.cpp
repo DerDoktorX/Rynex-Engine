@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "Application.h"
 
 #include <Rynex/Core/Log.h>

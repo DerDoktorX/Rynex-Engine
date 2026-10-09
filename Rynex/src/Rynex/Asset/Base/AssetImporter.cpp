@@ -1,4 +1,4 @@
-#include "rypch.h"
+#include <rypch.h>
 #include "AssetImporter.h"
 
 #include <Rynex/Asset/Base/Asset.h>
