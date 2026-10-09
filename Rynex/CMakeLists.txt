@@ -21,6 +21,7 @@ target_include_directories(
             ${CMAKE_CURRENT_LIST_DIR}/vendor/fileWatch/include/
             ${CMAKE_CURRENT_LIST_DIR}/vendor/magic_enum/include/
             ${CMAKE_CURRENT_LIST_DIR}/vendor/robin-hood-hashing/include/
+            ${CMAKE_CURRENT_LIST_DIR}/vendor/plf_colony/include/
             ${CMAKE_CURRENT_LIST_DIR}/vendor/entt/include/
 )
 
