@@ -88,14 +88,8 @@ namespace Rynex {
 			Single
 		};
 		
-		struct PerDrawObject
-		{
-			uint32_t m_IndexCount;
-			uint32_t m_InstancesCount;
-			uint32_t m_FirstIndex;
-			int m_BaseVertex;
-			uint32_t m_BaseInstance;
-		};
+		using PerDrawObject = DrawElementsIndirectCommand;
+
 
 		struct MeshMaterielIndex
 		{
