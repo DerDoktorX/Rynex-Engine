@@ -1,8 +1,8 @@
 #pragma once
 // UniqueController created in Project Rynex-Rendering on 06/10/2026.
 #include <rypch.h>
-#include <Rynex/Renderer/PiplineObjects/DrawList/UniqueKey.h>
-#include <Rynex/Renderer/PiplineObjects/DrawList/StoredKey.h>
+#include <Rynex/Renderer/ChachedRegister/UniqueKey.h>
+#include <Rynex/Renderer/ChachedRegister/StoredKey.h>
 
 namespace Rynex {
 

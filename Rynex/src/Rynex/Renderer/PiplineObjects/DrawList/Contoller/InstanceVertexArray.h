@@ -1,6 +1,6 @@
 #pragma once
 // InstanceVertexArray created in Project Rynex-Rendering on 05/10/2026.
-#include <rypch.h>
+#include <Rynex/Renderer/ChachedRegister/CachedBufferRegister.h>
 #include <Rynex/Renderer/PiplineObjects/DrawList/DrawListTypes.h>
 #include <Rynex/Renderer/Rendering/ShaderDrawList.h>
 
@@ -21,7 +21,10 @@ namespace Rynex {
     // public static constexpr ------------------------------------------------------------------------------------------------
         static constexpr uint32_t s_Fields = FieldMask;
     // public static methode --------------------------------------------------------------------------------------------------
-        static uint32_t GetMaxCapacity() { return std::numeric_limits<uint32_t>::max(); }
+        static uint32_t GetMaxCapacity()
+        {
+            return std::numeric_limits<uint32_t>::max();
+        }
 
 
         template<typename Indices>
@@ -44,8 +47,8 @@ namespace Rynex {
             return instance;
         }
 
-        template<typename BufferRegister>
-        static void Upload(const Span<Instance>& instances, const Span<DrawElementsIndirectCommand>& commands,  const ShaderDrawResource& base, std::vector<ShaderDrawResource>& out, BufferRegister& bufferRegister)
+
+        static void Upload(const Span<Instance>& instances, const Span<DrawElementsIndirectCommand>& commands,  const ShaderDrawResource& base, std::vector<ShaderDrawResource>& out, CachedBufferRegister & bufferRegister)
         {
             constexpr uint32_t elementByteSize = sizeof(Instance);
             const uint32_t count = instances.m_Count;
@@ -54,8 +57,8 @@ namespace Rynex {
             const Ref<VertexBuffer>& instancesVertexBuffer = bufferRegister.template AcquireVertexBuffer<Instance>(instances);
             // TODO make own Implemtion. (no base.m_VAO shit).
             const Ref<VertexBuffer>& vertexBuffer = nullptr;
-            const Ref<VertexBuffer>& indexBuffer = nullptr;
-            const Ref<VertexArray>& vertexBufferObject = bufferRegister.AquireInstanceVertexArray(indexBuffer, vertexBuffer, instancesVertexBuffer);
+            const Ref<IndexBuffer>& indexBuffer = nullptr;
+            auto [hash, vertexBufferObject] = bufferRegister.AcquireUniqueVertexArray(indexBuffer, { vertexBuffer, instancesVertexBuffer});
 
             for (const DrawElementsIndirectCommand& command : commands)
             {
@@ -65,6 +68,7 @@ namespace Rynex {
                 out.emplace_back(std::move(draw));
             }
         }
+
     private:
 
     };

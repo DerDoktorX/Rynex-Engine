@@ -2,8 +2,9 @@
 // DrawListImpl created in Project Rynex-Rendering on 03/10/2026.
 #include <rypch.h>
 #include <Rynex/Renderer/API/Buffer.h>
-#include <Rynex/Renderer/Rendering/ShaderDrawList.h>
+#include <Rynex/Renderer/ChachedRegister/CachedBufferRegister.h>
 #include <Rynex/Renderer/PiplineObjects/DrawList/DrawListTypes.h>
+#include <Rynex/Renderer/Rendering/ShaderDrawList.h>
 
 namespace Rynex {
 
@@ -26,7 +27,7 @@ namespace Rynex {
      * Commit() is called when a new group opens: the control stores its current state as the state of that group.
      */
     template<typename InstanceControl, typename GeometryControl, typename MaterielControl>
-    class DrawListImpl2
+    class DrawListImpl
     {
         static_assert(std::is_trivially_copyable_v<typename InstanceControl::Instance>, "No instance data type provided by InstanceControl!");
         static_assert(0u < sizeof(typename InstanceControl::Instance), "No data in InstanceValue!");
@@ -47,7 +48,7 @@ namespace Rynex {
         static constexpr uint32_t s_MaterielFields = MaterielControl::s_InstanceFields;
 
     // --- public member methods ---------------------------------------------------------------------------------------
-        DrawListImpl2()
+        DrawListImpl()
             : m_InstanceVec()
             , m_Commands()
             , m_ChunkCommands()
@@ -59,7 +60,7 @@ namespace Rynex {
         {
         }
 
-        ~DrawListImpl2()
+        ~DrawListImpl()
         {
         }
 
@@ -127,8 +128,7 @@ namespace Rynex {
          * @param out a output vector off draw calls
          * @param bufferRegister register to get or create Buffer
          */
-        template<typename BufferRegister>
-        void UploadCommands(std::vector<ShaderDrawResource>& out, BufferRegister& bufferRegister)
+        void UploadCommands(std::vector<ShaderDrawResource>& out, CachedBufferRegister& bufferRegister)
         {
             if (true == IsEmpty())
                 return;
