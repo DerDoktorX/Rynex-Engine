@@ -3,8 +3,8 @@
 #include <Rynex/Asset/Base/AssetMetadata.h>
 
 #include <Rynex/Core/Application.h>
-#include <Rynex/Project/Project.h>
 #include <Rynex/Core/LodePromis.h>
+#include <Rynex/Project/Project.h>
 
 namespace Rynex {
 

@@ -1046,7 +1046,7 @@ namespace Rynex {
 
                         for (const FileSystem::Path& folderPath : foldersPaths)
                         {
-                            AssetBrowserDataThreade assetBrowserDataThreade(
+                            AssetBrowserDataThread assetBrowserDataThreade(
                                 false,
                                 true,
                                 AssetHandle(0),
@@ -1072,7 +1072,7 @@ namespace Rynex {
 
                             RY_CORE_ASSERT(!metadata.GetIntern());
 
-                            AssetBrowserDataThreade assetBrowserDataThreade(
+                            AssetBrowserDataThread assetBrowserDataThreade(
                                 true,
                                 false,
                                 handle,

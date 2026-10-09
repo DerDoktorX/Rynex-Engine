@@ -14,9 +14,9 @@ namespace Rynex {
     // --- public member methode ----------------------------------------------------------------------------------------------
         AssetMangerLeftRightMap()
             : m_Maps()
-            , m_Instance{ 0 }
             , m_ReadersCount{ 0, 0 }
             , m_WriterMutex()
+            , m_Instance{ 0 }
             , m_Stop(false)
         {
         }

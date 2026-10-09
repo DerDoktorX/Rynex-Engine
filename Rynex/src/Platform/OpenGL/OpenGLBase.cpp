@@ -15,10 +15,10 @@ namespace OpenGL {
         }
 
 #if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
-        RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! executing", name);
+        RY_CORE_INFO("From Parel Thread Submit Func ({}) to execute on main thread! executing", name);
         Rynex::Application::Get().SubmiteToMainThreedQueue(func);
 #else
-        RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! Waiting", name);
+        RY_CORE_INFO("From Parel Thread Submit Func ({}) to execute on main thread! Waiting", name);
         Rynex::Application::Get().SubmiteToMainThreedQueueWait(func);
 #endif
     }
@@ -29,10 +29,10 @@ namespace OpenGL {
 			return false;
 
 #if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
-		RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! executing", name);
+		RY_CORE_INFO("From Parel Thread Submit Func ({}) to execute on main thread! executing", name);
 		Rynex::Application::Get().SubmiteToMainThreedQueue(func);
 #else
-		RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! Waiting", name);
+		RY_CORE_INFO("From Parel Thread Submit Func ({}) to execute on main thread! Waiting", name);
 		Rynex::Application::Get().SubmiteToMainThreedQueueWait(func);
 #endif
 		return true;

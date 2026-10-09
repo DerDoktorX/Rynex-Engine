@@ -74,7 +74,7 @@ namespace Rynex {
 	private:
 		void BrowserPannel();
 		void AssetPannel();
-		void ImGuiAssetFile(AssetBrowserDataThreade& data, float thumbernailSize);
+		void ImGuiAssetFile(AssetBrowserDataThread& data, float thumbernailSize);
 		void AssetRegisterPanel();
 
 		void GetFileList(const std::filesystem::path& curentPath);

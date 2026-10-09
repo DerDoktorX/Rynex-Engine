@@ -98,7 +98,13 @@ namespace Rynex {
     const AssetMetadata RuntimeAssetManager::GetMetadata(const FileSystem::Path& path) const
     {
         RY_CORE_ERROR("This Funktion 'RuntimeAssetManager::IsAssetLoaded' Don't need to Exist in Runtime!");
-        return GetMetadata(m_AssetRegistry.IsAssetInRegistry(path));
+        if(m_AssetRegistry.IsAssetInRegistry(path))
+        {
+            AssetHandle handle = m_AssetRegistry.GetAssetHandleConst(path);
+            return GetMetadata(handle);
+        }
+        RY_CORE_FATAL("no Metadata found! return empty Metadata.");
+        return AssetMetadata();
     }
 
     bool RuntimeAssetManager::IsAssetLoaded(AssetHandle handle) const

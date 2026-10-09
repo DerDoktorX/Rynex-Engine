@@ -138,8 +138,7 @@ namespace Rynex {
 						const Ref<EditorAssetManagerThread> assetManger = project->GetEditorAssetManger();
 						if (!assetManger->IsAssetHandleValid(handle))
 						{
-							uint64_t handleValue = handle;
-							RY_CORE_ERROR("Handle {} is not in AssetManger", handleValue);
+							RY_CORE_ERROR("Handle {} is not in AssetManger", handle);
 						}
 					}
 					const Scene* scenePtrConst = entity.GetScenePtr();

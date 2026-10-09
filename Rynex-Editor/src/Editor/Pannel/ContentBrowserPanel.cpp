@@ -204,9 +204,9 @@ namespace Rynex {
 				RY_CORE_WARN("New Asset Items Order");
 			}
 
-			for (AssetBrowserDataThreade& data : m_FileItemes)
+			for (AssetBrowserDataThread& data : m_FileItemes)
 			{
-				if (data.IsAssset)
+				if (data.IsAsset)
 				{
 					ImGuiAssetFile(data, thumbernailSize);
 				}
@@ -310,7 +310,7 @@ namespace Rynex {
 			
 	}
 
-	void ContentBrowserPanel::ImGuiAssetFile(AssetBrowserDataThreade& data, float thumbernailSize)
+	void ContentBrowserPanel::ImGuiAssetFile(AssetBrowserDataThread& data, float thumbernailSize)
 	{
 		std::filesystem::path relativProjectPath = data.RelativProjectPath.GetNamePathString();
 		FileSystem::Path& path = data.Path;
@@ -488,17 +488,17 @@ namespace Rynex {
 			
 			for (const auto& [handle, metadata, filePath] : m_RegisterItemes)
 			{
-			    const uint64_t handleNumber = handle;
+
 				if(filePath.empty())
 				{
 				    const std::string_view typeView = magic_enum::enum_name(metadata.m_Type);
 				    const char* typePtr = typeView.data();
-				    ImGui::Text("AssetHandle(UUID): (%llu), Data Type: %s", handleNumber, typePtr);
+				    ImGui::Text("AssetHandle(UUID): (%llu), Data Type: %s", handle, typePtr);
 				}
 				else
 				{
 				    const char* pathPtr = filePath.c_str();
-				    ImGui::Text("AssetHandle(UUID): (%llu), Realtime FilePath: %s", handleNumber, pathPtr);
+				    ImGui::Text("AssetHandle(UUID): (%llu), Realtime FilePath: %s", handle, pathPtr);
 				}
 			}
 			ImGui::End();

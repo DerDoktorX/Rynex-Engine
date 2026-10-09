@@ -120,11 +120,11 @@ namespace Rynex {
 
 #pragma region EditorAssetManagerThreade
 
-	struct AssetBrowserDataThreade
+	struct AssetBrowserDataThread
 	{
-		bool IsAssset = false;
+		bool IsAsset = false;
 		bool IsFolder = false;
-		AssetHandle Handle = 0;
+		AssetHandle Handle = AssetHandle::Zero();
 		AssetMetadata Metadata = AssetMetadata();
 		AssetType Type = AssetType::None;
 		std::string TypeString;
@@ -136,12 +136,12 @@ namespace Rynex {
 		FileSystem::Path RelativProjectPath;
 		std::string PathString;
 
-		AssetBrowserDataThreade() = default;
-		AssetBrowserDataThreade(bool isAssset, bool isFolder, AssetHandle handle, const AssetMetadata& metadata, AssetType type, const std::string& typeString, AssetState state, const std::string& name, const FileSystem::Path& path, const std::string& pathString)
-			: IsAssset(isAssset), IsFolder(isFolder), Handle(handle), Metadata(metadata), Type(type), TypeString(typeString), State(state), Name(name), Path(path), RelativProjectPath(""), PathString(pathString), Texture(nullptr)
+		AssetBrowserDataThread() = default;
+		AssetBrowserDataThread(bool isAsset, bool isFolder, AssetHandle handle, const AssetMetadata& metadata, AssetType type, const std::string& typeString, AssetState state, const std::string& name, const FileSystem::Path& path, const std::string& pathString)
+			: IsAsset(isAsset), IsFolder(isFolder), Handle(handle), Metadata(metadata), Type(type), TypeString(typeString), State(state), Name(name), Path(path), RelativProjectPath(""), PathString(pathString), Texture(nullptr)
 		{}
-		AssetBrowserDataThreade(AssetBrowserDataThreade&&) = default;
-		AssetBrowserDataThreade(const AssetBrowserDataThreade&) = default;
+		AssetBrowserDataThread(AssetBrowserDataThread&&) = default;
+		AssetBrowserDataThread(const AssetBrowserDataThread&) = default;
 	};
 
 	struct AssetFileDirectoryThreade
@@ -151,29 +151,29 @@ namespace Rynex {
 		std::string							FolderName;
 		FileSystem::Path				    FolderPath;
 	};
-
-	struct AssetRigestriyPannel
+//AssetRegisterPanel
+	struct AssetRegisterPanel
 	{
-		AssetHandle Handle = 0ull;
+		AssetHandle Handle = AssetHandle::Zero();
 		AssetMetadata Metadata = AssetMetadata();
 		std::string FileAssetPath = "";
 
-		AssetRigestriyPannel() = default;
+		AssetRegisterPanel() = default;
 
-		AssetRigestriyPannel(AssetHandle handle, const AssetMetadata& metadata)
+		AssetRegisterPanel(AssetHandle handle, const AssetMetadata& metadata)
 			: Handle(handle), Metadata(metadata), FileAssetPath(metadata.m_FilePath.string())
 		{ }
 
-		AssetRigestriyPannel(const AssetRigestriyPannel&) = default;
-		AssetRigestriyPannel(AssetRigestriyPannel&&) = default;
+		AssetRegisterPanel(const AssetRegisterPanel&) = default;
+		AssetRegisterPanel(AssetRegisterPanel&&) = default;
 
 	};
 
 	using HandleRegistryThreade = std::map<AssetHandle, AssetMetadata>;
 	using PathRegistryThreade = std::map<FileSystem::Path, AssetHandle>;
 	using DirectoryRegistryThreade = std::map<FileSystem::Path, AssetFileDirectoryThreade>;
-	using ContentBrowserItemesThreade = std::vector<AssetBrowserDataThreade>;
-	using RegisterItemesThreade = std::vector<AssetRigestriyPannel>;
+	using ContentBrowserItemesThreade = std::vector<AssetBrowserDataThread>;
+	using RegisterItemesThreade = std::vector<AssetRegisterPanel>;
 
 	
 
