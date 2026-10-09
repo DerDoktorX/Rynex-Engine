@@ -12,7 +12,6 @@
 #include <Rynex/Renderer/ChachedRegister/StoredKey.h>
 #include <Rynex/Renderer/ChachedRegister/UniqueBufferRegister.h>
 #include <Rynex/Renderer/ChachedRegister/UniqueKey.h>
-#include <Rynex/Renderer/PiplineObjects/DrawList/DrawListTypes.h>
 
 
 // #define RY_VERTEX_BUFFER_REGISTER
@@ -37,7 +36,7 @@ namespace Rynex {
             const Span<const Byte> bytes = AsBytes(bufferData);
             return AcquireStorageBuffer(bytes);
         }
-        Ref<StorageBuffer> AcquireStorageBuffer(const Span<Byte>& bufferData);
+        Ref<StorageBuffer> AcquireStorageBuffer(const Span<const Byte>& bufferData);
 
         template<typename T>
         Ref<VertexBuffer> AcquireVertexBuffer(const Span<T>& bufferData)
@@ -107,8 +106,8 @@ namespace Rynex {
         Ref<VertexBuffer> AcquireUniqueVertexBufferHash(Hash64 hash);
 
 
-        std::pair<Hash64, Ref<VertexArray>> AcquireUniqueVertexArray(const Ref<IndexBuffer>& indexBuffer, std::initializer_list<const Ref<VertexBuffer>&> vertexBufferList);
-        std::pair<Hash64, Ref<VertexArray>> AcquireUniqueVertexArray(const Ref<IndexBuffer>& indexBuffer, std::vector<const Ref<VertexBuffer>&> vertexBufferVec);
+        std::pair<Hash64, Ref<VertexArray>> AcquireUniqueVertexArray(const Ref<IndexBuffer>& indexBuffer, std::initializer_list<VertexArray::VertexElements> vertexBufferList);
+        std::pair<Hash64, Ref<VertexArray>> AcquireUniqueVertexArray(const Ref<IndexBuffer>& indexBuffer, Span<const VertexArray::VertexElements> vertexBufferVec);
         Ref<VertexArray> AcquireUniqueVertexArrayHash(Hash64 hash);
 
 
@@ -136,6 +135,7 @@ namespace Rynex {
         uint64_t FreeGpuMemory(uint64_t requiredByteSize);
         uint64_t TrimAllUnused(uint64_t maxFrame);
     // private static methode -------------------------------------------------------------------------------------------------
+        static Hash64 HashVertexArray(const Ref<IndexBuffer>& indexBuffer, const Span<const VertexArray::VertexElements>& vertexBufferVec);
     // private alias ----------------------------------------------------------------------------------------------------------
         using StoredStorageRegister = StoredBufferRegister<StoredKey, Ref<StorageBuffer>, StoredBufferController<StorageBuffer>>;
         using StoredVertexRegister = StoredBufferRegister<StoredKey, Ref<VertexBuffer>, StoredBufferController<VertexBuffer>>;
@@ -149,7 +149,7 @@ namespace Rynex {
         // using UniqueTextureRegister = UniqueBufferRegister<Hash64, Ref<Texture>, UniqueBufferController<Texture, Byte>>;
         using UniqueVertexRegister = UniqueBufferRegister<Hash64, Ref<VertexBuffer>, UniqueBufferController<VertexBuffer, Byte>>;
 
-        // using UniqueVertexArrayRegister = UniqueBufferRegister<Hash64, Ref<VertexArray>, UniqueBufferController<VertexArray, Byte>>;
+        using UniqueVertexArrayRegister = UniqueBufferRegister<Hash64, Ref<VertexArray>, UniqueVertexObjectArrayController>;
 
         enum RegisterFlagBits : uint32_t
         {
@@ -170,7 +170,7 @@ namespace Rynex {
         UniqueStorageRegister m_UniqueStorage;
         // UniqueTextureRegister m_UniqueTexture;
 
-        // UniqueVertexArrayRegister m_UniqueVertexArray;
+        UniqueVertexArrayRegister m_UniqueVertexArray;
 
 
         uint64_t m_ReservedGpuMemory;

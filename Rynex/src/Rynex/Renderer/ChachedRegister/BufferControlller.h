@@ -5,6 +5,67 @@
 #include <Rynex/Renderer/ChachedRegister/UniqueKey.h>
 namespace Rynex {
 
+
+    struct UniqueVertexObjectArrayController
+    {
+        struct ConstructData
+        {
+            Ref<IndexBuffer> m_IndexBuffer;
+            Span<const VertexArray::VertexElements> m_VertexBufferSan;
+
+            ConstructData(const Ref<IndexBuffer>& indexBuffer, const Span<const VertexArray::VertexElements>& vertexBufferSpan)
+                : m_IndexBuffer(indexBuffer)
+                , m_VertexBufferSan(vertexBufferSpan)
+            {
+            }
+        };
+
+        static Ref<VertexArray> Create(const ConstructData& data)
+        {
+
+            Ref<VertexArray> vertexArrayObject = VertexArray::Create();
+            if (const Ref<IndexBuffer>& indexBuffer = data.m_IndexBuffer)
+                vertexArrayObject->SetIndexBuffer(indexBuffer);
+
+            for (const VertexArray::VertexElements& vertexElement : data.m_VertexBufferSan)
+            {
+                if (const Ref<VertexBuffer>& vertexBuffer = vertexElement.m_Buffer)
+                    vertexArrayObject->AddVertexBuffer(vertexBuffer, vertexElement.m_UseLayout);
+            }
+
+            return vertexArrayObject;
+
+        }
+
+        static uint64_t GetByteSize(const Ref<VertexArray>& vertexArray)
+        {
+            if (nullptr == vertexArray)
+            {
+                RY_CORE_FATAL("Vertex object array is null! (UniqueVertexObjectArrayController::GetByteSize)!");
+                return 0;
+            }
+
+            uint64_t bytesSize = 0u;
+
+            if (const Ref<IndexBuffer>& indexBuffer = vertexArray->GetIndexBuffer())
+                bytesSize += indexBuffer->GetByteSize();
+
+
+            for (const VertexArray::VertexElements& vertexElement : vertexArray->GetVertexBuffers())
+            {
+                if (const Ref<VertexBuffer>& vertexBuffer = vertexElement.m_Buffer)
+                    bytesSize += vertexElement.m_Buffer->GetByteSize();
+            }
+            return bytesSize;
+        }
+
+        static bool IsReferencedElsewhere(const Ref<VertexArray>& vertexObjectArray)
+        {
+            return 1l < vertexObjectArray.use_count();
+        }
+
+    };
+
     template<typename T, typename N>
     class UniqueBufferController
     {
@@ -46,10 +107,7 @@ namespace Rynex {
         static uint64_t GetByteSize(const Ref<T>& buffer);
 
 
-        static bool IsReferencedElsewhere(const Ref<T>& buffer)
-        {
-            return 1l < buffer.use_count();
-        }
+        static bool IsReferencedElsewhere(const Ref<T>& buffer);
     };
 
 
@@ -114,7 +172,7 @@ namespace Rynex {
     }
 
     template<>
-   inline Ref<UniformBuffer> UniqueBufferController<UniformBuffer, Byte>::Create(const ConstructData& data)
+    inline Ref<UniformBuffer> UniqueBufferController<UniformBuffer, Byte>::Create(const ConstructData& data)
     {
         return UniformBuffer::Create(data.m_Data.data(), data.m_Data.size_bytes(), data.m_Layout,data.m_Flag);
     }
@@ -173,6 +231,12 @@ namespace Rynex {
             bytesSize += static_cast<uint64_t>(byteSize);
         }
         return bytesSize;
+    }
+
+    template <typename T, typename N>
+    bool UniqueBufferController<T, N>::IsReferencedElsewhere(const Ref<T>& buffer)
+    {
+        return 1l < buffer.use_count();
     }
 }
 

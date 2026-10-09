@@ -18,7 +18,7 @@ namespace Rynex {
     {
     }
 
-    Ref<StorageBuffer> CachedBufferRegister::AcquireStorageBuffer(const Span<Byte>& bufferData)
+    Ref<StorageBuffer> CachedBufferRegister::AcquireStorageBuffer(const Span<const Byte>& bufferData)
     {
         const uint64_t byteSize = bufferData.size();
         const StoredKey key(byteSize);
@@ -85,7 +85,7 @@ namespace Rynex {
     std::pair<Hash64, Ref<IndexBuffer>> CachedBufferRegister::AcquireUniqueIndexBuffer16(const Span<uint16_t>& bufferData, BufferFlagGPU flag)
     {
         UniqueIndexRegister16::ConstructData constructData(bufferData, BufferLayout(), flag, BufferType::None);
-        return AcquireUnique(m_UniqueIndex16, constructData);;
+        return AcquireUnique(m_UniqueIndex16, constructData);
     }
 
     Ref<IndexBuffer> CachedBufferRegister::AcquireUniqueIndexBufferHash16(Hash64 hash)
@@ -106,6 +106,24 @@ namespace Rynex {
             return Ref<VertexBuffer>(nullptr);
         Ref<VertexBuffer> vertexBuffer(*vertexBufferPtr);
         return vertexBuffer;
+    }
+
+    std::pair<Hash64, Ref<VertexArray>> CachedBufferRegister::AcquireUniqueVertexArray(const Ref<IndexBuffer>& indexBuffer, std::initializer_list<VertexArray::VertexElements> vertexBufferList)
+    {
+        const VertexArray::VertexElements* listBegin = vertexBufferList.begin();
+        const size_t listSize = vertexBufferList.size();
+        const Span<const VertexArray::VertexElements> vertexBufferVec(listBegin, listSize);
+        return AcquireUniqueVertexArray(indexBuffer, vertexBufferVec);
+    }
+
+    std::pair<Hash64, Ref<VertexArray>> CachedBufferRegister::AcquireUniqueVertexArray(const Ref<IndexBuffer>& indexBuffer, const Span<const VertexArray::VertexElements> vertexBufferVec)
+    {
+        using ConstructData =  UniqueVertexArrayRegister::ConstructData;
+        using Key = Hash64;
+        const Key key = HashVertexArray(indexBuffer, vertexBufferVec);
+        const ConstructData data{ indexBuffer, vertexBufferVec };
+        Ref<VertexArray>& vertexObjectArray = m_UniqueVertexArray.Create(key, data);
+        return std::make_pair(key, vertexObjectArray);
     }
 
     void CachedBufferRegister::SetFrame(const uint64_t frame)
@@ -341,5 +359,30 @@ namespace Rynex {
         freedBytes += m_StoredTexture.TrimUnused(maxFrame);
 #endif
         return freedBytes;
+    }
+
+    Hash64 CachedBufferRegister::HashVertexArray(const Ref<IndexBuffer>& indexBuffer, const Span<const VertexArray::VertexElements>& vertexBufferVec)
+    {
+        std::vector<Hash64> hashCombineVec;
+        const uint64_t hashCombineCount = 1ull + (vertexBufferVec.size() * 2ull);
+        hashCombineVec.reserve(hashCombineCount);
+
+        const Hash64 indexBufferAddress = reinterpret_cast<Hash64>(indexBuffer.get());
+        hashCombineVec.emplace_back(indexBufferAddress);
+        for (const VertexArray::VertexElements& vertexElements : vertexBufferVec)
+        {
+            const Ref<VertexBuffer>& vertexBuffer = vertexElements.m_Buffer;
+            if (nullptr == vertexBuffer)
+                continue;
+
+            const Hash64 vertexBufferAddress = reinterpret_cast<Hash64>(vertexBuffer.get());
+            const BufferLayout& layout = vertexElements.m_UseLayout;
+            const Hash64 vertexBufferLayout = layout.GetHash();
+
+            hashCombineVec.emplace_back(vertexBufferAddress);
+            hashCombineVec.emplace_back(vertexBufferLayout);
+        }
+        const Hash64 hash = robin_hood::hash_bytes(hashCombineVec.data(), hashCombineVec.size());
+        return hash;
     }
 }
