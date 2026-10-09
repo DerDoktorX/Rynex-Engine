@@ -11,12 +11,20 @@ add_executable(
       Rynex-Test
       ${SOURCE_FILES}
 )
-set_target_properties(Rynex-Test PROPERTIES CXX_STANDARD 17)
+set_target_properties(Rynex PROPERTIES CXX_STANDARD ${CPP_VERSION_USING})
 if(MSVC)
-    target_compile_options(Rynex-Test PRIVATE /std:c++17)
+    set(CPP_VERSION_COMPILE_VERSION_OPTIONS /std:c++${CPP_VERSION_USING})
+    target_compile_options(Rynex-Test PRIVATE ${CPP_VERSION_COMPILE_VERSION_OPTIONS})
+    
+    set(CPP_VERSION_COMPILE_VERSION_FEATURES cxx_std_${CPP_VERSION_USING})
+    target_compile_features(Rynex-Test PRIVATE ${CPP_VERSION_COMPILE_VERSION_FEATURES})
 else()
     # for other Compiler (GCC, Clang) functionary Default-Way
-    target_compile_features(Rynex-Test PRIVATE cxx_std_17)
+    set(CPP_VERSION_COMPILE_VERSION_OPTIONS -std=c++${CPP_VERSION_USING})
+    target_compile_options(Rynex-Test PRIVATE ${CPP_VERSION_COMPILE_VERSION_OPTIONS})
+    
+    set(CPP_VERSION_COMPILE_VERSION_FEATURES cxx_std_${CPP_VERSION_USING})
+    target_compile_features(Rynex-Test PRIVATE ${CPP_VERSION_COMPILE_VERSION_FEATURES})
 endif()
 
 target_include_directories(
@@ -33,6 +41,8 @@ target_link_libraries(
             gtest_main
 )
 
+SET_CPP_COMPILER_VERSION_PROJECT(Rynex-Test ${CPP_VERSION_USING})
+
 target_compile_definitions(
       Rynex-Test
       PRIVATE
@@ -42,9 +52,10 @@ target_compile_definitions(
         $<$<CONFIG:RelInfoEasy>:RY_RELEASE>        # equals Premake "Release"
         $<$<CONFIG:RelWithDebInfo>:RY_RELEASE>     # equals Premake "Release" just off crack
         $<$<CONFIG:Release>:RY_DIST>               # equals Premake "Dist"
+        RY_CPP_${CPP_VERSION_USING}
 )
 
-setupBinary(Rynex-Test)
+SET_BINARY_RESOURCE(Rynex-Test)
 
 if(WIN32)
     target_compile_definitions(Rynex-Test PRIVATE RY_PLATFORM_WINDOWS )

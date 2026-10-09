@@ -23,13 +23,23 @@ target_link_libraries(
       PRIVATE
       Rynex
 )
-set_target_properties(Sandbox PROPERTIES CXX_STANDARD 17)
+set_target_properties(Sandbox PROPERTIES CXX_STANDARD ${CPP_VERSION_USING})
 if(MSVC)
-    target_compile_options(Sandbox PRIVATE /std:c++17)
+    set(CPP_VERSION_COMPILE_VERSION_OPTIONS /std:c++${CPP_VERSION_USING})
+    target_compile_options(Sandbox PRIVATE ${CPP_VERSION_COMPILE_VERSION_OPTIONS})
+    
+    set(CPP_VERSION_COMPILE_VERSION_FEATURES cxx_std_${CPP_VERSION_USING})
+    target_compile_features(Sandbox PRIVATE ${CPP_VERSION_COMPILE_VERSION_FEATURES})
 else()
     # for other Compiler (GCC, Clang) functionary Default-Way
-    target_compile_features(Sandbox PRIVATE cxx_std_17)
+    set(CPP_VERSION_COMPILE_VERSION_OPTIONS -std=c++${CPP_VERSION_USING})
+    target_compile_options(Sandbox PRIVATE ${CPP_VERSION_COMPILE_VERSION_OPTIONS})
+    
+    set(CPP_VERSION_COMPILE_VERSION_FEATURES cxx_std_${CPP_VERSION_USING})
+    target_compile_features(Sandbox PRIVATE ${CPP_VERSION_COMPILE_VERSION_FEATURES})
 endif()
+
+SET_CPP_COMPILER_VERSION_PROJECT(Sandbox ${CPP_VERSION_USING})
 
 target_compile_definitions(
       Sandbox
@@ -40,8 +50,11 @@ target_compile_definitions(
       $<$<CONFIG:RelInfoEasy>:RY_RELEASE>        # equals Premake "Release"
       $<$<CONFIG:RelWithDebInfo>:RY_RELEASE>     # equals Premake "Release" just off crack
       $<$<CONFIG:Release>:RY_DIST>               # equals Premake "Dist"
+      RY_CPP_${CPP_VERSION_USING}
 )
-setupBinary(Sandbox)
+
+SET_BINARY_RESOURCE(Sandbox)
+
 if(WIN32)
     target_compile_definitions(
           Sandbox

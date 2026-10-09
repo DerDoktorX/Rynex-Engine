@@ -1,6 +1,6 @@
 project(Rynex)
 
-
+# alle **.cpp in src/ add to the engine core libery.
 file(
         GLOB_RECURSE
         SOURCE_FILES
@@ -11,14 +11,8 @@ add_library(
         Rynex
         ${SOURCE_FILES}
 )
-set_target_properties(Rynex PROPERTIES CXX_STANDARD 17)
-if(MSVC)
-    target_compile_options(Rynex PRIVATE /std:c++17)
-else()
-    # for other Compiler (GCC, Clang) functionary Default-Way
-    target_compile_features(Rynex PRIVATE cxx_std_17)
-endif()
 
+# alle pulice include directory to the engine and to single file header liberys.
 target_include_directories(
         Rynex
       
@@ -30,6 +24,7 @@ target_include_directories(
             ${CMAKE_CURRENT_LIST_DIR}/vendor/entt/include/
 )
 
+# linke alle liberys that int the engine provide public access for the implementing side
 target_link_libraries(
         Rynex
       
@@ -49,36 +44,43 @@ target_link_libraries(
 )
 
 
-
+# precompiled header for the core engine.
 target_precompile_headers(
         Rynex
         PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}/src/rypch.h
 )
 
+SET_CPP_COMPILER_VERSION_PROJECT(Rynex ${CPP_VERSION_USING})
 
+# define compiler set defines.
 target_compile_definitions(
       Rynex
       PRIVATE
-        $<$<CONFIG:Debug>:RY_DEBUG>
+        $<$<CONFIG:Debug>:RY_DEBUG>                # equals Premake "Debug"
         $<$<CONFIG:RelEasy>:RY_RELEASE>            # equals Premake "Release"
         $<$<CONFIG:RelWithDebInfo>:RY_RELEASE>     # equals Premake "Release" just off crack
         $<$<CONFIG:Release>:RY_DIST>               # equals Premake "Dist"
 )
 
+SET_BINARY_RESOURCE(Rynex)
+
+# define compiler set define for target platform. (no WIN64 in cmake defined!)
 if(WIN32)
     target_compile_definitions(
             Rynex
             PRIVATE
                 RY_PLATFORM_WINDOWS
     )
+    message("Platform Windows")
 else()
     target_compile_definitions(
             Rynex
             PRIVATE
                 RY_PLATFORM_LINUX
     )
+    message("Platform Linux")
 endif()
 
-setupBinary(Rynex)
+
 

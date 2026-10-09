@@ -11,13 +11,7 @@ add_executable(
         Rynex-Editor
         ${SOURCE_FILES}
 )
-set_target_properties(Rynex-Editor PROPERTIES CXX_STANDARD 17)
-if(MSVC)
-    target_compile_options(Rynex-Editor PRIVATE /std:c++17)
-else()
-    # for other Compiler (GCC, Clang) functionary Default-Way
-    target_compile_features(Rynex-Editor PRIVATE cxx_std_17)
-endif()
+
 
 target_include_directories(
         Rynex-Editor
@@ -31,6 +25,7 @@ target_link_libraries(
         Rynex
 )
 
+SET_CPP_COMPILER_VERSION_PROJECT(Rynex-Editor ${CPP_VERSION_USING})
 
 target_compile_definitions(
       Rynex-Editor
@@ -41,8 +36,11 @@ target_compile_definitions(
         $<$<CONFIG:RelInfoEasy>:RY_RELEASE>        # equals Premake "Release"
         $<$<CONFIG:RelWithDebInfo>:RY_RELEASE>     # equals Premake "Release" just off crack
         $<$<CONFIG:Release>:RY_DIST>               # equals Premake "Dist"
+        RY_CPP_${CPP_VERSION_USING}
 )
-setupBinary(Rynex-Editor)
+
+SET_BINARY_RESOURCE(Rynex-Editor)
+
 if(WIN32)
     target_compile_definitions(
             Rynex-Editor
