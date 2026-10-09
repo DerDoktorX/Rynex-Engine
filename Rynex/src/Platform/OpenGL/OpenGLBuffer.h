@@ -32,6 +32,7 @@ namespace Rynex {
 #endif
 		virtual ~OpenGLVertexBuffer();
 
+	    virtual void SetBufferFlag(BufferFlagGPU flag) override;
 		virtual bool IsTransferd() override;
 		virtual void Bind() const override;
 		virtual void UnBind() const override;
@@ -64,7 +65,7 @@ namespace Rynex {
 		void OnDestroyCall();
 	private:
 		static constexpr const uint32_t s_Target = GL_ARRAY_BUFFER;
-	// --- private member varibles --------------------------------------------------------------------------------------------
+	// --- private member variables -------------------------------------------------------------------------------------------
 		BufferLayout m_Layout;
 		std::vector<Parent> m_ParentVec;
 
@@ -93,11 +94,10 @@ namespace Rynex {
 
 		virtual ~OpenGLIndexBuffer();
 
-
-		virtual uint32_t GetCount() const { return (m_Buffer.GetByteSize() / m_EllementByte); }
-		virtual uint32_t GetByteSize() const { return (m_Buffer.GetByteSize()); }
-
-		virtual uint32_t GetElementByte() const { return m_EllementByte; }
+	    virtual void SetBufferFlag(BufferFlagGPU flag) override;
+		virtual uint32_t GetCount() const override { return (m_Buffer.GetByteSize() / m_EllementByte); }
+		virtual uint32_t GetByteSize() const override { return (m_Buffer.GetByteSize()); }
+		virtual uint32_t GetElementByte() const override { return m_EllementByte; }
 
 		virtual void SetData(const uint32_t* indices, uint32_t byteSize) override;
 		virtual void SetData(const uint16_t* indices, uint32_t byteSize) override;
@@ -111,8 +111,8 @@ namespace Rynex {
 		virtual void FreeBufferData() override;
 
 		virtual bool IsTransferd() override;
-		virtual void Bind() const;
-		virtual void UnBind() const;
+		virtual void Bind() const override;
+		virtual void UnBind() const override;
 
 		void AddParent(OpenGLVertexArray* vertexArrayPtr);
 		void RemoveParent(OpenGLVertexArray* vertexArrayPtr);
@@ -122,7 +122,7 @@ namespace Rynex {
 		void OnDestroyCall();
 	private:
 		static constexpr const uint32_t s_Target = GL_ELEMENT_ARRAY_BUFFER;
-	// --- private member varibles --------------------------------------------------------------------------------------------
+	// --- private member variables -------------------------------------------------------------------------------------------
 		std::vector<Weak<OpenGLVertexArray>> m_ParentVec;
 		uint32_t m_EllementByte;
 #ifdef RY_OPENGL_USE_ARRAY_BUFFER
@@ -146,6 +146,8 @@ namespace Rynex {
 		OpenGLStorageBuffer(const void* data, uint32_t byteSize, BufferType buffertype, BufferFlagGPU flag);
 		virtual ~OpenGLStorageBuffer();
 
+	    virtual void SetBufferFlag(BufferFlagGPU flag) override;
+	    virtual void SetBufferFlag(BufferType type, BufferFlagGPU flag) override;
 		virtual bool IsTransferd() override;
 		virtual void Bind(uint32_t slot = 0) override;
 		virtual void UnBind(uint32_t slot) override;
@@ -176,7 +178,7 @@ namespace Rynex {
 	{
 	public:
 		using Parent = Weak<OpenGLStorageBuffer>;
-	// --- public member funktions --------------------------------------------------------------------------------------------
+	// --- public member methode ----------------------------------------------------------------------------------------------
 #ifdef RY_OPENGL_OLD_UNIFORM
 		OpenGLUniformBuffer(std::vector<unsigned char>&& data, const BufferLayout& layout, BufferDataUsage usage);
 #else	
@@ -193,11 +195,11 @@ namespace Rynex {
 #endif
 
 
-		OpenGLUniformBuffer(const Ref<OpenGLUniformBuffer>& uniformBufferOpenGL);
+        explicit OpenGLUniformBuffer(const Ref<OpenGLUniformBuffer>& uniformBufferOpenGL);
 
 		virtual ~OpenGLUniformBuffer();
 
-
+	    virtual void SetBufferFlag(BufferFlagGPU flag) override;
 		virtual bool IsTransferd() override;
 		virtual void Bind(uint32_t slot = 15) override;
 		virtual void UnBind(uint32_t slot) override;
@@ -220,9 +222,9 @@ namespace Rynex {
 	
 	private:
 		void CheckLayout();
-	// --- private static varibles --------------------------------------------------------------------------------------------
+	// --- private constexpr variable -----------------------------------------------------------------------------------------
 		static constexpr const uint32_t s_Target = GL_UNIFORM_BUFFER;
-	// --- private member varibles --------------------------------------------------------------------------------------------
+	// --- private member variables -------------------------------------------------------------------------------------------
 
 #ifdef RY_OPENGL_OLD_UNIFORM
 		BufferLayout m_Layout;
@@ -244,14 +246,17 @@ namespace Rynex {
 
 #endif
 	};
-	class OpenGLIndriectBuffer : public IndirectBuffer
+	class OpenGLIndirectBuffer : public IndirectBuffer
 	{
 	public:
-		OpenGLIndriectBuffer(uint32_t byteSize);
-		OpenGLIndriectBuffer(const void* data, uint32_t byteSize);
-		OpenGLIndriectBuffer(uint32_t byteSize, const BufferLayout& layout);
-		OpenGLIndriectBuffer(const void* data, uint32_t byteSize, const BufferLayout& layout);
-		virtual ~OpenGLIndriectBuffer();
+		OpenGLIndirectBuffer(uint32_t byteSize);
+		OpenGLIndirectBuffer(const void* data, uint32_t byteSize);
+		OpenGLIndirectBuffer(uint32_t byteSize, const BufferLayout& layout);
+		OpenGLIndirectBuffer(const void* data, uint32_t byteSize, const BufferLayout& layout);
+		virtual ~OpenGLIndirectBuffer();
+
+	    virtual void SetBufferFlag(BufferFlagGPU flag) override;
+
 
 		virtual bool IsTransferd() override;
 		virtual void Bind() const override;
@@ -278,9 +283,9 @@ namespace Rynex {
 		// s_Target = GL_DRAW_INDIRECT_BUFFER;
 		static constexpr const uint32_t s_Target = GL_DRAW_INDIRECT_BUFFER;
 
-		// s_FlagsOptimz = 0; 0 is the flag for no optimice to cahnge Data
-		static constexpr const uint32_t s_FlagsOptimz = 0;
-	// --- private member member ----------------------------------------------------------------------------------------------
+		// s_FlagsOptimize = 0; 0 is the flag for no optimize to change Data
+		static constexpr const uint32_t s_FlagsOptimize = 0;
+	// --- private member variable ---------------------------------------------------------------------------------------------
 
 #ifdef RY_OPENGL_INDRECT_API_SHADER_STORAGE_BUFFER_USE
 		OpenGLShaderStorageBuffer m_Buffer;

@@ -51,7 +51,7 @@ namespace Rynex {
 #pragma region VertexBuffer
 
 
-	OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size)
+	OpenGLVertexBuffer::OpenGLVertexBuffer(const uint32_t size)
 		: m_Buffer(s_Target, nullptr, size, Utils::GetFlagsFromFlagTypes(BufferFlag::None))
 		, m_Flag(BufferFlag::None)
 	{
@@ -59,14 +59,14 @@ namespace Rynex {
 
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(const void* vertices, uint32_t size, BufferFlagGPU flag)
-		: m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(vertices), size, Utils::GetFlagsFromFlagTypes(flag))
+		: m_Buffer(s_Target, static_cast<const uint8_t*>(vertices), size, Utils::GetFlagsFromFlagTypes(flag))
 		, m_Flag(flag)
 	{
 	}
 
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(const void* vertices, uint32_t size, BufferFlagGPU flag, const BufferLayout& layout)
-		: m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(vertices), size, Utils::GetFlagsFromFlagTypes(flag))
+		: m_Buffer(s_Target, static_cast<const uint8_t*>(vertices), size, Utils::GetFlagsFromFlagTypes(flag))
 		, m_Flag(flag)
 		, m_Layout(layout)
 	{
@@ -93,7 +93,17 @@ namespace Rynex {
 		RY_CORE_ASSERT(OpenGLThreadContext::IsActive());
 	}
 
-	bool OpenGLVertexBuffer::IsTransferd()
+    void OpenGLVertexBuffer::SetBufferFlag(const BufferFlagGPU flag)
+    {
+	    if (flag == m_Flag)
+	        return;
+
+	    m_Flag = flag;
+	    const uint32_t typeFlag = Utils::GetFlagsFromFlagTypes(m_Flag);
+	    m_Buffer.SetBufferFlag(s_Target, typeFlag);
+    }
+
+    bool OpenGLVertexBuffer::IsTransferd()
 	{
 		RY_CORE_NOT_IMPL();
 		return false;
@@ -112,14 +122,14 @@ namespace Rynex {
 	void OpenGLVertexBuffer::SetData(const void* data, uint32_t byteSize)
 	{
 		uint32_t offestByteSize = 0;
-		m_Buffer.SetData(s_Target, reinterpret_cast<const uint8_t*>(data), offestByteSize, byteSize);
+		m_Buffer.SetData(s_Target, static_cast<const uint8_t*>(data), offestByteSize, byteSize);
 		OnDataChangeCall();
 	}
 
 	void OpenGLVertexBuffer::ResizeBuffer(const void* data, uint32_t byteSize)
 	{
 		uint32_t flag = Utils::GetFlagsFromFlagTypes(m_Flag);
-		m_Buffer.ResizeData(s_Target, reinterpret_cast<const uint8_t*>(data), byteSize, flag);
+		m_Buffer.ResizeData(s_Target, static_cast<const uint8_t*>(data), byteSize, flag);
 		OnSpecifcationChangeCall();
 	}
 
@@ -303,16 +313,16 @@ namespace Rynex {
 
 
 	OpenGLIndexBuffer::OpenGLIndexBuffer(const uint32_t* indices, uint32_t count, BufferFlagGPU flag)
-		: m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(indices), count * sizeof(uint32_t), Utils::GetFlagsFromFlagTypes(flag))
+		: m_EllementByte(sizeof(uint32_t))
+		, m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(indices), count * sizeof(uint32_t), Utils::GetFlagsFromFlagTypes(flag))
 		, m_Flag(flag)
-		, m_EllementByte(sizeof(uint32_t))
 	{
 	}
 
 	OpenGLIndexBuffer::OpenGLIndexBuffer(const uint16_t* indices, uint32_t count, BufferFlagGPU flag)
-		: m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(indices), count * sizeof(uint16_t), Utils::GetFlagsFromFlagTypes(flag))
+		: m_EllementByte(sizeof(uint16_t))
+		, m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(indices), count * sizeof(uint16_t), Utils::GetFlagsFromFlagTypes(flag))
 		, m_Flag(flag)
-		, m_EllementByte(sizeof(uint16_t))
 	{
 
 	}
@@ -339,8 +349,18 @@ namespace Rynex {
 		RY_CORE_ASSERT(OpenGLThreadContext::IsActive());
 	}
 
+    void OpenGLIndexBuffer::SetBufferFlag(const BufferFlagGPU flag)
+    {
+	    if (flag == m_Flag)
+	        return;
 
-	void OpenGLIndexBuffer::SetData(const uint32_t* indices, uint32_t count)
+	    m_Flag = flag;
+	    const uint32_t typeFlag = Utils::GetFlagsFromFlagTypes(m_Flag);
+	    m_Buffer.SetBufferFlag(s_Target, typeFlag);
+    }
+
+
+    void OpenGLIndexBuffer::SetData(const uint32_t* indices, uint32_t count)
 	{ 
 		m_EllementByte = sizeof(uint32_t);
 		uint32_t byteSize = count * m_EllementByte;
@@ -427,7 +447,7 @@ namespace Rynex {
 		glGetNamedBufferSubData(m_Buffer.GetRenderID(), 0u, GetByteSize(), dataBytePtr);
 
 
-		RY_CORE_TRACE("Add Copy New Data Action Finsihed!");
+		RY_CORE_TRACE("Add Copy New Data Action Finished!");
 		OnSpecifcationChangeCall();
 	}
 
@@ -527,23 +547,23 @@ namespace Rynex {
 #pragma region StorageBuffer
 
 	OpenGLStorageBuffer::OpenGLStorageBuffer(uint32_t byteSize, BufferFlagGPU flag)
-		: m_FlagTypes(flag)
+		: m_Buffer(GL_SHADER_STORAGE_BUFFER, nullptr, byteSize, Utils::GetFlagsFromFlagTypes(flag))
 		, m_Target(GL_SHADER_STORAGE_BUFFER)
-		, m_Buffer(GL_SHADER_STORAGE_BUFFER, nullptr, byteSize, Utils::GetFlagsFromFlagTypes(flag))
+		, m_FlagTypes(flag)
 	{
 	}
 
 	OpenGLStorageBuffer::OpenGLStorageBuffer(const void* dataPtr, uint32_t byteSize, BufferType buffertype, BufferFlagGPU flag)
-		: m_FlagTypes(flag)
+		: m_Buffer(Utils::GetTarget(buffertype), static_cast<const uint8_t*>(dataPtr), byteSize, Utils::GetFlagsFromFlagTypes(flag))
 		, m_Target(Utils::GetTarget(buffertype))
-		, m_Buffer(Utils::GetTarget(buffertype), reinterpret_cast<const uint8_t*>(dataPtr), byteSize, Utils::GetFlagsFromFlagTypes(flag))
+		, m_FlagTypes(flag)
 	{
 	}
 
 	OpenGLStorageBuffer::OpenGLStorageBuffer(const void* dataPtr, uint32_t byteSize, BufferFlagGPU flag)
-		: m_FlagTypes(flag)
+		: m_Buffer(GL_SHADER_STORAGE_BUFFER, static_cast<const uint8_t*>(dataPtr), byteSize, Utils::GetFlagsFromFlagTypes(flag))
 		, m_Target(GL_SHADER_STORAGE_BUFFER)
-		, m_Buffer(GL_SHADER_STORAGE_BUFFER, reinterpret_cast<const uint8_t*>(dataPtr), byteSize, Utils::GetFlagsFromFlagTypes(flag))
+		, m_FlagTypes(flag)
 	{
 	}
 	
@@ -551,6 +571,30 @@ namespace Rynex {
 	{
 		RY_CORE_ASSERT(OpenGLThreadContext::IsActive());
 	}
+
+    void OpenGLStorageBuffer::SetBufferFlag(const BufferFlagGPU flag)
+    {
+	    if (flag == m_FlagTypes)
+	        return;
+
+	    m_FlagTypes = flag;
+
+	    const uint32_t flagType = Utils::GetFlagsFromFlagTypes(m_FlagTypes);
+	    m_Buffer.SetBufferFlag(m_Target, flagType);
+    }
+
+    void OpenGLStorageBuffer::SetBufferFlag(const BufferType type, const BufferFlagGPU flag)
+    {
+	    const uint32_t target = Utils::GetTarget(type);
+	    if (target == m_Target && flag == m_FlagTypes)
+	        return;
+
+	    m_Target = target;
+	    m_FlagTypes = flag;
+
+	    const uint32_t flagType = Utils::GetFlagsFromFlagTypes(m_FlagTypes);
+	    m_Buffer.SetBufferFlag(m_Target, flagType);
+    }
 
 	bool OpenGLStorageBuffer::IsTransferd()
 	{
@@ -572,12 +616,12 @@ namespace Rynex {
 
 	void OpenGLStorageBuffer::SetData(const void* dataPtr, uint32_t byteSize)
 	{
-		m_Buffer.SetData(m_Target, reinterpret_cast<const uint8_t*>(dataPtr), 0u, byteSize);
+		m_Buffer.SetData(m_Target, static_cast<const uint8_t*>(dataPtr), 0u, byteSize);
 	}
 
 	void OpenGLStorageBuffer::SetData(const void* dataPtr, uint32_t offset, uint32_t byteSize)
 	{
-		m_Buffer.SetData(m_Target, reinterpret_cast<const uint8_t*>(dataPtr), offset, byteSize);
+		m_Buffer.SetData(m_Target, static_cast<const uint8_t*>(dataPtr), offset, byteSize);
 	}
 
 	void OpenGLStorageBuffer::ResizeBuffer(uint32_t byteSize)
@@ -588,7 +632,7 @@ namespace Rynex {
 	void OpenGLStorageBuffer::ResizeBuffer(const void* dataPtr, uint32_t byteSize)
 	{
 		uint32_t falgs = m_Buffer.GetFlags();
-		m_Buffer.ResizeData(m_Target, reinterpret_cast<const uint8_t*>(dataPtr), byteSize, falgs);
+		m_Buffer.ResizeData(m_Target, static_cast<const uint8_t*>(dataPtr), byteSize, falgs);
 	}
 
 	void OpenGLStorageBuffer::OnChildeSpecifcationChange(OpenGLUniformBuffer* uniformBufferPtr)
@@ -645,7 +689,7 @@ namespace Rynex {
 
 	OpenGLUniformBuffer::OpenGLUniformBuffer(const void* data, uint32_t byteSize)
 		: m_Layout()
-		, m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(data), byteSize, Utils::GetFlagsFromFlagTypes(BufferFlag::Dynamic))
+		, m_Buffer(s_Target, static_cast<const uint8_t*>(data), byteSize, Utils::GetFlagsFromFlagTypes(BufferFlag::Dynamic))
 		, m_FlagTypes(BufferFlag::Dynamic)
 
 	{
@@ -657,7 +701,7 @@ namespace Rynex {
 
 	OpenGLUniformBuffer::OpenGLUniformBuffer(const void* data, uint32_t byteSize, const BufferLayout& layout)
 		: m_Layout(layout)
-		, m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(data), byteSize, Utils::GetFlagsFromFlagTypes(BufferFlag::Dynamic))
+		, m_Buffer(s_Target, static_cast<const uint8_t*>(data), byteSize, Utils::GetFlagsFromFlagTypes(BufferFlag::Dynamic))
 		, m_FlagTypes(BufferFlag::Dynamic)
 	{
 		RY_CORE_ASSERT(m_Buffer.GetByteSize() % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
@@ -665,7 +709,7 @@ namespace Rynex {
 
 	OpenGLUniformBuffer::OpenGLUniformBuffer(const void* data, uint32_t byteSize, const BufferLayout& layout, BufferFlagGPU flag)
 		: m_Layout(layout)
-		, m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(data), byteSize, Utils::GetFlagsFromFlagTypes(flag))
+		, m_Buffer(s_Target, static_cast<const uint8_t*>(data), byteSize, Utils::GetFlagsFromFlagTypes(flag))
 		, m_FlagTypes(flag)
 	{
 		RY_CORE_ASSERT(m_Buffer.GetByteSize() % 16 == 0, "OpenGL UniformBuffer need to be 16 bytes");
@@ -681,10 +725,22 @@ namespace Rynex {
 	OpenGLUniformBuffer::~OpenGLUniformBuffer()
 	{
 		RY_CORE_ASSERT(OpenGLThreadContext::IsActive());
-	}	
-	
+	}
 
-	bool OpenGLUniformBuffer::IsTransferd()
+    void OpenGLUniformBuffer::SetBufferFlag(const BufferFlagGPU flag)
+    {
+
+	    if (flag == m_FlagTypes)
+	        return;
+
+	    m_FlagTypes = flag;
+	    const uint32_t typeFlag = Utils::GetFlagsFromFlagTypes(m_FlagTypes);
+        m_Buffer.SetBufferFlag(s_Target,typeFlag);
+
+    }
+
+
+    bool OpenGLUniformBuffer::IsTransferd()
 	{
 		return m_Buffer.IsTransfered();
 	}
@@ -707,7 +763,7 @@ namespace Rynex {
 
 	void OpenGLUniformBuffer::SetData(const void* data, uint32_t offset, uint32_t byteSize)
 	{
-		m_Buffer.SetData(s_Target, reinterpret_cast<const uint8_t*>(data), offset, byteSize);
+		m_Buffer.SetData(s_Target, static_cast<const uint8_t*>(data), offset, byteSize);
 	}
 
 	const std::vector<uint8_t>& OpenGLUniformBuffer::GetBufferData()const
@@ -768,8 +824,8 @@ namespace Rynex {
 
 #pragma region IndrectBuffer
 
-	OpenGLIndriectBuffer::OpenGLIndriectBuffer(uint32_t byteSize)
-		: m_Buffer(s_Target, nullptr, byteSize, s_FlagsOptimz)
+	OpenGLIndirectBuffer::OpenGLIndirectBuffer(uint32_t byteSize)
+		: m_Buffer(s_Target, nullptr, byteSize, s_FlagsOptimize)
 		, m_Layout({
 			{ShaderDataType::Uint, "Count"},
 			{ShaderDataType::Uint, "InstanceCount"},
@@ -781,25 +837,25 @@ namespace Rynex {
 		uint32_t byteSizeBuffer = GetByteSize();
 		uint32_t stride = m_Layout.GetStride();
 		uint32_t byteModuleStride = byteSizeBuffer % stride;
-		RY_CORE_ASSERT(16u <= byteSizeBuffer, "OpenGL IndriectBuffer need to be 16 bytes (or more)");
-		RY_CORE_ASSERT(0u == byteModuleStride, "OpenGL IndriectBuffer");
+		RY_CORE_ASSERT(16u <= byteSizeBuffer, "OpenGL IndirectBuffer need to be 16 bytes (or more)");
+		RY_CORE_ASSERT(0u == byteModuleStride, "OpenGL IndirectBuffer");
 
 	}
 
-	OpenGLIndriectBuffer::OpenGLIndriectBuffer(uint32_t byteSize, const BufferLayout& layout)
-		: m_Buffer(s_Target, nullptr, byteSize, s_FlagsOptimz)
+	OpenGLIndirectBuffer::OpenGLIndirectBuffer(uint32_t byteSize, const BufferLayout& layout)
+		: m_Buffer(s_Target, nullptr, byteSize, s_FlagsOptimize)
 		, m_Layout(layout)
 	{
 		uint32_t byteSizeBuffer = GetByteSize();
 		uint32_t stride = m_Layout.GetStride();
 		uint32_t byteModuleStride = byteSizeBuffer % stride;
-		RY_CORE_ASSERT(16u <= byteSizeBuffer, "OpenGL IndriectBuffer need to be 16 bytes (or more)");
-		RY_CORE_ASSERT(0u == byteModuleStride, "OpenGL IndriectBuffer");
+		RY_CORE_ASSERT(16u <= byteSizeBuffer, "OpenGL IndirectBuffer need to be 16 bytes (or more)");
+		RY_CORE_ASSERT(0u == byteModuleStride, "OpenGL IndirectBuffer");
 
 	}
 
-	OpenGLIndriectBuffer::OpenGLIndriectBuffer(const void* data, uint32_t byteSize)
-		: m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(data), byteSize, s_FlagsOptimz)
+	OpenGLIndirectBuffer::OpenGLIndirectBuffer(const void* data, uint32_t byteSize)
+		: m_Buffer(s_Target, static_cast<const uint8_t*>(data), byteSize, s_FlagsOptimize)
 		, m_Layout({
 			{ShaderDataType::Uint, "Count"},
 			{ShaderDataType::Uint, "InstanceCount"},
@@ -811,69 +867,79 @@ namespace Rynex {
 		uint32_t byteSizeBuffer = GetByteSize();
 		uint32_t stride = m_Layout.GetStride();
 		uint32_t byteModuleStride = byteSizeBuffer % stride;
-		RY_CORE_ASSERT(16u <= byteSizeBuffer, "OpenGL IndriectBuffer need to be 16 bytes (or more)");
-		RY_CORE_ASSERT(0u == byteModuleStride, "OpenGL IndriectBuffer");
+		RY_CORE_ASSERT(16u <= byteSizeBuffer, "OpenGL IndirectBuffer need to be 16 bytes (or more)");
+		RY_CORE_ASSERT(0u == byteModuleStride, "OpenGL IndirectBuffer");
 	}
 
-	OpenGLIndriectBuffer::OpenGLIndriectBuffer(const void* data, uint32_t byteSize, const BufferLayout& layout)
-		: m_Buffer(s_Target, reinterpret_cast<const uint8_t*>(data), byteSize, s_FlagsOptimz)
+	OpenGLIndirectBuffer::OpenGLIndirectBuffer(const void* data, uint32_t byteSize, const BufferLayout& layout)
+		: m_Buffer(s_Target, static_cast<const uint8_t*>(data), byteSize, s_FlagsOptimize)
 		, m_Layout(layout)
 	{
 		uint32_t byteSizeBuffer = GetByteSize();
 		uint32_t stride = m_Layout.GetStride();
 		uint32_t byteModuleStride = byteSizeBuffer % stride;
-		RY_CORE_ASSERT(16u <= byteSizeBuffer, "OpenGL IndriectBuffer need to be 16 bytes (or more)");
-		RY_CORE_ASSERT(0u == byteModuleStride, "OpenGL IndriectBuffer");
+		RY_CORE_ASSERT(16u <= byteSizeBuffer, "OpenGL IndirectBuffer need to be 16 bytes (or more)");
+		RY_CORE_ASSERT(0u == byteModuleStride, "OpenGL IndirectBuffer");
 	}
 
-	OpenGLIndriectBuffer::~OpenGLIndriectBuffer()
+	OpenGLIndirectBuffer::~OpenGLIndirectBuffer()
 	{
 	}
 
-	bool OpenGLIndriectBuffer::IsTransferd()
+    void OpenGLIndirectBuffer::SetBufferFlag(BufferFlagGPU flag)
+    {
+	    const uint32_t typeFlag = Utils::GetFlagsFromFlagTypes(flag);
+	    if (m_Flag == typeFlag)
+	        return;
+
+	    m_Flag = typeFlag;
+	    m_Buffer.SetBufferFlag(s_Target, m_Flag);
+    }
+
+    bool OpenGLIndirectBuffer::IsTransferd()
 	{
 		return m_Buffer.IsTransfered();
 	}
 
-	void OpenGLIndriectBuffer::Bind() const
+	void OpenGLIndirectBuffer::Bind() const
 	{
 		m_Buffer.Bind(s_Target);
 	}
 
-	void OpenGLIndriectBuffer::UnBind() const
+	void OpenGLIndirectBuffer::UnBind() const
 	{
 		m_Buffer.UnBind(s_Target);
 	}
 
 	
 
-	void OpenGLIndriectBuffer::SetData(const void* data, uint32_t byteSize)
+	void OpenGLIndirectBuffer::SetData(const void* data, uint32_t byteSize)
 	{
-		const uint8_t* byteDataPtr = reinterpret_cast<const uint8_t*>(data);
+		const uint8_t* byteDataPtr = static_cast<const uint8_t*>(data);
 		m_Buffer.SetData(s_Target, byteDataPtr, 0u, byteSize);
 	}
 
 
 
-	void OpenGLIndriectBuffer::ResizeBuffer(uint32_t byteSize)
+	void OpenGLIndirectBuffer::ResizeBuffer(uint32_t byteSize)
 	{
 		m_Buffer.ResizeData(s_Target, byteSize);
 	}
 
-	void OpenGLIndriectBuffer::ResizeBuffer(const void* data, uint32_t byteSize)
+	void OpenGLIndirectBuffer::ResizeBuffer(const void* data, uint32_t byteSize)
 	{
-		const uint8_t* byteDataPtr = reinterpret_cast<const uint8_t*>(data);
-		m_Buffer.ResizeData(s_Target, byteDataPtr, byteSize, s_FlagsOptimz);
+		const uint8_t* byteDataPtr = static_cast<const uint8_t*>(data);
+		m_Buffer.ResizeData(s_Target, byteDataPtr, byteSize, s_FlagsOptimize);
 	}
 
-	void OpenGLIndriectBuffer::SetLayout(const BufferLayout& layout)
+	void OpenGLIndirectBuffer::SetLayout(const BufferLayout& layout)
 	{
 		m_Layout = layout;
 		uint32_t byteSizeBuffer = GetByteSize();
 		uint32_t stride = m_Layout.GetStride();
 		uint32_t byteModuleStride = byteSizeBuffer % stride;
-		RY_CORE_ASSERT(16u <= byteSizeBuffer, "OpenGL IndriectBuffer need to be 16 bytes (or more)");
-		RY_CORE_ASSERT(0u == byteModuleStride, "OpenGL IndriectBuffer");
+		RY_CORE_ASSERT(16u <= byteSizeBuffer, "OpenGL IndirectBuffer need to be 16 bytes (or more)");
+		RY_CORE_ASSERT(0u == byteModuleStride, "OpenGL IndirectBuffer");
 	}
 
 

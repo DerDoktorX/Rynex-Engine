@@ -95,11 +95,20 @@ namespace Rynex {
 		GL_CHECK_LOOP();
 	}
 
-	void OpenGLShaderStorageBuffer::SetData(uint32_t target, const uint8_t* dataPtr, uint32_t offset, uint32_t byteSize)
+
+
+    void OpenGLShaderStorageBuffer::SetBufferFlag(uint32_t target, uint32_t flags)
+    {
+	    DestroyID();
+	    m_Flags = flags;
+	    InvalideData(target);
+    }
+
+    void OpenGLShaderStorageBuffer::SetData(uint32_t target, const uint8_t* dataPtr, uint32_t offset, uint32_t byteSize)
 	{
 		RY_CORE_ASSERT(0u != target);
 		RY_CORE_ASSERT(0u != m_RendererID);
-		RY_CORE_ASSERT(0u != byteSize, "It's  not allow to set 0 bytes data!")
+		RY_CORE_ASSERT(0u != byteSize, "It's  not allow to set 0 bytes data!");
 		CopyOffsetMemoryData(dataPtr, offset, byteSize);
 		GL_CHECK();
 		const uint8_t* dataOffsetPtr = m_Data.data() + offset;
@@ -107,7 +116,6 @@ namespace Rynex {
 		glNamedBufferSubData(m_RendererID, offset, byteSize, dataOffsetPtr);
 
 		GL_CHECK_LOOP();
-
 	}
 
 	void OpenGLShaderStorageBuffer::ResizeData(uint32_t target, uint32_t byteSize)

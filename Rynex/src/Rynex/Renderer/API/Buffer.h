@@ -71,8 +71,9 @@ namespace Rynex {
 		ShaderStorage,
 		DrawIndirect
 	};
+    using BufferFlagGPU = uint8_t;
 	namespace BufferFlag {
-		enum BufferFlagBit : uint8_t
+		enum BufferFlagBit : Rynex::BufferFlagGPU
 		{
 			None = 0, // None is like Static, like no changes Optimize flag
 			Dynamic = BIT(0),
@@ -82,9 +83,9 @@ namespace Rynex {
 			Coherent = BIT(4),
 			Client = BIT(5)
 		};
-		inline static constexpr const size_t s_Count = 7;
+		inline static constexpr const size_t COUNT = 7;
 	}
-	using BufferFlagGPU = uint8_t;
+
 
 	static uint32_t ShaderDataTypeSize(ShaderDataType type)
 	{
@@ -359,6 +360,7 @@ namespace Rynex {
 	public:
 		virtual ~VertexBuffer() {}
 
+	    virtual void SetBufferFlag(BufferFlagGPU flag) = 0;
 		virtual bool IsTransferd() = 0;
 		virtual void Bind() const = 0;
 		virtual void UnBind() const = 0;
@@ -397,6 +399,7 @@ namespace Rynex {
 
 		virtual uint32_t GetCount() const = 0;
 
+	    virtual void SetBufferFlag(BufferFlagGPU flag) = 0;
 		virtual bool IsTransferd() = 0;
 		virtual void Bind() const = 0;
 		virtual void UnBind() const = 0;
@@ -434,6 +437,8 @@ namespace Rynex {
 
 		virtual ~StorageBuffer() {}
 
+	    virtual void SetBufferFlag(BufferFlagGPU flag) = 0;
+	    virtual void SetBufferFlag(BufferType bufferType, BufferFlagGPU flag) = 0;
 		virtual bool IsTransferd() = 0;
 		virtual void Bind(uint32_t slot = 0) = 0;
 		virtual void UnBind(uint32_t slot) = 0;
@@ -481,9 +486,11 @@ namespace Rynex {
 
 		virtual ~IndirectBuffer() {}
 
+        virtual void SetBufferFlag(BufferFlagGPU flag) = 0;
 		virtual bool IsTransferd() = 0;
 		virtual void Bind() const = 0;
 		virtual void UnBind() const = 0;
+
 
 		virtual void SetData(const void* data, uint32_t byteSize) = 0;
 		virtual void ResizeBuffer(uint32_t byteSize) = 0;
@@ -509,6 +516,7 @@ namespace Rynex {
 
 		virtual const BufferLayout& GetLayout() const = 0;
 		virtual void SetLayout(const BufferLayout& layout) = 0;
+	    virtual void SetBufferFlag(BufferFlagGPU flag) = 0;
 		virtual bool IsTransferd() = 0;
 		virtual void Bind(uint32_t slot = 15) = 0;
 		virtual void UnBind(uint32_t slot) = 0;

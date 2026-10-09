@@ -155,7 +155,9 @@ namespace Rynex {
 		return nullptr;
 	}
 
-	Ref<UniformBuffer> UniformBuffer::Create( uint32_t byteSize)
+
+
+    Ref<UniformBuffer> UniformBuffer::Create( uint32_t byteSize)
 	{
 		switch (Renderer::GetAPI())
 		{
@@ -234,7 +236,7 @@ namespace Rynex {
 		switch (Renderer::GetAPI())
 		{
 		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!") return nullptr;
-		case RendererAPI::API::OpenGL: return CreateRef<OpenGLIndriectBuffer>(data, byteSize);
+		case RendererAPI::API::OpenGL: return CreateRef<OpenGLIndirectBuffer>(data, byteSize);
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
@@ -252,7 +254,7 @@ namespace Rynex {
 		switch (Renderer::GetAPI())
 		{
 		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!") return nullptr;
-		case RendererAPI::API::OpenGL: return  CreateRef<OpenGLIndriectBuffer>(byteSize);
+		case RendererAPI::API::OpenGL: return  CreateRef<OpenGLIndirectBuffer>(byteSize);
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
@@ -263,7 +265,7 @@ namespace Rynex {
 		switch (Renderer::GetAPI())
 		{
 		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!") return nullptr;
-		case RendererAPI::API::OpenGL: return CreateRef<OpenGLIndriectBuffer>(data, byteSize, layout);
+		case RendererAPI::API::OpenGL: return CreateRef<OpenGLIndirectBuffer>(data, byteSize, layout);
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
@@ -274,7 +276,7 @@ namespace Rynex {
 		switch (Renderer::GetAPI())
 		{
 		case RendererAPI::API::None: RY_CORE_ASSERT(false, "RendererAPI::None is not supported!") return nullptr;
-		case RendererAPI::API::OpenGL: return  CreateRef<OpenGLIndriectBuffer>(byteSize, layout);
+		case RendererAPI::API::OpenGL: return  CreateRef<OpenGLIndirectBuffer>(byteSize, layout);
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;

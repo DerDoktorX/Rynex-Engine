@@ -362,7 +362,7 @@ namespace OpenGL {
 		if(flag == enumValue)
 			return 0u;
 		GLenum result = 0u;
-		constexpr uint8_t count = Rynex::BufferFlag::s_Count;
+		constexpr uint8_t count = Rynex::BufferFlag::COUNT;
 
 		for (uint8_t i = 1; i < count; i++)
 		{

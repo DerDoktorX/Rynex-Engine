@@ -11,9 +11,7 @@ namespace Rynex {
 
     Asset::~Asset()
     {
-     
-        uint64_t id = m_Handle;
-        RY_ASSET_WARN("Destroy Asset: {0} ", id);
+        RY_ASSET_WARN("Destroy Asset: {0} ", m_Handle);
     }
 
     std::string_view Asset::AssetTypeToString(AssetType type)

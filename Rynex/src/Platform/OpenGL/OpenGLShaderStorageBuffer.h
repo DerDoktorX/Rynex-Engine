@@ -18,7 +18,7 @@ namespace Rynex {
 
 		void BindSlot(uint32_t target, uint32_t slot) const;
 		void UnBindSlot(uint32_t target, uint32_t slot) const;
-
+	    void SetBufferFlag(uint32_t target, uint32_t flags);
 		void SetData(uint32_t target, const uint8_t* dataPtr, uint32_t offset, uint32_t byteSize);
 		void ResizeData(uint32_t target, uint32_t byteSize);
 		void ResizeData(uint32_t target, const uint8_t* dataPtr, uint32_t byteSize, uint32_t flags);
