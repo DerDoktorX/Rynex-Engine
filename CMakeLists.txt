@@ -4,7 +4,7 @@
 project(Rynex-Rendering)
 
 include(cmake/FetchExternalLiberys.cmake)
-include(cmake/ProjectCompiler.cmake)
+
 
 set(CPP_VERSION_USING 17)
 set(CMAKE_CXX_STANDARD ${CPP_VERSION_USING})
@@ -40,7 +40,15 @@ if(RYNEX_COMPILER_NAME STREQUAL "")
 endif ()
 
 
+set(RYNEX_BINARY_TARGET "${RYNEX_COMPILER_NAME}_$<CONFIG>")
 
+set(RYNEX_ROOT_PROJECT                                  ${CMAKE_CURRENT_LIST_DIR})
+set(RYNEX_PROJECT_BINARY_FOLDER_OUTPUT                  ${RYNEX_ROOT_PROJECT}/bin/${RYNEX_BINARY_TARGET})
+set(RYNEX_PROJECT_LIB_FOLDER_OUTPUT                     ${RYNEX_ROOT_PROJECT}/lib/${RYNEX_BINARY_TARGET})
+set(RYNEX_PROJECT_BINARY_INTERMEDIATE_FOLDER_OUTPUT     ${RYNEX_ROOT_PROJECT}/bin-int/${RYNEX_BINARY_TARGET})
+set(RYNEX_PROJECT_ENGINE_RESOURCES_OUTPUT               ${RYNEX_PROJECT_BINARY_FOLDER_OUTPUT}/Engine-Resources)
+
+include(cmake/ProjectCompiler.cmake)
 
 
 
