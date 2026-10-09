@@ -1,7 +1,7 @@
 #include <rypch.h>
 
-#include "Rynex/Core/Input.h"
-#include "Rynex/Core/Application.h"
+#include <Rynex/Core/Input.h>
+#include <Rynex/Core/Application.h>
 
 #include <GLFW/glfw3.h>
 

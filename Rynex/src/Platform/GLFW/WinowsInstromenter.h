@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Rynex/Core/Instrumentor.h"
+#include <Rynex/Core/Instrumentor.h>
 
 namespace Rynex{
 

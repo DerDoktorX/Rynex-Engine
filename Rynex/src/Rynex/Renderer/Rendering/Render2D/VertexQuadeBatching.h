@@ -1,8 +1,7 @@
 #pragma once
-#include <Rynex/Renderer/Rendering/Render2D/Batching.h>
 #include <Rynex/Asset/Base/AssetManager.h>
-
-#include "Rynex/Renderer/Rendering/Renderer.h"
+#include <Rynex/Renderer/Rendering/Renderer.h>
+#include <Rynex/Renderer/Rendering/Render2D/Batching.h>
 
 
 namespace Rynex {
