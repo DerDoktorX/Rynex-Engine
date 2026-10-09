@@ -7,15 +7,15 @@
 #include <Rynex/Renderer/API/Texture.h>
 #include <Rynex/Renderer/API/VertexArray.h>
 
-#include <Rynex/Renderer/PiplineObjects/DrawList/BufferControlller.h>
-#include <Rynex/Renderer/PiplineObjects/DrawList/DrawListTypes.h>
-#include <Rynex/Renderer/ChachedRegister/StoredKey.h>
-#include <Rynex/Renderer/ChachedRegister/UniqueKey.h>
+#include <Rynex/Renderer/ChachedRegister/BufferControlller.h>
 #include <Rynex/Renderer/ChachedRegister/StoredBufferRegister.h>
+#include <Rynex/Renderer/ChachedRegister/StoredKey.h>
 #include <Rynex/Renderer/ChachedRegister/UniqueBufferRegister.h>
+#include <Rynex/Renderer/ChachedRegister/UniqueKey.h>
+#include <Rynex/Renderer/PiplineObjects/DrawList/DrawListTypes.h>
 
 
-#define RY_VERTEX_BUFFER_REGISTER
+// #define RY_VERTEX_BUFFER_REGISTER
 #define RY_TEXTURE_REGISTER
 namespace Rynex {
 
