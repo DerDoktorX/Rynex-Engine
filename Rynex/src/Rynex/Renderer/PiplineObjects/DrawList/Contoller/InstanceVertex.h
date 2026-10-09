@@ -17,7 +17,26 @@ namespace Rynex {
             int32_t m_MaterialIndex;
             int32_t m_ParameterIndex;
             int32_t m_TextureIndex;
+
+            static BufferLayout GetLayout()
+            {
+                BufferLayout layout({
+                    {SDT::Float4x4, "m_Model"},
+                    {SDT::Float4x4, "m_Normal"},
+                    {SDT::Int, "m_Entity"},
+                    {SDT::Int, "m_MaterialIndex"},
+                    {SDT::Int, "m_ParameterIndex"},
+                    {SDT::Int, "m_TextureIndex"},
+                });
+                layout.SetAutoCompress(true);
+                return layout;
+            }
         };
+
+
+        using BufferOutPut = BufferOutPut<0, 1>;
+
+
     // public static constexpr ------------------------------------------------------------------------------------------------
         static constexpr uint32_t s_Fields = FieldMask;
     // public static methode --------------------------------------------------------------------------------------------------
@@ -28,7 +47,7 @@ namespace Rynex {
 
 
         template<typename Indices>
-        static Instance Make(const glm::mat4& model, const uint32_t entityID, const Indices& indices)
+        void Make(const glm::mat4& model, const uint32_t entityID, const Indices& indices)
         {
             const glm::mat4 inverse = glm::inverse(model);
             Instance instance;
@@ -44,32 +63,22 @@ namespace Rynex {
                 instance.m_ParameterIndex = indices.m_Parameter;
             if constexpr (0u != (FieldMask & InstanceField_TextureIndex))
                 instance.m_TextureIndex = indices.m_Texture;
-            return instance;
+             m_Instances.emplace_back(instance);
         }
 
 
-        static void Upload(const Span<Instance>& instances, const Span<DrawElementsIndirectCommand>& commands,  const ShaderDrawResource& base, std::vector<ShaderDrawResource>& out, CachedBufferRegister & bufferRegister)
+        void GetOutPutBuffer(CachedBufferRegister& bufferRegister)
         {
             constexpr uint32_t elementByteSize = sizeof(Instance);
-            const uint32_t count = instances.m_Count;
+            const uint32_t count = m_Instances.size();
             const uint32_t bytesSize = count * elementByteSize;
 
-            const Ref<VertexBuffer>& instancesVertexBuffer = bufferRegister.template AcquireVertexBuffer<Instance>(instances);
-            // TODO make own Implemtion. (no base.m_VAO shit).
-            const Ref<VertexBuffer>& vertexBuffer = nullptr;
-            const Ref<IndexBuffer>& indexBuffer = nullptr;
-            auto [hash, vertexBufferObject] = bufferRegister.AcquireUniqueVertexArray(indexBuffer, { vertexBuffer, instancesVertexBuffer});
+            const Ref<VertexBuffer>& instancesVertexBuffer = bufferRegister.AcquireVertexBuffer(m_Instances);
 
-            for (const DrawElementsIndirectCommand& command : commands)
-            {
-                ShaderDrawResource draw = base;
-                draw.m_VAO = vertexBufferObject;
-                draw.m_DrawElement = ToPerDrawObject(command);
-                out.emplace_back(std::move(draw));
-            }
         }
 
     private:
-
+        std::vector<Instance> m_Instances;
+        uint32_t m_
     };
 }
