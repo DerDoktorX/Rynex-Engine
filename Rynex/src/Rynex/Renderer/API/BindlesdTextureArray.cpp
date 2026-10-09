@@ -7,7 +7,7 @@
 namespace Rynex {
 
 
-	Ref<BindlesTextureArray> BindlesTextureArray::CreateBindlesTextureArray(uint32_t initCount)
+	Ref<BindlesdTextureArray> BindlesdTextureArray::CreateBindlesTextureArray(uint32_t initCount)
 	{
 		switch (Renderer::GetAPI())
 		{
@@ -18,7 +18,7 @@ namespace Rynex {
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
 	}
-	Ref<BindlesTextureArray> BindlesTextureArray::CreateBindlesTextureArray(std::vector<Ref<Texture>>&& tex)
+	Ref<BindlesdTextureArray> BindlesdTextureArray::CreateBindlesTextureArray(std::vector<Ref<Texture>>&& tex)
 	{ 
 		switch (Renderer::GetAPI())
 		{
@@ -28,7 +28,7 @@ namespace Rynex {
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
 	}
-	Ref<BindlesTextureArray> BindlesTextureArray::CreateBindlesTextureArray(std::initializer_list<Ref<Texture>> tex)
+	Ref<BindlesdTextureArray> BindlesdTextureArray::CreateBindlesTextureArray(std::initializer_list<Ref<Texture>> tex)
 	{
 		switch (Renderer::GetAPI())
 		{
@@ -39,7 +39,7 @@ namespace Rynex {
 		return nullptr;
 
 	}
-	Ref<BindlesTextureArray> BindlesTextureArray::CreateBindlesTextureArray()
+	Ref<BindlesdTextureArray> BindlesdTextureArray::CreateBindlesTextureArray()
 	{
 		switch (Renderer::GetAPI())
 		{

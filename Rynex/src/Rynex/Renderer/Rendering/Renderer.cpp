@@ -1200,8 +1200,8 @@ namespace Rynex {
 					{
 						if (nullptr == ssbo)
 							return;
-						if constexpr (std::is_same_v<decltype(ssbo), BindlesTextureArray>)
-							ssbo->AktivateTextures();
+						if constexpr (std::is_same_v<decltype(ssbo), BindlesdTextureArray>)
+							ssbo->ActivateTextures();
 
 						ssbo->Bind(index);
 					}, resource);
@@ -1261,8 +1261,8 @@ namespace Rynex {
 					{
 						if (nullptr == ssbo)
 							return;
-						if constexpr (std::is_same_v<decltype(ssbo), BindlesTextureArray>)
-							ssbo->AktivateTextures();
+						if constexpr (std::is_same_v<decltype(ssbo), BindlesdTextureArray>)
+							ssbo->ActivateTextures();
 
 						ssbo->Bind(index);
 					}, resource);

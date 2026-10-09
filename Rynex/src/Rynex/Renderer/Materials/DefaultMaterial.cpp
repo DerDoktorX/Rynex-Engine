@@ -200,13 +200,13 @@ namespace Rynex {
 		std::memcpy(materielArrayDataOffsetPtr, bufferPtr, byteSize);
 	}
 
-	int DefaultMaterial::AddMaterielAlbedoTextures(Ref<BindlesTextureArray>& bindlesTexures) const
+	int DefaultMaterial::AddMaterielAlbedoTextures(Ref<BindlesdTextureArray>& bindlesTexures) const
 	{
 		int indexSotre = bindlesTexures->AddTextures(m_DefaultMap);
 		return indexSotre;
 	}
 
-	int DefaultMaterial::GetMaterielAlbedoTextures(Ref<BindlesTextureArray>& bindlesTexures) const
+	int DefaultMaterial::GetMaterielAlbedoTextures(Ref<BindlesdTextureArray>& bindlesTexures) const
 	{
 		int indexSotre = bindlesTexures->GetStoredTextureIndex(m_DefaultMap);
 		return indexSotre;

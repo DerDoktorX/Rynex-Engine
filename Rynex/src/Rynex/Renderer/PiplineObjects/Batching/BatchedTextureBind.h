@@ -69,7 +69,7 @@ namespace Rynex {
 	class TextureResourceBindles : TextureResource
 	{
 	public:
-		using BidlesTextures = std::tuple<int, Ref<BindlesTextureArray>>;
+		using BidlesTextures = std::tuple<int, Ref<BindlesdTextureArray>>;
 
 	public:
 		TextureResourceBindles(const std::initializer_list<int>& list);

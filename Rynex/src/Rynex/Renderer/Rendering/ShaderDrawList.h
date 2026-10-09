@@ -23,7 +23,7 @@ namespace Rynex {
 
 	using UniformBindArray = std::array<Ref<UniformBuffer>, g_UniformBindArrayCount>;
 #ifdef RY_SHADER_STORAGE_BUFFER_OBJECT_VARIANTS
-	using StorageBufferVarints = std::variant<Ref<StorageBuffer>, Ref<BindlesTextureArray>>;
+	using StorageBufferVarints = std::variant<Ref<StorageBuffer>, Ref<BindlesdTextureArray>>;
 	using StorageBindArray = std::array<StorageBufferVarints, g_StorageBindArrayCount>;
 #else
 	using StorageBindArray = std::array<Ref<StorageBuffer>, g_StorageBindArrayCount >;

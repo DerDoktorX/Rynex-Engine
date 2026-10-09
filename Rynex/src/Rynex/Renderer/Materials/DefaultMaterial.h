@@ -53,8 +53,8 @@ namespace Rynex {
         
         virtual void UpdateMaterielData(void* materielArrayData, uint32_t offset, uint32_t byteSize) const override;
 
-        virtual int AddMaterielAlbedoTextures(Ref<BindlesTextureArray>& bindlesTexures) const override;
-        virtual int GetMaterielAlbedoTextures(Ref<BindlesTextureArray>& bindlesTexures) const override;
+        virtual int AddMaterielAlbedoTextures(Ref<BindlesdTextureArray>& bindlesTexures) const override;
+        virtual int GetMaterielAlbedoTextures(Ref<BindlesdTextureArray>& bindlesTexures) const override;
         virtual Ref<UniformBuffer> GetMaterielUniformBuffer() override;
 
         virtual AssetType GetType() const override { return AssetType::BasicMaterial; }

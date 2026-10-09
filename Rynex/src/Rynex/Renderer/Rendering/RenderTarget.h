@@ -176,7 +176,7 @@ namespace Rynex {
 	};
 #ifdef RY_SHADER_STORAGE_BUFFER_OBJECT_VARIANTS
 	template<>
-	inline glm::u64vec2 RenderTarget::SortRenderListChangeBindBointCount<std::variant<Ref<StorageBuffer>, Ref<BindlesTextureArray>>, g_StorageBindArrayCount>(
+	inline glm::u64vec2 RenderTarget::SortRenderListChangeBindBointCount<std::variant<Ref<StorageBuffer>, Ref<BindlesdTextureArray>>, g_StorageBindArrayCount>(
 		const StorageBindArray& aBindArray, const StorageBindArray& bBindArray)
 	{
 		size_t equalNotCount = 0ull;

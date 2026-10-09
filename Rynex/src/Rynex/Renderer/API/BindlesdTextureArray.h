@@ -5,15 +5,15 @@
 
 namespace Rynex {
 
-	class RYNEX_API BindlesTextureArray : public StorageBuffer
+	class RYNEX_API BindlesdTextureArray : public StorageBuffer
 	{
 	public:
-		virtual ~BindlesTextureArray() {}
+		virtual ~BindlesdTextureArray() {}
 		
 
 		virtual void Bind(uint32_t slot = 0) = 0;
 		virtual void UnBind(uint32_t slot) = 0;
-		virtual void AktivateTextures() = 0;
+		virtual void ActivateTextures() = 0;
 		virtual void DeactivateTextures() = 0;
 
 		virtual void ClearTextures() = 0;
@@ -46,10 +46,10 @@ namespace Rynex {
 		static AssetType GetStaticTypeBindlesTextureArray() { return AssetType::BindlesArray; }
 		AssetType GetType() const override { return GetStaticTypeBindlesTextureArray(); }
 
-		static Ref<BindlesTextureArray> CreateBindlesTextureArray();
-		static Ref<BindlesTextureArray> CreateBindlesTextureArray(uint32_t initCount);
-		static Ref<BindlesTextureArray> CreateBindlesTextureArray(std::vector<Ref<Texture>>&& tex);
-		static Ref<BindlesTextureArray> CreateBindlesTextureArray(std::initializer_list<Ref<Texture>> tex);
+		static Ref<BindlesdTextureArray> CreateBindlesTextureArray();
+		static Ref<BindlesdTextureArray> CreateBindlesTextureArray(uint32_t initCount);
+		static Ref<BindlesdTextureArray> CreateBindlesTextureArray(std::vector<Ref<Texture>>&& tex);
+		static Ref<BindlesdTextureArray> CreateBindlesTextureArray(std::initializer_list<Ref<Texture>> tex);
 	};
 }
 

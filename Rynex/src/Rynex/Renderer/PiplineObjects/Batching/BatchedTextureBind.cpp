@@ -2,7 +2,7 @@
 #include "BatchedTextureBind.h"
 
 #include <Rynex/Renderer/API/Texture.h>
-#include <Rynex/Renderer/API/BindlesTextureArray.h>
+#include <Rynex/Renderer/API/BindlesdTextureArray.h>
 
 namespace Rynex {
 
@@ -162,7 +162,7 @@ namespace Rynex {
 		m_TextureTypeVec.reserve(list.size());
 		for (int binidniIndex : list)
 		{
-			m_TextureTypeVec.emplace_back(binidniIndex, Ref<BindlesTextureArray>(nullptr));
+			m_TextureTypeVec.emplace_back(binidniIndex, Ref<BindlesdTextureArray>(nullptr));
 		}
 	}
 
@@ -172,7 +172,7 @@ namespace Rynex {
 		m_TextureTypeVec.reserve(textureTypeVec.size());
 		for (const int binidniIndex : textureTypeVec)
 		{
-			m_TextureTypeVec.emplace_back( binidniIndex, Ref<BindlesTextureArray>(nullptr));
+			m_TextureTypeVec.emplace_back( binidniIndex, Ref<BindlesdTextureArray>(nullptr));
 		}
 
 	}
@@ -239,7 +239,7 @@ namespace Rynex {
 		int index = -1;
 		if (bindlesTextureArray == nullptr)
 		{
-			bindlesTextureArray = BindlesTextureArray::CreateBindlesTextureArray({ texture });
+			bindlesTextureArray = BindlesdTextureArray::CreateBindlesTextureArray({ texture });
 			index = bindlesTextureArray->GetStoredTextureIndex(texture);
 		}
 		else

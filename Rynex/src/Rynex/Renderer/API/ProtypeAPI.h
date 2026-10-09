@@ -1,7 +1,7 @@
 #pragma once
 namespace Rynex{
 	// BindlesTextureArray.h
-	class BindlesTextureArray;
+	class BindlesdTextureArray;
 
 	// Buffer.h
 	enum class DataType : uint8_t;
