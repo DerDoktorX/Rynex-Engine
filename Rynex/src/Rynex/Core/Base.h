@@ -2,10 +2,13 @@
 #include <Rynex/Core/Config.h>
 
 
+#include <map>
 #include <memory>
+#if defined(RY_CPP_26) || defined(RY_CPP_23) || defined(RY_CPP_20)
+#include <span>
+#endif
 #include <unordered_map>
 #include <robin_hood/robin_hood.h>
-#include <map>
 
 // Check current Platform support + massages for current State
 #ifdef _WIN32
@@ -388,12 +391,20 @@
 
 #pragma endregion
 
-#include <Rynex/Core/Log.h>
 #include <Rynex/Core/Assert.h>
+#include <Rynex/Core/Log.h>
 
-
+#if defined(RY_CPP_26) || defined(RY_CPP_23) || defined(RY_CPP_20)
+namespace Rynex {
+    inline constexpr std::size_t DynamicExtent = std::numeric_limits<std::size_t>::max();
+    template<typename T, size_t Extent DynamicExtent>
+    using Span = std::span<T, Extent>;
+#else
+    #include <Rynex/Core/Span.h>
 
 namespace Rynex {
+#endif
+
 #ifdef RY_ROBINE_HOOD_HASH_MAIN_MAP
 	template<typename Key, typename T, typename Hasher = robin_hood::hash<Key>, typename KeyEqual = std::equal_to<Key>, size_t MaxLoadFactor100 = 80ull>
 	using HashMapFlat = robin_hood::unordered_flat_map<Key, T, Hasher, KeyEqual, MaxLoadFactor100>;
@@ -401,7 +412,7 @@ namespace Rynex {
 	template<typename Key, typename T, typename Hasher = robin_hood::hash<Key>, typename KeyEqual = std::equal_to<Key>, size_t MaxLoadFactor80 = 80ull>
 	using HashMapNode = robin_hood::unordered_node_map<Key, T, Hasher, KeyEqual, MaxLoadFactor80>;
 
-
+    using Byte = std::byte;
 	
 #else
 
@@ -413,6 +424,130 @@ namespace Rynex {
 	using HashMapNode = std::unordered_map<Key, T, Hasher, KeyEqual, Alloc>;
 
 	
+#endif
+
+#if defined(RY_CPP_26)
+    #error "c++26 not jet seported!"
+#elif defined(RY_CPP_23)
+    #error "c++23 not jet seported!"
+#elif defined(RY_CPP_20)
+    #error "c++20 not jet seported!"
+    // TODO convert function from Byte in typename T and from typename T in Byte. Build Alias to cpp libary function.
+
+#elif defined(RY_CPP_17)
+    // TODO convert function from Byte in typename T and from typename T in Byte. Like in the cpp liberty in c++20.
+    // C++17 has no std::span / std::as_bytes, so Rynex provides the same names (Span lives in Rynex/Core/Span.h).
+	// The RY_CPP_20 branch above forwards these names to the C++ library, so call sites do not change.
+
+	/**
+	 * Views the object representation of a span as read only bytes (no copy). Same as std::as_bytes in C++20.
+	 * @param span span of any element type
+	 */
+	template<typename T, std::size_t Extent>
+	Span<const Byte, SpanDetail::ByteExtent(sizeof(T), Extent)> AsBytes(Span<T, Extent> span) noexcept
+	{
+		using ByteSpan = Span<const Byte, SpanDetail::ByteExtent(sizeof(T), Extent)>;
+
+		const Byte* bytePtr = reinterpret_cast<const Byte*>(span.data());
+		return ByteSpan(bytePtr, span.size_bytes());
+	}
+
+	template<typename T>
+	Span<const Byte> AsBytes(const std::vector<T>& buffer) noexcept
+	{
+		return AsBytes(Span<const T>(buffer));
+	}
+
+	/**
+	 * Views the object representation of a span as writable bytes (no copy). Same as std::as_writable_bytes in C++20.
+	 * @param span span of non const elements
+	 */
+	template<typename T, std::size_t Extent>
+	Span<Byte, SpanDetail::ByteExtent(sizeof(T), Extent)> AsWritableBytes(Span<T, Extent> span) noexcept
+	{
+		static_assert(!std::is_const_v<T>, "Can not get writable bytes of const elements");
+		using ByteSpan = Span<Byte, SpanDetail::ByteExtent(sizeof(T), Extent)>;
+
+		Byte* bytePtr = reinterpret_cast<Byte*>(span.data());
+		return ByteSpan(bytePtr, span.size_bytes());
+	}
+
+	template<typename T>
+	Span<Byte> AsWritableBytes(std::vector<T>& buffer) noexcept
+	{
+		return AsWritableBytes(Span<T>(buffer));
+	}
+
+	/**
+	 * Copies the elements of a span (std::vector<T> converts implicitly) into a new byte buffer.
+	 * The result is sizeof(T) * element count bytes long.
+	 */
+	template<typename T, std::size_t Extent>
+	std::vector<Byte> ToByteBuffer(Span<T, Extent> span)
+	{
+		static_assert(std::is_trivially_copyable_v<std::remove_cv_t<T>>, "Elements must be trivially copyable");
+
+		auto bytes = AsBytes(span);
+		return std::vector<Byte>(bytes.begin(), bytes.end());
+	}
+
+	template<typename T>
+	std::vector<Byte> ToByteBuffer(const std::vector<T>& buffer)
+	{
+		return ToByteBuffer(Span<const T>(buffer));
+	}
+
+	/**
+	 * Copies a byte buffer into a new std::vector<T>. The byte count must be a multiple of sizeof(T).
+	 * Usage: std::vector<float> values = FromByteBuffer<float>(bytes);
+	 */
+	template<typename T>
+	std::vector<T> FromByteBuffer(Span<const Byte> bytes)
+	{
+		static_assert(std::is_trivially_copyable_v<T>, "Elements must be trivially copyable");
+		static_assert(std::is_default_constructible_v<T>, "Elements must be default constructible");
+
+		std::size_t elementCount = bytes.size() / sizeof(T);
+		std::size_t usedByteCount = elementCount * sizeof(T);
+		RY_CORE_ASSERT(usedByteCount == bytes.size(), "Byte buffer size is not a multiple of sizeof(T)");
+
+		std::vector<T> result(elementCount);
+		Span<const Byte> source = bytes.first(usedByteCount);
+		Span<Byte> target = AsWritableBytes(Span<T>(result));
+		std::copy(source.begin(), source.end(), target.begin());
+		return result;
+	}
+
+	template<typename T>
+	std::vector<T> FromByteBuffer(const std::vector<Byte>& buffer)
+	{
+		return FromByteBuffer<T>(Span<const Byte>(buffer));
+	}
+
+    /**
+     * Compares the to Data Buffer first by size after that withe the help off memcmp.
+     * @param bufferA
+     * @param bufferB
+     */
+    constexpr bool EqualByteBuffer(const Span<Byte> bufferA, const  Span<Byte> bufferB)
+	{
+	    const size_t sizeA = bufferA.size_bytes();
+	    const size_t sizeB = bufferA.size_bytes();
+
+	    if (sizeA != sizeB)
+	        return false;
+
+	    if (0ull != sizeA)
+	        return false;
+
+	    const Byte* bytePtrA = bufferA.data();
+	    const Byte* bytePtrB = bufferB.data();
+	    const int value = std::memcmp(bytePtrA, bytePtrB, sizeA);
+	    return 0 == value;
+	}
+
+#else
+    #error "no expexted c++/cpp version is set, like (c++17, c++20, c++23 or c++26). But c++17 is the curently the only one seported!"
 #endif
 
 	template<typename Key, typename T, typename Pr = std::less<Key>, typename Alloc = std::equal_to<Key>>
