@@ -9,10 +9,10 @@
 
 #include <Rynex/Renderer/PiplineObjects/DrawList/BufferControlller.h>
 #include <Rynex/Renderer/PiplineObjects/DrawList/DrawListTypes.h>
-#include <Rynex/Renderer/PiplineObjects/DrawList/StoredKey.h>
-#include <Rynex/Renderer/PiplineObjects/DrawList/UniqueKey.h>
-#include <Rynex/Renderer/PiplineObjects/DrawList/StoredBufferRegister.h>
-#include <Rynex/Renderer/PiplineObjects/DrawList/UniqueBufferRegister.h>
+#include <Rynex/Renderer/ChachedRegister/StoredKey.h>
+#include <Rynex/Renderer/ChachedRegister/UniqueKey.h>
+#include <Rynex/Renderer/ChachedRegister/StoredBufferRegister.h>
+#include <Rynex/Renderer/ChachedRegister/UniqueBufferRegister.h>
 
 
 #define RY_VERTEX_BUFFER_REGISTER

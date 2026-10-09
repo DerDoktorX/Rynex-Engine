@@ -1,5 +1,6 @@
 #pragma once
 // StoredBufferRegister created in Project Rynex-Rendering on 06/10/2026.
+#include <Rynex/Renderer/ChachedRegister/UniqueKey.h>
 
 
 
