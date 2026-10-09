@@ -870,7 +870,7 @@ namespace Rynex {
 
 		        uint64_t vhandle;
 		        handleSerializer.Deserialize(nodeE, vhandle);
-		        AssetHandle handle = vhandle;
+		        AssetHandle handle {vhandle};
         #else
 		        AssetHandle handle = nodeE["Handle"].as<uint64_t>();
         #endif
@@ -1181,7 +1181,7 @@ namespace Rynex {
 		{
 			for (YAML::detail::iterator_value entityNode : entities)
 			{
-				uint64_t uuid = entityNode["Entity"].as<uint64_t>();
+				UUID uuid { entityNode["Entity"].as<uint64_t>(AssetHandle::Zero().GetHash()) };
 			    std::string name;
 			    if (YAML::Node tagComponent = entityNode["TagComponent"])
 			        name = tagComponent["Tag"].as<std::string>();

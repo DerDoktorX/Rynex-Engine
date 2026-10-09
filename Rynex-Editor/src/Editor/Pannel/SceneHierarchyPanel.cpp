@@ -404,7 +404,7 @@ namespace Rynex {
 			flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
 
-		std::string idName = (tag + std::to_string(id));
+		const std::string idName = (tag + std::to_string(id.GetHash()));
 
 		ImGui::PushID(idName.c_str());
 

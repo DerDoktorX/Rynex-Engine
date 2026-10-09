@@ -460,7 +460,7 @@ namespace Rynex {
 			, m_RenderStoreIndexVec()
 			, m_ObjectRenderIndexPiplineVec()
 		{
-			RY_CORE_WARN_IF(0ull == uuid,"Entity Component StaticMeshComponent, should be created with init args!");
+			RY_CORE_WARN_IF(UUID::Zero() == uuid,"Entity Component StaticMeshComponent, should be created with init args!");
 		}
 		StaticMeshComponent(const StaticMeshComponent&) = default;
 
@@ -580,7 +580,7 @@ namespace Rynex {
 	};
 	struct RelationshipUUIDComponent
 	{
-		UUID m_Parent = 0;
+		UUID m_Parent = UUID::Zero();
 		std::vector<UUID> m_Childrens;
 
 		RelationshipUUIDComponent() = default;

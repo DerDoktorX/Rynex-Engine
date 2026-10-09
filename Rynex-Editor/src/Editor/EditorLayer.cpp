@@ -758,7 +758,7 @@ case key: \
 
     void EditorLayer::OpenScene(AssetHandle handle)
     {
-        RY_CORE_ASSERT(handle, "Error: EditorLayer::OpenScene(AssetHandle handle)");        
+        RY_CORE_ASSERT(AssetHandle::Zero() != handle, "Error: EditorLayer::OpenScene(AssetHandle handle)");
         AssetManager::GetAssetAsync<Scene>(handle, &m_NextScene);
     }
 

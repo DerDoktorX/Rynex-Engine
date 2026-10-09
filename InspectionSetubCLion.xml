@@ -1,35 +1,34 @@
-<profile version="1.0">
-  <option name="myName" value="RynexInspeection" />
-  <inspection_tool class="ClangTidy" enabled="false" level="WARNING" enabled_by_default="false" />
-  <inspection_tool class="Clazy" enabled="false" level="WARNING" enabled_by_default="false" />
-  <inspection_tool class="CppDFAArrayIndexOutOfBounds" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFAConstantConditions" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFAConstantFunctionResult" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFAConstantParameter" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFADeletedPointer" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFAEndlessLoop" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFAInfiniteRecursion" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFAInvalidatedMemory" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFALocalValueEscapesFunction" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFALocalValueEscapesScope" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFALoopConditionNotUpdated" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFAMemoryLeak" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFANotInitializedField" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFANullDereference" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFATimeOver" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFAUnreachableCode" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFAUnreachableFunctionCall" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFAUnreadVariable" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppDFAUnusedValue" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppEnforceDoStatementBraces" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
-  <inspection_tool class="CppEnforceForStatementBraces" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
-  <inspection_tool class="CppEnforceFunctionDeclarationStyle" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppEnforceNestedNamespacesStyle" enabled="false" level="HINT" enabled_by_default="false" />
-  <inspection_tool class="CppEnforceOverridingDestructorStyle" enabled="true" level="HINT" enabled_by_default="true" editorAttributes="HINT" />
-  <inspection_tool class="CppEnforceTypeAliasCodeStyle" enabled="true" level="WARNING" enabled_by_default="true" />
-  <inspection_tool class="CppEnforceWhileStatementBraces" enabled="true" level="WEAK WARNING" enabled_by_default="true" editorAttributes="INFO_ATTRIBUTES" />
-  <inspection_tool class="CppRedundantMemberInitializer" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
-  <inspection_tool class="CppRedundantNamespaceDefinition" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
-  <inspection_tool class="CppTooWideScopeInitStatement" enabled="false" level="HINT" enabled_by_default="false" />
-  <inspection_tool class="CppUseAuto" enabled="false" level="HINT" enabled_by_default="false" />
-</profile>
+<code_scheme name="Project" version="173">
+  <option name="AUTODETECT_INDENTS" value="false" />
+  <RiderCodeStyleSettings>
+    <option name="/Default/CodeStyle/CodeFormatting/CppFormatting/NAMESPACE_DECLARATION_BRACES/@EntryValue" value="END_OF_LINE" type="string" />
+    <option name="/Default/CodeStyle/CppIncludeDirective/SortIncludeDirectives/@EntryValue" value="true" type="bool" />
+    <option name="/Default/CodeStyle/CppIncludeDirective/UseRelativePaths/@EntryValue" value="Never" type="string" />
+    <option name="/Default/CodeStyle/CppIncludeDirective/UseAngleBracketsInsteadOfQuotes/@EntryValue" value="WhenPossible" type="string" />
+  </RiderCodeStyleSettings>
+  <files>
+    <extensions>
+      <pair source="cpp" header="h" fileNamingConvention="PASCAL_CASE" />
+      <pair source="c" header="h" fileNamingConvention="NONE" />
+      <pair source="cu" header="cuh" fileNamingConvention="NONE" />
+      <pair source="ixx" header="" fileNamingConvention="NONE" />
+      <pair source="mxx" header="" fileNamingConvention="NONE" />
+      <pair source="cppm" header="" fileNamingConvention="NONE" />
+      <pair source="ccm" header="" fileNamingConvention="NONE" />
+      <pair source="cxxm" header="" fileNamingConvention="NONE" />
+      <pair source="c++m" header="" fileNamingConvention="NONE" />
+    </extensions>
+  </files>
+  <codeStyleSettings language="CMake">
+    <indentOptions>
+      <option name="CONTINUATION_INDENT_SIZE" value="6" />
+      <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
+    </indentOptions>
+  </codeStyleSettings>
+  <codeStyleSettings language="yaml">
+    <indentOptions>
+      <option name="INDENT_SIZE" value="4" />
+      <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
+    </indentOptions>
+  </codeStyleSettings>
+</code_scheme>

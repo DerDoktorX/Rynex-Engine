@@ -119,7 +119,7 @@ namespace Rynex {
 				markedPath = nodeAtribut.as<std::string>();
 			if (YAML::Node nodeAtribut = nodeE["Path"])
 				path =  nodeAtribut.as<std::string>();
-			const AssetHandle handle = nodeE["Handle"].as<uint64_t>();
+			const AssetHandle handle{ nodeE["Handle"].as<uint64_t>(AssetHandle::Zero().GetHash()) };
 
 
 			const AssetFindeInfo info(handle, path, markedPath);
@@ -268,7 +268,7 @@ namespace Rynex {
 
 				    if (const YAML::Node materielFilePathNode = materielNode["FilePath"])
 				    {
-				        AssetHandle materielHandle = materielHandleNode.as<uint64_t>();
+				        AssetHandle materielHandle {materielHandleNode.as<uint64_t>(AssetHandle::Zero().GetHash())};
                         std::string pathStr = materielNode["FilePath"].as<std::string>();
 					    FileSystem::Path materielFilPath(pathStr);
 					    resultMateriel = DeserializeMateriel(materielHandle, FileSystem::Path(pathStr), singleObjectMeshData);

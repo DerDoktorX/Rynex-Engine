@@ -80,7 +80,7 @@ namespace Rynex {
 			return false;
 		for (const YAML::detail::iterator_value& node : rootNode)
 		{
-			AssetHandle handle = node["Handle"].as<uint64_t>();
+			AssetHandle handle{ node["Handle"].as<uint64_t>(AssetHandle::Zero().GetHash())};
 
 			AssetMetadata metadata;
 			std::string filePathStr = "";

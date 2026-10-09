@@ -18,22 +18,41 @@ namespace Rynex {
 	{
 	public:
 		UUID();
-		UUID(Hash64 uuid);
+        explicit UUID(Hash64 uuid);
 		UUID(const UUID&) = default;
 
-		operator Hash64() const { return m_UUID; }
+	    UUID& operator=(const UUID& right) noexcept
+	    {
+	        m_UUID = right.m_UUID;
+	        return *this;
+	    }
+
+	    operator Hash64() const { return m_UUID; }
+	    explicit operator bool() const { return 0ull != m_UUID; }
 	    bool operator == (const UUID& uuid) const
 		{
 		    return uuid.m_UUID == m_UUID;
 		}
+
+	    bool operator==(const Hash64& hash) const
+	    {
+	        return m_UUID == hash;
+	    }
 
 	    bool operator != (const UUID& uuid) const
 		{
 		    return uuid.m_UUID != m_UUID;
 		}
 
+	    bool operator!=(const Hash64& hash) const
+	    {
+	        return m_UUID == hash;
+	    }
+
+	    Hash64 GetHash() const { return m_UUID; }
+
 	    static UUID Zero() { return UUID(0ull); }
-	private:
+    private:
 		Hash64 m_UUID;
 	};
 
@@ -47,9 +66,22 @@ namespace std {
 	{
 		[[nodiscard]] static std::size_t operator()(const Rynex::UUID& uuid) noexcept
 		{
-			return (Rynex::Hash64)uuid;
+			return uuid.GetHash();
 		}
 	};
+
+}
+
+namespace robin_hood {
+
+    template<>
+    struct hash<Rynex::UUID>
+    {
+        [[nodiscard]] std::size_t operator()(const Rynex::UUID& uuid) const noexcept
+        {
+            return uuid.GetHash();
+        }
+    };
 
 }
 
