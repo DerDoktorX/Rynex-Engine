@@ -1,12 +1,13 @@
 #pragma once
 // InstanceVertexArray created in Project Rynex-Rendering on 05/10/2026.
-#include <Rynex/Renderer/ChachedRegister/CachedBufferRegister.h>
+
 #include <Rynex/Renderer/PiplineObjects/DrawList/DrawListTypes.h>
 #include <Rynex/Renderer/Rendering/ShaderDrawList.h>
 
+
 namespace Rynex {
     template<uint32_t FieldMask>
-    class InstanceVertexArray
+    class InstanceVertex
     {
     public:
         struct Instance
@@ -79,6 +80,5 @@ namespace Rynex {
 
     private:
         std::vector<Instance> m_Instances;
-        uint32_t m_
     };
 }

@@ -1,8 +1,11 @@
 #pragma once
 // DrawListTypes created in Project Rynex-Rendering on 04/10/2026.
 #include <rypch.h>
+#include <Rynex/Renderer/ChachedRegister/CachedBufferRegister.h>
 
 namespace Rynex {
+
+
 
     // Instance fields an instance record can store (InstanceControl::s_Fields)
     // or that a MaterielControl fills (MaterielControl::s_InstanceFields).
@@ -15,10 +18,7 @@ namespace Rynex {
         InstanceField_All            = InstanceField_MaterialIndex | InstanceField_ParameterIndex | InstanceField_TextureIndex
     };
 
-    // MaterielControl::Indices for controls without per instance indices.
-    struct NoIndices
-    {
-    };
+
 
     // One draw call worth of instances. Always inside ONE group, so Bind() of the controls has exactly one state.
     struct DrawChunk
@@ -27,5 +27,34 @@ namespace Rynex {
         uint32_t m_FirstInstance;
         uint32_t m_InstanceCount;
     };
+
+    template<size_t VertexCount, size_t IndexCount>
+    struct BufferOutPut
+    {
+
+        std::array<VertexArray::VertexElements, VertexCount> m_VertexBufferArray;
+        std::array<Ref<StorageBuffer>, IndexCount> m_StorageBufferArray;
+    };
+
+    template<typename T, typename N>
+    typename std::array<VertexArray::VertexElements, (T::VertexCount + N::InstanceCount)> AcquirerVertexBufferArrayFromBufferOutPut(const T& outPutGeometry, const N& outPutInstance)
+    {
+        constexpr size_t VertexCount = T::VertexCount + N::InstanceCount;
+        std::array<VertexArray::VertexElements, VertexCount> vertexBufferArray;
+        int32_t i = 0;
+        for (const VertexArray::VertexElements& vertexElements : outPutGeometry.m_VertexBufferArray)
+        {
+            vertexBufferArray[i] =vertexElements;
+            i++;
+        }
+        for (const VertexArray::VertexElements& vertexElements : outPutInstance.m_VertexBufferArray)
+        {
+            vertexBufferArray[i] = vertexElements;
+            i++;
+        }
+        return vertexBufferArray;
+
+
+    }
 
 }
