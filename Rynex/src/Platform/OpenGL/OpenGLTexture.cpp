@@ -3,7 +3,7 @@
 #include <Platform/OpenGL/OpenGLBase.h>
 
 #include <Platform/OpenGL/OpenGLFramebuffer.h>
-#include <Platform/OpenGL/OpenGLBindlesTextureArray.h>
+#include <Platform/OpenGL/OpenGLBindlessTextureArray.h>
 
 
 namespace Rynex{
@@ -815,12 +815,12 @@ namespace Rynex{
 
 
 
-	void OpenGLTextureStorageModern::AddParent(OpenGLBindlesTextureArray* openGlBindlesTexPtr)
+	void OpenGLTextureStorageModern::AddParent(OpenGLBindlessTextureArray* openGlBindlesTexPtr)
 	{
 		m_ParentVec.Set(openGlBindlesTexPtr);
 	}
 
-	void OpenGLTextureStorageModern::RemoveParent(OpenGLBindlesTextureArray* openGlBindlesTextureArrayPtr)
+	void OpenGLTextureStorageModern::RemoveParent(OpenGLBindlessTextureArray* openGlBindlesTextureArrayPtr)
 	{
 		m_ParentVec.Remove(openGlBindlesTextureArrayPtr);
 	}

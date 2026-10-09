@@ -9,7 +9,7 @@
 
 namespace Rynex {
 	class OpenGLLinkedTextureArray;
-	class OpenGLBindlesTextureArray;
+	class OpenGLBindlessTextureArray;
 	class OpenGLTextureObject;
 	class OpenGLTextureStorageModern;
 	class OpenGLTextureSampler;
@@ -74,8 +74,8 @@ namespace Rynex {
 
 
 		void SetSpecfication(const TextureSpecification& spec, OpenGLFramebuffer* frambufferPtr);
-		void AddParent(OpenGLBindlesTextureArray* openGLBindlesTextureArrayPtr);
-		void RemoveParent(OpenGLBindlesTextureArray* openGLBindlesTextureArrayPtr);
+		void AddParent(OpenGLBindlessTextureArray* openGLBindlesTextureArrayPtr);
+		void RemoveParent(OpenGLBindlessTextureArray* openGLBindlesTextureArrayPtr);
 
 		void AddParent(OpenGLLinkedTextureArray* openGlLinkedTextureArrayPtr);
 		void RemoveParent(OpenGLLinkedTextureArray* openGlLinkedTextureArrayPtr);
@@ -113,7 +113,7 @@ namespace Rynex {
 
 	private:		
 		std::vector<uint8_t> m_Data;
-		Memory::WeakPtrSet<OpenGLBindlesTextureArray, OpenGLLinkedTextureArray, OpenGLFramebuffer> m_ParentVec;
+		Memory::WeakPtrSet<OpenGLBindlessTextureArray, OpenGLLinkedTextureArray, OpenGLFramebuffer> m_ParentVec;
 		OpenGLFence m_FanceObject;
 		uint64_t m_BindlesHandle = 0ull;
 
@@ -127,7 +127,7 @@ namespace Rynex {
 		bool m_BindlesActive = false;
 	private:
 		friend OpenGLFramebuffer;
-		friend OpenGLBindlesTextureArray;
+		friend OpenGLBindlessTextureArray;
 		friend OpenGLLinkedTextureArray;
 	};
 

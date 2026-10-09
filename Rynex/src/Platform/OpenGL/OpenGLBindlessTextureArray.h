@@ -1,24 +1,26 @@
 #pragma once
-#include <Rynex/Renderer/API/BindlesTextureArray.h>
+#include <Rynex/Renderer/API/BindlesdTextureArray.h>
 #include <Platform/OpenGL/OpenGLShaderStorageBuffer.h>
 
 namespace Rynex {	
 	class OpenGLTextureStorageModern;
 
-	class OpenGLBindlesTextureArray : public BindlesTextureArray
+	class OpenGLBindlessTextureArray : public BindlesdTextureArray
 	{
 	public:
-		OpenGLBindlesTextureArray();
-		OpenGLBindlesTextureArray(uint32_t initCount);
-		OpenGLBindlesTextureArray(std::vector<Ref<Texture>>&& tex);
+		OpenGLBindlessTextureArray();
+		OpenGLBindlessTextureArray(uint32_t initCount);
+		OpenGLBindlessTextureArray(std::vector<Ref<Texture>>&& tex);
 		
 		
-		~OpenGLBindlesTextureArray();
-	
+		~OpenGLBindlessTextureArray();
+
+	    virtual void SetBufferFlag(BufferFlagGPU flag) override;
+	    virtual void SetBufferFlag(BufferType bufferType, BufferFlagGPU flag) override;
 		virtual bool IsTransferd() override;
 		virtual void Bind(uint32_t slot = 0) override;
 		virtual void UnBind(uint32_t slot) override;
-		virtual void AktivateTextures() override;
+		virtual void ActivateTextures() override;
 		virtual void DeactivateTextures() override;
 
 		virtual int AddTextures(const Ref<Texture>& texture) override;

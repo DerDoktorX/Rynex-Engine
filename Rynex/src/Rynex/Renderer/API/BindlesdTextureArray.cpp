@@ -1,8 +1,8 @@
-#include "rypch.h"
-#include "BindlesTextureArray.h"
+#include <rypch.h>
+#include "BindlesdTextureArray.h"
 
 #include <Rynex/Renderer/Rendering/Renderer.h>
-#include <Platform/OpenGL/OpenGLBindlesTextureArray.h>
+#include <Platform/OpenGL/OpenGLBindlessTextureArray.h>
 
 namespace Rynex {
 
@@ -12,7 +12,7 @@ namespace Rynex {
 		switch (Renderer::GetAPI())
 		{
 			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Curently not supportet"); return nullptr;
-			case RendererAPI::API::OpenGL:	return CreateRef<OpenGLBindlesTextureArray>(initCount);
+			case RendererAPI::API::OpenGL:	return CreateRef<OpenGLBindlessTextureArray>(initCount);
 				
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
@@ -23,7 +23,7 @@ namespace Rynex {
 		switch (Renderer::GetAPI())
 		{
 			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Curently not supportet"); return nullptr;
-			case RendererAPI::API::OpenGL:	return CreateRef<OpenGLBindlesTextureArray>(std::move(tex));
+			case RendererAPI::API::OpenGL:	return CreateRef<OpenGLBindlessTextureArray>(std::move(tex));
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
@@ -33,7 +33,7 @@ namespace Rynex {
 		switch (Renderer::GetAPI())
 		{
 			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Curently not supportet"); return nullptr;
-			case RendererAPI::API::OpenGL:	return CreateRef<OpenGLBindlesTextureArray>(tex);
+			case RendererAPI::API::OpenGL:	return CreateRef<OpenGLBindlessTextureArray>(tex);
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
@@ -44,7 +44,7 @@ namespace Rynex {
 		switch (Renderer::GetAPI())
 		{
 			case RendererAPI::API::None:	RY_CORE_ASSERT(false, "RendererAPI::None is Curently not supportet"); return nullptr;
-			case RendererAPI::API::OpenGL:	return CreateRef<OpenGLBindlesTextureArray>();
+			case RendererAPI::API::OpenGL:	return CreateRef<OpenGLBindlessTextureArray>();
 		}
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;

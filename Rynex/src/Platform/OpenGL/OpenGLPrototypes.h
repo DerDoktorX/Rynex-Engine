@@ -22,7 +22,7 @@ namespace Rynex {
 	class OpenGLIndexBuffer;
 	class OpenGLStorageBuffer;
 	class OpenGLUniformBuffer;
-	class OpenGLIndriectBuffer;
+	class OpenGLIndirectBuffer;
 
 	// OpenGL Textures 
 	class OpenGLTextureObject;
@@ -30,6 +30,6 @@ namespace Rynex {
 
 	class OpenGLTextureStorageModern;
 	class OpenGLLinkedTextureArray;
-	class OpenGLBindlesTextureArray;
+	class OpenGLBindlessTextureArray;
 	
 }
