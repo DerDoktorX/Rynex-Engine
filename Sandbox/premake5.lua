@@ -110,7 +110,7 @@ project "Sandbox"
 	filter {}
 
 	filter "configurations:Release"
-		defines "RY_REALSE"
+		defines "RY_RELEASE"
 		runtime "Release"
 		optimize "on"
 		symbols "on"

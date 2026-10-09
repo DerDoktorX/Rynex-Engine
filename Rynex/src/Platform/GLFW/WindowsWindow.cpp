@@ -1,25 +1,26 @@
 #include <rypch.h>
 #include "WindowsWindow.h"
 
-#include "Rynex/Events/Event.h"
-#include "Rynex/Events/MouseEvent.h"
-#include "Rynex/Events/KeyEvent.h"
-#include "Rynex/Events/ApplicationEvent.h"
 
-#include "Platform/OpenGL/OpenGLContext.h"
-#include "Platform/OpenGL/OpenGLThreadContext.h"
+#include <Rynex/Events/ApplicationEvent.h>
+#include <Rynex/Events/Event.h>
+#include <Rynex/Events/KeyEvent.h>
+#include <Rynex/Events/MouseEvent.h>
+
+#include <Platform/OpenGL/OpenGLContext.h>
+#include <Platform/OpenGL/OpenGLThreadContext.h>
 
 
 
 namespace Rynex {
 
 
-	static bool s_GEFWInitialzed = false;
+	static bool s_GlfwInitialized = false;
 
 
-	static void GLFWErrorCallBack(int error, const char* discription)
+	static void GLFWErrorCallBack(int error, const char* description)
 	{
-		RY_CORE_ERROR("GLFW Error ({0}): {1} ", error, discription);
+		RY_CORE_ERROR("GLFW Error ({0}): {1} ", error, description);
 	}
 
 	
@@ -61,28 +62,36 @@ namespace Rynex {
 
 
 
-		if (!s_GEFWInitialzed)
+		if (!s_GlfwInitialized)
 		{
-			int success = glfwInit();
-			RY_CORE_ASSERT(success, "Coud not inialize GLFW!");
+		    constexpr int trueGlfw = GLFW_TRUE;
+			const int success = glfwInit();
+			RY_CORE_ASSERT(trueGlfw == success, "Could not initialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallBack);
-			s_GEFWInitialzed = true;
+			s_GlfwInitialized = true;
 		}
 		
 
-		
+#if defined(RY_DIST)
+
+
+#endif
+
 #ifdef RY_DEBUG
 		m_Data.Title += { " Debug Mode" };
-#elif RY_DIST
+#elif defined(RY_DIST)
 		m_Data.Title += { " Dist Mode" };
-#elif RY_REALSE
-		m_Data.Title += { " Realse Mode" };
+#elif RY_RELEASE
+		m_Data.Title += { " Release Mode" };
 #endif
 #if RY_ENABLE_GARFIC_API_DBUGE_MASSEGES
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #endif
 
-		m_Window = glfwCreateWindow((int)m_Data.Width, (int)m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
+	    const int width = m_Data.Width;
+	    const int height = m_Data.Height;
+	    const char* titleChar = m_Data.Title.c_str();
+		m_Window = glfwCreateWindow(width, height, titleChar, nullptr, nullptr);
 
 		m_Context = CreateRef<OpenGLContext>(m_Window);
 		m_Context->Init();

@@ -1,14 +1,14 @@
 #include <rypch.h>
-#include <Test/FilesSystemTest.h>
 #include <Test/CastSafeTest.h>
+#include <Test/FilesSystemTest.h>
 
-#include <Rynex/Core/UUID.h>
-#include <Rynex/Scene/Scene.h>
-#include <Rynex/Scene/Entity.h>
 #include <Rynex/Asset/Base/AssetManager.h>
+#include <Rynex/Core/UUID.h>
+#include <Rynex/Scene/Entity.h>
+#include <Rynex/Scene/Scene.h>
 #include <Rynex/Serializers/StaticMeshSerializer.h>
 
-#include "Rynex/Project/Project.h"
+#include <Rynex/Project/Project.h>
 
 
 int main(int argc, char** argv)
