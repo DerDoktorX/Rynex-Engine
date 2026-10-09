@@ -3,7 +3,7 @@
 #include <rypch.h>
 #include <Rynex/Renderer/API/Buffer.h>
 #include <Rynex/Renderer/Rendering/ShaderDrawList.h>
-#include <Rynex/Renderer/PiplineObjects/Piplines/DrawListTypes.h>
+#include <Rynex/Renderer/PiplineObjects/DrawList/DrawListTypes.h>
 
 namespace Rynex {
 
@@ -168,6 +168,7 @@ namespace Rynex {
         uint32_t GetGroupEnd(const uint32_t group) const
         {
             const uint32_t next = group + 1u;
+
             if (next < m_GroupStartVec.size())
                 return m_GroupStartVec[next];
             return GetCount();
@@ -241,9 +242,8 @@ namespace Rynex {
             m_MaterielControl.Bind(base, chunk, bufferRegister);
 
             const InstanceValue* instanceData = m_InstanceVec.data() + chunk.m_FirstInstance;
-            const DrawSpan<InstanceValue> instances{ instanceData, chunk.m_InstanceCount };
-            const uint32_t commandCount = static_cast<uint32_t>(m_ChunkCommands.size());
-            const DrawSpan<DrawElementsIndirectCommand> commands{ m_ChunkCommands.data(), commandCount };
+            const Span<InstanceValue> instances{ instanceData, chunk.m_InstanceCount };
+            const Span<DrawElementsIndirectCommand> commands( m_ChunkCommands.data(), m_ChunkCommands.size() );
             InstanceControl::Upload(instances, commands, base, out, bufferRegister);
         }
 
