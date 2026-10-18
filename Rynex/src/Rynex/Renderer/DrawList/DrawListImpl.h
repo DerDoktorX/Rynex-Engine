@@ -25,38 +25,36 @@ namespace Rynex {
      * Set() returns true when the new geometry / material cannot share the current draw call (other VAO, other shader state).
      * Commit() is called when a new group opens: the control stores its current state as the state of that group.
      */
-    template<typename InstanceControl, typename GeometryControl, typename MaterielControl>
+    template<typename InstanceControl, typename GeometryControl, typename MaterielControl, typename TemplateSlots = NoTemplateSlots>
     class DrawListImpl
     {
-        static_assert(std::is_trivially_copyable_v<typename InstanceControl::Instance>, "No instance data type provided by InstanceControl!");
+        static_assert(std::is_trivially_copyable_v<typename MaterielControl::Instance>, "No instance data type provided by InstanceControl!");
         static_assert(0u < sizeof(typename InstanceControl::Instance), "No data in InstanceValue!");
-        static_assert(HasMemberStatic_InstanceControlVaribleFields_v<InstanceControl>, "No static s_Fields in InstanceControl!");
-        static_assert(HasMemberStatic_MaterielControlVaribleInstanceFields_v<MaterielControl>, "No static s_InstanceFields in MaterielControl!");
-        static_assert(std::is_trivially_copyable_v<typename MaterielControl::Indices>, "No indices data type provided by MaterielControl!");
+        static_assert(AreMasksDisjoint(GeometryControl::s_AttributeLocationMask, MaterielControl::s_AttributeLocationMask, InstanceControl::s_AttributeLocationMask, TemplateSlots::s_AttributeLocationMask), "Vertex attribute locations overlap between the controls!");
+        static_assert(AreMasksDisjoint(GeometryControl::s_UniformSlotMask, MaterielControl::s_UniformSlotMask, InstanceControl::s_UniformSlotMask, TemplateSlots::s_UniformSlotMask), "Uniform buffer slots overlap between the controls!");
+        static_assert(AreMasksDisjoint(GeometryControl::s_StorageSlotMask, MaterielControl::s_StorageSlotMask, InstanceControl::s_StorageSlotMask, TemplateSlots::s_StorageSlotMask), "Storage buffer slots overlap between the controls!");
+        static_assert(AreMasksDisjoint(GeometryControl::s_TextureSlotMask, MaterielControl::s_TextureSlotMask, InstanceControl::s_TextureSlotMask, TemplateSlots::s_TextureSlotMask), "Texture slots overlap between the controls!");
         static_assert(0u == (MaterielControl::s_InstanceFields & ~InstanceControl::s_Fields), "MaterielControl hands out indices the instance record cannot store!");
 
     public:
-        using InstanceValue = typename InstanceControl::Instance;
         using GeometryResources = typename GeometryControl::Resources;      // Ref<MeshSingle>, std::vector<Vertex>, AssetHandle, ...
         using MaterielResources = typename MaterielControl::Resources;      // Ref<Material>, AssetHandle, ...
         using MaterielIndices = typename MaterielControl::Indices;          // per instance indices, NoIndices if none
         using Unit = uint32_t;
 
     // --- public static variables -------------------------------------------------------------------------------------
-        static constexpr uint32_t s_InstanceFields = InstanceControl::s_Fields;
-        static constexpr uint32_t s_MaterielFields = MaterielControl::s_InstanceFields;
-
+        static constexpr uint32_t s_VertexBufferCount = GeometryControl::s_VertexBufferCount + MaterielControl::s_VertexBufferCount + InstanceControl::s_VertexBufferCount;
+        static constexpr uint32_t s_MinimumGpuFiledByteCount = 4u; // no 1 byte filed like bool are allowed bool values can be used in a int. Expect 1 byte has 8 bit.
+        static constexpr bool s_MaterielIndicesFieldEnabled = s_MinimumGpuFiledByteCount < sizeof(MaterielIndices);
     // --- public member methods ---------------------------------------------------------------------------------------
         DrawListImpl()
-            : m_InstanceVec()
-            , m_Commands()
-            , m_ChunkCommands()
-            , m_GroupStartVec()
-            , m_Template()
-            , m_InstanceControl()
+            : m_InstanceControl()
             , m_GeometryControl()
             , m_MaterielControl()
-            , m_GroupPending(true)
+            , m_Template()
+            , m_Stats()
+            , m_Remaining(0u)
+            , m_NewGroup(true)
         {
         }
 
@@ -72,37 +70,49 @@ namespace Rynex {
 
         void SetGeometry(const GeometryResources& geometry)
         {
-            const bool startsGroup = m_GeometryControl.Set(geometry);
-            if (true == startsGroup)
-                m_GroupPending = true;
+            if (m_GeometryControl.Set(geometry))
+                RequestNewGroup();
         }
 
         void SetMateriel(const MaterielResources& material)
         {
-            const bool startsGroup = m_MaterielControl.Set(material);
-            if (true == startsGroup)
-                m_GroupPending = true;
+            if (m_MaterielControl.Set(material))
+                RequestNewGroup();
         }
 
+        // Hot path: one compare, no allocation, no map, no virtual call. The geometry control is not involved.
         void Add(const glm::mat4& modelMatrix, const uint32_t entityID)
         {
-            if (m_GroupPending)
-                OpenGroup();
+            if (0u == m_Remaining)
+                OpenChunk();
 
-            const uint32_t instanceIndex = GetCount();
-            const MaterielIndices& indices = m_MaterielControl.GetIndices();
-            m_InstanceVec.emplace_back(InstanceControl::Make(modelMatrix, entityID, indices));
-            m_GeometryControl.OnInstance(m_Commands, instanceIndex);
+            m_Remaining--;
+            const InstanceSource source{ modelMatrix, entityID };
+            if constexpr (s_MaterielIndicesFieldEnabled)
+            {
+                const MaterielIndices& indices = m_MaterielControl.GetIndices();
+                m_InstanceControl.Add(source, indices);
+            }
+            else
+            {
+                m_InstanceControl.Add(source);
+            }
+        }
+
+        // Smallest capacity of all controls for the open (or the next) chunk. No side effect.
+        Unit GetEffectiveCapacity() const
+        {
+            const Unit geometryCapacity = m_GeometryControl.GetCapacity();
+            const Unit materielCapacity = m_MaterielControl.GetCapacity();
+            const Unit instanceCapacity = m_InstanceControl.GetCapacity();
+            const Unit minGeometryMaterielCapacity = std::min(geometryCapacity, materielCapacity);
+            const Unit minCapacity = std::min(minGeometryMaterielCapacity, instanceCapacity);
+            return minCapacity;
         }
 
         Unit GetCount() const
         {
-            return static_cast<Unit>(m_InstanceVec.size());
-        }
-
-        Unit GetByteSize() const
-        {
-            return GetCount() * static_cast<Unit>(sizeof(InstanceValue));
+            return m_InstanceControl.GetCount();
         }
 
         bool IsEmpty() const
@@ -110,170 +120,130 @@ namespace Rynex {
             return 0u == GetCount();
         }
 
+        // Frame reset. Controls keep their allocations, the template stays.
         void Clear()
         {
-            m_InstanceVec.clear();
-            m_Commands.clear();
-            m_ChunkCommands.clear();
-            m_GroupStartVec.clear();
+            m_InstanceControl.Clear();
             m_GeometryControl.Clear();
             m_MaterielControl.Clear();
-            m_GroupPending = true;
+            m_Stats = DrawListStats();
+            m_Remaining = 0u;
+            m_NewGroup = true;
         }
 
-        /**
-         * Cuts the CPU data into draw calls and appends them to out. Every group is at least one draw call,
-         * a group is cut further when InstanceControl::GetCapacity() is smaller than the group.
-         * @tparam BufferRegister Register to get or create buffers, only forwarded to the controls.
-         * @param out a output vector off draw calls
-         * @param bufferRegister register to get or create Buffer
-         */
-        void UploadCommands(std::vector<ShaderDrawResource>& out, CachedBufferRegister& bufferRegister)
+        // One ShaderDrawResource per chunk is appended to out. No cutting here, the chunks already exist.
+        template<typename BufferRegister>
+        void Flush(std::vector<ShaderDrawResource>& out, BufferRegister& bufferRegister)
         {
-            if (IsEmpty())
-                return;
+            const Unit chunkCountInstance = m_MaterielControl.GetSectionCount();
+            const Unit chunkCountGeometry = m_GeometryControl.GetSectionCount();
+            const Unit chunkCountMateriel = m_InstanceControl.GetSectionCount();
+            RY_CORE_ASSERT(chunkCountInstance == chunkCountGeometry, "Geometry sections do not match the chunks!");
+            RY_CORE_ASSERT(chunkCountInstance == chunkCountMateriel, "Materiel sections do not match the chunks!");
+            const Unit chunkCount = chunkCountInstance;
 
-            const uint32_t capacity = InstanceControl::GetCapacity();
-            RY_CORE_ASSERT(0u < capacity, "InstanceControl has no space for a single instance!");
-
-            const uint32_t groupCount = static_cast<uint32_t>(m_GroupStartVec.size());
-            uint32_t commandCursor = 0u;
-            for (uint32_t group = 0u; group < groupCount; group++)
+            const size_t outSize = out.size();
+            const size_t outReserve = outSize + chunkCount;
+            out.reserve(outReserve);
+            for (Unit i = 0u; i < chunkCount; i++)
             {
-                uint32_t begin = m_GroupStartVec[group];
-                const uint32_t groupEnd = GetGroupEnd(group);
-                while (begin < groupEnd)
-                {
-                    SkipFinishedCommands(begin, commandCursor);
-                    const uint32_t end = FindChunkEnd(begin, groupEnd, capacity, commandCursor);
-                    const uint32_t count = end - begin;
-                    const DrawChunk chunk{ group, begin, count };
-                    BuildChunkCommands(chunk, commandCursor);
-                    UploadChunk(chunk, out, bufferRegister);
-                    begin = end;
-                }
+                ShaderDrawResource draw = m_Template;
+                BuildDraw(i, draw, bufferRegister);
+                out.emplace_back(std::move(draw));
             }
         }
 
     private:
-    // --- private member methods --------------------------------------------------------------------------------------
-        void OpenGroup()
+        using VertexElementArray = std::array<VertexArray::VertexElements, s_VertexBufferCount>;
+    // --- private member method ---------------------------------------------------------------------------------------
+
+        // Forces the next Add() into the slow path. The group is counted when the chunk opens, not here.
+        void RequestNewGroup()
         {
-            m_GroupStartVec.push_back(GetCount());
-            m_GeometryControl.Commit();
-            m_MaterielControl.Commit();
-            m_GroupPending = false;
+            m_NewGroup = true;
+            m_Remaining = 0u;
         }
 
-        uint32_t GetGroupEnd(const uint32_t group) const
+        // New draw call. Fixed order: Geometry, Materiel, Instance. Every control stores its current state as the new section.
+        void OpenChunk()
         {
-            const uint32_t next = group + 1u;
+            m_GeometryControl.OpenSection();
+            m_MaterielControl.OpenSection();
+            m_InstanceControl.OpenSection();
 
-            if (next < m_GroupStartVec.size())
-                return m_GroupStartVec[next];
-            return GetCount();
-        }
+            m_Remaining = GetEffectiveCapacity();
+            RY_CORE_ASSERT(0u < m_Remaining, "A control has no space for a single instance!");
 
-        // commands are ordered by m_BaseInstance, move the cursor to the command that contains 'begin'
-        void SkipFinishedCommands(const uint32_t begin, uint32_t& commandCursor) const
-        {
-            const uint32_t commandCount = static_cast<uint32_t>(m_Commands.size());
-            while (commandCursor < commandCount)
-            {
-                const DrawElementsIndirectCommand& command = m_Commands[commandCursor];
-                const uint32_t commandEnd = command.m_BaseInstance + command.m_InstancesCount;
-                if (begin < commandEnd)
-                    return;
-                commandCursor++;
-            }
-        }
-
-        // whole group when it fits, else the last command border inside the capacity, else cut inside a command
-        uint32_t FindChunkEnd(const uint32_t begin, const uint32_t groupEnd, const uint32_t capacity, const uint32_t commandCursor) const
-        {
-            const uint32_t remaining = groupEnd - begin;
-            if (remaining <= capacity)
-                return groupEnd;
-
-            const uint32_t limit = begin + capacity;
-            const uint32_t commandCount = static_cast<uint32_t>(m_Commands.size());
-            uint32_t cut = limit;
-            for (uint32_t i = commandCursor; i < commandCount; i++)
-            {
-                const uint32_t base = m_Commands[i].m_BaseInstance;
-                if (limit < base)
-                    break;
-                if (begin < base)
-                    cut = base;
-            }
-            return cut;
-        }
-
-        // copies the commands of [chunk begin, chunk end) and rebases m_BaseInstance to the chunk's own instance buffer
-        void BuildChunkCommands(const DrawChunk& chunk, const uint32_t commandCursor)
-        {
-            m_ChunkCommands.clear();
-            const uint32_t begin = chunk.m_FirstInstance;
-            const uint32_t end = begin + chunk.m_InstanceCount;
-            const uint32_t commandCount = static_cast<uint32_t>(m_Commands.size());
-            for (uint32_t i = commandCursor; i < commandCount; i++)
-            {
-                const DrawElementsIndirectCommand& source = m_Commands[i];
-                if (end <= source.m_BaseInstance)
-                    break;
-
-                const uint32_t sourceEnd = source.m_BaseInstance + source.m_InstancesCount;
-                const uint32_t clipBegin = std::max(source.m_BaseInstance, begin);
-                const uint32_t clipEnd = std::min(sourceEnd, end);
-
-                DrawElementsIndirectCommand clipped = source;
-                clipped.m_BaseInstance = clipBegin - begin;
-                clipped.m_InstancesCount = clipEnd - clipBegin;
-                m_ChunkCommands.push_back(clipped);
-            }
+            m_Stats.m_ChunkCount++;
+            if (m_NewGroup)
+                m_Stats.m_GroupCount++;
+            m_NewGroup = false;
         }
 
         template<typename BufferRegister>
-        void UploadChunk(const DrawChunk& chunk, std::vector<ShaderDrawResource>& out, BufferRegister& bufferRegister)
+        void BuildVertexDraw(const Unit sectionIndex, ShaderDrawResource& draw, BufferRegister& bufferRegister)
         {
-            ShaderDrawResource base = m_Template;
-            m_GeometryControl.Bind(base, chunk, bufferRegister);
-            m_MaterielControl.Bind(base, chunk, bufferRegister);
+            const Unit instanceCount = m_InstanceControl.GetSectionInstanceCount(sectionIndex);
+            const DrawChunk chunk{ sectionIndex, instanceCount };
 
-            const InstanceValue* instanceData = m_InstanceVec.data() + chunk.m_FirstInstance;
-            const Span<InstanceValue> instances{ instanceData, chunk.m_InstanceCount };
-            const Span<DrawElementsIndirectCommand> commands( m_ChunkCommands.data(), m_ChunkCommands.size() );
-            InstanceControl::Upload(instances, commands, base, out, bufferRegister);
+            VertexElementArray elements;
+            m_GeometryControl.Bind(chunk, draw, elements, bufferRegister);
+            m_MaterielControl.Bind(chunk, draw, elements, bufferRegister);
+            m_InstanceControl.Bind(chunk, draw, elements, bufferRegister);
+
+            // check for not matching vertex buffer element count. is for developing off DrawListImpl.
+            if constexpr (0u < MaterielControl::s_VertexBufferCount && 0u < InstanceControl::s_VertexBufferCount)
+                CheckVertexBufferOffElementCount(elements, instanceCount);
+
+            draw.m_VAO = AcquireVertexArray(sectionIndex, elements, bufferRegister);
         }
-    // --- private static methode --------------------------------------------------------------------------------------------
-        template<typename T, typename N>
-        static typename std::array<VertexArray::VertexElements, (T::VertexCount + N::InstanceCount)> AcquirerVertexBufferArrayFromBufferOutPut(const T& outPutGeometry, const N& outPutInstance)
+
+        // check for elements count differences in Vertex Buffer and checks instance increase the have the necessary element count.
+        static constexpr void CheckVertexBufferOffElementCount(const VertexElementArray& elements, const uint32_t minInstanceCount)
         {
-            constexpr size_t VertexCount = T::VertexCount + N::InstanceCount;
-            std::array<VertexArray::VertexElements, VertexCount> vertexBufferArray;
-            int32_t i = 0;
-            for (const VertexArray::VertexElements& vertexElements : outPutGeometry.m_VertexBufferArray)
+            uint32_t perVertex = 0u;
+
+            for (auto&[layout, buffer] : elements)
             {
-                vertexBufferArray[i] =vertexElements;
-                i++;
+                const uint32_t byteSize = buffer->GetByteSize();
+                const uint32_t stride = layout.GetStride();
+                const uint32_t count = byteSize / stride;
+                const uint32_t instanceIncrease = layout.GetInstastancIncreas();
+                if (0 == instanceIncrease)
+                {
+                    RY_CORE_ASSERT(count == perVertex || 0u == perVertex, "Equal not per Instance Increase, but not not equal Ellements in call. Worse case Can run Out off Memory!");
+                    perVertex = count;
+                }
+                else
+                {
+                    const uint32_t instanceCount = instanceIncrease * count;
+                    RY_CORE_ASSERT(minInstanceCount <= instanceCount, "Equal per Instance Increase, but not not equal Ellements in call. Can run Out off Memory!");
+                }
             }
-            for (const VertexArray::VertexElements& vertexElements : outPutInstance.m_VertexBufferArray)
-            {
-                vertexBufferArray[i] = vertexElements;
-                i++;
-            }
-            return vertexBufferArray;
         }
+
+        // Only place that builds the VAO. VAO hash with per frame instance buffers.
+        template<typename BufferRegister>
+        Ref<VertexArray> AcquireVertexArray(const Unit sectionIndex, const VertexElementArray& elements, BufferRegister& bufferRegister) const
+        {
+            Ref<IndexBuffer> indexBuffer = nullptr;
+            if constexpr (0u < GeometryControl::s_IndexBufferCount)
+                indexBuffer = m_GeometryControl.GetIndexBuffer(sectionIndex);
+
+            const Span<const VertexArray::VertexElements> elementSpan(elements.data(), elements.size());
+            auto [hash, vertexArray] = bufferRegister.AcquireUniqueVertexArray(indexBuffer, elementSpan);
+            return vertexArray;
+        }
+
+
     // --- private member variables ------------------------------------------------------------------------------------
-        std::vector<InstanceValue> m_InstanceVec;
-        std::vector<DrawElementsIndirectCommand> m_Commands;
-        std::vector<DrawElementsIndirectCommand> m_ChunkCommands;       // scratch, reused for every chunk
-        std::vector<uint32_t> m_GroupStartVec;                          // first instance index of every group
-        ShaderDrawResource m_Template;
         InstanceControl m_InstanceControl;
         GeometryControl m_GeometryControl;
         MaterielControl m_MaterielControl;
-        bool m_GroupPending;
+        ShaderDrawResource m_Template;
+        DrawListStats m_Stats;
+        uint32_t m_Remaining;
+        bool m_NewGroup;
     };
 
 }
