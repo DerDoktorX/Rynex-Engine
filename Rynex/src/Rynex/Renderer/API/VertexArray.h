@@ -11,6 +11,22 @@ namespace Rynex {
 		{
 			BufferLayout		m_UseLayout;
 			Ref<VertexBuffer>	m_Buffer;
+
+		    explicit VertexElements(const Ref<VertexBuffer>& buffer)
+                : m_UseLayout(buffer->GetLayout())
+                , m_Buffer(buffer)
+		    {
+		    }
+
+		    explicit VertexElements(const BufferLayout& layout, const Ref<VertexBuffer>& buffer)
+		        : m_UseLayout(layout)
+		        , m_Buffer(buffer)
+		    {
+		    }
+
+		    VertexElements(const VertexElements&) = default;
+		    VertexElements(VertexElements&&)= default;
+		    VertexElements& operator=(const VertexElements&) = default;
 		};
 	// enum ------------------------------------------------------------------------------------------------------------------
 		enum class Primitive //Triangle

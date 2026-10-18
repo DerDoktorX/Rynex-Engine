@@ -279,24 +279,24 @@ namespace Rynex {
 			return false;
 		}
 
-		bool operator==(const BufferLayout& layouteRigth) const
+		bool operator==(const BufferLayout& layoutRight) const
 		{
 			bool result = true;
 
-			result = m_HashNumber == layouteRigth.GetHash();
+			result = m_HashNumber == layoutRight.GetHash();
 			return result;
 		}
 
 		
-		bool operator!=(const BufferLayout& layouteRigth) const
+		bool operator!=(const BufferLayout& layoutRight) const
 		{
-			bool result = m_HashNumber != layouteRigth.GetHash();
+			bool result = m_HashNumber != layoutRight.GetHash();
 			return result;
 		}
 
-		void AddBufferElement(BufferElement& ellements)
+		void AddBufferElement(BufferElement& ellement)
 		{
-			m_Elements.push_back(ellements);
+			m_Elements.emplace_back(ellement);
 			CaculateOffsetAndStride();
 		}
 
@@ -323,7 +323,7 @@ namespace Rynex {
 			return m_HashNumber;
 		}
 	private:
-		void CaculateOffsetAndStride() 
+		void CaculateOffsetAndStride()
 		{
 			uint32_t offset = 0u;
 			m_Stride = 0ull;
