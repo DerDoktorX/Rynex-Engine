@@ -172,14 +172,12 @@ namespace Rynex {
 
         UniqueVertexArrayRegister m_UniqueVertexArray;
 
-
         uint64_t m_ReservedGpuMemory;
         uint64_t m_Frame;
         uint64_t m_LastGarbageFrame;
         uint64_t m_GarbageInterval;
         uint64_t m_MaxUnusedFrames;
         uint32_t m_Flags;
-
     };
 
     template<typename Register>

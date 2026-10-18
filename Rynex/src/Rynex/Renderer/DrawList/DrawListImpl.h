@@ -2,7 +2,7 @@
 // DrawListImpl created in Project Rynex-Rendering on 03/10/2026.
 #include <rypch.h>
 #include <Rynex/Renderer/API/Buffer.h>
-#include <Rynex/Renderer/PiplineObjects/DrawList/DrawListTypes.h>
+#include <Rynex/Renderer/DrawList/DrawListTypes.h>
 #include <Rynex/Renderer/Rendering/ShaderDrawList.h>
 
 namespace Rynex {
