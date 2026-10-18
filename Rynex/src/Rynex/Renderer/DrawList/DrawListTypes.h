@@ -31,30 +31,9 @@ namespace Rynex {
     template<size_t VertexCount, size_t IndexCount>
     struct BufferOutPut
     {
-
         std::array<VertexArray::VertexElements, VertexCount> m_VertexBufferArray;
         std::array<Ref<StorageBuffer>, IndexCount> m_StorageBufferArray;
     };
 
-    template<typename T, typename N>
-    typename std::array<VertexArray::VertexElements, (T::VertexCount + N::InstanceCount)> AcquirerVertexBufferArrayFromBufferOutPut(const T& outPutGeometry, const N& outPutInstance)
-    {
-        constexpr size_t VertexCount = T::VertexCount + N::InstanceCount;
-        std::array<VertexArray::VertexElements, VertexCount> vertexBufferArray;
-        int32_t i = 0;
-        for (const VertexArray::VertexElements& vertexElements : outPutGeometry.m_VertexBufferArray)
-        {
-            vertexBufferArray[i] =vertexElements;
-            i++;
-        }
-        for (const VertexArray::VertexElements& vertexElements : outPutInstance.m_VertexBufferArray)
-        {
-            vertexBufferArray[i] = vertexElements;
-            i++;
-        }
-        return vertexBufferArray;
-
-
-    }
 
 }

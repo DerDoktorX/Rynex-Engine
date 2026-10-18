@@ -53,6 +53,7 @@ namespace Rynex {
             , m_ChunkCommands()
             , m_GroupStartVec()
             , m_Template()
+            , m_InstanceControl()
             , m_GeometryControl()
             , m_MaterielControl()
             , m_GroupPending(true)
@@ -85,7 +86,7 @@ namespace Rynex {
 
         void Add(const glm::mat4& modelMatrix, const uint32_t entityID)
         {
-            if (true == m_GroupPending)
+            if (m_GroupPending)
                 OpenGroup();
 
             const uint32_t instanceIndex = GetCount();
@@ -129,7 +130,7 @@ namespace Rynex {
          */
         void UploadCommands(std::vector<ShaderDrawResource>& out, CachedBufferRegister& bufferRegister)
         {
-            if (true == IsEmpty())
+            if (IsEmpty())
                 return;
 
             const uint32_t capacity = InstanceControl::GetCapacity();
@@ -188,8 +189,7 @@ namespace Rynex {
         }
 
         // whole group when it fits, else the last command border inside the capacity, else cut inside a command
-        uint32_t FindChunkEnd(const uint32_t begin, const uint32_t groupEnd, const uint32_t capacity,
-            const uint32_t commandCursor) const
+        uint32_t FindChunkEnd(const uint32_t begin, const uint32_t groupEnd, const uint32_t capacity, const uint32_t commandCursor) const
         {
             const uint32_t remaining = groupEnd - begin;
             if (remaining <= capacity)
@@ -245,13 +245,32 @@ namespace Rynex {
             const Span<DrawElementsIndirectCommand> commands( m_ChunkCommands.data(), m_ChunkCommands.size() );
             InstanceControl::Upload(instances, commands, base, out, bufferRegister);
         }
-
+    // --- private static methode --------------------------------------------------------------------------------------------
+        template<typename T, typename N>
+        static typename std::array<VertexArray::VertexElements, (T::VertexCount + N::InstanceCount)> AcquirerVertexBufferArrayFromBufferOutPut(const T& outPutGeometry, const N& outPutInstance)
+        {
+            constexpr size_t VertexCount = T::VertexCount + N::InstanceCount;
+            std::array<VertexArray::VertexElements, VertexCount> vertexBufferArray;
+            int32_t i = 0;
+            for (const VertexArray::VertexElements& vertexElements : outPutGeometry.m_VertexBufferArray)
+            {
+                vertexBufferArray[i] =vertexElements;
+                i++;
+            }
+            for (const VertexArray::VertexElements& vertexElements : outPutInstance.m_VertexBufferArray)
+            {
+                vertexBufferArray[i] = vertexElements;
+                i++;
+            }
+            return vertexBufferArray;
+        }
     // --- private member variables ------------------------------------------------------------------------------------
         std::vector<InstanceValue> m_InstanceVec;
         std::vector<DrawElementsIndirectCommand> m_Commands;
         std::vector<DrawElementsIndirectCommand> m_ChunkCommands;       // scratch, reused for every chunk
         std::vector<uint32_t> m_GroupStartVec;                          // first instance index of every group
         ShaderDrawResource m_Template;
+        InstanceControl m_InstanceControl;
         GeometryControl m_GeometryControl;
         MaterielControl m_MaterielControl;
         bool m_GroupPending;
