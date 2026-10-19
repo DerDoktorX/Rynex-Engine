@@ -249,7 +249,7 @@ rynex_declare(
 
 rynex_make_available(
         yaml-cpp
-        POLICY_VERSION  3.5
+        POLICY_VERSION 3.5
 )
 rynex_make_available(assimp)
 rynex_make_available(spdlog)
@@ -281,7 +281,8 @@ if(NOT TARGET imgui)
             "${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp"
     )
 
-    target_include_directories(imgui
+    target_include_directories(
+          imgui
             PUBLIC
             "${IMGUI_DIR}"
             "${IMGUI_DIR}/backends"
