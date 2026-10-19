@@ -14,7 +14,7 @@ namespace Rynex {
 		virtual ~WindowsWindow();
 
 		virtual void OnUpdate() override;
-		virtual void OnSreenRefresh() override;
+		virtual void OnScreenRefresh() override;
 		virtual unsigned int GetWidth() const override { return m_Data.Width; }
 		virtual unsigned int GetHeight() const override { return m_Data.Height; }
 
@@ -34,7 +34,7 @@ namespace Rynex {
 		inline virtual void* GetNativeWindow() const override { return GetWindowPtr(); }
 		virtual GraphicsContext* GetGraphicsContext() override { return m_Context.get(); }
 
-		virtual Ref<ThreadContext> CreateThreadeContext() override;
+		virtual Ref<ThreadContext> CreateThreadContext() override;
 		virtual int64_t GetRenderTime() const override { return m_UpdateScreeTime; }
 	private:
 		virtual void Init(const WindowProps& props);

@@ -2,6 +2,7 @@
 #include "OpenGLArrayBuffer.h"
 
 #include <Platform/OpenGL/OpenGLBase.h>
+#include <Rynex/Core/Application.h>
 
 namespace Rynex {
 
@@ -129,7 +130,7 @@ namespace Rynex {
 #ifdef RY_OPENGL_MAIN_THREADE
 		if (!OpenGLThreadContext::IsActive())
 		{
-			Application::Get().SubmiteToMainThreedQueueWait(std::bind(&OpenGLArrayBuffer::InvalideData, this, target));
+			Application::Get().SubmitToMainThreedQueueWait(std::bind(&OpenGLArrayBuffer::InvalideData, this, target));
 			return;
 		}
 #else
@@ -224,7 +225,7 @@ namespace Rynex {
 
 	void OpenGLArrayBuffer::SetupFance()
 	{
-		if (Asset::CurrentOnMainThread())
+		if (Application::Get().IsMainThread())
 			return;
 
 		m_FanceObject.SetupFence();

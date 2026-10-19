@@ -1131,10 +1131,10 @@ namespace Rynex {
 
 	void Scene::OnEntityStaticMeshChanged(entt::registry& registry, entt::entity entity)
 	{
-		if (!Asset::CurrentOnMainThread())
+		if (!Application::Get().IsMainThread())
 		{
 
-			Application::Get().SubmiteToMainThreedQueueWait(
+			Application::Get().SubmitToMainThreedQueueWait(
 				[&registry, entity]()
 				{
 					Scene::OnEntityStaticMeshChanged(registry, entity);

@@ -48,8 +48,7 @@ namespace Rynex {
 		static AssetType GetAssetTypeFromFilePath(const std::string& extensionStr);
 		static std::string GetAssetTypeDragAndDropName(AssetType type);
 		static std::string GetAssetTypeMoveAssetInfosName(AssetType type);
-
-		static bool CurrentOnMainThread();
+	    
 		static Ref<Asset> GetRefInPlace(Asset* assetPtr)
 		{
 			RY_CORE_ASSERT(nullptr != assetPtr);
@@ -113,9 +112,6 @@ namespace Rynex {
 			}
 			return assetWeakN;
 		}
-
-	private:
-		static std::thread::id s_MainThreadId;
 	};
 
 

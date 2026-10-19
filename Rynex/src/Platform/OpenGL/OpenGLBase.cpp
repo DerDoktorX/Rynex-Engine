@@ -16,10 +16,10 @@ namespace OpenGL {
 
 #if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
         RY_CORE_INFO("From Parel Thread Submit Func ({}) to execute on main thread! executing", name);
-        Rynex::Application::Get().SubmiteToMainThreedQueue(func);
+        Rynex::Application::Get().SubmitToMainThreedQueue(func);
 #else
         RY_CORE_INFO("From Parel Thread Submit Func ({}) to execute on main thread! Waiting", name);
-        Rynex::Application::Get().SubmiteToMainThreedQueueWait(func);
+        Rynex::Application::Get().SubmitToMainThreedQueueWait(func);
 #endif
     }
 
@@ -30,10 +30,10 @@ namespace OpenGL {
 
 #if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
 		RY_CORE_INFO("From Parel Thread Submit Func ({}) to execute on main thread! executing", name);
-		Rynex::Application::Get().SubmiteToMainThreedQueue(func);
+		Rynex::Application::Get().SubmitToMainThreedQueue(func);
 #else
 		RY_CORE_INFO("From Parel Thread Submit Func ({}) to execute on main thread! Waiting", name);
-		Rynex::Application::Get().SubmiteToMainThreedQueueWait(func);
+		Rynex::Application::Get().SubmitToMainThreedQueueWait(func);
 #endif
 		return true;
 	}
@@ -66,7 +66,7 @@ namespace OpenGL {
     {
         Rynex::OpenGLThreadContext threadContext;
         Rynex::Application& app = Rynex::Application::Get();
-        if(!app.IsRunninig())
+        if(!app.IsRunning())
             return;
 
         if (Rynex::OpenGLThreadContext::IsActive())
@@ -83,7 +83,7 @@ namespace OpenGL {
 	bool ExecuteResumeOnLocaleThread(const std::function<void()>& func, const char* name)
 	{
 		Rynex::Application& app = Rynex::Application::Get();
-		if (!app.IsRunninig())
+		if (!app.IsRunning())
 			return true;
 
 		if (Rynex::OpenGLThreadContext::IsActive())
@@ -423,10 +423,10 @@ namespace Rynex {
 
 #if RY_GRAFIC_SUBMIT_TO_MAIN_THREAD_WITHE_OUT_WAIT
         RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! executing", name);
-        Rynex::Application::Get().SubmiteToMainThreedQueue(func);
+        Rynex::Application::Get().SubmitToMainThreedQueue(func);
 #else
         RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! Waiting", name);
-        Rynex::Application::Get().SubmiteToMainThreedQueueWait(func);
+        Rynex::Application::Get().SubmitToMainThreedQueueWait(func);
 #endif
         return true;
     }
@@ -434,7 +434,7 @@ namespace Rynex {
     bool ExecuteResumeOnLocaleThread(const std::function<void()>& func, const char* name)
     {
         Rynex::Application& app = Rynex::Application::Get();
-        if (!app.IsRunninig())
+        if (!app.IsRunning())
             return true;
 
         if (Rynex::OpenGLThreadContext::IsActive())

@@ -6,8 +6,6 @@ namespace Rynex {
 
 #define RY_TRANSFORM_TYPE_STRING(x) #x
 
-    std::thread::id Asset::s_MainThreadId = std::this_thread::get_id();
-
 
     Asset::~Asset()
     {
@@ -176,9 +174,6 @@ namespace Rynex {
         return "ASSET_BROWSER_ITEM";
     }
 
-    bool Asset::CurrentOnMainThread()
-    {
-        return std::this_thread::get_id() == s_MainThreadId;
-    }
+
 
 }

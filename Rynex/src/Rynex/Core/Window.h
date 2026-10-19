@@ -20,13 +20,22 @@ namespace Rynex {
 		uint32_t m_PosX;
 		uint32_t m_PosY;
 
+	    WindowProps()
+	        : m_Title("Window Rynex-Engine")
+            , m_Height(600u)
+            , m_Width(400u)
+            , m_PosX(0u)
+            , m_PosY(0u)
+	    {
+	    }
 
-		WindowProps(const std::string& title = "Rynex Engine",
-			uint32_t width = 1600u ,
-			uint32_t height = 900u )
-			: m_Title(title), m_Width(width), m_Height(height), m_PosX(0u), m_PosY(0u)
+        explicit WindowProps(const std::string& title, const uint32_t width = 1600u , const uint32_t height = 900u)
+			: m_Title(title)
+	        , m_Height(height)
+	        , m_Width(width)
+	        , m_PosX(0u)
+	        , m_PosY(0u)
 		{
-
 		}
 	};
 
@@ -37,7 +46,7 @@ namespace Rynex {
 
 		virtual ~Window() {}
 
-		virtual void OnSreenRefresh() = 0;
+		virtual void OnScreenRefresh() = 0;
 		virtual void OnUpdate() = 0;
 
 		virtual uint32_t GetWidth() const = 0;
@@ -57,10 +66,10 @@ namespace Rynex {
 		virtual int64_t GetRenderTime() const = 0;
 
 		virtual GraphicsContext* GetGraphicsContext() = 0;
+		virtual Ref<ThreadContext> CreateThreadContext() = 0;
 
-		virtual Ref<ThreadContext> CreateThreadeContext() = 0;
-
-		static Scope<Window> Create(const WindowProps& props = WindowProps());
+		static Scope<Window> Create();
+	    static Scope<Window> Create(const WindowProps& props);
 
 	};
 

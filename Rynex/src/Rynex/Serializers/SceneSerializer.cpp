@@ -1149,7 +1149,7 @@ namespace Rynex {
 	{
 
 		RY_CORE_WARN("Begin Serialize a Scene from '{}'", systemPath);
-        Application::Get().SubmiteToMainThreedQueueWait([this]() -> void
+        Application::Get().SubmitToMainThreedQueueWait([this]() -> void
             {
                 m_Scene->ClearAll();
             }

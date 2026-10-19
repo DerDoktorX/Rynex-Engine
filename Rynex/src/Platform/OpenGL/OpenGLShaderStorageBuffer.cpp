@@ -2,6 +2,7 @@
 #include "OpenGLShaderStorageBuffer.h"
 
 #include <Platform/OpenGL/OpenGLBase.h>
+#include <Rynex/Core/Application.h>
 
 namespace Rynex {
 #pragma region OpenGLShaderStorageBuffer
@@ -141,7 +142,7 @@ namespace Rynex {
 
 	void OpenGLShaderStorageBuffer::SetupFance()
 	{
-		if (Asset::CurrentOnMainThread())
+		if (Application::Get().IsMainThread())
 			return;
 
 		m_FanceObject.SetupFence();

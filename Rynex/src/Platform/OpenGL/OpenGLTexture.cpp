@@ -4,6 +4,7 @@
 
 #include <Platform/OpenGL/OpenGLFramebuffer.h>
 #include <Platform/OpenGL/OpenGLBindlessTextureArray.h>
+#include <Rynex/Core/Application.h>
 
 
 namespace Rynex{
@@ -996,7 +997,7 @@ namespace Rynex{
 
 	void OpenGLTextureStorageModern::SetupFance()
 	{ 
-		if (Asset::CurrentOnMainThread())
+		if (Application::Get().IsMainThread())
 			return;
 
 		m_FanceObject.SetupFence();
@@ -1573,7 +1574,7 @@ namespace Rynex{
 
 	void OpenGLLinkedTextureArray::SetupFance()
 	{
-		if (Asset::CurrentOnMainThread())
+		if (Application::Get().IsMainThread())
 			return;
 
 		m_FanceObject.SetupFence();

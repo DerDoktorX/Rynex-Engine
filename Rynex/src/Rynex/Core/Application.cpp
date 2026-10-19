@@ -19,22 +19,23 @@ namespace Rynex {
 
 
 	Application::Application(const ApplicationSpecification& specification)
-		: m_Specification(specification)
+		: m_RenderThread()
+		, m_RenderThreadMutex()
 		, m_MaxMainThread(RY_MAX_QUEUE_PER_FRAME)
 		, m_LastFrameTime(0.0f)
+		, m_ImGuiLayer(nullptr)
+		, m_LayerStack()
+		, m_Specification(specification)
 		, m_ThreadPool(RY_MAX_THREAD_IN_USE)
 		, m_MainThreedQueueMutex()
-		, m_Running(true)
-		, m_Minmized(false)
-		, m_QueueTimer(nullptr)
-		, m_LayerStack()
-		, m_ImGuiLayer(nullptr)
-		, m_ImGuiTimeFrame(1ull)
 		, m_MaxQueueMainThreadTime(0ull)
-		, m_QueuePastTime(0ull)
 		, m_QueueDivedFrameTime(8ull)
-		, m_RenderThread()
-		, m_RenderThreadMutex()
+		, m_QueuePastTime(0ull)
+		, m_QueueTimer(nullptr)
+		, m_ImGuiTimeFrame(1ull)
+        , m_MainThreadId(std::this_thread::get_id())
+		, m_Running(true)
+		, m_Minimized(false)
 	{
 		m_QueueTimer = PlatformTimer::Create(&m_QueuePastTime);
 		int64_t multyply = 1000ll;	// move from sec in milsec
@@ -150,7 +151,7 @@ namespace Rynex {
 			// Thread!
 			ExecuteMainThreedQueue();
 
-			if (!m_Minmized)
+			if (!m_Minimized)
 			{
 				RY_PROFILE_SCOPE("Update Render!");
 				RY_SCOPE_TIMER(m_LayerTimeFrame);
@@ -194,11 +195,11 @@ namespace Rynex {
 		float height = e.GetHeight();
 		if (0 == height || 0 == width)
 		{
-			m_Minmized = true;
+			m_Minimized = true;
 			return false;
 		}
 
-		m_Minmized = false;
+		m_Minimized = false;
 		Renderer::OnWindowsResize(width, height);
 
 		return false;
@@ -207,11 +208,11 @@ namespace Rynex {
 	
 	
 
-	void Application::SubmiteToMainThreedQueue(const std::function<void()>& func)
+	void Application::SubmitToMainThreedQueue(const std::function<void()>& func)
 	{
 		if (m_Running)
 		{
-			SubmiteToMainThreedQueuePush(func, nullptr);
+			SubmitToMainThreedQueuePush(func, nullptr);
 		}
 		else
 		{
@@ -219,7 +220,7 @@ namespace Rynex {
 		}
 	}
 
-	void Application::SubmiteToMainThreedQueueWait(const std::function<void()>& func)
+	void Application::SubmitToMainThreedQueueWait(const std::function<void()>& func)
 	{	
 		if (!m_Running)
 			return;	
@@ -228,13 +229,13 @@ namespace Rynex {
 		std::condition_variable cv;
 		std::unique_lock lockWait(mutex);	
 		RY_CORE_TRACE("Submit funtion to main thread an wait!");
-		SubmiteToMainThreedQueuePush(func, &cv);
+		SubmitToMainThreedQueuePush(func, &cv);
 		cv.wait(lockWait);
 		RY_CORE_TRACE("Resume Exexution to main thread!");
 	}
 
 	
-	void Application::SubmiteToMainThreedQueuePush(const std::function<void()>& func, std::condition_variable* cvPtr)
+	void Application::SubmitToMainThreedQueuePush(const std::function<void()>& func, std::condition_variable* cvPtr)
 	{
 		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
 		MainThreadExe mainThreadExe = MainThreadExe(func, cvPtr);
@@ -286,9 +287,15 @@ namespace Rynex {
 		}
 	}
 
-	void Application::SubmitThreadTask(const std::function<void()>& task, const std::string& taskDiscription)
+    bool Application::IsMainThread() const
+    {
+	    const std::thread::id threadId = std::this_thread::get_id();
+	    return threadId == m_MainThreadId;
+    }
+
+	void Application::SubmitThreadTask(const std::function<void()>& task, const std::string& taskDescription)
 	{
-		m_ThreadPool.SubmitEnqueue(task, taskDiscription);
+		m_ThreadPool.SubmitEnqueue(task, taskDescription);
 	}
 
 	bool Application::ExecuteTaskFromThread()

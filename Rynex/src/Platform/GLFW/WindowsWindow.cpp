@@ -23,7 +23,12 @@ namespace Rynex {
 		RY_CORE_ERROR("GLFW Error ({0}): {1} ", error, description);
 	}
 
-	
+
+    Scope<Window> Window::Create()
+    {
+	    WindowProps props;
+	    return CreateScope<WindowsWindow>(props);
+    }
 
 	Scope<Window> Window::Create(const WindowProps& props)
 	{
@@ -45,7 +50,7 @@ namespace Rynex {
 		
 	}
 
-	Ref<ThreadContext> WindowsWindow::CreateThreadeContext()
+	Ref<ThreadContext> WindowsWindow::CreateThreadContext()
 	{
 		Ref<ThreadContext> threadContext = CreateRef<OpenGLThreadContext>();
 		threadContext->Create(this);
@@ -275,7 +280,7 @@ namespace Rynex {
 		m_Context->SwapBuffers();
 	}
 
-	void WindowsWindow::OnSreenRefresh()
+	void WindowsWindow::OnScreenRefresh()
 	{
 		m_Context->SwapBuffers();
 	}

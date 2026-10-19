@@ -208,7 +208,7 @@ namespace Rynex {
 			
 			return;
 		}
-		Application::Get().SubmiteToMainThreedQueue([this]() {
+		Application::Get().SubmitToMainThreedQueue([this]() {
 
 			ApplicationSpecification& spec = Application::Get().GetSpecification();
 			std::string path = m_ProjectPath + "\\" + m_ProjectName;
@@ -226,7 +226,7 @@ namespace Rynex {
 			
 			return;
 		}
-		Application::Get().SubmiteToMainThreedQueue([this](){
+		Application::Get().SubmitToMainThreedQueue([this](){
 			
 
 			Ref<Project> project = Project::GetActive()->CreatNewProject(m_ProjectPath, m_ProjectName);

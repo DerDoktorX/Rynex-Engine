@@ -22,7 +22,7 @@ namespace Rynex {
             uint32_t proxyIndex = m_ProxyRef.AddProxy(proxy, model);
 
        
-            RY_CORE_ASSERT(!Asset::CurrentOnMainThread(), "Expected not Main Thread!");
+            RY_CORE_ASSERT(!Application::Get().IsMainThread(), "Expected not Main Thread!");
             auto& renderProxyVec = m_ProxyRef.m_RenderProxyArrayVec.at(RenderProxysListData::EventData);
 
 
@@ -39,7 +39,7 @@ namespace Rynex {
 
             const RenderProxyConectionEntity::IndexSubMesh& indexSubMesh = m_ProxyRef.m_RenderProxyMapEntity.GetIndexSubMeshFromMap(funcArgs.m_Entity, funcArgs.m_SubMesh);
 
-            RY_CORE_ASSERT(!Asset::CurrentOnMainThread(), "Expexted not Main Thread!");
+            RY_CORE_ASSERT(!Application::Get().IsMainThread(), "Expexted not Main Thread!");
 
 
             uint32_t indexProxy = indexSubMesh.proxyIndex;
@@ -54,7 +54,7 @@ namespace Rynex {
         void operator()(RenderProxysListData::RemoveFuncArgs funcArgs)
         {
 
-            RY_CORE_ASSERT(!Asset::CurrentOnMainThread(), "Expected not Main Thread!");
+            RY_CORE_ASSERT(!Application::Get().IsMainThread(), "Expected not Main Thread!");
 
             auto[proxyIndex, renderProxyKey] = m_ProxyRef.m_RenderProxyMapEntity.RemoveProxyIndexFromMap(funcArgs.entity, funcArgs.subMesh);
 
@@ -72,7 +72,7 @@ namespace Rynex {
         {
 
             std::vector<RenderProxyConectionEntity::IndexSubMesh> proxyIndexVec = m_ProxyRef.m_RenderProxyMapEntity.RemoveProxyIndexVecFromMap(funcArgs.entity);
-            RY_CORE_ASSERT(!Asset::CurrentOnMainThread(), "Expected not Main Thread!");
+            RY_CORE_ASSERT(!Application::Get().IsMainThread(), "Expected not Main Thread!");
 
             RY_CORE_INFO("Remove all Submesh from Entity {}", funcArgs.entity);
             for (const RenderProxyConectionEntity::IndexSubMesh& indexSubMesh : proxyIndexVec)
@@ -207,7 +207,7 @@ namespace Rynex {
         
         m_RenderProxyArrayVec.at(RenderingData1).Size();
         m_RenderProxyArrayVec.at(RenderingData0).Size();
-        RY_CORE_ASSERT(Asset::CurrentOnMainThread(), "Expected Main Thread!");
+        RY_CORE_ASSERT(Application::Get().IsMainThread(), "Expected Main Thread!");
         if (m_RenderProxyVecPtr == &m_RenderProxyArrayVec.at(RenderingData1))
         {
 
@@ -240,7 +240,7 @@ namespace Rynex {
 
     void RenderProxysListData::Remove(int entity, uint32_t subMesh)
     {
-        RY_CORE_ASSERT(!Asset::CurrentOnMainThread(), "Expected not Main Thread!");
+        RY_CORE_ASSERT(!Application::Get().IsMainThread(), "Expected not Main Thread!");
 
         auto[proxyIndex, proxyKey] = m_RenderProxyMapEntity.RemoveProxyIndexFromMap(entity, subMesh);
         RemoveProxy(entity, subMesh, proxyIndex, proxyKey);
@@ -253,7 +253,7 @@ namespace Rynex {
     uint32_t RenderProxysListData::AddProxy(const RenderProxy& proxy, const glm::mat4& matrix)
     {
        
-        RY_CORE_ASSERT(!Asset::CurrentOnMainThread(), "Expected Not Main Thread!");
+        RY_CORE_ASSERT(!Application::Get().IsMainThread(), "Expected Not Main Thread!");
         auto& renderProxyVec = m_RenderProxyArrayVec.at(EventData);
 
 
@@ -263,7 +263,7 @@ namespace Rynex {
 
     void RenderProxysListData::UpdateProxyTransform(int entity, uint32_t subMesh, uint32_t proxyIndex, RenderProxyKey renderProxyKey, const glm::mat4& matrix)
     {
-        RY_CORE_ASSERT(!Asset::CurrentOnMainThread(), "Expected not Main Thread!");
+        RY_CORE_ASSERT(!Application::Get().IsMainThread(), "Expected not Main Thread!");
         auto& renderProxyVec = m_RenderProxyArrayVec.at(EventData);
 
         RenderProxy& proxy = renderProxyVec.AtProxy(renderProxyKey, proxyIndex);
@@ -276,7 +276,7 @@ namespace Rynex {
 
     void RenderProxysListData::RemoveProxy(int entity, uint32_t subMesh, uint32_t proxyIndex, RenderProxyKey renderProxyKey)
     {
-        RY_CORE_ASSERT(!Asset::CurrentOnMainThread(), "Expected not Main Thread!");
+        RY_CORE_ASSERT(!Application::Get().IsMainThread(), "Expected not Main Thread!");
         auto& renderProxyVec = m_RenderProxyArrayVec.at(EventData);
         if constexpr (std::is_same_v<std::decay_t<decltype(renderProxyVec)>, RenderProxySortedProxyVec>)
         {
@@ -346,7 +346,7 @@ namespace Rynex {
         if (proxyCount <= proxyIndex)
             return false;
 
-        RY_CORE_ASSERT(Asset::CurrentOnMainThread(), "Expected Main Thread!");
+        RY_CORE_ASSERT(Application::Get().IsMainThread(), "Expected Main Thread!");
         RenderProxy& proxy = m_RenderProxyVecPtr->AtSortedProxy(proxyIndex);
         return drawCallGenrater.SetProxyData(proxy);
 #else
@@ -362,7 +362,7 @@ namespace Rynex {
 
     void RenderProxysListData::ResetEventWaitingTimer()
     {
-        RY_CORE_ASSERT(Asset::CurrentOnMainThread(), "Expected Main Thread!");
+        RY_CORE_ASSERT(Application::Get().IsMainThread(), "Expected Main Thread!");
         m_EventWaitingTimer = 0;
     }
 
@@ -426,7 +426,7 @@ namespace Rynex {
 
     void RenderProxysListData::CreateThread()
     {
-        RY_CORE_ASSERT(Asset::CurrentOnMainThread(), "Expected Main Thread!");
+        RY_CORE_ASSERT(Application::Get().IsMainThread(), "Expected Main Thread!");
 
         std::unique_lock<std::mutex> lock(m_ThreadQueue.GetMutex());
         m_EventProxyProccesThread = std::thread(RY_BIND_MEMBER_FN(RenderProxysListData::EventThreadFunc));
@@ -435,7 +435,7 @@ namespace Rynex {
     void RenderProxysListData::DestroyThread()
     {
 
-        RY_CORE_ASSERT(Asset::CurrentOnMainThread(), "Expected Main Thread!");
+        RY_CORE_ASSERT(Application::Get().IsMainThread(), "Expected Main Thread!");
         {
             std::unique_lock<std::mutex> lock(m_ThreadQueue.GetMutex());
             m_Stop = true;

@@ -587,7 +587,7 @@ namespace Rynex {
                         bool lastTimeTaskExecute = true;
                         do
                         {
-                            if (Asset::CurrentOnMainThread() || !lastTimeTaskExecute)
+                            if (Application::Get().IsMainThread() || !lastTimeTaskExecute)
                             {
                                 using namespace std::chrono_literals;
                                 std::this_thread::sleep_for(100ms);

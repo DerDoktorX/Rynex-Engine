@@ -51,7 +51,7 @@ namespace Rynex {
 		static void GetAssetAsync(AssetHandle handle, Ref<T>* asset)
 		{
 			std::function<void()> processFunc = std::bind(&AssetManager::GetAssetAsyncProcess<T, AssetHandle, Ref<T>>, handle, asset);
-			RY_SUBMITE_TASK_TO_ASYNC_THREED("get Asset " + std::to_string(handle), processFunc);
+			RY_SUBMIT_TASK_TO_ASYNC_THREED("get Asset " + std::to_string(handle), processFunc);
 
 		}
 
@@ -59,14 +59,14 @@ namespace Rynex {
 		static void GetAssetAsync(AssetHandle handle, Weak<T>* asset)
 		{
 			std::function<void()> processFunc = std::bind(&AssetManager::GetAssetAsyncProcess<T, AssetHandle, Weak<T>>, handle, asset);
-			RY_SUBMITE_TASK_TO_ASYNC_THREED("get Asset " + std::to_string(handle), processFunc);
+			RY_SUBMIT_TASK_TO_ASYNC_THREED("get Asset " + std::to_string(handle), processFunc);
 		}
 		
 		template<typename T, typename ...PromisArgs>
 		static void GetAssetAsyncPromis(AssetHandle assetHandle, Ref<LodePromisType<T, PromisArgs ...>> lodePromis)
 		{
 			std::function<void()> processFunc = std::bind(&AssetManager::GetAssetAsyncPromisProcessRef<T, AssetHandle, LodePromisType<T, PromisArgs ...>>, assetHandle, lodePromis);
-			RY_SUBMITE_TASK_TO_ASYNC_THREED("get Asset " + std::to_string(assetHandle), processFunc);
+			RY_SUBMIT_TASK_TO_ASYNC_THREED("get Asset " + std::to_string(assetHandle), processFunc);
 		}
 
 
@@ -85,14 +85,14 @@ namespace Rynex {
 		{
 			*asset = nullptr;
 			std::function<void()> processFunc = std::bind(&AssetManager::GetAssetAsyncProcess<T, FileSystem::Path, Ref<T>>, path, asset);
-			RY_SUBMITE_TASK_TO_ASYNC_THREED("get Asset from Path " + path.GetPathString(), processFunc);
+			RY_SUBMIT_TASK_TO_ASYNC_THREED("get Asset from Path " + path.GetPathString(), processFunc);
 		}		
 		
 		template<typename T, typename ...PromisArgs>
 		static void GetAssetAsyncPromis(const FileSystem::Path& path, Ref<LodePromisType<T, PromisArgs ...>> lodePromis)
 		{
 			std::function<void()> processFunc = std::bind(&AssetManager::GetAssetAsyncPromisProcessRef<T, FileSystem::Path, LodePromisType<T, PromisArgs ...>>, path, lodePromis);
-			RY_SUBMITE_TASK_TO_ASYNC_THREED("get Asset from Path: " + path.GetPathString(), processFunc);
+			RY_SUBMIT_TASK_TO_ASYNC_THREED("get Asset from Path: " + path.GetPathString(), processFunc);
 		}
 
 		static std::filesystem::path GetMarkedAssetPath(AssetHandle handle)

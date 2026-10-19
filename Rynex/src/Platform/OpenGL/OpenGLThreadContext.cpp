@@ -5,6 +5,7 @@
 #include <Platform/OpenGL/OpenGLFence.h>
 
 #include <GLFW/glfw3.h>
+#include <Rynex/Core/Application.h>
 
 namespace Rynex {
 #define RY_ENABLE_LODING_THREADE_FANCE 1
@@ -114,7 +115,7 @@ namespace Rynex {
 	bool OpenGLThreadContext::IsActive()
 	{
 		bool resultContextVaild = nullptr != glfwGetCurrentContext();
-		bool resultMainThread = Asset::CurrentOnMainThread();
+		bool resultMainThread = Application::Get().IsMainThread();
 		if (resultContextVaild != resultMainThread)
 		{
 			if (!resultMainThread)

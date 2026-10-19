@@ -73,17 +73,17 @@ namespace Rynex {
 		ApplicationSpecification& GetSpecification() { return m_Specification; }
 
 		// Treads!
-		void SubmiteToMainThreedQueue(const std::function<void()>& func);
-		void SubmiteToMainThreedQueueWait(const std::function<void()>& func);
-		bool IsRunninig() const { return m_Running; }
-		
-		void SubmitThreadTask(const std::function<void()>& task, const std::string& taskDiscription);
+		void SubmitToMainThreedQueue(const std::function<void()>& func);
+		void SubmitToMainThreedQueueWait(const std::function<void()>& func);
+		bool IsRunning() const { return m_Running; }
+		bool IsMainThread() const;
+		void SubmitThreadTask(const std::function<void()>& task, const std::string& taskDescription);
 		bool ExecuteTaskFromThread();
 
 		const ThreadPool& GetThreadPool() const { return m_ThreadPool; };
 		std::thread& GetRenderThread() { return m_RenderThread; };
 	private:
-		void SubmiteToMainThreedQueuePush(const std::function<void()>& func, std::condition_variable* cvPtr);
+		void SubmitToMainThreedQueuePush(const std::function<void()>& func, std::condition_variable* cvPtr);
 
 		void Run();
 		
@@ -95,7 +95,7 @@ namespace Rynex {
 
 	// --- private using types ------------------------------------------------------------------------------------------------
 		using MainThreadExe = std::pair<std::function<void()>, std::condition_variable*>;
-	// --- private member varibles --------------------------------------------------------------------------------------------
+	// --- private member variables --------------------------------------------------------------------------------------------
 		Ref<Window> m_Window;
 		std::thread m_RenderThread;
 		std::mutex m_RenderThreadMutex;
@@ -117,6 +117,7 @@ namespace Rynex {
 		
 		std::queue<MainThreadExe>  m_MainThreedQueue;
 		std::mutex m_MainThreedQueueMutex;
+
 		int64_t m_MaxQueueMainThreadTime;
 		int64_t m_QueueDivedFrameTime;
 		int64_t m_QueuePastTime;
@@ -124,19 +125,20 @@ namespace Rynex {
 
 		int64_t m_ImGuiTimeFrame;
 		int64_t m_LayerTimeFrame;
+	    std::thread::id m_MainThreadId;
 		bool m_Running;
-		bool m_Minmized;
-		
-	// --- private static varibles --------------------------------------------------------------------------------------------
+		bool m_Minimized;
+
+	// --- private static variables -------------------------------------------------------------------------------------------
 		static Application* s_Instance;
-	// --- private frind function ---------------------------------------------------------------------------------------------
+	// --- private friend function --------------------------------------------------------------------------------------------
 		friend int ::main(int argc, char** argv);
 	};
 
 	RYNEX_API Application* CreateApplication(ApplicationCommandLineArgs spec);
 
-#define RY_SUBMITE_MEMBER_FUNC_TO_MAINTHREED_QUEUE(func) Application::Get().SubmiteToMainThreedQueue( RY_BIND_MEMBER_FUNC(func) )
-#define RY_SUBMITE_MEMBER_FUNC_TO_MAINTHREED_QUEUE_WAIT(func) Application::Get().SubmiteToMainThreedQueueWait( RY_BIND_MEMBER_FUNC(func) )
-#define RY_SUBMITE_TASK_TO_ASYNC_THREED(disc, ...) Application::Get().SubmitThreadTask( __VA_ARGS__, disc )
+#define RY_SUBMIT_MEMBER_FUNC_TO_MAINTAINED_QUEUE(func) Application::Get().SubmiteToMainThreedQueue( RY_BIND_MEMBER_FUNC(func) )
+#define RY_SUBMIT_MEMBER_FUNC_TO_MAINTAINED_QUEUE_WAIT(func) Application::Get().SubmiteToMainThreedQueueWait( RY_BIND_MEMBER_FUNC(func) )
+#define RY_SUBMIT_TASK_TO_ASYNC_THREED(disc, ...) Application::Get().SubmitThreadTask( __VA_ARGS__, disc )
 }
 
