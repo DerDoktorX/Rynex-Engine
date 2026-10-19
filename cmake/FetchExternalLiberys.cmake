@@ -18,8 +18,8 @@ set(RYNEX_VER_ZLIB              v1.3.1)         # libery from msdfgen-atlas
 set(RYNEX_VER_LIBPNG            v1.6.43)        # libery from msdfgen-atlas
 set(RYNEX_VER_GOOGLE_TEST       v1.17.0)
 
-set(FETCHCONTENT_BASE_DIR "${CMAKE_BINARY_DIR}/_fetch" CACHE PATH "Network Verzeichnis fur FetchContent-Verwaltungsdaten")
-set(FETCHCONTENT_UPDATES_DISCONNECTED OFF CACHE BOOL "Kein erneuter Netzwerkzugriff wenn Quellverzeichnis bereits vorhanden")
+set(FETCHCONTENT_BASE_DIR "${CMAKE_BINARY_DIR}/_fetch" CACHE PATH "network Folder for FetchContent data organization")
+set(FETCHCONTENT_UPDATES_DISCONNECTED OFF CACHE BOOL "No new network Connection, if Source Folder already exists")
 set(RYNEX_VENDOR_DIR "${CMAKE_SOURCE_DIR}/Rynex/vendor")
 
 macro(rynex_make_available _fc_name)
@@ -312,11 +312,11 @@ rynex_make_available(freetype)
 if(NOT freetype_POPULATED)
     FetchContent_Populate(freetype)
 
-    # Hilfsvariablen für find_package setzen, die FreeType erwartet
+    # help variable for find_package set, that expects FreeType
     set(ZLIB_LIBRARY "ZLIB_LIBRARY-NOTFOUND" CACHE STRING "" FORCE)
     set(PNG_LIBRARY "PNG_LIBRARY-NOTFOUND" CACHE STRING "" FORCE)
     set(PNG_PNG_INCLUDE_DIR "PNG_PNG_INCLUDE_DIR-NOTFOUND" CACHE STRING "" FORCE)
-    # Baue FreeType
+    # build FreeType
     add_subdirectory(${freetype_SOURCE_DIR} ${freetype_BINARY_DIR})
 
 endif()
