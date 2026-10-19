@@ -73,6 +73,16 @@ namespace Rynex {
         uint32_t m_ByteSize = 0u;
     };
 
+    // What one geometry contributes to a command. The GeometryControl fills it, the CommandControl builds its DrawObject from it.
+    // Meaning of m_VertexElementCount (vertices or VertexElements) is open, FEATURE.md Q16.
+    struct GeometryDrawInfo
+    {
+        uint32_t m_IndexCount = 0u;
+        uint32_t m_VertexElementCount = 0u;
+        uint32_t m_FirstIndex = 0u;
+        int32_t m_BaseVertex = 0;
+    };
+
     // True when no bit is set in more than one of the four masks.
     constexpr bool AreMasksDisjoint(const uint64_t first, const uint64_t second, const uint64_t third, const uint64_t fourth, const uint64_t five)
     {
@@ -102,7 +112,7 @@ namespace Rynex {
 
     constexpr uint32_t CountBits(const uint64_t slotMask)
     {
-        uint32_t count = 0;
+        uint32_t count = 0u;
         for (int i = 0; i < 64; i++)
         {
             constexpr uint64_t bitValue = BIT(i);
