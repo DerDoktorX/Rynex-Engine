@@ -13,9 +13,9 @@ set(RYNEX_VER_GLFW              3.4)
 set(RYNEX_VER_ASSIMP            v6.0.4)
 set(RYNEX_VER_MESHOPTIMIZER     v0.22)
 set(RYNEX_VER_MSDF_ATLAS_GEN    v1.2.2)
-set(RYNEX_VER_FREETYPE          VER-2-13-2) # libery from msdfgen-atlas
-set(RYNEX_VER_ZLIB              v1.3.1) # libery from msdfgen-atlas
-set(RYNEX_VER_LIBPNG            v1.6.43) # libery from msdfgen-atlas
+set(RYNEX_VER_FREETYPE          VER-2-13-2)     # libery from msdfgen-atlas
+set(RYNEX_VER_ZLIB              v1.3.1)         # libery from msdfgen-atlas
+set(RYNEX_VER_LIBPNG            v1.6.43)        # libery from msdfgen-atlas
 set(RYNEX_VER_GOOGLE_TEST       v1.17.0)
 
 set(FETCHCONTENT_BASE_DIR "${CMAKE_BINARY_DIR}/_fetch" CACHE PATH "Network Verzeichnis fur FetchContent-Verwaltungsdaten")
@@ -136,27 +136,6 @@ rynex_declare(
 )
 
 # =========================================================================================
-# ========= zlib ==========================================================================
-# =========================================================================================
-
-# rynex_declare(
-#         zlib
-#         https://github.com/madler/zlib.git
-#         ${RYNEX_VER_ZLIB}
-# )
-
-
-# =========================================================================================
-# ========= zlib ==========================================================================
-# =========================================================================================
-
-# rynex_declare(
-#         libpng
-#         https://github.com/glennrp/libpng.git
-#         ${RYNEX_VER_LIBPNG}
-# )
-
-# =========================================================================================
 # ========= freetype ======================================================================
 # =========================================================================================
 
@@ -166,16 +145,6 @@ rynex_declare(
         https://github.com/freetype/freetype.git
         ${RYNEX_VER_FREETYPE}
 )
-
-# FetchContent_Declare(
-#         Freetype::Freetype
-#         GIT_REPOSITORY          https://github.com/freetype/freetype.git
-#         GIT_TAG                  ${RYNEX_VER_FREETYPE}
-#         GIT_SHALLOW             TRUE
-#         GIT_PROGRESS            TRUE
-#         SOURCE_DIR              ${RYNEX_VENDOR_DIR}/freetype
-#         BINARY_DIR              ${RYNEX_VENDOR_DIR}/freetype/freetype
-# )
 
 
 
@@ -189,20 +158,11 @@ set(MSDF_ATLAS_USE_VCPKG        OFF CACHE BOOL "" FORCE)  # no VC Packed manger.
 set(MSDF_ATLAS_USE_SKIA         OFF CACHE BOOL "" FORCE)  # Skia not needed
 set(BUILD_SHARED_LIBS           OFF CACHE BOOL "" FORCE)  # static linked libery no dll
 
-# set(MSDF_ATLAS_BUILD_STANDALONE     OFF CACHE BOOL "" FORCE)
-# set(MSDF_ATLAS_INSTALL              OFF CACHE BOOL "" FORCE)
-# set(MSDF_ATLAS_USE_VCPKG            OFF CACHE BOOL "" FORCE)
-# set(MSDFGEN_INSTALL                 OFF CACHE BOOL "" FORCE)
-# set(MSDFGEN_BUILD_STANDALONE        OFF CACHE BOOL "" FORCE)
-# set(MSDFGEN_USE_VCPKG               OFF CACHE BOOL "" FORCE)
-# set(MSDFGEN_USE_SYSTEM_FREETYPE     OFF CACHE BOOL "" FORCE)
-
 
 rynex_declare(
         msdf-atlas-gen
         https://github.com/Chlumsky/msdf-atlas-gen.git
         ${RYNEX_VER_MSDF_ATLAS_GEN}
-        # OVERRIDE_FIND_PACKAGE
 )
 
 # =========================================================================================
@@ -347,8 +307,6 @@ if(NOT TARGET imgui)
     )
 endif()
 
-# rynex_make_available(zlib)
-# rynex_make_available(libpng)
 rynex_make_available(freetype)
 
 if(NOT freetype_POPULATED)
@@ -372,9 +330,5 @@ else()
     message(WARNING "The name Freetype::Freetype is not an ALIAS for ${_aliased}.")
 endif()
 
-
 rynex_make_available(msdf-atlas-gen)
-
-
-
 unset(_rynex_prev_policy_min)
