@@ -24,6 +24,7 @@ namespace Rynex {
 		    {
 		    }
 
+		    VertexElements() = default;
 		    VertexElements(const VertexElements&) = default;
 		    VertexElements(VertexElements&&)= default;
 		    VertexElements& operator=(const VertexElements&) = default;
