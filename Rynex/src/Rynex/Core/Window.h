@@ -58,7 +58,11 @@ namespace Rynex {
 		virtual float GetMousePosX() const = 0;
 		virtual float GetMousePosY() const = 0;
 
-		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
+        /**
+         * it is Required to direct after Window creation to define the callback lambda
+         * @param callback is lambder for user input events
+         */
+        virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 		virtual void SetVSync(bool enabled) = 0;
 		virtual bool IsVSync() const = 0;
 		virtual bool IsFocused() const = 0;
@@ -68,7 +72,7 @@ namespace Rynex {
 		virtual GraphicsContext* GetGraphicsContext() = 0;
 		virtual Ref<ThreadContext> CreateThreadContext() = 0;
 
-		static Scope<Window> Create();
+
 	    static Scope<Window> Create(const WindowProps& props);
 
 	};

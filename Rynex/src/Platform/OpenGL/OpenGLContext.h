@@ -10,45 +10,47 @@ namespace Rynex{
 	class OpenGLContext : public GraphicsContext
 	{
 	public:
-		OpenGLContext(GLFWwindow* windowHandle);
-		~OpenGLContext();
+        explicit OpenGLContext(GLFWwindow* windowHandle);
+		virtual ~OpenGLContext();
 
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
 
 		virtual const RendererAPI::API GetRendererAPI() const override { return RendererAPI::API::OpenGL; };
 
-		static std::mutex& GetFrambufferOperationLock();
-		static std::mutex& GetBufferOperationLock();
-		static std::mutex& GetVertexArrayOperationLock();
+		std::mutex& GetFramebufferOperationLock();
+		std::mutex& GetBufferOperationLock();
+		std::mutex& GetVertexArrayOperationLock();
 
-		static std::mutex& GetTextureOperationLock();
-		static std::mutex& GetShaderOperationLock();
-		static std::mutex& GetFanceOperationLock();
+		std::mutex& GetTextureOperationLock();
+		std::mutex& GetShaderOperationLock();
+		std::mutex& GetFancyOperationLock();
+	    bool IsMainContextThread() const;
+		void AddCurrentAllocMemory(uint64_t add);
 
-		void AddCurentAllocMemory(uint64_t add) 
-		{ 
-			m_CurentAllocMemory += add; 
-			m_DifferentBuffer++; 
+		void RemoveCurrentAllocMemory(const uint64_t remove) { m_CurrentAllocMemory -= remove; m_DifferentBuffer--; }
 
-			if (FRACTURE_ONE(m_CurentAllocMemory,4) >= m_MaxGPUMemory)
-			{
-				RY_CORE_WARN("Alloc Memory is Cirticle Close to Max {} KB / {} KB", m_CurentAllocMemory, m_MaxGPUMemory);
-			}
-		}
-		void RemoveCurentAllocMemory(uint64_t remove) { m_CurentAllocMemory -= remove; m_DifferentBuffer--; }
-		virtual uint64_t GetCurentAllocMemory() const override { return m_CurentAllocMemory; }
+		virtual uint64_t GetCurentAllocMemory() const override { return m_CurrentAllocMemory; }
 		virtual int64_t GetCurentAllocBuffers() const override { return m_DifferentBuffer; }
 		virtual uint64_t GetMaxGPUMemory() const override { return m_DifferentBuffer; }
 		virtual uint64_t GetMemoryUsage() const override;
+	    static OpenGLContext& Get();
 	private:
-		GLFWwindow* m_WindowHandle = nullptr;
+		GLFWwindow* m_WindowHandle;
+	    std::mutex m_BufferOperationIDLock;
+	    std::mutex m_TextureOperationIDLock;
+	    std::mutex m_ShaderOperationIDLock;
+	    std::mutex m_FramebufferOperationIDLock;
+	    std::mutex m_FancyOperationIDLock;
+	    std::mutex m_VertexArrayOperationIDLock;
 		uint64_t m_MaxGPUMemory;
-		uint64_t m_MaxVidoeMemory;
-		uint64_t m_CurentAllocMemory;
+		uint64_t m_MaxVideoMemory;
+		uint64_t m_CurrentAllocMemory;
 		int64_t m_DifferentBuffer;
+        std::thread::id m_MainContextThread;
+	    bool m_ActiveMultyThreading;
 
-		
+	    static OpenGLContext* s_Instance;
 	};
 
 }

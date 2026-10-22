@@ -350,7 +350,7 @@ namespace Rynex {
 		RY_CORE_TRACE("Target: {}", OpenGL::GetTargetStr(m_Object.target));
 		RY_CORE_TRACE("samples: {}", m_Object.samples);
 		RY_CORE_TRACE("Format: {}", OpenGL::GetTextureFormateStr(m_Object.formate));
-		RY_CORE_TRACE("InterleFormat: {}", OpenGL::GetTextureFormateInternelStr(m_Object.interleFormat));
+		RY_CORE_TRACE("InterleFormat: {}", OpenGL::GetTextureFormateInternalStr(m_Object.interleFormat));
 		RY_CORE_TRACE("LevelMidMaps: {}", m_Object.levelMidMaps);
 		RY_CORE_TRACE("Withe: {}", m_Dimension.withe);
 		RY_CORE_TRACE("Heigth: {}", m_Dimension.heigth);

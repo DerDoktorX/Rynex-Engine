@@ -22,7 +22,7 @@ namespace Rynex {
 		}
 		inline static void BindFramebuffer(uint32_t renderID)
 		{
-			s_RendererAPI->BindFrambuffer(renderID);
+			s_RendererAPI->BindFramebuffer(renderID);
 		}
 		inline static void BindVertexArray(uint32_t renderID)
 		{
@@ -73,9 +73,9 @@ namespace Rynex {
 			s_RendererAPI->BindStorageBufferSlot(slot, renderID);
 		}
 
-		inline static uint32_t GetDefaultFrambufferRenderID()
+		inline static uint32_t GetDefaultFramebufferRenderID()
 		{
-			return s_RendererAPI->GetDefaultFrambufferRenderID();
+			return s_RendererAPI->GetDefaultFramebufferRenderID();
 		}
 	private:
 		static OpenGLRendererAPI* s_RendererAPI;

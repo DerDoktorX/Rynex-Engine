@@ -9,8 +9,9 @@ namespace Rynex {
 	class RYNEX_API WindowResizeEvent : public Event
 	{
 	public:
-		WindowResizeEvent(unsigned int withe, unsigned int heigth)
-			: m_Width(withe), m_Height(heigth) {}
+		WindowResizeEvent(unsigned int withe, unsigned int height)
+			: m_Width(withe), m_Height(height) {}
+        ~WindowResizeEvent() { };
 
 		[[nodiscard]] inline unsigned int GetWidth() const { return m_Width; }
 		[[nodiscard]] inline unsigned int GetHeight() const { return m_Height; }
@@ -34,6 +35,7 @@ namespace Rynex {
 	public:
 		WindowMovedEvent(unsigned int posX, unsigned int posY)
 			: m_PosX(posX), m_PosY(posY) {}
+        ~WindowMovedEvent() { }
 
 		[[nodiscard]] inline unsigned int GetPosX() const { return m_PosX; }
 		[[nodiscard]] inline unsigned int GetPosY() const { return m_PosY; }
@@ -56,6 +58,7 @@ namespace Rynex {
 	{
 	public:
 		WindowCurserEnterEvent() = default;
+        ~WindowCurserEnterEvent() { }
 
 		[[nodiscard]] std::string ToString() const override
 		{
@@ -72,7 +75,7 @@ namespace Rynex {
 	{
 	public:
 		WindowCurserLeaveEvent() = default;
-
+	    ~WindowCurserLeaveEvent() { }
 		[[nodiscard]] std::string ToString() const override
 		{
 			std::stringstream ss;
@@ -84,35 +87,38 @@ namespace Rynex {
 		EVENT_CLASS_CATEYGORY(EventCategoryApplication)
 	};
 
-	class RYNEX_API WindowFocuseEvent : public Event
+	class RYNEX_API WindowFocusEvent : public Event
 	{
 	public:
-		WindowFocuseEvent() = default;
+		WindowFocusEvent() = default;
+	    ~WindowFocusEvent() {};
 
 		[[nodiscard]] std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "WindowFocuse!";
+			ss << "WindowFocus!";
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(WindowFocuse)
+		EVENT_CLASS_TYPE(WindowFocus)
 		EVENT_CLASS_CATEYGORY(EventCategoryApplication)
 	};
 
-	class RYNEX_API WindowLostFocuseEvent : public Event
+	class RYNEX_API WindowLostFocusEvent : public Event
 	{
 	public:
-		WindowLostFocuseEvent() = default;
+		WindowLostFocusEvent() = default;
+        ~WindowLostFocusEvent() {}
+
 
 		[[nodiscard]] std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "WindowLostFocuse!";
+			ss << "WindowLostFocus!";
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(WindowLostFocuse)
+		EVENT_CLASS_TYPE(WindowLostFocus)
 		EVENT_CLASS_CATEYGORY(EventCategoryApplication)
 	};
 
@@ -121,6 +127,7 @@ namespace Rynex {
 	{
 	public:
 		WindowCloseEvent() = default;
+        ~WindowCloseEvent() { }
 
 		EVENT_CLASS_TYPE(WindowClose)
 		EVENT_CLASS_CATEYGORY(EventCategoryApplication)
@@ -132,8 +139,8 @@ namespace Rynex {
 	class RYNEX_API AppTickEvent : public Event
 	{
 	public:
-		AppTickEvent() {}
-
+		AppTickEvent() { }
+        ~AppTickEvent() { }
 
 		EVENT_CLASS_TYPE(AppTick)
 		EVENT_CLASS_CATEYGORY(EventCategoryApplication)
@@ -143,6 +150,7 @@ namespace Rynex {
 	{
 	public:
 		AppUpdateEvent() {}
+	    ~AppUpdateEvent() {}
 
 		EVENT_CLASS_TYPE(AppUpdate)
 		EVENT_CLASS_CATEYGORY(EventCategoryApplication)
@@ -152,6 +160,7 @@ namespace Rynex {
 	{
 	public:
 		AppRenderEvent() {}
+        ~AppRenderEvent() {}
 
 		EVENT_CLASS_TYPE(AppRender)
 		EVENT_CLASS_CATEYGORY(EventCategoryApplication)

@@ -17,8 +17,8 @@ public:
 	bool OnResize(Rynex::WindowResizeEvent& e);
 	bool OnMouseMove(Rynex::MouseMoveEvent& e);
 	bool OnWindowMove(Rynex::WindowMovedEvent& e);
-	bool OnFocuse(Rynex::WindowFocuseEvent& e);
-	bool OnFocuseLost(Rynex::WindowLostFocuseEvent& e);
+	bool OnFocuse(Rynex::WindowFocusEvent& e);
+	bool OnFocuseLost(Rynex::WindowLostFocusEvent& e);
 	bool OnCurserEnter(Rynex::WindowCurserEnterEvent& e);
 	bool OnCurserLeave(Rynex::WindowCurserLeaveEvent& e);
 private:

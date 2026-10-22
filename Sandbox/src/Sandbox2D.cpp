@@ -446,8 +446,8 @@ void Sandbox2D::OnEvent(Rynex::Event& e)
 	dispatcher.Dispatch<Rynex::WindowMovedEvent>(RY_BIND_EVENT_FN(Sandbox2D::OnWindowMove));
 	dispatcher.Dispatch<Rynex::MouseMoveEvent>(RY_BIND_EVENT_FN(Sandbox2D::OnMouseMove));
 	dispatcher.Dispatch<Rynex::WindowResizeEvent>(RY_BIND_EVENT_FN(Sandbox2D::OnResize));
-	dispatcher.Dispatch<Rynex::WindowFocuseEvent>(RY_BIND_EVENT_FN(Sandbox2D::OnFocuse));
-	dispatcher.Dispatch<Rynex::WindowLostFocuseEvent>(RY_BIND_EVENT_FN(Sandbox2D::OnFocuseLost));
+	dispatcher.Dispatch<Rynex::WindowFocusEvent>(RY_BIND_EVENT_FN(Sandbox2D::OnFocuse));
+	dispatcher.Dispatch<Rynex::WindowLostFocusEvent>(RY_BIND_EVENT_FN(Sandbox2D::OnFocuseLost));
 	dispatcher.Dispatch<Rynex::WindowCurserEnterEvent>(RY_BIND_EVENT_FN(Sandbox2D::OnCurserEnter));
 	dispatcher.Dispatch<Rynex::WindowCurserLeaveEvent>(RY_BIND_EVENT_FN(Sandbox2D::OnCurserLeave));
 }
@@ -481,13 +481,13 @@ bool Sandbox2D::OnWindowMove(Rynex::WindowMovedEvent& e)
 	return true;
 }
 
-bool Sandbox2D::OnFocuse(Rynex::WindowFocuseEvent& e)
+bool Sandbox2D::OnFocuse(Rynex::WindowFocusEvent& e)
 {
 	m_Focuse = true;
 	return true;
 }
 
-bool Sandbox2D::OnFocuseLost(Rynex::WindowLostFocuseEvent& e)
+bool Sandbox2D::OnFocuseLost(Rynex::WindowLostFocusEvent& e)
 {
 	m_Focuse = false;
 	return true;

@@ -12,7 +12,7 @@ namespace Rynex {
 
 		virtual void CreateComputePipline(glm::vec3& size) override;
 
-		virtual void SetViewPort(uint32_t x, uint32_t y, uint32_t withe, uint32_t heigth) override;
+		virtual void SetViewPort(uint32_t x, uint32_t y, uint32_t withe, uint32_t height) override;
 		virtual void SetClearColor(const glm::vec4& color) override;
 
 		static void BeginRecordCommandBuffer();
@@ -20,7 +20,7 @@ namespace Rynex {
 
 		static void EndeRecordCommandBuffer();
 
-		void BindFrambuffer(uint32_t renderID);
+		void BindFramebuffer(uint32_t renderID);
 		void BindShader(uint32_t renderID);
 		void BindVertexArray(uint32_t renderID);
 
@@ -61,12 +61,12 @@ namespace Rynex {
 		virtual void ClearDepth() override;
 
 		virtual void DrawIndexedMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0u) override;
-		virtual void DrawIndexedMeshInstecing(uint32_t instecing, const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0u) override;
+		virtual void DrawIndexedMeshInstancing(uint32_t instecing, const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0u) override;
 
-		virtual void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, uint32_t drawCount, void* indrictDraw, uint32_t size) override;
-		virtual void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, const Ref<IndirectBuffer>& indriectBuffer, uint32_t drawCount) override;
-		virtual void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, const Ref<IndirectBuffer>& indriectBuffer) override;
-		virtual void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, uint32_t size, uint32_t drawCount) override;
+		virtual void DrawMultyMeshIndirect(const Ref<VertexArray>& vertexArray, uint32_t drawCount, void* indrictDraw, uint32_t size) override;
+		virtual void DrawMultyMeshIndirect(const Ref<VertexArray>& vertexArray, const Ref<IndirectBuffer>& indriectBuffer, uint32_t drawCount) override;
+		virtual void DrawMultyMeshIndirect(const Ref<VertexArray>& vertexArray, const Ref<IndirectBuffer>& indriectBuffer) override;
+		virtual void DrawMultyMeshIndirect(const Ref<VertexArray>& vertexArray, uint32_t size, uint32_t drawCount) override;
 
 		virtual void DrawElement(const Ref<VertexArray>& vertexArray, const Mesh::PerDrawObject& drawObject) override;
 
@@ -80,16 +80,16 @@ namespace Rynex {
 
 		virtual void DrawPatches(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0u) override;
 		virtual void RestPipline() override;
-		virtual void PrintCurentStatePipline();
+		virtual void PrintCurrentStatePipline();
 
 
-		virtual void DispatcheCompute(const glm::vec<3, uint32_t>& groups) override;
+		virtual void DispatchCompute(const glm::vec<3, uint32_t>& groups) override;
 
 		virtual void DrawError() override;
 
 		void ModeEnable(int bitCount);
 		void ModeDisenable(int bitCount);
-		uint32_t GetDefaultFrambufferRenderID() const;
+		uint32_t GetDefaultFramebufferRenderID() const;
 	private:
 		std::vector<uint32_t> m_BindSamplerStateVec;
 		std::vector<uint32_t> m_BindTextureStateVec;

@@ -45,25 +45,25 @@
 #ifdef RY_PARELE_GRAFIC_CONTEXT
 #if 1
 
-	#define RY_OPENGL_BUFFER_ID_SCOPE_LOCK()		std::scoped_lock<std::mutex> lockBufferID = std::scoped_lock<std::mutex>(::Rynex::OpenGLContext::GetBufferOperationLock())
-	#define RY_OPENGL_TEXTURE_ID_SCOPE_LOCK() 		std::scoped_lock<std::mutex> lockTextureID = std::scoped_lock<std::mutex>(::Rynex::OpenGLContext::GetTextureOperationLock())
-	#define RY_OPENGL_SHADER_ID_SCOPE_LOCK()		std::scoped_lock<std::mutex> lockShaderID = std::scoped_lock<std::mutex>(::Rynex::OpenGLContext::GetShaderOperationLock())
-	#define RY_OPENGL_FRAME_BUFFER_ID_SCOPE_LOCK()	std::scoped_lock<std::mutex> lockFrambufferID = std::scoped_lock<std::mutex>(::Rynex::OpenGLContext::GetFrambufferOperationLock())
-	#define RY_OPENGL_FANCE_ID_SCOPE_LOCK()			std::scoped_lock<std::mutex> lockFanceID = std::scoped_lock<std::mutex>(::Rynex::OpenGLContext::GetFanceOperationLock())
-	#define RY_OPENGL_VERTEX_ARRAY_ID_SCOPE_LOCK()	std::scoped_lock<std::mutex> vertexArrayOperationID = std::scoped_lock<std::mutex>(::Rynex::OpenGLContext::GetVertexArrayOperationLock())	
+	#define RY_OPENGL_BUFFER_ID_SCOPE_LOCK()		std::scoped_lock<std::mutex> lockBufferID(::Rynex::OpenGLContext::Get().GetBufferOperationLock())
+	#define RY_OPENGL_TEXTURE_ID_SCOPE_LOCK() 		std::scoped_lock<std::mutex> lockTextureID(::Rynex::OpenGLContext::Get().GetTextureOperationLock())
+	#define RY_OPENGL_SHADER_ID_SCOPE_LOCK()		std::scoped_lock<std::mutex> lockShaderID(::Rynex::OpenGLContext::Get().GetShaderOperationLock())
+	#define RY_OPENGL_FRAME_BUFFER_ID_SCOPE_LOCK()	std::scoped_lock<std::mutex> lockFrambufferID(::Rynex::OpenGLContext::Get().GetFrambufferOperationLock())
+	#define RY_OPENGL_FENCE_ID_SCOPE_LOCK()			std::scoped_lock<std::mutex> lockFanceID(::Rynex::OpenGLContext::Get().GetFanceOperationLock())
+	#define RY_OPENGL_VERTEX_ARRAY_ID_SCOPE_LOCK()	std::scoped_lock<std::mutex> vertexArrayOperationID(::Rynex::OpenGLContext::Get().GetVertexArrayOperationLock())
 
 	#define RY_OPENGL_ALL_ID_OPERTIONS_SCOPE_LOCK()	RY_OPENGL_BUFFER_ID_SCOPE_LOCK();		\
 													RY_OPENGL_TEXTURE_ID_SCOPE_LOCK();		\
 													RY_OPENGL_SHADER_ID_SCOPE_LOCK();		\
 													RY_OPENGL_FRAME_BUFFER_ID_SCOPE_LOCK(); \
-													RY_OPENGL_FANCE_ID_SCOPE_LOCK();		\
+													RY_OPENGL_FENCE_ID_SCOPE_LOCK();		\
 													RY_OPENGL_VERTEX_ARRAY_ID_SCOPE_LOCK()
 #elif 1
 	#define RY_OPENGL_BUFFER_ID_SCOPE_LOCK()
 	#define RY_OPENGL_TEXTURE_ID_SCOPE_LOCK()
 	#define RY_OPENGL_SHADER_ID_SCOPE_LOCK()
 	#define RY_OPENGL_FRAME_BUFFER_ID_SCOPE_LOCK()
-	#define RY_OPENGL_FANCE_ID_SCOPE_LOCK()
+	#define RY_OPENGL_FENCE_ID_SCOPE_LOCK()
 	#define RY_OPENGL_VERTEX_ARRAY_ID_SCOPE_LOCK()
 	
 	#define RY_OPENGL_ALL_ID_OPERTIONS_SCOPE_LOCK()
@@ -71,13 +71,13 @@
 #else	
 
 
-	#define RY_OPENGL_ALL_ID_OPERTIONS_SCOPE_LOCK()	std::scoped_lock<std::mutex> lockBufferID = std::scoped_lock<std::mutex>(::Rynex::OpenGLContext::GetBufferOperationLock())	
+	#define RY_OPENGL_ALL_ID_OPERTIONS_SCOPE_LOCK()	std::scoped_lock<std::mutex> lockBufferID(::Rynex::OpenGLContext::Get().GetBufferOperationLock())
 
 	#define RY_OPENGL_BUFFER_ID_SCOPE_LOCK()		RY_OPENGL_ALL_ID_OPERTIONS_SCOPE_LOCK()
 	#define RY_OPENGL_TEXTURE_ID_SCOPE_LOCK() 		RY_OPENGL_ALL_ID_OPERTIONS_SCOPE_LOCK()
 	#define RY_OPENGL_SHADER_ID_SCOPE_LOCK()		RY_OPENGL_ALL_ID_OPERTIONS_SCOPE_LOCK()
 	#define RY_OPENGL_FRAME_BUFFER_ID_SCOPE_LOCK()	RY_OPENGL_ALL_ID_OPERTIONS_SCOPE_LOCK()
-	#define RY_OPENGL_FANCE_ID_SCOPE_LOCK()			RY_OPENGL_ALL_ID_OPERTIONS_SCOPE_LOCK()
+	#define RY_OPENGL_FENCE_ID_SCOPE_LOCK()			RY_OPENGL_ALL_ID_OPERTIONS_SCOPE_LOCK()
 	#define RY_OPENGL_VERTEX_ARRAY_ID_SCOPE_LOCK()	RY_OPENGL_ALL_ID_OPERTIONS_SCOPE_LOCK()
 #endif
 
@@ -94,7 +94,7 @@
 	#define RY_OPENGL_TEXTURE_ID_SCOPE_LOCK()
 	#define RY_OPENGL_SHADER_ID_SCOPE_LOCK()
 	#define RY_OPENGL_FRAME_BUFFER_ID_SCOPE_LOCK()
-	#define RY_OPENGL_FANCE_ID_SCOPE_LOCK()
+	#define RY_OPENGL_FENCE_ID_SCOPE_LOCK()
 	#define RY_OPENGL_VERTEX_ARRAY_ID_SCOPE_LOCK()
 
 	#define RY_OPENGL_ALL_ID_OPERTIONS_SCOPE_LOCK()
@@ -128,32 +128,32 @@ namespace OpenGL {
 	void ExecuteFunctionOnMainThread(const std::function<void()>& func, const char* name);
 	bool ExecuteResumeOnMainThread(const std::function<void()>& func, const char* name);
 
-	void CheckForAktivContextFunktion(const std::function<void()>& func, const char* name);
-	void CheckForAktivContextResume(const std::function<void()>& func, const char* name);
+	void CheckForActivContextFunktion(const std::function<void()>& func, const char* name);
+	void CheckForActivContextResume(const std::function<void()>& func, const char* name);
 
 	void ExecuteFunctionOnLocaleThread(const std::function<void()>& func, const char* name);
 	bool ExecuteResumeOnLocaleThread(const std::function<void()>& func, const char* name);
 
-	glm::uvec2 GetMainWindowCurentSize();
+	glm::uvec2 GetMainWindowCurrentSize();
 
 
 	void OnError(std::string typeStr);
 
-	void OnDebugeSource(std::string sourceStr);
+	void OnDebugSource(std::string sourceStr);
 
-	void OnDebugeType(std::string typeStr);
-	void OnDebugeSeverity(std::string severity);
+	void OnDebugType(std::string typeStr);
+	void OnDebugSeverity(std::string severity);
 
 
 
-	void APIENTRY DebugeOutPut(uint32_t source, uint32_t type, uint32_t id, uint32_t severity, int32_t length, const char* message, const void* userParam);
+	void APIENTRY DebugOutPut(uint32_t source, uint32_t type, uint32_t id, uint32_t severity, int32_t length, const char* message, const void* userParam);
 	void ErrorMassageCallback(uint32_t source, uint32_t type, int32_t id, uint32_t severity, int32_t length, const char* message, const void* userParam);
 	void CheckError();
 
-	std::string GetTargetStr(uint32_t t);
-	std::string GetFomateInternelStr2(uint32_t f);
-	std::string GetTextureFormateInternelStr(uint32_t inFo);
-	std::string GetTextureFormateStr(uint32_t f);
+	std::string GetTargetStr(uint32_t target);
+	std::string GetFormatInternelStr2(uint32_t f);
+	std::string GetTextureFormateInternalStr(uint32_t interalFormate);
+	std::string GetTextureFormateStr(uint32_t formate);
 
 	uint32_t GetBuffersTarget(Rynex::BufferType target);
 	uint32_t GetFlagsFromFlagTypes(Rynex::BufferFlagGPU flag);
