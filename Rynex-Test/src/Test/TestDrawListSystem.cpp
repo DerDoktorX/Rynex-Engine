@@ -47,6 +47,7 @@ TEST_F(TestDrawListSystem, BasicInitClasse)
 
 TEST_F(TestDrawListSystem, callMethodes)
 {
+
     Rynex::CachedBufferRegister bufferRegister{};
     Rynex::DrawListSingleMesh drawListSingleMesh{};
 
@@ -59,6 +60,8 @@ TEST_F(TestDrawListSystem, callMethodes)
     glm::mat4 modelMatrix(1.0f);
     uint32_t entityID = 0;
     EXPECT_ASSERT(drawListSingleMesh.Add(modelMatrix, entityID));
-
-
+    using Output = typename Rynex::DrawListSingleMesh::Output;
+    std::vector<Output> outPutVec;
+    drawListSingleMesh.Flush(outPutVec, bufferRegister);
+    drawListSingleMesh.Clear();
 }
