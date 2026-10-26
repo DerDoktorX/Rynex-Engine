@@ -14,7 +14,7 @@ namespace Rynex {
 		static constexpr const char* s_VertexBufferAttributePositionName = "a_Position";
 		static constexpr const char* s_VertexBufferAttributeTextureCoordName = "a_UV";
 		static constexpr const char* s_VertexBufferAttributeNormaleName = "a_Normals";
-	public:
+	// public struct ----------------------------------------------------------------------------------------------------------
 		struct SourceVertex 
 		{
 			std::vector<MeshVertices> m_MeshVertices;
@@ -40,7 +40,7 @@ namespace Rynex {
 		{
 			std::string m_NameMateriel;
 			uint32_t MaterielIndex;
-			std::vector< FileSystem::Path> m_TexturesMaterial;
+			std::vector<FileSystem::Path> m_TexturesMaterial;
 			glm::vec4 m_BaseColor{ 1.0f, 1.0f, 1.0f, 1.0f };
 		};
 
@@ -68,34 +68,12 @@ namespace Rynex {
 			std::vector<uint32_t> m_ShadeIndicesDataVec;
 			std::vector<uint32_t> m_DepthIndicesDataVec;
 		};
-	public:
+	// public member methode --------------------------------------------------------------------------------------------------
 
 		MeshSource(std::vector<MeshSource::MaterialMesh>&& materiel, std::vector<MeshSource::SourceMesh>&& meshes, std::vector<MeshSource::SourceVertex>&& vertexSourceData,  EntityNodes&& nodes);
 		~MeshSource();
 
 		virtual Mesh::Type GetMeshType() const override { return Mesh::Type::Source; }
-
-		void SetVertexBuffer(const Ref<VertexBuffer>& vb, uint32_t i) { m_VABVec.at(i) = vb; }
-		void SetIndexBuffer(const Ref<IndexBuffer>& vi, uint32_t i) { m_DepthIABVec.at(i) = vi; }
-
-		void SetStorageBuffer(const Ref<StorageBuffer>& sbboM) { m_StorageBuffer = sbboM; }
-
-		void SetMaterials(const std::vector<Ref<Material>>& m) { m_MaterialsVec = m; }
-		void SetTextures(const std::vector<Ref<Texture>>& textures);
-
-		void SetTexturesMap(const MapVector<int64_t, Ref<Texture>>& t) { m_TexturesMap = t; }
-		void SetPerDrawObject(const std::vector<Mesh::PerDrawObject>& pdo) { m_ShadePerDrawObjectVec = pdo; }
-
-
-		const Ref<VertexBuffer>& GetVertexBuffer(const uint32_t i) const { return m_VABVec.at(i); }
-		const Ref<VertexBuffer>& GetVertexBufferConst(const uint32_t i) const { return m_VABVec.at(i); }
-
-		const Ref<IndexBuffer>& GetShadeIndexBuffer(const uint32_t i) const { return m_ShadeIABVec.at(i); }
-		const Ref<IndexBuffer>& GetDepthIndexBuffer(const uint32_t i) const { return m_DepthIABVec.at(i); }
-
-		const Ref<IndexBuffer>& GetShadeIndexBufferConst(const uint32_t i) const { return m_ShadeIABVec.at(i); }
-		const Ref<IndexBuffer>& GetDepthIndexBufferConst(const uint32_t i) const { return m_DepthIABVec.at(i); }
-
 
 		// ---
 
@@ -106,18 +84,11 @@ namespace Rynex {
 
 
 		// ---
-		const Ref<StorageBuffer>& GetOffsetBuffer() const { return m_StorageBuffer; }
 
-		const std::vector<Ref<Texture>>& GetTexturesVecConst() const { return m_TexturesMap.GetVector(); }
-		const MapVector<int64_t, Ref<Texture>>& GetTexturesMapConst() const { return m_TexturesMap; }
 		const std::vector<Mesh::PerDrawObject>& GetPerDrawObjectsVecConst() const { return m_ShadePerDrawObjectVec; }
-
 		const std::vector<Ref<MeshSingle>>& GetMeshSingleVecConst() const { return m_SingleMeshVec; }
 		const std::vector<Ref<Material>>& GetMaterialsVecConst() const { return m_MaterialsVec; }
 
-
-		const std::vector<Ref<Texture>>& GetTexturesVec() const { return GetTexturesVecConst(); }
-		const MapVector<int64_t, Ref<Texture>>& GetTexturesMap() const { return GetTexturesMapConst(); }
 		const std::vector<Mesh::PerDrawObject>& GetPerDrawObjectsShadeVec() const { return GetPerDrawObjectsVecConst(); }
 
 
@@ -156,12 +127,8 @@ namespace Rynex {
 		std::vector<Ref<IndexBuffer>>& GetShadeIndexBufferVec() { return m_ShadeIABVec; }
 		std::vector<Ref<IndexBuffer>>& GetDepthIndexBufferVec() { return m_DepthIABVec; }
 
-		Ref<StorageBuffer>& GetOffsetBuffer() { return m_StorageBuffer; }
-
 
 		std::vector<Ref<Material>>& GetMaterialsVec() { return m_MaterialsVec; }
-		std::vector<Ref<Texture>>& GetTexturesVec() { return m_TexturesMap.GetVector(); }
-		std::vector<Ref<Texture>>& GetTexturesMap() { return m_TexturesMap.GetVector(); }
 		std::vector<PerDrawObject>& GetPerDrawObjectsShadeVec() { return m_ShadePerDrawObjectVec; }
 		std::vector<PerDrawObject>& GetPerDrawObjectsDepthVec() { return m_ShadePerDrawObjectVec; }
 
@@ -186,7 +153,6 @@ namespace Rynex {
 		static void OptimizeMeshFetch(OptimizeMeshData& meshBuffers);
 		static void OptimizeMeshShadow(OptimizeMeshData& meshBuffers);
 
-		static void OptimizeMeshLOD(OptimizeMeshData& meshBuffers, float prozentigReduseIndices = 0.5f, float errorSimplefly = 1e-2f);
 		void ClearVecData();
 		void ReisizeMeshVecData(uint32_t count);
 		void ReisizeMaterielVecData(uint32_t count);
@@ -198,21 +164,27 @@ namespace Rynex {
 		std::vector<MeshSource::MaterialMesh> m_SourceMateriel;
 		std::vector<MeshSource::SourceMesh> m_SourceMeshes;
 		std::vector<MeshSource::SourceVertex> m_SourceVertexData;
-		EntityNodes m_Nodes;
 
-		std::vector<Ref<VertexBuffer>> m_VABVec;
+	    std::vector<Mesh::PerDrawObject> m_ShadePerDrawObjectVec;
+		std::vector<Mesh::PerDrawObject> m_DepthPerDrawObjectVec;
+	    std::vector<Ref<VertexBuffer>> m_VABVec;
 
 		std::vector<Ref<IndexBuffer>> m_ShadeIABVec;
 		std::vector<Ref<IndexBuffer>> m_DepthIABVec;
 
-
-		std::vector<Ref<MeshSingle>> m_SingleMeshVec;
+	    std::vector<Ref<MeshSingle>> m_SingleMeshVec;
 		std::vector<Ref<Material>> m_MaterialsVec;
+
+		EntityNodes m_Nodes;
+
+
+
+
+
 		Ref<StorageBuffer> m_StorageBuffer;
-		MapVector<int64_t, Ref<Texture>> m_TexturesMap;
+
 		Ref<MeshStatic> m_MeshStatic;
-		std::vector<Mesh::PerDrawObject> m_ShadePerDrawObjectVec;
-		std::vector<Mesh::PerDrawObject> m_DepthPerDrawObjectVec;
+
 
 
 	private:

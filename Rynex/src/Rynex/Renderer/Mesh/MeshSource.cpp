@@ -88,33 +88,33 @@ namespace Rynex {
 
 			struct SingleMeshBuffers
 			{
-				Ref<VertexBuffer>& VertexBufferAtributeRef;
-				Ref<IndexBuffer>& ShadeIndexBufferRef;
-				Ref<IndexBuffer>& DepthIndexBufferRef;
+				Ref<VertexBuffer>& m_VertexBufferAttributeRef;
+				Ref<IndexBuffer>& s_ShadeIndexBufferRef;
+				Ref<IndexBuffer>& m_DepthIndexBufferRef;
 
-				Mesh::PerDrawObject& ShadePerDrawObjectRef;
-				Mesh::PerDrawObject& DepthPerDrawObjectRef;
+				Mesh::PerDrawObject& m_ShadePerDrawObjectRef;
+				Mesh::PerDrawObject& m_DepthPerDrawObjectRef;
 
-				Ref<MeshSingle>& MeshSingleRef;
+				Ref<MeshSingle>& m_MeshSingleRef;
 
-				operator bool() const 
+                explicit operator bool() const
 				{
-					return nullptr == VertexBufferAtributeRef
-						&& nullptr == ShadeIndexBufferRef
-						&& nullptr == DepthIndexBufferRef
+					return nullptr == m_VertexBufferAttributeRef
+						&& nullptr == s_ShadeIndexBufferRef
+						&& nullptr == m_DepthIndexBufferRef
 
 
-						&& nullptr == MeshSingleRef;
+						&& nullptr == m_MeshSingleRef;
 				}
 
 				bool IsEveryRefInit() const
 				{
-					return nullptr != VertexBufferAtributeRef
-						&& nullptr != ShadeIndexBufferRef
-						&& nullptr != DepthIndexBufferRef
+					return nullptr != m_VertexBufferAttributeRef
+						&& nullptr != s_ShadeIndexBufferRef
+						&& nullptr != m_DepthIndexBufferRef
 
 
-						&& nullptr != MeshSingleRef;
+						&& nullptr != m_MeshSingleRef;
 				}
 
 				
@@ -144,7 +144,7 @@ namespace Rynex {
 						, { ShaderDataType::Float2, MeshSource::s_VertexBufferAttributeTextureCoordName }
 						, { ShaderDataType::Float3,  MeshSource::s_VertexBufferAttributeNormaleName	}
 				});
-				gpuMeshBufferRef.VertexBufferAtributeRef = VertexBuffer::Create(
+				gpuMeshBufferRef.m_VertexBufferAttributeRef = VertexBuffer::Create(
 					data.m_VerticesDataVec.data()
 					, data.m_VerticesDataVec.size() * sizeof(MeshVertices)
 					, BufferFlag::None
@@ -153,17 +153,17 @@ namespace Rynex {
 
 
 				SetMeshBufferSetup(
-					gpuMeshBufferRef.VertexBufferAtributeRef
-					, gpuMeshBufferRef.ShadeIndexBufferRef
+					gpuMeshBufferRef.m_VertexBufferAttributeRef
+					, gpuMeshBufferRef.s_ShadeIndexBufferRef
 					, data.m_ShadeIndicesDataVec
-					, gpuMeshBufferRef.ShadePerDrawObjectRef
+					, gpuMeshBufferRef.m_ShadePerDrawObjectRef
 				);
 
 				SetMeshBufferSetup(
-					gpuMeshBufferRef.VertexBufferAtributeRef
-					, gpuMeshBufferRef.DepthIndexBufferRef
+					gpuMeshBufferRef.m_VertexBufferAttributeRef
+					, gpuMeshBufferRef.m_DepthIndexBufferRef
 					, data.m_DepthIndicesDataVec
-					, gpuMeshBufferRef.DepthPerDrawObjectRef
+					, gpuMeshBufferRef.m_DepthPerDrawObjectRef
 				);
 				uint32_t meshIndex = vertexSource.m_MeshIndex;
 				uint32_t meshDataIndex = vertexSource.m_MeshDataIndex;
@@ -172,7 +172,7 @@ namespace Rynex {
 				const UUID& meshHandle = vertexSource.m_MeshHandle;
 				const std::string& meshName = vertexSource.m_MeshName;
 
-				gpuMeshBufferRef.MeshSingleRef = CreateRef<MeshSingle>(
+				gpuMeshBufferRef.m_MeshSingleRef = CreateRef<MeshSingle>(
 					meshDataIndex
 					, meshHandle
 					, meshSourceHandle
@@ -195,11 +195,11 @@ namespace Rynex {
 
 				GenaretSingleMeshBuffer(data, gpuMeshBufferRef, vertexSource, meshSourceHandle);
 
-				RY_CORE_ASSERT(gpuMeshBufferRef.IsEveryRefInit(), "Now Every Resource shoud be Set!");
+				RY_CORE_ASSERT(gpuMeshBufferRef.IsEveryRefInit(), "Now Every Resource should be Set!");
 			}
 #pragma region BatchedResouces
 
-			static Ref<Material> GetMaterielTexturesBatching(const MeshSource::MaterialMesh& materielSource, MapVector<int64_t, Ref<Texture>>& textureMap)
+			static Ref<Material> GetMaterielTexturesBatching(const MeshSource::MaterialMesh& materielSource)
 			{
 				const std::vector<FileSystem::Path>& paths = materielSource.m_TexturesMaterial;
 				Ref<Texture> materielTexture = nullptr;
@@ -215,13 +215,6 @@ namespace Rynex {
 
 					if (nullptr == materielTexture)
 						materielTexture = tex;
-
-
-					if (textureMap.HasKey(key))
-						continue;
-
-					textureMap.AddData(key, tex);
-
 
 				}
 				const glm::vec4& baseColor = materielSource.m_BaseColor;
@@ -245,7 +238,7 @@ namespace Rynex {
 				return materiel;
 			}
 
-			static void MaterielBufferBatching(const MeshSource::SourceMesh& meshSource, const std::vector<MeshSource::MaterialMesh>& materielsSources, std::vector<Mesh::MeshMaterielIndex>& materielBuffer, std::vector<Ref<Material>>& materiels, MapVector<int64_t, Ref<Texture>>& textureMap)
+			static void MaterielBufferBatching(const MeshSource::SourceMesh& meshSource, const std::vector<MeshSource::MaterialMesh>& materielsSources, std::vector<Mesh::MeshMaterielIndex>& materielBuffer, std::vector<Ref<Material>>& materiels)
 			{
 				uint32_t materielIndex = meshSource.m_MaterielIndex;
 				uint32_t sizeSources = materielsSources.size();
@@ -259,7 +252,7 @@ namespace Rynex {
 				Ref<Material>& materiel = materiels[materielIndex];
 				if (nullptr == materiel)
 				{
-					materiels.at(materielIndex) = GetMaterielTexturesBatching(materielSource, textureMap);
+					materiels.at(materielIndex) = GetMaterielTexturesBatching(materielSource);
 				}
 
 
@@ -570,24 +563,6 @@ namespace Rynex {
 		
 	}
 
-	void MeshSource::SetTextures(const std::vector<Ref<Texture>>& textures)
-	{
-		m_TexturesMap.Clear();
-		for (const Ref<Texture>& tex : textures)
-		{
-			if(nullptr == tex)
-				continue;
-
-			Texture* texPtr = tex.get();
-			int64_t key = (int64_t)texPtr;
-
-			if (m_TexturesMap.HasKey(key))
-				continue;
-
-			m_TexturesMap.AddData(key, tex);
-		}
-	}
-
 	void MeshSource::SeparateMeshes()
 	{
 
@@ -659,8 +634,7 @@ namespace Rynex {
 			&& !m_ShadeIABVec.empty()
 			&& !m_DepthIABVec.empty()
 			&& !m_MaterialsVec.empty()
-			&& CheckAllRefsValid(m_StorageBuffer)
-			&& m_TexturesMap.Empty();
+			&& CheckAllRefsValid(m_StorageBuffer);
 
 		return value;
 	}
@@ -691,7 +665,7 @@ namespace Rynex {
 		for (MeshSource::SourceMesh& meshSour : m_SourceMeshes)
 		{
 
-			Utils::GenrateLoop::MaterielBufferBatching(meshSour, m_SourceMateriel, materielBuffer, m_MaterialsVec, m_TexturesMap);
+			Utils::GenrateLoop::MaterielBufferBatching(meshSour, m_SourceMateriel, materielBuffer, m_MaterialsVec);
 			
 			
 			MeshSource::OptimizeMeshData optMesh = std::move(MeshSource::OptimizeMeshVec(meshSour));
@@ -1102,52 +1076,6 @@ namespace Rynex {
 		);
 	}
 
-	void MeshSource::OptimizeMeshLOD(OptimizeMeshData& meshBuffers, float prozentigReduseIndices, float errorSimplefly)
-	{
-		std::vector<MeshVertices>& verticiesVec = meshBuffers.m_VerticesDataVec;
-		std::vector<uint32_t>& indiciesVec = meshBuffers.m_ShadeIndicesDataVec;
-
-		size_t numVerticies = verticiesVec.size();
-		size_t numIndicies = indiciesVec.size();
-
-		size_t vertexByteSizeLayoute = sizeof(MeshVertices);
-
-		RY_CORE_ASSERT(!verticiesVec.empty());
-		RY_CORE_ASSERT(!indiciesVec.empty());
-
-		const float* offsetVertexLayoutPostionReadPtr = &verticiesVec[0].m_Position.x;
-		const uint32_t* indiciesReadPtr = indiciesVec.data();
-
-		size_t targetIndexCount = (size_t)(numIndicies * prozentigReduseIndices);
-		std::vector<uint32_t> simpleflyIndicies;
-		simpleflyIndicies.resize(numIndicies);
-		
-		uint32_t* simpliefiedIniciesWhritePtr = simpleflyIndicies.data();
-
-		float* result_error = (float*)0;
-		uint32_t options = 0u;
-#if 0
-		options |= meshopt_SimplifyLockBorder;
-#elif 0
-		options |= meshopt_SimplifyErrorAbsolute;
-#elif 0
-		options |= meshopt_SimplifyPrune;
-#elif 0
-		options |= meshopt_SimplifySparse;
-#endif
-
-		size_t optIndexCount = meshopt_simplify(
-			simpliefiedIniciesWhritePtr, indiciesReadPtr, numIndicies,
-			offsetVertexLayoutPostionReadPtr, numVerticies, vertexByteSizeLayoute,
-			targetIndexCount, errorSimplefly, options, result_error
-		);
-		simpleflyIndicies.resize(optIndexCount);
-
-		meshBuffers.m_ShadeIndicesDataVec = std::move(simpleflyIndicies);
-	}
-
-
-
 	void MeshSource::ClearVecData()
 	{
 		m_ShadePerDrawObjectVec.clear();
@@ -1163,7 +1091,6 @@ namespace Rynex {
 		}
 		m_MaterialsVec.clear();
 		m_MaterialsVec.shrink_to_fit();
-		m_TexturesMap.Clear();
 
 	}
 

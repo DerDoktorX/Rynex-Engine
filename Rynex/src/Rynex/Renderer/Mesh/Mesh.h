@@ -129,7 +129,7 @@ namespace Rynex {
 
 		static Ref<MeshDynamic> CreateDynamicMesh(const FileSystem::Path& path);
 		static Ref<MeshStatic> CreateStaticMesh(Ref<MeshSource> source);
-		static Ref<MeshStatic> CreateStaticMeshOld(Ref<MeshSource> source);
+
 		static Ref<MeshStatic> CreateStaticMesh(const FileSystem::Path& path);
 		
 	};

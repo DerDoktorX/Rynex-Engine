@@ -9,29 +9,29 @@
 namespace Rynex {
 
 
-	struct AssetFindeInfo
+	struct AssetFindInfo
 	{
 		AssetHandle m_Handle;
 		FileSystem::Path m_Path;
 	    FileSystem::Path m_MarkedPath;
 	    
-		AssetFindeInfo()
+		AssetFindInfo()
 			: m_Handle(0ull)
 			, m_Path()
 	        , m_MarkedPath()
 		{
 		}
 
-		AssetFindeInfo(AssetHandle handle, const FileSystem::Path& path,  const FileSystem::Path& markedPath)
+		AssetFindInfo(AssetHandle handle, const FileSystem::Path& path, const FileSystem::Path& markedPath)
 			: m_Handle(handle)
 			, m_Path(path)
 		    , m_MarkedPath(markedPath)
 		{
 		}
 
-		operator bool() const
+        explicit operator bool() const
 		{
-			bool result = AssetHandle::Zero() != m_Handle && !m_Path.IsEmpty();
+			const bool result = AssetHandle::Zero() != m_Handle && !m_Path.IsEmpty();
 			return result;
 		}
 
@@ -41,9 +41,12 @@ namespace Rynex {
 	public:
 
 		template<typename T>
-		static Ref<T> GetAsset(AssetHandle handle)
+		static Ref<T> GetAsset(const AssetHandle handle)
 		{
-			Ref<Asset> asset = Project::GetActive()->GetAssetManger()->GetAsset(handle);
+		    const Ref<Project> project = Project::GetActive();
+		    const Ref<AssetManagerBase> assetManger = project->GetAssetManger();
+		    const Ref<Asset> asset = assetManger->GetAsset(handle);
+
 			return std::static_pointer_cast<T>(asset);
 		}
 
@@ -58,14 +61,14 @@ namespace Rynex {
 		template<typename T>
 		static void GetAssetAsync(AssetHandle handle, Weak<T>* asset)
 		{
-			std::function<void()> processFunc = std::bind(&AssetManager::GetAssetAsyncProcess<T, AssetHandle, Weak<T>>, handle, asset);
+			const std::function<void()> processFunc = std::bind(&AssetManager::GetAssetAsyncProcess<T, AssetHandle, Weak<T>>, handle, asset);
 			RY_SUBMIT_TASK_TO_ASYNC_THREED("get Asset " + std::to_string(handle), processFunc);
 		}
 		
 		template<typename T, typename ...PromisArgs>
 		static void GetAssetAsyncPromis(AssetHandle assetHandle, Ref<LodePromisType<T, PromisArgs ...>> lodePromis)
 		{
-			std::function<void()> processFunc = std::bind(&AssetManager::GetAssetAsyncPromisProcessRef<T, AssetHandle, LodePromisType<T, PromisArgs ...>>, assetHandle, lodePromis);
+			const std::function<void()> processFunc = std::bind(&AssetManager::GetAssetAsyncPromisProcessRef<T, AssetHandle, LodePromisType<T, PromisArgs ...>>, assetHandle, lodePromis);
 			RY_SUBMIT_TASK_TO_ASYNC_THREED("get Asset " + std::to_string(assetHandle), processFunc);
 		}
 
@@ -118,11 +121,8 @@ namespace Rynex {
 
 		static AssetHandle GetAssetHandleMarkedPath(const std::string& pathMarkedStr)
 		{
-
-			FileSystem::Path path = FileSystem::Path(pathMarkedStr);
-
-			Ref<Project> project = Project::GetActive();
-			Ref<AssetManagerBase> assetManger = project->GetAssetManger();
+			const FileSystem::Path path = FileSystem::Path(pathMarkedStr);
+			const Ref<AssetManagerBase> assetManger = GetAssetManagerBase();
 
 			AssetHandle handle = assetManger->GetAssetHandle(path);
 			return handle;
@@ -132,25 +132,25 @@ namespace Rynex {
 
 		
 		template<typename T>
-		static Ref<T> FindAsset(const AssetFindeInfo& info)
+		static Ref<T> FindAsset(const AssetFindInfo& info)
 		{
 			
 			RY_CORE_ASSERT(info, "not enough information for 100% ID Asset!");
 
-			Ref<Project> project = Project::GetActive();
-			Ref<EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
 
-			AssetHandle handle = info.m_Handle;
-			AssetHandle handlePath = editorAssetManger->GetAssetHandle(info.m_MarkedPath);
+			Ref<AssetManagerBase> assetManger = GetAssetManagerBase();
+
+			const AssetHandle handle = info.m_Handle;
+			const AssetHandle handlePath = assetManger->GetAssetHandle(info.m_MarkedPath);
 
 			Ref<T> asset = nullptr;
 
 
-			if (editorAssetManger->IsAssetHandleValid(handle) && handle == handlePath)
+			if (assetManger->IsAssetHandleValid(handle) && handle == handlePath)
 			{
 				asset = AssetManager::GetAsset<T>(handle);
 			}
-			else if (editorAssetManger->IsAssetHandleValid(handlePath))
+			else if (assetManger->IsAssetHandleValid(handlePath))
 			{
 				asset = AssetManager::GetAsset<T>(handlePath);
 			}
@@ -162,24 +162,23 @@ namespace Rynex {
 		}
 
 
-		static void FindeAssetAsync(const AssetFindeInfo& info, std::function<void(AssetHandle)> func)
+		static void FindAssetAsync(const AssetFindInfo& info, const std::function<void(AssetHandle)>& func)
 		{
 			
 			RY_CORE_ASSERT(info, "not enough information for 100% ID Asset!");
 
-			Ref<Project> project = Project::GetActive();
-			Ref<EditorAssetManagerThread> editorAssetManger = project->GetEditorAssetManger();
+		    const Ref<AssetManagerBase> assetManger = GetAssetManagerBase();
 
-			AssetHandle handle = info.m_Handle;
-			AssetHandle handlePath = editorAssetManger->GetAssetHandle(info.m_Path);
+			const AssetHandle handle = info.m_Handle;
+			const AssetHandle handlePath = assetManger->GetAssetHandle(info.m_Path);
 			
 			
 
-			if (editorAssetManger->IsAssetHandleValid(handle) && handle == handlePath)
+			if (assetManger->IsAssetHandleValid(handle) && handle == handlePath)
 			{
 				func(handle);
 			}
-			else if (editorAssetManger->IsAssetHandleValid(handlePath))
+			else if (assetManger->IsAssetHandleValid(handlePath))
 			{
 				func(handlePath);
 			}
@@ -216,12 +215,7 @@ namespace Rynex {
 
 		static void Shutdown()
 		{
-			std::lock_guard<std::mutex> lock(s_WorkingThreadMutex);
-			for (std::future<void>& thread : s_WorkingThread)
-			{
-				thread.wait();
-			}
-			s_WorkingThread.clear();
+
 		}
 	private:
 		template<typename T, typename N, typename PtrObject>
@@ -259,9 +253,14 @@ namespace Rynex {
 			}
 
 		}
-	private:
-		inline static std::mutex						s_WorkingThreadMutex;
-		inline static std::vector<std::future<void>>	s_WorkingThread;
+
+	    static Ref<AssetManagerBase> GetAssetManagerBase()
+		{
+		    const Ref<Project> project = Project::GetActive();
+		    Ref<AssetManagerBase> assetManger = project->GetAssetManger();
+		    return assetManger;
+		}
+
 	};
 	
 

@@ -1017,7 +1017,7 @@ namespace Deserialize {
 
 
         Rynex::AssetHandle handle{ nodeE["Handle"].as<uint64_t>(Rynex::AssetHandle::Zero().GetHash()) };
-        Rynex::AssetFindeInfo info(handle, path, pathMarked);
+        Rynex::AssetFindInfo info(handle, path, pathMarked);
         *entityC = Rynex::AssetManager::FindAsset<T>(info);
 
         return true;

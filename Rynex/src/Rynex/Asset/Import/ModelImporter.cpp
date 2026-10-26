@@ -6,28 +6,22 @@
 
 #ifdef RY_ASSIMP_MODEL_LODER
     #include <assimp/Importer.hpp>
-    #include <assimp/scene.h>
     #include <assimp/postprocess.h>
+    #include <assimp/scene.h>
 #endif // RY_PLATFORM_WINDOWS
 
 
-#include <stb_image/stb_image.h>
-#include <execution>
 
-#include <future>
+#include <stb_image/stb_image.h>
+
 #include <chrono>
+#include <execution>
 
 #ifdef RY_ASSIMP_MODEL_LODER
 
 namespace Rynex {
 
 
-
-    struct MeshLodingData
-    {
-        Ref<Mesh> meshR;
-        uint32_t materielIndex;
-    };
 
     struct Data
     {
@@ -39,10 +33,9 @@ namespace Rynex {
 
     namespace Utils {
 
-
-        static void ProcessHirachie( aiNode* node, MeshSource::EntityNodes& entityNodes)
+        static void ProcessHierarchic( aiNode* node, MeshSource::EntityNodes& entityNodes)
         {
-            aiString aiName = node->mName;
+            const aiString aiName = node->mName;
             aiNode* parent = node->mParent;
 
 
@@ -66,7 +59,7 @@ namespace Rynex {
             for (uint32_t i = 0; i < meshSize; aiMeshIndexPtr++, i++)
                 entityNodes.m_ObjectMeshIndexVec.emplace_back(*aiMeshIndexPtr);
 
-            uint32_t childrenSize = node->mNumChildren;
+            const uint32_t childrenSize = node->mNumChildren;
             aiNode** nodeChildrens = node->mChildren;
            
            
@@ -74,7 +67,7 @@ namespace Rynex {
             entityNodes.m_Childrens.reserve(childrenSize);
             for (uint32_t i = 0; i < childrenSize; nodeChildrens++, i++)
             {
-                ProcessHirachie(
+                ProcessHierarchic(
                     *nodeChildrens,
                     entityNodes.m_Childrens.emplace_back<MeshSource::EntityNodes>(
                         MeshSource::EntityNodes{}
@@ -86,7 +79,7 @@ namespace Rynex {
 
 #pragma region _Material
 
-        static void ReadTexureFilePaths(aiMaterial* materiel, aiTextureType type, const FileSystem::Path& assetPath, std::vector<FileSystem::Path>& pathTextures)
+        static void ReadTextureFilePaths(aiMaterial* materiel, aiTextureType type, const FileSystem::Path& assetPath, std::vector<FileSystem::Path>& pathTextures)
         { 
             uint32_t size = materiel->GetTextureCount(type);
 
@@ -109,14 +102,14 @@ namespace Rynex {
             std::vector<FileSystem::Path> filePaths;
             aiString aiName = materiel->GetName();
 
-            ReadTexureFilePaths(materiel, aiTextureType_DIFFUSE, assetPath, filePaths);
-            ReadTexureFilePaths(materiel, aiTextureType_SPECULAR, assetPath, filePaths);
-            ReadTexureFilePaths(materiel, aiTextureType_HEIGHT, assetPath, filePaths);
+            ReadTextureFilePaths(materiel, aiTextureType_DIFFUSE, assetPath, filePaths);
+            ReadTextureFilePaths(materiel, aiTextureType_SPECULAR, assetPath, filePaths);
+            ReadTextureFilePaths(materiel, aiTextureType_HEIGHT, assetPath, filePaths);
 
             aiColor4D color = aiColor4D(1.0f, 1.0f, 1.0f, 1.0f);
-            aiReturn result = aiGetMaterialColor(materiel, AI_MATKEY_COLOR_DIFFUSE, &color); 
+            const aiReturn result = aiGetMaterialColor(materiel, AI_MATKEY_COLOR_DIFFUSE, &color);
             glm::vec4 baseColor;
-            if(result == aiReturn_SUCCESS)
+            if(aiReturn_SUCCESS == result)
                 baseColor = glm::vec4{ color.r, color.g, color.b, color.a };
             else
                 baseColor = glm::vec4{ 1.0f, 1.0f, 1.0f, 1.0f };
@@ -345,7 +338,7 @@ namespace Rynex {
             RY_CORE_INFO("Finshed Loading Meshes {} and {} Mesh Gemotry", meshes.size(), vertexSourceData.size());
             ProcessMateriels(scene, materieles, assetPath);
             RY_CORE_INFO("Finshed Loading Materiels {}", materieles.size());
-            ProcessHirachie(scene->mRootNode, entityNodes);
+            ProcessHierarchic(scene->mRootNode, entityNodes);
             RY_CORE_INFO("Finshed Loading Hirachiy");
         }
 
