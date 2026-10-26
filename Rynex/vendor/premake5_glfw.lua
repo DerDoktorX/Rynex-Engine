@@ -5,8 +5,8 @@ project "GLFW"
 	warnings "off"
 
 
-    local projectDir = "_GLFW/"
-	location "_GLFW/"
+    local projectDir = "GLFW/"
+	location "GLFW/"
 	
 	targetdir (projectDir .. "bin/" .. outputdir .. "/%{prj.name}")
 	objdir (projectDir .. "bin-int/" .. outputdir .. "/%{prj.name}")

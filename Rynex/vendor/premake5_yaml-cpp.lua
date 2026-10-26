@@ -2,8 +2,8 @@ project "yaml-cpp"
 	kind "StaticLib"
 	language "C++"
 
-	local projectDir = "_yaml-cpp/"
-	location "_yaml-cpp"
+	local projectDir = "yaml-cpp/"
+	location "yaml-cpp"
 
 	targetdir (projectDir .. "bin/" .. outputdir .. "/%{prj.name}")
 	objdir (projectDir .. "bin-int/" .. outputdir .. "/%{prj.name}")
