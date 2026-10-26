@@ -59,7 +59,7 @@ namespace Rynex {
 		void SetupFence();
 		bool WaitForTransfered(uint64_t timeout = 0u, bool flush = false) const;
 		bool IsTransfered();
-		const GLsync& GetFence() const { return m_Fance; };
+		const GLsync& GetFence() const { return m_Fence; };
 		int64_t StoppThreadUntlieLoded();
 		void DestroyID();
 	private:
@@ -67,7 +67,7 @@ namespace Rynex {
 
 		GLint GetState(GLenum pname) const;
 	private:
-		GLsync m_Fance;
+		GLsync m_Fence;
 	};
 
 }

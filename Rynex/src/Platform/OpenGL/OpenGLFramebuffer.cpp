@@ -449,8 +449,8 @@ namespace Rynex {
 	{
 		GLsizei widthS = m_Specification.m_Width;
 		GLsizei heightS = m_Specification.m_Height;
-		uint32_t defaultTexture = OpenGLRenderCommand::GetDefaultFrambufferRenderID();
-		glm::uvec2 windowSize = OpenGL::GetMainWindowCurentSize();
+		uint32_t defaultTexture = OpenGLRenderCommand::GetDefaultFramebufferRenderID();
+		glm::uvec2 windowSize = OpenGL::GetMainWindowCurrentSize();
 		OpenGLRenderCommand::BindFramebuffer(defaultTexture);
 
 		glViewport(0, 0, windowSize.x, windowSize.y);

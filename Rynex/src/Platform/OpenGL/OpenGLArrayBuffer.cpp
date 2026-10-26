@@ -13,7 +13,7 @@ namespace Rynex {
 		, m_FanceObject()
 	{
 		CopyMemoryData(data, byteSize);
-		InvalideData(target);
+		InvalidData(target);
 	}
 
 	OpenGLArrayBuffer::OpenGLArrayBuffer(uint32_t target, std::nullptr_t, uint32_t byteSize, uint32_t usage)
@@ -23,7 +23,7 @@ namespace Rynex {
 		, m_FanceObject()
 	{
 		CopyMemoryData(nullptr, byteSize);
-		InvalideData(target);
+		InvalidData(target);
 	}
 
 	OpenGLArrayBuffer::OpenGLArrayBuffer(uint32_t target, std::vector<uint8_t>&& data, uint32_t usage)
@@ -34,7 +34,7 @@ namespace Rynex {
 	{
 		m_ByteSize = m_Data.size();
 		RY_CORE_ASSERT(0u != m_ByteSize, "Size not Set!");
-		InvalideData(target);
+		InvalidData(target);
 	};
 
 	OpenGLArrayBuffer::OpenGLArrayBuffer(uint32_t target, const OpenGLArrayBuffer& buffer)
@@ -45,7 +45,7 @@ namespace Rynex {
 		, m_FanceObject()
 	{
 		RY_CORE_ASSERT(0u != m_ByteSize, "Size not Set!");
-		InvalideData(target);
+		InvalidData(target);
 	}
 
 	OpenGLArrayBuffer::~OpenGLArrayBuffer()
@@ -122,19 +122,19 @@ namespace Rynex {
 		m_Usage = usage;
 		CopyMemoryData(dataPtr, size);
 
-		InvalideData(target);
+		InvalidData(target);
 	}
 
-	void OpenGLArrayBuffer::InvalideData(uint32_t target)
+	void OpenGLArrayBuffer::InvalidData(uint32_t target)
 	{
 #ifdef RY_OPENGL_MAIN_THREADE
 		if (!OpenGLThreadContext::IsActive())
 		{
-			Application::Get().SubmitToMainThreedQueueWait(std::bind(&OpenGLArrayBuffer::InvalideData, this, target));
+			Application::Get().SubmitToMainThreedQueueWait(std::bind(&OpenGLArrayBuffer::InvalidData, this, target));
 			return;
 		}
 #else
-		RY_EXE_ON_MAIN_THREAD_RESUME_ARGS(OpenGLArrayBuffer::InvalideData, target);
+		RY_EXE_ON_MAIN_THREAD_RESUME_ARGS(OpenGLArrayBuffer::InvalidData, target);
 #endif
 		RY_CORE_ASSERT(0u != m_ByteSize);
 		CreateID(target);
@@ -151,7 +151,7 @@ namespace Rynex {
 #ifdef RY_USE_GRAFIC_API_FANCE
 		m_FanceObject.SetupFence();
 #endif
-		SetupFance();
+		SetupFence();
 	}
 
 	void OpenGLArrayBuffer::AddCopyMemoryData(const uint8_t* dataPtr, uint32_t byteSize)
@@ -218,12 +218,12 @@ namespace Rynex {
 		GL_CHECK();
 	}
 
-	bool OpenGLArrayBuffer::IsTransfered()
+	bool OpenGLArrayBuffer::IsTransferred()
 	{
 		return m_FanceObject.IsTransfered();
 	}
 
-	void OpenGLArrayBuffer::SetupFance()
+	void OpenGLArrayBuffer::SetupFence()
 	{
 		if (Application::Get().IsMainThread())
 			return;
@@ -231,21 +231,21 @@ namespace Rynex {
 		m_FanceObject.SetupFence();
 		uint32_t byteSize = m_Data.size();
 		int64_t pastTime = m_FanceObject.StoppThreadUntlieLoded();
-		RY_CORE_INFO("Data OpenGLArrayBuffer Transfered! off {} bytesComplet. Time waiting {} Nanosec", byteSize, pastTime);
+		RY_CORE_INFO("Data OpenGLArrayBuffer transferred! off {} bytes Complete. Time waiting {} nano sec", byteSize, pastTime);
 		m_FanceObject.DestroyID();
 		ClearLocaleDataStore();
 	}
 
-	void OpenGLArrayBuffer::LoadeGPUDataOnCPU()
+	void OpenGLArrayBuffer::LoadGpuDataOnCPU()
 	{
-		RY_CORE_ASSERT(0u == m_RendererID, "Render-ID not vaild!");
+		RY_CORE_ASSERT(0u == m_RendererID, "Render-ID not valid!");
 
 		uint32_t byteSize = m_Data.size();
 		uint8_t* dataPtr = m_Data.data();
 
 		glGetNamedBufferSubData(m_RendererID, 0u, byteSize, dataPtr);
 		GL_CHECK();
-		RY_CORE_WARN("Get GPU Data on CPU is an perforfonmenz intensive action!");
+		RY_CORE_WARN("Get GPU Data on CPU is an performance intensive action!");
 	}
 
 	void OpenGLArrayBuffer::ClearLocaleDataStore()

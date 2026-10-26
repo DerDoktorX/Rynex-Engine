@@ -23,7 +23,7 @@
 }
 
 
-#define RY_CHECK_BIND_ON_MAIN_THREAD()	RY_CORE_ASSERT(::Rynex::Asset::CurrentOnMainThread(), "Bining aktion on not Main Thread!")
+#define RY_CHECK_BIND_ON_MAIN_THREAD()	RY_CORE_ASSERT(::Rynex::OpenGLContext::Get()., "Bining aktion on not Main Thread!")
 
 
 #define RY_CHECK_BUFFER_BIND_STATE(x)	\
@@ -80,9 +80,9 @@ namespace Rynex {
 		m_BindVertexBufferStateVec.resize(maxVertexCount, 0u);
 		RY_CORE_INFO("OpenGL Max Shader Storage Buffer Bindings Points {}", maxVertexCount);
 
-		GLint defaultFrambufferRenderID = 0;
-		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &defaultFrambufferRenderID);
-		m_DefaultFrambufferRenderID = static_cast<uint32_t>(defaultFrambufferRenderID);
+		GLint defaultFramebufferRenderID = 0;
+		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &defaultFramebufferRenderID);
+		m_DefaultFrambufferRenderID = static_cast<uint32_t>(defaultFramebufferRenderID);
 
 		OpenGLRenderCommand::Init(this);
 	}
@@ -97,19 +97,18 @@ namespace Rynex {
 		RY_CORE_NOT_IMPL();
 	}
 
-	void OpenGLRendererAPI::SetViewPort(uint32_t x, uint32_t y, uint32_t withe, uint32_t heigth)
+	void OpenGLRendererAPI::SetViewPort(uint32_t x, uint32_t y, uint32_t withe, uint32_t height)
 	{
-		glViewport(x, y, withe, heigth);
+		glViewport(x, y, withe, height);
 	}
 
 	void OpenGLRendererAPI::SetClearColor(const glm::vec4& color)
 	{
-
 		glClearColor(color.r, color.g, color.b, color.a);
 	}
 
 
-	void OpenGLRendererAPI::BindFrambuffer(uint32_t renderID)
+	void OpenGLRendererAPI::BindFramebuffer(uint32_t renderID)
 	{
 		RY_CHECK_BUFFER_BIND_STATE(m_BindFrameBufferState);
 		glBindFramebuffer(GL_FRAMEBUFFER, renderID);
@@ -314,10 +313,10 @@ namespace Rynex {
 			glCullFace(GL_FRONT_AND_BACK);
 			m_CurentMode |= RenderMode::CallFace_FrontBack;
 			
-			RY_CORE_WARN("Not Known Type! Thsi is Funkioning but maby not korekt!");
+			RY_CORE_WARN("Not Known Type! This is Functioning but maby not correct!");
 			break;
 		default:
-			RY_CORE_ASSERT(false, "NOT Defiend CallFace");
+			RY_CORE_ASSERT(false, "NOT defined CallFace");
 			break;
 		}
 	}
@@ -349,42 +348,42 @@ namespace Rynex {
 	{
 		if (IsModeEqual(mode)) 
 			return;
-		int curentBitNumber = 0;
+		int currentBitNumber = 0;
 		for (int i = 0; i < 32 && !IsModeEqual(mode); i++)
 		{
-			curentBitNumber = BIT(i);
-			bool modeIsEqual = BIT_EQUAL(mode, curentBitNumber);
-			bool curentModeIsEqual = BIT_EQUAL(m_CurentMode, curentBitNumber);
-			if (modeIsEqual && !curentModeIsEqual)
+			currentBitNumber = BIT(i);
+			bool modeIsEqual = BIT_EQUAL(mode, currentBitNumber);
+			bool currentModeIsEqual = BIT_EQUAL(m_CurentMode, currentBitNumber);
+			if (modeIsEqual && !currentModeIsEqual)
 			{
-				ModeEnable(curentBitNumber);
-				m_CurentMode = BIT_SET_ON(1, curentBitNumber, m_CurentMode);
+				ModeEnable(currentBitNumber);
+				m_CurentMode = BIT_SET_ON(1, currentBitNumber, m_CurentMode);
 			}
-			else if (!modeIsEqual && curentModeIsEqual)
+			else if (!modeIsEqual && currentModeIsEqual)
 			{
-				ModeDisenable(curentBitNumber);
-				m_CurentMode = BIT_SET_ON(0, curentBitNumber, m_CurentMode);
+				ModeDisenable(currentBitNumber);
+				m_CurentMode = BIT_SET_ON(0, currentBitNumber, m_CurentMode);
 			}
 		}
 	}
 
 	void OpenGLRendererAPI::SetModeForce(int mode)
 	{
-		int curentBitNumber = 0;
+		int currentBitNumber = 0;
 		for (int i = 0; i < 32 && !IsModeEqual(mode); i++)
 		{
-			curentBitNumber = BIT(i);
-			bool modeIsEqual = BIT_EQUAL(mode, curentBitNumber);
-			bool curentModeIsEqual = BIT_EQUAL(m_CurentMode, curentBitNumber);
+			currentBitNumber = BIT(i);
+			bool modeIsEqual = BIT_EQUAL(mode, currentBitNumber);
+			bool currentModeIsEqual = BIT_EQUAL(m_CurentMode, currentBitNumber);
 			if (modeIsEqual)
 			{
-				ModeEnable(curentBitNumber);
-				m_CurentMode = BIT_SET_ON(1, curentBitNumber, m_CurentMode);
+				ModeEnable(currentBitNumber);
+				m_CurentMode = BIT_SET_ON(1, currentBitNumber, m_CurentMode);
 			}
 			else if (!modeIsEqual)
 			{
-				ModeDisenable(curentBitNumber);
-				m_CurentMode = BIT_SET_ON(0, curentBitNumber, m_CurentMode);
+				ModeDisenable(currentBitNumber);
+				m_CurentMode = BIT_SET_ON(0, currentBitNumber, m_CurentMode);
 			}
 		}
 	}
@@ -426,7 +425,7 @@ namespace Rynex {
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 	}
 
-	void OpenGLRendererAPI::DrawIndexedMeshInstecing(uint32_t instecing, const Ref<VertexArray>& vertexArray, uint32_t indexCount)
+	void OpenGLRendererAPI::DrawIndexedMeshInstancing(uint32_t instecing, const Ref<VertexArray>& vertexArray, uint32_t indexCount)
 	{
 		vertexArray->Bind();
 		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
@@ -442,7 +441,7 @@ namespace Rynex {
 		GLuint  baseInstance;
 	} DrawElementsIndirectCommandOpenGL;
 
-	void OpenGLRendererAPI::DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, uint32_t drawCount, void* indrictDraw, uint32_t indirectStrideSize)
+	void OpenGLRendererAPI::DrawMultyMeshIndirect(const Ref<VertexArray>& vertexArray, uint32_t drawCount, void* indrictDraw, uint32_t indirectStrideSize)
 	{
 		uint32_t stride = sizeof(DrawElementsIndirectCommandOpenGL) - indirectStrideSize;
 		Ref<OpenGLVertexArray> vertexArrayGL = std::static_pointer_cast<OpenGLVertexArray>(vertexArray);
@@ -451,7 +450,7 @@ namespace Rynex {
 		glMultiDrawElementsIndirect(mode, GL_UNSIGNED_INT, indrictDraw, drawCount, stride);
 	}
 
-	void OpenGLRendererAPI::DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, uint32_t drawCount, uint32_t indirectStrideSize)
+	void OpenGLRendererAPI::DrawMultyMeshIndirect(const Ref<VertexArray>& vertexArray, uint32_t drawCount, uint32_t indirectStrideSize)
 	{
 		uint32_t stride = sizeof(DrawElementsIndirectCommandOpenGL) - indirectStrideSize;
 		vertexArray->Bind();
@@ -485,7 +484,7 @@ namespace Rynex {
 
 	}
 
-	void OpenGLRendererAPI::DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, const Ref<IndirectBuffer>& indriectBuffer, uint32_t drawCount)
+	void OpenGLRendererAPI::DrawMultyMeshIndirect(const Ref<VertexArray>& vertexArray, const Ref<IndirectBuffer>& indriectBuffer, uint32_t drawCount)
 	{
 		RY_CORE_ASSERT(indriectBuffer->GetCount() >= drawCount, "To many DrawCounts");
 		uint32_t stride = sizeof(DrawElementsIndirectCommandOpenGL) - indriectBuffer->GetStrideSize();
@@ -494,7 +493,7 @@ namespace Rynex {
 		glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, nullptr, drawCount, stride);
 	}
 
-	void OpenGLRendererAPI::DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, const Ref<IndirectBuffer>& indriectBuffer)
+	void OpenGLRendererAPI::DrawMultyMeshIndirect(const Ref<VertexArray>& vertexArray, const Ref<IndirectBuffer>& indriectBuffer)
 	{
 		uint32_t stride = sizeof(DrawElementsIndirectCommandOpenGL) - indriectBuffer->GetStrideSize();
 		vertexArray->Bind();
@@ -594,23 +593,23 @@ namespace Rynex {
 		OpenGLRendererAPI::BindIndrectBuffer(0u);
 		OpenGLRendererAPI::BindIndexBuffer(0u);
 		OpenGLRendererAPI::BindShader(0u);
-		OpenGLRendererAPI::BindFrambuffer(m_DefaultFrambufferRenderID);
-		glm::uvec2 size = OpenGL::GetMainWindowCurentSize();
+		OpenGLRendererAPI::BindFramebuffer(m_DefaultFrambufferRenderID);
+		glm::uvec2 size = OpenGL::GetMainWindowCurrentSize();
 		SetViewPort(0, 0, size.x, size.y);
 
 	}
 
-	void OpenGLRendererAPI::PrintCurentStatePipline()
+	void OpenGLRendererAPI::PrintCurrentStatePipline()
 	{
 		RY_CORE_WARN("Frame Buffer({}) Bind", m_BindFrameBufferState);
 		RY_CORE_WARN("Shader ({}) Bind", m_BindShaderState);
 		RY_CORE_WARN("VertexArray ({}) Bind", m_BindVertexArrayState);
 		RY_CORE_WARN("Index Buffer({}) Bind", m_BindIndexBufferState);
-		RY_CORE_WARN("Indrect Buffer ({}) Bind", m_BindIndirectState);
+		RY_CORE_WARN("Indirect Buffer ({}) Bind", m_BindIndirectState);
 		int slotIndex = 0;
 		for (uint32_t i : m_BindVertexBufferStateVec)
 		{
-			if (i != 0u)
+			if (0u!=i)
 			{
 				RY_CORE_WARN("Vertex Buffer({}) Slot: {}", slotIndex, i);
 			}
@@ -620,7 +619,7 @@ namespace Rynex {
 		slotIndex = 0;
 		for (uint32_t i : m_BindTextureStateVec)
 		{
-			if (i != 0u)
+			if (0u != i)
 			{
 				RY_CORE_WARN("Texture ({}) Slot: {}", slotIndex, i);
 			}
@@ -634,7 +633,7 @@ namespace Rynex {
 		slotIndex = 0;
 		for (uint32_t i : m_BindUniformBufferStateVec)
 		{
-			if (i != 0u)
+			if (0u != i)
 			{
 				RY_CORE_WARN("Uniform Buffer({}) Slot: {}", slotIndex, i);
 			}
@@ -643,7 +642,7 @@ namespace Rynex {
 		slotIndex = 0;
 		for (uint32_t i : m_BindStorageStateVec)
 		{
-			if(i != 0u)
+			if(0u != i)
 			{
 				RY_CORE_WARN("Storage Buffer({}) Slot: {}", slotIndex, i);
 			}
@@ -664,7 +663,7 @@ namespace Rynex {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
-	void OpenGLRendererAPI::DispatcheCompute(const glm::vec<3, uint32_t>& groups)
+	void OpenGLRendererAPI::DispatchCompute(const glm::vec<3, uint32_t>& groups)
 	{
 		glDispatchCompute(groups.x, groups.y, groups.z);
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
@@ -730,7 +729,7 @@ namespace Rynex {
 				glEnable(GL_CULL_FACE);
 				glCullFace(GL_FRONT_AND_BACK);
 				glFrontFace(GL_CCW);
-				RY_CORE_WARN("Not Known Type! Thsi is Funkioning but maby not korekt!");
+				RY_CORE_WARN("Not Known Type! This is Functioning but maby not correct!");
 				break;
 			}
 			case RenderMode::Gamma:
@@ -787,7 +786,7 @@ namespace Rynex {
 		}
 	}
 
-	uint32_t OpenGLRendererAPI::GetDefaultFrambufferRenderID() const
+	uint32_t OpenGLRendererAPI::GetDefaultFramebufferRenderID() const
 	{
 		return m_DefaultFrambufferRenderID;
 	}

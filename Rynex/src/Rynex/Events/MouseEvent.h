@@ -44,7 +44,7 @@ namespace Rynex {
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(MouseSrolled)
+		EVENT_CLASS_TYPE(MouseSroll)
 		EVENT_CLASS_CATEYGORY(EventCategoryMouse | EventCategoryInput)
 
 	private:
@@ -96,7 +96,7 @@ namespace Rynex {
 			return ss.str();
 		}
 
-		EVENT_CLASS_TYPE(MouseButtonRealsed)
+		EVENT_CLASS_TYPE(MouseButtonRelease)
 
 	};
 

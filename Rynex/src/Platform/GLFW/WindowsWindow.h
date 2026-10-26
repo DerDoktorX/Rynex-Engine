@@ -10,7 +10,7 @@ namespace Rynex {
 	class WindowsWindow : public Window 
 	{
 	public:
-		WindowsWindow(const WindowProps& props);
+        explicit WindowsWindow(const WindowProps& props);
 		virtual ~WindowsWindow();
 
 		virtual void OnUpdate() override;
@@ -37,9 +37,10 @@ namespace Rynex {
 		virtual Ref<ThreadContext> CreateThreadContext() override;
 		virtual int64_t GetRenderTime() const override { return m_UpdateScreeTime; }
 	private:
-		virtual void Init(const WindowProps& props);
-		virtual void Shutdown();
-	private:
+		void Init(const WindowProps& props);
+		void Shutdown();
+	    void SetEventCallbacks();
+	// --- private member variables -------------------------------------------------------------------------------------------
 		GLFWwindow* m_Window;
 		int64_t m_UpdateScreeTime;
 		Ref<GraphicsContext> m_Context;
@@ -50,7 +51,7 @@ namespace Rynex {
 			unsigned int Width, Height;
 			unsigned int PosX, PosY;
 			float MousePosX, MousePosY;
-			bool VSync, Focuse, Hovered;
+			bool VSync, Focus, Hovered;
 
 			EventCallbackFn EventCallback;
 		};

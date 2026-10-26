@@ -48,23 +48,23 @@ namespace Rynex {
 		virtual void ClearDepth() = 0;
 
 		virtual void DrawIndexedMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
-		virtual void DrawIndexedMeshInstecing(uint32_t instecing, const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
+		virtual void DrawIndexedMeshInstancing(uint32_t instancing, const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 
 		virtual void DrawIndexedPoints(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 
 		virtual void DrawStripsMesh(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 
 		virtual void DrawIndexedLine(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
-		virtual void DrawIndexedLineLoop(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
-		virtual void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, uint32_t drawCount, void* indrictDraw, uint32_t indirectStrideSize) = 0;
-		virtual void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, uint32_t drawCount, uint32_t indirectStrideSize) = 0;
-		virtual void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, const Ref<IndirectBuffer>& indriectBuffer) = 0;
-		virtual void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, const Ref<IndirectBuffer>& indriectBuffer, uint32_t drawCount) = 0;
+		virtual void DrawIndexedLineLoop(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;//instancing
+		virtual void DrawMultyMeshIndirect(const Ref<VertexArray>& vertexArray, uint32_t drawCount, void* indirectDraw, uint32_t indirectStrideSize) = 0;
+		virtual void DrawMultyMeshIndirect(const Ref<VertexArray>& vertexArray, uint32_t drawCount, uint32_t indirectStrideSize) = 0;
+		virtual void DrawMultyMeshIndirect(const Ref<VertexArray>& vertexArray, const Ref<IndirectBuffer>& indirectBuffer) = 0;
+		virtual void DrawMultyMeshIndirect(const Ref<VertexArray>& vertexArray, const Ref<IndirectBuffer>& indirectBuffer, uint32_t drawCount) = 0;
 		virtual void DrawPatches(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0) = 0;
 		virtual void DrawElement(const Ref<VertexArray>& vertexArray, const Mesh::PerDrawObject& drawObject) = 0;
 		
 
-		virtual void DispatcheCompute(const glm::vec<3, uint32_t>& groups) = 0;
+		virtual void DispatchCompute(const glm::vec<3, uint32_t>& groups) = 0;
 
 		virtual void DrawError() = 0;
 		virtual void RestPipline() = 0;

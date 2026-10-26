@@ -16,7 +16,7 @@ namespace Rynex {
 		{
 			std::vector<T> dataCopy = std::move(data);
 			ConvertVector<T, uint8_t>(dataCopy, m_Data);
-			InvalideData(target);
+			InvalidData(target);
 		};
 
 		OpenGLArrayBuffer(uint32_t target, std::vector<uint8_t>&& data, uint32_t usage);
@@ -45,7 +45,7 @@ namespace Rynex {
 			m_Usage = usage;
 			std::vector<T> dataCopy = std::move(data);
 			OpenGLArrayBuffer::ConvertVector<T, uint8_t>(dataCopy, m_Data);
-			InvalideData(target);
+			InvalidData(target);
 		};
 
 		void LoadeDataGPU();
@@ -63,19 +63,19 @@ namespace Rynex {
 
 		template<typename T>
 		std::vector<T> GetCopyData() const { return OpenGLArrayBuffer::CopyVector<T, uint8_t>(m_Data); }
-		bool IsTransfered();
-		void SetupFance();
+		bool IsTransferred();
+		void SetupFence();
 
 
 		const uint8_t* GetDataPtr() const { return m_Data.data(); }
 		uint8_t* GetDataPtr() { return m_Data.data(); }
 
-		void LoadeGPUDataOnCPU();
+		void LoadGpuDataOnCPU();
 		void ClearLocaleDataStore();
 	private:
 		void CreateID(uint32_t target);
 		void DestroyID();
-		void InvalideData(uint32_t target);
+		void InvalidData(uint32_t target);
 
 
 		void AddCopyMemoryData(const uint8_t* data, uint32_t size);

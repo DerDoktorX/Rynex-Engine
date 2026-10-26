@@ -6,7 +6,7 @@
 
 namespace Rynex {
 	OpenGLFence::OpenGLFence()
-		: m_Fance(nullptr)
+		: m_Fence(nullptr)
 	{
 	}
 
@@ -26,7 +26,7 @@ namespace Rynex {
 		constexpr GLbitfield flags[2] = { GL_SYNC_FLUSH_COMMANDS_BIT, 0u };
 		constexpr int useFlage = 0;
 		GLbitfield useFlags = flush ? flags[0] : flags[1];
-		GLenum result = glClientWaitSync(m_Fance, useFlags, timeout);
+		GLenum result = glClientWaitSync(m_Fence, useFlags, timeout);
 		GL_CHECK_LOOP();
 
 		switch (result)
@@ -65,7 +65,7 @@ namespace Rynex {
 
 	bool OpenGLFence::IsTransfered()
 	{
-		if (nullptr == m_Fance)
+		if (nullptr == m_Fence)
 			return true;
 
 		GLint status = GetState(GL_SYNC_STATUS);
@@ -77,7 +77,7 @@ namespace Rynex {
 
 			return WaitForTransfered(timeout);
 		}
-		RY_CORE_ASSERT(status == GL_UNSIGNALED, "The only rigth other return value from GetState(GL_SYNC_STATUS), woude be GL_UNSIGNALED");
+		RY_CORE_ASSERT(status == GL_UNSIGNALED, "The only right other return value from GetState(GL_SYNC_STATUS), woude be GL_UNSIGNALED");
 
 		return false;
 	}
@@ -85,30 +85,30 @@ namespace Rynex {
 	void OpenGLFence::CreateID()
 	{
 		DestroyID();
-		RY_CORE_ASSERT(nullptr == m_Fance, "Fance is present!");
+		RY_CORE_ASSERT(nullptr == m_Fence, "Fence is present!");
 
-		// Both values have the only vaild values, for glFenceSync curently
+		// Both values have the only valid values, for glFenceSync currently
 		// OpenGL this are placeholder for anticipated future extensions of fence sync object capabilities. 
-		// But curently in March, 2026 there are no extions present.
+		// But currently in March, 2026 there are no extensions present.
 		constexpr GLenum condition = GL_SYNC_GPU_COMMANDS_COMPLETE;
 		constexpr GLbitfield falg = 0u;
-		m_Fance = glFenceSync(condition, falg);
+		m_Fence = glFenceSync(condition, falg);
 		GL_CHECK();
 
 	}
 
 	void OpenGLFence::DestroyID()
 	{
-		if (nullptr == m_Fance)
+		if (nullptr == m_Fence)
 			return;
 
-		glDeleteSync(m_Fance);
-		m_Fance = nullptr;
+		glDeleteSync(m_Fence);
+		m_Fence = nullptr;
 
 		GL_CHECK();
 	}
 
-	// options for (pname)			expted return values    |
+	// options for (prame)			expected return values    |
 	//					                                    V
 	//		GL_OBJECT_TYPE			GL_SYNC_FENCE
 	//		GL_SYNC_STATUS			GL_SIGNALED		||		GL_UNSIGNALED
@@ -119,13 +119,13 @@ namespace Rynex {
 	//		GL_INVALID_ENUM 
 	GLint OpenGLFence::GetState(GLenum pname) const
 	{
-		RY_CORE_ASSERT(nullptr != m_Fance, "no Fance Set!");
+		RY_CORE_ASSERT(nullptr != m_Fence, "no Fence Set!");
 
 		GLint status;
 		GLsizei length;
 		GLsizei count = sizeof(status);
-		glGetSynciv(m_Fance, pname, sizeof(status), &length, &status);
-		RY_CORE_ASSERT(length == 1, "Not expexted length Size! we asument simply that it is always 1, but never chenked.");
+		glGetSynciv(m_Fence, pname, sizeof(status), &length, &status);
+		RY_CORE_ASSERT(length == 1, "Not expected length Size! we arguments simply that it is always 1, but never checked.");
 
 		return status;
 	}

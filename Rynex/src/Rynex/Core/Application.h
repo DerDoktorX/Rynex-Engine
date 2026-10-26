@@ -48,7 +48,7 @@ namespace Rynex {
 	class RYNEX_API Application
 	{
 	public:
-		Application(const ApplicationSpecification& specification);
+        explicit Application(const ApplicationSpecification& specification);
 		virtual ~Application();
 
 		

@@ -38,9 +38,9 @@ namespace Rynex {
 		, m_Minimized(false)
 	{
 		m_QueueTimer = PlatformTimer::Create(&m_QueuePastTime);
-		int64_t multyply = 1000ll;	// move from sec in milsec
-		multyply *= 1000ll;			// move from milsec in microsec
-		multyply *= 1000ll;			// move from microsec in nanosec
+		int64_t multyply = 1000ll;	// move from sec in millisecond
+		multyply *= 1000ll;			// move from millisecond in microsecond
+		multyply *= 1000ll;			// move from microsecond in nanosecond
 		multyply *= 10ll;			// move from 1/60 in 10/6
 		
 		int64_t frameTime60up = 1ll * multyply;
@@ -53,7 +53,7 @@ namespace Rynex {
 		
 
 		RY_CORE_INFO("Application::Application Start!");
-		RY_CORE_ASSERT(!s_Instance, "Applicationse allrady exists!");
+		RY_CORE_ASSERT(!s_Instance, "Applications already exists!");
 
 		s_Instance = this;
 
@@ -77,7 +77,7 @@ namespace Rynex {
 
 		for (Layer* layer : m_LayerStack)
 		{
-				layer->OnDetach();
+		    layer->OnDetach();
 		}
 
 		

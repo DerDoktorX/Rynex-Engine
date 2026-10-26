@@ -24,11 +24,6 @@ namespace Rynex {
 	}
 
 
-    Scope<Window> Window::Create()
-    {
-	    WindowProps props;
-	    return CreateScope<WindowsWindow>(props);
-    }
 
 	Scope<Window> Window::Create(const WindowProps& props)
 	{
@@ -46,8 +41,6 @@ namespace Rynex {
 	WindowsWindow::~WindowsWindow()
 	{
 		Shutdown();
-
-		
 	}
 
 	Ref<ThreadContext> WindowsWindow::CreateThreadContext()
@@ -62,10 +55,12 @@ namespace Rynex {
 		m_Data.Title = props.m_Title;
 		m_Data.Width = props.m_Width;
 		m_Data.Height = props.m_Height;
+	    m_Data.EventCallback = [](Event& event) -> void
+	        {
+	            RY_CORE_TRACE("Default Event:", event.ToString());
+	        };
 
 		RY_CORE_INFO("Creating window {0} ({1}, {2})", props.m_Title, props.m_Width, props.m_Height);
-
-
 
 		if (!s_GlfwInitialized)
 		{
@@ -75,7 +70,10 @@ namespace Rynex {
 			glfwSetErrorCallback(GLFWErrorCallBack);
 			s_GlfwInitialized = true;
 		}
-		
+		else
+		{
+		    RY_CORE_WARN("Glfw is already initialized!");
+		}
 
 #if defined(RY_DIST)
 
@@ -96,12 +94,13 @@ namespace Rynex {
 	    const int width = m_Data.Width;
 	    const int height = m_Data.Height;
 	    const char* titleChar = m_Data.Title.c_str();
+
 		m_Window = glfwCreateWindow(width, height, titleChar, nullptr, nullptr);
 
 		m_Context = CreateRef<OpenGLContext>(m_Window);
 		m_Context->Init();
 
-		
+
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		
 #ifdef RY_DEBUG
@@ -111,173 +110,205 @@ namespace Rynex {
 		SetVSync(false);
 		RY_CORE_INFO("(SetVSync) is Executed -> false!");
 #endif
-		// Set GLFW callbackes
+
+	    SetEventCallbacks();
+	    RY_CORE_INFO("Window success full init!");
+	}
+
+	void WindowsWindow::Shutdown()
+	{
+	    RY_CORE_FATAL_IF(0 != m_Context->GetMemoryUsage(), "Not Delete Buffer! {} KB", m_Context->GetMemoryUsage());
+
+		RY_DESTROY_REF(m_Context);
+		glfwDestroyWindow(m_Window);
+
+#ifdef RY_SHOUTDOWN_GLFW_UNLOADE
+	    if (s_GlfwInitialized)
+	    {
+	        glfwTerminate();
+	        s_GlfwInitialized = false;
+	        RY_CORE_INFO("Glfw should be deinitialized!");
+	    }
+#endif
+
+	}
+
+    void WindowsWindow::SetEventCallbacks()
+    {
+	    // Set GLFW callbacks
 		glfwSetCursorEnterCallback(m_Window, [](GLFWwindow* window, int entered)
 			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-				
-				if (data.Hovered = entered == GLFW_TRUE)
+				WindowData* data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+
+				if (GLFW_TRUE == entered)
 				{
+				    data->Hovered = true;
 					WindowCurserEnterEvent event;
-					data.EventCallback(event);
+					data->EventCallback(event);
 				}
-				else if (data.Hovered = !(entered == GLFW_FALSE))
+				else if(GLFW_FALSE == entered)
 				{
+				    data->Hovered = false;
 					WindowCurserLeaveEvent event;
-					data.EventCallback(event);
+					data->EventCallback(event);
 				}
+		        else
+		        {
+		            RY_CORE_WARN("Not expect callback cursor event!");
+		        }
 
 			});
 
 		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* window, int xPos, int yPos)
 			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-				data.PosX = xPos;
-				data.PosY = yPos;
-				
+		        WindowData* data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+				data->PosX = xPos;
+				data->PosY = yPos;
+
 				WindowMovedEvent event(xPos, yPos);
 #if RY_CONSOLE_WINDOW_POSTION
-				RY_CORE_WARN("Window Postion(x: {0}, y: {1})", xPos, yPos);
+				RY_CORE_WARN("Window Position(x: {0}, y: {1})", xPos, yPos);
 #endif
 
-				data.EventCallback(event);
+				data->EventCallback(event);
 
 			});
 
 		glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* window, int focused)
 			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				WindowData* data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
-				if(data.Focuse = focused == GLFW_TRUE)
+
+				if(GLFW_TRUE == focused)
 				{
-					WindowFocuseEvent event;
-					data.EventCallback(event);
+				    data->Focus = true;
+					WindowFocusEvent event;
+					data->EventCallback(event);
 				}
-				else if(data.Focuse = !(focused == GLFW_FALSE))
+				else if (GLFW_FALSE == focused)
 				{
-					WindowLostFocuseEvent event;
-					data.EventCallback(event);
+				    RY_CORE_ASSERT(data->Focus && focused == GLFW_FALSE, "Focus callback method");
+				    data->Focus = false;
+					WindowLostFocusEvent event;
+					data->EventCallback(event);
 				}
-				
+		        else
+		        {
+                    RY_CORE_WARN("Not expect callback cursor focus!");
+                }
+
 			});
 
-		
-		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int widthe, int height) 
-			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-				data.Width = widthe;
-				data.Height = height;
 
-				WindowResizeEvent event(widthe, height);
+		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
+			{
+				WindowData* data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+				data->Width = width;
+				data->Height = height;
+
+				WindowResizeEvent event(width, height);
 #if RY_CONSOLE_WINDOW_SIZE
-				RY_CORE_WARN("Window Size( x: {0}, y: {1})", widthe, height);
+				RY_CORE_WARN("Window Size( x: {0}, y: {1})", width, height);
 #endif
-				data.EventCallback(event);
+				data->EventCallback(event);
 			});
 
-		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) 
+		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
 			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				WindowData* data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 				WindowCloseEvent event;
-				data.EventCallback(event);
+				data->EventCallback(event);
 			});
 
-		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scanecode, int actione, int mods)
+		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				WindowData* data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
-				switch (actione)
+				switch (action)
 				{
-					case GLFW_PRESS:
-					{
-						KeyPressedEvent event(key, 0);
-						data.EventCallback(event);
-						break;
-					}
-					case GLFW_RELEASE:
-					{
-						KeyReleasdEvent event(key);
-						data.EventCallback(event);
-						break;
-					}
-					case GLFW_REPEAT:
-					{
-						KeyPressedEvent event(key, 1);
-						data.EventCallback(event);
-						break;
-					}
+				case GLFW_PRESS:
+				{
+					KeyPressedEvent event(key, 0);
+					data->EventCallback(event);
+					break;
+				}
+				case GLFW_RELEASE:
+				{
+					KeyReleaseEvent event(key);
+					data->EventCallback(event);
+					break;
+				}
+				case GLFW_REPEAT:
+				{
+					KeyPressedEvent event(key, 1);
+					data->EventCallback(event);
+					break;
+				}
+				default:
+				    RY_CORE_WARN("Not expect Callback Key event!");
+				    break;
 				}
 			});
 
 		glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keyCode)
 			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				WindowData* data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 				KeyTypedEvent event(keyCode);
-				data.EventCallback(event);
+				data->EventCallback(event);
 
 			});
 
-		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int buttom, int actione,  int mods)
+		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
 			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				WindowData* data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
-				switch (actione)
+				switch (action)
 				{
-					case GLFW_PRESS:
-					{
-						MouseButtenPressedEvent event(buttom);
-						data.EventCallback(event);
-						break;
-					}
-					case GLFW_RELEASE:
-					{
-						MouseButtenRealsedEvent event(buttom);
-						data.EventCallback(event);
-						break;
-					}
+				case GLFW_PRESS:
+				{
+					MouseButtenPressedEvent event(button);
+					data->EventCallback(event);
+					break;
+				}
+				case GLFW_RELEASE:
+				{
+					MouseButtenRealsedEvent event(button);
+					data->EventCallback(event);
+					break;
+				}
+				default:
+				    RY_CORE_WARN("Not expect Callback Mouse Butten event!");
 				}
 			});
 
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)
 			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+				WindowData* data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
-				MouseSrolledEvent event((float)xOffset, (float)yOffset);
-				data.EventCallback(event);
+				MouseSrolledEvent event(static_cast<float>(xOffset), static_cast<float>(yOffset));
+				data->EventCallback(event);
 			});
-		
+
 		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
 			{
-				WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-				MouseMoveEvent event((float)xPos, (float)yPos);
-				data.MousePosX = (float)xPos;
-				data.MousePosY = (float)yPos;
+				WindowData* data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+				MouseMoveEvent event(static_cast<float>(xPos), static_cast<float>(yPos));
+				data->MousePosX = static_cast<float>(xPos);
+				data->MousePosY = static_cast<float>(yPos);
 #if RY_CONSOLE_MOUSE_POSTION
-				RY_CORE_WARN("Mouse Postion(x: {0}, y: {1})", xPos, yPos);
+				RY_CORE_WARN("Mouse Position(x: {0}, y: {1})", xPos, yPos);
 #endif
-				data.EventCallback(event);
+				data->EventCallback(event);
 			});
 
-		
-		
-		RY_CORE_INFO("WindowsWindow::Init Succese!");
+		RY_CORE_INFO("Window Callbacks Setup (Required to set callback methode/function withe SetEventCallback)!");
+    }
 
-	}
-
-	void WindowsWindow::Shutdown()
-	{
-		if(m_Context->GetMemoryUsage() != 0)
-			RY_CORE_FATAL("Not Deltet Buffer! {} KB", m_Context->GetMemoryUsage());
-
-		RY_DESTROY_REF(m_Context);
-		glfwDestroyWindow(m_Window);
-	}
-
-	void WindowsWindow::OnUpdate()
+    void WindowsWindow::OnUpdate()
 	{
 		Ref<PlatformTimer> timer = PlatformTimer::Create(&m_UpdateScreeTime);
 		glfwPollEvents();
-		m_Context->SwapBuffers();
+		OnScreenRefresh();
 	}
 
 	void WindowsWindow::OnScreenRefresh()
@@ -287,17 +318,14 @@ namespace Rynex {
 
 	void WindowsWindow::SetVSync(bool enabled)
 	{
-		if (enabled)
-			glfwSwapInterval(1);
-		else
-			glfwSwapInterval(0);
-		
+	    const int interval = enabled ? 1 : 0;
+	    glfwSwapInterval(interval);
 		m_Data.VSync = enabled;
 	}
 
 	bool WindowsWindow::IsFocused() const
 	{
-		return m_Data.Focuse;
+		return m_Data.Focus;
 	}
 
 	bool WindowsWindow::IsVSync() const

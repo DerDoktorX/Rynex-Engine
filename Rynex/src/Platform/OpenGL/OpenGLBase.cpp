@@ -38,27 +38,27 @@ namespace OpenGL {
 		return true;
 	}
 
-    void CheckForAktivContextFunktion(const std::function<void()>& func, const char* name)
+    void CheckForActivContextFunktion(const std::function<void()>& func, const char* name)
     {
         if (Rynex::OpenGLThreadContext::IsActive())
         {
-            RY_CORE_INFO("This Parel Thread has a Aktiv OpenGL Context {}, exute now {}", Rynex::ThreadPool::GetCurentThreadIDstr(), name);
+            RY_CORE_INFO("This Parel Thread has a activ OpenGL Context {}, execute now {}", Rynex::ThreadPool::GetCurentThreadIDstr(), name);
             func();
 
             return;
         }
-        RY_CORE_FATAL("This Parel Thread Has No Aktiv OpenGL Context {}, wil try to {}", Rynex::ThreadPool::GetCurentThreadIDstr(), name);
+        RY_CORE_FATAL("This Parel Thread Has No activ OpenGL Context {}, wil try to {}", Rynex::ThreadPool::GetCurentThreadIDstr(), name);
 
     }
 
-	void CheckForAktivContextResume(const std::function<void()>& func, const char* name)
+	void CheckForActivContextResume(const std::function<void()>& func, const char* name)
     {
         if (Rynex::OpenGLThreadContext::IsActive())
         {
-            RY_CORE_INFO("This Parel Thread has a Aktiv OpenGL Context {}, exute now {}", Rynex::ThreadPool::GetCurentThreadIDstr(), name);
+            RY_CORE_INFO("This Parel Thread has a activ OpenGL Context {}, execute now {}", Rynex::ThreadPool::GetCurentThreadIDstr(), name);
             return;
         }
-        RY_CORE_FATAL("This Parel Thread Has No Aktiv OpenGL Context {}, wil try to {}", Rynex::ThreadPool::GetCurentThreadIDstr(), name);
+        RY_CORE_FATAL("This Parel Thread Has No activ OpenGL Context {}, wil try to {}", Rynex::ThreadPool::GetCurentThreadIDstr(), name);
 
     }
 
@@ -77,7 +77,7 @@ namespace OpenGL {
 
 
         func();
-        RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! Waiting", name);
+        RY_CORE_INFO("From Parel Thread submit Func ({}) to activ on main thread! Waiting", name);
     }
 
 	bool ExecuteResumeOnLocaleThread(const std::function<void()>& func, const char* name)
@@ -91,11 +91,11 @@ namespace OpenGL {
 
 
 		func();
-		RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! Waiting", name);
+		RY_CORE_INFO("From Parel Thread submit Func ({}) to execute on main thread! Waiting", name);
 		return true;
 	}
 
-    glm::uvec2 GetMainWindowCurentSize()
+    glm::uvec2 GetMainWindowCurrentSize()
     {
         Rynex::Application& app = Rynex::Application::Get();
         Rynex::Window& window = app.GetWindow();
@@ -112,24 +112,24 @@ namespace OpenGL {
         RY_DEBUG_BREAK();
     }
 
-    void OnDebugeSource(std::string sourceStr)
+    void OnDebugSource(std::string sourceStr)
 	{
 		RY_CORE_INFO("GL TYPE: ** {} **", sourceStr);
 	}
 
-	void OnDebugeType(std::string typeStr)
+	void OnDebugType(std::string typeStr)
 	{
 		RY_CORE_INFO("GL SOURCE: ** {} **", typeStr);
 	}
 
-	void OnDebugeSeverity(std::string severity)
+	void OnDebugSeverity(std::string severity)
 	{
 		RY_CORE_INFO("GL SEVERITY: ** {} **", severity);
 	}
 
 
 
-	void APIENTRY DebugeOutPut(uint32_t source, uint32_t type, uint32_t id, uint32_t severity, int32_t length, const char* message, const void* userParam)
+	void APIENTRY DebugOutPut(uint32_t source, uint32_t type, uint32_t id, uint32_t severity, int32_t length, const char* message, const void* userParam)
 	{
 #if !RY_ENABLE_GARFIC_API_DBUGE_DETAILD_MASSEGES
 		if (id == 131169u || id == 131185u || id == 131218 || id == 131204)
@@ -139,41 +139,41 @@ namespace OpenGL {
 		RY_CORE_TRACE("OpenGL Debug Message(H: {:x}/D: {:L}): {}", id, id, message);
 		switch (source)
 		{
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSource, GL_DEBUG_SOURCE_API);
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSource, GL_DEBUG_SOURCE_WINDOW_SYSTEM);
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSource, GL_DEBUG_SOURCE_SHADER_COMPILER);
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSource, GL_DEBUG_SOURCE_THIRD_PARTY);
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSource, GL_DEBUG_SOURCE_APPLICATION);
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSource, GL_DEBUG_SOURCE_OTHER);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugSource, GL_DEBUG_SOURCE_API);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugSource, GL_DEBUG_SOURCE_WINDOW_SYSTEM);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugSource, GL_DEBUG_SOURCE_SHADER_COMPILER);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugSource, GL_DEBUG_SOURCE_THIRD_PARTY);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugSource, GL_DEBUG_SOURCE_APPLICATION);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugSource, GL_DEBUG_SOURCE_OTHER);
 		default:
-			RY_CORE_ASSERT(false,"Not Defnind OpenGL debug source!");
+			RY_CORE_ASSERT(false,"Not Defined OpenGL debug source!");
 			break;
 		}
 
 		switch (type)
 		{
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_ERROR);
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR);
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR);
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_PORTABILITY);
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_PERFORMANCE);
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_MARKER);
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_PUSH_GROUP);
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_POP_GROUP);
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeType, GL_DEBUG_TYPE_OTHER);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugType, GL_DEBUG_TYPE_ERROR);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugType, GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugType, GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugType, GL_DEBUG_TYPE_PORTABILITY);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugType, GL_DEBUG_TYPE_PERFORMANCE);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugType, GL_DEBUG_TYPE_MARKER);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugType, GL_DEBUG_TYPE_PUSH_GROUP);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugType, GL_DEBUG_TYPE_POP_GROUP);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugType, GL_DEBUG_TYPE_OTHER);
 		default:
-			RY_CORE_ASSERT(false, "Not Defnind OpenGL debug type!");
+			RY_CORE_ASSERT(false, "Not Defined OpenGL debug type!");
 			break;
 		}
 
 		switch (severity)
 		{
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSeverity, GL_DEBUG_SEVERITY_HIGH);
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSeverity, GL_DEBUG_SEVERITY_LOW);
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSeverity, GL_DEBUG_SEVERITY_MEDIUM);
-			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugeSeverity, GL_DEBUG_SEVERITY_NOTIFICATION);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugSeverity, GL_DEBUG_SEVERITY_HIGH);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugSeverity, GL_DEBUG_SEVERITY_LOW);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugSeverity, GL_DEBUG_SEVERITY_MEDIUM);
+			RY_INTERNLE_GL_CHECK_CASE_LOG_FUNC(OnDebugSeverity, GL_DEBUG_SEVERITY_NOTIFICATION);
 		default:
-			RY_CORE_ASSERT(false, "Not Defnind OpenGL debug severity!");
+			RY_CORE_ASSERT(false, "Not Defined OpenGL debug severity!");
 			break;
 		}
 #if RY_ENABLE_GARFIC_API_DEBUG_MEASGE_DEBUG_BREAK
@@ -230,9 +230,9 @@ namespace OpenGL {
 		}
 	}
 
-	std::string GetTargetStr(uint32_t t)
+	std::string GetTargetStr(uint32_t target)
 	{
-		switch (t)
+		switch (target)
 		{
 			RY_CASE_STR_MACRO(GL_TEXTURE_1D);
 			RY_CASE_STR_MACRO(GL_TEXTURE_2D);
@@ -252,9 +252,9 @@ namespace OpenGL {
 		return "";
 	}
 
-	std::string GetFomateInternelStr2(uint32_t f)
+	std::string GetFormatInternalStr2(uint32_t foramt)
 	{
-		switch (f)
+		switch (foramt)
 		{
 			RY_CASE_STR_MACRO(GL_R8);
 			RY_CASE_STR_MACRO(GL_RG8);
@@ -285,9 +285,9 @@ namespace OpenGL {
 		return "";
 	}
 
-	std::string GetTextureFormateInternelStr(uint32_t inFo)
+	std::string GetTextureFormateInternalStr(uint32_t interalFormate)
 	{
-		switch (inFo)
+		switch (interalFormate)
 		{
 			RY_CASE_STR_MACRO(GL_R8);
 			RY_CASE_STR_MACRO(GL_RG8);
@@ -317,9 +317,9 @@ namespace OpenGL {
 		return "";
 	}
 
-	std::string GetTextureFormateStr(uint32_t f)
+	std::string GetTextureFormateStr(uint32_t formate)
 	{
-		switch (f)
+		switch (formate)
 		{
 			RY_CASE_STR_MACRO(GL_RED);
 			RY_CASE_STR_MACRO(GL_RG);
@@ -404,7 +404,7 @@ namespace OpenGL {
 					break;
 				}
 				default:
-					RY_CORE_ERROR("value is not defnied: [{}] = {} ", i, enumValue);
+					RY_CORE_ERROR("value is not defined: [{}] = {} ", i, enumValue);
 					RY_CORE_ASSERT(false);
 					break;
 				}
@@ -425,7 +425,7 @@ namespace Rynex {
         RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! executing", name);
         Rynex::Application::Get().SubmitToMainThreedQueue(func);
 #else
-        RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! Waiting", name);
+        RY_CORE_INFO("From Parel Thread Submit Func ({}) to execute on main thread! Waiting", name);
         Rynex::Application::Get().SubmitToMainThreedQueueWait(func);
 #endif
         return true;
@@ -442,7 +442,7 @@ namespace Rynex {
 
 
         func();
-        RY_CORE_INFO("From Parel Thread Submite Func ({}) to exexute on main thread! Waiting", name);
+        RY_CORE_INFO("From Parel Thread submit Func ({}) to execute on main thread! Waiting", name);
         return true;
     }
 }

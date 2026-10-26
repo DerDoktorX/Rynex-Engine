@@ -10,10 +10,10 @@ namespace Rynex {
 	enum class EventType
 	{
 		None = 0,
-		WindowClose, WindowResize, WindowMoved, WindowFocuse, Window, WindowLostFocuse, WindowCurserEnter, WindowCurserLeave,
+		WindowClose, WindowResize, WindowMoved, WindowFocus, Window, WindowLostFocus, WindowCurserEnter, WindowCurserLeave,
 		AppTick, AppUpdate, AppRender,
-		KeyPressed, KeyReleased, KeyTyped,
-		MouseButtonPressed, MouseButtonRealsed, MouseMoved, MouseSrolled
+		KeyPressed, KeyRelease, KeyTyped,
+		MouseButtonPressed, MouseButtonRelease, MouseMoved, MouseSroll
 	};
 
 	enum EventCategory
@@ -36,7 +36,9 @@ namespace Rynex {
 	class RYNEX_API Event
 	{
 	public:
+
 		bool Handled = false;
+	    virtual ~Event() { }
 
 		virtual EventType GetEventType() const = 0;
 		virtual const char* GetName() const = 0;
@@ -56,7 +58,7 @@ namespace Rynex {
 		template<typename T>
 		using EventFn = std::function<bool(T&)>;
 	public:
-		EventDispatcher(Event& event)
+        explicit EventDispatcher(Event& event)
 			: m_Event(event)
 		{
 		}

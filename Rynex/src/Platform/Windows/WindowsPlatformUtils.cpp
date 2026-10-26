@@ -46,17 +46,17 @@ namespace Rynex {
 		ofn.lpstrFilter = filter;
 		ofn.nFilterIndex = 1;
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-		std::string fileSellected;
+		std::string fileSelected;
 		if (GetOpenFileNameA(&ofn))
 		{
 			if(nullptr == ofn.lpstrFile)
-				return fileSellected;
+				return fileSelected;
 
-			fileSellected = ofn.lpstrFile;
+			fileSelected = ofn.lpstrFile;
 			RY_CORE_INFO("Fished OpenFile Success!");
 		}
 		
-		return fileSellected;
+		return fileSelected;
 	}
 
 	std::string FileDialoges::SaveFile(const char* filter)
@@ -67,7 +67,7 @@ namespace Rynex {
 		ZeroMemory(&ofn, sizeof(OPENFILENAME));
 		ofn.lStructSize = sizeof(OPENFILENAME);
 		Window& window = Application::Get().GetWindow();
-		GLFWwindow* windowPtr = reinterpret_cast<GLFWwindow*>(window.GetNativeWindow());
+		GLFWwindow* windowPtr = static_cast<GLFWwindow*>(window.GetNativeWindow());
 		ofn.hwndOwner = glfwGetWin32Window(windowPtr);
 		ofn.lpstrFile = szFile;
 		ofn.nMaxFile = sizeof(szFile);
@@ -92,7 +92,7 @@ namespace Rynex {
 		CHAR szPath[MAX_PATH] = { 0 };
 
 		Window& window = Application::Get().GetWindow();
-		GLFWwindow* windowPtr = reinterpret_cast<GLFWwindow*>(window.GetNativeWindow());
+		GLFWwindow* windowPtr = static_cast<GLFWwindow*>(window.GetNativeWindow());
 
 		bi.hwndOwner = glfwGetWin32Window(windowPtr);
 		bi.pszDisplayName = szPath;

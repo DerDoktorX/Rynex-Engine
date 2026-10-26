@@ -106,34 +106,34 @@ namespace Rynex {
 		
 		inline static void DrawIndexedMeshInstecing(uint32_t instecing, const Ref<VertexArray>& vertexArray, uint32_t indexcount = 0)
 		{
-			s_RendererAPI->DrawIndexedMeshInstecing(instecing, vertexArray, indexcount);
+			s_RendererAPI->DrawIndexedMeshInstancing(instecing, vertexArray, indexcount);
 		};
 
 
 		inline static void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, uint32_t drawCount, void* indirectData, uint32_t indirectStrideSize)
 		{
-			s_RendererAPI->DrawMultyMeshIndriect(vertexArray, drawCount, indirectData, indirectStrideSize);
+			s_RendererAPI->DrawMultyMeshIndirect(vertexArray, drawCount, indirectData, indirectStrideSize);
 		};
 
 		template<typename T>
 		inline static void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, uint32_t drawCount, T* indirectData)
 		{
-			s_RendererAPI->DrawMultyMeshIndriect(vertexArray, drawCount, indirectData, sizeof(T));
+			s_RendererAPI->DrawMultyMeshIndirect(vertexArray, drawCount, indirectData, sizeof(T));
 		}
 
 		inline static void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, uint32_t drawCount, uint32_t indirectStrideSize)
 		{
-			s_RendererAPI->DrawMultyMeshIndriect(vertexArray, drawCount, indirectStrideSize);
+			s_RendererAPI->DrawMultyMeshIndirect(vertexArray, drawCount, indirectStrideSize);
 		};
 
 		inline static void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, const Ref<IndirectBuffer>& indriectBuffer, uint32_t drawCount)
 		{
-			s_RendererAPI->DrawMultyMeshIndriect(vertexArray, indriectBuffer, drawCount);
+			s_RendererAPI->DrawMultyMeshIndirect(vertexArray, indriectBuffer, drawCount);
 		};
 
 		inline static void DrawMultyMeshIndriect(const Ref<VertexArray>& vertexArray, const Ref<IndirectBuffer>& indriectBuffer)
 		{
-			s_RendererAPI->DrawMultyMeshIndriect(vertexArray, indriectBuffer);
+			s_RendererAPI->DrawMultyMeshIndirect(vertexArray, indriectBuffer);
 		};
 
 		inline static void DrawElement(const Ref<VertexArray>& vertexArray, const Mesh::PerDrawObject& drawObject)
@@ -171,7 +171,7 @@ namespace Rynex {
 
 		inline static void DispatcheCompute(const glm::vec<3, uint32_t>& groups)
 		{
-			s_RendererAPI->DispatcheCompute(groups);
+			s_RendererAPI->DispatchCompute(groups);
 		};
 
 		inline static void DrawError()
