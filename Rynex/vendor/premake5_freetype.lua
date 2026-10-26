@@ -5,8 +5,8 @@ project "freetype"
     staticruntime "off"
 
 
-	local projectDir = "_msdf-atlas-gen/msdfgen/"
-	location "_msdf-atlas-gen/msdfgen/"
+	local projectDir = "msdf-atlas-gen/msdfgen/"
+	location "msdf-atlas-gen/msdfgen/"
 
 	targetdir (projectDir .. "bin/" .. outputdir .. "/%{prj.name}")
 	objdir (projectDir .. "bin-int/" .. outputdir .. "/%{prj.name}")
@@ -95,8 +95,8 @@ project "msdfgen"
 	cppdialect "C++17"
     staticruntime "off"
 
-	projectDir = "_msdf-atlas-gen/msdfgen/"
-	location "_msdf-atlas-gen/msdfgen/"
+	projectDir = "msdf-atlas-gen/msdfgen/"
+	location "msdf-atlas-gen/msdfgen/"
 
 	targetdir (projectDir .. "bin/" .. outputdir .. "/%{prj.name}")
 	objdir (projectDir .. "bin-int/" .. outputdir .. "/%{prj.name}")

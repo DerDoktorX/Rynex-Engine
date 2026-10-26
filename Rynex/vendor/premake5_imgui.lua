@@ -15,8 +15,8 @@ project "ImGui"
 	cppdialect "C++17"
 
 
-	local projectDir = "_imgui/"
-	location "_imgui"
+	local projectDir = "imgui/"
+	location "imgui"
 
 	targetdir (projectDir .. "/bin/" .. outputdir .. "/%{prj.name}")
 	objdir (projectDir .. "/bin-int/" .. outputdir .. "/%{prj.name}")

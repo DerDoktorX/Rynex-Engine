@@ -15,8 +15,8 @@ project "assimp"
 	cppdialect "C++17"
 	
 	
-	local projectDir = "_assimp/"
-	location "_assimp"
+	local projectDir = "assimp/"
+	location "assimp"
 
 	
 	

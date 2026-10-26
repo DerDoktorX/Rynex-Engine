@@ -19,8 +19,8 @@ project( "meshoptimizer" )
     language "C++"
 	cppdialect "C++17"
 
-    local projectDir = "_meshoptimizer/"
-	location "_meshoptimizer/"
+    local projectDir = "meshoptimizer/"
+	location "meshoptimizer/"
 
     targetdir ( "" .. projectDir .. "bin/" .. outputdir .. "/%{prj.name}")
     objdir ("" .. projectDir .. "bin/-int/" .. outputdir .. "/%{prj.name}")
