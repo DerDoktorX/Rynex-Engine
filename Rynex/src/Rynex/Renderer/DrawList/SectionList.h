@@ -52,6 +52,12 @@ namespace Rynex {
             return m_SectionVec[last];
         }
 
+        Section& Get(const Unit index)
+        {
+            RY_CORE_ASSERT(index < m_Used, "Section index out of range!");
+            return m_SectionVec[index];
+        }
+
         const Section& Get(const Unit index) const
         {
             RY_CORE_ASSERT(index < m_Used, "Section index out of range!");
