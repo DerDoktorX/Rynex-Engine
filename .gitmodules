@@ -4,9 +4,6 @@
 [submodule "Rynex/vendor/_yaml-cpp"]
 	path = Rynex/vendor/_yaml-cpp
 	url = https://github.com/TheCherno/yaml-cpp
-[submodule "Rynex/vendor/_ImGizmo"]
-	path = Rynex/vendor/_ImGizmo
-	url = https://github.com/TheCherno/ImGuizmo
 [submodule "Rynex/vendor/_imgui"]
 	path = Rynex/vendor/_imgui
 	url = https://github.com/DerDoktorX/imgui
