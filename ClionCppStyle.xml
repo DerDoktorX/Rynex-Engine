@@ -1,0 +1,34 @@
+<code_scheme name="Project" version="173">
+  <option name="AUTODETECT_INDENTS" value="false" />
+  <RiderCodeStyleSettings>
+    <option name="/Default/CodeStyle/CodeFormatting/CppFormatting/NAMESPACE_DECLARATION_BRACES/@EntryValue" value="END_OF_LINE" type="string" />
+    <option name="/Default/CodeStyle/CppIncludeDirective/SortIncludeDirectives/@EntryValue" value="true" type="bool" />
+    <option name="/Default/CodeStyle/CppIncludeDirective/UseRelativePaths/@EntryValue" value="Never" type="string" />
+    <option name="/Default/CodeStyle/CppIncludeDirective/UseAngleBracketsInsteadOfQuotes/@EntryValue" value="WhenPossible" type="string" />
+  </RiderCodeStyleSettings>
+  <files>
+    <extensions>
+      <pair source="cpp" header="h" fileNamingConvention="PASCAL_CASE" />
+      <pair source="c" header="h" fileNamingConvention="NONE" />
+      <pair source="cu" header="cuh" fileNamingConvention="NONE" />
+      <pair source="ixx" header="" fileNamingConvention="NONE" />
+      <pair source="mxx" header="" fileNamingConvention="NONE" />
+      <pair source="cppm" header="" fileNamingConvention="NONE" />
+      <pair source="ccm" header="" fileNamingConvention="NONE" />
+      <pair source="cxxm" header="" fileNamingConvention="NONE" />
+      <pair source="c++m" header="" fileNamingConvention="NONE" />
+    </extensions>
+  </files>
+  <codeStyleSettings language="CMake">
+    <indentOptions>
+      <option name="CONTINUATION_INDENT_SIZE" value="6" />
+      <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
+    </indentOptions>
+  </codeStyleSettings>
+  <codeStyleSettings language="yaml">
+    <indentOptions>
+      <option name="INDENT_SIZE" value="4" />
+      <option name="KEEP_INDENTS_ON_EMPTY_LINES" value="true" />
+    </indentOptions>
+  </codeStyleSettings>
+</code_scheme>
