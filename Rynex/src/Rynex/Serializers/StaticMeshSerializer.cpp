@@ -122,7 +122,7 @@ namespace Rynex {
 			const AssetHandle handle{ nodeE["Handle"].as<uint64_t>(AssetHandle::Zero().GetHash()) };
 
 
-			const AssetFindeInfo info(handle, path, markedPath);
+			const AssetFindInfo info(handle, path, markedPath);
 			storeAsset = AssetManager::FindAsset<T>(info);
 
 			return nullptr != storeAsset;

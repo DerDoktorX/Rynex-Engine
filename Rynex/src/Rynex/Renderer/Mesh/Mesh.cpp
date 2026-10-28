@@ -250,51 +250,6 @@ namespace Rynex {
     }
 
 
-
-   
-    // old Version
-    Ref<MeshStatic> Mesh::CreateStaticMeshOld(Ref<MeshSource> source)
-    {
-        Ref<MeshStatic> meshStatic = source->GetStaticMesh();
-        if (meshStatic != nullptr)
-        {
-            return meshStatic;
-        }
-        uint32_t i = 0;
-        const std::vector<Ref<VertexBuffer>>& vabVec = source->GetVertexBufferVec();
-        const std::vector<Ref<IndexBuffer>>& iabVec = source->GetShadeIndexBufferVec();
-
-        const Ref<StorageBuffer>& ssboM = source->GetOffsetBuffer();
-
-        const MeshSource::EntityNodes& node = source->GetNodes();
-        std::vector<Ref<Material>>& materiels = source->GetMaterialsVec();
-
-
-        if (!source->HasMeshDataGenerated())
-        {
-            source->GenerateMeshDataIndividuallyBuffer();
-        }
-        
-        std::vector<Mesh::PerDrawObject>& pdo = source->GetPerDrawObjectsShadeVec();
-
-
-        std::vector<Mesh::MeshRenderObject> meshRenderObject;
-        Utils::GenartaeStaticMatrixBuffer(node, meshRenderObject, source);
-
-        std::vector<MeshStatic::SingleObjectMeshData> singleMeshData = std::move(
-            Utils::GenartaeMeshStaicPackedSigleMeshData(meshRenderObject)
-        );
-
-
-        meshStatic = CreateRef<MeshStatic>(source, singleMeshData);
-
-        source->SetStaticMesh(meshStatic);
-
-        return meshStatic;
-    }
-
-
-    // new Version
     Ref<MeshStatic> Mesh::CreateStaticMesh(Ref<MeshSource> source)
     {
         Ref<MeshStatic> meshStatic = source->GetStaticMesh();

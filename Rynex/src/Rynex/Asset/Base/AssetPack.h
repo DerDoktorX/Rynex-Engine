@@ -5,7 +5,7 @@ namespace Rynex {
 	class AssetPack
 	{
 	public:
-		AssetPack(const std::filesystem::path& assetPackFile);
+        explicit AssetPack(const std::filesystem::path& assetPackFile);
 		void Serilize();
 		
 		void GetAsset();

@@ -84,29 +84,25 @@ namespace Rynex {
     };
 
     // True when no bit is set in more than one of the four masks.
-    constexpr bool AreMasksDisjoint(const uint64_t first, const uint64_t second, const uint64_t third, const uint64_t fourth, const uint64_t five)
+    constexpr bool AreMasksDisjoint(const uint64_t first, const uint64_t second, const uint64_t third, const uint64_t fourth)
     {
         const uint64_t firstSecond = first & second;
         const uint64_t firstThird = first & third;
         const uint64_t firstFourth = first & fourth;
-        const uint64_t firstFive = first & five;
+
         const uint64_t secondThird = second & third;
         const uint64_t secondFourth = second & fourth;
-        const uint64_t secondFive = second & five;
+
         const uint64_t thirdFourth = third & fourth;
-        const uint64_t thirdFive = third & five;
-        const uint64_t fourthFive = fourth & five;
+
+
 
 
         uint64_t overlap = firstSecond | firstThird;
         overlap |= firstFourth;
-        overlap |= firstFive;
         overlap |= secondThird;
         overlap |= secondFourth;
-        overlap |= secondFive;
         overlap |= thirdFourth;
-        overlap |= thirdFive;
-        overlap |= fourthFive;
         return 0ull == overlap;
     }
 
@@ -115,7 +111,7 @@ namespace Rynex {
         uint32_t count = 0u;
         for (int i = 0; i < 64; i++)
         {
-            constexpr uint64_t bitValue = BIT(i);
+            const uint64_t bitValue = BIT(i);
             if (0 != (slotMask & bitValue))
                 count++;
         }
@@ -129,12 +125,12 @@ namespace Rynex {
         constexpr int bitCount = lastBitPos - 1;
         for (int i = bitCount; 0 <= i; i--)
         {
-            constexpr uint64_t bitValue = BIT(i);
+            const uint64_t bitValue = BIT(i);
             if (0 != (slotMask & bitValue))                             // { 0111                   | 0101 }
             {
-                constexpr int indexBevor = i + 1;
-                constexpr uint64_t bitValueBevor = BIT(indexBevor);     // 1000
-                constexpr uint64_t onlyOneBitExpected = slotMask + 1;   // { 0111 + 1 = 1000        | 0101 + 1 = 0110 }
+                const int indexBevor = i + 1;
+                const uint64_t bitValueBevor = BIT(indexBevor);         // 1000
+                const uint64_t onlyOneBitExpected = slotMask + 1;       // { 0111 + 1 = 1000        | 0101 + 1 = 0110 }
                 return bitValueBevor != onlyOneBitExpected;             // { 1000 != 1000 = false   | 1000 != 0110 = true }
             }
         }

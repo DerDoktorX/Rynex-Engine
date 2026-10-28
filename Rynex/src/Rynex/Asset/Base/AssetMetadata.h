@@ -159,11 +159,11 @@ namespace Rynex {
 			return BIT_EQUAL(m_Flags, BIT(5));
 		}
 
-		operator bool() const 
-		{ 
-			bool isType = m_Type != AssetType::None;
-			bool isActive = GetActive();
-			bool isChangeTime = m_ChangeTime != "0000-00-00 00:00:00";
+        explicit operator bool() const
+		{
+			const bool isType = m_Type != AssetType::None;
+			const bool isActive = GetActive();
+			const bool isChangeTime = "0000-00-00 00:00:00" != m_ChangeTime;
 			return isType && isActive && isChangeTime;
 		}
 

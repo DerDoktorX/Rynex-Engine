@@ -35,166 +35,6 @@ namespace Rynex {
 	            out << YAML::Key << name << YAML::Value << value;
 	        }
 
-	    	static void SerializerDynamicData(YAML::Emitter& out, const std::string& name, ShaderDataType type, const std::vector<unsigned char>& data)
-	        {
-	        	switch (type)
-	        	{
-	        	case ShaderDataType::Float:
-	        	{
-	        	    CastDataToValueType<float>(out, name, data);
-	        		break;
-	        	}
-	        	case ShaderDataType::Float2:
-	        	{
-	        	    CastDataToValueType<glm::vec2>(out, name, data);
-	        		break;
-	        	}
-	        	case ShaderDataType::Float3:
-	        	{
-	        	    CastDataToValueType<glm::vec3>(out, name, data);
-	        		break;
-	        	}
-	        	case ShaderDataType::Float4:
-	        	{
-	        	    CastDataToValueType<glm::vec4>(out, name, data);
-	        		break;
-	        	}
-	        	case ShaderDataType::Float3x3:
-	        	{
-	        	    CastDataToValueType<glm::mat3>(out, name, data);
-	        		break;
-	        	}
-	        	case ShaderDataType::Float4x4:
-	        	{
-	        	    CastDataToValueType<glm::mat4>(out, name, data);
-	        		break;
-	        	}
-	        	case ShaderDataType::Int:
-	        	{
-	        	    CastDataToValueType<int>(out, name, data);
-	        		break;
-	        	}
-	        	case ShaderDataType::Int2:
-	        	{
-	        	    CastDataToValueType<glm::ivec2>(out, name, data);
-	        		break;
-	        	}
-	        	case ShaderDataType::Int3:
-	        	{
-	        	    CastDataToValueType<glm::ivec3>(out, name, data);
-	        		break;
-	        	}
-	        	case ShaderDataType::Int4:
-	        	{
-	        	    CastDataToValueType<glm::ivec4>(out, name, data);
-	        		break;
-	        	}
-	        	}
-	        }
-
-	    	static void SerializerDynamicDataLayout(YAML::Emitter& out, const std::string& name, const BufferLayout& layout, const std::vector<unsigned char>& data)
-	        {
-	        	out << YAML::Key << name.c_str() << YAML::BeginSeq;
-
-
-	        	for (uint64_t offset = 0, size = data.size(); offset < size; offset += layout.GetStride())
-	        	{
-	        		for (const BufferElement& ellement : layout)
-	        		{
-
-	        			switch(ellement.m_Type)
-	        			{
-	        			case ShaderDataType::Float:
-	        			{
-	        				float* value = (float*)(data.data() + offset);
-	        				out << YAML::Value << *value;
-	        				break;
-	        			}
-	        			case ShaderDataType::Float2:
-	        			{
-	        				glm::vec<2, float>* value = (glm::vec<2, float>*)(data.data() + offset);
-	        				out << YAML::Value << *value;
-	        				break;
-	        			}
-	        			case ShaderDataType::Float3:
-	        			{
-	        				glm::vec<3, float>* value = (glm::vec<3, float>*)(data.data() + offset);
-	        				out << YAML::Value << *value;
-	        				break;
-	        			}
-	        			case ShaderDataType::Float4:
-	        			{
-	        				glm::vec<4, float>* value = (glm::vec<4, float>*)(data.data() + offset);
-	        				out << YAML::Value << *value;
-	        				break;
-	        			}
-	        			case ShaderDataType::Float3x3:
-	        			{
-	        				glm::mat<3, 3, float>* value = (glm::mat<3, 3, float>*)(data.data() + offset);
-	        				out << YAML::Value << *value;
-	        				break;
-	        			}
-	        			case ShaderDataType::Float4x4:
-	        			{
-	        				glm::mat<4, 4, float>* value = (glm::mat<4, 4, float>*)(data.data() + offset);
-	        				out << YAML::Value << *value;
-	        				break;
-	        			}
-	        			case ShaderDataType::Int:
-	        			{
-	        				int* value = (int*)(data.data() + offset);
-	        				out << YAML::Value << *value;
-	        				break;
-	        			}
-	        			case ShaderDataType::Int2:
-	        			{
-	        				glm::vec<2, float>* value = (glm::vec<2, float>*)(data.data() + offset);
-	        				out << YAML::Value << *value;
-	        				break;
-	        			}
-	        			case ShaderDataType::Int3:
-	        			{
-	        				glm::vec<3, float>* value = (glm::vec<3, float>*)(data.data() + offset);
-	        				out << YAML::Value << *value;
-	        				break;
-	        			}
-	        			case ShaderDataType::Int4:
-	        			{
-	        				glm::vec<4, float>* value = (glm::vec<4, float>*)(data.data() + offset);
-	        				out << YAML::Value << *value;
-	        				break;
-	        			}
-                        case ShaderDataType::None:
-                            break;
-                        case ShaderDataType::Int3x3:
-                            break;
-                        case ShaderDataType::Int4x4:
-                            break;
-                        case ShaderDataType::Uint:
-                            break;
-                        case ShaderDataType::Uint2:
-                            break;
-                        case ShaderDataType::Uint3:
-                            break;
-                        case ShaderDataType::Uint4:
-                            break;
-                        case ShaderDataType::Uint3x3:
-                            break;
-                        case ShaderDataType::Uint4x4:
-                            break;
-                        case ShaderDataType::Texture:
-                            break;
-                        case ShaderDataType::Texture2D:
-                            break;
-                        case ShaderDataType::TextureCube:
-                            break;
-                        case ShaderDataType::TextureArray:
-                            break;
-                        }
-	        		}
-	        	}
-	        	out << YAML::EndSeq;
-	        }
 
 	    	static void SerializerAssetFormate(YAML::Emitter& out, const std::string& name, AssetHandle handle)
 	    	{
@@ -266,9 +106,9 @@ namespace Rynex {
 	        template<>
             void SerializerComponent<TransformComponent>(YAML::Emitter& out, const TransformComponent& component, const Ref<Scene>& scene)
 	        {
-	            out << YAML::Key << "Transaltion" << component.m_Transform;
-	            out << YAML::Key << "Rotation" << component.m_Rotation;
-	            out << YAML::Key << "Scale" << component.m_Scale;
+	            out << YAML::Key << "Transaltion" << YAML::Value << component.m_Transform;
+	            out << YAML::Key << "Rotation" << YAML::Value << component.m_Rotation;
+	            out << YAML::Key << "Scale" << YAML::Value << component.m_Scale;
 	        }
 
 	        template<>
@@ -841,11 +681,11 @@ namespace Rynex {
 		        if (YAML::Node nodeAtribut = nodeE["Path-ProjectMarker"])
 			        makredPathStr = nodeAtribut.as<std::string>();
 
-		        AssetHandle handle = nodeE["Handle"].as<uint64_t>();
+		        AssetHandle handle(nodeE["Handle"].as<uint64_t>());
 
 		        FileSystem::Path path(pathStr);
 		        FileSystem::Path makredPath(makredPathStr);
-		        AssetFindeInfo info = AssetFindeInfo(handle, path, makredPath);
+		        AssetFindInfo info = AssetFindInfo(handle, path, makredPath);
 		        *entityC = AssetManager::FindAsset<T>(info);
 
 		        return true;
@@ -876,7 +716,7 @@ namespace Rynex {
         #endif
                 FileSystem::Path path(pathStr);
 		        FileSystem::Path makredPath(makredPathStr);
-		        AssetFindeInfo info(handle, path, makredPath);
+		        AssetFindInfo info(handle, path, makredPath);
 
 		        int entityID = entity.GetEntityHandle();
 		        Ref<Scene> scene = entity.GetScene();
@@ -889,7 +729,7 @@ namespace Rynex {
 				        loadePromisRefL = CreateRef<SceneLodePromisType<T>>(sceneL, onSceneAssetLoadedEntityFunc, entityIDL);
 				        AssetManager::GetAssetAsyncPromis<T, Scene, int>(handle, loadePromisRefL);
 			        };
-		        AssetManager::FindeAssetAsync(info, func);
+		        AssetManager::FindAssetAsync(info, func);
 
 		        return loadePromis;
 	        }
