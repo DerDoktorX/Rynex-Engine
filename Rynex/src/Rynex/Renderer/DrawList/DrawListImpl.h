@@ -92,12 +92,6 @@ namespace Rynex {
         // Frame reset. Controls keep their allocations, the template stays.
         void Clear()
         {
-            m_InstanceControl.Clear();
-            m_GeometryControl.Clear();
-            m_MaterielControl.Clear();
-            m_Stats = DrawListStats();
-            m_Remaining = 0u;
-            m_NewGroup = true;
         }
 
         // One ShaderDrawResource per chunk is appended to out. No cutting here, the chunks already exist.
