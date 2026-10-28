@@ -11,15 +11,11 @@ namespace Rynex {
     class DrawListImpl
     {
     public:
-        using InstanceResources = typename InstanceControl::Resources;
-        using GeometryResources = typename GeometryControl::Resources;      // Ref<MeshSingle>, std::vector<Vertex>, AssetHandle, ...
-        using MaterielResources = typename MaterielControl::Resources;      // Ref<Material>, AssetHandle, ...
-        using DrawResources = typename DrawController::Resources;
+        using InstanceSource = typename InstanceControl::Source;
+        using GeometrySource = typename GeometryControl::Source;      // Ref<MeshSingle>, std::vector<Vertex>, AssetHandle, ...
+        using MaterielSource = typename MaterielControl::Source;      // Ref<Material>, AssetHandle, ...
+        using DrawSource = typename DrawController::Source;
 
-        using InstanceChunk = typename InstanceControl::Chunk;
-        using GeometryChunk = typename GeometryControl::Chunk;
-        using MaterielChunk = typename MaterielControl::Chunk;
-        using DrawResources = typename DrawController::Chunk;
 
         using MaterielIndices = typename MaterielControl::Indices;          // per instance indices, NoIndices if none
         using GeometryIndices = typename GeometryControl::Indices;
@@ -42,20 +38,20 @@ namespace Rynex {
         }
 
         // Shader, camera and other fixed bindings. Copied once per chunk.
-        void SetTemplate(const DrawResources& templ)
+        void SetTemplate(const DrawSource& templ)
         {
         }
 
-        void SetGeometry(const GeometryResources& geometry)
+        void SetGeometry(const GeometrySource& geometry)
         {
         }
 
-        void SetMateriel(const MaterielResources& material)
+        void SetMateriel(const MaterielSource& material)
         {
         }
 
         // Hot path: one compare, no allocation, no map, no virtual call. The geometry control is not involved.
-        void Add(const InstanceResources& instance)
+        void Add(const InstanceSource& instance)
         {
             if constexpr (s_MaterielIndicesFieldEnabled)
             {
