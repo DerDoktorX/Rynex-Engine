@@ -7,9 +7,7 @@
 #include <Rynex/Renderer/DrawList/SectionList.h>
 #include <Rynex/Renderer/Rendering/ShaderDrawList.h>
 
-namespace Rynex::DrawListPolicy {
-
-    
+namespace Rynex {
 
     class SingleMaterial
     {

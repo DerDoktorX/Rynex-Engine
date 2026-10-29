@@ -13,7 +13,7 @@ namespace Rynex {
         using Source = typename Control::Source;        // a memory block that stores input data.
         using Section = typename Control::Section;      // a memory block for on draw call.
         using Interface = typename Control::Interface;  // a interface for store current section ptr and has alle methods for interact withe per Section data. (Set/Add, Capacity, HasStorage, SetSection, GetSection, IsSectionEmpty, GetStorage)
-                                                        // Should have static methods that can check that Source is valid or make it empty. (IsSourceEmpty, {ClearSource})
+                                                        // Should have static methods that can check that Source is valid, checks for a difference between source or make it empty. (IsSourceEmpty, IsSourceEqual, {ClearSource})
         using Build = typename Control::CommandBuild;   // a interface for methods build render command. It stores the reference from the Chunk Object and from CachedBufferRegister (CollectVertexBuffer, CommandUpload)
 
         using Container = std::vector<Section>;
@@ -23,10 +23,11 @@ namespace Rynex {
             : m_SectionVec(7)
             , m_Interface()
             , m_Cached(Source{})
-            , m_Used(0)
+            , m_Used(1)
         {
             Section* sectionPtr = m_SectionVec.data();
             m_Interface.SetSection(sectionPtr);
+
         }
         
         ~ControlSlot()
@@ -51,18 +52,27 @@ namespace Rynex {
          */
         DrawSplit SetOnInterface(const Source& source)
         {
-            RY_CORE_ASSERT(!Interface::IsEmpty(m_Cached), "Cache is Empty!");
-            m_Cached = source;
+            RY_CORE_ASSERT(!Interface::IsSourceEmpty(m_Cached), "Cache is Empty!");
+            if (Interface::IsSourceEmpty(m_Cached, source))
+                m_Cached = source;
             return m_Interface.HasStorage(m_Cached);
         }
 
         /**
-         * uploade the last submitted source data throw the Interface. Usefully if there is just overrides only the last set cache will be submitted or if there is a new section we have the last needed source data.
+         * upload the last submitted source data throw the Interface. Usefully if there is just overrides only the last set cache will be submitted or if there is a new section we have the last needed source data.
          */
         void UploadCacheOnInterface()
         {
-            RY_CORE_ASSERT(!Interface::IsEmpty(m_Cached), "Cache is Empty!");
+            RY_CORE_ASSERT(!Interface::IsSourceEmpty(m_Cached), "Cache is Empty!");
             m_Interface.Set(m_Cached);
+        }
+
+        /**
+         * clears the section inside the interface.
+         */
+        void ClearSection()
+        {
+            m_Interface.ClearSection();
         }
 
         /**
@@ -87,7 +97,7 @@ namespace Rynex {
 
             Section& section = m_SectionVec[m_Used];
             m_Used++;
-            Section& sectionPtr = &section;
+            Section* sectionPtr = &section;
             m_Interface.SetSection(sectionPtr);
         }
 
@@ -95,7 +105,7 @@ namespace Rynex {
          * how many ellements the in the current Section are.
          * @return element count, from Interface.
          */
-        uint32_t GetSectionCount()
+        Unit GetSectionCount()
         {
             return m_Interface.GetStoredCount();
         }
@@ -109,6 +119,11 @@ namespace Rynex {
             RY_CORE_ASSERT(0u < m_Used, "No open section!");
             const Unit last = m_Used - 1u;
             return m_SectionVec[last];
+        }
+
+        Interface& CurrentInterface()
+        {
+            return m_Interface;
         }
 
         /**
@@ -134,10 +149,7 @@ namespace Rynex {
             return m_Interface;
         }
 
-        Interface& CurrentInterface()
-        {
-            return m_Interface;
-        }
+
 
         Section& Get(const Unit index)
         {
@@ -166,7 +178,7 @@ namespace Rynex {
             return Build{ cache, *sectionPtr, draw };
         }
 
-        static void CollectVertexBuffer([[maybe_unused]] Build& build, [[maybe_unused]] Span<Ref<VertexBuffer>>& vertexBufferSpan)
+        static void CollectVertexBuffer([[maybe_unused]] Build& build, [[maybe_unused]] Span<VertexArray::VertexElements>& vertexElementsSpan)
         {
             if constexpr (Build::s_HasVertexBuffer)
                 build.CollectVertexBuffer(vertexBufferSpan);

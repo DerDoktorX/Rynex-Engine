@@ -75,12 +75,10 @@ namespace Rynex {
 
     // What one geometry contributes to a command. The GeometryControl fills it, the CommandControl builds its DrawObject from it.
     // Meaning of m_VertexElementCount (vertices or VertexElements) is open, FEATURE.md Q16.
-    struct GeometryDrawInfo
+    struct GeometryCommandInfo
     {
         uint32_t m_IndexCount = 0u;
         uint32_t m_VertexElementCount = 0u;
-        uint32_t m_FirstIndex = 0u;
-        int32_t m_BaseVertex = 0;
     };
 
     // True when no bit is set in more than one of the four masks.

@@ -62,31 +62,39 @@ namespace Rynex {
         // Hot path: one compare, no allocation, no map, no virtual call. The geometry control is not involved.
         void Add(const InstanceSource& instance)
         {
-            if constexpr (s_MaterielIndicesFieldEnabled)
-            {
-                const MaterielIndices& indices = m_MaterielControl.GetIndices();
-                m_InstanceControl.Add(source, indices);
-            }
-            else
-            {
-                m_InstanceControl.Add(source);
-            }
+            CommandInterface& commandInterface = m_CommandSlot.CurrentInterface();
+            GeometryInterface& geometryInterface = m_GeometrySlot.CurrentInterface();
+            MaterielInterface& materielInterface = m_MaterielSlot.CurrentInterface();
+            instance.SetCommand(commandInterface.GetInstance());
+            instance.SetGeometry(geometryInterface.GetInstance());
+            instance.SetMateriel(materielInterface.GetInstance());
+
+            m_InstanceSlot.AddOnInterface(instance);
         }
 
-        // Smallest capacity of all controls for the open (or the next) chunk. No side effect.
-        Unit GetEffectiveCapacity() const
+        // Smallest count of all controls for the open (or the next) chunk. No side effect.
+        Unit GetEffectiveCount() const
         {
-            const Unit geometryCapacity = m_GeometryControl.GetCapacity();
-            const Unit materielCapacity = m_MaterielControl.GetCapacity();
-            const Unit instanceCapacity = m_InstanceControl.GetCapacity();
-            const Unit minGeometryMaterielCapacity = std::min(geometryCapacity, materielCapacity);
-            const Unit minCapacity = std::min(minGeometryMaterielCapacity, instanceCapacity);
-            return minCapacity;
+            const Unit geometrySectionCount = m_GeometrySlot.GetSectionCount();
+            const Unit materielSectionCount = m_MaterielSlot.GetSectionCount();
+            const Unit instanceSectionCount = m_InstanceSlot.GetSectionCount();
+            const Unit commandSectionCount = m_CommandSlot.GetSectionCount();
+            const Unit minCommandGeometryCount = std::min(commandSectionCount, geometrySectionCount);
+            const Unit minMaterielInstanceCount = std::min(materielSectionCount, instanceSectionCount);
+            const Unit minCount = std::min(minCommandGeometryCount, minMaterielInstanceCount);
+            return minCount;
         }
 
         Unit GetCount() const
         {
-            return m_InstanceControl.GetCount();
+            const Unit geometryCount = m_GeometrySlot.GetCount();
+            const Unit instanceCount = m_InstanceSlot.GetCount();
+            const Unit materielCount = m_MaterielSlot.GetCount();
+            const Unit commandCount = m_CommandSlot.GetCount();
+            const Unit commandGeometryMaxCount = std::max(geometryCount, commandCount);
+            const Unit materielInstanceMaxCount = std::max(materielCount, instanceCount);
+            const Unit count = std::max(commandGeometryMaxCount, materielInstanceMaxCount);
+            return count;
         }
 
         bool IsEmpty() const
@@ -97,11 +105,15 @@ namespace Rynex {
         // Frame reset. Controls keep their allocations, the template stays.
         void Clear()
         {
+            m_InstanceSlot.Clear();
+            m_MaterielSlot.Clear();
+            m_GeometrySlot.Clear();
+            m_CommandSlot.Clear();
+
         }
 
         // One ShaderDrawResource per chunk is appended to out. No cutting here, the chunks already exist.
-        template<typename BufferRegister>
-        void Flush(std::vector<ShaderDrawResource>& out, BufferRegister& bufferRegister)
+        void FlushCommands(std::vector<ShaderDrawResource>& out, CachedBuffer& bufferRegister)
         {
             const Unit chunkCountInstance = m_MaterielControl.GetSectionCount();
             const Unit chunkCountGeometry = m_GeometryControl.GetSectionCount();
@@ -124,20 +136,39 @@ namespace Rynex {
     private:
         using VertexElementArray = std::array<VertexArray::VertexElements, s_VertexBufferCount>;
     // --- private member method ---------------------------------------------------------------------------------------
-
-        // Forces the next Add() into the slow path. The group is counted when the chunk opens, not here.
-        void RequestNewGroup()
+        /**
+         * alle processors, that need to be fished bevor open a new section or bevor start a new indirect element.
+         */
+        void FlushSection()
         {
+            Unit instanceCount = m_InstanceSlot.GetSectionCount();
+            Unit materielCount = m_MaterielSlot.GetSectionCount();
+            GeometryCommandInfo geometryInfo = m_GeometrySlot.GetGeometryInfo();
+
+            CommandInterface& commandInterface = m_CommandSlot.CurrentInterface();
+            commandInterface.Set(geometryInfo, instanceCount, materielCount);
         }
 
         // New draw call. Fixed order: Geometry, Materiel, Instance. Every control stores its current state as the new section.
-        void OpenChunk()
+        void OpenSection()
         {
+            m_InstanceSlot.OpenNextSection();
+            m_MaterielSlot.OpenNextSection();
+            m_GeometrySlot.OpenNextSection();
+            m_CommandSlot.OpenNextSection();
+
+            m_InstanceSlot.ClearSection();
+            m_MaterielSlot.ClearSection();
+            m_GeometrySlot.ClearSection();
+            m_CommandSlot.ClearSection();
+
+            m_InstanceSlot.UploadCacheOnInterface();
+            m_MaterielSlot.UploadCacheOnInterface();
+            m_GeometrySlot.UploadCacheOnInterface();
         }
 
         // Only place that builds the VAO. VAO hash with per frame instance buffers.
-        template<typename BufferRegister>
-        Ref<VertexArray> AcquireVertexArray(const Unit sectionIndex, const VertexElementArray& elements, BufferRegister& bufferRegister) const
+        Ref<VertexArray> AcquireVertexArray(const Unit sectionIndex, const VertexElementArray& elements, CachedBufferRegister& bufferRegister) const
         {
             Ref<IndexBuffer> indexBuffer = nullptr;
             if constexpr (0u < GeometryControl::s_IndexBufferCount)
@@ -150,7 +181,11 @@ namespace Rynex {
 
 
     // --- private member variables ------------------------------------------------------------------------------------
-
+        ControlSlot<InstanceControl> m_InstanceSlot;
+        ControlSlot<MaterielControl> m_MaterielSlot;
+        ControlSlot<GeometryControl> m_GeometrySlot;
+        ControlSlot<DrawController> m_CommandSlot;
+        DrawSplit m_Stats;
     };
 
 }
