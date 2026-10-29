@@ -1,7 +1,7 @@
 #pragma once
 // DrawListTypes created in Project Rynex-Rendering on 04/10/2026.
 #include <rypch.h>
-#include <Rynex/Renderer/ChachedRegister/CachedBufferRegister.h>
+#include <Rynex/Renderer/CachedRegister/CachedBufferRegister.h>
 #include <Rynex/Renderer/Rendering/ShaderDrawList.h>
 
 namespace Rynex {

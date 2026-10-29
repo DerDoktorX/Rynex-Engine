@@ -7,11 +7,11 @@
 #include <Rynex/Renderer/API/Texture.h>
 #include <Rynex/Renderer/API/VertexArray.h>
 
-#include <Rynex/Renderer/ChachedRegister/BufferControlller.h>
-#include <Rynex/Renderer/ChachedRegister/StoredBufferRegister.h>
-#include <Rynex/Renderer/ChachedRegister/StoredKey.h>
-#include <Rynex/Renderer/ChachedRegister/UniqueBufferRegister.h>
-#include <Rynex/Renderer/ChachedRegister/UniqueKey.h>
+#include <Rynex/Renderer/CachedRegister/BufferControlller.h>
+#include <Rynex/Renderer/CachedRegister/StoredBufferRegister.h>
+#include <Rynex/Renderer/CachedRegister/StoredKey.h>
+#include <Rynex/Renderer/CachedRegister/UniqueBufferRegister.h>
+#include <Rynex/Renderer/CachedRegister/UniqueKey.h>
 
 
 // #define RY_VERTEX_BUFFER_REGISTER

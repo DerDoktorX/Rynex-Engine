@@ -3,24 +3,33 @@
 #include <rypch.h>
 #include <Rynex/Renderer/API/Buffer.h>
 #include <Rynex/Renderer/DrawList/DrawListTypes.h>
+#include <Rynex/Renderer/DrawList/ControlSlot.h>
+
 #include <Rynex/Renderer/Rendering/ShaderDrawList.h>
+
+
 
 namespace Rynex {
 
-    template<typename InstanceControl, typename GeometryControl, typename MaterielControl, typename DrawController, typename ChunkPolicy>
+    template<typename InstanceControl, typename GeometryControl, typename MaterielControl, typename CommandController, typename ChunkPolicy>
     class DrawListImpl
     {
     public:
+        using InstanceInterface = typename InstanceControl::Interface;
+        using GeometryInterface = typename GeometryControl::Interface;      // Ref<MeshSingle>, std::vector<Vertex>, AssetHandle, ...
+        using MaterielInterface = typename MaterielControl::Interface;      // Ref<Material>, AssetHandle, ...
+        using CommandInterface = typename CommandController::Interface;
+
         using InstanceSource = typename InstanceControl::Source;
         using GeometrySource = typename GeometryControl::Source;      // Ref<MeshSingle>, std::vector<Vertex>, AssetHandle, ...
         using MaterielSource = typename MaterielControl::Source;      // Ref<Material>, AssetHandle, ...
-        using DrawSource = typename DrawController::Source;
-
+        using DrawSource = typename CommandController::Source;
 
         using MaterielIndices = typename MaterielControl::Indices;          // per instance indices, NoIndices if none
         using GeometryIndices = typename GeometryControl::Indices;
-        using DrawIndices = typename DrawController::Indices;
+        using DrawIndices = typename CommandController::Indices;
 
+        using GeometryInfo = typename GeometryControl::Info;
         using Unit = uint32_t;
 
     // --- public static variables -------------------------------------------------------------------------------------

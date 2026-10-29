@@ -1,7 +1,7 @@
 #pragma once
 // SingleMaterial created in Project Rynex-Rendering on 09/10/2026.
 #include <rypch.h>
-#include <Rynex/Renderer/ChachedRegister/CachedBufferRegister.h>
+#include <Rynex/Renderer/CachedRegister/CachedBufferRegister.h>
 #include <Rynex/Renderer/Materials/Material.h>
 #include <Rynex/Renderer/DrawList/DrawListTypes.h>
 #include <Rynex/Renderer/DrawList/SectionList.h>
