@@ -23,8 +23,8 @@ namespace Rynex {
     {
         None = 0,
         Same,
-        NewCommand,
-        NewDraw
+        NewCommand,     // only next command, but same draw call. Usually Geometry changes (indirect rendering)
+        NewDraw         // new draw call command
     };
 
     enum ShaderFeatureBits
@@ -90,7 +90,6 @@ namespace Rynex {
 
         const uint64_t secondThird = second & third;
         const uint64_t secondFourth = second & fourth;
-
         const uint64_t thirdFourth = third & fourth;
 
 
