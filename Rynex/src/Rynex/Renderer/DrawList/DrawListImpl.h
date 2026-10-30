@@ -23,11 +23,11 @@ namespace Rynex {
         using InstanceSource = typename InstanceControl::Source;
         using GeometrySource = typename GeometryControl::Source;      // Ref<MeshSingle>, std::vector<Vertex>, AssetHandle, ...
         using MaterielSource = typename MaterielControl::Source;      // Ref<Material>, AssetHandle, ...
-        using DrawSource = typename CommandController::Source;
+        using CommandSource = typename CommandController::Source;
 
         using MaterielIndices = typename MaterielControl::Indices;          // per instance indices, NoIndices if none
         using GeometryIndices = typename GeometryControl::Indices;
-        using DrawIndices = typename CommandController::Indices;
+        using CommandIndices = typename CommandController::Indices;
 
         using GeometryInfo = typename GeometryControl::Info;
         using Unit = uint32_t;
@@ -39,6 +39,11 @@ namespace Rynex {
         static constexpr bool s_MaterielIndicesFieldEnabled = s_MinimumGpuFiledByteCount < sizeof(MaterielIndices);
     // --- public member methods ---------------------------------------------------------------------------------------
         DrawListImpl()
+            : m_InstanceSlot()
+            , m_MaterielSlot()
+            , m_GeometrySlot()
+            , m_CommandSlot()
+            , m_Stats(DrawSplit::Same)
         {
         }
 
@@ -47,16 +52,55 @@ namespace Rynex {
         }
 
         // Shader, camera and other fixed bindings. Copied once per chunk.
-        void SetTemplate(const DrawSource& templ)
+        void SetTemplate(CommandSource templ)
         {
+            DrawSplit drawSplit = m_CommandSlot.SetOnInterface(geometry);
+            StateChang(drawSplit);
         }
 
-        void SetGeometry(const GeometrySource& geometry)
+        void SetGeometry(GeometrySource geometry)
         {
+            DrawSplit drawSplit = m_GeometrySlot.SetOnInterface(geometry);
+            StateChang(drawSplit);
         }
 
-        void SetMateriel(const MaterielSource& material)
+        void SetMateriel(MaterielSource material)
         {
+            DrawSplit drawSplit = m_MaterielSlot.SetOnInterface(material);
+            StateChang(drawSplit);
+        }
+
+        void SectionHotPath()
+        {
+            switch (m_Stats)
+            {
+            case DrawSplit::Same:
+            {
+                break;
+            }
+            case DrawSplit::NewDraw:
+            {
+                FlushSection();
+                OpenSection();
+                break;
+            }
+            case DrawSplit::NewCommand:
+            {
+                FlushSection();
+                break;
+            }
+            case DrawSplit::None:
+            {
+                RY_CORE_FATEL("DrawSplit::None is not expected");
+                break;
+            }
+            default:
+            {
+                RY_CORE_ASSERT(false, "not valid DrawSplit State");
+                break;
+            }
+            }
+            m_Stats = DrawSplit::Same;
         }
 
         // Hot path: one compare, no allocation, no map, no virtual call. The geometry control is not involved.
@@ -69,7 +113,11 @@ namespace Rynex {
             instance.SetGeometry(geometryInterface.GetInstance());
             instance.SetMateriel(materielInterface.GetInstance());
 
-            m_InstanceSlot.AddOnInterface(instance);
+            if (!m_InstanceSlot.AddOnInterface(instance))
+            {
+                m_Stats = DrawSplit::NewDraw;
+                SectionHotPath();
+            }
         }
 
         // Smallest count of all controls for the open (or the next) chunk. No side effect.
@@ -109,7 +157,7 @@ namespace Rynex {
             m_MaterielSlot.Clear();
             m_GeometrySlot.Clear();
             m_CommandSlot.Clear();
-
+            m_Stats = DrawSplit::Same;
         }
 
         // One ShaderDrawResource per chunk is appended to out. No cutting here, the chunks already exist.
@@ -136,6 +184,39 @@ namespace Rynex {
     private:
         using VertexElementArray = std::array<VertexArray::VertexElements, s_VertexBufferCount>;
     // --- private member method ---------------------------------------------------------------------------------------
+        void StateChang(DrawSplit drawSplit)
+        {
+            switch (drawSplit)
+            {
+            case DrawSplit::None:
+            {
+                RY_CORE_FATEL("DrawSplit::None is not expected");
+                break;
+            }
+            case DrawSplit::Same:
+            {
+                break;
+            }
+            case DrawSplit::NewDraw:
+            {
+                m_Stats = DrawSplit::NewDraw;
+                break;
+            }
+            case DrawSplit::NewCommand:
+            {
+                if (DrawSplit::NewDraw != m_Stats)
+                    m_Stats = DrawSplit::NewCommand;
+                break;
+            }
+            default:
+            {
+                RY_CORE_ASSERT(false, "not valid DrawSplit State");
+                break;
+            }
+            }
+            m_Stats = DrawSplit::Same;
+        }
+
         /**
          * alle processors, that need to be fished bevor open a new section or bevor start a new indirect element.
          */
@@ -146,7 +227,7 @@ namespace Rynex {
             GeometryCommandInfo geometryInfo = m_GeometrySlot.GetGeometryInfo();
 
             CommandInterface& commandInterface = m_CommandSlot.CurrentInterface();
-            commandInterface.Set(geometryInfo, instanceCount, materielCount);
+            commandInterface.Flush(geometryInfo, instanceCount, materielCount);
         }
 
         // New draw call. Fixed order: Geometry, Materiel, Instance. Every control stores its current state as the new section.
@@ -165,6 +246,8 @@ namespace Rynex {
             m_InstanceSlot.UploadCacheOnInterface();
             m_MaterielSlot.UploadCacheOnInterface();
             m_GeometrySlot.UploadCacheOnInterface();
+
+            m_Stats = DrawSplit::Same;
         }
 
         // Only place that builds the VAO. VAO hash with per frame instance buffers.
@@ -184,7 +267,7 @@ namespace Rynex {
         ControlSlot<InstanceControl> m_InstanceSlot;
         ControlSlot<MaterielControl> m_MaterielSlot;
         ControlSlot<GeometryControl> m_GeometrySlot;
-        ControlSlot<DrawController> m_CommandSlot;
+        ControlSlot<CommandController> m_CommandSlot;
         DrawSplit m_Stats;
     };
 
