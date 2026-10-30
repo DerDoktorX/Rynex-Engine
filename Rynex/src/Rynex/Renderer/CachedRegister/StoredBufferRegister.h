@@ -1,6 +1,6 @@
 #pragma once
 // RegisterBuffer created in Project Rynex-Rendering on 05/10/2026.
-#include <Rynex/Renderer/ChachedRegister/StoredKey.h>
+#include <Rynex/Renderer/CachedRegister/StoredKey.h>
 
 namespace Rynex {
 

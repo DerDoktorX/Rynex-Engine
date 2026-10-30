@@ -23,7 +23,7 @@ namespace Rynex {
         using InstanceSource = typename InstanceControl::Source;
         using GeometrySource = typename GeometryControl::Source;      // Ref<MeshSingle>, std::vector<Vertex>, AssetHandle, ...
         using MaterielSource = typename MaterielControl::Source;      // Ref<Material>, AssetHandle, ...
-        using DrawSource = typename CommandController::Source;
+        using CommandSource = typename CommandController::Source;
 
         using MaterielIndices = typename MaterielControl::Indices;          // per instance indices, NoIndices if none
         using GeometryIndices = typename GeometryControl::Indices;
@@ -47,8 +47,9 @@ namespace Rynex {
         }
 
         // Shader, camera and other fixed bindings. Copied once per chunk.
-        void SetTemplate(const DrawSource& templ)
+        void SetTemplate(const CommandSource& templ)
         {
+            commandInterface.Set(temp)
         }
 
         void SetGeometry(const GeometrySource& geometry)
@@ -113,14 +114,16 @@ namespace Rynex {
         }
 
         // One ShaderDrawResource per chunk is appended to out. No cutting here, the chunks already exist.
-        void FlushCommands(std::vector<ShaderDrawResource>& out, CachedBuffer& bufferRegister)
+        void FlushCommands(std::vector<ShaderDrawResource>& out, CachedBufferRegister& bufferRegister)
         {
-            const Unit chunkCountInstance = m_MaterielControl.GetSectionCount();
-            const Unit chunkCountGeometry = m_GeometryControl.GetSectionCount();
-            const Unit chunkCountMateriel = m_InstanceControl.GetSectionCount();
-            RY_CORE_ASSERT(chunkCountInstance == chunkCountGeometry, "Geometry sections do not match the chunks!");
-            RY_CORE_ASSERT(chunkCountInstance == chunkCountMateriel, "Materiel sections do not match the chunks!");
-            const Unit chunkCount = chunkCountInstance;
+            const Unit sectionCountInstance = m_InstanceSlot.Count();
+            const Unit sectionCountMateriel = m_MaterielSlot.Count();
+            const Unit sectionCountGeometry = m_GeometrySlot.Count();
+            const Unit sectionCountCommand = m_CommandSlot.Count();
+            RY_CORE_ASSERT(sectionCountInstance == sectionCountCommand, "Command sections do not match the indices section!");
+            RY_CORE_ASSERT(sectionCountInstance == sectionCountMateriel, "Geometry sections do not match the indices section!");
+            RY_CORE_ASSERT(sectionCountInstance == sectionCountGeometry, "Materiel sections do not match the indices section!");
+            const Unit chunkCount = sectionCountInstance;
 
             const size_t outSize = out.size();
             const size_t outReserve = outSize + chunkCount;
@@ -146,7 +149,7 @@ namespace Rynex {
             GeometryCommandInfo geometryInfo = m_GeometrySlot.GetGeometryInfo();
 
             CommandInterface& commandInterface = m_CommandSlot.CurrentInterface();
-            commandInterface.Set(geometryInfo, instanceCount, materielCount);
+            commandInterface.SectionFlush(geometryInfo, instanceCount, materielCount);
         }
 
         // New draw call. Fixed order: Geometry, Materiel, Instance. Every control stores its current state as the new section.
