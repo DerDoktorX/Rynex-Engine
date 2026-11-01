@@ -1,14 +1,98 @@
 #pragma once
 // SingleMaterial created in Project Rynex-Rendering on 09/10/2026.
 #include <rypch.h>
-#include <Rynex/Renderer/CachedRegister/CachedBufferRegister.h>
+#include <Rynex/Renderer/DrawList/Contoller/CommandBuildBase.h>
+#include <Rynex/Renderer/DrawList/Contoller/InterfaceBase.h>
 #include <Rynex/Renderer/Materials/Material.h>
-#include <Rynex/Renderer/DrawList/DrawListTypes.h>
-#include <Rynex/Renderer/DrawList/SectionList.h>
-#include <Rynex/Renderer/Rendering/ShaderDrawList.h>
 
-namespace Rynex {
+namespace Rynex::Control  {
 
+    template<typename Interface, typename CommandBuild>
+    class MaterielControlImpl
+    {
+    public:
+        using Source = typename Interface::Source;
+        using Indices = typename Interface::Indices;
+        using CommandBuild = CommandBuild;
+    };
+
+    namespace MaterielDefault {
+
+        class Interface : public InterfaceRefBase<Material>
+        {
+        public:
+            Interface()
+            {
+            }
+
+            ~Interface() override
+            {
+                this->m_SectionPtr = nullptr;
+            }
+
+
+            virtual BufferLayout GetBufferLayout(const Unit index) const override
+            {
+                const Ref<UniformBuffer> uniformBuffer = GetUniformBuffer(index);
+                const BufferLayout& bufferLayout = uniformBuffer->GetLayout();
+                return bufferLayout;
+            }
+
+            virtual Ref<UniformBuffer> GetUniformBuffer(const Unit index) const override
+            {
+                RY_CORE_ASSERT(0 == index, "index is invalid! valid index -> ( 0 )");
+                const Ref<UniformBuffer>& uniformBuffer = Get()->GetMaterielUniformBuffer();
+                return uniformBuffer;
+            }
+
+            virtual Ref<Texture> GetTexture(const Unit index) const override
+            {
+                RY_CORE_ASSERT(0 == index, "index is invalid! valid index -> ( 0 )");
+                const Ref<Texture>& texture = Get()->GetAlbedoTextures();
+                return texture;
+            }
+
+        private:
+            const Ref<Material>& Get() const
+            {
+                Ref<Material>* materialPtr = this->m_SectionPtr;
+                RY_CORE_ASSERT(nullptr != materialPtr, "Section is nullptr");
+                return (*materialPtr);
+            }
+        };
+
+        class CommandBuild : public CommandBuildBase<Interface>
+        {
+        public:
+            enum TextureSlot : uint32_t
+            {
+                TextureSlot_Texture = 0,
+            };
+            enum UniformBufferSlot : uint32_t
+            {
+                UniformBufferSlot_Parameter = 1,
+            };
+            explicit CommandBuild(CachedBufferRegister& cache, Interface& interfaceType, ShaderDrawResource& drawResource)
+                : CommandBuildBase(cache, interfaceType, drawResource)
+            {}
+
+            virtual void CollectVertexBuffer(Span<VertexArray::VertexElements>& vertexElementsSpan) override
+            {
+            }
+
+            virtual void BindCommand() override
+            {
+                const Ref<Texture> texture = this->m_Interface.GetTexture(0);
+                this->m_DrawResource.GetBindTextures()[TextureSlot_Texture] = texture;
+
+                const Ref<UniformBuffer> uniform = this->m_Interface.GetUniformBuffer(0);
+                this->m_DrawResource.GetBindUniform()[UniformBufferSlot_Parameter] = uniform;
+            }
+        };
+
+        using DefaultCommand = MaterielControlImpl<Interface, CommandBuild>;
+    }
+#if 0
     class SingleMaterial
     {
     public:
@@ -64,5 +148,7 @@ namespace Rynex {
         SectionList<Ref<Material>> m_SectionList;
         Indices m_Indices;
     };
+#endif
+
     
 }

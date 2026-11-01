@@ -236,7 +236,6 @@ namespace Rynex {
     protected:
         bool CheckVAO()
         {
-
             if (HasVAOFromMeshSingleSomeBuffer())
                 return false;
 

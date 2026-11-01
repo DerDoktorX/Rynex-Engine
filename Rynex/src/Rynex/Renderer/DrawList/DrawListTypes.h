@@ -115,23 +115,5 @@ namespace Rynex {
         return count;
     }
 
-    constexpr bool GapeBetweenBufferSlots(const uint64_t slotMask)
-    {
-        constexpr int countBit = sizeof(uint64_t) * 8;
-        constexpr int lastBitPos = countBit - 1;
-        constexpr int bitCount = lastBitPos - 1;
-        for (int i = bitCount; 0 <= i; i--)
-        {
-            const uint64_t bitValue = BIT(i);
-            if (0 != (slotMask & bitValue))                             // { 0111                   | 0101 }
-            {
-                const int indexBevor = i + 1;
-                const uint64_t bitValueBevor = BIT(indexBevor);         // 1000
-                const uint64_t onlyOneBitExpected = slotMask + 1;       // { 0111 + 1 = 1000        | 0101 + 1 = 0110 }
-                return bitValueBevor != onlyOneBitExpected;             // { 1000 != 1000 = false   | 1000 != 0110 = true }
-            }
-        }
-        // no bit set so there is no gape between bits
-        return false;
-    }
+
 }

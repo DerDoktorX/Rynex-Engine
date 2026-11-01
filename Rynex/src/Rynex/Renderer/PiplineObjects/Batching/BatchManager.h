@@ -48,67 +48,67 @@ namespace Rynex {
 		Ref<VertexArray> vertexArray;
 		Ref<VertexBuffer> instanceObjectBuffer;
 		Ref<UniformBuffer> materielUB;
-		std::vector<Batch::Render3DMeshObject> rendeObjectVec;
-		std::vector<Batch::Render3DMeshObjectTransform> rendeObjectTransformVec;
+		std::vector<Batch::Render3DMeshObject> renderObjectVec;
+		std::vector<Batch::Render3DMeshObjectTransform> renderObjectTransformVec;
 
-		Memory::DynamicDataStruct rendeObjectDynamicElementStruct;
+		Memory::DynamicDataStruct renderObjectDynamicElementStruct;
 		std::vector<RenderProxyDynamicElenenttData> renderProxyDynamicDataTypeVec;
-		uint32_t curentIndex;
+		uint32_t currentIndex;
 		bool needUpdate;
 
 
 
 		void Reset()
 		{
-			curentIndex = 0u;
+			currentIndex = 0u;
 			needUpdate = false;
 		}
 
 		void AddRenderObject(const Batch::Render3DMeshObject& renderObject)
 		{
-			uint32_t count = rendeObjectVec.size();
-			if (count <= curentIndex)
+			uint32_t count = renderObjectVec.size();
+			if (count <= currentIndex)
 			{
-				rendeObjectVec.emplace_back(renderObject);
+				renderObjectVec.emplace_back(renderObject);
 				needUpdate = true;
-				count = rendeObjectVec.size();
-				RY_CORE_ASSERT(curentIndex < count, "Index is not samler then count! buffer overflow");
+				count = renderObjectVec.size();
+				RY_CORE_ASSERT(currentIndex < count, "Index is not sampler then count! buffer overflow");
 
 			}
 			else
 			{
-				Batch::Render3DMeshObject& object = rendeObjectVec.at(curentIndex);
+				Batch::Render3DMeshObject& object = renderObjectVec.at(currentIndex);
 				if(object != renderObject)
 				{
 					object = renderObject;
 					needUpdate = true;
 				}
 			}
-			curentIndex++;
+			currentIndex++;
 		}
 
-		void AddRenderObject(const Batch::Render3DMeshObjectTransform& renderObjectTrasform)
+		void AddRenderObject(const Batch::Render3DMeshObjectTransform& renderObjectTransform)
 		{
-			uint32_t count = rendeObjectTransformVec.size();
-			if (count <= curentIndex)
+			uint32_t count = renderObjectTransformVec.size();
+			if (count <= currentIndex)
 			{
-				rendeObjectTransformVec.emplace_back(renderObjectTrasform);
+				renderObjectTransformVec.emplace_back(renderObjectTransform);
 				needUpdate = true;
-				count = rendeObjectTransformVec.size();
+				count = renderObjectTransformVec.size();
 
-				RY_CORE_ASSERT(curentIndex < count, "Index is not samler then count! buffer overflow");
+				RY_CORE_ASSERT(currentIndex < count, "Index is not sampler then count! buffer overflow");
 			}
 			else
 			{
-				Batch::Render3DMeshObjectTransform& objectTrasform = rendeObjectTransformVec.at(curentIndex);
-				if (objectTrasform != renderObjectTrasform)
+				Batch::Render3DMeshObjectTransform& objectTransform = renderObjectTransformVec.at(currentIndex);
+				if (objectTransform != renderObjectTransform)
 				{
-					objectTrasform = renderObjectTrasform;
+					objectTransform = renderObjectTransform;
 					needUpdate = true;
 				}
 
 			}
-			curentIndex++;
+			currentIndex++;
 		}
 
 
@@ -117,11 +117,11 @@ namespace Rynex {
 	struct BatchedTexture
 	{
 		Ref<LinkedTextureArray> linkedTextureArray;
-		uint32_t curentIndex;
+		uint32_t currentIndex;
 
 		void Reset()
 		{
-			curentIndex = 0u;
+			currentIndex = 0u;
 		}
 
 		void AddTexture(const Ref<Texture>& texture)
@@ -133,12 +133,12 @@ namespace Rynex {
 				spec.m_Target = TextureTarget::Texture2D_Array;
 				linkedTextureArray = LinkedTextureArray::Create(spec);
 			}
-			if (linkedTextureArray->GetTextureCount() <= curentIndex)
+			if (linkedTextureArray->GetTextureCount() <= currentIndex)
 			{
-				linkedTextureArray->ResizeTextureArray(curentIndex+1);
+				linkedTextureArray->ResizeTextureArray(currentIndex+1);
 			}
-			linkedTextureArray->SetTextureToArray(curentIndex, texture);
-			curentIndex++;
+			linkedTextureArray->SetTextureToArray(currentIndex, texture);
+			currentIndex++;
 		}
 
 
@@ -170,7 +170,7 @@ namespace Rynex {
 
 		void Clear();
 	private:
-		HashMapVAO m_VertexAtributeObjectHashMap;
+		HashMapVAO m_VertexAttributeObjectHashMap;
 		HashMapTexture m_LinkedTextureArrayHashMap;
 	};
 }

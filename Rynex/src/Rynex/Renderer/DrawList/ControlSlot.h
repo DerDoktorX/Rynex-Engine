@@ -20,14 +20,11 @@ namespace Rynex {
         using Unit = uint32_t;
     // public member methode ---------------------------------------------------------------------------------------------------
         ControlSlot()
-            : m_SectionVec(7)
+            : m_SectionVec()
             , m_Interface()
             , m_Cached(Source{})
-            , m_Used(1)
+            , m_Used(0)
         {
-            Section* sectionPtr = m_SectionVec.data();
-            m_Interface.SetSection(sectionPtr);
-
         }
         
         ~ControlSlot()
@@ -44,16 +41,15 @@ namespace Rynex {
             return m_Interface.Add(source);
         }
 
-        // set the source data on Controller/Interface
         /**
          * that methode cached the new source data, after that the Interface should be reporting if the in the current section we can store it.
          * @param source date parameter that is
          * @return reports whether a new section needs to be created, whether only a cache upload is required, or whether neither of these actions is necessary.
          */
-        DrawSplit SetOnInterface(const Source& source)
+        DrawSplit SetOnInterface(Source& source)
         {
             RY_CORE_ASSERT(!Interface::IsSourceEmpty(m_Cached), "Cache is Empty!");
-            if (Interface::IsSourceEmpty(m_Cached, source))
+            if (Interface::IsSourceEqual(m_Cached, source))
                 m_Cached = source;
             return m_Interface.HasStorage(m_Cached);
         }
@@ -95,7 +91,7 @@ namespace Rynex {
             RY_CORE_ASSERT(m_Used < m_SectionVec.size(), "Section index out of range!");
 #endif
 
-            Section& section = m_SectionVec[m_Used];
+            Section& section = m_SectionVec.at(m_Used);
             m_Used++;
             Section* sectionPtr = &section;
             m_Interface.SetSection(sectionPtr);
@@ -118,7 +114,7 @@ namespace Rynex {
         {
             RY_CORE_ASSERT(0u < m_Used, "No open section!");
             const Unit last = m_Used - 1u;
-            return m_SectionVec[last];
+            return m_SectionVec.at(last);
         }
 
         Interface& CurrentInterface()
@@ -154,7 +150,7 @@ namespace Rynex {
         Section& Get(const Unit index)
         {
             RY_CORE_ASSERT(index < m_Used, "Section index out of range!");
-            return m_SectionVec[index];
+            return m_SectionVec.at(index);
         }
 
         bool IsEmpty() const
@@ -181,7 +177,7 @@ namespace Rynex {
         static void CollectVertexBuffer([[maybe_unused]] Build& build, [[maybe_unused]] Span<VertexArray::VertexElements>& vertexElementsSpan)
         {
             if constexpr (Build::s_HasVertexBuffer)
-                build.CollectVertexBuffer(vertexBufferSpan);
+                build.CollectVertexBuffer(vertexElementsSpan);
         }
 
         /**

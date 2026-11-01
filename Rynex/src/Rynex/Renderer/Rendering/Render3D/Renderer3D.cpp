@@ -201,7 +201,7 @@ namespace Rynex {
 		for (const MeshStatic::SingleObjectMeshData& singleObject : singleObjectMeshData)
 		{
 			glm::mat4 globalMatrix = model * singleObject.m_LocaleCildrenMatrix;
-			s_Storage3D->m_RenderProxysArray[0].UpdateTrasform(entityID, index, globalMatrix);
+			s_Storage3D->m_RenderProxysArray[0].UpdateTransform(entityID, index, globalMatrix);
 			index++;
 		}
 

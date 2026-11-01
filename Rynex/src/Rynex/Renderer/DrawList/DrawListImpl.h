@@ -11,32 +11,42 @@
 
 namespace Rynex {
 
-    template<typename InstanceControl, typename GeometryControl, typename MaterielControl, typename CommandController, typename ChunkPolicy>
+    template<typename InstanceControl, typename GeometryControl, typename MaterielControl, typename CommandControl>
     class DrawListImpl
     {
     public:
-        using InstanceInterface = typename InstanceControl::Interface;
-        using GeometryInterface = typename GeometryControl::Interface;      // Ref<MeshSingle>, std::vector<Vertex>, AssetHandle, ...
-        using MaterielInterface = typename MaterielControl::Interface;      // Ref<Material>, AssetHandle, ...
-        using CommandInterface = typename CommandController::Interface;
+        using CommandSlot =  ControlSlot<CommandControl>;
+        using GeometrySlot = ControlSlot<GeometryControl>;
+        using MaterielSlot = ControlSlot <MaterielControl>;
+        using InstanceSlot = ControlSlot <InstanceControl>;
 
-        using InstanceSource = typename InstanceControl::Source;
-        using GeometrySource = typename GeometryControl::Source;      // Ref<MeshSingle>, std::vector<Vertex>, AssetHandle, ...
-        using MaterielSource = typename MaterielControl::Source;      // Ref<Material>, AssetHandle, ...
-        using CommandSource = typename CommandController::Source;
+        using InterfaceInstance = typename InstanceControl::Interface;
+        using InterfaceGeometry = typename GeometryControl::Interface;      // Ref<MeshSingle>, std::vector<Vertex>, AssetHandle, ...
+        using InterfaceMateriel = typename MaterielControl::Interface;      // Ref<Material>, AssetHandle, ...
+        using InterfaceCommand = typename CommandControl::Interface;
 
-        using MaterielIndices = typename MaterielControl::Indices;          // per instance indices, NoIndices if none
-        using GeometryIndices = typename GeometryControl::Indices;
-        using CommandIndices = typename CommandController::Indices;
+        using SourceInstance = typename InstanceControl::Source;
+        using SourceGeometry = typename GeometryControl::Source;      // Ref<MeshSingle>, std::vector<Vertex>, AssetHandle, ...
+        using SourceMateriel = typename MaterielControl::Source;      // Ref<Material>, AssetHandle, ...
+        using SourceCommand = typename CommandControl::Source;
 
-        using GeometryInfo = typename GeometryControl::Info;
+        using IndicesMateriel = typename MaterielControl::Indices;          // per instance indices, NoIndices if none
+        using IndicesGeometry = typename GeometryControl::Indices;
+        using IndicesCommand = typename CommandControl::Indices;
+
+        using BuildCommand = typename CommandControl::CommandBuild;
+        using BuildGeometry = typename GeometryControl::CommandBuild;
+        using BuildMateriel = typename MaterielControl::CommandBuild;
+        using BuildInstance = typename InstanceControl::CommandBuild;
+
         using Unit = uint32_t;
 
     // --- public static variables -------------------------------------------------------------------------------------
-        static constexpr uint32_t s_VertexBufferCount = GeometryControl::s_VertexBufferCount + MaterielControl::s_VertexBufferCount + InstanceControl::s_VertexBufferCount + DrawController::s_VertexBufferCount;
+        static constexpr uint32_t s_VertexBufferCount = GeometryControl::s_VertexBufferCount + MaterielControl::s_VertexBufferCount + InstanceControl::s_VertexBufferCount + CommandControl::s_VertexBufferCount;
+        using VertexElementArray = std::array<VertexArray::VertexElements, s_VertexBufferCount>;
 
         static constexpr uint32_t s_MinimumGpuFiledByteCount = 4u; // no 1 byte filed like bool are allowed bool values can be used in a int. Expect 1 byte has 8 bit.
-        static constexpr bool s_MaterielIndicesFieldEnabled = s_MinimumGpuFiledByteCount < sizeof(MaterielIndices);
+        static constexpr bool s_MaterielIndicesFieldEnabled = s_MinimumGpuFiledByteCount < sizeof(IndicesMateriel);
     // --- public member methods ---------------------------------------------------------------------------------------
         DrawListImpl()
             : m_InstanceSlot()
@@ -52,21 +62,21 @@ namespace Rynex {
         }
 
         // Shader, camera and other fixed bindings. Copied once per chunk.
-        void SetTemplate(CommandSource templ)
+        void SetTemplate(SourceCommand& templ)
         {
-            DrawSplit drawSplit = m_CommandSlot.SetOnInterface(geometry);
+            const DrawSplit drawSplit = m_CommandSlot.SetOnInterface(templ);
             StateChang(drawSplit);
         }
 
-        void SetGeometry(GeometrySource geometry)
+        void SetGeometry(SourceGeometry& geometry)
         {
-            DrawSplit drawSplit = m_GeometrySlot.SetOnInterface(geometry);
+            const DrawSplit drawSplit = m_GeometrySlot.SetOnInterface(geometry);
             StateChang(drawSplit);
         }
 
-        void SetMateriel(MaterielSource material)
+        void SetMateriel(SourceMateriel& material)
         {
-            DrawSplit drawSplit = m_MaterielSlot.SetOnInterface(material);
+            const DrawSplit drawSplit = m_MaterielSlot.SetOnInterface(material);
             StateChang(drawSplit);
         }
 
@@ -86,12 +96,16 @@ namespace Rynex {
             }
             case DrawSplit::NewCommand:
             {
-                FlushSection();
+                if(FlushSection())
+                {
+                    RY_CORE_FATAL("FlushSection forced to push to next Section, instead off new command!");
+                    OpenSection();
+                }
                 break;
             }
             case DrawSplit::None:
             {
-                RY_CORE_FATEL("DrawSplit::None is not expected");
+                RY_CORE_FATAL("DrawSplit::None is not expected");
                 break;
             }
             default:
@@ -104,11 +118,11 @@ namespace Rynex {
         }
 
         // Hot path: one compare, no allocation, no map, no virtual call. The geometry control is not involved.
-        void Add(const InstanceSource& instance)
+        void Add(const SourceInstance& instance)
         {
-            CommandInterface& commandInterface = m_CommandSlot.CurrentInterface();
-            GeometryInterface& geometryInterface = m_GeometrySlot.CurrentInterface();
-            MaterielInterface& materielInterface = m_MaterielSlot.CurrentInterface();
+            InterfaceCommand& commandInterface = m_CommandSlot.CurrentInterface();
+            InterfaceGeometry& geometryInterface = m_GeometrySlot.CurrentInterface();
+            InterfaceMateriel& materielInterface = m_MaterielSlot.CurrentInterface();
             instance.SetCommand(commandInterface.GetInstance());
             instance.SetGeometry(geometryInterface.GetInstance());
             instance.SetMateriel(materielInterface.GetInstance());
@@ -177,14 +191,16 @@ namespace Rynex {
             out.reserve(outReserve);
             for (Unit i = 0u; i < chunkCount; i++)
             {
-                ShaderDrawResource draw = m_Template;
-                BuildDraw(i, draw, bufferRegister);
-                out.emplace_back(std::move(draw));
+                SetInterfaceIndex(i);
+                ShaderDrawResource drawResource;
+                UploadDrawList(drawResource, bufferRegister);
+                out.emplace_back(std::move(drawResource));
             }
         }
 
     private:
-        using VertexElementArray = std::array<VertexArray::VertexElements, s_VertexBufferCount>;
+
+
     // --- private member method ---------------------------------------------------------------------------------------
         void StateChang(DrawSplit drawSplit)
         {
@@ -192,7 +208,7 @@ namespace Rynex {
             {
             case DrawSplit::None:
             {
-                RY_CORE_FATEL("DrawSplit::None is not expected");
+                RY_CORE_FATAL("DrawSplit::None is not expected");
                 break;
             }
             case DrawSplit::Same:
@@ -219,17 +235,19 @@ namespace Rynex {
             m_Stats = DrawSplit::Same;
         }
 
+
+
         /**
          * alle processors, that need to be fished bevor open a new section or bevor start a new indirect element.
          */
-        void FlushSection()
+        bool FlushSection()
         {
             Unit instanceCount = m_InstanceSlot.GetSectionCount();
             Unit materielCount = m_MaterielSlot.GetSectionCount();
             GeometryCommandInfo geometryInfo = m_GeometrySlot.GetGeometryInfo();
 
-            CommandInterface& commandInterface = m_CommandSlot.CurrentInterface();
-            commandInterface.SectionFlush(geometryInfo, instanceCount, materielCount);
+            InterfaceCommand& commandInterface = m_CommandSlot.CurrentInterface();
+            return commandInterface.SectionFlush(geometryInfo, instanceCount, materielCount);
         }
 
         // New draw call. Fixed order: Geometry, Materiel, Instance. Every control stores its current state as the new section.
@@ -252,12 +270,51 @@ namespace Rynex {
             m_Stats = DrawSplit::Same;
         }
 
+
+        void SetInterfaceIndex(Unit index)
+        {
+            m_InstanceSlot.SetCurrentInterface(index);
+            m_MaterielSlot.SetCurrentInterface(index);
+            m_GeometrySlot.SetCurrentInterface(index);
+            m_CommandSlot.SetCurrentInterface(index);
+        }
+
+        void UploadDrawList(ShaderDrawResource& drawResource, CachedBufferRegister& bufferRegister)
+        {
+            BuildCommand buildCommand = m_CommandSlot.CreateBuild(drawResource,bufferRegister);
+            BuildGeometry buildGeometry = m_GeometrySlot.CreateBuild(drawResource,bufferRegister);
+            BuildMateriel buildMateriel = m_MaterielSlot.CreateBuild(drawResource,bufferRegister);
+            BuildInstance buildInstance = m_InstanceSlot.CreateBuild(drawResource,bufferRegister);
+
+            if constexpr (0u < s_VertexBufferCount)
+                drawResource.m_VAO = CollectVertexBuffer(buildCommand, buildGeometry, buildMateriel, buildInstance, bufferRegister);
+
+            CommandSlot::BindCommand(buildCommand);
+            GeometrySlot::BindCommand(buildGeometry);
+            MaterielSlot::BindCommand(buildMateriel);
+            InstanceSlot::BindCommand(buildMateriel);
+        }
+
+        Ref<VertexArray> CollectVertexBuffer(BuildCommand& command, BuildGeometry& geometry, BuildMateriel& material, BuildInstance& instance, CachedBufferRegister& bufferRegister)
+        {
+            VertexElementArray vertexElementArray;
+            Span<VertexElementArray> vertexElementSpan(vertexElementArray.data(), vertexElementArray.size());
+            CommandSlot::CollectVertexBuffer(command, vertexElementSpan);
+            GeometrySlot::CollectVertexBuffer(geometry, vertexElementSpan);
+            MaterielSlot::CollectVertexBuffer(material, vertexElementSpan);
+            InstanceSlot::CollectVertexBuffer(instance, vertexElementSpan);
+            return AcquireVertexArray(vertexElementArray, bufferRegister);
+        }
+
         // Only place that builds the VAO. VAO hash with per frame instance buffers.
-        Ref<VertexArray> AcquireVertexArray(const Unit sectionIndex, const VertexElementArray& elements, CachedBufferRegister& bufferRegister) const
+        Ref<VertexArray> AcquireVertexArray(const VertexElementArray& elements, CachedBufferRegister& bufferRegister)
         {
             Ref<IndexBuffer> indexBuffer = nullptr;
             if constexpr (0u < GeometryControl::s_IndexBufferCount)
-                indexBuffer = m_GeometryControl.GetIndexBuffer(sectionIndex);
+            {
+                InterfaceGeometry& geometryInterface = m_GeometrySlot.CurentInterface();
+                indexBuffer = geometryInterface.GetIndexBuffer(indexBuffer);
+            }
 
             const Span<const VertexArray::VertexElements> elementSpan(elements.data(), elements.size());
             auto [hash, vertexArray] = bufferRegister.AcquireUniqueVertexArray(indexBuffer, elementSpan);
@@ -266,10 +323,10 @@ namespace Rynex {
 
 
     // --- private member variables ------------------------------------------------------------------------------------
-        ControlSlot<InstanceControl> m_InstanceSlot;
-        ControlSlot<MaterielControl> m_MaterielSlot;
-        ControlSlot<GeometryControl> m_GeometrySlot;
-        ControlSlot<CommandController> m_CommandSlot;
+        InstanceSlot m_InstanceSlot;
+        MaterielSlot m_MaterielSlot;
+        GeometrySlot m_GeometrySlot;
+        CommandSlot m_CommandSlot;
         DrawSplit m_Stats;
     };
 
