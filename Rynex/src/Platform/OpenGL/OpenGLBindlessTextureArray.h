@@ -1,11 +1,11 @@
 #pragma once
-#include <Rynex/Renderer/API/BindlesdTextureArray.h>
+#include <Rynex/Renderer/API/BindlessTextureArray.h>
 #include <Platform/OpenGL/OpenGLShaderStorageBuffer.h>
 
 namespace Rynex {	
 	class OpenGLTextureStorageModern;
 
-	class OpenGLBindlessTextureArray : public BindlesdTextureArray
+	class OpenGLBindlessTextureArray : public BindlessTextureArray
 	{
 	public:
 		OpenGLBindlessTextureArray();

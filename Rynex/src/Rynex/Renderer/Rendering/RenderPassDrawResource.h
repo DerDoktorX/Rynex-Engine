@@ -20,7 +20,7 @@ namespace Rynex {
 		typedef BindRes<Ref<UniformBuffer>> BindUniform;
 		typedef BindRes<Ref<StorageBuffer>> BindSSBO;
 #else
-		using BindAll = BindRes<Ref<Texture>, Ref<BindlesdTextureArray>, Ref<UniformBuffer>, Ref<StorageBuffer>>;
+		using BindAll = BindRes<Ref<Texture>, Ref<BindlessTextureArray>, Ref<UniformBuffer>, Ref<StorageBuffer>>;
 #endif
 		template<typename T>
 		struct PerBatch 
@@ -43,7 +43,7 @@ namespace Rynex {
 #if 1
 			std::vector<BindAll> m_ResourceVec;
 #else
-			std::vector<std::pair<uint32_t, std::variant<typename Ref<typename Texture>, typename Ref<typename BindlesdTextureArray>, typename Ref<typename UniformBuffer>, typename Ref<typename StorageBuffer>>>> resourceVec;
+			std::vector<std::pair<uint32_t, std::variant<typename Ref<typename Texture>, typename Ref<typename BindlessTextureArray>, typename Ref<typename UniformBuffer>, typename Ref<typename StorageBuffer>>>> resourceVec;
 #endif
 #endif
 		};
@@ -69,7 +69,7 @@ namespace Rynex {
 				int lodLevel;
 				std::vector<RenderProxyStore> renderProxis;
 #if 0
-				PerBatch<Ref<BindlesdTextureArray>> bindlesTextureArrayPerBatch;
+				PerBatch<Ref<BindlessTextureArray>> bindlesTextureArrayPerBatch;
 				PerBatch<TextureResourceBindles> textureResourceBindlesPerBatch;
 				PerBatch<Batch::Render3DMeshObject> render3DMeshBindlesPerBatch;
 				PerBatch<Batch::Render3DMeshObjectTransform> render3DMeshBindlesTrasformPerBatch;

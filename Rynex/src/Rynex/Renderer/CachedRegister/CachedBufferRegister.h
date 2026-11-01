@@ -2,7 +2,7 @@
 // CachedBufferRegister created in Project Rynex-Rendering on 05/10/2026.
 #include <rypch.h>
 
-#include <Rynex/Renderer/API/BindlesdTextureArray.h>
+#include <Rynex/Renderer/API/BindlessTextureArray.h>
 #include <Rynex/Renderer/API/Buffer.h>
 #include <Rynex/Renderer/API/Texture.h>
 #include <Rynex/Renderer/API/VertexArray.h>

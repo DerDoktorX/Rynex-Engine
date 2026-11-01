@@ -16,12 +16,12 @@ namespace Rynex {
 		BatchVAO* storeSubmite = nullptr;
 		try 
 		{
-			storeSubmite = &(m_VertexAtributeObjectHashMap[key]);
+			storeSubmite = &(m_VertexAttributeObjectHashMap[key]);
 		}
 		catch (std::overflow_error e) 
 		{
 			RY_CORE_FATAL("Exception: hit in render loop! {}", e.what());
-			m_VertexAtributeObjectHashMap = std::move(HashMapVAO());
+			m_VertexAttributeObjectHashMap = std::move(HashMapVAO());
 			RY_CORE_INFO("We Replaced the hash map and about Rendering!");
 			return nullptr;
 		}
@@ -30,7 +30,7 @@ namespace Rynex {
 
 	BatchVAO& BatchManager::GetBatchVAO(const Batch3DKey& key)
 	{
-		return m_VertexAtributeObjectHashMap[key];
+		return m_VertexAttributeObjectHashMap[key];
 	}
 
 	BatchTexture* BatchManager::GetBatchPtrTexture(const Batch3DKey& key)
@@ -57,7 +57,7 @@ namespace Rynex {
 
 	void BatchManager::Clear()
 	{
-		m_VertexAtributeObjectHashMap.clear();
+		m_VertexAttributeObjectHashMap.clear();
 		m_LinkedTextureArrayHashMap.clear();
 	}
 }

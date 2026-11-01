@@ -17,7 +17,7 @@ namespace Rynex {
            }
 
            bool operator()(const Ref<StorageBuffer>& ref) const {  return IsRefValidType(ref); }
-           bool operator()(const Ref<BindlesdTextureArray>& ref) const {  return IsRefValidType(ref);  }
+           bool operator()(const Ref<BindlessTextureArray>& ref) const {  return IsRefValidType(ref);  }
            bool operator()(const Ref<Texture>& ref) const { return IsRefValidType(ref); }
 
            bool operator()(const Ref<LinkedTextureArray>& ref) const { return IsRefValidType(ref);  }
@@ -35,7 +35,7 @@ namespace Rynex {
            }
 
            uint64_t operator()(const Ref<StorageBuffer>& ref) const {  return GetPtrNumber(ref); }
-           uint64_t operator()(const Ref<BindlesdTextureArray>& ref) const {  return GetPtrNumber(ref);  }
+           uint64_t operator()(const Ref<BindlessTextureArray>& ref) const {  return GetPtrNumber(ref);  }
            uint64_t operator()(const Ref<Texture>& ref) const { return GetPtrNumber(ref); }
 
            uint64_t operator()(const Ref<LinkedTextureArray>& ref) const { return GetPtrNumber(ref);  }
@@ -91,19 +91,19 @@ namespace Rynex {
 
 
             bool operator()(Ref<StorageBuffer>& refB) const {  return nullptr != refB && nullptr == m_ValueA; }
-            bool operator()(Ref<BindlesdTextureArray>& refB) const {  return false; }
+            bool operator()(Ref<BindlessTextureArray>& refB) const {  return false; }
         };
 
         struct SortBindlessTextureArray
         {
-            Ref<BindlesdTextureArray>& m_ValueA;
+            Ref<BindlessTextureArray>& m_ValueA;
 
-            explicit SortBindlessTextureArray(Ref<BindlesdTextureArray>& valueA)
+            explicit SortBindlessTextureArray(Ref<BindlessTextureArray>& valueA)
                  : m_ValueA(valueA)
             {
             }
             bool operator()(Ref<StorageBuffer>& refB) const {  return false; }
-            bool operator()(Ref<BindlesdTextureArray>& refB) const {  return nullptr != refB && nullptr == m_ValueA; }
+            bool operator()(Ref<BindlessTextureArray>& refB) const {  return nullptr != refB && nullptr == m_ValueA; }
 
         };
         struct SortVariantStorageBuffer
@@ -115,7 +115,7 @@ namespace Rynex {
             { }
 
             bool operator()(Ref<StorageBuffer>& ref) const {  return std::visit(SortStorageBuffer{ ref }, m_VariantB); }
-            bool operator()(Ref<BindlesdTextureArray>& ref) const {  return std::visit(SortBindlessTextureArray{ ref }, m_VariantB); }
+            bool operator()(Ref<BindlessTextureArray>& ref) const {  return std::visit(SortBindlessTextureArray{ ref }, m_VariantB); }
 
         };
    }

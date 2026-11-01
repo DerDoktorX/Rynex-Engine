@@ -41,7 +41,7 @@ namespace Rynex {
         }
 
         template<>
-        bool EmplaceSet(const Ref<BindlesdTextureArray>& resourceSet, StorageBindArray& resourceArray)
+        bool EmplaceSet(const Ref<BindlessTextureArray>& resourceSet, StorageBindArray& resourceArray)
         {
             for (auto& resource : resourceArray)
             {
@@ -291,7 +291,7 @@ namespace Rynex {
                             return true;
                         resourceValue->UnBind(index);
 
-                        if constexpr (std::is_same_v<decltype(resourceValue), BindlesdTextureArray>)
+                        if constexpr (std::is_same_v<decltype(resourceValue), BindlessTextureArray>)
                             resourceValue->DeactivateTextures();
 
                         return false;
@@ -314,7 +314,7 @@ namespace Rynex {
                         if (nullptr == resourceValue)
                             return;
 
-                        if constexpr (std::is_same_v<decltype(resourceValue), BindlesdTextureArray>)
+                        if constexpr (std::is_same_v<decltype(resourceValue), BindlessTextureArray>)
                             resourceValue->ActivateTextures();
 
 
@@ -338,7 +338,7 @@ namespace Rynex {
                         if (nullptr == resourceValue)
                             return true;
 
-                        if constexpr (std::is_same_v<decltype(resourceValue), BindlesdTextureArray>)
+                        if constexpr (std::is_same_v<decltype(resourceValue), BindlessTextureArray>)
                             resourceValue->ActivateTextures();
 
                         resourceValue->Bind(index);

@@ -76,7 +76,7 @@ namespace Rynex {
 #if 0
 		const Ref<StorageBuffer>& GetDefaultMaterialBuffer() const { return m_DefaultMaterialPackage->GetBuffer(); }
 #endif
-		const Ref<BindlesdTextureArray>& GetBindlesTexureArray() const { return m_BindlesAlbedoTextureArray; }
+		const Ref<BindlessTextureArray>& GetBindlesTexureArray() const { return m_BindlesAlbedoTextureArray; }
 
 		const std::vector<MeshStatic::SingleObjectMeshData>& GetSingleObjectMesDataVec() const { return m_SingleObjectDataVec; }
 		const MeshStatic::SingleObjectMeshData& GetSingleObjectData(uint32_t index) const { RY_CORE_ASSERT(index < m_SingleObjectDataVec.size(), "Buffer Overflow"); return m_SingleObjectDataVec.at(index); }
@@ -140,7 +140,7 @@ namespace Rynex {
 #if 0
 		Ref<DefaultMaterial::PackageArrayDynamic>	m_DefaultMaterialPackage;
 #endif
-		Ref<BindlesdTextureArray>					m_BindlesAlbedoTextureArray;
+		Ref<BindlessTextureArray>					m_BindlesAlbedoTextureArray;
 
 
 		Weak<MeshSource>						m_Source;

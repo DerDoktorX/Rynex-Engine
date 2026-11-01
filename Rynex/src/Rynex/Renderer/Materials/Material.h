@@ -2,7 +2,7 @@
 #include <Rynex/Renderer/API/Shader.h>
 #include <Rynex/Core/UnorderDoubleMap.h>
 #include <Rynex/Renderer/Materials/MaterialTypes.h>
-#include <Rynex/Renderer/API/BindlesdTextureArray.h>
+#include <Rynex/Renderer/API/BindlessTextureArray.h>
 #include <Rynex/Renderer/Objects/BufferDataPack.h>
 
 namespace Rynex {
@@ -297,13 +297,13 @@ namespace Rynex {
 
 		virtual void UpdateMaterielData(void* materielArrayData, uint32_t offset, uint32_t size) const = 0;
 
-		virtual int AddMaterielAlbedoTextures(Ref<BindlesdTextureArray>& bindlessTextures) const	{ return DefaultValues::TextureStoreIndex; }
-		virtual int AddMaterielSpecularTextures(Ref<BindlesdTextureArray>& bindlessTextures) const { return DefaultValues::TextureStoreIndex; }
-		virtual int AddMaterielHeightTextures(Ref<BindlesdTextureArray>& bindlessTextures) const	{ return DefaultValues::TextureStoreIndex; }
+		virtual int AddMaterielAlbedoTextures(Ref<BindlessTextureArray>& bindlessTextures) const	{ return DefaultValues::TextureStoreIndex; }
+		virtual int AddMaterielSpecularTextures(Ref<BindlessTextureArray>& bindlessTextures) const { return DefaultValues::TextureStoreIndex; }
+		virtual int AddMaterielHeightTextures(Ref<BindlessTextureArray>& bindlessTextures) const	{ return DefaultValues::TextureStoreIndex; }
 
-		virtual int GetMaterielAlbedoTextures(Ref<BindlesdTextureArray>& bindlessTextures) const { return DefaultValues::TextureStoreIndex; }
-		virtual int GetMaterielSpecularTextures(Ref<BindlesdTextureArray>& bindlessTextures) const { return DefaultValues::TextureStoreIndex; }
-		virtual int GetMaterielHeightTextures(Ref<BindlesdTextureArray>& bindlessTextures) const { return DefaultValues::TextureStoreIndex; }
+		virtual int GetMaterielAlbedoTextures(Ref<BindlessTextureArray>& bindlessTextures) const { return DefaultValues::TextureStoreIndex; }
+		virtual int GetMaterielSpecularTextures(Ref<BindlessTextureArray>& bindlessTextures) const { return DefaultValues::TextureStoreIndex; }
+		virtual int GetMaterielHeightTextures(Ref<BindlessTextureArray>& bindlessTextures) const { return DefaultValues::TextureStoreIndex; }
 
 		virtual Ref<Texture> GetAlbedoTextures() const { return nullptr; }
 		virtual Ref<Texture> GetSpecularTextures() const { return nullptr; }
@@ -337,7 +337,7 @@ namespace Rynex {
 
 	public:
 		template<typename _Key, typename N>
-		static int SetupMaterielObjectMapVector(const Ref<Material>& materiel, MapVector<_Key, N>& mapVector, Ref<BindlesdTextureArray>& bindlessTextureArray)
+		static int SetupMaterielObjectMapVector(const Ref<Material>& materiel, MapVector<_Key, N>& mapVector, Ref<BindlessTextureArray>& bindlessTextureArray)
 		{
 			const _Key& key = GetMaterielKey(mapVector, materiel);
 			if (!mapVector.HasKey(key))

@@ -23,7 +23,7 @@ namespace Rynex {
 
 	using UniformBindArray = std::array<Ref<UniformBuffer>, g_UniformBindArrayCount>;
 #ifdef RY_SHADER_STORAGE_BUFFER_OBJECT_VARIANTS
-	using StorageBufferVarints = std::variant<Ref<StorageBuffer>, Ref<BindlesdTextureArray>>;
+	using StorageBufferVarints = std::variant<Ref<StorageBuffer>, Ref<BindlessTextureArray>>;
 	using StorageBindArray = std::array<StorageBufferVarints, g_StorageBindArrayCount>;
 #else
 	using StorageBindArray = std::array<Ref<StorageBuffer>, g_StorageBindArrayCount >;
@@ -80,7 +80,7 @@ namespace Rynex {
 		Ref<VertexArray> m_VAO;
 		uint32_t m_IndicesCount = 0u;
 		Ref<IndirectBuffer> m_DrawBuffer;
-		Mesh::PerDrawObject m_DrawElement;
+		DrawElementsIndirectCommand m_DrawElement;
 		BindingShaderLayoutStatic m_BindingLayout;
 		int m_RenderMode = 0;
 
@@ -89,8 +89,8 @@ namespace Rynex {
 		ShaderDrawList(const Ref<Shader>& program, const Ref<VertexArray>& vao
 		    , const uint32_t indicesCount = 0u
 			, const Ref<IndirectBuffer>& drawBuffer = nullptr
-			, const Mesh::PerDrawObject& drawElement = Mesh::PerDrawObject()
-			, const BindingShaderLayoutStatic& bindingLayout = BindingShaderLayoutStatic()
+			, const DrawElementsIndirectCommand& drawElement = DrawElementsIndirectCommand{}
+			, const BindingShaderLayoutStatic& bindingLayout = BindingShaderLayoutStatic{}
 			, const int renderMode = 0
 		);
 

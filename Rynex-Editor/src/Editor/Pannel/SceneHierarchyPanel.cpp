@@ -868,7 +868,7 @@ namespace Rynex {
 				for (const MeshStatic::SingleObjectMeshData& singleMeshData : singleObjectMeshDataVec)
 				{
 					glm::mat4 model = transformC.m_Global * singleMeshData.m_LocaleCildrenMatrix;
-					staticRenderProxySystem.UpdateTrasform(enitityID, subMesh, model);
+					staticRenderProxySystem.UpdateTransform(enitityID, subMesh, model);
 					subMesh++;
 				}
 

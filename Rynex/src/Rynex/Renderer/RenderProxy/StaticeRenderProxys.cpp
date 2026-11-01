@@ -51,7 +51,7 @@ namespace Rynex {
         m_RenderProxysListData.Add(entity, subMesh, mesh, materiel, model);
     }
 
-    void StaticeRenderProxys::UpdateTrasform(int entity, uint32_t subMesh, const glm::mat4& model)
+    void StaticeRenderProxys::UpdateTransform(int entity, uint32_t subMesh, const glm::mat4& model)
     {
         m_RenderProxysListData.UpdateTrasform(entity, subMesh, model);
     }
@@ -509,7 +509,7 @@ namespace Rynex {
 
 
         Mesh::PerDrawObject drawElement = drawCallResource.perDrawObject;
-        drawElement.m_InstancesCount = batchVAO.curentIndex;
+        drawElement.m_InstancesCount = batchVAO.currentIndex;
 
         constexpr uint32_t bindSlotCameraUB = 1;
         constexpr uint32_t bindSlotShadowUB = 2;
@@ -561,7 +561,7 @@ namespace Rynex {
         Ref<VertexArray>& vertexArray = batchedRenderObjectVAO.vertexArray;       
         Ref<VertexBuffer>& instanceObjectVAB = batchedRenderObjectVAO.instanceObjectBuffer;
 
-        uint32_t instance = batchedRenderObjectVAO.curentIndex;
+        uint32_t instance = batchedRenderObjectVAO.currentIndex;
         uint32_t byteSize = instance * sizeof(Batch::Render3DMeshObject);
 
         if (vertexArray == nullptr)
@@ -593,9 +593,9 @@ namespace Rynex {
         Ref<VertexArray>& vertexArray = batchedRenderObjectVAO.vertexArray;
         Ref<VertexBuffer>& instanceObjectVAB = batchedRenderObjectVAO.instanceObjectBuffer;
 
-        uint32_t instance = batchedRenderObjectVAO.curentIndex;
+        uint32_t instance = batchedRenderObjectVAO.currentIndex;
         uint32_t byteSize = instance * sizeof(Batch::Render3DMeshObject);
-        Batch::Render3DMeshObject* batchDataPtr = batchedRenderObjectVAO.rendeObjectVec.data();
+        Batch::Render3DMeshObject* batchDataPtr = batchedRenderObjectVAO.renderObjectVec.data();
 
         BufferLayout layout = BufferLayout({
             { SDT::Float4x4, "a_ModelMatrix" },
@@ -619,9 +619,9 @@ namespace Rynex {
 
     void StaticeRenderProxys::ResizeVertexBufferRenderObject(BatchedRenderObjectVAO& batchedRenderObjectVAO)
     {
-        uint32_t instance = batchedRenderObjectVAO.curentIndex;
+        uint32_t instance = batchedRenderObjectVAO.currentIndex;
         uint32_t byteSize = instance * sizeof(Batch::Render3DMeshObject);
-        Batch::Render3DMeshObject* batchDataPtr = batchedRenderObjectVAO.rendeObjectVec.data();
+        Batch::Render3DMeshObject* batchDataPtr = batchedRenderObjectVAO.renderObjectVec.data();
 
         Ref<VertexBuffer>& instanceObjectVAB = batchedRenderObjectVAO.instanceObjectBuffer;
         instanceObjectVAB->ResizeBuffer(batchDataPtr, byteSize);
@@ -632,9 +632,9 @@ namespace Rynex {
         if (!batchedRenderObjectVAO.needUpdate)
             return;
 
-        uint32_t instance = batchedRenderObjectVAO.curentIndex;
+        uint32_t instance = batchedRenderObjectVAO.currentIndex;
         uint32_t byteSize = instance * sizeof(Batch::Render3DMeshObject);
-        Batch::Render3DMeshObject* batchDataPtr = batchedRenderObjectVAO.rendeObjectVec.data();
+        Batch::Render3DMeshObject* batchDataPtr = batchedRenderObjectVAO.renderObjectVec.data();
 
         Ref<VertexBuffer>& instanceObjectVAB = batchedRenderObjectVAO.instanceObjectBuffer;
         instanceObjectVAB->SetData(batchDataPtr, byteSize);

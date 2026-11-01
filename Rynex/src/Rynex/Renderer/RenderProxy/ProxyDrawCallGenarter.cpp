@@ -200,7 +200,7 @@ namespace Rynex {
 			return;
 
 		std::vector<RenderProxyDynamicElenenttData>& renderProxyDynamicDataTypeVec = m_BatchRenderObjectVAOPtr->renderProxyDynamicDataTypeVec;
-		Memory::DynamicDataStruct& dynamicDataStruct = m_BatchRenderObjectVAOPtr->rendeObjectDynamicElementStruct;
+		Memory::DynamicDataStruct& dynamicDataStruct = m_BatchRenderObjectVAOPtr->renderObjectDynamicElementStruct;
 
 	
 
@@ -251,7 +251,7 @@ namespace Rynex {
 		else
 			UplodeArrayDataBufferStaticGPU();
 
-		m_BatchRenderObjectVAOPtr->curentIndex = 0;
+		m_BatchRenderObjectVAOPtr->currentIndex = 0;
 		m_BatchRenderObjectVAOPtr->needUpdate = false;
 	}
 
@@ -261,7 +261,7 @@ namespace Rynex {
 
 
 		
-		Memory::DynamicDataStruct& dynamicDataStruct = m_BatchRenderObjectVAOPtr->rendeObjectDynamicElementStruct;
+		Memory::DynamicDataStruct& dynamicDataStruct = m_BatchRenderObjectVAOPtr->renderObjectDynamicElementStruct;
 		BufferLayout layout = dynamicDataStruct.GetLayout();
 		DynamicStructPtr dataPtr = dynamicDataStruct.Data();
 		const uint64_t layouteBytesSize = dynamicDataStruct.LayouteBytesSize();
@@ -289,7 +289,7 @@ namespace Rynex {
 			static const BufferLayout layoutDepth = BufferLayout({
 			   { SDT::Float4x4 ,"TransformMatrix" },
 			}, 1u);
-			Batch::Render3DMeshObjectTransform* dataBufferPtr = m_BatchRenderObjectVAOPtr->rendeObjectTransformVec.data();
+			Batch::Render3DMeshObjectTransform* dataBufferPtr = m_BatchRenderObjectVAOPtr->renderObjectTransformVec.data();
 			uint8_t* dataPtr = reinterpret_cast<uint8_t*>(dataBufferPtr);
 			uint64_t layouteBytesSize = sizeof(Batch::Render3DMeshObject);
 			const uint32_t& instaceCount = m_CurentDrawCall.m_DrawElement.m_InstancesCount;
@@ -305,7 +305,7 @@ namespace Rynex {
 			   { SDT::Int ,"Entity" },
 			   { SDT::Int3 ,"Empty" }
 		}, 1u);
-		Batch::Render3DMeshObject* dataBufferPtr = m_BatchRenderObjectVAOPtr->rendeObjectVec.data();
+		Batch::Render3DMeshObject* dataBufferPtr = m_BatchRenderObjectVAOPtr->renderObjectVec.data();
 		uint8_t* dataPtr = reinterpret_cast<uint8_t*>(dataBufferPtr);
 		uint64_t layouteBytesSize = sizeof(Batch::Render3DMeshObject);
 		const uint32_t& instaceCount = m_CurentDrawCall.m_DrawElement.m_InstancesCount;
@@ -315,9 +315,9 @@ namespace Rynex {
 
 	void ProxyDrawCallGenarter::AddProxyDataDynamic()
 	{
-		AddDataArray(0, m_BatchRenderObjectVAOPtr->rendeObjectDynamicElementStruct, m_BatchRenderObjectVAOPtr->curentIndex);
+		AddDataArray(0, m_BatchRenderObjectVAOPtr->renderObjectDynamicElementStruct, m_BatchRenderObjectVAOPtr->currentIndex);
 		m_BatchRenderObjectVAOPtr->needUpdate = true;
-		m_BatchRenderObjectVAOPtr->curentIndex++;
+		m_BatchRenderObjectVAOPtr->currentIndex++;
 	}
 
 	void ProxyDrawCallGenarter::AddProxyDataStatic()
@@ -535,7 +535,7 @@ namespace Rynex {
 			SetArrayDataBufferGPUContainerVertexTransformtion();
 			m_BatchRenderObjectVAOPtr->needUpdate = true;
 		}
-		else if (s_UseDyamincDatatStruct && m_BatchRenderObjectVAOPtr->rendeObjectDynamicElementStruct.Empty())
+		else if (s_UseDyamincDatatStruct && m_BatchRenderObjectVAOPtr->renderObjectDynamicElementStruct.Empty())
 		{
 		    SetArrayDataBufferGPUContainerVertexTransformtion();
 		    m_BatchRenderObjectVAOPtr->needUpdate = true;

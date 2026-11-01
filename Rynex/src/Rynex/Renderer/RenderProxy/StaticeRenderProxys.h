@@ -132,7 +132,7 @@ namespace Rynex {
 
 		void Add(int entity, uint32_t subMesh, const Ref<MeshSingle>& mesh, const Ref<Material>& materiel, const glm::mat4& model);
 		void UpdateTrasform(int entity, const glm::mat4& model);
-		void UpdateTrasform(int entity, uint32_t subMesh, const glm::mat4& model);
+		void UpdateTransform(int entity, uint32_t subMesh, const glm::mat4& model);
 
 		void Remove(int entity);
 		bool HasEntity(int entity);

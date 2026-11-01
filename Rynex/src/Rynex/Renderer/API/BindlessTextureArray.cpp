@@ -1,5 +1,5 @@
 #include <rypch.h>
-#include "BindlesdTextureArray.h"
+#include "BindlessTextureArray.h"
 
 #include <Rynex/Renderer/Rendering/Renderer.h>
 #include <Platform/OpenGL/OpenGLBindlessTextureArray.h>
@@ -7,7 +7,7 @@
 namespace Rynex {
 
 
-	Ref<BindlesdTextureArray> BindlesdTextureArray::CreateBindlesTextureArray(uint32_t initCount)
+	Ref<BindlessTextureArray> BindlessTextureArray::CreateBindlesTextureArray(uint32_t initCount)
 	{
 		switch (Renderer::GetAPI())
 		{
@@ -18,7 +18,7 @@ namespace Rynex {
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
 	}
-	Ref<BindlesdTextureArray> BindlesdTextureArray::CreateBindlesTextureArray(std::vector<Ref<Texture>>&& tex)
+	Ref<BindlessTextureArray> BindlessTextureArray::CreateBindlesTextureArray(std::vector<Ref<Texture>>&& tex)
 	{ 
 		switch (Renderer::GetAPI())
 		{
@@ -28,7 +28,7 @@ namespace Rynex {
 		RY_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
 	}
-	Ref<BindlesdTextureArray> BindlesdTextureArray::CreateBindlesTextureArray(std::initializer_list<Ref<Texture>> tex)
+	Ref<BindlessTextureArray> BindlessTextureArray::CreateBindlesTextureArray(std::initializer_list<Ref<Texture>> tex)
 	{
 		switch (Renderer::GetAPI())
 		{
@@ -39,7 +39,7 @@ namespace Rynex {
 		return nullptr;
 
 	}
-	Ref<BindlesdTextureArray> BindlesdTextureArray::CreateBindlesTextureArray()
+	Ref<BindlessTextureArray> BindlessTextureArray::CreateBindlesTextureArray()
 	{
 		switch (Renderer::GetAPI())
 		{

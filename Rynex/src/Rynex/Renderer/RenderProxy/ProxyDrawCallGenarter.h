@@ -18,7 +18,7 @@ namespace Rynex {
 	class ProxyDrawCallGenarter
 	{
 	public:
-		using BufferGPU = std::variant<Ref<Texture>, Ref<LinkedTextureArray>, Ref<BindlesdTextureArray>>;
+		using BufferGPU = std::variant<Ref<Texture>, Ref<LinkedTextureArray>, Ref<BindlessTextureArray>>;
 		using ElementBufferGPU = std::variant<Ref<VertexBuffer>, Ref<StorageBuffer>, Ref<UniformBuffer>>;
 		using ContainerBufferGPU = std::vector<BufferGPU>;
 	// public member variable -------------------------------------------------------------------------------------------------
