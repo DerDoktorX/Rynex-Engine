@@ -5,9 +5,14 @@
 
 
 namespace Rynex {
+    enum class SectionFill : uint8_t
+    {
+        HasRoom = 0u,   // element stored, next Add() fits into the same section
+        Full            // element stored, the NEXT Add() needs a new section
+    };
 
     template<typename Section, typename Source, typename Indices = NoIndices>
-    class InterfaceBase 
+    class InterfaceBase
     {
     public:
         using Unit = uint32_t;
@@ -16,156 +21,68 @@ namespace Rynex {
             : m_SectionPtr(nullptr)
         {
         }
-        
-        virtual ~InterfaceBase()
-        {
-            m_SectionPtr = nullptr;
-        }
-
 
         // methods to control sectionPtr
-        virtual void SetSection(Section* sectionPtr)
+        void BindSection(Section* sectionPtr)
         {
             m_SectionPtr = sectionPtr;
         }
 
-        virtual Section* GetSection() const
+        Section* GetSection() const
         {
             return m_SectionPtr;
         }
 
-        // methods called from ControlSlot to change data
-        virtual DrawSplit HasSection(const Source& source)
-        {
-            RY_CORE_ASSERT(nullptr != m_SectionPtr, "Section is nullptr");
-            return m_SectionPtr->Has(source);
-        }
 
-        virtual Indices GetIndices() const
-        {
-            RY_CORE_ASSERT(nullptr != m_SectionPtr, "Section is nullptr");
-            return m_SectionPtr->GetIndices();
-        }
-
-        virtual bool AddSection(const Source& source)
-        {
-            RY_CORE_ASSERT(nullptr != m_SectionPtr, "Section is nullptr");
-            return m_SectionPtr->Add(source);
-        }
-
-        virtual void SetSection(const Source& source)
-        {
-            RY_CORE_ASSERT(nullptr != m_SectionPtr, "Section is nullptr");
-            m_SectionPtr->Set(source);
-        }
-
-        virtual void ClearSection()
-        {
-            RY_CORE_ASSERT(nullptr != m_SectionPtr, "Section is nullptr");
-            m_SectionPtr->Clear();
-        }
-
-
-        // methods called from Command Build get access to Buffer data or directly access to Gpu Buffer even shaders.
-        virtual BufferLayout GetBufferLayout(const Unit index) const
-        {
-            return m_SectionPtr->GetBufferLayout(index);
-        }
-        virtual Span<const Byte> GetBufferData(Unit index) const
-        {
-            return m_SectionPtr->GetBufferData(index);
-        }
-        virtual Ref<VertexBuffer> GetVertexBuffer(Unit index) const
-        {
-            return m_SectionPtr->GetVertexBuffer(index);
-        }
-        virtual Ref<IndexBuffer> GetIndexBuffer(Unit index) const
-        {
-            return m_SectionPtr->GetIndexBuffer(index);
-        }
-        virtual Ref<UniformBuffer> GetUniformBuffer(Unit index) const
-        {
-            return m_SectionPtr->GetUniformBuffer(index);
-        }
-        virtual Ref<StorageBuffer> GetStorageBuffer(Unit index) const
-        {
-            return m_SectionPtr->GetStorageBuffer(index);
-        }
-        virtual Ref<Texture> GetTexture(Unit index) const
-        {
-            return m_SectionPtr->GetTexture(index);
-        }
-        virtual Ref<LinkedTextureArray> GetLinkedTextureArray(Unit index) const
-        {
-            return m_SectionPtr->GetLinkedTextureArray(index);
-        }
-        virtual Ref<BindlessTextureArray> GetBindlessTextureArray(Unit index) const
-        {
-            return m_SectionPtr->GetBindlessTextureArray(index);
-        }
-        virtual Ref<Shader> GetShader(Unit index) const
-        {
-            return m_SectionPtr->GetShader(index);
-        }
     protected:
+        Section& Current()
+        {
+            RY_CORE_ASSERT(nullptr != m_SectionPtr, "Section is nullptr");
+            return *m_SectionPtr;
+        }
+    private:
         Section* m_SectionPtr;
     };
 
     template<typename RefSection>
-    class InterfaceRefBase : public InterfaceBase<Ref<RefSection>, Ref<RefSection>, NoIndices>
+    class RefInterface : public InterfaceBase<Ref<RefSection>, Ref<RefSection>, NoIndices>
     {
     public:
-        using Unit = uint32_t;
+        using Handle = Ref<Resource>;
 
 
     // public member operator --------------------------------------------------------------------------------------------------
-        InterfaceRefBase()
-            : InterfaceBase<Ref<RefSection>, Ref<RefSection>>()
+        DrawSplit HasSection(const Handle& source) const
         {
-        }
-
-        virtual ~InterfaceRefBase() override
-        {
-            this->m_SectionPtr = nullptr;
-        }
-
-
-        // methods called from ControlSlot to change data
-        virtual DrawSplit HasSection(const Ref<RefSection>& source) override
-        {
-            Ref<RefSection>* sectionPtr = this->m_SectionPtr;
+            const Handle* sectionPtr = this->m_SectionPtr;
             if (nullptr == sectionPtr)
                 return DrawSplit::NewDraw;
-            Ref<RefSection>& sectionRef = this->m_SectionPtr;
-            if (source == sectionRef)
+
+            const Handle& current = *sectionPtr;
+            if (current == source)
                 return DrawSplit::Same;
+
             return DrawSplit::NewDraw;
         }
 
-        virtual NoIndices GetIndices() const override
+        void SetSection(const Handle& source)
         {
-            return NoIndices{};
+            Handle& current = this->Current();
+            current = source;
         }
 
-        virtual bool AddSection(const Ref<RefSection>& source) override = 0;
-        virtual void SetSection(const Ref<RefSection>& source) override
+        void ClearSection()
         {
-            Ref<RefSection>* sectionPtr = this->m_SectionPtr;
-            RY_CORE_ASSERT(nullptr != sectionPtr, "Section is nullptr");
-            *sectionPtr = source;
+            Handle& current = this->Current();
+            current.reset();
         }
-
-        virtual void ClearSection()
+    protected:
+        RefInterface::Resource& GetResource()
         {
-            Ref<RefSection>* sectionPtr = this->m_SectionPtr;
-            RY_CORE_ASSERT(nullptr != sectionPtr, "Section is nullptr");
-            Ref<RefSection>& sectionRef = *sectionPtr;
-            RY_DESTROY_REF(sectionRef);
+            Handle& handle = this->Current();
+            RY_CORE_ASSERT(nullptr != handle, "the stored resource is nullptr!");
+            return *handle;
         }
-
-
-        virtual BufferLayout GetBufferLayout(const Unit index) const override = 0;
-        virtual Span<const Byte> GetBufferData(const Unit index) const override = 0;
 
     };
 

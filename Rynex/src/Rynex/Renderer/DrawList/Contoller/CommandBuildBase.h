@@ -6,6 +6,7 @@
 
 
 namespace Rynex {
+    class CachedBufferRegister;
 
 
     struct BuildContext
@@ -16,171 +17,279 @@ namespace Rynex {
     enum class BindingKind : uint8_t
     {
         Vertex = 0u,
+        Index,
         Texture,
         Uniform,
         Storage,
         Other       // no slot, for example the shader program
     };
-    namespace Binding {
 
-        template<size_t Slot, size_t Index = 0u>
-        struct Vertex
+    enum class CacheBufferMode : uint8_t
+    {
+        None = 0u,
+        UniqueCachedHash, // ask the interface for hash value. Create his own if noe available.
+        UniqueNoCache,
+        AcquireBuffer,
+    };
+
+    namespace Utils {
+
+        template<typename Buffer, size_t Index, bool StoreHash, typename Interface>
+        static Ref<Buffer> CreateBufferUnique(const Span<const Byte>& dataBuffer, const Interface& interface, CachedBufferRegister& cache)
         {
-            static constexpr BindingKind s_Kind = BindingKind::Vertex;
-            static constexpr uint64_t s_Bit = 1ull << Index;
+            BufferLayout layout = interface.GetBufferLayout(Index);
+            auto [hash, buffer] = cache.AcquireUniqueBuffer<Ref<Buffer>>(dataBuffer);
+            if constexpr (StoreHash)
+                interface.SetHash<Index>(hash);
+            return buffer;
+        }
 
-            using Element = VertexArray::VertexElements;
-            template<typename Interface, typename ElementSpan>
-            static void Collect(const Interface& source, BuildContext& context, ElementSpan& elementSpan)
-            {
-                using Element = typename ElementSpan::value_type;
-                Ref<VertexBuffer> buffer = source.GetVertexBuffer(Index);
-                elementSpan[Slot] = Element{ buffer };
-            }
-        };
-
-        template<size_t Slot, size_t Index = 0u>
-        struct Texture
+        template<typename Buffer, CacheBufferMode Mode, size_t Index, typename Interface>
+        static Ref<Buffer> AcquireBufferSource(Interface& interface, BuildContext& context)
         {
-            static constexpr BindingKind s_Kind = BindingKind::Texture;
-            static constexpr uint64_t s_Bit = 1ull << Index;
-
-            using Element = Ref<Rynex::Texture>;
-            template<typename Interface, typename ElementSpan>
-            static void Apply(const Interface& source, BuildContext& context, Span<Element>& elementSpan)
+            if constexpr(CacheBufferMode::None == Mode)
             {
-                Element texture = source.GetTexture(Index);
-                elementSpan[Slot] = texture;
+                return interface.GetBuffer<Ref<Buffer>, Index>();
             }
-        };
 
-        template<size_t Slot, size_t Index = 0u>
-        struct Uniform
-        {
-            static constexpr BindingKind s_Kind = BindingKind::Uniform;
-            static constexpr uint64_t s_Bit = 1ull << Index;
-
-            using Element = Ref<UniformBuffer>;
-            template<typename Interface, typename ElementSpan>
-            static void Apply(const Interface& source, BuildContext& context, Span<Element>& elementSpan)
+            if constexpr (CacheBufferMode::UniqueCachedHash == Mode)
             {
-                Element uniformBuffer = source.GetUniformBuffer(Index);
-                elementSpan[Slot] = uniformBuffer;
+                Hash64 hash = interface.GetHash<Index>();
+                if (Hash64::Zero() != hash)
+                {
+                    Ref<Buffer> buffer = context.m_Cache.AcquireUniqueBufferHash<Ref<Buffer>>(hash);
+                    if (nullptr != buffer)
+                        return buffer;
+                }
+                Span<const Byte> dataBuffer = interface.GetBufferData<Index>();
+                return CreateBufferUnique<Buffer, Index, true>(dataBuffer, interface, context, context.m_Cache);
             }
-        };
 
-        template<size_t Slot, size_t Index = 0u>
-        struct Storage
-        {
-            static constexpr BindingKind s_Kind = BindingKind::Storage;
-            static constexpr uint64_t s_Bit = 1ull << Index;
-
-            using Element = Ref<StorageBuffer>;
-            template<typename Interface, typename ElementSpan>
-            static void Apply(const Interface& source, BuildContext& context, Span<Element>& elementSpan)
+            Span<const Byte> dataBuffer = interface.GetBufferData(Index);
+            if constexpr (CacheBufferMode::AcquireBuffer == Mode)
             {
-                Element storageBuffer = source.GetStorageBuffer(Index);
-                elementSpan[Slot] = storageBuffer;
+                return context.m_Cache.AcquireBuffer<Ref<Buffer>>(dataBuffer);
             }
-        };
+            if constexpr (CacheBufferMode::UniqueNoCache == Mode)
+            {
+                return CreateBufferUnique<Buffer, Index, false>(dataBuffer, interface, context.m_Cache);
+            }
+
+            return Ref<Buffer>{ nullptr };
+        }
     }
 
-    namespace RegisterBinding {
+#if 0
+    template<size_t Slot, size_t Index = 0u, CacheBufferMode Mode = CacheBufferMode::AcquireBuffer>
+    struct BindingVertex
+    {
+        static constexpr BindingKind s_Kind = BindingKind::Vertex;
+        static constexpr uint64_t s_Bit = 1ull << Index;
 
-        template<size_t Slot, size_t Index = 0u>
-        struct Vertex
+        using Element = VertexArray::VertexElements;
+        template<typename Interface, typename ElementSpan>
+        static void Collect(const Interface& interface, BuildContext& context, ElementSpan& elementSpan)
         {
-            static constexpr BindingKind s_Kind = BindingKind::Vertex;
-            static constexpr uint64_t s_Bit = 1ull << Index;
+            using Element = typename ElementSpan::value_type;
+            Ref<VertexBuffer> buffer = Utils::AcquireBufferSource<VertexBuffer, Mode, Index, Interface>(interface, context);
+            elementSpan[Slot] = Element{ buffer };
+        }
+    };
 
-            using Element = VertexArray::VertexElements;
+    template<size_t Slot, size_t Index = 0u, CacheBufferMode Mode = CacheBufferMode::AcquireBuffer>
+    struct BindingTexture
+    {
+        static constexpr BindingKind s_Kind = BindingKind::Texture;
+        static constexpr uint64_t s_Bit = 1ull << Index;
 
-            template<typename Interface>
-            static void Collect(const Interface& source, BuildContext& context, Span<Element>& vertexElementsSpan)
-            {
-                const Span<const Byte> data = source.GetBufferData(Index);
-                const BufferLayout layout = source.GetBufferLayout(Index);
-                Ref<VertexBuffer> buffer = context.m_Cache.AcquireVertexBuffer(data);
-                elements[Slot] = Element{ layout, buffer };
-            }
-        };
-
-        template<size_t Slot, size_t Index = 0u>
-        struct Texture
+        using Element = Ref<Texture>;
+        template<typename Interface, typename ElementSpan>
+        static void Apply(const Interface& source, BuildContext& context, Span<Element>& elementSpan)
         {
-            static constexpr BindingKind s_Kind = BindingKind::Texture;
-            static constexpr uint64_t s_Bit = 1ull << Index;
+            Element texture = Utils::AcquireBufferSource<Texture, Mode, Index, Interface>(interface, context);
+            elementSpan[Slot] = texture;
+        }
+    };
 
-            using Element = Ref<Rynex::Texture>;
+    template<size_t Slot, size_t Index = 0u, CacheBufferMode Mode = CacheBufferMode::AcquireBuffer>
+    struct BindingUniform
+    {
+        static constexpr BindingKind s_Kind = BindingKind::Uniform;
+        static constexpr uint64_t s_Bit = 1ull << Index;
 
-            template<typename Interface>
-            static void Apply(const Interface& source, BuildContext& context, Span<Element>& vertexElementsSpan)
-            {
-                const Span<const Byte> data = source.GetBufferData(Index);
-                const TextureSpecification specifcation = source.GetTextureSpec(Index);
-                Ref<Rynex::Texture> texture = context.m_Cache.AcquireTexture(specifcation, data);
-                elements[Slot] = texture;
-            }
-        };
-
-        template<size_t Slot, size_t Index = 0u>
-        struct Uniform
+        using Element = Ref<UniformBuffer>;
+        template<typename Interface, typename ElementSpan>
+        static void Apply(const Interface& source, BuildContext& context, Span<Element>& elementSpan)
         {
-            static constexpr BindingKind s_Kind = BindingKind::Uniform;
-            static constexpr uint64_t s_Bit = 1ull << Index;
+            Ref<UniformBuffer> buffer = Utils::AcquireBufferSource<UniformBuffer, Mode, Index, Interface>(interface, context);
+            elementSpan[Slot] = buffer;
+        }
+    };
 
-            using Element = Ref<UniformBuffer>;
-            template<typename Interface, typename ElementSpan>
-            static void Apply(const Interface& source, BuildContext& context, Span<Element>& elementSpan)
-            {
-                Element uniformBuffer = source.GetUniformBuffer(Index);
-                elementSpan[Slot] = uniformBuffer;
-            }
-        };
+    template<size_t Slot, size_t Index = 0u, CacheBufferMode Mode = CacheBufferMode::AcquireBuffer>
+    struct BindingStorage
+    {
+        static constexpr BindingKind s_Kind = BindingKind::Storage;
+        static constexpr uint64_t s_Bit = 1ull << Index;
 
-        template<size_t Slot, size_t Index = 0u>
-        struct Storage
+        using Element = Ref<StorageBuffer>;
+        template<typename Interface, typename ElementSpan>
+        static void Apply(const Interface& source, BuildContext& context, Span<Element>& elementSpan)
         {
-            static constexpr BindingKind s_Kind = BindingKind::Storage;
-            static constexpr uint64_t s_Bit = 1ull << Index;
+            Ref<StorageBuffer> buffer = Utils::AcquireBufferSource<UniformBuffer, Mode, Index, Interface>(interface, context);
+            elementSpan[Slot] = buffer;
+        }
+    };
 
-            using Element = Ref<StorageBuffer>;
-            template<typename Interface, typename ElementSpan>
-            static void Apply(const Interface& source, BuildContext& context, Span<Element>& elementSpan)
+    template<size_t Slot, size_t Index = 0u, CacheBufferMode Mode = CacheBufferMode::AcquireBuffer>
+    struct BindingIndex
+    {
+        static constexpr BindingKind s_Kind = BindingKind::Index;
+        static constexpr uint64_t s_Bit = 1ull << Index;
+
+        using Element = Ref<IndexBuffer>;
+        template<typename Interface, typename ElementSpan>
+        static void Apply(const Interface& source, BuildContext& context, Span<Element>& elementSpan)
+        {
+            Ref<IndexBuffer> buffer = Utils::AcquireBufferSource<IndexBuffer, Mode, Index, Interface>(interface, context);
+            elementSpan[Slot] = buffer;
+        }
+    };
+#else
+    template<size_t Slot, size_t Index, CacheBufferMode Mode, typename  Buffer, BindingKind Kind>
+    struct BindingGenericBufferCollect
+    {
+        static constexpr BindingKind s_Kind = Kind;
+        static constexpr uint64_t s_Bit = 1ull << Index;
+
+        using Element = Ref<Buffer>;
+        template<typename Interface>
+        static void Collect(const Interface& interface, BuildContext& context, Span<Element>& elementSpan)
+        {
+            Ref<Buffer> buffer = Utils::AcquireBufferSource<Buffer, Mode, Index, Interface>(interface, context);
+            elementSpan[Slot] = buffer;
+        }
+    };
+
+    template<size_t Slot, size_t Index, CacheBufferMode Mode, typename Buffer, BindingKind Kind>
+    struct BindingGenericBufferApply
+    {
+        static constexpr BindingKind s_Kind = Kind;
+        static constexpr uint64_t s_Bit = 1ull << Index;
+
+        using Element = Ref<Buffer>;
+        template<typename Interface>
+        static void Apply(const Interface& interface, BuildContext& context, Span<Element>& elementSpan)
+        {
+            Ref<Buffer> buffer = Utils::AcquireBufferSource<Buffer, Mode, Index, Interface>(interface, context);
+            elementSpan[Slot] = buffer;
+        }
+    };
+
+    template<size_t Slot, CacheBufferMode Mode, size_t Index = 0ull>
+    using BindingVertex = BindingGenericBufferCollect<Slot, Index, Mode, VertexBuffer, BindingKind::Vertex>;
+
+    template<size_t Slot, CacheBufferMode Mode, size_t Index = 0ull>
+    using BindingIndex = BindingGenericBufferApply<Slot, Index, Mode, IndexBuffer, BindingKind::Index>;
+
+    template<size_t Slot, CacheBufferMode Mode, size_t Index = 0ull>
+    using BindingUniform = BindingGenericBufferApply<Slot, Index, Mode, UniformBuffer, BindingKind::Uniform>;
+
+    template<size_t Slot, CacheBufferMode Mode, size_t Index = 0ull>
+    using BindingStorage = BindingGenericBufferApply<Slot, Index, Mode, StorageBuffer, BindingKind::Storage>;
+
+    template<size_t Slot, CacheBufferMode Mode, size_t Index = 0ull>
+    struct BindingTexture
+    {
+        static constexpr BindingKind s_Kind = BindingKind::Texture;
+        static constexpr uint64_t s_Bit = 1ull << Index;
+
+        using Element = Ref<Buffer>;
+
+        template<typename Interface>
+        static void Apply(const Interface& interface, BuildContext& context, Span<Element>& elementSpan)
+        {
+            Ref<Texture> texture = nullptr;
+            if constexpr (CacheBufferMode::None == Mode)
             {
-                Span<Byte> data = source.GetBufferData(Index);
-                BufferLayout layout = source.GetBufferLayout(Index);
-                
-                Element storageBuffer = context.m_Cache.AcquireStorageBuffer();
-                elementSpan[Slot] = storageBuffer;
+                texture = interface.GetTexture<Index>();
             }
-        };
-    }
+            else if constexpr (CacheBufferMode::AcquireBuffer == Mode)
+            {
+                const TextureSpecification& spec = interface.GetSpecification<Index>();
+                texture = context.m_Cache.AcquireTexture();
+            }
+            else
+            {
+                static_assert(false, "Unknown Cache Mode");
+            }
+            elementSpan[Slot] = texture;
+        }
 
-    template<typename Interface, bool VertexBuffer = false, bool BindBuffers = true>
-    class CommandBuildBase 
+    };
+
+    template<size_t Index = 0ull>
+    struct BindingShader
+    {
+        static constexpr BindingKind s_Kind = BindingKind::Other;
+        static constexpr uint64_t s_Bit = 1ull << Index;
+
+        using Element = Ref<Shader>;
+
+        template<typename Interface>
+        static void Apply(const Interface& interface, BuildContext& context, Span<Element>& elementSpan)
+        {
+            Ref<Shader> shader = interface.GetShader<Index>();
+            context.m_Draw.shaderProgram = shader;
+        }
+    };
+#endif
+
+
+    template<typename InterfaceType, typename... Bindings>
+    class DeclaredBuild
     {
     public:
-        static constexpr bool s_HasVertexBuffer = VertexBuffer;
-        static constexpr bool s_HasBindBuffers = BindBuffers;
+        using Interface = InterfaceType;
     // public member methods --------------------------------------------------------------------------------------------------
-        CommandBuildBase() = delete;
-        CommandBuildBase(const CommandBuildBase&) = delete;
-        explicit CommandBuildBase(CachedBufferRegister& cache, Interface& interfaceType, ShaderDrawResource& drawResource)
+        DeclaredBuild() = delete;
+        DeclaredBuild(const DeclaredBuild&) = delete;
+        explicit DeclaredBuild(CachedBufferRegister& cache, Interface& interfaceType, ShaderDrawResource& drawResource)
             : m_Interface(interfaceType)
-            , m_Cache(cache)
-            , m_DrawResource(drawResource)
+            , m_Context{ cache, drawResource }
         {}
         
-        ~CommandBuildBase()
+        ~DeclaredBuild()
         {
         }
 
 
-    protected:
+        void CollectVertexBuffer(Span<VertexArray::VertexElements>& elements)
+        {
+            (CollectOne<Bindings>(elements), ...);
+        }
+
+        void BindCommand()
+        {
+            (BindOne<Bindings>(), ...);
+        }
+    private:
+        template<typename Binding, typename ElementSpan>
+        void CollectOne(ElementSpan& elements)
+        {
+            if constexpr (BindingKind::Vertex == Binding::s_Kind)
+                Binding::Collect(m_Interface, m_Context, elements);
+        }
+
+        template<typename Binding>
+        void BindOne()
+        {
+            if constexpr (BindingKind::Vertex != Binding::s_Kind)
+                Binding::Apply(m_Interface, m_Context);
+        }
+        // --- private member variables ------------------------------------------------------------------------------------
         Interface& m_Interface;
-        CachedBufferRegister& m_Cache;
-        ShaderDrawResource& m_DrawResource;
+        BuildContext m_Context;
     };
 
 
