@@ -35,44 +35,44 @@ namespace Rynex {
     namespace Utils {
 
         template<typename Buffer, size_t Index, bool StoreHash, typename Interface>
-        static Ref<Buffer> CreateBufferUnique(const Span<const Byte>& dataBuffer, const Interface& interface, CachedBufferRegister& cache)
+        static Ref<Buffer> CreateBufferUnique(const Span<const Byte>& dataBuffer, const Interface& source, CachedBufferRegister& cache)
         {
-            BufferLayout layout = interface.GetBufferLayout(Index);
+            BufferLayout layout = source.GetBufferLayout(Index);
             auto [hash, buffer] = cache.AcquireUniqueBuffer<Ref<Buffer>>(dataBuffer);
             if constexpr (StoreHash)
-                interface.SetHash<Index>(hash);
+                source.SetHash<Index>(hash);
             return buffer;
         }
 
         template<typename Buffer, CacheBufferMode Mode, size_t Index, typename Interface>
-        static Ref<Buffer> AcquireBufferSource(Interface& interface, BuildContext& context)
+        static Ref<Buffer> AcquireBufferSource(Interface& source, BuildContext& context)
         {
             if constexpr(CacheBufferMode::None == Mode)
             {
-                return interface.GetBuffer<Ref<Buffer>, Index>();
+                return source.GetBuffer<Ref<Buffer>, Index>();
             }
 
             if constexpr (CacheBufferMode::UniqueCachedHash == Mode)
             {
-                Hash64 hash = interface.GetHash<Index>();
+                Hash64 hash = source.GetHash<Index>();
                 if (Hash64::Zero() != hash)
                 {
                     Ref<Buffer> buffer = context.m_Cache.AcquireUniqueBufferHash<Ref<Buffer>>(hash);
                     if (nullptr != buffer)
                         return buffer;
                 }
-                Span<const Byte> dataBuffer = interface.GetBufferData<Index>();
-                return CreateBufferUnique<Buffer, Index, true>(dataBuffer, interface, context, context.m_Cache);
+                Span<const Byte> dataBuffer = source.GetBufferData<Index>();
+                return CreateBufferUnique<Buffer, Index, true>(dataBuffer, source, context, context.m_Cache);
             }
 
-            Span<const Byte> dataBuffer = interface.GetBufferData(Index);
+            Span<const Byte> dataBuffer = source.GetBufferData(Index);
             if constexpr (CacheBufferMode::AcquireBuffer == Mode)
             {
                 return context.m_Cache.AcquireBuffer<Ref<Buffer>>(dataBuffer);
             }
             if constexpr (CacheBufferMode::UniqueNoCache == Mode)
             {
-                return CreateBufferUnique<Buffer, Index, false>(dataBuffer, interface, context.m_Cache);
+                return CreateBufferUnique<Buffer, Index, false>(dataBuffer, source, context.m_Cache);
             }
 
             return Ref<Buffer>{ nullptr };
@@ -164,9 +164,9 @@ namespace Rynex {
 
         using Element = Ref<Buffer>;
         template<typename Interface>
-        static void Collect(const Interface& interface, BuildContext& context, Span<Element>& elementSpan)
+        static void Collect(const Interface& source, BuildContext& context, Span<Element>& elementSpan)
         {
-            Ref<Buffer> buffer = Utils::AcquireBufferSource<Buffer, Mode, Index, Interface>(interface, context);
+            Ref<Buffer> buffer = Utils::AcquireBufferSource<Buffer, Mode, Index, Interface>(source, context);
             elementSpan[Slot] = buffer;
         }
     };
@@ -179,10 +179,13 @@ namespace Rynex {
 
         using Element = Ref<Buffer>;
         template<typename Interface>
-        static void Apply(const Interface& interface, BuildContext& context, Span<Element>& elementSpan)
+        static void Apply(const Interface& source, BuildContext& context)
         {
-            Ref<Buffer> buffer = Utils::AcquireBufferSource<Buffer, Mode, Index, Interface>(interface, context);
-            elementSpan[Slot] = buffer;
+            Ref<Buffer> buffer = Utils::AcquireBufferSource<Buffer, Mode, Index, Interface>(source, context);
+            if constexpr (std::is_same_v<Buffer, StorageBuffer> || std::is_same_v<Buffer, BindlessTextureArray> )
+                context.m_Draw.GetBindStorage()[Slot] = buffer;
+            if constexpr (std::is_same_v<Buffer, UniformBuffer>)
+                context.m_Draw.GetBindUniform()[Slot] = buffer;
         }
     };
 
@@ -190,7 +193,7 @@ namespace Rynex {
     using BindingVertex = BindingGenericBufferCollect<Slot, Index, Mode, VertexBuffer, BindingKind::Vertex>;
 
     template<size_t Slot, CacheBufferMode Mode, size_t Index = 0ull>
-    using BindingIndex = BindingGenericBufferApply<Slot, Index, Mode, IndexBuffer, BindingKind::Index>;
+    using BindingIndex = BindingGenericBufferCollect<Slot, Index, Mode, IndexBuffer, BindingKind::Index>;
 
     template<size_t Slot, CacheBufferMode Mode, size_t Index = 0ull>
     using BindingUniform = BindingGenericBufferApply<Slot, Index, Mode, UniformBuffer, BindingKind::Uniform>;
@@ -207,23 +210,23 @@ namespace Rynex {
         using Element = Ref<Buffer>;
 
         template<typename Interface>
-        static void Apply(const Interface& interface, BuildContext& context, Span<Element>& elementSpan)
+        static void Apply(const Interface& source, BuildContext& context)
         {
             Ref<Texture> texture = nullptr;
             if constexpr (CacheBufferMode::None == Mode)
             {
-                texture = interface.GetTexture<Index>();
+                texture = source.GetTexture<Index>();
             }
             else if constexpr (CacheBufferMode::AcquireBuffer == Mode)
             {
-                const TextureSpecification& spec = interface.GetSpecification<Index>();
-                texture = context.m_Cache.AcquireTexture();
+                const TextureSpecification& spec = source.GetSpecification<Index>();
+                texture = context.m_Cache.AcquireTexture(spec);
             }
             else
             {
-                static_assert(false, "Unknown Cache Mode");
+                static_assert(false, "Unknown CacheBufferMode");
             }
-            elementSpan[Slot] = texture;
+            context.m_Draw.GetBindTextures()[Slot] = texture;
         }
 
     };
@@ -237,9 +240,9 @@ namespace Rynex {
         using Element = Ref<Shader>;
 
         template<typename Interface>
-        static void Apply(const Interface& interface, BuildContext& context, Span<Element>& elementSpan)
+        static void Apply(const Interface& source, BuildContext& context)
         {
-            Ref<Shader> shader = interface.GetShader<Index>();
+            Ref<Shader> shader = source.GetShader<Index>();
             context.m_Draw.shaderProgram = shader;
         }
     };
