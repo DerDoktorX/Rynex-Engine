@@ -186,7 +186,13 @@ namespace Rynex::Control {
         }
 #else
 
-        class Interface : public InterfaceBase<Ref<>>
+
+        class Interface : public InterfaceBase<DrawElementsIndirectCommand>
+        {
+        public:
+            
+        };
+
 #endif
 
         class CommandBuild

@@ -192,8 +192,8 @@ namespace Rynex {
     template<size_t Slot, CacheBufferMode Mode, size_t Index = 0ull>
     using BindingVertex = BindingGenericBufferCollect<Slot, Index, Mode, VertexBuffer, BindingKind::Vertex>;
 
-    template<size_t Slot, CacheBufferMode Mode, size_t Index = 0ull>
-    using BindingIndex = BindingGenericBufferCollect<Slot, Index, Mode, IndexBuffer, BindingKind::Index>;
+    template<CacheBufferMode Mode, size_t Index = 0ull>
+    using BindingIndex = BindingGenericBufferCollect<0ull, Index, Mode, IndexBuffer, BindingKind::Index>;
 
     template<size_t Slot, CacheBufferMode Mode, size_t Index = 0ull>
     using BindingUniform = BindingGenericBufferApply<Slot, Index, Mode, UniformBuffer, BindingKind::Uniform>;
@@ -248,11 +248,41 @@ namespace Rynex {
     };
 #endif
 
+    template<BindingKind Kind, typename... Bindings>
+    constexpr uint32_t CountOfKind()
+    {
+        uint32_t count = 0u;
+
+        ([&]()
+            {
+                count += Bindings::s_Kind == Kind ? 1u : 0u;
+            }(), ...);
+        return count;
+    }
+
+    template<BindingKind Kind, typename... Bindings>
+    constexpr uint64_t MaskOfKind()
+    {
+        uint64_t mask = 0u;
+        ([&]()
+            {
+                mask |= Bindings::s_Kind == Kind ? Bindings::s_Bit : 0;
+            }(), ...);
+        return mask;
+    }
 
     template<typename InterfaceType, typename... Bindings>
     class DeclaredBuild
     {
     public:
+        static constexpr uint64_t s_VertexSlotMask = MaskOfKind<BindingKind::Vertex, Bindings...>();
+        static constexpr uint64_t s_TextureSlotMask = MaskOfKind<BindingKind::Texture, Bindings...>();
+        static constexpr uint64_t s_UniformSlotMask = MaskOfKind<BindingKind::Uniform, Bindings...>();
+        static constexpr uint64_t s_StorageSlotMask = MaskOfKind<BindingKind::Storage, Bindings...>();
+
+
+        static constexpr uint32_t s_VertexBindingCount = CountOfKind<BindingKind::Vertex, Bindings...>();
+
         using Interface = InterfaceType;
     // public member methods --------------------------------------------------------------------------------------------------
         DeclaredBuild() = delete;
@@ -260,7 +290,8 @@ namespace Rynex {
         explicit DeclaredBuild(CachedBufferRegister& cache, Interface& interfaceType, ShaderDrawResource& drawResource)
             : m_Interface(interfaceType)
             , m_Context{ cache, drawResource }
-        {}
+        {
+        }
         
         ~DeclaredBuild()
         {
@@ -293,6 +324,17 @@ namespace Rynex {
         // --- private member variables ------------------------------------------------------------------------------------
         Interface& m_Interface;
         BuildContext m_Context;
+    };
+
+    template<typename InterfaceType, typename BuildType>
+    struct ControlDescriptor
+    {
+        using Interface = InterfaceType;
+        using CommandBuild = BuildType;
+        using Section = typename Interface::Section;
+        using Source = typename Interface::Source;
+        using Indices = typename Interface::Indices;
+
     };
 
 
