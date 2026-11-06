@@ -3,6 +3,7 @@
 #include <Rynex/Renderer/DrawList/DrawListTypes.h>
 #include <Rynex/Renderer/DrawList/Contoller/InterfaceBase.h>
 
+
 namespace Rynex {
     enum class SectionFill : uint8_t
     {
@@ -13,10 +14,11 @@ namespace Rynex {
 
 
 #if 1
-    template<typename Policy>
+    template<typename PolicyType>
     class VectorSection
     {
     public:
+        using Policy = PolicyType;
         using Source = typename Policy::Source;
         using Element = typename Policy::Element;
 
@@ -54,6 +56,20 @@ namespace Rynex {
         {
             static_assert(0ull == Index, "index out of range! -> ( 0 )");
             return AsBytes(m_Elements);
+        }
+
+        template<size_t Index>
+        static TextureSpecification GetSpecification()
+        {
+            static_assert(0ull == Index, "index out of range! -> ( 0 )");
+            return Policy::GetSpecification();
+        }
+
+        template<size_t Index>
+        static BufferLayout GetLayout()
+        {
+            static_assert(0ull == Index, "index out of range! -> ( 0 )");
+            return Policy::GetLayout();
         }
     private:
         std::vector<Element> m_Elements;
@@ -141,11 +157,17 @@ namespace Rynex {
         }
 
         template<size_t Index>
-        BufferLayout GetBufferLayout(const uint32_t index) const
+        static BufferLayout GetBufferLayout()
         {
-            static_assert(0 == Index, "out of range! -> ( 0 )");
-            return Policy::GetLayout();
+            return VectorInterface::GetBufferLayout<Index>();
         }
+
+        template<size_t Index>
+        static TextureSpecification GetSpecification()
+        {
+            return VectorInterface::GetSpecification<Index>();
+        }
+
 
 
     };

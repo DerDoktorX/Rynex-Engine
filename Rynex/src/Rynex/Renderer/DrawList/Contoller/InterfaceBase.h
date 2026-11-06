@@ -11,11 +11,12 @@ namespace Rynex {
         Full            // element stored, the NEXT Add() needs a new section
     };
 
-    template<typename Section, typename Source, typename Indices = NoIndices>
+    template<typename SectionType, typename Source, typename Indices = NoIndices>
     class InterfaceBase
     {
     public:
         using Unit = uint32_t;
+        using Section = SectionType;
     // public member operator --------------------------------------------------------------------------------------------------
         InterfaceBase()
             : m_SectionPtr(nullptr)
