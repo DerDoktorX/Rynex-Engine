@@ -11,7 +11,7 @@ namespace Rynex {
         Full            // element stored, the NEXT Add() needs a new section
     };
 
-    template<typename Section, typename Source, typename Indices = NoIndices>
+    template<typename Section>
     class InterfaceBase
     {
     public:
@@ -44,8 +44,8 @@ namespace Rynex {
         Section* m_SectionPtr;
     };
 
-    template<typename RefSection>
-    class RefInterface : public InterfaceBase<Ref<RefSection>, Ref<RefSection>, NoIndices>
+    template<typename RefSection, typename Indices = NoIndices>
+    class RefInterface : public InterfaceBase<Ref<RefSection>, Ref<RefSection>, Indices>
     {
     public:
         using Handle = Ref<Resource>;
@@ -74,7 +74,7 @@ namespace Rynex {
         void ClearSection()
         {
             Handle& current = this->Current();
-            current.reset();
+            RY_DESTROY_REF(current);
         }
     protected:
         RefInterface::Resource& GetResource()
