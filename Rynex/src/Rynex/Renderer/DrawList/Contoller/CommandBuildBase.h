@@ -38,7 +38,7 @@ namespace Rynex {
         static Ref<Buffer> CreateBufferUnique(const Span<const Byte>& dataBuffer, const Interface& source, CachedBufferRegister& cache)
         {
             BufferLayout layout = source.GetBufferLayout(Index);
-            auto [hash, buffer] = cache.AcquireUniqueBuffer<Ref<Buffer>>(dataBuffer);
+            auto [hash, buffer] = cache.template AcquireUniqueBuffer<Ref<Buffer>>(dataBuffer);
             if constexpr (StoreHash)
                 source.SetHash<Index>(hash);
             return buffer;
@@ -49,26 +49,26 @@ namespace Rynex {
         {
             if constexpr(CacheBufferMode::None == Mode)
             {
-                return source.GetBuffer<Ref<Buffer>, Index>();
+                return source.template GetBuffer<Ref<Buffer>, Index>();
             }
 
             if constexpr (CacheBufferMode::UniqueCachedHash == Mode)
             {
-                Hash64 hash = source.GetHash<Index>();
-                if (Hash64::Zero() != hash)
+                Hash64 hash = source.template GetHash<Index>();
+                if (0ull!= hash)
                 {
-                    Ref<Buffer> buffer = context.m_Cache.AcquireUniqueBufferHash<Ref<Buffer>>(hash);
+                    Ref<Buffer> buffer = context.m_Cache.template AcquireUniqueBufferHash<Ref<Buffer>>(hash);
                     if (nullptr != buffer)
                         return buffer;
                 }
-                Span<const Byte> dataBuffer = source.GetBufferData<Index>();
+                Span<const Byte> dataBuffer = source.template GetBufferData<Index>();
                 return CreateBufferUnique<Buffer, Index, true>(dataBuffer, source, context, context.m_Cache);
             }
 
             Span<const Byte> dataBuffer = source.GetBufferData(Index);
             if constexpr (CacheBufferMode::AcquireBuffer == Mode)
             {
-                return context.m_Cache.AcquireBuffer<Ref<Buffer>>(dataBuffer);
+                return context.m_Cache.template AcquireBuffer<Ref<Buffer>>(dataBuffer);
             }
             if constexpr (CacheBufferMode::UniqueNoCache == Mode)
             {
@@ -207,7 +207,7 @@ namespace Rynex {
         static constexpr BindingKind s_Kind = BindingKind::Texture;
         static constexpr uint64_t s_Bit = 1ull << Index;
 
-        using Element = Ref<Buffer>;
+        using Element = Ref<Texture>;
 
         template<typename Interface>
         static void Apply(const Interface& source, BuildContext& context)
@@ -215,11 +215,11 @@ namespace Rynex {
             Ref<Texture> texture = nullptr;
             if constexpr (CacheBufferMode::None == Mode)
             {
-                texture = source.GetTexture<Index>();
+                texture = source.template GetTexture<Index>();
             }
             else if constexpr (CacheBufferMode::AcquireBuffer == Mode)
             {
-                const TextureSpecification& spec = source.GetSpecification<Index>();
+                const TextureSpecification& spec = source.template GetSpecification<Index>();
                 texture = context.m_Cache.AcquireTexture(spec);
             }
             else
@@ -242,10 +242,30 @@ namespace Rynex {
         template<typename Interface>
         static void Apply(const Interface& source, BuildContext& context)
         {
-            Ref<Shader> shader = source.GetShader<Index>();
-            context.m_Draw.shaderProgram = shader;
+            const Ref<Shader> shader = source.template GetShader<Index>();
+            context.m_Draw.m_ShaderProgram = shader;
         }
     };
+
+
+    struct BindingSingleCommand
+    {
+        static constexpr BindingKind s_Kind = BindingKind::Other;
+        static constexpr uint64_t s_Bit = 0u;
+
+        using Element = DrawElementsIndirectCommand;
+
+        template<typename Interface>
+        static void Apply(const Interface& source, BuildContext& context)
+        {
+            const DrawElementsIndirectCommand& command = source.GetCommand();
+            context.m_Draw.m_DrawElement = command;
+            context.m_Draw.m_IndicesCount = command.m_InstancesCount;
+        }
+    };
+
+
+
 #endif
 
     template<BindingKind Kind, typename... Bindings>
@@ -279,8 +299,6 @@ namespace Rynex {
         static constexpr uint64_t s_TextureSlotMask = MaskOfKind<BindingKind::Texture, Bindings...>();
         static constexpr uint64_t s_UniformSlotMask = MaskOfKind<BindingKind::Uniform, Bindings...>();
         static constexpr uint64_t s_StorageSlotMask = MaskOfKind<BindingKind::Storage, Bindings...>();
-
-
         static constexpr uint32_t s_VertexBindingCount = CountOfKind<BindingKind::Vertex, Bindings...>();
 
         using Interface = InterfaceType;
@@ -307,7 +325,7 @@ namespace Rynex {
         {
             (BindOne<Bindings>(), ...);
         }
-    private:
+    protected:
         template<typename Binding, typename ElementSpan>
         void CollectOne(ElementSpan& elements)
         {
