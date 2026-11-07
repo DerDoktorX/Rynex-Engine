@@ -5,11 +5,7 @@
 
 
 namespace Rynex {
-    enum class SectionFill : uint8_t
-    {
-        HasRoom = 0u,   // element stored, next Add() fits into the same section
-        Full            // element stored, the NEXT Add() needs a new section
-    };
+
 
     template<typename SectionType>
     class InterfaceBase
@@ -41,15 +37,21 @@ namespace Rynex {
             RY_CORE_ASSERT(nullptr != m_SectionPtr, "Section is nullptr");
             return *m_SectionPtr;
         }
+
+        const Section& Current() const
+        {
+            RY_CORE_ASSERT(nullptr != m_SectionPtr, "Section is nullptr");
+            return *m_SectionPtr;
+        }
     private:
         Section* m_SectionPtr;
     };
 
-    template<typename RefSection, typename Indices = NoIndices>
-    class RefInterface : public InterfaceBase<Ref<RefSection>, Ref<RefSection>, Indices>
+    template<typename RefSection>
+    class RefInterface : public InterfaceBase<Ref<RefSection>>
     {
     public:
-        using Handle = Ref<Resource>;
+        using Handle = Ref<RefSection>;
 
 
     // public member operator --------------------------------------------------------------------------------------------------
@@ -78,7 +80,7 @@ namespace Rynex {
             RY_DESTROY_REF(current);
         }
     protected:
-        RefInterface::Resource& GetResource()
+        Handle& GetResource()
         {
             Handle& handle = this->Current();
             RY_CORE_ASSERT(nullptr != handle, "the stored resource is nullptr!");
