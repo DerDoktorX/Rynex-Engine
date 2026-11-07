@@ -2,7 +2,9 @@
 // DefaultCommand created in Project Rynex-Rendering on 16/10/2026.
 #include <rypch.h>
 #include <Rynex/Renderer/DrawList/DrawListTypes.h>
+#include <Rynex/Renderer/DrawList/Contoller/CommandBuildBase.h>
 #include <Rynex/Renderer/DrawList/Contoller/InterfaceBase.h>
+#include <Rynex/Renderer/DrawList/Contoller/VectorInterface.h>
 
 
 namespace Rynex::Control {
@@ -18,25 +20,26 @@ namespace Rynex::Control {
 
     namespace CommandDefault {
 
-        struct Source
+        struct SourceType
         {
-            Source()
+            SourceType()
                 : m_Shader(nullptr)
                 , m_Camera(nullptr)
             {
             }
 
-            Source(const Source& source) = default;
-            Source(Source&& source) = default;
-            Source(const Ref<UniformBuffer>& camera, Ref<Shader> shader)
+            SourceType(const SourceType& source) = default;
+            SourceType(SourceType&& source) = default;
+            SourceType(const Ref<UniformBuffer>& camera, const Ref<Shader>& shader)
                 : m_Shader(shader)
                 , m_Camera(camera)
             {}
 
             Ref<Shader> m_Shader;
             Ref<UniformBuffer> m_Camera;
+            SourceType operator=(const SourceType& source) = default;
 
-            bool operator==(const Source& right) const
+            bool operator==(const SourceType& right) const
             {
                 return m_Shader == right.m_Shader && m_Camera == right.m_Camera;
             }
@@ -187,55 +190,82 @@ namespace Rynex::Control {
 #else
 
 
+
+
         class Interface : public InterfaceBase<DrawElementsIndirectCommand>
         {
         public:
-            
+            using Source = GeometryCommandInfo;
+
+            SectionFill AddSection(const Source& source)
+            {
+                Section& section = Current();
+
+                section.m_IndexCount = source.m_IndexCount;
+                section.m_BaseVertex = 0;
+                section.m_BaseInstance = 0u;
+                section.m_FirstIndex = 0u;
+                section.m_InstancesCount = source.m_InstanceCount;
+                return SectionFill::Full;
+            }
+
+
+            NoIndices GetIndices() const
+            {
+                return NoIndices{};
+            }
+
+            DrawSplit HasSection(const SourceType& source) const
+            {
+                if(nullptr == m_GlobalCommand.m_Shader && nullptr == m_GlobalCommand.m_Camera)
+                    return DrawSplit::Same;
+
+                if(source.m_Shader == m_GlobalCommand.m_Shader && source.m_Camera == m_GlobalCommand.m_Camera)
+                    return DrawSplit::Same;
+
+                return DrawSplit::NewDraw;
+            }
+
+            DrawSplit SetSection(const SourceType& source)
+            {
+                const DrawSplit split = HasSection(source);
+                m_GlobalCommand = source;
+
+                return split;
+            }
+
+            template<size_t Index>
+            Ref<Shader> GetShader() const
+            {
+                static_assert(0u == Index, "Index out of range! -> ( 0 )");
+                return m_GlobalCommand.m_Shader;
+            }
+
+            template<size_t Index>
+            Ref<UniformBuffer> GetUniformBuffer() const
+            {
+                static_assert(0u == Index, "Index out of range! -> ( 0 )");
+                return m_GlobalCommand.m_Camera;
+            }
+
+            const DrawElementsIndirectCommand& GetCommand() const
+            {
+                return this->Current();
+            }
+        private:
+            SourceType m_GlobalCommand;
         };
 
 #endif
 
-        class CommandBuild
-        {
-        public:
-            enum UniformBufferSlot : uint32_t
-            {
-                UniformBufferSlot_Camera = 0u
-            };
-        // public alias -------------------------------------------------------------------------------------------------------
-            static constexpr bool s_HasVertexBuffer = false;
-            static constexpr bool s_HasBindBuffers = true;
-        // public member method -----------------------------------------------------------------------------------------------
-            explicit CommandBuild(CachedBufferRegister& cache, Interface<Source>& interfaceType, ShaderDrawResource& drawResource)
-                : m_Cache(cache)
-                , m_Interface(interfaceType)
-                , m_DrawResource(drawResource)
-            {}
+        using Build = DeclaredBuild<
+            BindingSingleCommand
+            , BindingUniform<0, CacheBufferMode::None, 0>
+            , BindingShader<0u>
+        >;
 
 
-
-            void CollectVertexBuffer(Span<VertexArray::VertexElements>& vertexElementsSpan)
-            {
-                static_assert(false, "No vertex Buffer to Collect");
-            }
-
-            void BindCommand()
-            {
-                using Section = Interface<Source>::Section;
-                const Source& source = m_Interface.GetSource();
-                m_DrawResource.m_ShaderProgram = source.m_Shader;
-                m_DrawResource.GetBindUniform()[UniformBufferSlot_Camera] = source.m_Camera;
-                const Section* sectionPtr = m_Interface.GetSection();
-                m_DrawResource.m_DrawElement = *sectionPtr;
-            }
-
-        private:
-            CachedBufferRegister& m_Cache;
-            Interface<Source>& m_Interface;
-            ShaderDrawResource& m_DrawResource;
-        };
-
-        using DefaultCommand = CommandControlImpl<Interface<Source>, Source, CommandBuild>;
+        using DefaultCommand = ControlDescriptor<Interface, Build>;
 
 
     }
