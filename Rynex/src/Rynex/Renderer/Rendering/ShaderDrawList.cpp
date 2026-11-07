@@ -368,7 +368,7 @@ namespace Rynex {
         , m_VAO(nullptr)
         , m_IndicesCount(0u)
         , m_DrawBuffer(nullptr)
-        , m_DrawElement({0u, 0u, 0u, -1, 0u})
+        , m_DrawElement{0u, 0u, 0u, -1, 0u}
         , m_BindingLayout()
         , m_RenderMode(0)
     {

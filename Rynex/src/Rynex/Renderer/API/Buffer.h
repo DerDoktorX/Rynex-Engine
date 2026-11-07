@@ -465,6 +465,22 @@ namespace Rynex {
 		int m_BaseVertex;
 		uint32_t m_BaseInstance;
 
+	    DrawElementsIndirectCommand()
+	    {
+	        Default();
+	    }
+
+	    DrawElementsIndirectCommand(const uint32_t indexCount, const uint32_t instancesCount, const uint32_t firstIndex, const int baseVertex, const uint32_t baseInstance)
+	        : m_IndexCount(indexCount)
+	        , m_InstancesCount(instancesCount)
+	        , m_FirstIndex(firstIndex)
+	        , m_BaseVertex(baseVertex)
+	        , m_BaseInstance(baseInstance)
+	    {
+	    }
+
+	    DrawElementsIndirectCommand(const DrawElementsIndirectCommand&) = default;
+
 		void Default()
 		{
 			m_IndexCount = 0u;
@@ -473,6 +489,18 @@ namespace Rynex {
 			m_BaseVertex = -1;
 			m_BaseInstance = 0u;
 		}
+
+	    static BufferLayout GetBufferLayout()
+	    {
+	        BufferLayout layout({
+                {SDT::Uint, "IndexCount"},
+                {SDT::Uint, "InstancesCount"},
+                {SDT::Uint, "FirstIndex"},
+                {SDT::Int, "BaseVertex"},
+	            {SDT::Uint, "BaseInstance"}
+            });
+            return layout;
+        }
 	};
 
 	class RYNEX_API IndirectBuffer : public Asset
