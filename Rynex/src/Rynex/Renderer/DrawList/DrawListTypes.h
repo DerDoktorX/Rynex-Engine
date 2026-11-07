@@ -54,16 +54,6 @@ namespace Rynex {
 
     struct NoIndices{ };
 
-    // Fixed bindings of the template shader draw (camera, ...). All masks are uint64_t: g_UniformBindArrayCount is 36.
-    struct NoTemplateSlots
-    {
-        static constexpr uint64_t s_AttributeLocationMask = 0ull;
-        static constexpr uint64_t s_VertexBufferMask = 0ull;
-        static constexpr uint64_t s_UniformSlotMask = 0ull;
-        static constexpr uint64_t s_StorageSlotMask = 0ull;
-        static constexpr uint64_t s_TextureSlotMask = 0ull;
-    };
-
     // Measurable per frame counters (FEATURE.md R1).
     struct DrawListStats
     {
@@ -73,12 +63,11 @@ namespace Rynex {
         uint32_t m_ByteSize = 0u;
     };
 
-    // What one geometry contributes to a command. The GeometryControl fills it, the CommandControl builds its DrawObject from it.
-    // Meaning of m_VertexElementCount (vertices or VertexElements) is open, FEATURE.md Q16.
+
     struct GeometryCommandInfo
     {
         uint32_t m_IndexCount = 0u;
-        uint32_t m_VertexElementCount = 0u;
+        uint32_t m_InstanceCount = 0u;
     };
 
     // True when no bit is set in more than one of the four masks.
