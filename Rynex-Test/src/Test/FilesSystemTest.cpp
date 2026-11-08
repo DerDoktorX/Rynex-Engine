@@ -6,13 +6,16 @@
 void FilesSystemTest::SetUp()
 {
     m_Project = Rynex::Project::New();
-    Rynex::ProjectConfig& config = m_Project->GetConfig();
-    config.m_ProjectPath = "D:/dev/Test/Project/Rynex/GTest/";
+
+    std::filesystem::path path = (std::filesystem::current_path() / "Engine-Resources/SandboxProject/SandboxProject.rproj").generic_string();
+
+    m_Project->Load(path);
+
 }
 
 void FilesSystemTest::TearDown()
 {
-    m_Project->Shutdown();
+    Rynex::Project::Shutdown();
     RY_DESTROY_REF(m_Project);
 }
 
@@ -158,8 +161,8 @@ TEST_F(FilesSystemTest, ProjectPathWindowsConvention_AbsoluteBackslash)
     constexpr Rynex::AssetType expectOutPutAssetType = Rynex::AssetType::Scene;
 
     constexpr const char* expectOutPutName =        "Cube2-Test-LigthShader.rynexscene";
-    constexpr const char* expectOutPutRelative = "Assets/Scene/Cube2-Test-LigthShader.rynexscene";
-    constexpr const char* expectOutPutMarked = "Project#!#/Assets/Scene/Cube2-Test-LigthShader.rynexscene";
+    constexpr const char* expectOutPutRelative =    "Assets/Scene/Cube2-Test-LigthShader.rynexscene";
+    constexpr const char* expectOutPutMarked =      "Project#!#/Assets/Scene/Cube2-Test-LigthShader.rynexscene";
 
     const std::filesystem::path projectDir   = Rynex::FileSystem::Path::GetProjectDirectory();
     const  std::filesystem::path checkPath = std::filesystem::path(projectDir / expectOutPutRelative);
