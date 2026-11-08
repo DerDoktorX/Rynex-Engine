@@ -139,7 +139,6 @@ TEST_F(TestCacheBufferRegister, TestSetAcquireUniqueUniformBufferHash_Create)
     EXPECT_EQ(bufferGet, bufferCreate);
     EXPECT_EQ(sizeof(m_Value), m_Cache->GetRegisterGpuMemoryUsage());
     EXPECT_EQ(0, m_Cache->GetUnusedGpuBudged());
-
 }
 
 TEST_F(TestCacheBufferRegister, TestSetAcquireUniqueUBufferHash_Template_UniformBuffer_Empty)

@@ -213,7 +213,7 @@ public:
 	explicit Sandbox(const Rynex::ApplicationSpecification& spec)
 		: Rynex::Application(spec)
 	{
-		PushLayer(new Sandbox2D());
+		PushLayer(Rynex::CreateRef<Sandbox2D>());
 	}
 
 	~Sandbox()

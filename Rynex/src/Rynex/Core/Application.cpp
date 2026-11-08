@@ -14,17 +14,17 @@
 
 namespace Rynex {
     namespace {
-        static constexpr bool IsNotCarcterNumber(char charcter)
+        static constexpr bool IsNotCarcaterNumber(char charcater)
         {
             constexpr char zeroChar = '0';
             constexpr char nineChar = '9';
 
-            return zeroChar > charcter && charcter < nineChar;
+            return zeroChar > charcater && charcater < nineChar;
 
         }
 
 
-        static int GetNumberInt(std::string_view view)
+        static int GetNumberInt(std::string_view view, int min = 0)
         {
             constexpr char zeroChar = '0';
             constexpr char nineChar = '9';
@@ -38,13 +38,13 @@ namespace Rynex {
             {
 
                 char charecter = view.at(pos);
-                if (IsNotCarcterNumber(charecter))
+                if (IsNotCarcaterNumber(charecter))
                     return number;
 
                 number = number * 10 + (charecter - zeroChar);
                 pos++;
             }
-            return number;
+            return std::max(min, number);
         }
     }
 	Application* Application::s_Instance = nullptr;
@@ -60,7 +60,7 @@ namespace Rynex {
 		, m_ImGuiLayer(nullptr)
 		, m_LayerStack()
 		, m_Specification(specification)
-		, m_ThreadPool(RY_MAX_THREAD_IN_USE)
+		, m_ThreadPool(SearchStartArgsForThreadCount(specification))
 		, m_MainThreedQueueMutex()
 		, m_MaxQueueMainThreadTime(0ull)
 		, m_QueueDivedFrameTime(8ull)
@@ -86,7 +86,7 @@ namespace Rynex {
         WindowProps prop = SearchStartArgsForWindow(m_Specification);
 		m_Window = Window::Create(prop);
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
-		m_ImGuiLayer = new ImGuiLayer();
+		m_ImGuiLayer = CreateRef<ImGuiLayer>();
 		PushOverlay(m_ImGuiLayer);
 		RY_CORE_INFO("Application::Application Finished!");
 
@@ -99,7 +99,7 @@ namespace Rynex {
 		m_ThreadPool.~ThreadPool();
 		ExecuteAllMainThreedQueue();
 
-		for (Layer* layer : m_LayerStack)
+		for (Ref<Layer>& layer : m_LayerStack)
 		{
 		    layer->OnDetach();
 		}
@@ -125,7 +125,7 @@ namespace Rynex {
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowCloseEvent));
 		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));
 
-		for ( std::vector<Rynex::Layer*>::iterator it = m_LayerStack.end(); it != m_LayerStack.begin(); )
+		for ( std::vector<Ref<Layer>>::iterator it = m_LayerStack.end(); it != m_LayerStack.begin(); )
 		{
 			
 			if (e.Handled)
@@ -134,13 +134,13 @@ namespace Rynex {
 		}
 	}
 
-	void Application::PushLayer(Layer* layer)
+	void Application::PushLayer(Ref<Layer> layer)
 	{
 		m_LayerStack.PushLayer(layer);
 		layer->OnAttach();
 	}
 
-	void Application::PushOverlay(Layer* layer)
+	void Application::PushOverlay(Ref<Layer> layer)
 	{
 		m_LayerStack.PushOverlay(layer);
 		layer->OnAttach();
@@ -148,7 +148,6 @@ namespace Rynex {
 	
 	void Application::PopLayer(Layer* layer)
 	{
-		
 		layer->OnDetach();
 		m_LayerStack.PopLayer(layer);
 	}
@@ -163,7 +162,7 @@ namespace Rynex {
 
 	void Application::Run()
 	{
-		RY_CORE_INFO("Application::Run Starte!");
+		RY_CORE_INFO("Application::Run Start!");
 		while (m_Running) 
 		{	
 			RY_PROFILE_SCOPE("Main UpdateLoop");
@@ -179,7 +178,7 @@ namespace Rynex {
 			{
 				RY_PROFILE_SCOPE("Update Render!");
 				RY_SCOPE_TIMER(m_LayerTimeFrame);
-				for (Layer* layer : m_LayerStack)
+				for (Ref<Layer>& layer : m_LayerStack)
 					layer->OnUpdate(timestep);
 			}
 
@@ -190,7 +189,7 @@ namespace Rynex {
 				if(nullptr != m_ImGuiLayer)
 				{
 					m_ImGuiLayer->Begin();
-					for (Layer* layer : m_LayerStack)
+					for (Ref<Layer>& layer : m_LayerStack)
 						layer->OnImGuiRender();
 					m_ImGuiLayer->End();
 				}
@@ -204,7 +203,7 @@ namespace Rynex {
 			
 		}
 
-		RY_CORE_INFO("Application::Run Finished! -> Next Shutdown From APP are Exexuted!");
+		RY_CORE_INFO("Application::Run Finished! -> Next Shutdown From APP are Executed!");
 	}
 	
 	bool Application::OnWindowCloseEvent(WindowCloseEvent& e)
@@ -229,10 +228,31 @@ namespace Rynex {
 		return false;
 	}
 
-	
-	
+    uint32_t Application::SearchStartArgsForThreadCount(const ApplicationSpecification& specification)
+    {
+	    constexpr const char* fieldThreadCount = "ThreadCount";
+	    const ApplicationCommandLineArgs& args = specification.CommandLineArgs;
+	    int i = 0;
+	    uint32_t threadCount = RY_MAX_THREAD_IN_USE;
+	    while (i < args.Count)
+	    {
+	        const int next = i + 1;
+	        if (args.Count == next)
+	            break;
 
-	void Application::SubmitToMainThreedQueue(const std::function<void()>& func)
+	        const std::string_view filed{ args[i] };
+	        if (fieldThreadCount == filed)
+	        {
+	            i++;
+	            threadCount = GetNumberInt(args[i]);
+	        }
+	        i++;
+	    }
+        return threadCount;
+    }
+
+
+    void Application::SubmitToMainThreedQueue(const std::function<void()>& func)
 	{
 		if (m_Running)
 		{
@@ -298,7 +318,7 @@ namespace Rynex {
 	            i++;
 	            const int width = GetNumberInt(args[i]);
 	            if (0 < width)
-	                props.m_Width =  width;
+	                props.m_Width = width;
 	            else
 	                i--;
 	        }
@@ -307,7 +327,7 @@ namespace Rynex {
 	            i++;
 	            const int height = GetNumberInt(args[i]);
 	            if (0 < height)
-	                props.m_Height =  height;
+	                props.m_Height = height;
 	            else
 	                i--;
 	        }

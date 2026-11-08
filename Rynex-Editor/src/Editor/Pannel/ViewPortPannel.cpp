@@ -268,7 +268,7 @@ namespace Rynex {
 
     void ViewPortPannel::SetEventBlocker(bool blockEvents)
     {
-        Application::Get().GetImGuiLayer()->BlockEvents(blockEvents);
+        Application::Get().GetImGuiLayer().BlockEvents(blockEvents);
     }
 
     void ViewPortPannel::OnEventCamera(Event& e)

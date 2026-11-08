@@ -25,12 +25,13 @@ void TestApplicationSystem::SetUp()
     char* args[]{
         "--WindowWidth", "1",
         "--WindowHeight", "1",
-        "--WindowVisibility", "false"
+        "--WindowVisibility", "false",
+        "--ThreadPoolCount", "0"
     };
 
 
     spec.CommandLineArgs.Args = args;
-    spec.CommandLineArgs.Count = 6;
+    spec.CommandLineArgs.Count = 8;
 
     m_Application = CreateScope<TestApplication>(spec);
     GetWindow().SetVSync(false);

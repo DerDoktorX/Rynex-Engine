@@ -57,17 +57,17 @@ namespace Rynex {
 		void OnEvent(Event& event);
 
 
-		void PushLayer(Layer* layer);
-		void PushOverlay(Layer* layer);
-
+		void PushLayer(Ref<Layer> layer);
+		void PushOverlay(Ref<Layer> layer);
 		void PopLayer(Layer* layer);
+
 		void Close();
 
-		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
+		ImGuiLayer& GetImGuiLayer() {  RY_CORE_ASSERT(nullptr != m_ImGuiLayer, "ImGui Layer is nullptr!");  return *m_ImGuiLayer; }
 
 		inline static Application& Get() { RY_CORE_ASSERT(nullptr != s_Instance, "Application Instance is nullptr!"); return *s_Instance; }
-		inline Window& GetWindow() { return *m_Window; }
-		inline Weak<Window> GetWindowWeak() { return m_Window; }
+		inline Window& GetWindow() { RY_CORE_ASSERT(nullptr != m_Window, "Window is nullptr!"); return *m_Window; }
+		inline Weak<Window> GetWindowWeak() { RY_CORE_ASSERT(nullptr != m_Window, "Window is nullptr!"); return m_Window; }
 		int64_t GetImGuiTime() const { return m_ImGuiTimeFrame; }
 		int64_t GetLayerTime() const { return m_LayerTimeFrame; }
 
@@ -95,7 +95,9 @@ namespace Rynex {
 
 		bool OnWindowCloseEvent(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
+	// --- private static methode ---------------------------------------------------------------------------------------------
 
+	    static uint32_t SearchStartArgsForThreadCount(const ApplicationSpecification& specification);
 	// --- private using types ------------------------------------------------------------------------------------------------
 		using MainThreadExe = std::pair<std::function<void()>, std::condition_variable*>;
 	// --- private member variables --------------------------------------------------------------------------------------------
@@ -110,7 +112,7 @@ namespace Rynex {
 		float m_LastFrameTime;
 
 
-		ImGuiLayer* m_ImGuiLayer;
+		Ref<ImGuiLayer> m_ImGuiLayer;
 		LayerStack m_LayerStack;
 
 		ApplicationSpecification m_Specification;

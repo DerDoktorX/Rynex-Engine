@@ -15,9 +15,9 @@ namespace Rynex {
 			: Application(spec)
 		{
 			if(1 < spec.CommandLineArgs.Count)
-				PushLayer(new EditorLayer());
+				PushLayer(CreateRef<EditorLayer>());
 			else
-				PushLayer(new LauncherLayer());
+				PushLayer(CreateRef<LauncherLayer>());
 		}
 
 		~RynexEditor()
