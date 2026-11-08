@@ -8,30 +8,30 @@ namespace Rynex {
 #pragma region OpenGLShaderStorageBuffer
 
 	OpenGLShaderStorageBuffer::OpenGLShaderStorageBuffer(uint32_t target, std::nullptr_t, uint32_t byteSize, uint32_t flags)
-		: m_RendererID(0u)
-		, m_Flags(flags)
+		: m_FanceObject()
+		, m_RendererID(0u)
 		, m_ByteSize(byteSize)
-		, m_FanceObject()
+		, m_Flags(flags)
 	{
 		CopyMemoryData(nullptr, byteSize);
 		InvalideData(target);
 	}
 
 	OpenGLShaderStorageBuffer::OpenGLShaderStorageBuffer(uint32_t target, const uint8_t* dataPtr, uint32_t byteSize, uint32_t flags)
-		: m_RendererID(0u)
-		, m_Flags(flags)
+		: m_FanceObject()
+		, m_RendererID(0u)
 		, m_ByteSize(byteSize)
-		, m_FanceObject()
+		, m_Flags(flags)
 	{
 		CopyMemoryData(dataPtr, byteSize);
 		InvalideData(target);
 	}
 
 	OpenGLShaderStorageBuffer::OpenGLShaderStorageBuffer(uint32_t target, std::vector<uint8_t>&& data, uint32_t flags)
-		: m_RendererID(0u)
-		, m_Flags(flags)
-		, m_Data(std::move(data))
+		: m_Data(std::move(data))
 		, m_FanceObject()
+		, m_RendererID(0u)
+		, m_Flags(flags)
 	{
 		m_ByteSize = m_Data.size();
 		RY_CORE_ASSERT(0u != m_ByteSize, "Size not Set!");
@@ -39,11 +39,11 @@ namespace Rynex {
 	}
 
 	OpenGLShaderStorageBuffer::OpenGLShaderStorageBuffer(uint32_t target, const OpenGLShaderStorageBuffer& buffer)
-		: m_RendererID(0u)
-		, m_Flags(buffer.m_Flags)
-		, m_Data(buffer.m_Data)
-		, m_ByteSize(buffer.m_ByteSize)
+		: m_Data(buffer.m_Data)
 		, m_FanceObject()
+		, m_RendererID(0u)
+		, m_ByteSize(buffer.m_ByteSize)
+		, m_Flags(buffer.m_Flags)
 	{
 		RY_CORE_ASSERT(0u != m_ByteSize, "Size not Set!");
 		InvalideData(target);
@@ -148,7 +148,7 @@ namespace Rynex {
 		m_FanceObject.SetupFence();
 		uint32_t byteSize = m_Data.size();
 		int64_t pastTime = m_FanceObject.StoppThreadUntlieLoded();
-		RY_CORE_INFO("Data OpenGLShaderStorageBuffer Transfered! off {} bytesComplet. Time waiting {} Nanosec", byteSize, pastTime);
+		RY_CORE_INFO("Data OpenGLShaderStorageBuffer Transferred! off {} bytesComplete. Time waiting {} Nanosec", byteSize, pastTime);
 		m_FanceObject.DestroyID();
 	}
 
@@ -251,14 +251,14 @@ namespace Rynex {
 
 	void OpenGLShaderStorageBuffer::LoadeGPUDataOnCPU()
 	{
-		RY_CORE_ASSERT(0u == m_RendererID, "Render-ID not vaild!");
+		RY_CORE_ASSERT(0u == m_RendererID, "Render-ID not valid!");
 
 		uint32_t byteSize = m_Data.size();
 		uint8_t* dataPtr = m_Data.data();
 
 		glGetNamedBufferSubData(m_RendererID, 0u, byteSize, dataPtr);
 		GL_CHECK();
-		RY_CORE_WARN("Get GPU Data on CPU is an perforfonmenz intensive action!");
+		RY_CORE_WARN("Get GPU Data on CPU is an performance intensive action!");
 	}
 
 	void OpenGLShaderStorageBuffer::ClearLocaleDataStore()

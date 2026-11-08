@@ -66,16 +66,16 @@ namespace Rynex {
 
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(const void* vertices, uint32_t size, BufferFlagGPU flag, const BufferLayout& layout)
-		: m_Buffer(s_Target, static_cast<const uint8_t*>(vertices), size, Utils::GetFlagsFromFlagTypes(flag))
+		: m_Layout(layout)
+		, m_Buffer(s_Target, static_cast<const uint8_t*>(vertices), size, Utils::GetFlagsFromFlagTypes(flag))
 		, m_Flag(flag)
-		, m_Layout(layout)
 	{
 	}
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(std::vector<unsigned char>&& data, uint32_t size, BufferFlagGPU flag, const BufferLayout& layout)
-		: m_Buffer(s_Target, std::move(data), Utils::GetFlagsFromFlagTypes(flag))
+		: m_Layout(layout)
+		, m_Buffer(s_Target, std::move(data), Utils::GetFlagsFromFlagTypes(flag))
 		, m_Flag(flag)
-		, m_Layout(layout)
 	{
 	}
 
