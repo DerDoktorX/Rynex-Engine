@@ -180,6 +180,7 @@ namespace Rynex {
         StoredBufferRegister()
             : m_Register()
             , m_Frame(0ull)
+            , m_ByteSize(0ull)
         {
         }
         

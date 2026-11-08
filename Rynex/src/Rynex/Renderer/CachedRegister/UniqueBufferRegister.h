@@ -49,7 +49,7 @@ namespace Rynex {
         UniqueBufferRegister()
             : m_Register()
             , m_Frame(0ull)
-            , m_ByteSize(0)
+            , m_ByteSize(0ull)
         {
         }
 

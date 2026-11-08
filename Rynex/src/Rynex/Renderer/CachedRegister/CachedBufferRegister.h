@@ -132,8 +132,10 @@ namespace Rynex {
         bool IsOverBudget();
 
         uint64_t GetRegisterGpuMemoryUnused() const;
+        uint64_t GetUnusedGpuBudged() const;
         uint64_t GetRegisterGpuMemoryUsage() const;
         uint64_t GetReservedRegisterGpuMemory() const;
+
     // public member variable -------------------------------------------------------------------------------------------------
     private:
     // private member methode -------------------------------------------------------------------------------------------------
@@ -143,7 +145,12 @@ namespace Rynex {
         template<typename Register>
         std::pair<typename Register::Key, typename Register::Buffer> AcquireUnique(Register& registerUnique, const typename Register::ConstructData & data);
 
-        void EnsureBudget(uint64_t requiredByteSize);
+        /**
+         * checks for space in budget can destroy old GPu resources if needed.
+         * @param requiredByteSize
+         * @return { @true memory could not be reserved. @false not enough budget left }
+         */
+        bool EnsureBudget(uint64_t requiredByteSize);
         uint64_t FreeGpuMemory(uint64_t requiredByteSize);
         uint64_t TrimAllUnused(uint64_t maxFrame);
     // private static methode -------------------------------------------------------------------------------------------------
@@ -279,7 +286,11 @@ namespace Rynex {
         }
 
         const uint64_t byteSize = key.GetByteSize();
-        EnsureBudget(byteSize);
+        if(!EnsureBudget(byteSize))
+        {
+            RY_CORE_ERROR("the acquired byteSize {0} is too large! empty (buffer) return", byteSize);
+            return Buffer{ nullptr };
+        }
 
         // EnsureBudget may have changed the register, so the buffer is created afterwards.
         Buffer& created = registerStored.CreateBuffer(key);
@@ -297,7 +308,11 @@ namespace Rynex {
         Key key = data.GetHash();
 
         const uint64_t byteSize = data.m_Data.size_bytes();
-        EnsureBudget(byteSize);
+        if(!EnsureBudget(byteSize))
+        {
+            RY_CORE_ERROR("the acquired byteSize {0} is too large! empty (hash, buffer) return", byteSize);
+            return std::make_pair(0, nullptr);
+        }
 
         Buffer& buffer = registerUnique.Create(key, data);
         return std::make_pair(key, buffer);

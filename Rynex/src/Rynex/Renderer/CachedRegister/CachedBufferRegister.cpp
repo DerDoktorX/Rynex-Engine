@@ -6,7 +6,7 @@
 namespace Rynex {
     CachedBufferRegister::CachedBufferRegister()
         : m_ReservedGpuMemory(0)
-        ,  m_Frame(0)
+        , m_Frame(0)
         , m_LastGarbageFrame(0)
         , m_GarbageInterval(0)
         , m_MaxUnusedFrames(0)
@@ -24,8 +24,10 @@ namespace Rynex {
     {
         const uint64_t byteSize = bufferData.size();
         const StoredKey key(byteSize);
+
         Ref<VertexBuffer> buffer = AcquireStored(m_StoredVertex, key);
-        buffer->SetData(bufferData.data(), static_cast<uint32_t>(byteSize));
+        if (nullptr != buffer)
+            buffer->SetData(bufferData.data(), static_cast<uint32_t>(byteSize));
         return buffer;
     }
 
@@ -36,7 +38,8 @@ namespace Rynex {
         const uint64_t byteSize = bufferData.size();
         const StoredKey key(byteSize);
         Ref<UniformBuffer> buffer = AcquireStored(m_StoredUniform, key);
-        buffer->SetData(bufferData.data(), static_cast<uint32_t>(byteSize));
+        if (nullptr != buffer)
+            buffer->SetData(bufferData.data(), static_cast<uint32_t>(byteSize));
         return buffer;
     }
 
@@ -63,7 +66,8 @@ namespace Rynex {
         const uint64_t byteSize = bufferData.size();
         const StoredKey key(byteSize);
         Ref<StorageBuffer> buffer = AcquireStored(m_StoredStorage, key);
-        buffer->SetData(bufferData.data(), static_cast<uint32_t>(byteSize));
+        if (nullptr != buffer)
+            buffer->SetData(bufferData.data(), static_cast<uint32_t>(byteSize));
         return buffer;
     }
 
@@ -270,6 +274,11 @@ namespace Rynex {
         return unusedBytes;
     }
 
+    uint64_t CachedBufferRegister::GetUnusedGpuBudged() const
+    {
+       return m_ReservedGpuMemory - GetRegisterGpuMemoryUsage();
+    }
+
     uint64_t CachedBufferRegister::GetRegisterGpuMemoryUsage() const
     {
         uint64_t usageBytes = 0ull;
@@ -279,6 +288,7 @@ namespace Rynex {
 #ifndef RY_TEXTURE_REGISTER
         usageBytes += m_StoredTexture.GetRegisterBufferByteSize();
 #endif
+        usageBytes += m_UniqueStorage.GetRegisterBufferByteSize();
         usageBytes += m_UniqueUniform.GetRegisterBufferByteSize();
         usageBytes += m_UniqueIndex16.GetRegisterBufferByteSize();
         usageBytes += m_UniqueIndex32.GetRegisterBufferByteSize();
@@ -302,15 +312,18 @@ namespace Rynex {
 
 
 
-    void CachedBufferRegister::EnsureBudget(uint64_t requiredByteSize)
+    bool CachedBufferRegister::EnsureBudget(uint64_t requiredByteSize)
     {
         if (0ull == m_ReservedGpuMemory)
-            return;
+        {
+            RY_CORE_ERROR("no memory budget set it is ZERO!");
+            return false;
+        }
 
         const uint64_t usage = GetRegisterGpuMemoryUsage();
         const uint64_t projected = usage + requiredByteSize;
         if (projected <= m_ReservedGpuMemory)
-            return;
+            return true;
 
         const uint64_t missing = projected - m_ReservedGpuMemory;
         FreeGpuMemory(missing);
@@ -323,7 +336,9 @@ namespace Rynex {
         {
             m_Flags |= RegisterFlag_OverBudgetLogged;
             RY_CORE_WARN("CachedBufferRegister is over its GPU memory budget: {} of {} bytes in use, {} bytes requested", usageAfter, m_ReservedGpuMemory, requiredByteSize);
+            return false;
         }
+        return true;
     }
 
     uint64_t CachedBufferRegister::FreeGpuMemory(uint64_t requiredByteSize)
