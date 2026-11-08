@@ -18,22 +18,23 @@ namespace Rynex {
 	{
 	public:
 		VertexQuadeBatching()
-			: Batching<T>()
-			, m_MaxQuad(0u)
-			, m_VAA(nullptr)
-			, m_VAB(nullptr)
-			, m_IndexBuffer(nullptr)
-			, m_Shader(nullptr)
-			, m_Samplers()
+            : Batching<T>()
+            , m_MaxQuad(0u)
+            , m_VAA(nullptr)
+            , m_VAB(nullptr)
+            , m_IndexBuffer(nullptr)
+            , m_Shader(nullptr)
+            , m_Samplers()
+	        , m_TextureSlotsIndex(0)
 #ifdef RY_SHADER_DRAW_LIST_SHEARD_PTR
 			, m_DrawList(nullptr)
 #else
-			, m_DrawList()
+	        , m_DrawList()
 #endif
-			, m_CameraSlot(-1)
-			, m_DisplaySlot(-1)
-		{
-		};
+	        , m_CameraSlot(-1)
+	        , m_DisplaySlot(-1)
+        {
+        };
 
 		~VertexQuadeBatching()
 		{
@@ -314,9 +315,9 @@ namespace Rynex {
 #ifdef RY_OPENGL_USE_ARRAY_BUFFER
 			m_VAB = VertexBuffer::Create(nullptr, verticesCount * sizeof(T), BufferDataUsage::DynamicDraw);
 #else
-			m_VAB = VertexBuffer::Create(nullptr, verticesCount * sizeof(T), BufferFlag::Dynamic);
+			m_VAB = VertexBuffer::Create(nullptr, verticesCount * sizeof(T), BufferFlag::Dynamic, layout);
 #endif
-			m_VAB->SetLayout(layout);
+
 			Batching<T>::PushSize(4u);
 			Batching<T>::Reserve(verticesCount);
 			m_VAA->ClearVertexBuffers();

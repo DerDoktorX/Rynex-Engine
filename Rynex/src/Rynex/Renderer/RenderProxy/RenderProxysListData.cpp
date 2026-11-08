@@ -91,13 +91,13 @@ namespace Rynex {
 
 
     RenderProxysListData::RenderProxysListData()
-        : m_HasChagedMain({ true, true })
-        , m_HasChagedCurent({ true, true })
-        , m_Stop(false)
-        , m_CopySwitch(false)
+        : m_Stop(false)
         , m_CopyEvent(false)
+        , m_CopySwitch(false)
+        , m_HasChagedMain({ true, true })
+        , m_HasChagedCurent({ true, true })
+        , m_EventWaitingTimer(0)
     {
-        ResetEventWaitingTimer();
         m_RenderProxyVecPtr = &m_RenderProxyArrayVec.at(RenderingData0);
         CreateThread();
     }

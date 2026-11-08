@@ -14,10 +14,10 @@ namespace Rynex {
 
 
     StaticeRenderProxys::StaticeRenderProxys()
-        : m_BatchManager()
-        , m_RenderProxysListData()
-        , m_ProxyDrawCallGenarterMain()
+        : m_ProxyDrawCallGenarterMain()
         , m_ProxyDrawCallGenarterCurent()
+        , m_RenderProxysListData()
+        , m_BatchManager()
         , m_DrawCallsVec()
     { 
     }
