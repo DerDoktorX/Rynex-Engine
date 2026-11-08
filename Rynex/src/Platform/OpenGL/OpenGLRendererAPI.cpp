@@ -35,12 +35,9 @@
 
 
 namespace Rynex {
-
-
-	void OpenGLRendererAPI::Init()
-	{
-
-		RY_PROFILE_FUNCTION();
+    OpenGLRendererAPI::OpenGLRendererAPI()
+    {
+        RY_PROFILE_FUNCTION();
 		m_BindFrameBufferState = 0u;
 		m_BindShaderState = 0u;
 		m_BindIndexBufferState = 0u;
@@ -83,14 +80,19 @@ namespace Rynex {
 		GLint defaultFramebufferRenderID = 0;
 		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &defaultFramebufferRenderID);
 		m_DefaultFrambufferRenderID = static_cast<uint32_t>(defaultFramebufferRenderID);
+    }
 
-		OpenGLRenderCommand::Init(this);
-	}
+    OpenGLRendererAPI::~OpenGLRendererAPI()
+    {
+        OpenGLRenderCommand::ShutDown();
+    }
 
-	void OpenGLRendererAPI::ShutDown()
+	void OpenGLRendererAPI::Init()
 	{
-		OpenGLRenderCommand::ShutDown();
+        OpenGLRenderCommand::Init(this);
 	}
+
+
 
 	void OpenGLRendererAPI::CreateComputePipline(glm::vec3& size)
 	{
@@ -655,7 +657,7 @@ namespace Rynex {
 
 	}
 
-	void OpenGLRendererAPI::AktivePolyGunMode(bool active)
+	void OpenGLRendererAPI::ActivePolyGunMode(bool active)
 	{
 		if(active)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

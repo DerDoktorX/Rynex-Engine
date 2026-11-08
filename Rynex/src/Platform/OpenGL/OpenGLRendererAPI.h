@@ -7,8 +7,11 @@ namespace Rynex {
 	class OpenGLRendererAPI : public RendererAPI
 	{
 	public:
+	    OpenGLRendererAPI();
+	    virtual ~OpenGLRendererAPI() override;
+
 		virtual void Init() override;
-		virtual void ShutDown() override;
+
 
 		virtual void CreateComputePipline(glm::vec3& size) override;
 
@@ -54,7 +57,7 @@ namespace Rynex {
 		virtual int GetMode() override;
 		virtual bool IsModeEqual(int mode) override;
 
-		virtual void AktivePolyGunMode(bool active = true) override;
+		virtual void ActivePolyGunMode(bool active = true) override;
 
 		virtual void Clear() override;
 		virtual void ClearNoDepth() override;

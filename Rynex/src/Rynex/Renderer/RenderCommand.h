@@ -10,17 +10,9 @@ namespace Rynex {
 	class RYNEX_API RenderCommand
 	{
 	public:
-		inline static void Init()
-		{
-			s_RendererAPI->Init();
-		};
+	    static void Create();
+	    static void Destroy();
 
-		inline static void Shutdown()
-		{
-			s_RendererAPI->ShutDown();
-			delete s_RendererAPI;
-			s_RendererAPI = nullptr;
-		};
 
 		inline static void CreateComputePipline(glm::vec3& size)
 		{
@@ -37,9 +29,9 @@ namespace Rynex {
 			s_RendererAPI->SetClearColor(color);
 		};
 
-		inline static void AktivePolyGunMode(bool active = true)
+		inline static void ActivePolyGunMode(bool active = true)
 		{
-			s_RendererAPI->AktivePolyGunMode(active);
+			s_RendererAPI->ActivePolyGunMode(active);
 		};
 
 		inline static void SetDethTest(bool active = true)
@@ -186,6 +178,6 @@ namespace Rynex {
 
 
 	private:
-		static RendererAPI* s_RendererAPI;
+		inline static Ref<RendererAPI> s_RendererAPI = nullptr;
 	};
 }

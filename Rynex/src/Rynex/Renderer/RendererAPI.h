@@ -24,9 +24,11 @@ namespace Rynex {
 		};
 
 	public:
+        virtual ~RendererAPI() {}
+
 		virtual void Init() = 0;
-		virtual void ShutDown() = 0;
-		virtual void AktivePolyGunMode(bool aktiv) = 0;
+
+		virtual void ActivePolyGunMode(bool aktiv) = 0;
 		virtual void SetDethTest(bool aktiv) = 0;
 		virtual void SetFace(CallFace calolFace) = 0;
 
