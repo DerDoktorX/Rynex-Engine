@@ -1,65 +1,201 @@
 AssetRegistry:
-  - Handle: 801565305453083678
-    FilePath: Assets/shaders/BlueShaderSrc.glsl
-    Type: AssetType::Shader
-    Name: ""
-  - Handle: 1824842606906300272
-    FilePath: Assets/scenes/3DCube_3Quads2.rynexscene
-    Type: AssetType::Scene
-    Name: ""
-  - Handle: 3567340998657604297
-    FilePath: Assets/scenes/TestDeserilaze.rynexscene
-    Type: AssetType::Scene
-    Name: ""
-  - Handle: 6715656326684789952
-    FilePath: Assets/textures/ChernoLogo.png
-    Type: AssetType::Texture2D
-    Name: ""
-  - Handle: 8290783668177911186
-    FilePath: Assets/scenes/Example.rynexscene
-    Type: AssetType::Scene
-    Name: ""
-  - Handle: 10781853565566024887
-    FilePath: Assets/scenes/3DCubeHazel.rynexscene
-    Type: AssetType::Scene
-    Name: ""
-  - Handle: 13233475410383009282
-    FilePath: Assets/scenes/Example2.rynexscene
-    Type: AssetType::Scene
-    Name: ""
-  - Handle: 14151019160980675221
-    FilePath: Assets/shaders/Texture.glsl
-    Type: AssetType::Shader
-    Name: ""
-  - Handle: 14152416206868556933
-    FilePath: Assets/shaders/SrcShader.glsl
-    Type: AssetType::Shader
-    Name: ""
-  - Handle: 15246465091008376176
-    FilePath: Assets/textures/testBlending.png
-    Type: AssetType::Texture2D
-    Name: ""
-  - Handle: 15617254238524874586
-    FilePath: Assets/textures/icon_wows_46x46.png
-    Type: AssetType::Texture2D
-    Name: ""
-  - Handle: 15855500992539510398
-    FilePath: Assets/scenes/3DCube_3Quads.rynexscene
-    Type: AssetType::Scene
-    Name: ""
-  - Handle: 15929314362697200306
-    FilePath: Assets/textures/Checkerboard.png
-    Type: AssetType::Texture2D
-    Name: ""
-  - Handle: 16462730631384214973
-    FilePath: Assets/scenes/3DCube_Hi.rynexscene
-    Type: AssetType::Scene
-    Name: ""
-  - Handle: 16990403709337309609
-    FilePath: Assets/shaders/3DTest.glsl
-    Type: AssetType::Shader
-    Name: ""
-  - Handle: 18251903351371440473
-    FilePath: Assets/textures/weniger_Speicherplatz_SSD.png
-    Type: AssetType::Texture2D
-    Name: ""
+  - Handle: 93833192566322919
+    FilePath-ProjectMarker: Project#!#/Assets/shaders/BlueShaderSrc.glsl
+    Type: Shader
+    Name: BlueShaderSrc.glsl
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 379959348599206993
+    FilePath-ProjectMarker: Project#!#/Assets/textures/ChernoLogo.png
+    Type: Texture2D
+    Name: ChernoLogo.png
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 641413758315350736
+    FilePath-ProjectMarker: Project#!#/Assets/Scripts/Intermediates/Dist/Sanbox.csproj.FileListAbsolute.txt
+    Type: TextFile
+    Name: Sanbox.csproj.FileListAbsolute.txt
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 1294358943528318398
+    FilePath-ProjectMarker: Project#!#/Assets/scenes/3DCube_3Quads.rynexscene
+    Type: Scene
+    Name: 3DCube_3Quads.rynexscene
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 1767291512409404434
+    FilePath-ProjectMarker: Project#!#/Assets/shaders/Default_Rynex-Editor_Shader.glsl
+    Type: Shader
+    Name: Default_Rynex-Editor_Shader.glsl
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 2075530475588886497
+    FilePath-ProjectMarker: Project#!#/Assets/scenes/Example2.rynexscene
+    Type: Scene
+    Name: Example2.rynexscene
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 2131250198220050786
+    FilePath-ProjectMarker: Project#!#/Assets/textures/weniger_Speicherplatz_SSD.png
+    Type: Texture2D
+    Name: weniger_Speicherplatz_SSD.png
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 2539709429358459130
+    FilePath-ProjectMarker: Project#!#/Assets/Scripts/Intermediates/Debug/Sanbox.csproj.FileListAbsolute.txt
+    Type: TextFile
+    Name: Sanbox.csproj.FileListAbsolute.txt
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 3015908072337563177
+    FilePath-ProjectMarker: Project#!#/Assets/Scripts/Intermediates/Debug/.NETFramework,Version=v4.7.2.AssemblyAttributes.cs
+    Type: Script
+    Name: .NETFramework,Version=v4.7.2.AssemblyAttributes.cs
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 3707857320844645638
+    FilePath-ProjectMarker: Project#!#/Assets/textures/icon_wows_46x46.png
+    Type: Texture2D
+    Name: icon_wows_46x46.png
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 3797970145810524929
+    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/shaders/TextShader.glsl
+    Type: Shader
+    Name: TextShader.glsl
+    ChangeTime: 2026-11-07 14:55:50
+  - Handle: 4094350622737796120
+    FilePath-ProjectMarker: Project#!#/Assets/scenes/TestDeserilaze.rynexscene
+    Type: Scene
+    Name: TestDeserilaze.rynexscene
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 6223853991675177389
+    FilePath-ProjectMarker: Project#!#/Assets/Scripts/Intermediates/Release/Sanbox.csproj.FileListAbsolute.txt
+    Type: TextFile
+    Name: Sanbox.csproj.FileListAbsolute.txt
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 6362811581967968374
+    FilePath-ProjectMarker: Project#!#/Assets/shaders/3DLigthe.glsl
+    Type: Shader
+    Name: 3DLigthe.glsl
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 6992041660989167922
+    FilePath-ProjectMarker: Project#!#/Assets/shaders/3DTestTess.glsl
+    Type: Shader
+    Name: 3DTestTess.glsl
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 7112840012561579418
+    FilePath-ProjectMarker: Project#!#/Assets/scenes/3DCubeHazel.rynexscene
+    Type: Scene
+    Name: 3DCubeHazel.rynexscene
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 7505286713549576500
+    FilePath-ProjectMarker: Project#!#/Assets/scenes/3DCube_Hi.rynexscene
+    Type: Scene
+    Name: 3DCube_Hi.rynexscene
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 8042500216507757376
+    FilePath-ProjectMarker: Project#!#/Assets/shaders/Texture.glsl
+    Type: Shader
+    Name: Texture.glsl
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 8626229464654570605
+    FilePath-ProjectMarker: Project#!#/Assets/Shaders/InstenceMesh.glsl
+    Type: Shader
+    Name: InstenceMesh.glsl
+    ChangeTime: 2026-11-07 14:55:50
+  - Handle: 9049472796491708659
+    FilePath-ProjectMarker: Project#!#/Assets/Scripts/Source/TestMain.cs
+    Type: Script
+    Name: TestMain.cs
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 9172564912723783610
+    FilePath-ProjectMarker: Project#!#/Assets/Shaders/MeshTestShader.glsl
+    Type: Shader
+    Name: MeshTestShader.glsl
+    ChangeTime: 2026-11-07 14:55:50
+  - Handle: 9269035567589797309
+    FilePath-ProjectMarker: Project#!#/Assets/Scripts/Source/Player.cs
+    Type: Script
+    Name: Player.cs
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 9414568250121496472
+    FilePath-ProjectMarker: Project#!#/Assets/scenes/3DCube_3Quads2.rynexscene
+    Type: Scene
+    Name: 3DCube_3Quads2.rynexscene
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 9548700601874811052
+    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/shaders/TextureTransform2.glsl
+    Type: Shader
+    Name: TextureTransform2.glsl
+    ChangeTime: 2026-11-07 14:55:48
+  - Handle: 10410157814343881553
+    FilePath-ProjectMarker: Project#!#/Assets/shaders/SrcShader.glsl
+    Type: Shader
+    Name: SrcShader.glsl
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 10559258035356277370
+    FilePath-ProjectMarker: Project#!#/Assets/textures/Checkerboard.png
+    Type: Texture2D
+    Name: Checkerboard.png
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 11334498175170814400
+    FilePath-ProjectMarker: Project#!#/Assets/scenes/Example.rynexscene
+    Type: Scene
+    Name: Example.rynexscene
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 11764980688101622181
+    FilePath-ProjectMarker: Project#!#/Assets/Shaders/InstenceMeshShadow.glsl
+    Type: Shader
+    Name: InstenceMeshShadow.glsl
+    ChangeTime: 2026-11-07 14:55:50
+  - Handle: 12847349145476401074
+    FilePath-ProjectMarker: Project#!#/Assets/shaders/3DTestTess2.glsl
+    Type: Shader
+    Name: 3DTestTess2.glsl
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 12890304842639898020
+    FilePath-ProjectMarker: Project#!#/Assets/Scripts/Source/PlayerTest2.cs
+    Type: Script
+    Name: PlayerTest2.cs
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 14672325713192540821
+    FilePath-ProjectMarker: Project#!#/Assets/textures/testBlending.png
+    Type: Texture2D
+    Name: testBlending.png
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 14837669275312578899
+    FilePath-ProjectMarker: Project#!#/Assets/shaders/3DTest.glsl
+    Type: Shader
+    Name: 3DTest.glsl
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 15214575069795712816
+    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/shaders/Texture2.glsl
+    Type: Shader
+    Name: Texture2.glsl
+    ChangeTime: 2026-11-07 14:55:48
+  - Handle: 15367599798156654437
+    FilePath-ProjectMarker: Project#!#/Assets/Scripts/Intermediates/Dist/.NETFramework,Version=v4.7.2.AssemblyAttributes.cs
+    Type: Script
+    Name: .NETFramework,Version=v4.7.2.AssemblyAttributes.cs
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 15698801948807345016
+    FilePath-ProjectMarker: Project#!#/Assets/Shaders/MeshTestShadowShader.glsl
+    Type: Shader
+    Name: MeshTestShadowShader.glsl
+    ChangeTime: 2026-11-07 14:55:50
+  - Handle: 16547660110606715188
+    FilePath-ProjectMarker: Project#!#/Assets/Shaders/SingelMesh.glsl
+    Type: Shader
+    Name: SingelMesh.glsl
+    ChangeTime: 2026-11-07 14:55:50
+  - Handle: 16960932619379183610
+    FilePath-ProjectMarker: Project#!#/Assets/Scripts/Intermediates/Release/.NETFramework,Version=v4.7.2.AssemblyAttributes.cs
+    Type: Script
+    Name: .NETFramework,Version=v4.7.2.AssemblyAttributes.cs
+    ChangeTime: 2026-11-07 13:41:13
+  - Handle: 17114804382838084380
+    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/shaders/IconTexture.glsl
+    Type: Shader
+    Name: IconTexture.glsl
+    ChangeTime: 2026-11-07 14:55:50
+  - Handle: 17953476595985484140
+    FilePath-ProjectMarker: Project#!#/Assets/Shaders/InstenceMeshShape.glsl
+    Type: Shader
+    Name: InstenceMeshShape.glsl
+    ChangeTime: 2026-11-07 14:55:50
+  - Handle: 18425372652616594007
+    FilePath-ProjectMarker: Project#!#/Assets/Shaders/SingelMeshShadow.glsl
+    Type: Shader
+    Name: SingelMeshShadow.glsl
+    ChangeTime: 2026-11-07 14:55:50

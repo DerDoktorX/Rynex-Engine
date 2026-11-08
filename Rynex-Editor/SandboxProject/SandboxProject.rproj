@@ -1,6 +1,12 @@
 Project:
-  Name: "SandboxProject"
-  StartScene: "scenes/Example.rynexscene"
-  AssetDirectory: "Assets"
-  AssetRegistryPath: "SandboxProject/AssetRegistry.ryr"
-  ScriptModulePath: "Scripts/Binaries/Sanbox.dll"
+  Name: SandboxProject
+  ProjectPath: Project#!#/.
+  AssetDirectory: Project#!#/Assets
+  AssetRegistryPath: Project#!#/AssetRegistry.ryr
+  LastScene: ""
+  StartScene: ""
+  ScriptCorePath: Project#!#/Assets/Scripts/Binaries/Rynex-ScriptingCore.dll
+  ScriptAppPath: Project#!#/Assets/Scripts/Binaries/Sanbox.dll
+  CreateDate: 2026-03-08 23:15:01
+  LastOpenDate: 2026-03-08 23:15:01
+
