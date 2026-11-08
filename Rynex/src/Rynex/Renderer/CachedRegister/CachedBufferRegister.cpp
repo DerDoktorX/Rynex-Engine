@@ -5,12 +5,12 @@
 
 namespace Rynex {
     CachedBufferRegister::CachedBufferRegister()
-        : m_ReservedGpuMemory(0)
-        , m_Frame(0)
-        , m_LastGarbageFrame(0)
-        , m_GarbageInterval(0)
-        , m_MaxUnusedFrames(0)
-        , m_Flags(0)
+        : m_ReservedGpuMemory(0ull)
+        , m_Frame(0ull)
+        , m_LastGarbageFrame(0ull)
+        , m_GarbageInterval(s_DefaultGarbageInterval)
+        , m_MaxUnusedFrames(s_DefaultMaxUnusedFrames)
+        , m_Flags()
     {
     }
 
@@ -153,7 +153,7 @@ namespace Rynex {
     void CachedBufferRegister::SetFrame(const uint64_t frame)
     {
         RY_CORE_ASSERT(m_Frame <= frame, "The frame are expedite to go forward or stay equal!");
-        m_Frame = frame;
+        //m_Frame = frame;
 
         const bool isNewFrame = m_Frame != frame;
         m_Frame = frame;
@@ -183,23 +183,24 @@ namespace Rynex {
         m_Flags &= ~static_cast<uint32_t>(RegisterFlag_OverBudgetLogged);
 
         const uint64_t elapsedFrames = m_Frame - m_LastGarbageFrame;
-        if (m_GarbageInterval <= elapsedFrames)
+        if (m_GarbageInterval < elapsedFrames)
             RemoveBufferGarbage();
 
     }
 
     void CachedBufferRegister::RemoveBufferGarbage()
     {
+        const uint64_t elapsedFrames = m_Frame - m_LastGarbageFrame;
         uint64_t freedBytes = 0ull;
-        if (m_MaxUnusedFrames <= m_Frame)
+        if (m_MaxUnusedFrames < elapsedFrames)
         {
-            const uint64_t maxFrame = m_Frame - m_MaxUnusedFrames;
+            const uint64_t maxFrame = elapsedFrames - m_MaxUnusedFrames;
             freedBytes += TrimAllUnused(maxFrame);
         }
 
-        freedBytes += m_StoredStorage.TrimToWindowPeak();
-        freedBytes += m_StoredVertex.TrimToWindowPeak();
-        freedBytes += m_StoredUniform.TrimToWindowPeak();
+        freedBytes += m_StoredStorage.TrimToWindowPeak(m_Frame, m_MaxUnusedFrames);
+        freedBytes += m_StoredVertex.TrimToWindowPeak(m_Frame, m_MaxUnusedFrames);
+        freedBytes += m_StoredUniform.TrimToWindowPeak(m_Frame, m_MaxUnusedFrames);
 #ifndef RY_TEXTURE_REGISTER
         freedBytes += m_StoredTexture.TrimToWindowPeak();
 #endif

@@ -169,8 +169,9 @@ namespace Rynex {
             {
                 UniqueBuffer& value = it->second;
                 const bool isOld = value.m_Frame <= maxFrame;
-                if (isOld && !Controller::IsReferencedElsewhere(value.m_Buffer))
+                if (isOld)
                 {
+                    RY_CORE_ERROR_IF(!Controller::IsReferencedElseWhere(value.m_Buffer), "References are still is found else where");
                     freedBytes += Controller::GetByteSize(value.m_Buffer);
                     it = m_Register.erase(it);
                 }
@@ -191,7 +192,7 @@ namespace Rynex {
             for (const auto& entry : m_Register)
             {
                 const UniqueBuffer& value = entry.second;
-                if (!Controller::IsReferencedElsewhere(value.m_Buffer))
+                if (!Controller::IsReferencedElseWhere(value.m_Buffer))
                     idleBytes +=  Controller::GetByteSize(value.m_Buffer);
 
             }

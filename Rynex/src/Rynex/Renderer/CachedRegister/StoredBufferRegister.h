@@ -15,6 +15,7 @@ namespace Rynex {
             int64_t m_Index;            // buffer handed out last, -1 = nothing handed out since the last
 
             uint64_t m_WindowPeak;      // most buffers handed out in one frame since the last trim
+            uint64_t m_WindowPeakFrame;
             uint64_t m_PrevCount;       // buffers handed out in the previous frame
 
             StoredBuffer()
@@ -22,6 +23,7 @@ namespace Rynex {
                 , m_Frame(0ull)
                 , m_Index(-1)
                 , m_WindowPeak(0ull)
+                , m_WindowPeakFrame(0ull)
                 , m_PrevCount(0ull)
             {
             }
@@ -91,12 +93,17 @@ namespace Rynex {
                 m_PrevCount = GetHandedOutCount();
                 if (m_WindowPeak < m_PrevCount)
                 {
+                    m_WindowPeakFrame = m_Frame;
                     m_WindowPeak = m_PrevCount;
                 }
                 m_Index = -1ll;
             }
 
-            // Trailing idle buffers behind keepCount (and behind the cursor) that nobody else holds.
+            /**
+             * count alle buffers behind the @keepCount that can be removed.
+             * @param keepCount
+             * @return
+             */
             uint64_t CountRemovableAfter(const uint64_t keepCount) const
             {
                 const uint64_t handedOut = GetHandedOutCount();
@@ -107,23 +114,27 @@ namespace Rynex {
                 {
                     --index;
                     const T& buffer = m_StoredBufferVec[index];
-                    if (Controller::IsReferencedElsewhere(buffer))
-                    {
-                        break;
-                    }
+                    RY_CORE_ERROR_IF(Controller::IsReferencedElseWhere(buffer), "References are still is found else where!");
+
                     ++removable;
                 }
                 return removable;
             }
 
+            /**
+             * Remove on range all old buffer (old > 600 frames with out using).
+             * @param keepCount how many buffer we keep alive.
+             * @return
+             */
             uint64_t RemoveIdleAfter(const uint64_t keepCount)
             {
+
                 const uint64_t removable = CountRemovableAfter(keepCount);
                 const uint64_t count = GetBufferCount();
                 const uint64_t newCount = count - removable;
 
                 const auto begin = m_StoredBufferVec.begin();
-                const auto itErase = begin + static_cast<std::ptrdiff_t>(newCount);
+                const auto itErase = begin + static_cast<int64_t>(newCount);
                 const auto end = m_StoredBufferVec.end();
                 m_StoredBufferVec.erase(itErase, end);
                 return removable;
@@ -132,9 +143,8 @@ namespace Rynex {
             T* NextIdleBuffer(const uint64_t frame)
             {
                 if (!HasIdleBuffer())
-                {
                     return nullptr;
-                }
+
 
                 ++m_Index;
                 m_Frame = frame;
@@ -248,7 +258,14 @@ namespace Rynex {
 
         void SetFrame(const uint64_t frame)
         {
+            if (frame == m_Frame)
+                return;
             m_Frame = frame;
+            for (auto& [key, value] : m_Register)
+            {
+                value.NewFrame();
+            }
+
         }
 
         // Removes idle buffers of keys that were not handed out since maxFrame (inclusive). Returns the freed bytes.
@@ -264,8 +281,8 @@ namespace Rynex {
                     ++it;
                     continue;
                 }
-
-                const uint64_t removed = value.RemoveIdleAfter(0ull);
+                constexpr uint32_t keepCount = 0u; // how many Buffer we need to keep at max!
+                const uint64_t removed = value.RemoveIdleAfter(keepCount);
                 const uint64_t keyByteSize = Controller::GetByteSize(it->first);
                 const uint64_t removedBytes = removed * keyByteSize;
                 freedBytes += removedBytes;
@@ -284,20 +301,25 @@ namespace Rynex {
             return freedBytes;
         }
 
-        // Garbage collection: shrinks every key to the most buffers it needed in one frame since the last call.
-        uint64_t TrimToWindowPeak()
+        // Garbage collection: shrinks every key to the most buffers it needed in one frame since the last call.windowPeakRelevance
+        uint64_t TrimToWindowPeak(uint64_t frame, uint64_t minFrameDifference = 600ull)
         {
             uint64_t freedBytes = 0ull;
             Iterator it = m_Register.begin();
             while (m_Register.end() != it)
             {
                 Value& value = it->second;
-                const uint64_t keep = std::max(value.m_WindowPeak, value.m_PrevCount);
+                const uint64_t peakWindowFrameDifference = frame - value.m_WindowPeakFrame;
+                uint64_t windowPeakRelevance = value.m_WindowPeak;
+                if (minFrameDifference < peakWindowFrameDifference)
+                    windowPeakRelevance = 0ull == value.m_PrevCount ? 0ull : (value.m_PrevCount / value.m_WindowPeak);
+
+                const uint64_t keep = std::max(windowPeakRelevance, value.m_PrevCount);
                 const uint64_t removed = value.RemoveIdleAfter(keep);
                 const uint64_t keyByteSize = Controller::GetByteSize(it->first);
                 const uint64_t removedBytes = removed * keyByteSize;
                 freedBytes += removedBytes;
-                value.m_WindowPeak = value.m_PrevCount;
+                value.m_WindowPeak = keep;
 
                 if (value.m_StoredBufferVec.empty())
                 {

@@ -44,6 +44,7 @@ TEST_F(TestCacheBufferRegister, TestSetFrame)
 {
     m_Cache->SetFrame(0);
 }
+
 TEST_F(TestCacheBufferRegister, TestSetAcquireBufferByZeroMemoryBuged)
 {
     m_Cache->ReservedRegisterGpuMaxGpuMemoryUsage(0u);
@@ -52,6 +53,31 @@ TEST_F(TestCacheBufferRegister, TestSetAcquireBufferByZeroMemoryBuged)
     EXPECT_EQ(nullptr, buffer);
     EXPECT_EQ(0u, m_Cache->GetRegisterGpuMemoryUsage());
     EXPECT_EQ(0, m_Cache->GetUnusedGpuBudged());
+}
+
+TEST_F(TestCacheBufferRegister, TestSetAcquireBufferOneByteOverBudged_OneBuffer)
+{
+    constexpr size_t maxByteSize = sizeof(m_Value) - 1ull;
+    m_Cache->ReservedRegisterGpuMaxGpuMemoryUsage(maxByteSize);
+    EXPECT_EQ(0, m_Cache->GetRegisterGpuMemoryUsage());
+    const Rynex::Ref<Rynex::UniformBuffer> buffer = m_Cache->AcquireUniformBuffer(GetByteData(), s_Flag);
+    EXPECT_EQ(nullptr, buffer);
+    EXPECT_EQ(0u, m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(maxByteSize, m_Cache->GetUnusedGpuBudged());
+}
+
+TEST_F(TestCacheBufferRegister, TestSetAcquireBufferOneByteOverBudged_TwoBuffer)
+{
+    constexpr size_t maxByteSize = sizeof(m_Value) * 2ull - 1ull;
+    m_Cache->ReservedRegisterGpuMaxGpuMemoryUsage(maxByteSize);
+    EXPECT_EQ(0, m_Cache->GetRegisterGpuMemoryUsage());
+    const Rynex::Ref<Rynex::UniformBuffer> buffer0 = m_Cache->AcquireUniformBuffer(GetByteData(), s_Flag);
+    const Rynex::Ref<Rynex::UniformBuffer> buffer1 = m_Cache->AcquireUniformBuffer(GetByteData(), s_Flag);
+    EXPECT_NE(nullptr, buffer0);
+    EXPECT_EQ(sizeof(m_Value), buffer0->GetByteSize());
+    EXPECT_EQ(nullptr, buffer1);
+    EXPECT_EQ(sizeof(m_Value), m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(maxByteSize - sizeof(m_Value), m_Cache->GetUnusedGpuBudged());
 }
 
 #pragma region UniformBufferTest
@@ -251,6 +277,124 @@ TEST_F(TestCacheBufferRegister, TestSetAcquireUniqueBufferHash_Template_StorageB
     EXPECT_EQ(bufferGet, bufferCreate);
     EXPECT_EQ(sizeof(m_Value), m_Cache->GetRegisterGpuMemoryUsage());
     EXPECT_EQ(0u, m_Cache->GetUnusedGpuBudged());
+}
+
+#pragma endregion
+
+
+#pragma region garbeg_colection
+
+TEST_F(TestCacheBufferRegister, TestGarbegColector_Auto_delete_One_Buffer)
+{
+    EXPECT_EQ(0, m_Cache->GetRegisterGpuMemoryUsage());
+    m_Cache->SetFrame(2ull);
+    const Rynex::Ref<Rynex::UniformBuffer> buffer = m_Cache->AcquireUniformBuffer(GetByteData(), s_Flag);
+    EXPECT_NE(nullptr, buffer);
+    EXPECT_EQ(sizeof(m_Value), buffer->GetByteSize());
+    EXPECT_EQ(sizeof(m_Value), m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(0, m_Cache->GetUnusedGpuBudged());
+
+
+    m_Cache->SetFrame(600ull);
+
+    EXPECT_EQ(sizeof(m_Value), m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(0, m_Cache->GetUnusedGpuBudged());
+
+    m_Cache->SetFrame(603ull);
+
+
+    EXPECT_EQ(0u, m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(sizeof(m_Value), m_Cache->GetUnusedGpuBudged());
+}
+
+
+TEST_F(TestCacheBufferRegister, TestGarbegColector_Auto_Delete_Multyble_Buffer)
+{
+    EXPECT_EQ(0, m_Cache->GetRegisterGpuMemoryUsage());
+    m_Cache->SetFrame(2ull);
+    const Rynex::Ref<Rynex::UniformBuffer> buffer0 = m_Cache->AcquireUniformBuffer(GetByteData(), s_Flag);
+
+
+    EXPECT_NE(nullptr, buffer0);
+    EXPECT_EQ(sizeof(m_Value), buffer0->GetByteSize());
+    EXPECT_EQ(sizeof(m_Value), m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(0, m_Cache->GetUnusedGpuBudged());
+
+
+    m_Cache->SetFrame(600ull);
+
+    EXPECT_EQ(sizeof(m_Value), m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(0, m_Cache->GetUnusedGpuBudged());
+
+    m_Cache->SetFrame(603ull);
+
+
+    EXPECT_EQ(0u, m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(sizeof(m_Value), m_Cache->GetUnusedGpuBudged());
+
+    const Rynex::Ref<Rynex::UniformBuffer> buffer1 = m_Cache->AcquireUniformBuffer(GetByteData(), s_Flag);
+
+    EXPECT_NE(nullptr, buffer1);
+    EXPECT_NE(buffer1, buffer0);
+    EXPECT_EQ(sizeof(m_Value), buffer1->GetByteSize());
+    EXPECT_EQ(sizeof(m_Value), m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(0u, m_Cache->GetUnusedGpuBudged());
+}
+
+TEST_F(TestCacheBufferRegister, TestGarbegColector_Auto_Delete_One_Buffer_A_Time)
+{
+    m_Cache->ReservedRegisterGpuMaxGpuMemoryUsage(sizeof(m_Value) * 2);
+    EXPECT_EQ(0, m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ((sizeof(m_Value) * 2), m_Cache->GetUnusedGpuBudged());
+    {
+        m_Cache->SetFrame(1ull);
+        const Rynex::Ref<Rynex::UniformBuffer>  buffer0 = m_Cache->AcquireUniformBuffer(GetByteData(), s_Flag);
+        const Rynex::Ref<Rynex::UniformBuffer>  buffer1 = m_Cache->AcquireUniformBuffer(GetByteData(), s_Flag);
+
+        EXPECT_NE(nullptr, buffer0);
+        EXPECT_NE(nullptr, buffer1);
+        EXPECT_NE(buffer0, buffer1);
+        EXPECT_EQ(sizeof(m_Value), buffer0->GetByteSize());
+        EXPECT_EQ(sizeof(m_Value), buffer1->GetByteSize());
+    }
+
+    EXPECT_EQ((sizeof(m_Value) * 2ull), m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(0ull, m_Cache->GetUnusedGpuBudged());
+
+    m_Cache->SetFrame(2ull);
+
+    EXPECT_EQ((sizeof(m_Value) * 2ull), m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(0ull, m_Cache->GetUnusedGpuBudged());
+
+    m_Cache->SetFrame(3ull);
+
+    EXPECT_EQ((sizeof(m_Value) * 2ull), m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(0ull, m_Cache->GetUnusedGpuBudged());
+
+
+    {
+        m_Cache->SetFrame(4ull);
+        const Rynex::Ref<Rynex::UniformBuffer> buffer0 = m_Cache->AcquireUniformBuffer(GetByteData(), s_Flag);
+        EXPECT_NE(nullptr, buffer0);
+        EXPECT_EQ(sizeof(m_Value), buffer0->GetByteSize());
+    }
+
+    EXPECT_EQ((sizeof(m_Value) * 2ull), m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(0ull, m_Cache->GetUnusedGpuBudged());
+
+
+    m_Cache->SetFrame(603ull);
+    EXPECT_EQ(sizeof(m_Value), m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(sizeof(m_Value), m_Cache->GetUnusedGpuBudged());
+
+    m_Cache->SetFrame(1203ull);
+    EXPECT_EQ(sizeof(m_Value), m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(sizeof(m_Value), m_Cache->GetUnusedGpuBudged());
+
+    m_Cache->SetFrame(1204ull);
+    EXPECT_EQ(0ull, m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(sizeof(m_Value) * 2ull, m_Cache->GetUnusedGpuBudged());
+
 }
 
 #pragma endregion

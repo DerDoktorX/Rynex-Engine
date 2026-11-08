@@ -59,7 +59,7 @@ namespace Rynex {
             return bytesSize;
         }
 
-        static bool IsReferencedElsewhere(const Ref<VertexArray>& vertexObjectArray)
+        static bool IsReferencedElseWhere(const Ref<VertexArray>& vertexObjectArray)
         {
             return 1l < vertexObjectArray.use_count();
         }
@@ -107,7 +107,7 @@ namespace Rynex {
         static uint64_t GetByteSize(const Ref<T>& buffer);
 
 
-        static bool IsReferencedElsewhere(const Ref<T>& buffer);
+        static bool IsReferencedElseWhere(const Ref<T>& buffer);
     };
 
 
@@ -124,7 +124,7 @@ namespace Rynex {
             return byteSize;
         }
 
-        static bool IsReferencedElsewhere(const Ref<T>& buffer)
+        static bool IsReferencedElseWhere(const Ref<T>& buffer)
         {
             return 1l < buffer.use_count();
         }
@@ -234,7 +234,7 @@ namespace Rynex {
     }
 
     template <typename T, typename N>
-    bool UniqueBufferController<T, N>::IsReferencedElsewhere(const Ref<T>& buffer)
+    bool UniqueBufferController<T, N>::IsReferencedElseWhere(const Ref<T>& buffer)
     {
         return 1l < buffer.use_count();
     }
