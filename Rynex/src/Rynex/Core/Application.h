@@ -84,7 +84,9 @@ namespace Rynex {
 		const ThreadPool& GetThreadPool() const { return m_ThreadPool; };
 		std::thread& GetRenderThread() { return m_RenderThread; };
 	private:
+	    void CalculateMaxQueueMainThread();
 		void SubmitToMainThreedQueuePush(const std::function<void()>& func, std::condition_variable* cvPtr);
+        WindowProps SearchStartArgsForWindow(const ApplicationSpecification& args);
 
 		void Run();
 		

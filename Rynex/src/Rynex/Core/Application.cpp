@@ -13,9 +13,43 @@
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
 namespace Rynex {
+    namespace {
+        static constexpr bool IsNotCarcterNumber(char charcter)
+        {
+            constexpr char zeroChar = '0';
+            constexpr char nineChar = '9';
+
+            return zeroChar > charcter && charcter < nineChar;
+
+        }
 
 
+        static int GetNumberInt(std::string_view view)
+        {
+            constexpr char zeroChar = '0';
+            constexpr char nineChar = '9';
+            constexpr char spaceChar = ' ';
+
+            int number = 0;
+            size_t pos = 0;
+
+
+            while (pos < view.size())
+            {
+
+                char charecter = view.at(pos);
+                if (IsNotCarcterNumber(charecter))
+                    return number;
+
+                number = number * 10 + (charecter - zeroChar);
+                pos++;
+            }
+            return number;
+        }
+    }
 	Application* Application::s_Instance = nullptr;
+
+
 
 
 	Application::Application(const ApplicationSpecification& specification)
@@ -38,29 +72,19 @@ namespace Rynex {
 		, m_Minimized(false)
 	{
 		m_QueueTimer = PlatformTimer::Create(&m_QueuePastTime);
-		int64_t multyply = 1000ll;	// move from sec in millisecond
-		multyply *= 1000ll;			// move from millisecond in microsecond
-		multyply *= 1000ll;			// move from microsecond in nanosecond
-		multyply *= 10ll;			// move from 1/60 in 10/6
-		
-		int64_t frameTime60up = 1ll * multyply;
-		int64_t frameTime60down = 6ll;
-		int64_t up = 1;
-		int64_t down = m_QueueDivedFrameTime;
-		int64_t frameTime60By1DivedBy8up = frameTime60up * up;
-		int64_t frameTime60By1DivedBy8down = frameTime60down * down;
-		m_MaxQueueMainThreadTime = frameTime60By1DivedBy8up / frameTime60By1DivedBy8down;
+		CalculateMaxQueueMainThread();
 		
 
 		RY_CORE_INFO("Application::Application Start!");
-		RY_CORE_ASSERT(!s_Instance, "Applications already exists!");
+		RY_CORE_ASSERT(nullptr == s_Instance, "Applications already exists!");
 
 		s_Instance = this;
 
 		if (!m_Specification.WorkingDirectory.empty())
 			std::filesystem::current_path(m_Specification.WorkingDirectory);
 
-		m_Window = Window::Create(WindowProps(m_Specification.Name));
+        WindowProps prop = SearchStartArgsForWindow(m_Specification);
+		m_Window = Window::Create(prop);
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
@@ -242,8 +266,61 @@ namespace Rynex {
 		m_MainThreedQueue.push(mainThreadExe);
 	}
 
+    WindowProps Application::SearchStartArgsForWindow(const ApplicationSpecification& spec)
+    {
+	    constexpr const char* markerWithe = "--WindowWidth";
+	    constexpr const char* markerHeight = "--WindowHeight";
+	    constexpr const char* markerVisibility = "--WindowVisibility";
+	    constexpr const char* markerVisibilityTrue = "true";
+	    constexpr const char* markerVisibilityFalse = "false";
+	    WindowProps props(spec.Name);
+	    const ApplicationCommandLineArgs& args = spec.CommandLineArgs;
+	    int i = 0;
+	    while (i < args.Count)
+	    {
+	        const int next = i + 1;
+	        if (args.Count == next)
+	            break;
 
-	void Application::ExecuteMainThreedQueue()
+	        const std::string_view filed{args[i]};
+	        if (markerVisibility == filed)
+	        {
+	            i++;
+	            if (markerVisibilityTrue == args[i])
+	                props.m_Visible = true;
+	            else if (markerVisibilityFalse == args[i])
+	                props.m_Visible = false;
+	            else
+	                RY_CORE_ERROR("No valid reading input! {}", args[i--]);
+	        }
+	        else if (markerWithe == filed)
+	        {
+	            i++;
+	            const int width = GetNumberInt(args[i]);
+	            if (0 < width)
+	                props.m_Width =  width;
+	            else
+	                i--;
+	        }
+	        else if (markerHeight == filed)
+	        {
+	            i++;
+	            const int height = GetNumberInt(args[i]);
+	            if (0 < height)
+	                props.m_Height =  height;
+	            else
+	                i--;
+	        }
+
+	        i++;
+	    }
+        return props;
+    }
+
+
+
+
+    void Application::ExecuteMainThreedQueue()
 	{
 		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
 		
@@ -269,6 +346,22 @@ namespace Rynex {
 		
 	}
 
+    void Application::CalculateMaxQueueMainThread()
+    {
+        int64_t multyply = 1000ll;	// move from sec in millisecond
+        multyply *= 1000ll;			// move from millisecond in microsecond
+        multyply *= 1000ll;			// move from microsecond in nanosecond
+        multyply *= 10ll;			// move from 1/60 in 10/6
+
+        int64_t frameTime60up = 1ll * multyply;
+        int64_t frameTime60down = 6ll;
+        int64_t up = 1;
+        int64_t down = m_QueueDivedFrameTime;
+        int64_t frameTime60By1DivedBy8up = frameTime60up * up;
+        int64_t frameTime60By1DivedBy8down = frameTime60down * down;
+        m_MaxQueueMainThreadTime = frameTime60By1DivedBy8up / frameTime60By1DivedBy8down;
+    }
+
 	void Application::ExecuteAllMainThreedQueue()
 	{
 		std::scoped_lock<std::mutex> lock(m_MainThreedQueueMutex);
@@ -280,7 +373,7 @@ namespace Rynex {
 			func();
 			if (nullptr != cvPtr)
 			{
-				RY_CORE_TRACE("Waiting thread resume his Exution Now!");
+				RY_CORE_TRACE("Waiting thread resume his Execution Now!");
 				cvPtr->notify_one();
 			}
 			m_MainThreedQueue.pop();
