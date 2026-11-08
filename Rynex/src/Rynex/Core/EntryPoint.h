@@ -2,7 +2,7 @@
 
 
 
-extern Rynex::Application* Rynex::CreateApplication(ApplicationCommandLineArgs spec);
+extern Rynex::Scope<Rynex::Application> Rynex::CreateApplication(ApplicationCommandLineArgs spec);
 
 
 
@@ -34,7 +34,7 @@ int main(int argc, char** argv)
 		argv[1] = RY_DEFAULT_PATH_PROJECT_FILE;
 		argc = 2;
 	}
-	Rynex::Application* app = Rynex::CreateApplication({ argc, argv });
+	Rynex::Scope<Rynex::Application> app = Rynex::CreateApplication({ argc, argv });
 #else
 	Rynex::Application* app = Rynex::CreateApplication({ argc, argv });
 #endif
@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 	RY_PROFILE_END_SESSION();
 
 	RY_PROFILE_BEGIN_SESSION("Shutdown", "Profile/RynexPrifile-Shutdown.json");
-	delete app;
+    RY_DESTROY_SCOPE(app);
 	RY_PROFILE_END_SESSION();
 	Rynex::Log::Get().Shutdown();
 }

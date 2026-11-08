@@ -48,6 +48,7 @@ namespace Rynex {
 	class RYNEX_API Application
 	{
 	public:
+
         explicit Application(const ApplicationSpecification& specification);
 		virtual ~Application();
 
@@ -64,7 +65,7 @@ namespace Rynex {
 
 		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
 
-		inline static Application& Get() { return *s_Instance; }
+		inline static Application& Get() { RY_CORE_ASSERT(nullptr != s_Instance, "Application Instance is nullptr!"); return *s_Instance; }
 		inline Window& GetWindow() { return *m_Window; }
 		inline Weak<Window> GetWindowWeak() { return m_Window; }
 		int64_t GetImGuiTime() const { return m_ImGuiTimeFrame; }
@@ -135,7 +136,7 @@ namespace Rynex {
 		friend int ::main(int argc, char** argv);
 	};
 
-	RYNEX_API Application* CreateApplication(ApplicationCommandLineArgs spec);
+	RYNEX_API Scope<Application> CreateApplication(ApplicationCommandLineArgs spec);
 
 #define RY_SUBMIT_MEMBER_FUNC_TO_MAINTAINED_QUEUE(func) Application::Get().SubmiteToMainThreedQueue( RY_BIND_MEMBER_FUNC(func) )
 #define RY_SUBMIT_MEMBER_FUNC_TO_MAINTAINED_QUEUE_WAIT(func) Application::Get().SubmiteToMainThreedQueueWait( RY_BIND_MEMBER_FUNC(func) )

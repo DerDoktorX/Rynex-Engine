@@ -27,13 +27,13 @@ namespace Rynex {
 		
 	};
 	
-	Application* CreateApplication(ApplicationCommandLineArgs args)
+	Scope<Application> CreateApplication(ApplicationCommandLineArgs args)
 	{
 		ApplicationSpecification spec;
 		spec.Name = "Rynex-Editor";
 		spec.CommandLineArgs = args;
 		Project::New();
-		return new RynexEditor(spec);
+		return CreateScope<RynexEditor>(spec);
 	}
 }
 

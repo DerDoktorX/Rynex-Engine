@@ -210,7 +210,7 @@ private:
 class Sandbox : public Rynex::Application
 {
 public:
-	Sandbox(const Rynex::ApplicationSpecification& spec)
+	explicit Sandbox(const Rynex::ApplicationSpecification& spec)
 		: Rynex::Application(spec)
 	{
 		PushLayer(new Sandbox2D());
@@ -222,7 +222,7 @@ public:
 	}
 };
 
-Rynex::Application* Rynex::CreateApplication(Rynex::ApplicationCommandLineArgs args)
+Rynex::Scope<Rynex::Application> Rynex::CreateApplication(Rynex::ApplicationCommandLineArgs args)
 {	
 	Rynex::ApplicationSpecification spec;
 	spec.Name = "Rynex-SandBox";
@@ -230,5 +230,5 @@ Rynex::Application* Rynex::CreateApplication(Rynex::ApplicationCommandLineArgs a
 
 
 	Project::New();
-	return new Sandbox(spec);
+	return Rynex::CreateScope<Sandbox>(spec);
 }
