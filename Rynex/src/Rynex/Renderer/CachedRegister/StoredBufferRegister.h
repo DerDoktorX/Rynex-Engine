@@ -246,6 +246,7 @@ namespace Rynex {
         void Clear()
         {
             m_Register.clear();
+            m_ByteSize = 0ull;
         }
 
         void ResetBuffer()

@@ -240,6 +240,7 @@ namespace Rynex {
         m_StoredTexture.Clear();
 #endif
         m_UniqueVertex.Clear();
+        m_UniqueStorage.Clear();
 #ifndef RY_VERTEX_BUFFER_REGISTER
         m_UniqueVertexArray.Clear();
 #endif
