@@ -80,6 +80,22 @@ TEST_F(TestCacheBufferRegister, TestSetAcquireBufferOneByteOverBudged_TwoBuffer)
     EXPECT_EQ(maxByteSize - sizeof(m_Value), m_Cache->GetUnusedGpuBudged());
 }
 
+TEST_F(TestCacheBufferRegister, TestSetAcquireBuffer_Clear_OneBuffer)
+{
+    constexpr size_t maxByteSize = sizeof(m_Value);
+    m_Cache->ReservedRegisterGpuMaxGpuMemoryUsage(maxByteSize);
+    EXPECT_EQ(0, m_Cache->GetRegisterGpuMemoryUsage());
+    const Rynex::Ref<Rynex::UniformBuffer> buffer = m_Cache->AcquireUniformBuffer(GetByteData(), s_Flag);
+    EXPECT_NE(nullptr, buffer);
+    EXPECT_EQ(maxByteSize, m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(0u, m_Cache->GetUnusedGpuBudged());
+
+    m_Cache->Clear();
+
+    EXPECT_EQ(0u, m_Cache->GetRegisterGpuMemoryUsage());
+    EXPECT_EQ(maxByteSize, m_Cache->GetUnusedGpuBudged());
+}
+
 #pragma region UniformBufferTest
 
 TEST_F(TestCacheBufferRegister, TestSetAcquireUniformBuffer)
