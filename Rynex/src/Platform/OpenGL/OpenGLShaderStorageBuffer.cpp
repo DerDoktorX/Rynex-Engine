@@ -142,7 +142,7 @@ namespace Rynex {
 
 	void OpenGLShaderStorageBuffer::SetupFance()
 	{
-		if (Application::Get().IsMainThread())
+		if (OpenGLThreadContext::IsActive())
 			return;
 
 		m_FanceObject.SetupFence();
