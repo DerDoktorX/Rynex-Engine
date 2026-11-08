@@ -19,6 +19,7 @@ namespace Rynex {
 		uint32_t m_Width;
 		uint32_t m_PosX;
 		uint32_t m_PosY;
+	    bool m_Visible;
 
 	    WindowProps()
 	        : m_Title("Window Rynex-Engine")
@@ -26,6 +27,7 @@ namespace Rynex {
             , m_Width(400u)
             , m_PosX(0u)
             , m_PosY(0u)
+	        , m_Visible(true)
 	    {
 	    }
 
@@ -35,6 +37,7 @@ namespace Rynex {
 	        , m_Width(width)
 	        , m_PosX(0u)
 	        , m_PosY(0u)
+	        , m_Visible(true)
 		{
 		}
 	};

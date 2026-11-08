@@ -55,6 +55,7 @@ namespace Rynex {
 		m_Data.Title = props.m_Title;
 		m_Data.Width = props.m_Width;
 		m_Data.Height = props.m_Height;
+
 	    m_Data.EventCallback = [](Event& event) -> void
 	        {
 	            RY_CORE_TRACE("Default Event:", event.ToString());
@@ -94,7 +95,7 @@ namespace Rynex {
 	    const int width = m_Data.Width;
 	    const int height = m_Data.Height;
 	    const char* titleChar = m_Data.Title.c_str();
-
+	    glfwWindowHint(GLFW_VISIBLE, props.m_Visible ? GLFW_TRUE : GLFW_FALSE);
 		m_Window = glfwCreateWindow(width, height, titleChar, nullptr, nullptr);
 
 		m_Context = CreateRef<OpenGLContext>(m_Window);
