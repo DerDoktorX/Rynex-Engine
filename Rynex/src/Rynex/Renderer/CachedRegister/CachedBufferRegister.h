@@ -30,6 +30,16 @@ namespace Rynex {
         CachedBufferRegister();
         ~CachedBufferRegister();
 
+        template<typename Buffer>
+        Ref<Buffer> AcquireBuffer(const Span<const Byte>& bufferData, BufferFlagGPU flag);
+
+        template<typename Buffer>
+        Ref<Buffer> AcquireUniqueBufferHash(Hash64 hash);
+
+        template<typename Buffer>
+        std::pair<Hash64, Ref<Buffer>> AcquireUniqueBuffer(const Span<const Byte>& bufferData, const BufferLayout& layout, const BufferFlagGPU flag);
+
+
         template<typename T>
         Ref<StorageBuffer> AcquireStorageBuffer(const Span<T>& bufferData)
         {
@@ -84,6 +94,8 @@ namespace Rynex {
         std::pair<Hash64, Ref<UniformBuffer>> AcquireUniqueUniformBuffer(const Span<const Byte>& bufferData, const BufferLayout& layout, BufferFlagGPU flag);
         Ref<UniformBuffer> AcquireUniqueUniformBufferHash(Hash64 hash);
 
+        std::pair<Hash64, Ref<StorageBuffer>> AcquireUniqueStorageBuffer(const Span<const Byte>& bufferData, const BufferLayout& layout, BufferFlagGPU flag);
+        Ref<StorageBuffer> AcquireUniqueStorageBufferHash(Hash64 hash);
 
         std::pair<Hash64, Ref<IndexBuffer>> AcquireUniqueIndexBuffer32(const Span<uint32_t>& bufferData, BufferFlagGPU flag);
         Ref<IndexBuffer> AcquireUniqueIndexBufferHash32(Hash64 hash);
@@ -179,6 +191,81 @@ namespace Rynex {
         uint64_t m_MaxUnusedFrames;
         uint32_t m_Flags;
     };
+
+    template <typename  Buffer>
+    Ref<Buffer> CachedBufferRegister::AcquireBuffer(const Span<const Byte>& bufferData, BufferFlagGPU flag)
+    {
+        static_assert(false, "No default implemented!");
+        return Ref<Buffer>{nullptr};
+    }
+
+    template <typename Buffer>
+    Ref<Buffer> CachedBufferRegister::AcquireUniqueBufferHash(Hash64 hash)
+    {
+        static_assert(false, "No default implemented!");
+        return Ref<Buffer>{nullptr};
+    }
+
+    template <typename Buffer>
+    std::pair<Hash64, Ref<Buffer>> CachedBufferRegister::AcquireUniqueBuffer(const Span<const Byte>& bufferData, const BufferLayout& layout, const BufferFlagGPU flag)
+    {
+        static_assert(false, "No default implemented!");
+        return std::pair<Hash64, Ref<Buffer>>(0ull, Ref<Buffer>{nullptr});
+    }
+
+    template<>
+    inline Ref<UniformBuffer> CachedBufferRegister::AcquireBuffer<UniformBuffer>(const Span<const Byte>& bufferData, BufferFlagGPU flag)
+    {
+        return AcquireUniformBuffer(bufferData, flag);
+    }
+
+    template<>
+    inline Ref<UniformBuffer> CachedBufferRegister::AcquireUniqueBufferHash<UniformBuffer>(Hash64 hash)
+    {
+        return AcquireUniqueUniformBufferHash(hash);
+    }
+
+    template<>
+    inline std::pair<Hash64, Ref<UniformBuffer>> CachedBufferRegister::AcquireUniqueBuffer<UniformBuffer>(const Span<const Byte>& bufferData, const BufferLayout& layout, const BufferFlagGPU flag)
+    {
+        return AcquireUniqueUniformBuffer(bufferData, layout, flag);
+    }
+
+    template<>
+    inline Ref<VertexBuffer> CachedBufferRegister::AcquireBuffer<VertexBuffer>(const Span<const Byte>& bufferData, BufferFlagGPU flag)
+    {
+        return AcquireVertexBuffer(bufferData);
+    }
+
+    template<>
+    inline Ref<VertexBuffer> CachedBufferRegister::AcquireUniqueBufferHash<VertexBuffer>(Hash64 hash)
+    {
+        return AcquireUniqueVertexBufferHash(hash);
+    }
+
+    template<>
+    inline std::pair<Hash64, Ref<VertexBuffer>> CachedBufferRegister::AcquireUniqueBuffer<VertexBuffer>(const Span<const Byte>& bufferData, const BufferLayout& layout, const BufferFlagGPU flag)
+    {
+        return AcquireUniqueVertexBuffer(bufferData, layout, flag);
+    }
+
+    template<>
+    inline Ref<StorageBuffer> CachedBufferRegister::AcquireBuffer<StorageBuffer>(const Span<const Byte>& bufferData, BufferFlagGPU flag)
+    {
+        return AcquireStorageBuffer(bufferData);
+    }
+
+    template<>
+    inline Ref<StorageBuffer> CachedBufferRegister::AcquireUniqueBufferHash<StorageBuffer>(Hash64 hash)
+    {
+        return AcquireUniqueStorageBufferHash(hash);
+    }
+
+    template<>
+    inline std::pair<Hash64, Ref<StorageBuffer>> CachedBufferRegister::AcquireUniqueBuffer<StorageBuffer>(const Span<const Byte>& bufferData, const BufferLayout& layout, const BufferFlagGPU flag)
+    {
+        return AcquireUniqueStorageBuffer(bufferData, layout, flag);
+    }
 
     template<typename Register>
     typename Register::Buffer CachedBufferRegister::AcquireStored(Register& registerStored, const typename Register::Key& key)

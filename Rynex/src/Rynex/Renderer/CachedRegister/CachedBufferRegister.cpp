@@ -18,14 +18,7 @@ namespace Rynex {
     {
     }
 
-    Ref<StorageBuffer> CachedBufferRegister::AcquireStorageBuffer(const Span<const Byte>& bufferData)
-    {
-        const uint64_t byteSize = bufferData.size();
-        const StoredKey key(byteSize);
-        Ref<StorageBuffer> buffer = AcquireStored(m_StoredStorage, key);
-        buffer->SetData(bufferData.data(), static_cast<uint32_t>(byteSize));
-        return buffer;
-    }
+
 
     Ref<VertexBuffer> CachedBufferRegister::AcquireVertexBuffer(const Span<const Byte>& bufferData)
     {
@@ -35,6 +28,8 @@ namespace Rynex {
         buffer->SetData(bufferData.data(), static_cast<uint32_t>(byteSize));
         return buffer;
     }
+
+
 
     Ref<UniformBuffer> CachedBufferRegister::AcquireUniformBuffer(const Span<const Byte>& bufferData, BufferFlagGPU flag)
     {
@@ -56,13 +51,38 @@ namespace Rynex {
         return uniformBuffer;
     }
 
-
-
     std::pair<Hash64, Ref<UniformBuffer>> CachedBufferRegister::AcquireUniqueUniformBuffer(const Span<const Byte>& bufferData, const BufferLayout& layout, const BufferFlagGPU flag)
     {
         UniqueUniformRegister::ConstructData constructData(bufferData, layout, flag, BufferType::None);
         return AcquireUnique(m_UniqueUniform, constructData);;
     }
+
+
+    Ref<StorageBuffer> CachedBufferRegister::AcquireStorageBuffer(const Span<const Byte>& bufferData)
+    {
+        const uint64_t byteSize = bufferData.size();
+        const StoredKey key(byteSize);
+        Ref<StorageBuffer> buffer = AcquireStored(m_StoredStorage, key);
+        buffer->SetData(bufferData.data(), static_cast<uint32_t>(byteSize));
+        return buffer;
+    }
+
+    std::pair<Hash64, Ref<StorageBuffer>> CachedBufferRegister::AcquireUniqueStorageBuffer(const Span<const Byte>& bufferData, const BufferLayout& layout, const BufferFlagGPU flag)
+    {
+        UniqueStorageRegister::ConstructData constructData(bufferData, layout, flag, BufferType::None);
+        return AcquireUnique(m_UniqueStorage, constructData);;
+    }
+
+    Ref<StorageBuffer> CachedBufferRegister::AcquireUniqueStorageBufferHash(Hash64 hash)
+    {
+        Ref<StorageBuffer>* storageBufferPtr = m_UniqueStorage.TryAcquire(hash);
+        if (nullptr == storageBufferPtr)
+            return Ref<StorageBuffer>(nullptr);
+        Ref<StorageBuffer> storageBuffer(*storageBufferPtr);
+        return storageBuffer;
+    }
+
+
 
 
 
@@ -385,4 +405,6 @@ namespace Rynex {
         const Hash64 hash = robin_hood::hash_bytes(hashCombineVec.data(), hashCombineVec.size());
         return hash;
     }
+
+
 }

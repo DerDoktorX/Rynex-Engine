@@ -207,7 +207,7 @@ namespace Rynex {
     template <typename T, typename N>
     uint64_t UniqueBufferController<T, N>::GetByteSize(const Ref<T>& buffer)
     {
-        RY_CORE_ASSERT(nullptr == buffer, "missing vertex buffer!");
+        RY_CORE_ASSERT(nullptr != buffer, "missing buffer!");
         return buffer->GetByteSize();
     }
 
