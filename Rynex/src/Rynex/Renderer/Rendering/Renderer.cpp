@@ -46,23 +46,30 @@ namespace Rynex {
 	};
 
 
-	static Storage s_Storage;
-	static RenderSettings s_Settings;
+	static Scope<Storage> s_Storage;
+	static Scope<RenderSettings> s_Settings;
 
-	static StatusRender s_State;
+	static Scope<StatusRender> s_State;
 
 
 	void Renderer::Init()
 	{
 	    s_Init = true;
+	    RenderCommand::Create();
 #ifdef RY_RENDERPASS_DATA_ELEMENT_ARRAY
 		RenderPassVec allRenderPassStorage;
 		allRenderPassStorage.Check();
 #else
-		RenderPass& mainViewPass = s_Storage.MainRenderPassStorage;
-		s_Storage.RenderPassStorage.Check();
+
+	    s_Storage = CreateScope<Storage>();
+	    s_Settings = CreateScope<RenderSettings>();
+	    s_State = CreateScope<StatusRender>();
+
+		RenderPass& mainViewPass = s_Storage->MainRenderPassStorage;
+		s_Storage->RenderPassStorage.Check();
 #endif
-		RenderCommand::Init();
+
+
 		Renderer2D::Init();
 		Renderer3D::Init();
 
@@ -89,27 +96,34 @@ namespace Rynex {
 		Texture::Shutdown();
 		Shader::Shutdown();
 		Font::ResetDefault();
-		RenderCommand::Shutdown();
+
+
 #ifndef RY_RENDERPASS_DATA_ELEMENT_ARRAY
 
-		Renderer::ShutdownRenderPass(s_Storage.MainRenderPassStorage);
-		for (RenderPass& renderPass : s_Storage.RenderPassStorage)
+		Renderer::ShutdownRenderPass(s_Storage->MainRenderPassStorage);
+		for (RenderPass& renderPass : s_Storage->RenderPassStorage)
 		{
 			Renderer::ShutdownRenderPass(renderPass);
 		}
-		s_Storage.RenderPassStorage.Destroy();
+		s_Storage->RenderPassStorage.Destroy();
+	    
 
 
 #else
-		for (RenderPass& renderPassPtr : s_Storage.AllRenderPassStorage)
+		for (RenderPass& renderPassPtr : s_Storage->AllRenderPassStorage)
 		{
 			Renderer::ShutdownRenderPass(renderPassPtr);
 		}
-		s_Storage.RenderPassStorage.Destroy();
-		s_State.m_SecondaryPasses.clear();
+		s_Storage->RenderPassStorage.Destroy();
+		s_State->m_SecondaryPasses.clear();
 #endif
 
-		s_Init = false;
+
+	    RY_DESTROY_SCOPE(s_Storage);
+	    RY_DESTROY_SCOPE(s_Settings);
+	    RY_DESTROY_SCOPE(s_State);
+		RenderCommand::Destroy();
+	    s_Init = false;
 	}
 
 	void Renderer::ShutdownEditor()
@@ -130,12 +144,12 @@ namespace Rynex {
 
 	StatusRender& Renderer::GetStatus()
 	{
-		return s_State;
+		return *s_State;
 	}
 
 	void Renderer::ClearState()
 	{
-		s_State.m_SecondaryPasses.clear();
+		s_State->m_SecondaryPasses.clear();
 	}
 
 
@@ -144,8 +158,8 @@ namespace Rynex {
 	void Renderer::SetOnMainCameraCurrentCamera()
 	{
 
-		RenderPass& passMain = s_Storage.MainRenderPassStorage;
-		RenderPass& passCurrent = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& passMain = s_Storage->MainRenderPassStorage;
+		RenderPass& passCurrent = s_Storage->RenderPassStorage.GetDataRef();
 		passCurrent.m_BoundingArray = passMain.m_BoundingArray;
 		passCurrent.m_CameraDataPackBufferUB = passMain.m_CameraDataPackBufferUB;
 		passCurrent.m_DirectionUB = passMain.m_DirectionUB;
@@ -156,20 +170,20 @@ namespace Rynex {
 
 	void Renderer::SetOnCurrentPassMainPass()
 	{
-		RenderPass& passMain = s_Storage.MainRenderPassStorage;
-		RenderPass* passCurrentPtr = s_Storage.RenderPassStorage.GetDataEndPtr();
+		RenderPass& passMain = s_Storage->MainRenderPassStorage;
+		RenderPass* passCurrentPtr = s_Storage->RenderPassStorage.GetDataEndPtr();
 		*passCurrentPtr = passMain;
 	}
 
 	void Renderer::SetRenderPassNameMain(const std::string& name)
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		SetRenderPassNameFromRenderPass(pass, name);
 	}
 
 	void Renderer::SetRenderCameraMain(const glm::mat4& model, const Camera& camera)
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		SetFromRenderPassCameraData(pass, camera, model);
 		SetFromRenderPassCameraUB(pass);
 	}
@@ -179,14 +193,14 @@ namespace Rynex {
 		const glm::vec4& viewSize = target->GetRenderViewSize();
 		glm::ivec4 viewSizeInt = static_cast<glm::ivec4>(viewSize);
 
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		SetRenderTargetFromRenderPass(pass, target);
 		SetViewSizeMain(viewSizeInt);
 	}
 
 	void Renderer::SetViewSizeMain(const glm::ivec4& imgeSize)
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 
 		SetFromRenderPassDisplayData(pass, imgeSize);
 		SetFromRenderPassDisplayUB(pass);
@@ -194,86 +208,86 @@ namespace Rynex {
 
 	Ref<UniformBuffer>& Renderer::GetPackegeCameraUniformMain()
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		return GetPackegeCameraUniformFromRenderPass(pass);
 	}
 
 	Ref<UniformBuffer>& Renderer::GetProjectionUniformMain()
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		return GetProjectionUniformFromRenderPass(pass);
 	}
 
 	Ref<UniformBuffer>& Renderer::GetProjectionViewUniformMain()
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		return GetProjectionViewUniformFromRenderPass(pass);
 	}
 
 	Ref<UniformBuffer>& Renderer::GetPositionUniformMain()
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		return GetPositionUniformFromRenderPass(pass);
 	}
 
 	Ref<UniformBuffer>& Renderer::GetImageSizeUniformMain()
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		return GetImageSizeUniformFromRenderPass(pass);
 	}
 
 	Ref<UniformBuffer>& Renderer::GetViewUniformMain()
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		return GetViewUniformFromRenderPass(pass);
 	}
 
 	PiplineRefBaseVec& Renderer::GetRenderPiplineMain()
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		return GetRenderPiplineFromRenderPass(pass);
 	}
 
 	std::vector<ShaderDrawResource>& Renderer::GetShaderDrawResourceMain()
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		return GetShaderDrawResourceFromRenderPass(pass);
 	}
 
 	std::array<Plane, 6>& Renderer::GetCameraFrustumMain()
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		return GetCameraFrustumFromRenderPass(pass);
 	}
 
 	Ref<RenderTarget>& Renderer::GetRenderTargetMain()
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		return GetRenderTargetFromRenderPass(pass);
 	}
 
 	Ref<Framebuffer> Renderer::GetFramebufferMain()
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		return GetFramebufferFromRenderPass(pass);
 	}
 
 	const CameraPackege& Renderer::GetCameraPackegeMain()
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		return GetCameraPackegeFromRenderPass(pass);
 	}
 
 	void Renderer::RenderingPassMain()
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
-		StatusRenderPasses& status = s_State.m_MainPass;
-		int mode = s_Settings.m_SceneRenderMode;
-		if (s_Settings.m_DrawRenderProxy)
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
+		StatusRenderPasses& status = s_State->m_MainPass;
+		int mode = s_Settings->m_SceneRenderMode;
+		if (s_Settings->m_DrawRenderProxy)
 		{
 			Renderer3D::RenderProxysMain();
 		}
-		if(s_Settings.useSceneRenderModeInMainPass)
+		if(s_Settings->useSceneRenderModeInMainPass)
 		{
 			RenderingPassFromRenderPass(pass, status, mode);
 		}
@@ -285,19 +299,19 @@ namespace Rynex {
 
 	void Renderer::ResetMainRenderPassPipline()
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		ResetFromRenderPassRenderPassPipline(pass);
 	}
 
 	void Renderer::ClearMainPipline()
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		ClearPiplineFromRenderPass(pass);
 	}
 
 	bool Renderer::IsInsideMainViewFrustum(const AABB& aabb, const glm::mat4& modelMatrix)
 	{
-		RenderPass& pass = s_Storage.MainRenderPassStorage;
+		RenderPass& pass = s_Storage->MainRenderPassStorage;
 		return IsInsideFromRenderPassViewFrustum(pass, aabb, modelMatrix);
 	}
 
@@ -309,14 +323,14 @@ namespace Rynex {
 
 	uint32_t Renderer::GetCurrentIndex()
 	{
-		Memory::StoreSubmite<RenderPass>& renderPass = s_Storage.RenderPassStorage;
+		Memory::StoreSubmite<RenderPass>& renderPass = s_Storage->RenderPassStorage;
 		uint32_t index = renderPass.GetCurentCount();
 		return index;
 	}
 
 	bool Renderer::IsCurrentEmpty()
 	{
-		return s_Storage.RenderPassStorage.IsEmpty();
+		return s_Storage->RenderPassStorage.IsEmpty();
 	}
 
 	bool Renderer::SetCurrentPassOnOldIndex(uint32_t index)
@@ -327,48 +341,48 @@ namespace Rynex {
 
 	void Renderer::SetCurrentPassOnEnd()
 	{
-		RenderPass* ptr = s_Storage.RenderPassStorage.GetDataEndPtr();
+		RenderPass* ptr = s_Storage->RenderPassStorage.GetDataEndPtr();
 	}
 
 
 
 	void Renderer::SetRenderPassNameCurrent(const std::string& name)
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
-		uint32_t index = s_Storage.RenderPassStorage.GetCurentCount<uint32_t>();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
+		uint32_t index = s_Storage->RenderPassStorage.GetCurentCount<uint32_t>();
 		SetRenderPassNameFromRenderPass(pass, name);
 	}
 
 	void Renderer::SetNextCurrentRenderPass(uint32_t& index)
 	{
 		CheckCurrentRenderPass();
-		RenderPass* ptr = s_Storage.RenderPassStorage.GetDataEndPtr(index);
+		RenderPass* ptr = s_Storage->RenderPassStorage.GetDataEndPtr(index);
 	}
 	
 	void Renderer::ResetCurrentRenderPassFrame()
 	{
-		s_Storage.RenderPassStorage.Reset();
+		s_Storage->RenderPassStorage.Reset();
 	}
 
 	void Renderer::CheckCurrentRenderPass()
 	{
-		s_Storage.RenderPassStorage.Check();
+		s_Storage->RenderPassStorage.Check();
 	}
 
 	void Renderer::IncrementCurrentRenderPass()
 	{		
-		s_Storage.RenderPassStorage.Incroment();
+		s_Storage->RenderPassStorage.Incroment();
 	}
 
 	void Renderer::SetRenderCameraCurrent(const glm::mat4& model, const Camera& camera)
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		SetFromRenderPassCameraData(pass, camera, model);
 	}
 
 	void Renderer::SetRenderCameraCurrentUB()
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		Renderer::SetFromRenderPassCameraUB(pass);
 	}
 
@@ -377,14 +391,14 @@ namespace Rynex {
 		const glm::vec4& viewSize = target->GetRenderViewSize();
 		glm::ivec4 viewSizeInt = static_cast<glm::ivec4>(viewSize);
 
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		SetRenderTargetFromRenderPass(pass, target);
 		SetViewSizeCurrent(viewSizeInt);
 	}
 
 	void Renderer::SetViewSizeCurrent(const glm::ivec4& imageSize)
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 
 		SetFromRenderPassDisplayData(pass, imageSize);
 		SetFromRenderPassDisplayUB(pass);
@@ -392,98 +406,98 @@ namespace Rynex {
 
 	void Renderer::SetViewSizeCurrentUB()
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 
 		SetFromRenderPassDisplayUB(pass);
 	}
 
 	Ref<UniformBuffer>& Renderer::GetPackegeCameraUniformCurrent()
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		return GetPackegeCameraUniformFromRenderPass(pass);
 	}
 
 	Ref<UniformBuffer>& Renderer::GetViewUniformCurrent()
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		return GetViewUniformFromRenderPass(pass);
 	}
 
 	Ref<UniformBuffer>& Renderer::GetProjectionUniformCurrent()
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		return GetProjectionUniformFromRenderPass(pass);
 	}
 
 	Ref<UniformBuffer>& Renderer::GetProjectionViewUniformCurrent()
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		return GetProjectionViewUniformFromRenderPass(pass);
 	}
 
 	Ref<UniformBuffer>& Renderer::GetPositionUniformCurrent()
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		return GetPositionUniformFromRenderPass(pass);
 	}
 
 	Ref<UniformBuffer>& Renderer::GetImageSizeUniformCurrent()
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		return GetImageSizeUniformFromRenderPass(pass);
 	}
 
 	Ref<RenderTarget>& Renderer::GetRenderTargetCurrent()
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		return GetRenderTargetFromRenderPass(pass);
 	}
 
 	Ref<Framebuffer> Renderer::GetFramebufferCurrent()
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		return GetFramebufferFromRenderPass(pass);
 	}
 
 	PiplineRefBaseVec& Renderer::GetRenderPiplineCurrent()
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		return GetRenderPiplineFromRenderPass(pass);
 	}
 
 	std::vector<ShaderDrawResource>& Renderer::GetShaderDrawResourceCurrent()
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		return GetShaderDrawResourceFromRenderPass(pass);
 	}
 
 	std::array<Plane, 6>& Renderer::GetCameraFrustumCurrent()
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		return GetCameraFrustumFromRenderPass(pass);
 	}
 
 	const CameraPackege& Renderer::GetCameraPackegeCurrent()
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		return GetCameraPackegeFromRenderPass(pass);
 	}
 
 	void Renderer::ResetCurrentRenderPassPipline()
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		ResetFromRenderPassRenderPassPipline(pass);
 	}
 
 	bool Renderer::IsInsideCurrentViewFrustum(const AABB& aabb, const glm::mat4& modelMatrix)
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		return IsInsideFromRenderPassViewFrustum(pass, aabb, modelMatrix);
 	}
 
 	void Renderer::ForEchStoredPassedRenderPass(const std::function<void(const RenderPass& pass)>& forEchElementFunc)
 	{
-		for (const RenderPass& pass : s_Storage.RenderPassStorage)
+		for (const RenderPass& pass : s_Storage->RenderPassStorage)
 		{
 			forEchElementFunc(pass);
 		}
@@ -491,7 +505,7 @@ namespace Rynex {
 
 	void Renderer::ForEchStoredPassedRenderPassRef(const std::function<void(RenderPass& pass)>& forEchElementFunc)
 	{
-		for (RenderPass& pass : s_Storage.RenderPassStorage)
+		for (RenderPass& pass : s_Storage->RenderPassStorage)
 		{
 			forEchElementFunc(pass);
 		}
@@ -501,7 +515,7 @@ namespace Rynex {
 	void Renderer::ForEchStoredPassedRenderPassIndex(const std::function<void(const RenderPass& pass, uint32_t index)>& forEchElementFunc)
 	{
 		uint32_t index = 0u;
-		for (const RenderPass& pass : s_Storage.RenderPassStorage)
+		for (const RenderPass& pass : s_Storage->RenderPassStorage)
 		{
 			forEchElementFunc(pass, index);
 			index++;
@@ -511,7 +525,7 @@ namespace Rynex {
 	void Renderer::ForEchStoredPassedRenderPassIndexRef(const std::function<void(RenderPass& pass, uint32_t index)>& forEchElementFunc)
 	{
 		uint32_t index = 0u;
-		for (RenderPass& pass : s_Storage.RenderPassStorage)
+		for (RenderPass& pass : s_Storage->RenderPassStorage)
 		{
 			forEchElementFunc(pass, index);
 			index++;
@@ -520,21 +534,21 @@ namespace Rynex {
 
 	void Renderer::PassedRenderPassToStart()
 	{
-		s_Storage.RenderPassStorage.Reset();
+		s_Storage->RenderPassStorage.Reset();
 	}
 
 
 	void Renderer::RenderingPassCurrent()
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
-		uint32_t index = s_Storage.RenderPassStorage.GetCurentCount();
-		if (s_State.m_SecondaryPasses.size() <= index)
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
+		uint32_t index = s_Storage->RenderPassStorage.GetCurentCount();
+		if (s_State->m_SecondaryPasses.size() <= index)
 		{
-			index = s_State.m_SecondaryPasses.size();
-			s_State.m_SecondaryPasses.emplace_back(StatusRenderPasses{0,0,0});
+			index = s_State->m_SecondaryPasses.size();
+			s_State->m_SecondaryPasses.emplace_back(StatusRenderPasses{0,0,0});
 		}
-		StatusRenderPasses& status = s_State.m_SecondaryPasses.at(index);
-		if (s_Settings.m_DrawRenderProxy)
+		StatusRenderPasses& status = s_State->m_SecondaryPasses.at(index);
+		if (s_Settings->m_DrawRenderProxy)
 		{
 			Renderer3D::RenderProxysCurrent();
 		}
@@ -543,7 +557,7 @@ namespace Rynex {
 
 	void Renderer::ClearCurrentPipline()
 	{
-		RenderPass& pass = s_Storage.RenderPassStorage.GetDataRef();
+		RenderPass& pass = s_Storage->RenderPassStorage.GetDataRef();
 		ClearPiplineFromRenderPass(pass);
 	}
 
@@ -568,22 +582,22 @@ namespace Rynex {
 
 	void Renderer::SetBackgroundGamma(bool mode)
 	{
-		s_Settings.m_GammaBackgroundCorrection = mode;
+		s_Settings->m_GammaBackgroundCorrection = mode;
 	}
 
 	bool Renderer::GetBackgroundGamma()
 	{
-		return s_Settings.m_GammaBackgroundCorrection;
+		return s_Settings->m_GammaBackgroundCorrection;
 	}
 
 	void Renderer::SetGammaValue(float gamma)
 	{
-		s_Settings.m_GammaCorrection = gamma;
+		s_Settings->m_GammaCorrection = gamma;
 	}
 
 	float Renderer::GetGammaValue()
 	{
-		return s_Settings.m_GammaCorrection;
+		return s_Settings->m_GammaCorrection;
 	}
 
 	void Renderer::SetMode(int mode)
@@ -598,22 +612,22 @@ namespace Rynex {
 
 	RenderSettings& Renderer::GetRenderSettings()
 	{
-		return s_Settings;
+		return *s_Settings;
 	}
 
 	bool Renderer::IsSceneSubmit3DActive()
 	{
-		return s_Settings.m_SubmitSceneEntityTo3DRender;
+		return s_Settings->m_SubmitSceneEntityTo3DRender;
 	}
 
 	void Renderer::SetSceneMode(int mode)
 	{
-		s_Settings.m_SceneRenderMode = mode;
+		s_Settings->m_SceneRenderMode = mode;
 	}
 
 	int Renderer::GetSceneMode()
 	{
-		return s_Settings.m_SceneRenderMode;
+		return s_Settings->m_SceneRenderMode;
 	}
 
 
@@ -666,7 +680,7 @@ namespace Rynex {
 		target->ClearFramebufferImageList();
 		target->ClearFramebufferDepth();
 
-		if (s_Settings.m_SortBeforeDrawFromRenderTarget)
+		if (s_Settings->m_SortBeforeDrawFromRenderTarget)
 		{
 			target->SortedPiplineList();
 		}
@@ -1015,35 +1029,35 @@ namespace Rynex {
 
 
 
-		if (s_Settings.m_DrawPipelinesFromRenderTarget && s_Settings.m_SortBeforeDrawFromRenderTarget)
+		if (s_Settings->m_DrawPipelinesFromRenderTarget && s_Settings->m_SortBeforeDrawFromRenderTarget)
 		{
 			renderTarget->SortedPiplineList();
 			renderTarget->DrawPiplineList();
 		} 
-		else if (s_Settings.m_DrawPipelinesFromRenderTarget)
+		else if (s_Settings->m_DrawPipelinesFromRenderTarget)
 		{
 			renderTarget->DrawPiplineList();
 		}
 
-		if (s_Settings.m_DrawShaderDrawListFromRenderTarget)
+		if (s_Settings->m_DrawShaderDrawListFromRenderTarget)
 		{
 			renderTarget->DrawBufferList();
 		}
 
-		if (s_Settings.m_DrawPipelinesFromRenderPass)
+		if (s_Settings->m_DrawPipelinesFromRenderPass)
 		{
 			for (Ref<PiplineRenderBase>& pipline : renderPass.m_PiplineRefBaseVec)
 			{
 				pipline->DrawNow();
 			}
 		}
-		if (s_Settings.m_DrawShaderDrawListFromRenderPass)
+		if (s_Settings->m_DrawShaderDrawListFromRenderPass)
 		{
 
 			RenderShaderDrawResourceVec(renderPass.m_ShaderDrawVec);
 		}
 
-		if (s_Settings.m_DrawPipelinesFromRenderTarget)
+		if (s_Settings->m_DrawPipelinesFromRenderTarget)
 		{
 			renderTarget->DrawAlphaPiplineList();
 		}
@@ -1064,37 +1078,37 @@ namespace Rynex {
 		renderTarget->ClearFramebufferImageList();
 		renderTarget->ClearFramebufferDepth();
 		
-		if (s_Settings.m_DrawPipelinesFromRenderTarget && s_Settings.m_SortBeforeDrawFromRenderTarget)
+		if (s_Settings->m_DrawPipelinesFromRenderTarget && s_Settings->m_SortBeforeDrawFromRenderTarget)
 		{
 			renderTarget->SortedPiplineList();
 			renderTarget->DrawPiplineList(mode);
 		}
-		else if (s_Settings.m_DrawPipelinesFromRenderTarget)
+		else if (s_Settings->m_DrawPipelinesFromRenderTarget)
 		{
 			renderTarget->DrawPiplineList(mode);
 		}
 
-		if (s_Settings.m_DrawShaderDrawListFromRenderTarget)
+		if (s_Settings->m_DrawShaderDrawListFromRenderTarget)
 		{
 			renderTarget->DrawBufferList(mode);
 		}
 
 
 		
-		if (s_Settings.m_DrawPipelinesFromRenderPass)
+		if (s_Settings->m_DrawPipelinesFromRenderPass)
 		{
 			for (Ref<PiplineRenderBase>& pipline : renderPass.m_PiplineRefBaseVec)
 			{
 				pipline->DrawNow(mode);
 			}
 		}
-		if (s_Settings.m_DrawShaderDrawListFromRenderPass)
+		if (s_Settings->m_DrawShaderDrawListFromRenderPass)
 		{
 
 			RenderShaderDrawResourceVec(renderPass.m_ShaderDrawVec, mode);
 		}
 
-		if (s_Settings.m_DrawPipelinesFromRenderTarget)
+		if (s_Settings->m_DrawPipelinesFromRenderTarget)
 		{
 			renderTarget->DrawAlphaPiplineList(mode);
 		}

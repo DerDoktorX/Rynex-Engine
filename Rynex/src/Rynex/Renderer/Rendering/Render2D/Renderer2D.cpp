@@ -145,13 +145,14 @@ namespace Rynex {
 	};
 
 
-	static Renderer2DStorage s_Storarage2D;
+	static Scope<Renderer2DStorage> s_Storarage2D;
 #endif
 
 	void Renderer2D::Init()
 	{
+	    s_Storarage2D = CreateScope<Renderer2DStorage>();
 	    FileSystem::Path pathShaderQuad( "Engine-Resources/Editor-Assets/shaders/Texture2.glsl");
-		s_Storarage2D.Quades.Create(
+		s_Storarage2D->Quades.Create(
 			pathShaderQuad,
 			1u, 
 			{
@@ -200,7 +201,7 @@ namespace Rynex {
 		void* dataPtr = quadVerticesLayout;
 
 	    FileSystem::Path pathShaderQuadT("Engine-Resources/Editor-Assets/shaders/TextureTransform2.glsl");
-		s_Storarage2D.QuadesT.Create(
+		s_Storarage2D->QuadesT.Create(
 			pathShaderQuadT,
 			1u,
 			quadVerticesLayout,
@@ -211,9 +212,9 @@ namespace Rynex {
 			Texture::White(),
 			"u_Textures"
 		);
-		s_Storarage2D.QuadesT.SetCameraSlot(0u);
+		s_Storarage2D->QuadesT.SetCameraSlot(0u);
 #if RY_RENDER2D_TEST_BATCHING_SBO_PARICLE
-		s_Storarage2D.Particle.Create(
+		s_Storarage2D->Particle.Create(
 			// "Engine-Resources/Editor-Assets/shaders/TextureTransform2.glsl",
 			100u,
 			quadVerticesLayout,
@@ -226,7 +227,7 @@ namespace Rynex {
 			);
 #endif
 	    FileSystem::Path pathShaderText("Engine-Resources/Editor-Assets/shaders/TextShader.glsl");
-		s_Storarage2D.Text.Create(
+		s_Storarage2D->Text.Create(
 			pathShaderText,
 			1u,
 			{
@@ -239,7 +240,7 @@ namespace Rynex {
 			Font::GetDefault()->GetAtlasTexture(),
 			"u_Textures"
 			);
-		s_Storarage2D.Text.SetCameraSlot(0u);
+		s_Storarage2D->Text.SetCameraSlot(0u);
 
 
 		
@@ -281,7 +282,7 @@ namespace Rynex {
 		void* dataPtr = quadVerticesLayout;
 
 	    FileSystem::Path pathQuadsSingle("Engine-Resources/Editor-Assets/shaders/TextureTransform2.glsl");
-		s_Storarage2D.QuadesSingle.Create(
+		s_Storarage2D->QuadesSingle.Create(
 			pathQuadsSingle,
 			1u,
 			quadVerticesLayout,
@@ -292,9 +293,9 @@ namespace Rynex {
 			Texture::White(),
 			"u_Textures"
 		);
-		s_Storarage2D.QuadesSingle.SetCameraSlot(0u);
+		s_Storarage2D->QuadesSingle.SetCameraSlot(0u);
         FileSystem::Path pathQuadeSingle("Engine-Resources/Editor-Assets/shaders/TextShader.glsl");
-		s_Storarage2D.TextSingle.Create(
+		s_Storarage2D->TextSingle.Create(
 		pathQuadeSingle,
 			1u,
 			{
@@ -307,10 +308,10 @@ namespace Rynex {
 			Font::GetDefault()->GetAtlasTexture(),
 			"u_Textures"
 			);
-		s_Storarage2D.TextSingle.SetCameraSlot(0u);
+		s_Storarage2D->TextSingle.SetCameraSlot(0u);
 
 	    FileSystem::Path pathIcon("Engine-Resources/Editor-Assets/shaders/IconTexture.glsl");
-		s_Storarage2D.Icon.Create(
+		s_Storarage2D->Icon.Create(
 			pathIcon,
 			16u,
 			{
@@ -322,10 +323,10 @@ namespace Rynex {
 			Texture::Default(),
 			"u_Textures"
 		);
-		s_Storarage2D.Icon.SetCameraSlot(0u);
-		s_Storarage2D.Icon.SetDisplaySlot(1u);
+		s_Storarage2D->Icon.SetCameraSlot(0u);
+		s_Storarage2D->Icon.SetDisplaySlot(1u);
 
-		s_Storarage2D.IconSingle.Create(
+		s_Storarage2D->IconSingle.Create(
 			pathIcon,
 			16u,
 			{
@@ -337,50 +338,51 @@ namespace Rynex {
 			Texture::Default(),
 			"u_Textures"
 		);
-		s_Storarage2D.IconSingle.SetCameraSlot(0u);
-		s_Storarage2D.IconSingle.SetDisplaySlot(1u);
+		s_Storarage2D->IconSingle.SetCameraSlot(0u);
+		s_Storarage2D->IconSingle.SetDisplaySlot(1u);
 	    FileSystem::Path path;
-		s_Storarage2D.IconTexture[IconTexture::Dafult] = Texture::Default();
+		s_Storarage2D->IconTexture[IconTexture::Dafult] = Texture::Default();
 
 	    path = "Engine-Resources/Resources/Icons/ViewPort/PointLigtheIcon.png";
-		s_Storarage2D.IconTexture[IconTexture::PointLigthe] = TextureImporter::LoadTexture(path);
+		s_Storarage2D->IconTexture[IconTexture::PointLigthe] = TextureImporter::LoadTexture(path);
 	    path = "Engine-Resources/Resources/Icons/ViewPort/SpotLigthIcon.png";
-		s_Storarage2D.IconTexture[IconTexture::SpotLigth] = TextureImporter::LoadTexture(path);
+		s_Storarage2D->IconTexture[IconTexture::SpotLigth] = TextureImporter::LoadTexture(path);
 	    path = "Engine-Resources/Resources/Icons/ViewPort/DirectionelLigtheIcon.png";
-		s_Storarage2D.IconTexture[IconTexture::DirectionelLigthe] = TextureImporter::LoadTexture(path);
+		s_Storarage2D->IconTexture[IconTexture::DirectionelLigthe] = TextureImporter::LoadTexture(path);
 	    path = "Engine-Resources/Resources/Icons/ViewPort/CameraIcon.png";
-		s_Storarage2D.IconTexture[IconTexture::Camera] = TextureImporter::LoadTexture(path);
-		for (Ref<Texture> tex : s_Storarage2D.IconTexture)
+		s_Storarage2D->IconTexture[IconTexture::Camera] = TextureImporter::LoadTexture(path);
+		for (Ref<Texture> tex : s_Storarage2D->IconTexture)
 		{
 			if (tex)
 			{
-				s_Storarage2D.Icon.AddTexture(tex);
+				s_Storarage2D->Icon.AddTexture(tex);
 			}
 		}
 	}
 
 	void Renderer2D::Shutdown()
 	{
-		s_Storarage2D.Quades.Destroy();
-		s_Storarage2D.QuadesT.Destroy();
-		s_Storarage2D.Text.Destroy();
+		s_Storarage2D->Quades.Destroy();
+		s_Storarage2D->QuadesT.Destroy();
+		s_Storarage2D->Text.Destroy();
+	    RY_DESTROY_SCOPE(s_Storarage2D);
 	}
 
 	void Renderer2D::ShutdownEditor()
 	{
-		for (Ref<Texture>& tex : s_Storarage2D.IconTexture)
+		for (Ref<Texture>& tex : s_Storarage2D->IconTexture)
 		{
-			if (tex)
+			if (nullptr != tex)
 			{
 				RY_DESTROY_REF(tex);
 			}
 		}
-		s_Storarage2D.Icon.Destroy();
+		s_Storarage2D->Icon.Destroy();
 		
-		s_Storarage2D.QuadesSingle.Destroy();
-		s_Storarage2D.TextSingle.Destroy();
+		s_Storarage2D->QuadesSingle.Destroy();
+		s_Storarage2D->TextSingle.Destroy();
 
-		s_Storarage2D.IconSingle.Destroy();
+		s_Storarage2D->IconSingle.Destroy();
 	}
 
 	uint32_t Renderer2D::SubmitPass(const ViewPassData& viewPass)
@@ -399,7 +401,7 @@ namespace Rynex {
 
 	void Renderer2D::SubmitQuadSingle(const glm::mat4& transform, const Ref<Texture>& texture, int entityID)
 	{
-		int textureIndex = nullptr == texture ? 0 : s_Storarage2D.QuadesSingle.AddTexture(texture);
+		int textureIndex = nullptr == texture ? 0 : s_Storarage2D->QuadesSingle.AddTexture(texture);
 
 		ObjectData objectData{
 			transform,
@@ -407,7 +409,7 @@ namespace Rynex {
 			textureIndex,
 			entityID
 		};
-		s_Storarage2D.QuadesSingle.Emplace_Back_Push(objectData);
+		s_Storarage2D->QuadesSingle.Emplace_Back_Push(objectData);
 	}
 	
 	void Renderer2D::SubmitRenderDrawList()
@@ -456,7 +458,7 @@ namespace Rynex {
 		}
 		else if (src.Signel == RenderSignale::Draw)
 		{
-			s_Storarage2D.QuadesT.MoveElementPtr();
+			s_Storarage2D->QuadesT.MoveElementPtr();
 		}
 #else
 		if (Ref<Texture> tex = src.m_Texture.lock())
@@ -476,7 +478,7 @@ namespace Rynex {
 				textureIndex,
 				entityID
 		};
-		s_Storarage2D.QuadesT.Emplace_Back_Push(objectData);
+		s_Storarage2D->QuadesT.Emplace_Back_Push(objectData);
 #else
 		constexpr size_t quadVertexCount = 4;
 
@@ -498,7 +500,7 @@ namespace Rynex {
 		for (size_t i = 0; i < quadVertexCount; i++)
 		{
 			glm::vec3 position = transfrom * vertexPos[i];
-			s_Storarage2D.Quades.Emplace_Back_Push(QuadVertex{
+			s_Storarage2D->Quades.Emplace_Back_Push(QuadVertex{
 					position,
 					color,
 					texCoord[i],
@@ -514,17 +516,17 @@ namespace Rynex {
 
 		
 #if RY_RENDER2D_TEST_BATCHING_SBO
-		int textureIndex = s_Storarage2D.QuadesT.AddTexture(texture);
+		int textureIndex = s_Storarage2D->QuadesT.AddTexture(texture);
 		ObjectData objectData{
 				transfrom,
 				glm::vec4{1.,1.,1.,1.},
 				textureIndex,
 				entityID
 		};
-		s_Storarage2D.QuadesT.Emplace_Back_Push(objectData);
+		s_Storarage2D->QuadesT.Emplace_Back_Push(objectData);
 
 #else
-		int textureIndex = s_Storarage2D.Quades.AddTexture(texture);
+		int textureIndex = s_Storarage2D->Quades.AddTexture(texture);
 		constexpr size_t quadVertexCount = 4;
 		constexpr glm::vec2 texCoord[] = {
 			{0.0f, 0.0},
@@ -541,7 +543,7 @@ namespace Rynex {
 		
 		for (size_t i = 0; i < quadVertexCount; i++)
 		{
-			s_Storarage2D.Quades.Emplace_Back_Push(QuadVertex{
+			s_Storarage2D->Quades.Emplace_Back_Push(QuadVertex{
 					glm::vec3{transfrom * vertexPos[i]},
 					glm::vec4{1.0f,1.0f, 1.0f, 1.0f },
 					texCoord[i],
@@ -561,15 +563,15 @@ namespace Rynex {
 	{
 
 
-		if(s_Storarage2D.QuadesT.GenartateShaderDrawList(cameraBuffer, displayBuffer))
+		if(s_Storarage2D->QuadesT.GenartateShaderDrawList(cameraBuffer, displayBuffer))
 		{
 			std::vector<ShaderDrawResource>& shaderDrawResourceVec = Renderer::GetShaderDrawResourceMain();
-			const ShaderDrawResource& shaderDrawResource = s_Storarage2D.QuadesT.GetShaderDrawList();
+			const ShaderDrawResource& shaderDrawResource = s_Storarage2D->QuadesT.GetShaderDrawList();
 			shaderDrawResourceVec.emplace_back(shaderDrawResource);
 		}
 
-		s_Storarage2D.QuadesT.Clear();
-		s_Storarage2D.QuadesT.RestTextur();
+		s_Storarage2D->QuadesT.Clear();
+		s_Storarage2D->QuadesT.RestTextur();
 	}
 
 	
@@ -579,18 +581,18 @@ namespace Rynex {
 
 		const Ref<UniformBuffer>& cameraB = Renderer::GetPackegeCameraUniformMain();
 		
-		uint32_t count = s_Storarage2D.QuadesT.FlushData();
+		uint32_t count = s_Storarage2D->QuadesT.FlushData();
 
 		if (count > 0)
 		{
 			cameraB->Bind(0);
-			s_Storarage2D.QuadesT.Bind("u_Textures", 1u);
-			Ref<VertexArray> vertexArray = s_Storarage2D.QuadesT.GetVertexArray();
+			s_Storarage2D->QuadesT.Bind("u_Textures", 1u);
+			Ref<VertexArray> vertexArray = s_Storarage2D->QuadesT.GetVertexArray();
 			RenderCommand::DrawIndexedMesh(vertexArray, count);
-			s_Storarage2D.QuadesT.UnBind(1u);
+			s_Storarage2D->QuadesT.UnBind(1u);
 
-			s_Storarage2D.QuadesT.Clear();
-			s_Storarage2D.QuadesT.RestTextur();
+			s_Storarage2D->QuadesT.Clear();
+			s_Storarage2D->QuadesT.RestTextur();
 
 		}
 	}
@@ -606,7 +608,7 @@ namespace Rynex {
 		const msdf_atlas::FontGeometry& fontGeometry = data->m_FontGeometry;
 		const msdfgen::FontMetrics& metrics = fontGeometry.getMetrics();
 		Ref<Texture> fontAtlas = font->GetAtlasTexture();
-		int textureIndex = s_Storarage2D.Text.AddTexture(fontAtlas);
+		int textureIndex = s_Storarage2D->Text.AddTexture(fontAtlas);
 
 		double x = 0.0;
 		double fsScale = 1.0 / (metrics.ascenderY - metrics.descenderY);
@@ -676,7 +678,7 @@ namespace Rynex {
 			texCoordMin *= glm::vec2(texelWidth, texelHeight);
 			texCoordMax *= glm::vec2(texelWidth, texelHeight);
 
-			s_Storarage2D.Text.Emplace_Back_Push(TextVertex{
+			s_Storarage2D->Text.Emplace_Back_Push(TextVertex{
 					transform * glm::vec4(quadMax, 0.0f, 1.0f),
 					textParams.Color,
 					texCoordMax,
@@ -684,7 +686,7 @@ namespace Rynex {
 					entityID
 				});
 
-			s_Storarage2D.Text.Emplace_Back_Push(TextVertex{
+			s_Storarage2D->Text.Emplace_Back_Push(TextVertex{
 					transform * glm::vec4(quadMin.x, quadMax.y, 0.0f, 1.0f),
 					textParams.Color,
 					{ texCoordMin.x, texCoordMax.y },
@@ -692,7 +694,7 @@ namespace Rynex {
 					entityID
 				});
 			
-			s_Storarage2D.Text.Emplace_Back_Push(TextVertex{
+			s_Storarage2D->Text.Emplace_Back_Push(TextVertex{
 					transform * glm::vec4(quadMin, 0.0f, 1.0f),
 					textParams.Color,
 					texCoordMin,
@@ -701,7 +703,7 @@ namespace Rynex {
 				});
 	
 
-			s_Storarage2D.Text.Emplace_Back_Push(TextVertex{
+			s_Storarage2D->Text.Emplace_Back_Push(TextVertex{
 					transform * glm::vec4(quadMax.x, quadMin.y, 0.0f, 1.0f),
 					textParams.Color,
 					{ texCoordMax.x, texCoordMin.y },
@@ -729,9 +731,9 @@ namespace Rynex {
 	{
 
 
-		s_Storarage2D.Text.AddShadeDrawListToRenderTarget(target, camerbuffer, displaybuffer);
-		s_Storarage2D.Text.Clear();
-		s_Storarage2D.Text.RestTextur();
+		s_Storarage2D->Text.AddShadeDrawListToRenderTarget(target, camerbuffer, displaybuffer);
+		s_Storarage2D->Text.Clear();
+		s_Storarage2D->Text.RestTextur();
 	}
 
 	
@@ -747,13 +749,13 @@ namespace Rynex {
 		framebuffer->Bind();
 		camerB->Bind(0);
 
-		uint32_t count = s_Storarage2D.Text.Bind("u_Textures");
+		uint32_t count = s_Storarage2D->Text.Bind("u_Textures");
 		if (count > 0)
 		{
-			Ref<VertexArray> vertexArray = s_Storarage2D.Text.GetVertexArray();
+			Ref<VertexArray> vertexArray = s_Storarage2D->Text.GetVertexArray();
 			RenderCommand::DrawIndexedMesh(vertexArray, count);
-			s_Storarage2D.Text.Clear();
-			s_Storarage2D.Text.RestTextur();
+			s_Storarage2D->Text.Clear();
+			s_Storarage2D->Text.RestTextur();
 		}
 	}
 
@@ -788,13 +790,13 @@ namespace Rynex {
 
 	void Renderer2D::SubmitIcon(const glm::mat4& transform, int index, int entityID)
 	{
-		const Ref<Texture>& texture = s_Storarage2D.IconTexture[index];
-		const int textureIndex = s_Storarage2D.Icon.AddTexture(texture);
+		const Ref<Texture>& texture = s_Storarage2D->IconTexture[index];
+		const int textureIndex = s_Storarage2D->Icon.AddTexture(texture);
 		
 		constexpr size_t iconVertexCount = 4;
 		for (size_t i = 0; i < iconVertexCount; i++)
 		{
-			s_Storarage2D.Icon.Emplace_Back_Push(
+			s_Storarage2D->Icon.Emplace_Back_Push(
 				IconVertex{
 					glm::vec4{ transform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f) },
 					static_cast<int>(BIT(i)),
@@ -810,9 +812,9 @@ namespace Rynex {
 	void Renderer2D::SubmitRenderDrawListIcon(RenderTarget& target, const Ref<UniformBuffer>& cameraBuffer, const Ref<UniformBuffer>& displayBuffer)
 	{
 
-		s_Storarage2D.Icon.AddShadeDrawListToRenderTarget(target, cameraBuffer, displayBuffer);
-		s_Storarage2D.Icon.Clear();
-		s_Storarage2D.Icon.RestTextur();
+		s_Storarage2D->Icon.AddShadeDrawListToRenderTarget(target, cameraBuffer, displayBuffer);
+		s_Storarage2D->Icon.Clear();
+		s_Storarage2D->Icon.RestTextur();
 
 	}
 
@@ -830,13 +832,13 @@ namespace Rynex {
 		camerB->Bind(0);
 		displayB->Bind(1);
 
-		uint32_t count = s_Storarage2D.Icon.Bind("u_Textures");
+		uint32_t count = s_Storarage2D->Icon.Bind("u_Textures");
 		if (count > 0)
 		{
-			Ref<VertexArray> vertexArray = s_Storarage2D.Icon.GetVertexArray();
+			Ref<VertexArray> vertexArray = s_Storarage2D->Icon.GetVertexArray();
 			RenderCommand::DrawIndexedMesh(vertexArray, count);
-			// s_Storarage2D.Icon.UnBind();
-			s_Storarage2D.Icon.Clear();
+			// s_Storarage2D->Icon.UnBind();
+			s_Storarage2D->Icon.Clear();
 		}
 
 	}	
