@@ -239,7 +239,7 @@ namespace Rynex::FileSystem {
 #ifdef RY_PATH_LOG_MSG
 		RY_CORE_WARN("SetMarker overrides the previous origin! {} -> {}", viewCurent, viewNext);
 #else
-		RY_REMBER_FUNC_CHANGE("Remove LOg State if not need!");
+		RY_REMBER_FUNC_CHANGE("Remove Log State if not need!");
 #endif
 
 		if (Origin::Unknown == m_Origin)
@@ -287,7 +287,7 @@ namespace Rynex::FileSystem {
 #ifdef RY_PATH_LOG_MSG
 		RY_CORE_WARN("Engine directory currently returns GetWorkingDirectory.");
 #else
-		RY_REMBER_FUNC_CHANGE("Remove LOg State if not need!");
+		RY_REMBER_FUNC_CHANGE("Remove Log State if not need!");
 #endif
 		return GetWorkingDirectory();
 	}
@@ -325,7 +325,7 @@ namespace Rynex::FileSystem {
 #ifdef RY_PATH_LOG_MSG
 				RY_CORE_TRACE_IF(!IsOriginPathMarked(origin), "No Marker in Path and origin is valid!");
 #else
-				RY_REMBER_FUNC_CHANGE("Remove LOg State if not need!");
+				RY_REMBER_FUNC_CHANGE("Remove Log State if not need!");
 #endif
 
 				ConvertUniversalPath(path);
@@ -343,6 +343,8 @@ namespace Rynex::FileSystem {
 						RY_REMBER_FUNC_CHANGE("Remove LOg State if not need!");
 #endif
 					}
+
+
 					origin = originAbsolute;
 				}
 				if (path.is_relative())
@@ -411,7 +413,7 @@ namespace Rynex::FileSystem {
 		if (!isAbsolute && isRelative && Origin::None != origin)
 		{
 			path = GetResolveRelativePathToAbsoluteFromOrigin(path, origin);
-			if (Origin::Unknown != origin )
+			if (Origin::Unknown != origin)
 				path = path.lexically_normal();
 		}
 		
@@ -797,7 +799,9 @@ namespace Rynex::FileSystem {
 	Path::Origin Path::GetExpectedOriginFromAbsolutePath(const std::filesystem::path& path)
 	{
 		std::filesystem::path engineDirectory = GetEngineDirectory();
-		engineDirectory = engineDirectory.parent_path();
+		engineDirectory = (engineDirectory / RY_PATH_EXPECT_ENGINE_RELATIVE_START_RELATIVE).lexically_normal().generic_string();
+
+
 		std::string engineDirectoryStr = engineDirectory.string();
         const char* engineDirectoryChar = engineDirectoryStr.c_str();
 		if (IsStringInPath(path, engineDirectoryChar))

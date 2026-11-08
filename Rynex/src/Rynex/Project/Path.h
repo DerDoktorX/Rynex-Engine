@@ -6,6 +6,7 @@
 #define RY_PATH_NO_VALID_MARKER_STR "NotVaild!#"
 #define RY_PATH_EXPECT_ENGINE_RELATIVE_START_FOlDER_STR "Engine-Resources/"
 #define RY_PATH_EXPECT_ENGINE_RELATIVE_START_STR "Engine-Resources/"
+#define RY_PATH_EXPECT_ENGINE_RELATIVE_START_RELATIVE "Engine-Resources/Editor-Assets"
 
 #define RY_PATH_PROJECT_MARKER_WSTR L"Project#!#"
 #define RY_PATH_ENGINE_MARKER_WSTR L"Engine#!#"
