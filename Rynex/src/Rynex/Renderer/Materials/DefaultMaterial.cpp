@@ -46,49 +46,53 @@ namespace Rynex {
 		m_DefaultMap = Texture::White();
 	}
 
+    static int GetMaterial(Material& material)
+	{
+	    return 0;
+	}
 	DefaultMaterial::DefaultMaterial(const MaterielShaderData& data, const std::vector<Pass>& vec)
-		: m_BufferData(data)
-		, m_PassesVec(vec)
+		: m_LastPassPtr(nullptr)
+		, m_BufferData(data)
 		, m_ShadeRenderMode(
-			RenderMode::CallFace_None
-			| RenderMode::A_Buffer
-			| RenderMode::Death_Buffer
-		)
+            RenderMode::CallFace_None
+            | RenderMode::A_Buffer
+            | RenderMode::Death_Buffer
+        )
 		, m_DepthRenderMode(
-			RenderMode::CallFace_None
-			| RenderMode::Death_Buffer
-		)
-		, m_LastPassPtr(nullptr)
+            RenderMode::CallFace_None
+            | RenderMode::Death_Buffer
+        )
+		, m_PassesVec(vec)
 	{
 		m_DefaultMap = Texture::White();
-
-
 	}
 
 
+
+
 	DefaultMaterial::DefaultMaterial(std::vector<FileSystem::Path>&& paths, const Ref<Shader>& shaderShade, const Ref<Shader>& shaderDepth)
-		: m_Change(true)
-		, m_BufferData({
-			glm::vec3{ 1.0f, 1.0f, 1.0f }
-			, 1.0f
-			, -1.0f
-			, -2.0f
-			, 0.0f
-			, -1
-		})
-		, m_DefaultMap(nullptr)
-		, m_UniformMaterial()
-		, m_ShadeRenderMode(
-			RenderMode::CallFace_None
-			| RenderMode::A_Buffer
-			| RenderMode::Death_Buffer
-		)
-		, m_DepthRenderMode(
-			RenderMode::CallFace_None
-			| RenderMode::Death_Buffer
-		)
-		, m_PassesVec()
+		: m_DefaultMap(nullptr)
 		, m_LastPassPtr(nullptr)
+		, m_UniformMaterial()
+		, m_BufferData({
+            glm::vec3{ 1.0f, 1.0f, 1.0f }
+            , 1.0f
+            , -1.0f
+            , -2.0f
+            , 0.0f
+            , -1
+        })
+		, m_ShadeRenderMode(
+            RenderMode::CallFace_None
+            | RenderMode::A_Buffer
+            | RenderMode::Death_Buffer
+        )
+		, m_DepthRenderMode(
+            RenderMode::CallFace_None
+            | RenderMode::Death_Buffer
+        )
+		, m_PassesVec()
+		, m_Change(true)
 	{
 		std::vector<FileSystem::Path> filePaths = std::move(paths);
 		if (filePaths.empty())
