@@ -32,6 +32,7 @@ namespace Rynex {
         AcquireBuffer,
     };
 
+
     namespace Utils {
 
         template<typename Buffer, size_t Index, bool StoreHash, typename Interface>
@@ -156,7 +157,7 @@ namespace Rynex {
         }
     };
 #else
-    template<size_t Slot, size_t Index, CacheBufferMode Mode, typename  Buffer, BindingKind Kind>
+    template<size_t Slot, size_t Index, CacheBufferMode Mode, typename Buffer, BindingKind Kind>
     struct BindingGenericBufferCollect
     {
         static constexpr BindingKind s_Kind = Kind;

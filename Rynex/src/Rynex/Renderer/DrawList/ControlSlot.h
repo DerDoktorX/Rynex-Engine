@@ -6,6 +6,8 @@
 
 
 namespace Rynex {
+
+
     template<typename Control>
     class ControlSlot
     {
