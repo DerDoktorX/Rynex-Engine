@@ -248,7 +248,7 @@ namespace Rynex {
         }
     };
 
-    template<size_t Index = 0ull>
+    template<size_t Index>
     struct BindingRenderMode
     {
         static constexpr BindingKind s_Kind = BindingKind::Other;

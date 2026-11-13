@@ -84,9 +84,27 @@ namespace Rynex {
         {
             Handle& handle = this->Current();
             RY_CORE_ASSERT(nullptr != handle, "the stored resource is nullptr!");
-            return *handle;
+            return handle;
         }
 
+        const Handle& GetResource() const
+        {
+            const Handle& handle = this->Current();
+            RY_CORE_ASSERT(nullptr != handle, "the stored resource is nullptr!");
+            return handle;
+        }
+
+        RefSection& Get()
+        {
+            Handle& handle = GetResource();
+            return *(handle.get());
+        }
+
+        const Handle& Get() const
+        {
+            const Handle& handle = GetResource();
+            return *(handle.get());
+        }
     };
 
 }

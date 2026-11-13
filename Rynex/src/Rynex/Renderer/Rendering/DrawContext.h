@@ -2,7 +2,7 @@
 #include <Rynex/Renderer/API/ProtypeAPI.h>
 #include <Rynex/Scene/ScenePrototyps.h>
 #include <Rynex/Renderer/Materials/Material.h>
-#include <Rynex/Renderer/Tiers/TierFeatures.h>
+
 namespace Rynex {
     struct ShaderComputeList;
     struct ShaderDrawList;
@@ -20,7 +20,6 @@ namespace Rynex {
         void NextFrame();
         void SetPass(const BufferLayout& layoutOuPut, TierPassKind pass);
         void SetLod(int levelOffDetails);
-        void SetFeatureMask(FeatureMask featureMask);
 
         void SetOutColorTexture(const Ref<Texture>& texture, uint32_t index = 0u);
         void SetOutDeathTexture(const Ref<Texture>& texture);
@@ -43,7 +42,6 @@ namespace Rynex {
 
         TierPassKind GetPass() const;
         int GetLod() const;
-        FeatureMask GetFeatureMask() const;
         const BufferLayout& GetLayoutOutPut() const;
 
         // TODO: remove if we no longer use in Renderer Curent and Main methodes implemtaion

@@ -5,6 +5,7 @@
 #include <Rynex/Renderer/DrawList/DrawListTypes.h>
 #include <Rynex/Renderer/DrawList/ControlSlot.h>
 #include <Rynex/Renderer/DrawList/Contoller/CommandBuildBase.h>
+#include <Rynex/Renderer/DrawList/Contoller/IndexTables.h>
 #include <Rynex/Renderer/DrawList/Contoller/InterfaceBase.h>
 #include <Rynex/Renderer/Mesh/Mesh.h>
 #include <Rynex/Renderer/Rendering/ShaderDrawList.h>
@@ -24,6 +25,7 @@ namespace Rynex::Control {
 
 
 #if 0
+
         class Interface
         {
         public:
@@ -131,53 +133,50 @@ namespace Rynex::Control {
             Section* m_SectionPtr;
         };
 #else
-        class Interface : public InterfaceRefBase<MeshSingle>
+
+        class Interface : public RefInterface<MeshSingle>
         {
         public:
             Interface()
-                : InterfaceRefBase<MeshSingle>()
+                : RefInterface<MeshSingle>()
             {
             }
 
-            ~Interface() override
+            ~Interface()
             {
-                this->m_SectionPtr = nullptr;
+
             }
 
-            virtual BufferLayout GetBufferLayout(const Unit index) const override
+            template<size_t Index>
+            BufferLayout GetBufferLayout()
             {
-                const Ref<VertexBuffer> vertexBuffer = GetVertexBuffer(index);
+                const Ref<VertexBuffer> vertexBuffer = GetBuffer<VertexBuffer, Index>();
                 const BufferLayout& bufferLayout = vertexBuffer->GetLayout();
                 return bufferLayout;
             }
 
-            virtual Ref<VertexBuffer> GetVertexBuffer(const Unit index) const override
+            template<typename Buffer, size_t Index>
+            Ref<Buffer> GetBuffer()
             {
-                RY_CORE_ASSERT(0 == index, "index is invalid! valid index -> ( 0 )");
-                const Ref<MeshSingle>& meshSingleRef = Get();
-                const Ref<VertexBuffer>& vertexBuffer = meshSingleRef->GetVertexBuffer();
-                return vertexBuffer;
-            }
-
-            virtual Ref<IndexBuffer> GetIndexBuffer(const Unit index) const override
-            {
-                switch (index)
+                if constexpr (std::is_same_v<Buffer, VertexBuffer>)
                 {
-                case 0: return Get()->GetShadeIndexBuffer();
-                case 1: return Get()->GetDepthIndexBuffer();
-                default:
-                    RY_CORE_ASSERT(false, "index is invalid! valid index -> ( 0, 1 )");
+                    MeshSingle& mesh = Get();
+                    return SelectByIndexCompiled<Index>(MeshSingleAccess::s_VertexBuffers, mesh);
                 }
-                return Ref<IndexBuffer>{ nullptr };
+                else if constexpr (std::is_same_v<Buffer, IndexBuffer>)
+                {
+                    MeshSingle& mesh = Get();
+                    return SelectByIndexCompiled<Index>(MeshSingleAccess::s_IndexBuffers, mesh);
+                }
+                static_assert(
+                    std::is_same_v<Buffer, IndexBuffer>
+                    || std::is_same_v<Buffer, VertexBuffer>,
+                    "GetBuffer No valid Buffer!"
+                );
+                return Ref<Buffer>{nullptr};
+
             }
 
-        private:
-            const Ref<MeshSingle>& Get() const
-            {
-                Ref<MeshSingle>* meshSinglePtr = this->m_SectionPtr;
-                RY_CORE_ASSERT(nullptr != meshSinglePtr, "Section is nullptr");
-                return (*meshSinglePtr);
-            }
         };
 #endif
 

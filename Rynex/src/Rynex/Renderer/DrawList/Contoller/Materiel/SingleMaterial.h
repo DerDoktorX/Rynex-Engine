@@ -6,19 +6,10 @@
 #include <Rynex/Renderer/DrawList/Contoller/IndexTables.h>
 #include <Rynex/Renderer/Materials/Material.h>
 
-#include "../../../../../../../.claude/source/ControllerAbstraction.example.h"
-
 
 namespace Rynex::Control  {
 
-    template<typename Interface, typename CommandBuild>
-    class MaterielControlImpl
-    {
-    public:
-        using Source = typename Interface::Source;
-        using Indices = typename Interface::Indices;
-        using CommandBuild = CommandBuild;
-    };
+
 
     namespace MaterielDefault {
 #if 0
@@ -98,23 +89,25 @@ namespace Rynex::Control  {
         using DefaultCommand = MaterielControlImpl<Interface, CommandBuild>;
 #else
 
-        class Interface : public RefInterface<Materiel>
+        class Interface : public RefInterface<Material>
         {
         public:
             template<size_t Index>
             Ref<Texture> GetTexture()
             {
-                return SelectByIndexCompiled<Index>(MaterialAccess::s_Texture, material)
+                Material& material = Get();
+                return SelectByIndexCompiled<Index>(MaterialAccess::s_Texture, material);
             }
 
             template<typename Buffer, size_t Index>
             Ref<Buffer> GetBuffer()
             {
+                Material& material = Get();
                 if constexpr (std::is_same_v<Buffer, UniformBuffer>) {}
                 {
-                    return SelectByIndexCompiled<Index>(MaterialAccess::s_Unifrom, material);
+                    return SelectByIndexCompiled<Index>(MaterialAccess::s_UniformBuffer, material);
                 }
-                static_assert(false, "No other valid buffer type!");
+                static_assert(std::is_same_v<Buffer, UniformBuffer>, "No other valid buffer type!");
                 return Ref<Buffer>{ nullptr };
             }
 
@@ -122,11 +115,19 @@ namespace Rynex::Control  {
             template<size_t Index>
             int GetRenderMode()
             {
+                Material& material = Get();
                 return SelectByIndexCompiled<Index>(MaterialAccess::s_RenderMode, material);
             }
-
-            using Build = DeclaredBuild<Interface, TextureBinding<0u, 0u>, UniformBinding<1u, 0u>>
         };
+
+        using Build = DeclaredBuild<
+            Interface
+            , BindingTexture<0ull, CacheBufferMode::None, 0ull>
+            , BindingUniform<1ull, CacheBufferMode::None, 0ull>
+            , BindingRenderMode<0ull>
+        >;
+
+        using DefaultCommand = ControlDescriptor<Interface, Build>;
 #endif
 
     }
