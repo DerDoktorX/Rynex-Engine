@@ -13,13 +13,13 @@ namespace Rynex {
     template<typename Object, typename Result, size_t Count>
     using AccessTable = std::array<AccessFunction<Result, Object>, Count>;
 
-    template<size_t Index, typename Result, typename Object, size_t Count>
-    constexpr Result SelectByIndexCompiled(const AccessTable<Result, Object, Count>& table, Object& object)
-    {
-        static_assert(Index < Count, "index is invalid!");
-        const AccessFunction<Result, Object> function = table[Index];
-        return function(object);
-    }
+    // template<size_t Index, typename Result, typename Object, size_t Count>
+    // constexpr Result SelectByIndexCompiled(const AccessTable<Result, Object, Count>& table, Object& object)
+    // {
+    //     static_assert(Index < Count, "index is invalid!");
+    //     const AccessFunction<Result, Object> function = table[Index];
+    //     return function(object);
+    // }
 
     template<size_t Index, typename Result, typename Object, size_t Count>
     constexpr Result SelectByIndexCompiled(const std::array<AccessFunction<Result, Object>, Count>& table, Object& object)
