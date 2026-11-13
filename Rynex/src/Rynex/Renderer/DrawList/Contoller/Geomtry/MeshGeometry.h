@@ -12,17 +12,8 @@
 
 namespace Rynex::Control {
 
-    template<typename Interface, typename CommandBuild>
-    class GeometryControlImpl
-    {
-    public:
-        using Source = typename Interface::Source;
-        using Indices = typename Interface::Indices;
-        using CommandBuild = CommandBuild;
-    };
 
     namespace GeometryDefault {
-
 
 #if 0
 
@@ -132,6 +123,32 @@ namespace Rynex::Control {
         private:
             Section* m_SectionPtr;
         };
+
+        class CommandBuild : public CommandBuildBase<Interface, true, false>
+        {
+        public:
+            enum UniformBufferSlot : uint32_t
+            {
+                VertexBufferSlot_Vertex = 0u
+            };
+
+        // public member method -----------------------------------------------------------------------------------------------
+            explicit CommandBuild(CachedBufferRegister& cache, Interface& interfaceType, ShaderDrawResource& drawResource)
+                : CommandBuildBase<Interface, true, false>(cache, interfaceType, drawResource)
+            {
+            }
+
+            virtual void CollectVertexBuffer(Span<VertexArray::VertexElements>& vertexElementsSpan) override
+            {
+                const Ref<VertexBuffer> vertexBuffer = m_Interface.GetVertexBuffer(0);
+                vertexElementsSpan[VertexBufferSlot_Vertex] = VertexArray::VertexElements{ vertexBuffer };
+            }
+
+            virtual void BindCommand() override
+            {
+                static_assert(false, "BindCommand!");
+            }
+        };
 #else
 
         class Interface : public RefInterface<MeshSingle>
@@ -178,37 +195,19 @@ namespace Rynex::Control {
             }
 
         };
+
+        using Build = DeclaredBuild<
+            Interface
+            , BindingVertex<0ull, CacheBufferMode::None, 0ull>
+            , BindingIndex<CacheBufferMode::None, 0ull>
+        >;
 #endif
 
 
 
 
 
-        class CommandBuild : public CommandBuildBase<Interface, true, false>
-        {
-        public:
-            enum UniformBufferSlot : uint32_t
-            {
-                VertexBufferSlot_Vertex = 0u
-            };
 
-        // public member method -----------------------------------------------------------------------------------------------
-            explicit CommandBuild(CachedBufferRegister& cache, Interface& interfaceType, ShaderDrawResource& drawResource)
-                : CommandBuildBase<Interface, true, false>(cache, interfaceType, drawResource)
-            {
-            }
-
-            virtual void CollectVertexBuffer(Span<VertexArray::VertexElements>& vertexElementsSpan) override
-            {
-                const Ref<VertexBuffer> vertexBuffer = m_Interface.GetVertexBuffer(0);
-                vertexElementsSpan[VertexBufferSlot_Vertex] = VertexArray::VertexElements{ vertexBuffer };
-            }
-
-            virtual void BindCommand() override
-            {
-                static_assert(false, "BindCommand!");
-            }
-        };
 
         using DefaultCommand = GeometryControlImpl<Interface, CommandBuild>;
 

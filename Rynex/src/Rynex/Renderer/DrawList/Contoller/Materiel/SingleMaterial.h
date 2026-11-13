@@ -4,6 +4,8 @@
 #include <Rynex/Renderer/DrawList/Contoller/CommandBuildBase.h>
 #include <Rynex/Renderer/DrawList/Contoller/InterfaceBase.h>
 #include <Rynex/Renderer/DrawList/Contoller/IndexTables.h>
+#include <Rynex/Renderer/DrawList/Contoller/Geomtry/MeshGeometry.h>
+#include <Rynex/Renderer/DrawList/Contoller/Instance/InstanceVertex.h>
 #include <Rynex/Renderer/Materials/Material.h>
 
 
@@ -128,6 +130,7 @@ namespace Rynex::Control  {
         >;
 
         using DefaultCommand = ControlDescriptor<Interface, Build>;
+
 #endif
 
     }
