@@ -248,6 +248,22 @@ namespace Rynex {
         }
     };
 
+    template<size_t Index = 0ull>
+    struct BindingRenderMode
+    {
+        static constexpr BindingKind s_Kind = BindingKind::Other;
+        static constexpr uint64_t s_Bit = 0;
+
+        using Element = int;
+
+        template<typename Interface>
+        static void Apply(const Interface& source, BuildContext& context)
+        {
+            int mode = source.template GetRenderMode<Index>();
+            context.m_Draw.m_RenderMode = mode;
+        }
+    };
+
 
     struct BindingSingleCommand
     {
@@ -340,7 +356,7 @@ namespace Rynex {
             if constexpr (BindingKind::Vertex != Binding::s_Kind)
                 Binding::Apply(m_Interface, m_Context);
         }
-        // --- private member variables ------------------------------------------------------------------------------------
+    // --- private member variables ------------------------------------------------------------------------------------
         Interface& m_Interface;
         BuildContext m_Context;
     };
