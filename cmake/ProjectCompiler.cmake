@@ -53,11 +53,11 @@ function(SET_BINARY_RESOURCE target)
         add_custom_command(
               TARGET  ${target}
               PRE_BUILD
-              COMMAND ${CMAKE_COMMAND} -E copy "${RYNEX_ROOT_PROJECT}/Rynex-Editor/Editor-Assets"    "${RYNEX_PROJECT_ENGINE_RESOURCES_OUTPUT}/Editor-Assets"
-              COMMAND ${CMAKE_COMMAND} -E copy "${RYNEX_ROOT_PROJECT}/Rynex-Editor/Resources"        "${RYNEX_PROJECT_ENGINE_RESOURCES_OUTPUT}/Resources"
-              COMMAND ${CMAKE_COMMAND} -E copy "${RYNEX_ROOT_PROJECT}/Rynex-Editor/SandboxProject"   "${RYNEX_PROJECT_ENGINE_RESOURCES_OUTPUT}/SandboxProject"
-              COMMAND ${CMAKE_COMMAND} -E copy "${RYNEX_ROOT_PROJECT}/Rynex-Editor/mono"             "${RYNEX_PROJECT_ENGINE_RESOURCES_OUTPUT}/mono"
-              COMMAND ${CMAKE_COMMAND} -E copy "${RYNEX_ROOT_PROJECT}/Rynex-Editor/imgui.ini"        "${RYNEX_PROJECT_ENGINE_RESOURCES_OUTPUT}/imgui.ini"
+              COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${RYNEX_ROOT_PROJECT}/Rynex-Editor/Editor-Assets"    "${RYNEX_PROJECT_ENGINE_RESOURCES_OUTPUT}/Editor-Assets"
+              COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${RYNEX_ROOT_PROJECT}/Rynex-Editor/Resources"        "${RYNEX_PROJECT_ENGINE_RESOURCES_OUTPUT}/Resources"
+              COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${RYNEX_ROOT_PROJECT}/Rynex-Editor/SandboxProject"   "${RYNEX_PROJECT_ENGINE_RESOURCES_OUTPUT}/SandboxProject"
+              COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${RYNEX_ROOT_PROJECT}/Rynex-Editor/mono"             "${RYNEX_PROJECT_ENGINE_RESOURCES_OUTPUT}/mono"
+              COMMAND ${CMAKE_COMMAND} -E copy "${RYNEX_ROOT_PROJECT}/Rynex-Editor/imgui.ini"        "${RYNEX_PROJECT_BINARY_FOLDER_OUTPUT}/imgui.ini"
         )
     
     endif ()
