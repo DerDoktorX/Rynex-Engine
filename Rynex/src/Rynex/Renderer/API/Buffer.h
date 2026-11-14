@@ -195,6 +195,8 @@ namespace Rynex {
 			case ShaderDataType::Uint4:			return 4;
 			case ShaderDataType::Uint3x3:		return 4 * 3;
 			case ShaderDataType::Uint4x4:		return 4 * 4;
+			default:
+			    break;
 			}
 			return 0;
 		}
