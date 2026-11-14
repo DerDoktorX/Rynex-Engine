@@ -209,7 +209,7 @@ namespace Rynex::Control {
 
 
 
-        using DefaultCommand = GeometryControlImpl<Interface, CommandBuild>;
+
 
 
     }
