@@ -190,7 +190,7 @@ namespace Rynex::Control {
                     || std::is_same_v<Buffer, VertexBuffer>,
                     "GetBuffer No valid Buffer!"
                 );
-                return Ref<Buffer>{nullptr};
+                return Ref<Buffer>{ nullptr };
 
             }
 

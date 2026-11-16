@@ -8,13 +8,14 @@ namespace Rynex {
 	ThreadPool::ThreadPool(uint32_t numThreads)
         : m_CV()
 	{
+
+		uint32_t maxAvailable = std::thread::hardware_concurrency();
          
-		uint32_t maxAvible = std::thread::hardware_concurrency();
-         
-		if (maxAvible < numThreads)
+		if (maxAvailable < numThreads)
 		{
-			RY_CORE_FATAL("We use more threads then avible");
+			RY_CORE_FATAL("We use more threads then available");
 		}
+
         CreateThreads(numThreads);
 
 
@@ -84,6 +85,7 @@ namespace Rynex {
 
     void ThreadPool::CreateThreads(uint32_t numThreads)
     {
+	    RY_CORE_TRACE("Create Threads {}", numThreads);
         for (size_t i = 0; i < numThreads; ++i)
         {
             m_Threads.emplace_back( RY_BIND_MEMBER_FUNC(ThreadPool::WaitForTask) );

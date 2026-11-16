@@ -70,7 +70,7 @@ namespace Rynex {
 
 
 
-	DefaultMaterial::DefaultMaterial(std::vector<FileSystem::Path>&& paths, const Ref<Shader>& shaderShade, const Ref<Shader>& shaderDepth)
+	DefaultMaterial::DefaultMaterial(std::vector<FileSystem::Path>&& paths, Ref<Shader> shaderShade, Ref<Shader> shaderDepth)
 		: m_DefaultMap(nullptr)
 		, m_LastPassPtr(nullptr)
 		, m_UniformMaterial()
@@ -94,6 +94,8 @@ namespace Rynex {
 		, m_PassesVec()
 		, m_Change(true)
 	{
+	    RY_CORE_ASSERT(nullptr!=shaderShade, "shaderShade is nullptr");
+	    RY_CORE_ASSERT(nullptr!=shaderDepth, "shaderDepth is nullptr");
 		std::vector<FileSystem::Path> filePaths = std::move(paths);
 		if (filePaths.empty())
 		{
@@ -104,7 +106,6 @@ namespace Rynex {
 			const FileSystem::Path& filePath = filePaths.at(1ull);
 		    Ref<Texture>* textureFiledPtr = &m_DefaultMap;
 			AssetManager::GetAssetAsync(filePath, textureFiledPtr);
-			
 		}
 		m_PassesVec = std::vector<Pass>{
 			Pass{
@@ -127,6 +128,7 @@ namespace Rynex {
 				, m_DepthRenderMode
 			}
 		};
+
 		const BufferLayout& layoutShade = shaderShade->GetOutPut();
 		const BufferLayout& layoutDepth = shaderDepth->GetOutPut();
 		RY_CORE_ASSERT(layoutShade != layoutDepth);
@@ -135,22 +137,24 @@ namespace Rynex {
 
 	}
 
-	DefaultMaterial::DefaultMaterial(const MaterielShaderData& data, Ref<Texture> tex, const Ref<Shader>& shaderShade, const Ref<Shader>& shaderDepth)
-		: m_Change(true)
-		, m_BufferData(data)
-		, m_DefaultMap(tex)
-		, m_ShadeRenderMode(
-			RenderMode::CallFace_None
-			| RenderMode::A_Buffer
-			| RenderMode::Death_Buffer
-		)
-		, m_DepthRenderMode(
-			RenderMode::CallFace_None
-			| RenderMode::Death_Buffer
-		)
+	DefaultMaterial::DefaultMaterial(const MaterielShaderData& data, Ref<Texture> tex, Ref<Shader> shaderShade, Ref<Shader> shaderDepth)
+		: m_DefaultMap(tex)
 		, m_LastPassPtr(nullptr)
+		, m_BufferData(data)
+		, m_ShadeRenderMode(
+            RenderMode::CallFace_None
+            | RenderMode::A_Buffer
+            | RenderMode::Death_Buffer
+        )
+		, m_DepthRenderMode(
+            RenderMode::CallFace_None
+            | RenderMode::Death_Buffer
+        )
 		, m_PassesVec()
-	{	
+		, m_Change(true)
+	{
+	    RY_CORE_ASSERT(nullptr!=shaderShade, "shaderShade is nullptr");
+	    RY_CORE_ASSERT(nullptr!=shaderDepth, "shaderDepth is nullptr");
 		if (nullptr == m_DefaultMap)
 		{
 			m_DefaultMap = Texture::White();
@@ -163,8 +167,6 @@ namespace Rynex {
 
 				std::vector<TextureTypes>{ TextureTypes::AlbedoMap }
 				,std::vector<Ref<Texture>>{  m_DefaultMap }
-
-
 				, DrawSpecification::Transform_Vertex_Array
 				, m_ShadeRenderMode
 			},
@@ -177,6 +179,7 @@ namespace Rynex {
 				, m_DepthRenderMode
 			}
 		};
+
 
 		const BufferLayout& layoutShade = shaderShade->GetOutPut();
 		const BufferLayout& layoutDepth = shaderDepth->GetOutPut();
@@ -198,7 +201,7 @@ namespace Rynex {
 		RY_CORE_ASSERT(byteSize == bufferByteSize);
 
 		const void* bufferPtr = &m_BufferData;
-		uint8_t* materielArrayDataPtr = (uint8_t*)materielArrayData;
+		uint8_t* materielArrayDataPtr = static_cast<uint8_t*>(materielArrayData);
 		void* materielArrayDataOffsetPtr = offset + materielArrayDataPtr;
 
 		std::memcpy(materielArrayDataOffsetPtr, bufferPtr, byteSize);

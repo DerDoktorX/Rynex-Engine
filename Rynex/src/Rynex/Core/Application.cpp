@@ -230,7 +230,7 @@ namespace Rynex {
 
     uint32_t Application::SearchStartArgsForThreadCount(const ApplicationSpecification& specification)
     {
-	    constexpr const char* fieldThreadCount = "ThreadCount";
+	    constexpr const char* fieldThreadCount = "--ThreadPoolCount";
 	    const ApplicationCommandLineArgs& args = specification.CommandLineArgs;
 	    int i = 0;
 	    uint32_t threadCount = RY_MAX_THREAD_IN_USE;
@@ -272,10 +272,10 @@ namespace Rynex {
 		std::mutex mutex;
 		std::condition_variable cv;
 		std::unique_lock lockWait(mutex);	
-		RY_CORE_TRACE("Submit funtion to main thread an wait!");
+		RY_CORE_TRACE("Submit function to main thread an wait!");
 		SubmitToMainThreedQueuePush(func, &cv);
 		cv.wait(lockWait);
-		RY_CORE_TRACE("Resume Exexution to main thread!");
+		RY_CORE_TRACE("Resume Execution to main thread!");
 	}
 
 	
@@ -357,7 +357,7 @@ namespace Rynex {
 			func();
 			if (nullptr != cvPtr)
 			{
-				RY_CORE_TRACE("Waiting thread resume his Exution Now!");
+				RY_CORE_TRACE("Waiting thread resume his Execution Now!");
 				cvPtr->notify_one();
 			}
 			m_MainThreedQueue.pop();

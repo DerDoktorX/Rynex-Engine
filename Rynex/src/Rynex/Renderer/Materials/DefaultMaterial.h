@@ -29,8 +29,8 @@ namespace Rynex {
         DefaultMaterial();
         DefaultMaterial(const MaterielShaderData& data, const std::vector<Pass>& vec);
 
-        DefaultMaterial(std::vector<FileSystem::Path>&& vecPath, const Ref<Shader>& shaderShade, const Ref<Shader>& shaderDepth);
-        DefaultMaterial(const MaterielShaderData& data, Ref<Texture> tex, const Ref<Shader>& shaderShade, const Ref<Shader>& shaderDepth);
+        DefaultMaterial(std::vector<FileSystem::Path>&& vecPath, Ref<Shader> shaderShade, Ref<Shader> shaderDepth);
+        explicit DefaultMaterial(const MaterielShaderData& data, Ref<Texture> tex, Ref<Shader> shaderShade, Ref<Shader> shaderDepth);
         virtual ~DefaultMaterial();
 
         virtual void SetColor(const glm::vec3& color) override { m_Change = true; m_BufferData.Color = color; }

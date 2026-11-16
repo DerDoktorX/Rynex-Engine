@@ -59,6 +59,11 @@ AssetRegistry:
     Type: Scene
     Name: TestDeserilaze.rynexscene
     ChangeTime: 2026-11-07 13:41:13
+  - Handle: 5288257368140895106
+    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/shaders/InstenceMesh.glsl
+    Type: Shader
+    Name: InstenceMesh.glsl
+    ChangeTime: 2026-11-16 18:33:26
   - Handle: 6223853991675177389
     FilePath-ProjectMarker: Project#!#/Assets/Scripts/Intermediates/Release/Sanbox.csproj.FileListAbsolute.txt
     Type: TextFile
@@ -79,6 +84,11 @@ AssetRegistry:
     Type: Scene
     Name: 3DCubeHazel.rynexscene
     ChangeTime: 2026-11-07 13:41:13
+  - Handle: 7173649973456730510
+    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/Models/Cube.rystmesh
+    Type: MeshStatic
+    Name: Cube.rystmesh
+    ChangeTime: 2026-11-16 12:26:41
   - Handle: 7505286713549576500
     FilePath-ProjectMarker: Project#!#/Assets/scenes/3DCube_Hi.rynexscene
     Type: Scene
@@ -119,6 +129,11 @@ AssetRegistry:
     Type: Shader
     Name: TextureTransform2.glsl
     ChangeTime: 2026-11-07 14:55:48
+  - Handle: 9780690293658858138
+    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/Shaders/InstenceMeshShape.glsl
+    Type: Shader
+    Name: InstenceMeshShape.glsl
+    ChangeTime: 2026-11-16 18:33:26
   - Handle: 10410157814343881553
     FilePath-ProjectMarker: Project#!#/Assets/shaders/SrcShader.glsl
     Type: Shader
@@ -139,6 +154,11 @@ AssetRegistry:
     Type: Shader
     Name: InstenceMeshShadow.glsl
     ChangeTime: 2026-11-07 14:55:50
+  - Handle: 12563210341618243832
+    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/Shaders/InstenceMeshShadow.glsl
+    Type: Shader
+    Name: InstenceMeshShadow.glsl
+    ChangeTime: 2026-11-16 18:33:26
   - Handle: 12847349145476401074
     FilePath-ProjectMarker: Project#!#/Assets/shaders/3DTestTess2.glsl
     Type: Shader
@@ -189,6 +209,11 @@ AssetRegistry:
     Type: Shader
     Name: IconTexture.glsl
     ChangeTime: 2026-11-07 14:55:50
+  - Handle: 17807275880744538623
+    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/Models/Cube.gltf
+    Type: MeshSource
+    Name: Cube.gltf
+    ChangeTime: 2026-11-16 13:27:25
   - Handle: 17953476595985484140
     FilePath-ProjectMarker: Project#!#/Assets/Shaders/InstenceMeshShape.glsl
     Type: Shader

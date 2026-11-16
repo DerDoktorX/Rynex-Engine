@@ -390,12 +390,12 @@ namespace Rynex {
 					singleObjectMeshDataVec.emplace_back(data);
 				}
 			}
-			RY_CORE_TRACE("Loade Some Node MeshStatic!");
+			RY_CORE_TRACE("Load Some Node MeshStatic!");
 		}
 		else
 		{
 			singleObjectMeshDataVec = meshStaticSource->GetSingleObjectMesDataVec();
-			RY_CORE_TRACE("Loade all MeshStatic objects! {}", singleObjectMeshDataVec.size());
+			RY_CORE_TRACE("Load all MeshStatic objects! {}", singleObjectMeshDataVec.size());
 		}
 		
 		if (singleObjectMeshDataVec.empty())
@@ -404,7 +404,7 @@ namespace Rynex {
 			return false;
 		}
 		m_MeshStatic->Create(sourceMesh, singleObjectMeshDataVec);
-		
+		return true;
 	}
 
 	

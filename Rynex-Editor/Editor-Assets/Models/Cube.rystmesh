@@ -1,5 +1,5 @@
 Source-Mesh:
-  Path-ProjectMarker: Project#!#/Assets/Models/Cube.gltf
-  Handle: 4622349937372499709
+  Path-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/Models/Cube.gltf
+  Handle: 17807275880744538623
 MeshNodes:
   []

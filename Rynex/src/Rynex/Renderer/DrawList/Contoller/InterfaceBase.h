@@ -79,6 +79,16 @@ namespace Rynex {
             Handle& current = this->Current();
             RY_DESTROY_REF(current);
         }
+
+        static bool IsSourceEmpty(const Handle& source)
+        {
+            return nullptr == source;
+        }
+
+        static bool IsSourceEqual(const Handle& left, const Handle& right)
+        {
+            return left == right;
+        }
     protected:
         Handle& GetResource()
         {

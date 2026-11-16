@@ -9,9 +9,12 @@
 void TestGeometryControllerSystem::SetUp()
 {
     TestApplicationSystem::SetUp();
-    Rynex::FileSystem::Path path("Engine-Resources/Editor-Assets/Models/Cube.rystmesh");
+
+
     m_Cache = Rynex::CreateRef<Rynex::CachedBufferRegister>();
-    m_MeshStatic = Rynex::AssetManager::GetAsset<Rynex::MeshStatic>(path);
+    Rynex::FileSystem::Path pathMesh("Engine-Resources/Editor-Assets/Models/Cube.rystmesh");
+    m_MeshStatic = Rynex::AssetManager::GetAsset<Rynex::MeshStatic>(pathMesh);
+
 }
 
 void TestGeometryControllerSystem::TearDown()
@@ -22,8 +25,13 @@ void TestGeometryControllerSystem::TearDown()
 }
 
 
-TEST_F(TestGeometryControllerSystem, CompileTest)
+TEST_F(TestGeometryControllerSystem, Compile)
 {
     using namespace  Rynex::Control;
     GeometryDefault::Interface geometryInterface;
+    Rynex::ShaderDrawResource drawResource;
+    Rynex::CachedBufferRegister& cachedBufferRegister = *(m_Cache.get());
+    GeometryDefault::Build build{
+        cachedBufferRegister, geometryInterface, drawResource
+    };
 }

@@ -185,6 +185,12 @@ namespace Rynex {
             using Policy = PolicyAt<Index>;
             return Policy::GetBufferLayout();
         }
+
+
+        static bool IsSourceEqual(const Source& left, const Source& right)
+        {
+            return left == right;
+        }
     protected:
         template<typename T>
         std::vector<T>& GetBuffer()
