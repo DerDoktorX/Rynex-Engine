@@ -288,11 +288,11 @@ namespace Rynex {
 
     WindowProps Application::SearchStartArgsForWindow(const ApplicationSpecification& spec)
     {
-	    constexpr const char* markerWithe = "--WindowWidth";
-	    constexpr const char* markerHeight = "--WindowHeight";
-	    constexpr const char* markerVisibility = "--WindowVisibility";
-	    constexpr const char* markerVisibilityTrue = "true";
-	    constexpr const char* markerVisibilityFalse = "false";
+	    constexpr const std::string_view markerWithe = "--WindowWidth";
+	    constexpr const std::string_view markerHeight = "--WindowHeight";
+	    constexpr const std::string_view markerVisibility = "--WindowVisibility";
+	    constexpr const std::string_view markerVisibilityTrue = "true";
+	    constexpr const std::string_view markerVisibilityFalse = "false";
 	    WindowProps props(spec.Name);
 	    const ApplicationCommandLineArgs& args = spec.CommandLineArgs;
 	    int i = 0;
@@ -307,10 +307,11 @@ namespace Rynex {
 	        {
 	            i++;
 	            // visibilityValue
-	            const char* visibilityValue = args[i];
-	            if (*markerVisibilityTrue == *visibilityValue)
+	            const std::string_view visibilityValue = args[i];
+
+	            if (markerVisibilityTrue == visibilityValue)
 	                props.m_Visible = true;
-	            else if (*markerVisibilityFalse == *visibilityValue)
+	            else if (markerVisibilityFalse == visibilityValue)
 	                props.m_Visible = false;
 	            else
 	                RY_CORE_ERROR("No valid reading input! {}", args[i--]);
@@ -353,9 +354,9 @@ namespace Rynex {
 
 		while(!m_MainThreedQueue.empty() && m_QueuePastTime < m_MaxQueueMainThreadTime)
 		{
-			MainThreadExe& mainThreadexe = m_MainThreedQueue.front();
-			std::function<void()>& func = mainThreadexe.first;
-			std::condition_variable* cvPtr = mainThreadexe.second;
+			MainThreadExe& mainThreadExe = m_MainThreedQueue.front();
+			std::function<void()>& func = mainThreadExe.first;
+			std::condition_variable* cvPtr = mainThreadExe.second;
 			func();
 			if (nullptr != cvPtr)
 			{
