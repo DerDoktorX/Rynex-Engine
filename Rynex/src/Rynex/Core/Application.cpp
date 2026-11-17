@@ -306,9 +306,11 @@ namespace Rynex {
 	        if (markerVisibility == filed)
 	        {
 	            i++;
-	            if (markerVisibilityTrue == args[i])
+	            // visibilityValue
+	            const char* visibilityValue = args[i];
+	            if (*markerVisibilityTrue == *visibilityValue)
 	                props.m_Visible = true;
-	            else if (markerVisibilityFalse == args[i])
+	            else if (*markerVisibilityFalse == *visibilityValue)
 	                props.m_Visible = false;
 	            else
 	                RY_CORE_ERROR("No valid reading input! {}", args[i--]);

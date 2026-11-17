@@ -95,7 +95,9 @@ namespace Rynex {
 	    const int width = m_Data.Width;
 	    const int height = m_Data.Height;
 	    const char* titleChar = m_Data.Title.c_str();
-	    glfwWindowHint(GLFW_VISIBLE, props.m_Visible ? GLFW_TRUE : GLFW_FALSE);
+	    const int visible = props.m_Visible ? GLFW_TRUE : GLFW_FALSE;
+
+	    glfwWindowHint(GLFW_VISIBLE, visible);
 		m_Window = glfwCreateWindow(width, height, titleChar, nullptr, nullptr);
 
 		m_Context = CreateRef<OpenGLContext>(m_Window);

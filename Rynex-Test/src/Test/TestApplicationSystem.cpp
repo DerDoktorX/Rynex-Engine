@@ -22,7 +22,7 @@ void TestApplicationSystem::SetUp()
     Rynex::ApplicationSpecification spec;
     spec.Name = "Rynex Test Window";
 
-    char* args[]{
+     char* args[8] = {
         "--WindowWidth", "1",
         "--WindowHeight", "1",
         "--WindowVisibility", "false",
