@@ -25,7 +25,7 @@ void TestGeometryControllerSystem::TearDown()
 }
 
 
-TEST_F(TestGeometryControllerSystem, Compile)
+TEST_F(TestGeometryControllerSystem, CompileInterface)
 {
     using namespace  Rynex::Control;
     GeometryDefault::Interface geometryInterface;
@@ -34,4 +34,40 @@ TEST_F(TestGeometryControllerSystem, Compile)
     GeometryDefault::Build build{
         cachedBufferRegister, geometryInterface, drawResource
     };
+}
+
+TEST_F(TestGeometryControllerSystem, CompileBuild)
+{
+    using namespace  Rynex::Control;
+    GeometryDefault::Interface geometryInterface;
+    Rynex::ShaderDrawResource drawResource;
+    Rynex::CachedBufferRegister& cachedBufferRegister = *(m_Cache.get());
+    GeometryDefault::Build build{
+        cachedBufferRegister, geometryInterface, drawResource
+    };
+}
+
+TEST_F(TestGeometryControllerSystem, CompileController)
+{
+    using namespace  Rynex::Control;
+    GeometryDefault::Interface geometryInterface;
+    Rynex::ShaderDrawResource drawResource;
+    Rynex::CachedBufferRegister& cachedBufferRegister = *(m_Cache.get());
+    GeometryDefault::Build build{
+        cachedBufferRegister, geometryInterface, drawResource
+    };
+
+}
+
+TEST_F(TestGeometryControllerSystem, CompileControlSlot)
+{
+    using namespace  Rynex::Control;
+    GeometryDefault::Interface geometryInterface;
+    Rynex::ShaderDrawResource drawResource;
+    Rynex::CachedBufferRegister& cachedBufferRegister = *(m_Cache.get());
+    GeometryDefault::Build build{
+        cachedBufferRegister, geometryInterface, drawResource
+    };
+    using ControllerGeometry = Rynex::ControlDescriptor<GeometryDefault::Interface, GeometryDefault::Build>;
+    Rynex::ControlSlot<ControllerGeometry> controlSlot{};
 }

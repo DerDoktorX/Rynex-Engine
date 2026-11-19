@@ -55,7 +55,8 @@ namespace Rynex::FileSystem {
         };
         // --- public methods -------------------------------------------------------------------------------------------------
         Path();
-        Path(const Path& file);
+        Path(const Path& path) = default;
+        Path(Path&& path) noexcept  = default;
         explicit Path(const std::string& pathStr, Origin origin = Origin::None);
         explicit Path(const std::string_view& pathView, Origin origin = Origin::None);
         explicit Path(const std::filesystem::path& path, Origin origin = Origin::None);
@@ -63,21 +64,21 @@ namespace Rynex::FileSystem {
 
         ~Path();
 
-        bool IsEmpty() const;
-        bool IsMarked() const;
-        bool IsRelative() const;
-        bool IsAbsolute() const;
-        bool IsExisting() const;
-        bool IsDirectory() const;
-        bool IsFile() const;
-        bool IsAssetExtension() const;
-        uint64_t GetHash() const;
+        [[nodiscard]] bool IsEmpty() const;
+        [[nodiscard]] bool IsMarked() const;
+        [[nodiscard]] bool IsRelative() const;
+        [[nodiscard]] bool IsAbsolute() const;
+        [[nodiscard]] bool IsExisting() const;
+        [[nodiscard]] bool IsDirectory() const;
+        [[nodiscard]] bool IsFile() const;
+        [[nodiscard]] bool IsAssetExtension() const;
+        [[nodiscard]] uint64_t GetHash() const;
 
-        int16_t GetState() const;
+        [[nodiscard]] int16_t GetState() const;
 
-        Origin GetOrigin() const;
+        [[nodiscard]] Origin GetOrigin() const;
 
-        const std::filesystem::path& GetPath() const; // get protected access to Original data
+        [[nodiscard]] const std::filesystem::path& GetPath() const; // get protected access to Original data
         [[nodiscard]] Path GetParent() const;
         [[nodiscard]] std::filesystem::path GetAbsolutePath() const;
         [[nodiscard]] std::filesystem::path GetRelativePath() const;
@@ -154,13 +155,8 @@ namespace Rynex::FileSystem {
         }
 
 
-
-        inline Path& operator=(const Path& path)
-        {
-            m_Path = path.m_Path;
-            m_Origin = path.m_Origin;
-            return *this;
-        }
+        inline Path& operator=(const Path& path) = default;
+        inline Path& operator=(Path&& path) = default;
 
         inline Path& operator=(const std::string& pathStr)
         {

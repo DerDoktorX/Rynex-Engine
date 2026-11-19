@@ -34,7 +34,11 @@ int main(int argc, char** argv)
 		argv[1] = RY_DEFAULT_PATH_PROJECT_FILE;
 		argc = 2;
 	}
-	Rynex::Scope<Rynex::Application> app = Rynex::CreateApplication({ argc, argv });
+    Rynex::ApplicationCommandLineArgs spec{
+	    argc,
+	    argv
+	};
+	Rynex::Scope<Rynex::Application> app = Rynex::CreateApplication(spec);
 #else
 	Rynex::Application* app = Rynex::CreateApplication({ argc, argv });
 #endif

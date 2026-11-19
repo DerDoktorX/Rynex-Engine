@@ -14,7 +14,7 @@ namespace Rynex {
 		RynexEditor(const ApplicationSpecification& spec)
 			: Application(spec)
 		{
-			if(1 < spec.CommandLineArgs.Count)
+			if(1 < spec.m_CommandLineArgs.m_Count)
 				PushLayer(CreateRef<EditorLayer>());
 			else
 				PushLayer(CreateRef<LauncherLayer>());
@@ -30,8 +30,8 @@ namespace Rynex {
 	Scope<Application> CreateApplication(ApplicationCommandLineArgs args)
 	{
 		ApplicationSpecification spec;
-		spec.Name = "Rynex-Editor";
-		spec.CommandLineArgs = args;
+		spec.m_Name = "Rynex-Editor";
+		spec.m_CommandLineArgs = args;
 		Project::New();
 		return CreateScope<RynexEditor>(spec);
 	}

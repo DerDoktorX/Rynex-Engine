@@ -154,6 +154,7 @@ namespace Rynex::Control {
         class Interface : public RefInterface<MeshSingle>
         {
         public:
+            using Indices = DrawElementsIndirectCommand;
             Interface()
                 : RefInterface<MeshSingle>()
             {

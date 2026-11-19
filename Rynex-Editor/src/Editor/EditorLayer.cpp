@@ -137,9 +137,9 @@ case key: \
         m_AktiveScene = CreateRef<Scene>();
         m_EditorScene = CreateRef<Scene>();
 
-        auto cLA = Application::Get().GetSpecification().CommandLineArgs;
+        auto cLA = Application::Get().GetSpecification().m_CommandLineArgs;
         
-        if (cLA.Count > 1)
+        if (cLA.m_Count > 1)
         {
             auto projFilePath = cLA[1];
             OpenProject(projFilePath);

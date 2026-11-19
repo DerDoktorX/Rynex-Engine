@@ -12,13 +12,11 @@ namespace Rynex::FileSystem {
 	{
 	}
 
-	Path::Path(const Path& path)
-		: m_Path(path.m_Path)
-		, m_Origin(path.m_Origin)
-	{
-	}
 
-	Path::Path(const std::string& pathStr, Origin origin)
+
+
+
+    Path::Path(const std::string& pathStr, Origin origin)
 	{
 		auto [path, nextOrigin] = ConvertInternalPath(pathStr, origin);
 		m_Path = path;

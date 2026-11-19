@@ -366,9 +366,9 @@ namespace Rynex {
     {
         using Interface = InterfaceType;
         using CommandBuild = BuildType;
-        using Section = typename Interface::Section;
-        using Source = typename Interface::Source;
-        using Indices = typename Interface::Indices;
+        using Section = typename InterfaceType::Section;
+        using Source = typename InterfaceType::Source;
+        using Indices = typename InterfaceType::Indices;
 
     };
 

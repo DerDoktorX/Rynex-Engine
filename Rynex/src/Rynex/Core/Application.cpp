@@ -80,8 +80,8 @@ namespace Rynex {
 
 		s_Instance = this;
 
-		if (!m_Specification.WorkingDirectory.empty())
-			std::filesystem::current_path(m_Specification.WorkingDirectory);
+		if (!m_Specification.m_WorkingDirectory.empty())
+			std::filesystem::current_path(m_Specification.m_WorkingDirectory);
 
         WindowProps prop = SearchStartArgsForWindow(m_Specification);
 		m_Window = Window::Create(prop);
@@ -231,13 +231,13 @@ namespace Rynex {
     uint32_t Application::SearchStartArgsForThreadCount(const ApplicationSpecification& specification)
     {
 	    constexpr const char* fieldThreadCount = "--ThreadPoolCount";
-	    const ApplicationCommandLineArgs& args = specification.CommandLineArgs;
+	    const ApplicationCommandLineArgs& args = specification.m_CommandLineArgs;
 	    int i = 0;
 	    uint32_t threadCount = RY_MAX_THREAD_IN_USE;
-	    while (i < args.Count)
+	    while (i < args.m_Count)
 	    {
 	        const int next = i + 1;
-	        if (args.Count == next)
+	        if (args.m_Count == next)
 	            break;
 
 	        const std::string_view filed{ args[i] };
@@ -293,13 +293,13 @@ namespace Rynex {
 	    constexpr const std::string_view markerVisibility = "--WindowVisibility";
 	    constexpr const std::string_view markerVisibilityTrue = "true";
 	    constexpr const std::string_view markerVisibilityFalse = "false";
-	    WindowProps props(spec.Name);
-	    const ApplicationCommandLineArgs& args = spec.CommandLineArgs;
+	    WindowProps props(spec.m_Name);
+	    const ApplicationCommandLineArgs& args = spec.m_CommandLineArgs;
 	    int i = 0;
-	    while (i < args.Count)
+	    while (i < args.m_Count)
 	    {
 	        const int next = i + 1;
-	        if (args.Count == next)
+	        if (args.m_Count == next)
 	            break;
 
 	        const std::string_view filed{args[i]};

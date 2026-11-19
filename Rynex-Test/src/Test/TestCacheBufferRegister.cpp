@@ -4,7 +4,7 @@
 
 TestCacheBufferRegister::TestCacheBufferRegister()
     : TestApplicationSystem()
-    , m_Value{ 127, 63, 31, 15}
+    , m_Value{ 127, 63, 31, 15 }
     , m_Layout({
         {Rynex::SDT::Int4, "Values"}
     })

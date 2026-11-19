@@ -34,10 +34,10 @@ namespace Rynex {
 		ofn.lpstrFile = szFile;
 		ofn.nMaxFile = sizeof(szFile);
 
-		std::string begindirView(beginDir);
-		if(!begindirView.empty())
+		std::string beginDirView(beginDir);
+		if(!beginDirView.empty())
 		{
-			char* filePathCharPtr = &begindirView[0];
+			char* filePathCharPtr = &beginDirView[0];
 			if (GetCurrentDirectoryA(MAC_PATH_CHAR_COUNT, filePathCharPtr))
 				ofn.lpstrInitialDir = beginDir;
 		}

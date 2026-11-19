@@ -51,68 +51,68 @@ namespace Rynex {
     class RefInterface : public InterfaceBase<Ref<RefSection>>
     {
     public:
-        using Handle = Ref<RefSection>;
+        using Source = Ref<RefSection>;
 
 
     // public member operator --------------------------------------------------------------------------------------------------
-        DrawSplit HasSection(const Handle& source) const
+        DrawSplit HasSection(const Source& source) const
         {
-            const Handle* sectionPtr = this->m_SectionPtr;
+            const Source* sectionPtr = this->m_SectionPtr;
             if (nullptr == sectionPtr)
                 return DrawSplit::NewDraw;
 
-            const Handle& current = *sectionPtr;
+            const Source& current = *sectionPtr;
             if (current == source)
                 return DrawSplit::Same;
 
             return DrawSplit::NewDraw;
         }
 
-        void SetSection(const Handle& source)
+        void SetSection(const Source& source)
         {
-            Handle& current = this->Current();
+            Source& current = this->Current();
             current = source;
         }
 
         void ClearSection()
         {
-            Handle& current = this->Current();
+            Source& current = this->Current();
             RY_DESTROY_REF(current);
         }
 
-        static bool IsSourceEmpty(const Handle& source)
+        static bool IsSourceEmpty(const Source& source)
         {
             return nullptr == source;
         }
 
-        static bool IsSourceEqual(const Handle& left, const Handle& right)
+        static bool IsSourceEqual(const Source& left, const Source& right)
         {
             return left == right;
         }
     protected:
-        Handle& GetResource()
+        Source& GetResource()
         {
-            Handle& handle = this->Current();
+            Source& handle = this->Current();
             RY_CORE_ASSERT(nullptr != handle, "the stored resource is nullptr!");
             return handle;
         }
 
-        const Handle& GetResource() const
+        const Source& GetResource() const
         {
-            const Handle& handle = this->Current();
+            const Source& handle = this->Current();
             RY_CORE_ASSERT(nullptr != handle, "the stored resource is nullptr!");
             return handle;
         }
 
         RefSection& Get()
         {
-            Handle& handle = GetResource();
+            Source& handle = GetResource();
             return *(handle.get());
         }
 
-        const Handle& Get() const
+        const Source& Get() const
         {
-            const Handle& handle = GetResource();
+            const Source& handle = GetResource();
             return *(handle.get());
         }
     };

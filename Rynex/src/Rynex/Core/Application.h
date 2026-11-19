@@ -16,31 +16,61 @@ namespace Rynex {
 
 	struct RYNEX_API ApplicationCommandLineArgs
 	{
-		int Count = 0;
-		char** Args = nullptr;
+		int m_Count;
+		const char** m_Args;
 
-		const char* operator[](int index) const
+	    ApplicationCommandLineArgs()
+	        : m_Count(0)
+            , m_Args(nullptr)
+	    {
+	    }
+
+	    ApplicationCommandLineArgs(const int count, const char** args)
+	        : m_Count(count)
+	        , m_Args(args)
+	    {
+	    }
+
+	    ApplicationCommandLineArgs(const ApplicationCommandLineArgs&) = default;
+
+		const char* operator[](const int index) const
 		{
-			RY_CORE_ASSERT(index < Count, "Error: ApplicationCommandLineArgs");
-			return Args[index];
+			RY_CORE_ASSERT(index < m_Count, "Error: ApplicationCommandLineArgs");
+			return m_Args[index];
 		}
 	};
 
 	struct RYNEX_API ApplicationSpecification
 	{
-		std::string Name = "Rynex Application";
-		std::string WorkingDirectory;
-		ApplicationCommandLineArgs CommandLineArgs;
+		std::string m_Name;
+		std::string m_WorkingDirectory;
+		ApplicationCommandLineArgs m_CommandLineArgs;
+
+	    ApplicationSpecification()
+	        : m_Name("Rynex Engine")
+	        , m_WorkingDirectory()
+	        , m_CommandLineArgs()
+	    {
+	    }
+
+	    ApplicationSpecification(const ApplicationSpecification&) = default;
+
+	    ApplicationSpecification(const std::string_view name, const std::string_view workingDirectory, const ApplicationCommandLineArgs& commandLineArgs)
+	        : m_Name(name)
+	        , m_WorkingDirectory(workingDirectory)
+	        , m_CommandLineArgs(commandLineArgs)
+	    {
+	    }
 	};
 
 	struct AssetFileWatcherThreadData
 	{
-		std::function<void(std::filesystem::path path)> Function;
-		std::filesystem::path Filepath;
+		std::function<void(const FileSystem::Path& path)> m_Function;
+		 FileSystem::Path m_Filepath;
 
-		AssetFileWatcherThreadData(std::function<void(std::filesystem::path path)> function, std::filesystem::path filepath)
-			: Function(function)
-			, Filepath(filepath)
+		AssetFileWatcherThreadData(const std::function<void(const FileSystem::Path& path)>& function, const FileSystem::Path& filepath)
+			: m_Function(function)
+			, m_Filepath(filepath)
 		{}
 	};
 
@@ -48,7 +78,6 @@ namespace Rynex {
 	class RYNEX_API Application
 	{
 	public:
-
         explicit Application(const ApplicationSpecification& specification);
 		virtual ~Application();
 

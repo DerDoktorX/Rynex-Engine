@@ -225,8 +225,8 @@ public:
 Rynex::Scope<Rynex::Application> Rynex::CreateApplication(Rynex::ApplicationCommandLineArgs args)
 {	
 	Rynex::ApplicationSpecification spec;
-	spec.Name = "Rynex-SandBox";
-	spec.CommandLineArgs = args;
+	spec.m_Name = "Rynex-SandBox";
+	spec.m_CommandLineArgs = args;
 
 
 	Project::New();

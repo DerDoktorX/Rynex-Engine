@@ -29,8 +29,8 @@ void Sandbox2D::OnAttach()
 	m_MousePos = glm::vec2{ window.GetMousePosX() ,window.GetMousePosY() };
     m_AktiveScene = Rynex::CreateRef<Rynex::Scene>();
 
-	const auto commandLineArgs = Rynex::Application::Get().GetSpecification().CommandLineArgs;
-	if (1 < commandLineArgs.Count)
+	const auto commandLineArgs = Rynex::Application::Get().GetSpecification().m_CommandLineArgs;
+	if (1 < commandLineArgs.m_Count)
 	{
 		const auto projFilePath = commandLineArgs[1];
 		if (Rynex::Project::Load(projFilePath))

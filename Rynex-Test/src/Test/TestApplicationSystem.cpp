@@ -18,20 +18,34 @@ void TestApplicationSystem::SetUp()
 {
 
     using namespace Rynex;
+    constexpr std::string_view windowName = "Rynex Test Window";
+    std::string_view windowWidthNameStr = "--WindowWidth";
+    std::string_view windowHeightNameStr = "--WindowHeight";
+    std::string_view windowVisibilityNameStr = "--WindowVisibility";
+    std::string_view threadPoolNameStr = "--ThreadPoolCount";
+    std::string_view windowVisibilityValueStr = "false";
+    std::string_view windowSizeValueStr = "1";
+    std::string_view threadPoolValueStr = "0";
+    constexpr int appCommandLineArgsCount = 8;
 
-    Rynex::ApplicationSpecification spec;
-    spec.Name = "Rynex Test Window";
 
-     char* args[8] = {
-        "--WindowWidth", "1",
-        "--WindowHeight", "1",
-        "--WindowVisibility", "false",
-        "--ThreadPoolCount", "0"
+    char const* args[] = {
+        "--WindowWidth", "1"
+        , "--WindowHeight", "1"
+        , "--WindowVisibility", "false"
+        , "--ThreadPoolCount", "0"
     };
 
 
-    spec.CommandLineArgs.Args = args;
-    spec.CommandLineArgs.Count = 8;
+    const ApplicationCommandLineArgs appCommandLineArgs{
+        appCommandLineArgsCount, args
+    };
+
+    ApplicationSpecification spec{
+        windowName, "", appCommandLineArgs
+
+    };
+
 
     m_Application = CreateScope<TestApplication>(spec);
     GetWindow().SetVSync(false);

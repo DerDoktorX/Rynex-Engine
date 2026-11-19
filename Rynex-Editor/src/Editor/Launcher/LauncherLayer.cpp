@@ -212,8 +212,8 @@ namespace Rynex {
 
 			ApplicationSpecification& spec = Application::Get().GetSpecification();
 			std::string path = m_ProjectPath + "\\" + m_ProjectName;
-			spec.CommandLineArgs.Count += path.size();
-			spec.CommandLineArgs.Args[1] = (char*)path.c_str();
+			spec.m_CommandLineArgs.m_Count += path.size();
+			spec.m_CommandLineArgs.m_Args[1] = (char*)path.c_str();
 			Application::Get().PushLayer(Rynex::CreateRef<EditorLayer>());
 			Application::Get().PopLayer(this);
 		});
@@ -232,8 +232,8 @@ namespace Rynex {
 			Ref<Project> project = Project::GetActive()->CreatNewProject(m_ProjectPath, m_ProjectName);
 			ApplicationSpecification& spec = Application::Get().GetSpecification();
 			std::string path = (project->GetConfig().m_ProjectPath / m_ProjectName).string();
-			spec.CommandLineArgs.Args++;
-			spec.CommandLineArgs.Args[1] = (char*)path.c_str();
+			spec.m_CommandLineArgs.m_Args++;
+			spec.m_CommandLineArgs.m_Args[1] = (char*)path.c_str();
 			Application::Get().PushLayer(CreateRef<EditorLayer>());
 			Application::Get().PopLayer(this);
 		});
