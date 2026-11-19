@@ -25,9 +25,9 @@ namespace Rynex {
 	    {
 	    }
 
-	    ApplicationCommandLineArgs(const int count, const char** args)
+	    ApplicationCommandLineArgs(const int count, const char** argv)
 	        : m_Count(count)
-	        , m_Args(args)
+	        , m_Args(argv)
 	    {
 	    }
 

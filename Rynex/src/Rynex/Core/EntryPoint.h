@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 	}
     Rynex::ApplicationCommandLineArgs spec{
 	    argc,
-	    argv
+	    const_cast<const char**>(argv)
 	};
 	Rynex::Scope<Rynex::Application> app = Rynex::CreateApplication(spec);
 #else
