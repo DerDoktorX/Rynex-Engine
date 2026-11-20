@@ -133,7 +133,7 @@ namespace Rynex {
 				metadata.m_ChangeTime = AssetRegistry::GetCurrentTimeStr();
 			metadata.SetActive(true);
 			metadata.SetIntern(false);
-			metadata.SetState(AssetState::LostConnection);
+		    metadata.m_State = AssetState::LostConnection;
             const FileSystem::Path& pathKey = metadata.m_Path;
 			pathReg->insert_or_assign(pathKey, handle);
 			handleReg->insert_or_assign(handle, metadata);

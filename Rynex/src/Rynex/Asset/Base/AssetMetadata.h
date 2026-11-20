@@ -20,36 +20,59 @@ namespace Rynex {
 
 	struct AssetMetadata
 	{
-		AssetType m_Type = AssetType::None;
-		std::filesystem::path m_FilePath = "Not knowing Path";
-		AssetState m_State = AssetState::None;
-		std::string m_Name = std::string("Unknown");				// FilenameDefault
+	    // std filepaths
+		std::filesystem::path m_FilePath;
+	    std::filesystem::path m_RelativePath;
+		std::filesystem::path m_AbsolutePath;
 
-		std::chrono::time_point<std::chrono::steady_clock> m_LoadingInTime = std::chrono::time_point<std::chrono::steady_clock>::min();
-		std::vector<AssetHandle> m_ChildrenAssets;
-		int m_Flags = 0;
-		std::string m_ChangeTime = "0000-00-00 00:00:00";
+	    std::string m_PathMarker;
+	    std::string m_Name;
 
-		std::filesystem::path m_RelativePath = "Not knowing Relative Path";
-		std::filesystem::path m_AbsolutePath = "Not knowing Absolute Path";
-		std::string m_PathMarker = RY_PATH_NO_VALID_MARKER_STR "/Not knowing Path";
-		FileSystem::Path m_Path;
+	    // time
+	    std::string m_ChangeTime;
+	    std::chrono::time_point<std::chrono::steady_clock> m_LoadingInTime;
 
-		AssetMetadata() = default;
+	    std::vector<AssetHandle> m_ChildrenAssets;
+
+	    FileSystem::Path m_Path;
+	    // type / state / info
+		AssetState m_State;
+		AssetType m_Type;
+	    int m_Flags;
+
+
+		AssetMetadata()
+		    : m_FilePath("Not knowing Path")
+	        , m_RelativePath("Not knowing Relative Path")    // FilenameDefault
+	        , m_AbsolutePath("Not knowing Absolute Path")
+	        , m_PathMarker(RY_PATH_NO_VALID_MARKER_STR "/Not knowing Path")
+	        , m_Name("Unknown")
+	        , m_ChangeTime("0000-00-00 00:00:00")
+	        , m_LoadingInTime(std::chrono::time_point<std::chrono::steady_clock>::min())
+		    , m_ChildrenAssets()
+		    , m_Path()
+		    , m_State(AssetState::None)
+		    , m_Type(AssetType::None)
+		    , m_Flags(0)
+	    {}
+
 		AssetMetadata(const AssetMetadata&) = default;
 	
 
-		AssetMetadata(const AssetMetadata& metadat, AssetState state)
+		AssetMetadata(const AssetMetadata& metadat, const AssetState state)
+	        : m_FilePath(metadat.m_FilePath)
+	        , m_RelativePath(metadat.m_RelativePath)
+	        , m_AbsolutePath(metadat.m_AbsolutePath)
+	        , m_PathMarker(metadat.m_PathMarker)
+	        , m_Name(metadat.m_Name)
+	        , m_ChangeTime(metadat.m_ChangeTime)
+	        , m_LoadingInTime(metadat.m_LoadingInTime)
+	        , m_ChildrenAssets(metadat.m_ChildrenAssets)
+	        , m_Path(metadat.m_Path)
+	        , m_State(state)
+	        , m_Type(metadat.m_Type)
+	        , m_Flags(0)
 		{
-			m_Type = metadat.m_Type;
-			m_FilePath = metadat.m_FilePath;
-			m_Name = metadat.m_Name;
-			m_LoadingInTime = metadat.m_LoadingInTime;
-			m_PathMarker = metadat.m_PathMarker;
-			m_AbsolutePath = metadat.m_AbsolutePath;
-			m_RelativePath = metadat.m_RelativePath;
-
-			SetState(state);
 		}	
 
 		void SetFilePath(const std::filesystem::path& path);
@@ -76,8 +99,7 @@ namespace Rynex {
 
 		void SetState(AssetState state) 
 		{
-
-		    RY_CORE_TRACE("AssetMetadata state change from Asset ({}): {} -> {}", m_Name ,m_State, state);
+		    RY_CORE_TRACE_IF(m_State != state, "AssetMetadata state change from Asset ({}): {} -> {}", m_Name ,m_State, state);
 			m_State = state;
 		}
 
@@ -166,9 +188,6 @@ namespace Rynex {
 			const bool isChangeTime = "0000-00-00 00:00:00" != m_ChangeTime;
 			return isType && isActive && isChangeTime;
 		}
-
-		
 	};
-	
 
 }
