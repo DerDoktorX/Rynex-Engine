@@ -40,7 +40,7 @@ namespace Rynex {
          */
         bool AddOnInterface(const Source& source)
         {
-            return m_Interface.Add(source);
+            return m_Interface.AddStorage(source);
         }
 
         /**
@@ -48,10 +48,9 @@ namespace Rynex {
          * @param source date parameter that is
          * @return reports whether a new section needs to be created, whether only a cache upload is required, or whether neither of these actions is necessary.
          */
-        DrawSplit SetOnInterface(Source& source)
+        DrawSplit SetOnInterface(const Source& source)
         {
-            RY_CORE_ASSERT(!Interface::IsSourceEmpty(m_Cached), "Cache is Empty!");
-            if (Interface::IsSourceEqual(m_Cached, source))
+            if (!Interface::IsSourceEqual(m_Cached, source))
                 m_Cached = source;
             return m_Interface.HasStorage(m_Cached);
         }
@@ -62,7 +61,7 @@ namespace Rynex {
         void UploadCacheOnInterface()
         {
             RY_CORE_ASSERT(!Interface::IsSourceEmpty(m_Cached), "Cache is Empty!");
-            m_Interface.Set(m_Cached);
+            m_Interface.SetStorage(m_Cached);
         }
 
         /**
@@ -70,7 +69,7 @@ namespace Rynex {
          */
         void ClearSection()
         {
-            m_Interface.ClearSection();
+            m_Interface.ClearStorage();
         }
 
         /**
@@ -96,16 +95,16 @@ namespace Rynex {
             Section& section = m_SectionVec.at(m_Used);
             m_Used++;
             Section* sectionPtr = &section;
-            m_Interface.SetSection(sectionPtr);
+            m_Interface.BindSection(sectionPtr);
         }
 
         /**
          * how many ellements the in the current Section are.
          * @return element count, from Interface.
          */
-        Unit GetSectionCount()
+        Unit GetSectionCount() const
         {
-            return m_Interface.GetStoredCount();
+            return m_Interface.GetSectionStorageCount();
         }
 
         /**
@@ -132,7 +131,7 @@ namespace Rynex {
         {
             Section& section = Get(index);
             Section* sectionPtr = std::addressof(section);
-            m_Interface.SetSection(sectionPtr);
+            m_Interface.BindSection(sectionPtr);
         }
 
         /**
@@ -163,6 +162,7 @@ namespace Rynex {
         void Clear()
         {
             m_Used = 0u;
+            m_Interface.BindSection(nullptr);
         }
 
         Unit Count() const

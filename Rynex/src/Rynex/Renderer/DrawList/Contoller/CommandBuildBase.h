@@ -45,6 +45,20 @@ namespace Rynex {
             return buffer;
         }
 
+        template<typename Buffer, size_t Index, typename Interface>
+        static Ref<Buffer> AcquireBufferSourceUniqueCachedHash(Interface& source, BuildContext& context)
+        {
+            Hash64 hash = source.template GetHash<Index>();
+            if (0ull!= hash)
+            {
+                Ref<Buffer> buffer = context.m_Cache.template AcquireUniqueBufferHash<Ref<Buffer>>(hash);
+                if (nullptr != buffer)
+                    return buffer;
+            }
+            Span<const Byte> dataBuffer = source.template GetBufferData<Index>();
+            return CreateBufferUnique<Buffer, Index, true>(dataBuffer, source, context, context.m_Cache);
+        }
+
         template<typename Buffer, CacheBufferMode Mode, size_t Index, typename Interface>
         static Ref<Buffer> AcquireBufferSource(Interface& source, BuildContext& context)
         {
@@ -55,15 +69,7 @@ namespace Rynex {
 
             if constexpr (CacheBufferMode::UniqueCachedHash == Mode)
             {
-                Hash64 hash = source.template GetHash<Index>();
-                if (0ull!= hash)
-                {
-                    Ref<Buffer> buffer = context.m_Cache.template AcquireUniqueBufferHash<Ref<Buffer>>(hash);
-                    if (nullptr != buffer)
-                        return buffer;
-                }
-                Span<const Byte> dataBuffer = source.template GetBufferData<Index>();
-                return CreateBufferUnique<Buffer, Index, true>(dataBuffer, source, context, context.m_Cache);
+                return AcquireBufferSourceUniqueCachedHash<Buffer, Index, Interface>(source, context);
             }
 
             Span<const Byte> dataBuffer = source.GetBufferData(Index);

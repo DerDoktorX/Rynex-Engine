@@ -55,9 +55,9 @@ namespace Rynex {
 
 
     // public member operator --------------------------------------------------------------------------------------------------
-        DrawSplit HasSection(const Source& source) const
+        DrawSplit HasStorage(const Source& source) const
         {
-            const Source* sectionPtr = this->m_SectionPtr;
+            Source* sectionPtr = this->GetSection();
             if (nullptr == sectionPtr)
                 return DrawSplit::NewDraw;
 
@@ -68,11 +68,29 @@ namespace Rynex {
             return DrawSplit::NewDraw;
         }
 
-        void SetSection(const Source& source)
+        void SetStorage(const Source& source)
         {
             Source& current = this->Current();
             current = source;
         }
+
+        bool IsSectionPtrEmpty() const
+        {
+            Source* sectionPtr = this->GetSection();
+            return nullptr == sectionPtr;
+        }
+
+        bool IsSectionStorageEmpty() const
+        {
+            const Ref<RefSection>& sectionRef = this->Current();
+            return nullptr == sectionRef;
+        }
+
+        uint32_t GetSectionStorageCount() const
+        {
+            return IsSectionStorageEmpty() ? 0u : 1u;
+        }
+
 
         void ClearSection()
         {
@@ -110,7 +128,7 @@ namespace Rynex {
             return *(handle.get());
         }
 
-        const Source& Get() const
+        const RefSection& Get() const
         {
             const Source& handle = GetResource();
             return *(handle.get());

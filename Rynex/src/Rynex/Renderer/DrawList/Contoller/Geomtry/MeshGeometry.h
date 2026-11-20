@@ -154,7 +154,7 @@ namespace Rynex::Control {
         class Interface : public RefInterface<MeshSingle>
         {
         public:
-            using Indices = DrawElementsIndirectCommand;
+            using Indices = int;
             Interface()
                 : RefInterface<MeshSingle>()
             {
@@ -163,6 +163,12 @@ namespace Rynex::Control {
             ~Interface()
             {
 
+            }
+
+
+            Indices GetInstance()
+            {
+                return 0;
             }
 
             template<size_t Index>
@@ -192,7 +198,6 @@ namespace Rynex::Control {
                     "GetBuffer No valid Buffer!"
                 );
                 return Ref<Buffer>{ nullptr };
-
             }
 
         };
