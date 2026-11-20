@@ -371,11 +371,12 @@ namespace Rynex {
 
         void CollectVertexBuffer(Span<VertexArray::VertexElements>& elements)
         {
-            // ([&]()
-            // {
-            //     CollectOne<Bindings>(elements);
-            // }(), ...);
-            (CollectOne<Bindings>(elements), ...);
+            (CollectOne<Bindings, Span<VertexArray::VertexElements>, BindingKind::Vertex>(elements), ...);
+        }
+
+        void CollectIndexBuffer(Span<Ref<IndexBuffer>>& elements)
+        {
+            (CollectOne<Bindings, Span<Ref<IndexBuffer>>, BindingKind::Index>(elements), ...);
         }
 
         void BindCommand()
@@ -383,18 +384,19 @@ namespace Rynex {
             (BindOne<Bindings>(), ...);
         }
     protected:
-        template<typename Binding, typename ElementSpan>
+        template<typename Binding, typename ElementSpan, BindingKind Kind>
         void CollectOne(ElementSpan& elements)
         {
-            if constexpr (BindingKind::Vertex == Binding::s_Kind)
+            if constexpr (Kind == Binding::s_Kind)
                 Binding::template Collect<Interface>(m_Interface, m_Context, elements);
         }
 
         template<typename Binding>
         void BindOne()
         {
-            if constexpr (BindingKind::Vertex != Binding::s_Kind)
-                Binding::Apply(m_Interface, m_Context);
+            constexpr BindingKind kind = Binding::s_Kind;
+            if constexpr (BindingKind::Vertex != kind && BindingKind::Index != kind)
+                Binding::template Apply<Interface>(m_Interface, m_Context);
         }
     // --- private member variables ------------------------------------------------------------------------------------
         Interface& m_Interface;

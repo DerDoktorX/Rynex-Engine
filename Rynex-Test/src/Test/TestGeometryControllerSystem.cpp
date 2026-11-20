@@ -172,6 +172,50 @@ TEST_F(TestGeometryControllerSystem, CollectVertexBuffer)
     Rynex::Span<Rynex::VertexArray::VertexElements> vertexElementsSpan{
         vertexElementsArray.data(), vertexElementsArray.size()
     };
+    EXPECT_EQ(nullptr, vertexElementsArray[0].m_Buffer);
     build.CollectVertexBuffer(vertexElementsSpan);
+    EXPECT_NE(nullptr, vertexElementsArray[0].m_Buffer);
+}
 
+TEST_F(TestGeometryControllerSystem, CollectIndexBuffer)
+{
+    ControlSlotGeometryType controlSlot{};
+    const Rynex::Ref<Rynex::MeshSingle>& meshSingle = GetMeshSingle();
+    EXPECT_NO_ASSERT(
+        Rynex::DrawSplit split = controlSlot.SetOnInterface(meshSingle);
+        EXPECT_EQ(Rynex::DrawSplit::NewDraw, split);
+    );
+    EXPECT_NO_ASSERT( controlSlot.OpenNextSection(); );
+    EXPECT_NO_ASSERT( controlSlot.UploadCacheOnInterface(); );
+
+    Rynex::ShaderDrawResource drawResource;
+    Rynex::CachedBufferRegister& cachedBufferRegister = *(m_Cache.get());
+    BuildGeometryType build = controlSlot.CreateBuild(drawResource, cachedBufferRegister);
+
+    std::array<Rynex::Ref<Rynex::IndexBuffer>, 1> indexBufferArray;
+    Rynex::Span<Rynex::Ref<Rynex::IndexBuffer>> indexBufferSpan{
+        indexBufferArray.data(), indexBufferArray.size()
+    };
+    EXPECT_EQ(nullptr, indexBufferArray[0]);
+    build.CollectIndexBuffer(indexBufferSpan);
+    EXPECT_NE(nullptr, indexBufferArray[0]);
+}
+
+TEST_F(TestGeometryControllerSystem, BindVertexBuffer)
+{
+    ControlSlotGeometryType controlSlot{};
+    const Rynex::Ref<Rynex::MeshSingle>& meshSingle = GetMeshSingle();
+    EXPECT_NO_ASSERT(
+        Rynex::DrawSplit split = controlSlot.SetOnInterface(meshSingle);
+        EXPECT_EQ(Rynex::DrawSplit::NewDraw, split);
+    );
+    EXPECT_NO_ASSERT( controlSlot.OpenNextSection(); );
+    EXPECT_NO_ASSERT( controlSlot.UploadCacheOnInterface(); );
+
+    Rynex::ShaderDrawResource drawResource;
+    Rynex::CachedBufferRegister& cachedBufferRegister = *(m_Cache.get());
+    BuildGeometryType build = controlSlot.CreateBuild(drawResource, cachedBufferRegister);
+
+
+    build.BindCommand();
 }
