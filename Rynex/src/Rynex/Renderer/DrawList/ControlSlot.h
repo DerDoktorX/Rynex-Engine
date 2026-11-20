@@ -50,6 +50,7 @@ namespace Rynex {
          */
         DrawSplit SetOnInterface(const Source& source)
         {
+            RY_CORE_ASSERT(!Interface::IsSourceEmpty(source), "no empty data!");
             if (!Interface::IsSourceEqual(m_Cached, source))
                 m_Cached = source;
             return m_Interface.HasStorage(m_Cached);

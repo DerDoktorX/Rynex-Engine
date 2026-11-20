@@ -219,3 +219,30 @@ TEST_F(TestGeometryControllerSystem, BindVertexBuffer)
 
     build.BindCommand();
 }
+
+TEST_F(TestGeometryControllerSystem, SetOnInterfaceParmeterNullptr)
+{
+    ControlSlotGeometryType controlSlot{};
+    EXPECT_ASSERT(
+        const Rynex::DrawSplit split = controlSlot.SetOnInterface(nullptr);
+        EXPECT_EQ(Rynex::DrawSplit::NewDraw, split);
+    );
+
+
+}
+
+TEST_F(TestGeometryControllerSystem, SetOnInterfaceParmeterNullptrAfterOneVaild)
+{
+    ControlSlotGeometryType controlSlot{};
+    const Rynex::Ref<Rynex::MeshSingle>& meshSingle = GetMeshSingle();
+
+    EXPECT_NO_ASSERT(
+        Rynex::DrawSplit split = controlSlot.SetOnInterface(meshSingle);
+        EXPECT_EQ(Rynex::DrawSplit::NewDraw, split);
+    );
+
+    EXPECT_ASSERT(
+        const Rynex::DrawSplit split = controlSlot.SetOnInterface(nullptr);
+        EXPECT_EQ(Rynex::DrawSplit::NewDraw, split);
+    );
+}
