@@ -10,7 +10,7 @@ namespace Rynex {
 
     RuntimeAssetManager::RuntimeAssetManager()
     {
-        RY_CORE_ERROR("RuntimeAssetManager Constructor");
+        RY_ASSET_ERROR("RuntimeAssetManager Constructor");
     }
 
     bool RuntimeAssetManager::IsAssetHandleValid(AssetHandle handle) const
@@ -68,7 +68,7 @@ namespace Rynex {
 
     Ref<Asset> RuntimeAssetManager::GetAsset(const FileSystem::Path& filepath)
     {
-        RY_CORE_ERROR("This Funktion 'RuntimeAssetManager::GetAsset' Don't need to Exist in Runtime!");
+        RY_ASSET_ERROR("This Funktion 'RuntimeAssetManager::GetAsset' Don't need to Exist in Runtime!");
         return GetAsset(m_AssetRegistry.GetAssetHandle(filepath));
     }
 
@@ -97,13 +97,13 @@ namespace Rynex {
 
     const AssetMetadata RuntimeAssetManager::GetMetadata(const FileSystem::Path& path) const
     {
-        RY_CORE_ERROR("This Funktion 'RuntimeAssetManager::IsAssetLoaded' Don't need to Exist in Runtime!");
+        RY_ASSET_ERROR("This Funktion 'RuntimeAssetManager::IsAssetLoaded' Don't need to Exist in Runtime!");
         if(m_AssetRegistry.IsAssetInRegistry(path))
         {
             AssetHandle handle = m_AssetRegistry.GetAssetHandleConst(path);
             return GetMetadata(handle);
         }
-        RY_CORE_FATAL("no Metadata found! return empty Metadata.");
+        RY_ASSET_FATAL("no Metadata found! return empty Metadata.");
         return AssetMetadata();
     }
 
@@ -114,7 +114,7 @@ namespace Rynex {
 
     bool RuntimeAssetManager::IsAssetLoaded(const FileSystem::Path& filepath) const
     {
-        RY_CORE_ERROR("This Funktion 'RuntimeAssetManager::IsAssetLoaded' Don't need to Exist in Runtime!");
+        RY_ASSET_ERROR("This Funktion 'RuntimeAssetManager::IsAssetLoaded' Don't need to Exist in Runtime!");
         if (!m_AssetRegistry.IsAssetInRegistry(filepath))
             return false;
 
@@ -156,7 +156,7 @@ namespace Rynex {
 
     void RuntimeAssetManager::ImportAsset(const std::filesystem::path& filepath)
     {
-        RY_CORE_ERROR("This Funktion 'RuntimeAssetManager::ImportAsset' Don't need to Exist in Runtime!");
+        RY_ASSET_ERROR("This Funktion 'RuntimeAssetManager::ImportAsset' Don't need to Exist in Runtime!");
     }
 
     const AssetMetadata& RuntimeAssetManager::GetMetadata(AssetHandle handle)

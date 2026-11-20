@@ -2,7 +2,6 @@
 #include "MeshImporter.h"
 
 #include <Rynex/Serializers/StaticMeshSerializer.h>
-#include <Rynex/Project/Project.h>
 #include <Rynex/Asset/Base/AssetManager.h>
 
 namespace Rynex {

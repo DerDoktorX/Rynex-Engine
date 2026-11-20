@@ -256,7 +256,7 @@ namespace Rynex {
             std::string nameStr(aiName.data, aiName.length);
             BoundingVolume volume(max, min);
             const glm::vec3& center = volume.GetCenter();            
-            RY_CORE_INFO("Mesh: {}, has aabb center x:{}, y:{}, z:{}", nameStr, center.x, center.y, center.z);
+            RY_ASSET_INFO("Mesh: {}, has aabb center x:{}, y:{}, z:{}", nameStr, center.x, center.y, center.z);
             float boundingSpehreRadius = 0.0f;
 
             
@@ -335,11 +335,11 @@ namespace Rynex {
         static void ReadeSourceData(const aiScene* scene, std::vector<MeshSource::SourceMesh>& meshes, std::vector<MeshSource::SourceVertex>& vertexSourceData, std::vector<MeshSource::MaterialMesh>& materieles, MeshSource::EntityNodes& entityNodes, const FileSystem::Path& assetPath)
         {
             ProcessMeshes(scene, meshes, vertexSourceData);
-            RY_CORE_INFO("Finshed Loading Meshes {} and {} Mesh Gemotry", meshes.size(), vertexSourceData.size());
+            RY_ASSET_INFO("Finshed Loading Meshes {} and {} Mesh Gemotry", meshes.size(), vertexSourceData.size());
             ProcessMateriels(scene, materieles, assetPath);
-            RY_CORE_INFO("Finshed Loading Materiels {}", materieles.size());
+            RY_ASSET_INFO("Finshed Loading Materiels {}", materieles.size());
             ProcessHierarchic(scene->mRootNode, entityNodes);
-            RY_CORE_INFO("Finshed Loading Hirachiy");
+            RY_ASSET_INFO("Finshed Loading Hirachiy");
         }
 
     }
@@ -358,7 +358,7 @@ namespace Rynex {
         RY_PROFILE_FUNCTION();
         std::chrono::time_point<std::chrono::high_resolution_clock> startTimePoint;
         std::chrono::time_point<std::chrono::high_resolution_clock> endeTimePoint;
-        RY_CORE_INFO("Begin Loading Model {}", path);
+        RY_ASSET_INFO("Begin Loading Model {}", path);
         startTimePoint = std::chrono::high_resolution_clock::now();
 
         s_Data.curentFilePathExtention = path.GetExtensionPathString();

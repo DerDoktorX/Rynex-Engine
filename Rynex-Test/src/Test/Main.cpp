@@ -19,6 +19,7 @@ int main(int argc, char** argv)
 
     ::testing::InitGoogleTest(&argc, argv);
     Rynex::Log::Get().Init();
+    Rynex::Log::Get().LogAssetConsole(false);
     Rynex::AssertHook::Set(&Rynex::Testing::ThrowHandler);
 
 

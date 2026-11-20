@@ -99,7 +99,7 @@ namespace Rynex {
 
 		void SetState(AssetState state) 
 		{
-		    RY_CORE_TRACE_IF(m_State != state, "AssetMetadata state change from Asset ({}): {} -> {}", m_Name ,m_State, state);
+		    RY_ASSET_TRACE_IF(m_State != state, "AssetMetadata state change from Asset ({}): {} -> {}", m_Name ,m_State, state);
 			m_State = state;
 		}
 

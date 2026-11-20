@@ -39,7 +39,7 @@ namespace Rynex{
 
 		if (nullptr == dataBytePtr)
 		{
-			RY_CORE_ERROR("Could not Load Image! {}", pathChar);
+			RY_ASSET_ERROR("Could not Load Image! {}", pathChar);
 			return nullptr;
 		}
 
@@ -116,7 +116,7 @@ namespace Rynex{
 		std::vector<unsigned char> vData(byteSize);
 		std::memcpy(vData.data(), dataBytePtr, byteSize);
 		texture = Texture::CreateAsync(spec, std::move(vData));
-		RY_CORE_INFO("Successful Load A-Sync Texture {}/{} withe {} Channels from Path {}", width, height, channels, pathChar);
+		RY_ASSET_INFO("Successful Load A-Sync Texture {}/{} withe {} Channels from Path {}", width, height, channels, pathChar);
 		
 		stbi_image_free(dataBytePtr);
 		return texture;
@@ -134,7 +134,7 @@ namespace Rynex{
 			return false;
 		}
 
-		RY_CORE_WARN("In Dev Funktion: ReLoadeTexture2D!");
+		RY_ASSET_WARN("In Dev Funktion: ReLoadeTexture2D!");
 		int width, height, channels;
 		stbi_set_flip_vertically_on_load(1);
 		std::string pathStr = path.GetPathString();
@@ -143,7 +143,7 @@ namespace Rynex{
 
 		if (nullptr == dataBytePtr)
 		{
-			RY_CORE_ERROR("Could not Load Image! {}", pathChar);
+			RY_ASSET_ERROR("Could not Load Image! {}", pathChar);
 			return false;
 		}
 

@@ -34,7 +34,7 @@ namespace Rynex {
         AssetType assetType = GetAssetTypeFromFilePath(extensionStr);
         
         std::filesystem::path filename = filePath.filename();
-        RY_CORE_ERROR_IF(AssetType::None == assetType, "AssetType GetAssetTypeFromFilePath! Unkowne AssetType: ({} on {})", extensionStr, filename);
+        RY_ASSET_ERROR_IF(AssetType::None == assetType, "AssetType GetAssetTypeFromFilePath! Unkowne AssetType: ({} on {})", extensionStr, filename);
         return assetType;
     }
 

@@ -34,7 +34,7 @@ namespace Rynex {
 		inline std::shared_ptr<spdlog::logger>& GetCoreMemoryLogger() { return m_CoreMemoryLogger; }
 
 		inline std::shared_ptr<spdlog::logger>& GetThreadLogger() { return m_ThreadLogger; }
-
+        void LogAssetConsole(bool value);
 		void EnableLockNumberLoging();
 		void DisableLockNumberLoging();
 	// --- public static constexpr function -----------------------------------------------------------------------------------
@@ -53,6 +53,8 @@ namespace Rynex {
 		
 
 	private:
+        void CreateAssetLogger(bool value);
+    // --- private static varibels --------------------------------------------------------------------------------------------
 		static Log s_LogInstance;
 	// --- private member varibels --------------------------------------------------------------------------------------------
 
@@ -217,6 +219,12 @@ struct fmt::formatter<T, std::enable_if_t<std::is_enum_v<T>, char>> : fmt::forma
 	#define	RY_ERROR(...)			::Rynex::Log::Get().GetClientLogger()->error(__VA_ARGS__)
 	#define	RY_FATAL(...)			::Rynex::Log::Get().GetClientLogger()->critical(__VA_ARGS__)
 
+
+    #define RY_ASSET_TRACE_IF(check, ...)		RY_LOG_MSG_IF_NOT(check, RY_ASSET_TRACE, __VA_ARGS__)
+    #define	RY_ASSET_INFO_IF(check, ...)		RY_LOG_MSG_IF_NOT(check, RY_ASSET_INFO, __VA_ARGS__)
+    #define	RY_ASSET_WARN_IF(check, ...)		RY_LOG_MSG_IF_NOT(check, RY_ASSET_WARN, __VA_ARGS__)
+    #define	RY_ASSET_ERROR_IF(check, ...)		RY_LOG_MSG_IF_NOT(check, RY_ASSET_ERROR, __VA_ARGS__)
+    #define	RY_ASSET_FATAL_IF(check, ...)		RY_LOG_MSG_IF_NOT(check, RY_ASSET_FATAL, __VA_ARGS__)
 
 	#define	RY_TRACE_IF(check, ...)		RY_LOG_MSG_IF_NOT(check, RY_TRACE, __VA_ARGS__)
 	#define	RY_INFO_IF(check, ...)		RY_LOG_MSG_IF_NOT(check, RY_INFO, __VA_ARGS__)

@@ -29,22 +29,22 @@ namespace Rynex {
 				in.seekg(0, std::ios::beg);
 				in.read(&result[0], result.size());
 				in.close();
-				RY_CORE_INFO("Successful open and close file'{0}'! (LoadShader)", path);
+				RY_ASSET_INFO("Successful open and close file'{0}'! (LoadShader)", path);
 
 			}
 			else
 			{
-				RY_CORE_ERROR("Could not open file '{0}' filepath. (LoadShader)", path);
+				RY_ASSET_ERROR("Could not open file '{0}' filepath. (LoadShader)", path);
 				return nullptr;
 			}
 		}
 		catch (const std::ios_base::failure& e) {
-			RY_CORE_FATAL("Exception caught: {}", e.what());
+			RY_ASSET_FATAL("Exception caught: {}", e.what());
 			return nullptr;
 		}
 		catch (std::exception e)
 		{
-			RY_CORE_FATAL("Exception caught: {}", e.what());
+			RY_ASSET_FATAL("Exception caught: {}", e.what());
 			return nullptr;
 		}
 
@@ -58,7 +58,7 @@ namespace Rynex {
 
 	bool ShaderImporter::ReloadShader(AssetHandle handle, const FileSystem::Path& path)
 	{
-		RY_CORE_WARN("In Dev Funktion: ReloadShader!");
+		RY_ASSET_WARN("In Dev Funktion: ReloadShader!");
 		
 		std::string result;
 
@@ -74,32 +74,32 @@ namespace Rynex {
 				in.seekg(0, std::ios::beg);
 				in.read(&result[0], result.size());
 				in.close();
-				RY_CORE_INFO("Successful open and close file'{0}'! (ReLoadShader)", path);
+				RY_ASSET_INFO("Successful open and close file'{0}'! (ReLoadShader)", path);
 			}
 			else
 			{
 				in.close();
 				std::string mes = std::strerror(errno);
 				if (in.fail())
-					RY_CORE_FATAL("Logical error on i/o operation '{}'", mes);
+					RY_ASSET_FATAL("Logical error on i/o operation '{}'", mes);
 				if(in.bad())
-					RY_CORE_FATAL("Read/write error on i/o operation '{}'", mes);
+					RY_ASSET_FATAL("Read/write error on i/o operation '{}'", mes);
 				std::string mesStr = path.GetPathString();
 				std::ios_base::iostate rdState = in.rdstate();
 
-				RY_CORE_WARN_IF(std::ios_base::goodbit == rdState, "Could not open file '{0}' filepath. (ReloadShader)  Error Flag: goodbit", mesStr);
-				RY_CORE_ERROR_IF(std::ios_base::badbit == rdState, "Could not open file '{0}' filepath. (ReloadShader)  Error Flag: badbit", mesStr);
-				RY_CORE_FATAL_IF(std::ios_base::failbit == rdState,"Could not open file '{0}' filepath. (ReloadShader)  Error Flag: failbit", mesStr);
+				RY_ASSET_WARN_IF(std::ios_base::goodbit == rdState, "Could not open file '{0}' filepath. (ReloadShader)  Error Flag: goodbit", mesStr);
+				RY_ASSET_ERROR_IF(std::ios_base::badbit == rdState, "Could not open file '{0}' filepath. (ReloadShader)  Error Flag: badbit", mesStr);
+				RY_ASSET_FATAL_IF(std::ios_base::failbit == rdState,"Could not open file '{0}' filepath. (ReloadShader)  Error Flag: failbit", mesStr);
 				return false;
 			}
 		}
 		catch (const std::ios_base::failure& e) {
-			RY_CORE_FATAL("Exception caught: {}", e.what());
+			RY_ASSET_FATAL("Exception caught: {}", e.what());
 			return false;
 		}
 		catch (std::exception e)
 		{
-			RY_CORE_FATAL("Exception caught: {}", e.what());
+			RY_ASSET_FATAL("Exception caught: {}", e.what());
 			return false;
 		}
 		Ref<Shader> shader = AssetManager::GetAsset<Shader>(handle);

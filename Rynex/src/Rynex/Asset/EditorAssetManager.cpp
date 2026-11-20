@@ -850,7 +850,7 @@ namespace Rynex {
         }
         else
         {
-            RY_CORE_ERROR("'EditorAssetManager::GetAsset' No Asset Loaded! Empty Resource");
+            RY_ASSET_ERROR("'EditorAssetManager::GetAsset' No Asset Loaded! Empty Resource");
             SetAssetMetadataLockState(handle, std::bind(&EditorAssetManagerThread::SetAssetMetadataStateError, this,
                                                         std::placeholders::_1));
         }
@@ -901,7 +901,7 @@ namespace Rynex {
         SetAssetMetadataUpdateContentBrowser(metadata);
         metadata.SetState(AssetState::Ready);
         metadata.m_LoadingInTime = std::chrono::steady_clock::now();
-        RY_CORE_TRACE("AssetState: (Ready) {}", metadata.m_Name);
+        RY_ASSET_TRACE("AssetState: (Ready) {}", metadata.m_Name);
     }
 
     void EditorAssetManagerThread::SetAssetMetadataStateUpdating(int* aboutPtr, AssetMetadata& metadata)
@@ -917,7 +917,7 @@ namespace Rynex {
         SetAssetMetadataUpdateContentBrowser(metadata);
         metadata.SetState(AssetState::LostConnection);
 
-        RY_CORE_TRACE("AssetState: (LostConnection) {}", metadata.m_Name);
+        RY_ASSET_TRACE("AssetState: (LostConnection) {}", metadata.m_Name);
     }
 
 
@@ -1017,7 +1017,7 @@ namespace Rynex {
         if (path.IsRelative())
         {
             const std::filesystem::path& pathSystem = path.GetPath();
-            RY_CORE_WARN("Maby the File-Path is not absolut \n\t{}", pathSystem);
+            RY_ASSET_WARN("Maby the File-Path is not absolut \n\t{}", pathSystem);
         }
         return path.IsExisting();
     }
@@ -1311,7 +1311,7 @@ namespace Rynex {
 
         std::string parentFolderStr = folder.GetNamePathString();
         const std::filesystem::path& filePath = parentFolder.GetPath();
-        RY_CORE_TRACE("Add Child Folder {} to Folder {}", parentFolderStr, filePath);
+        RY_ASSET_TRACE("Add Child Folder {} to Folder {}", parentFolderStr, filePath);
     }
 
 
@@ -1339,7 +1339,7 @@ namespace Rynex {
                 {
                     m_HandleRegistry.GetRefLemda([](AssetMetadata& metaData)-> void
                     {
-                        RY_CORE_FATAL_IF(
+                        RY_ASSET_FATAL_IF(
                             AssetState::Ready == metaData.m_State || AssetState::Loading == metaData.m_State,
                             "Interesting Stat is not Ready or Current Loading, but is stored in LoadedAssets Map! \nMaby Youst Asyc Action");
                     }, handle);
@@ -1430,7 +1430,7 @@ namespace Rynex {
                     m_PathRegistry.Remove(pathKey);
 
 
-                RY_CORE_TRACE("Remove Asset: {} {}", metadata.m_Name, handle);
+                RY_ASSET_TRACE("Remove Asset: {} {}", metadata.m_Name, handle);
             }
             m_HandleRegistry.Remove(handle);
 
@@ -1454,11 +1454,11 @@ namespace Rynex {
 
         if (m_LoadedAssets.IsFound(handle))
         {
-            RY_CORE_FATAL("Unloading Failed its still in the Loaded AssetList");
+            RY_ASSET_FATAL("Unloading Failed its still in the Loaded AssetList");
         }
         if (Ref<Asset> assetWeakCopyRef = assetWeakCopy.lock())
         {
-            RY_CORE_FATAL("Unloading Failed Asset Still exist some wear else!");
+            RY_ASSET_FATAL("Unloading Failed Asset Still exist some wear else!");
         }
     }
 

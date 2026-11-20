@@ -6,6 +6,7 @@
 
 namespace Rynex {
 
+
 	Log Log::s_LogInstance;
 
 
@@ -68,20 +69,7 @@ namespace Rynex {
 			}
 		}
 
-		{
-			std::vector<spdlog::sink_ptr> logSinksAsset;
-
-			logSinksAsset.emplace_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
-			logSinksAsset.emplace_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>("RynexAsset.log", true));
-			logSinksAsset[0]->set_pattern("%^[%T] %n: %v%$");
-			logSinksAsset[1]->set_pattern("[%T] [%l] %n: %v");
-
-			m_CoreAssetLogger = std::make_shared<spdlog::logger>("[RYNEX][ASSET]", begin(logSinksAsset), end(logSinksAsset));
-
-			spdlog::register_logger(m_CoreAssetLogger);
-			m_CoreAssetLogger->set_level(spdlog::level::trace);
-			m_CoreAssetLogger->flush_on(spdlog::level::trace);
-		}
+	    CreateAssetLogger(true);
 
 		{
 			std::vector<spdlog::sink_ptr> logSinksThread;
@@ -99,9 +87,40 @@ namespace Rynex {
 		}
 	}
 
+    void Log::CreateAssetLogger(bool value)
+    {
+	    std::vector<spdlog::sink_ptr> logSinksAsset;
+	    if (value)
+		    logSinksAsset.emplace_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
+		logSinksAsset.emplace_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>("RynexAsset.log", true));
+	    constexpr const char* filePatter = "[%T] [%l] %n: %v";
+	    constexpr const char* consolePatter = "%^[%T] %n: %v%$";
+	    if (value) // enable Asset console log mode.
+	    {
+	        logSinksAsset[0]->set_pattern(consolePatter);
+	        logSinksAsset[1]->set_pattern(filePatter);
+	    }
+	    else
+	    {
+	        logSinksAsset[0]->set_pattern(filePatter);
+	    }
+        Ref<spdlog::logger> assetLogger = CreateRef<spdlog::logger>("[RYNEX][ASSET]", begin(logSinksAsset), end(logSinksAsset));
+
+
+
+
+	    spdlog::register_or_replace(assetLogger);
+
+	    assetLogger->set_level(spdlog::level::trace);
+		assetLogger->flush_on(spdlog::level::trace);
+
+	    m_CoreAssetLogger = assetLogger;
+    }
+
 	void Log::Shutdown()
 	{
 		RY_CORE_WARN("Shutdown Log System!!!");
+	    spdlog::shutdown();
 		RY_DESTROY_REF(m_ThreadLogger);
 
 		RY_DESTROY_REF(m_ClientLogger);
@@ -119,6 +138,11 @@ namespace Rynex {
 		return s_LogInstance;
 	}
 
+
+    void Log::LogAssetConsole(bool value)
+    {
+	    CreateAssetLogger(value);
+    }
 
 	void Log::EnableLockNumberLoging()
 	{
