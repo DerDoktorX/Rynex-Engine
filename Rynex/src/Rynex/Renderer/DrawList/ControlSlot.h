@@ -172,8 +172,8 @@ namespace Rynex {
 
         Build CreateBuild(ShaderDrawResource& draw, CachedBufferRegister& cache)
         {
-            Section* sectionPtr = m_Interface.GetSection();
-            return Build{ cache, *sectionPtr, draw };
+
+            return Build{ cache, m_Interface, draw };
         }
 
         static void CollectVertexBuffer([[maybe_unused]] Build& build, [[maybe_unused]] Span<VertexArray::VertexElements>& vertexElementsSpan)

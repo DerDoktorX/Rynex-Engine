@@ -134,3 +134,44 @@ TEST_F(TestGeometryControllerSystem, BeforUpladeClear)
 
 
 }
+
+TEST_F(TestGeometryControllerSystem, TheSameMeshSingleTwoTimes)
+{
+    ControlSlotGeometryType controlSlot{};
+    const Rynex::Ref<Rynex::MeshSingle>& meshSingle = GetMeshSingle();
+    EXPECT_NO_ASSERT(
+        Rynex::DrawSplit split = controlSlot.SetOnInterface(meshSingle);
+        EXPECT_EQ(Rynex::DrawSplit::NewDraw, split);
+        controlSlot.OpenNextSection();
+    );
+
+    EXPECT_NO_ASSERT( controlSlot.UploadCacheOnInterface(); );
+
+    EXPECT_NO_ASSERT(
+        Rynex::DrawSplit split = controlSlot.SetOnInterface(meshSingle);
+        EXPECT_EQ(Rynex::DrawSplit::Same, split);
+    );
+}
+
+TEST_F(TestGeometryControllerSystem, CollectVertexBuffer)
+{
+    ControlSlotGeometryType controlSlot{};
+    const Rynex::Ref<Rynex::MeshSingle>& meshSingle = GetMeshSingle();
+    EXPECT_NO_ASSERT(
+        Rynex::DrawSplit split = controlSlot.SetOnInterface(meshSingle);
+        EXPECT_EQ(Rynex::DrawSplit::NewDraw, split);
+    );
+    EXPECT_NO_ASSERT( controlSlot.OpenNextSection(); );
+    EXPECT_NO_ASSERT( controlSlot.UploadCacheOnInterface(); );
+
+    Rynex::ShaderDrawResource drawResource;
+    Rynex::CachedBufferRegister& cachedBufferRegister = *(m_Cache.get());
+    BuildGeometryType build = controlSlot.CreateBuild(drawResource, cachedBufferRegister);
+
+    std::array<Rynex::VertexArray::VertexElements, 1> vertexElementsArray;
+    Rynex::Span<Rynex::VertexArray::VertexElements> vertexElementsSpan{
+        vertexElementsArray.data(), vertexElementsArray.size()
+    };
+    build.CollectVertexBuffer(vertexElementsSpan);
+
+}
