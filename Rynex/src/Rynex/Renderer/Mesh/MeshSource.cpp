@@ -57,9 +57,9 @@ namespace Rynex {
 				Ref<Texture> texture = nullptr;
 				if(!materielTextureVec.empty())
 					texture = materielTextureVec.front();
-				Ref<Shader> instenceShaderShade = AssetManager::GetAsset<Shader>(FileSystem::Path("Engine-Resources/Editor-Assets/shaders/InstenceMesh.glsl"));
-				Ref<Shader> instenceShaderShape = AssetManager::GetAsset<Shader>(FileSystem::Path("Engine-Resources/Editor-Assets/Shaders/InstenceMeshShape.glsl"));
-				Ref<Shader> instenceShaderDepth = AssetManager::GetAsset<Shader>(FileSystem::Path("Engine-Resources/Editor-Assets/Shaders/InstenceMeshShadow.glsl"));
+				Ref<Shader> instenceShaderShade = AssetManager::GetAsset<Shader>(FileSystem::Path("Engine-Resources/Editor-Assets/shaders/InstenceMesh.glsl", FileSystem::Path::Origin::Engine));
+				Ref<Shader> instenceShaderShape = AssetManager::GetAsset<Shader>(FileSystem::Path("Engine-Resources/Editor-Assets/Shaders/InstenceMeshShape.glsl", FileSystem::Path::Origin::Engine));
+				Ref<Shader> instenceShaderDepth = AssetManager::GetAsset<Shader>(FileSystem::Path("Engine-Resources/Editor-Assets/Shaders/InstenceMeshShadow.glsl", FileSystem::Path::Origin::Engine));
 
 
 				Ref<Material> materiel = CreateRef<DefaultMaterial>(msd, texture, instenceShaderShade, instenceShaderDepth);
@@ -230,9 +230,9 @@ namespace Rynex {
 					, specular
 					, ambientLigthe
 				};
-				Ref<Shader> instenceShaderShade = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/InstenceMesh.glsl"));
-				Ref<Shader> instenceShaderShape = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/InstenceMeshShape.glsl"));
-				Ref<Shader> instenceShaderDepth = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/InstenceMeshShadow.glsl"));
+				Ref<Shader> instenceShaderShade = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Engine-Resources/Editor-Assets/shaders/InstenceMesh.glsl"));
+				Ref<Shader> instenceShaderShape = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Engine-Resources/Editor-Assets/shaders/InstenceMeshShape.glsl"));
+				Ref<Shader> instenceShaderDepth = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Engine-Resources/Editor-Assets/shaders/InstenceMeshShadow.glsl"));
 
 				Ref<Material> materiel = CreateRef<DefaultMaterial>(msd, materielTexture, instenceShaderShade, instenceShaderDepth);
 				return materiel;

@@ -59,11 +59,21 @@ AssetRegistry:
     Type: Scene
     Name: TestDeserilaze.rynexscene
     ChangeTime: 2026-11-07 13:41:13
+  - Handle: 4702485669757851583
+    FilePath-ProjectMarker: Project#!#/Assets/Shaders/InstenceMesh.glsl
+    Type: Shader
+    Name: InstenceMesh.glsl
+    ChangeTime: 2026-11-20 15:47:12
   - Handle: 5288257368140895106
     FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/shaders/InstenceMesh.glsl
     Type: Shader
     Name: InstenceMesh.glsl
     ChangeTime: 2026-11-16 18:33:26
+  - Handle: 5985001378514967502
+    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/Shaders/InstenceMeshShadow.glsl
+    Type: Shader
+    Name: InstenceMeshShadow.glsl
+    ChangeTime: 2026-11-20 15:48:34
   - Handle: 6223853991675177389
     FilePath-ProjectMarker: Project#!#/Assets/Scripts/Intermediates/Release/Sanbox.csproj.FileListAbsolute.txt
     Type: TextFile
@@ -89,6 +99,11 @@ AssetRegistry:
     Type: MeshStatic
     Name: Cube.rystmesh
     ChangeTime: 2026-11-16 12:26:41
+  - Handle: 7278615079770640437
+    FilePath-ProjectMarker: Project#!#/Assets/Shaders/SingelMeshShadow.glsl
+    Type: Shader
+    Name: SingelMeshShadow.glsl
+    ChangeTime: 2026-11-20 15:47:12
   - Handle: 7505286713549576500
     FilePath-ProjectMarker: Project#!#/Assets/scenes/3DCube_Hi.rynexscene
     Type: Scene
@@ -100,7 +115,7 @@ AssetRegistry:
     Name: Texture.glsl
     ChangeTime: 2026-11-07 13:41:13
   - Handle: 8626229464654570605
-    FilePath-ProjectMarker: Project#!#/Assets/Shaders/InstenceMesh.glsl
+    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/shaders/InstenceMesh.glsl
     Type: Shader
     Name: InstenceMesh.glsl
     ChangeTime: 2026-11-07 14:55:50
@@ -109,8 +124,13 @@ AssetRegistry:
     Type: Script
     Name: TestMain.cs
     ChangeTime: 2026-11-07 13:41:13
+  - Handle: 9167550412356320259
+    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/shaders/SingelMesh.glsl
+    Type: Shader
+    Name: SingelMesh.glsl
+    ChangeTime: 2026-11-20 15:56:30
   - Handle: 9172564912723783610
-    FilePath-ProjectMarker: Project#!#/Assets/Shaders/MeshTestShader.glsl
+    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/shaders/MeshTestShader.glsl
     Type: Shader
     Name: MeshTestShader.glsl
     ChangeTime: 2026-11-07 14:55:50
@@ -154,8 +174,13 @@ AssetRegistry:
     Type: Shader
     Name: InstenceMeshShadow.glsl
     ChangeTime: 2026-11-07 14:55:50
+  - Handle: 11818029433681606511
+    FilePath-ProjectMarker: Project#!#/Assets/Shaders/InstenceMeshShape.glsl
+    Type: Shader
+    Name: InstenceMeshShape.glsl
+    ChangeTime: 2026-11-20 15:47:12
   - Handle: 12563210341618243832
-    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/Shaders/InstenceMeshShadow.glsl
+    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/shaders/InstenceMeshShadow.glsl
     Type: Shader
     Name: InstenceMeshShadow.glsl
     ChangeTime: 2026-11-16 18:33:26
@@ -169,6 +194,11 @@ AssetRegistry:
     Type: Script
     Name: PlayerTest2.cs
     ChangeTime: 2026-11-07 13:41:13
+  - Handle: 13180668318268856710
+    FilePath-ProjectMarker: Project#!#/Assets/Shaders/MeshTestShadowShader.glsl
+    Type: Shader
+    Name: MeshTestShadowShader.glsl
+    ChangeTime: 2026-11-20 15:47:12
   - Handle: 14672325713192540821
     FilePath-ProjectMarker: Project#!#/Assets/textures/testBlending.png
     Type: Texture2D
@@ -190,7 +220,7 @@ AssetRegistry:
     Name: .NETFramework,Version=v4.7.2.AssemblyAttributes.cs
     ChangeTime: 2026-11-07 13:41:13
   - Handle: 15698801948807345016
-    FilePath-ProjectMarker: Project#!#/Assets/Shaders/MeshTestShadowShader.glsl
+    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/shaders/MeshTestShadowShader.glsl
     Type: Shader
     Name: MeshTestShadowShader.glsl
     ChangeTime: 2026-11-07 14:55:50
@@ -209,18 +239,23 @@ AssetRegistry:
     Type: Shader
     Name: IconTexture.glsl
     ChangeTime: 2026-11-07 14:55:50
+  - Handle: 17415493092092113287
+    FilePath-ProjectMarker: Project#!#/Assets/Shaders/MeshTestShader.glsl
+    Type: Shader
+    Name: MeshTestShader.glsl
+    ChangeTime: 2026-11-20 15:47:12
   - Handle: 17807275880744538623
     FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/Models/Cube.gltf
     Type: MeshSource
     Name: Cube.gltf
     ChangeTime: 2026-11-16 13:27:25
   - Handle: 17953476595985484140
-    FilePath-ProjectMarker: Project#!#/Assets/Shaders/InstenceMeshShape.glsl
+    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/shaders/InstenceMeshShape.glsl
     Type: Shader
     Name: InstenceMeshShape.glsl
     ChangeTime: 2026-11-07 14:55:50
   - Handle: 18425372652616594007
-    FilePath-ProjectMarker: Project#!#/Assets/Shaders/SingelMeshShadow.glsl
+    FilePath-ProjectMarker: Engine#!#/Engine-Resources/Editor-Assets/shaders/SingelMeshShadow.glsl
     Type: Shader
     Name: SingelMeshShadow.glsl
     ChangeTime: 2026-11-07 14:55:50

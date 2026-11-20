@@ -196,7 +196,7 @@ namespace RynexTestEditor {
         );
 
 
-        Rynex::Ref<Rynex::Shader> shader = Rynex::AssetManager::GetAsset<Rynex::Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/MeshTestShader.glsl"));
+        Rynex::Ref<Rynex::Shader> shader = Rynex::AssetManager::GetAsset<Rynex::Shader>(RY_DEFAULT_PATH_TO_PROJECT("Engine-Resources/Editor-Assets/shaders/MeshTestShader.glsl"));
 
         glm::vec3 up;
         up = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -398,7 +398,7 @@ namespace RynexTestEditor {
         sponzer = Rynex::Mesh::CreateStaticMesh(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/main_sponza/main_sponza/NewSponza_Main_glTF_003.gltf"));
         sponzer2 = Rynex::Mesh::CreateStaticMesh(RY_DEFAULT_PATH_TO_PROJECT("Assets/Models/main_sponza/main_sponza/NewSponza_Main_glTF_003.gltf"));
 
-        Rynex::Ref<Rynex::Shader> shader = Rynex::AssetManager::GetAsset<Rynex::Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/MeshTestShader.glsl"));
+        Rynex::Ref<Rynex::Shader> shader = Rynex::AssetManager::GetAsset<Rynex::Shader>(RY_DEFAULT_PATH_TO_PROJECT("Engine-Resources/Editor-Assets/shaders/MeshTestShader.glsl"));
 
 
     }

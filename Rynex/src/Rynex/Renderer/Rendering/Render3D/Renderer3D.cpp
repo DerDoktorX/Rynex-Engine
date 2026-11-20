@@ -111,16 +111,16 @@ namespace Rynex {
 	void Renderer3D::Init()
 	{
 		s_Storage3D = CreateScope<Renderer3DStorage>();
-		s_Storage3D->m_MeshDefaultShader = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/MeshTestShader.glsl"));
-		s_Storage3D->m_IndrectMultyShadowShader = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/MeshTestShadowShader.glsl"));
+		s_Storage3D->m_MeshDefaultShader = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Engine-Resources/Editor-Assets/shaders/MeshTestShader.glsl"));
+		s_Storage3D->m_IndrectMultyShadowShader = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Engine-Resources/Editor-Assets/shaders/MeshTestShadowShader.glsl"));
 
 
 
-		Ref<Shader> shaderDepth = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/SingelMeshShadow.glsl"));
-		Ref<Shader> shaderShade = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/SingelMesh.glsl"));
-		Ref<Shader> instenceShaderShade = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/InstenceMesh.glsl"));
-		Ref<Shader> instenceShaderShape = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/InstenceMeshShape.glsl"));
-		Ref<Shader> instenceShaderDepth = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/InstenceMeshShadow.glsl"));
+		Ref<Shader> shaderDepth = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Engine-Resources/Editor-Assets/shaders/SingelMeshShadow.glsl"));
+		Ref<Shader> shaderShade = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Engine-Resources/Editor-Assets/shaders/SingelMesh.glsl"));
+		Ref<Shader> instenceShaderShade = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Engine-Resources/Editor-Assets/shaders/InstenceMesh.glsl"));
+		Ref<Shader> instenceShaderShape = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Engine-Resources/Editor-Assets/shaders/InstenceMeshShape.glsl"));
+		Ref<Shader> instenceShaderDepth = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Engine-Resources/Editor-Assets/shaders/InstenceMeshShadow.glsl"));
 
 		s_Storage3D->m_SingleShaderDepth = shaderDepth;
 		s_Storage3D->m_SingleShaderShade = shaderShade;
@@ -901,9 +901,9 @@ namespace Rynex {
 			materielData.Alpha = 0.15f;
 			materielData.AmbientLigthe = 1.0f;
 			Ref<Texture> texture = Texture::White();
-			Ref<Shader> instanceShaderShade = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/InstenceMesh.glsl"));
-			Ref<Shader> instanceShaderShape = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/InstenceMeshShape.glsl"));
-			Ref<Shader> instanceShaderDepth = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Assets/Shaders/InstenceMeshShadow.glsl"));
+			Ref<Shader> instanceShaderShade = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Engine-Resources/Editor-Assets/shaders/InstenceMesh.glsl"));
+			Ref<Shader> instanceShaderShape = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Engine-Resources/Editor-Assets/shaders/InstenceMeshShape.glsl"));
+			Ref<Shader> instanceShaderDepth = AssetManager::GetAsset<Shader>(RY_DEFAULT_PATH_TO_PROJECT("Engine-Resources/Editor-Assets/shaders/InstenceMeshShadow.glsl"));
 
 			s_Storage3D->m_MaterilNotInFrustem = CreateRef<DefaultMaterial>(materielData, texture, instanceShaderShade, instanceShaderDepth);
 		}
