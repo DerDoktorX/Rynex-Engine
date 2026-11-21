@@ -2,12 +2,9 @@
 // MeshGeometry created in Project Rynex-Rendering on 10/10/2026.
 #include <rypch.h>
 #include <Rynex/Renderer/API/Buffer.h>
-#include <Rynex/Renderer/DrawList/DrawListTypes.h>
-#include <Rynex/Renderer/DrawList/ControlSlot.h>
 #include <Rynex/Renderer/DrawList/Contoller/CommandBuildBase.h>
 #include <Rynex/Renderer/DrawList/Contoller/IndexTables.h>
 #include <Rynex/Renderer/DrawList/Contoller/InterfaceBase.h>
-#include <Rynex/Renderer/Mesh/Mesh.h>
 #include <Rynex/Renderer/Rendering/ShaderDrawList.h>
 
 namespace Rynex::Control {
