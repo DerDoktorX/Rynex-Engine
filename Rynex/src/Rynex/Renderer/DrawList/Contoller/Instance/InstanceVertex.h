@@ -112,10 +112,7 @@ namespace Rynex::Control  {
                 return Source::Make(*m_SectionPtr, source);
             }
 
-            [[nodiscard]] BufferLayout GetBufferLayout(const Unit index) const
-            {
 
-            }
 
 
             [[nodiscard]] Span<const Byte> GetBufferData(Unit index) const
@@ -203,8 +200,8 @@ namespace Rynex::Control  {
             {
                 const Span<const Byte> instanceBufferData = m_Interface.GetVertexBuffer(0);
 
-                Ref<VertexBuffer> = m_Cache.AcquireVertexBuffer(instanceBufferData);
-                vertexElementsSpan[VertexBufferSlot_Instance] = VertexArray::VertexElements{ vertexBuffer };
+                Ref<VertexBuffer> vertex = m_Cache.AcquireVertexBuffer(instanceBufferData);
+                vertexElementsSpan[VertexBufferSlot_Instance] = VertexArray::VertexElements{ vertex };
             }
 
             void BindCommand()
