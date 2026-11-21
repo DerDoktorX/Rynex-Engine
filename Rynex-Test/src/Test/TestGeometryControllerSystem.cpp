@@ -254,3 +254,59 @@ TEST_F(TestGeometryControllerSystem, UploadeEmptyCachedData)
     EXPECT_NO_ASSERT( controlSlot.OpenNextSection(); );
     EXPECT_ASSERT( controlSlot.UploadCacheOnInterface(); );
 }
+
+TEST_F(TestGeometryControllerSystem, CallUplaodeForTwoDifferentSections)
+{
+    ControlSlotGeometryType controlSlot{};
+
+    const Rynex::Ref<Rynex::MeshSingle>& meshSingle = GetMeshSingle();
+    EXPECT_NO_ASSERT(
+        Rynex::DrawSplit split = controlSlot.SetOnInterface(meshSingle);
+        EXPECT_EQ(Rynex::DrawSplit::NewDraw, split);
+    );
+
+    EXPECT_EQ(true, controlSlot.IsEmpty());
+    EXPECT_EQ(0ull, controlSlot.Count());
+
+    EXPECT_NO_ASSERT( controlSlot.OpenNextSection(); );
+    EXPECT_NO_ASSERT( controlSlot.UploadCacheOnInterface(); );
+
+    EXPECT_EQ(false, controlSlot.IsEmpty());
+    EXPECT_EQ(1ull, controlSlot.Count());
+    EXPECT_EQ(1ull, controlSlot.GetSectionCount());
+
+    EXPECT_NO_ASSERT( controlSlot.OpenNextSection(); );
+    EXPECT_NO_ASSERT( controlSlot.UploadCacheOnInterface(); );
+
+    EXPECT_EQ(false, controlSlot.IsEmpty());
+    EXPECT_EQ(2ull, controlSlot.Count());
+    EXPECT_EQ(1ull, controlSlot.GetSectionCount());
+
+}
+
+TEST_F(TestGeometryControllerSystem, CallUplaodeForOneSections)
+{
+    ControlSlotGeometryType controlSlot{};
+
+    const Rynex::Ref<Rynex::MeshSingle>& meshSingle = GetMeshSingle();
+    EXPECT_NO_ASSERT(
+        Rynex::DrawSplit split = controlSlot.SetOnInterface(meshSingle);
+        EXPECT_EQ(Rynex::DrawSplit::NewDraw, split);
+    );
+
+    EXPECT_EQ(true, controlSlot.IsEmpty());
+    EXPECT_EQ(0ull, controlSlot.Count());
+
+    EXPECT_NO_ASSERT( controlSlot.OpenNextSection(); );
+    EXPECT_NO_ASSERT( controlSlot.UploadCacheOnInterface(); );
+
+    EXPECT_EQ(false, controlSlot.IsEmpty());
+    EXPECT_EQ(1ull, controlSlot.Count());
+    EXPECT_EQ(1ull, controlSlot.GetSectionCount());
+
+    EXPECT_NO_ASSERT( controlSlot.UploadCacheOnInterface(); );
+
+    EXPECT_EQ(false, controlSlot.IsEmpty());
+    EXPECT_EQ(1ull, controlSlot.Count());
+    EXPECT_EQ(1ull, controlSlot.GetSectionCount());
+}
