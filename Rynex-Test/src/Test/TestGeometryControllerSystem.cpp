@@ -246,3 +246,11 @@ TEST_F(TestGeometryControllerSystem, SetOnInterfaceParmeterNullptrAfterOneVaild)
         EXPECT_EQ(Rynex::DrawSplit::NewDraw, split);
     );
 }
+
+TEST_F(TestGeometryControllerSystem, UploadeEmptyCachedData)
+{
+    ControlSlotGeometryType controlSlot{};
+
+    EXPECT_NO_ASSERT( controlSlot.OpenNextSection(); );
+    EXPECT_ASSERT( controlSlot.UploadCacheOnInterface(); );
+}
