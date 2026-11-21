@@ -287,7 +287,7 @@ namespace Rynex {
         using Element = int;
 
         template<typename Interface>
-        static void Apply(const Interface& source, BuildContext& context)
+        static void Apply(Interface& source, BuildContext& context)
         {
             int mode = source.template GetRenderMode<Index>();
             context.m_Draw.m_RenderMode = mode;

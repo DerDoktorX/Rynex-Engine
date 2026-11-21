@@ -4,8 +4,6 @@
 #include <Rynex/Renderer/DrawList/Contoller/CommandBuildBase.h>
 #include <Rynex/Renderer/DrawList/Contoller/InterfaceBase.h>
 #include <Rynex/Renderer/DrawList/Contoller/IndexTables.h>
-#include <Rynex/Renderer/DrawList/Contoller/Geomtry/MeshGeometry.h>
-#include <Rynex/Renderer/DrawList/Contoller/Instance/InstanceVertex.h>
 #include <Rynex/Renderer/Materials/Material.h>
 
 
@@ -94,6 +92,21 @@ namespace Rynex::Control  {
         class Interface : public RefInterface<Material>
         {
         public:
+            using Indices = int;
+            Interface()
+                : RefInterface<Material>()
+            {
+            }
+
+            ~Interface()
+            {
+            }
+
+            Indices GetInstance()
+            {
+                return 0;
+            }
+
             template<size_t Index>
             Ref<Texture> GetTexture()
             {
@@ -105,7 +118,7 @@ namespace Rynex::Control  {
             Ref<Buffer> GetBuffer()
             {
                 Material& material = Get();
-                if constexpr (std::is_same_v<Buffer, UniformBuffer>) {}
+                if constexpr (std::is_same_v<Buffer, UniformBuffer>)
                 {
                     return SelectByIndexCompiled<Index>(MaterialAccess::s_UniformBuffer, material);
                 }
