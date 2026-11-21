@@ -52,7 +52,7 @@ target_precompile_headers(
             ${CMAKE_CURRENT_LIST_DIR}/src/rypch.h
 )
 
-SET_CPP_COMPILER_VERSION_PROJECT(Rynex ${CPP_VERSION_USING})
+SET_CPP_COMPILER_VERSION_PROJECT(Rynex ${CMAKE_CXX_STANDARD})
 
 # define compiler set defines.
 target_compile_definitions(
@@ -62,6 +62,7 @@ target_compile_definitions(
         $<$<CONFIG:RelEasy>:RY_RELEASE>            # equals Premake "Release"
         $<$<CONFIG:RelWithDebInfo>:RY_RELEASE>     # equals Premake "Release" just off crack
         $<$<CONFIG:Release>:RY_DIST>               # equals Premake "Dist"
+        RY_CPP_${CMAKE_CXX_STANDARD}
 )
 
 SET_BINARY_RESOURCE(Rynex)

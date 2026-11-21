@@ -2,19 +2,15 @@
 
 # for compiler and std libery equal c++ version
 function(SET_CPP_COMPILER_VERSION_PROJECT project version)
-    set_target_properties(${project} PROPERTIES CXX_STANDARD ${version})
+    # set_target_properties(${project} PROPERTIES CXX_STANDARD ${version})
     if(MSVC)
-        set(CPP_VERSION_COMPILE_VERSION_OPTIONS /std:c++${version})
-        target_compile_options(${project} PRIVATE ${CPP_VERSION_COMPILE_VERSION_OPTIONS})
+        # target_compile_options(${project} PRIVATE /std:c++${version})
     else()
         # for other Compiler (GCC, Clang) functionary Default-Way
-        set(CPP_VERSION_COMPILE_VERSION_OPTIONS -std=c++${version})
-        target_compile_options(${project} PRIVATE ${CPP_VERSION_COMPILE_VERSION_OPTIONS})
+        # target_compile_options(${project} PRIVATE -std=c++${version})
     endif()
-    set(CPP_VERSION_COMPILE_VERSION_FEATURES cxx_std_${version})
-    target_compile_features(${project} PRIVATE ${CPP_VERSION_COMPILE_VERSION_FEATURES})
-    
-    target_compile_definitions(${project} PRIVATE RY_CPP_${CPP_VERSION_USING})
+    # target_compile_features(${project} PRIVATE "cxx_std_${version}")
+
     message("Project ${project} setup with c++ ${version}")
 endfunction()
 

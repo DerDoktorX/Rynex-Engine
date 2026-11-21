@@ -6,27 +6,30 @@ project(Rynex-Rendering)
 include(cmake/FetchExternalLiberys.cmake)
 
 
-set(CPP_VERSION_USING 17)
-set(CMAKE_CXX_STANDARD ${CPP_VERSION_USING})
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 message("using compiler ${CMAKE_CXX_COMPILER_ID}")
 set(RYNEX_COMPILER_NAME "")
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
-        # using clang with clang-cl front end
-        
-    elseif (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
-        # using clang with regular front end
-    endif()
+    
+    # following commented code lines, still exist for if we have some compiler specific action like msvc to set POLICY
+    
+    # if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    #     # using clang with clang-cl front end
+    # elseif (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
+    #     # using clang with regular front end
+    # endif()
+    
     set(RYNEX_COMPILER_NAME "${CMAKE_CXX_COMPILER_ID}_${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}")
     message("using clang with ${CMAKE_CXX_COMPILER_FRONTEND_VARIANT} front end.")
     # using Clang
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    # using GCC
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-    # using Intel C++
+# following commented code lines, still exist for if we have some compiler specific action like msvc to set POLICY
+# elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+#     # using GCC
+# elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+#     # using Intel C++
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # using MSVC
     if (POLICY CMP0141)

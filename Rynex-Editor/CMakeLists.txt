@@ -25,7 +25,7 @@ target_link_libraries(
         Rynex
 )
 
-SET_CPP_COMPILER_VERSION_PROJECT(Rynex-Editor ${CPP_VERSION_USING})
+SET_CPP_COMPILER_VERSION_PROJECT(Rynex-Editor ${CMAKE_CXX_STANDARD})
 
 target_compile_definitions(
       Rynex-Editor
@@ -36,7 +36,7 @@ target_compile_definitions(
         $<$<CONFIG:RelInfoEasy>:RY_RELEASE>        # equals Premake "Release"
         $<$<CONFIG:RelWithDebInfo>:RY_RELEASE>     # equals Premake "Release" just off crack
         $<$<CONFIG:Release>:RY_DIST>               # equals Premake "Dist"
-        RY_CPP_${CPP_VERSION_USING}
+        RY_CPP_${CMAKE_CXX_STANDARD}
 )
 
 SET_BINARY_RESOURCE(Rynex-Editor)
