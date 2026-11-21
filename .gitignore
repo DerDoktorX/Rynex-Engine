@@ -57,17 +57,15 @@ scripts/__pycache__/**.pyc
 **.cap
 **.json
 
-
-
 # Font
 Rynex-Editor/Resources/fonts/Open_Sans/*.ttf
 
 # Binaries
-#Intermediates/
+# Intermediates/
 Intermediates/
 Rynex-Editor/Resources/Scripts/
-SandboxProject/Assets/Scripts/Binaries
-SandboxProject/Assets/Scripts/Intermediates
+SandboxProject/Assets/Scripts/Binaries/
+SandboxProject/Assets/Scripts/Intermediates/
 Rynex-ScriptingCore/bin
 Rynex-ScriptingCore/obj
 **/assimp-vc143-mt.dll
@@ -89,12 +87,12 @@ Rynex-ScriptingCore/obj
 **.csproj
 **.csproj.user
 .idea
-Rynex/vendor/Stash
-_deps
-.cmake
-Rynex/vendor/zlib
-Rynex/vendor/msdf-atlas-gen
-Rynex/vendor/libpng
-Rynex/vendor/freetype
-build-VS
+Rynex/vendor/Stash/
+_deps/
+
+Rynex/vendor/zlib/
+Rynex/vendor/msdf-atlas-gen/
+Rynex/vendor/libpng/
+Rynex/vendor/freetype/
+
 Rynex/src/Rynex/Renderer/Tiers
