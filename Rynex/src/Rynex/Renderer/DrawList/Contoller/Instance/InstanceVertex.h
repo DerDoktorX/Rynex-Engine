@@ -1,5 +1,6 @@
 #pragma once
 // InstanceVertexArray created in Project Rynex-Rendering on 05/10/2026.
+#include <Rynex/Math/Math.h>
 #include <Rynex/Renderer/DrawList/Contoller/CommandBuildBase.h>
 #include <Rynex/Renderer/Rendering/ShaderDrawList.h>
 #include <Rynex/Renderer/RenderMath.h>
