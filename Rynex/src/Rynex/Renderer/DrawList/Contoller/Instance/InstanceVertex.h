@@ -1,24 +1,18 @@
 #pragma once
 // InstanceVertexArray created in Project Rynex-Rendering on 05/10/2026.
-
-#include <Rynex/Core/KeyCodes.h>
-#include <Rynex/Renderer/DrawList/DrawListTypes.h>
+#include <Rynex/Renderer/DrawList/Contoller/CommandBuildBase.h>
 #include <Rynex/Renderer/Rendering/ShaderDrawList.h>
-
+#include <Rynex/Renderer/RenderMath.h>
+#include <Rynex/Renderer/DrawList/Contoller/VectorInterface.h>
 
 namespace Rynex::Control  {
 
 
-    template<typename Interface, typename CommandBuild>
-    class InstanceControlImpl
-    {
-    public:
-        using Source = typename Interface::Source;
-        using Indices = typename Interface::Indices;
-    };
+
 
     namespace InstanceDefault {
 
+#if 0
         class Section
         {
         public:
@@ -67,151 +61,112 @@ namespace Rynex::Control  {
             private:
                 std::vector<InstanceData> m_InstanceData;
             };
-
-
-
-
-
         };
+
+#endif
+
         struct Source
         {
-            const glm::mat4& m_Transform;
+            glm::mat4 m_Transform;
             int m_EntityID;
+            int m_MaterielIndex;
             int m_ParameterIndex;
             int m_TextureIndex;
 
+            Source() = default;
+            Source(const Source&) = default;
+
+            Source& operator=(const Source&) = default;
+
+            bool operator==(const Source& source) const
+            {
+                return m_EntityID == source.m_EntityID
+                && m_Transform == source.m_Transform
+                && m_TextureIndex == source.m_TextureIndex
+                && m_MaterielIndex == source.m_MaterielIndex
+                && m_ParameterIndex == source.m_ParameterIndex;
+            }
 
         };
 
-
-
-        template<typename Source, typename Section>
-        class Interface
+        class Policy
         {
         public:
-            using Unit = uint32_t;
-
-            Interface()
-                : m_SectionPtr(nullptr)
-            {}
-
-            void SetSection(Section* sectionPtr) { m_SectionPtr = sectionPtr;}
-            Section* GetSection() const { return m_SectionPtr; }
-
-            /**
-             * Clear don't mean clear the stored address, but the date stored on this address.
-             */
-            void ClearSection()
+            constexpr static size_t s_MaxElements = 100;
+            struct Element
             {
-                RY_CORE_ASSERT(nullptr != m_SectionPtr, "SectionPtr is nullptr!");
-                Source::Clear(*m_SectionPtr);
-            }
+                glm::mat4 m_Transform;
+                glm::mat4 m_Normals;
 
-            bool Add(Source& source)
-            {
-                return Source::Make(*m_SectionPtr, source);
-            }
+                Element(const Element&) = default;
 
-
-
-
-            [[nodiscard]] Span<const Byte> GetBufferData(Unit index) const
-            {
-                return Span<const Byte>{ nullptr, 0 };
-            }
-
-            [[nodiscard]] Ref<VertexBuffer> GetVertexBuffer(const Unit index) const
-            {
-                RY_CORE_ASSERT(nullptr != m_SectionPtr, "SectionPtr is nullptr!");
-                const Section& section = *m_SectionPtr;
-                switch (index)
+                Element()
+                    : m_Transform(1.0f)
+                    , m_Normals(1.0f)
                 {
-                case 0: return section->GetVertexBuffer();
-                default:
-                    RY_CORE_ASSERT(false, "Invalid index!");
-                    return Ref<VertexBuffer>{ nullptr };
                 }
-            }
 
-            [[nodiscard]] Ref<IndexBuffer> GetIndexBuffer(const Unit index) const
-            {
-                RY_CORE_ASSERT(nullptr != m_SectionPtr, "SectionPtr is nullptr!");
-                const Section& section = *m_SectionPtr;
-                switch (index)
+                explicit Element(const glm::mat4& transform)
+                    : m_Transform(transform)
+                    , m_Normals(Math::CalculateNormaleMatrix(transform))
                 {
-                case 0: return section->GetShadeIndexBuffer();
-                case 1: return section->GetDepthIndexBuffer();
-                default:
-                    RY_CORE_ASSERT(false, "Invalid index!");
-                    return Ref<IndexBuffer>{ nullptr };
                 }
-            }
-
-            [[nodiscard]] Ref<StorageBuffer> GetStorageBuffer(const Unit index) const
-            {
-                static_assert(false, "no buffer data, Stored! (Use Buffers)");
-                return Ref<StorageBuffer>{ nullptr };
-            }
-
-            [[nodiscard]] Ref<UniformBuffer> GetUinformBuffer(const Unit index) const
-            {
-                static_assert(false, "no buffer data, Stored! (Use Buffers)");
-                return Ref<UniformBuffer>{ nullptr };
-            }
-
-
-            static bool IsSourceEqual(const Source& a, const Source& b)
-            {
-                return Source::IsEqual(a, b);
-            }
-
-            static bool IsSourceEmpty(const Source& source)
-            {
-                return Source::IsEmpty(source);
-            }
-        private:
-            Section* m_SectionPtr;
-        };
-
-
-
-
-        template<typename Interface>
-        struct CommandBuild
-        {
-            enum UniformBufferSlot : uint32_t
-            {
-                VertexBufferSlot_Instance = 0u
             };
-            CachedBufferRegister& m_Cache;
-            Interface& m_Interface;
-            ShaderDrawResource& m_DrawResource;
-        // public alias -------------------------------------------------------------------------------------------------------
-            static constexpr bool s_HasVertexBuffer = true;
-            static constexpr bool s_HasBindBuffers = false;
-        // public member method -----------------------------------------------------------------------------------------------
-            explicit CommandBuild(CachedBufferRegister& cache, Interface& interfaceType, ShaderDrawResource& drawResource)
-                : m_Cache(cache)
-                , m_Interface(interfaceType)
-                , m_DrawResource(drawResource)
-            {}
 
-            void CollectVertexBuffer(Span<VertexArray::VertexElements>& vertexElementsSpan)
+
+            static Element Make(const Source& source)
             {
-                const Span<const Byte> instanceBufferData = m_Interface.GetVertexBuffer(0);
-
-                Ref<VertexBuffer> vertex = m_Cache.AcquireVertexBuffer(instanceBufferData);
-                vertexElementsSpan[VertexBufferSlot_Instance] = VertexArray::VertexElements{ vertex };
+                return Element{
+                    source.m_Transform
+                };
             }
 
-            void BindCommand()
+            static BufferLayout GetBufferLayout()
             {
-                static_assert(false, "BindCommand.");
+                BufferLayout layout{
+                    BufferElement{ SDT::Float4x4,   "m_Transform"  },
+                    BufferElement{ SDT::Int,        "m_EntityID"},
+                    BufferElement{ SDT::Int,        "m_MaterielIndex"},
+                    BufferElement{ SDT::Int,        "m_ParameterIndex"},
+                    BufferElement{ SDT::Int,        "m_TextureIndex"}
+                };
+                layout.SetAutoCompress(true);
+                return layout;
+            }
+        };
+
+
+        class Interface : public VectorInterface<Source, Policy>
+        {
+        public:
+            using Indices = int;
+            Interface()
+                : VectorInterface<Source, Policy>()
+            {
+            }
+
+            ~Interface()
+            {
+            }
+
+            Indices GetInstance()
+            {
+                return 0;
             }
 
         };
 
-        using DefaultCommand = InstanceControlImpl<Interface, CommandBuild>;
+
+
+
+        using Build = DeclaredBuild<
+            Interface
+            , BindingTexture<0ull, CacheBufferMode::None, 0ull>
+            , BindingUniform<1ull, CacheBufferMode::None, 0ull>
+            , BindingRenderMode<0ull>
+        >;
+
+        using DefaultCommand = ControlDescriptor<Interface, Build>;
 
 
     }
