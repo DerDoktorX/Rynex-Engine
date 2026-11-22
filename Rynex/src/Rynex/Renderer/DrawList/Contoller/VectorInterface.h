@@ -91,9 +91,7 @@ namespace Rynex {
         for (size_t i = 0; i < sizeof...(Ts); ++i)
         {
             if (matches[i])
-            {
                 return i;
-            }
         }
         return sizeof...(Ts);
     }
@@ -105,17 +103,12 @@ namespace Rynex {
     template<typename Source, typename... Policies>
     class VectorSection
     {
-        static_assert(sizeof...(Policies) > 0, "VectorSection need at max one Policy!");
-
-
     public:
-
         template <typename Policy>
         using Element_T = typename Policy::Element;
 
         template <std::size_t I>
         using PolicyAt = std::tuple_element_t<I, std::tuple<Policies...>>;
-
 
         // --- public member methods ---------------------------------------------------------------------------------------
         SectionFill Add(const Source& source)
@@ -143,17 +136,25 @@ namespace Rynex {
         // clear() keeps the capacity, so a reused section does not allocate again.
         void Clear()
         {
-            std::apply(
-                [](auto&... vector)
-                {
-                    vector.clear();
-                }, m_Elements);
+#if 1
+             ([&]()
+             {
+                using Element = Element_T<Policies>;
+                std::vector<Element>& vector = std::get<index_of<Element>>(m_Elements);
+                vector.clear();
+             }(), ...);
+#else
+            for (auto& vec : m_Elements)
+            {
+                vec.clear();
+            }
+#endif
         }
-
 
         uint32_t Count() const
         {
             uint32_t count = 0u;
+#if 0
             std::apply(
                [&count](const auto&... vector)
                {
@@ -161,7 +162,16 @@ namespace Rynex {
                    RY_CORE_ASSERT(size == count || 0u == count, "not syc size!");
                    count = size;
                }, m_Elements);
-
+#else
+            ([&]()
+            {
+                using Element = Element_T<Policies>;
+                std::vector<Element>& vector = std::get<index_of<Element>>(m_Elements);
+                const uint32_t size = vector.size();
+                RY_CORE_ASSERT(size == count || 0u == count, "not syc size!");
+                count = size;
+            }(), ...);
+#endif
             return count;
         }
 
@@ -173,10 +183,10 @@ namespace Rynex {
         }
 
         template<size_t Index>
-        TextureSpecification GetSpecification()
+        TextureSpecification GetTextureSpecification()
         {
             using Policy = PolicyAt<Index>;
-            return Policy::GetSpecification();
+            return Policy::GetTextureSpecification();
         }
 
         template<size_t Index>
@@ -219,8 +229,6 @@ namespace Rynex {
         }
     private:
         std::tuple<std::vector<typename Policies::Element>...> m_Elements;
-
-
         friend VectorInterface<Source, Policies...>;
     };
 
@@ -229,7 +237,7 @@ namespace Rynex {
     class VectorInterface : public InterfaceBase<VectorSection<Policy...>>
     {
     public:
-
+        using Source = SourceType;
 #endif
         // --- public member methods ---------------------------------------------------------------------------------------
         // Elements never split a draw by themselves, the capacity does (SectionFill::Full).
@@ -266,13 +274,11 @@ namespace Rynex {
         }
 
     protected:
-
         template<typename T>
         std::vector<T>& GetBuffer()
         {
             using U = VectorSection<Policy...>;
             U& section = this->Current();
-
             return section.template GetBuffer<T>();
         }
 
@@ -281,7 +287,6 @@ namespace Rynex {
         {
             using U = VectorSection<Policy...>;
             U& section = this->Current();
-
             return section.template GetBuffer<T>();
         }
 
@@ -290,7 +295,6 @@ namespace Rynex {
         {
             using U = VectorSection<Policy...>;
             U& section = this->Current();
-
             return section.template GetBufferEnd<T>();
         }
 
@@ -299,7 +303,6 @@ namespace Rynex {
         {
             using U = VectorSection<Policy...>;
             U& section = this->Current();
-
             return section.template GetBufferEnd<T>();
         }
     };
