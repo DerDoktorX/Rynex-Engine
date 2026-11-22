@@ -126,10 +126,7 @@ namespace Rynex::Control  {
             {
                 BufferLayout layout{
                     BufferElement{ SDT::Float4x4,   "m_Transform"  },
-                    BufferElement{ SDT::Int,        "m_EntityID"},
-                    BufferElement{ SDT::Int,        "m_MaterielIndex"},
-                    BufferElement{ SDT::Int,        "m_ParameterIndex"},
-                    BufferElement{ SDT::Int,        "m_TextureIndex"}
+                    BufferElement{ SDT::Float4x4,   "m_Normals"}
                 };
                 layout.SetAutoCompress(true);
                 return layout;
