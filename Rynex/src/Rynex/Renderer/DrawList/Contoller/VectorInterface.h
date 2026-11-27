@@ -2,14 +2,11 @@
 #include <rypch.h>
 #include <Rynex/Renderer/DrawList/DrawListTypes.h>
 #include <Rynex/Renderer/DrawList/Contoller/InterfaceBase.h>
+#include <Rynex/Renderer/DrawList/Contoller/Instance/InstanceVertex.h>
 
 
 namespace Rynex {
-    enum class SectionFill : uint8_t
-    {
-        HasRoom = 0u,   // element stored, next Add() fits into the same section
-        Full            // element stored, the NEXT Add() needs a new section
-    };
+
 
 
 
@@ -83,6 +80,7 @@ namespace Rynex {
 #else
 
 
+
     template <typename T, typename... Ts>
     constexpr size_t index_of()
     {
@@ -97,30 +95,32 @@ namespace Rynex {
     }
 
 
-    template<typename SourceType, typename ...Policy>
+    template<typename SourceType, size_t MaxElementCount, typename ...Policy>
     class VectorInterface;
 
     template<typename Source, typename... Policies>
     class VectorSection
     {
     public:
-        template <typename Policy>
-        using Element_T = typename Policy::Element;
+
 
         template <std::size_t I>
         using PolicyAt = std::tuple_element_t<I, std::tuple<Policies...>>;
 
+
+
         // --- public member methods ---------------------------------------------------------------------------------------
-        SectionFill Add(const Source& source)
+        void Add(const Source& source)
         {
-            SectionFill fill = SectionFill::HasRoom;
+            AddElement<0>(source, m_Elements);
+#if 0
             ([&]()
             {
                 using Element = Element_T<Policies>;
                 std::vector<Element>& vector = std::get<index_of<Element>>(m_Elements);
 
                 const size_t countBefore = vector.size();
-                RY_CORE_ASSERT(countBefore < Policies::s_MaxElements, "section is full, open a new section first!");
+
 
                 Element element = Policies::Make(source);
                 vector.emplace_back(element);
@@ -131,18 +131,16 @@ namespace Rynex {
                     fill = SectionFill::Full;
             }(), ...);
             return fill;
+#endif
+
+
         }
 
         // clear() keeps the capacity, so a reused section does not allocate again.
         void Clear()
         {
 #if 1
-             ([&]()
-             {
-                using Element = Element_T<Policies>;
-                std::vector<Element>& vector = std::get<index_of<Element>>(m_Elements);
-                vector.clear();
-             }(), ...);
+
 #else
             for (auto& vec : m_Elements)
             {
@@ -151,22 +149,21 @@ namespace Rynex {
 #endif
         }
 
+
+
         uint32_t Count() const
         {
             uint32_t count = 0u;
-#if 0
-            std::apply(
-               [&count](const auto&... vector)
-               {
-                   const uint32_t size = vector.size();
-                   RY_CORE_ASSERT(size == count || 0u == count, "not syc size!");
-                   count = size;
-               }, m_Elements);
+#if 1
+            std::apply( [&count](auto&&... vector)
+            {
+                ((  count = vector.size() ), ...);
+            }, m_Elements);
 #else
             ([&]()
             {
-                using Element = Element_T<Policies>;
-                std::vector<Element>& vector = std::get<index_of<Element>>(m_Elements);
+                using ElementVector = Element_T<Policies>;
+                const ElementVector& vector = std::get<index_of<ElementVector>>(m_Elements);
                 const uint32_t size = vector.size();
                 RY_CORE_ASSERT(size == count || 0u == count, "not syc size!");
                 count = size;
@@ -228,24 +225,51 @@ namespace Rynex {
             return vec.back();
         }
     private:
+        template<size_t Index = 0, typename... Ts>
+        typename std::enable_if<Index == sizeof...(Ts), void>::type AddElement(const Source& source, std::tuple<std::vector<Ts>...>& tuple)
+        {
+            return;
+        }
+
+        template<size_t Index = 0, typename... Ts>
+        typename std::enable_if<Index < sizeof...(Ts), void>::type AddElement(const Source& source, std::tuple<std::vector<Ts>...>& tuple)
+        {
+            using Policy = PolicyAt<Index>;
+            using Element = typename Policy::Element;
+            std::vector<Element>& vector = std::get<Index>(tuple);
+            Element element = Policy::Make(source);
+            vector.emplace_back(element);
+
+            AddElement<Index + 1>(source, tuple);
+            return;
+        }
+
         std::tuple<std::vector<typename Policies::Element>...> m_Elements;
-        friend VectorInterface<Source, Policies...>;
+
     };
 
 
-    template<typename SourceType, typename ...Policy>
-    class VectorInterface : public InterfaceBase<VectorSection<Policy...>>
+    template<typename SourceType, size_t MaxElementCount, typename ...Policy>
+    class VectorInterface : public InterfaceBase<VectorSection<SourceType, Policy...>>
     {
     public:
+        static constexpr size_t s_MaxElements = MaxElementCount;
         using Source = SourceType;
 #endif
         // --- public member methods ---------------------------------------------------------------------------------------
         // Elements never split a draw by themselves, the capacity does (SectionFill::Full).
 
-        SectionFill AddSection(const SourceType& source)
+        SectionFill AddStorage(const SourceType& source)
         {
-            return this->Current().Add(source);
+            VectorSection<Source,Policy...>& sectionVector = this->Current();
+            RY_CORE_ASSERT(sectionVector.Count() < s_MaxElements, "section is full, open a new section first!");
+            sectionVector.Add(source);
+            if (sectionVector.Count() < s_MaxElements)
+                return SectionFill::HasRoom;
+            return SectionFill::Full;
         }
+
+
 
         void ClearSection()
         {
@@ -273,11 +297,41 @@ namespace Rynex {
             return VectorInterface::GetSpecification<Index>();
         }
 
+        bool IsSectionStorageEmpty() const
+        {
+            return 0u == GetSectionStorageCount();
+        }
+
+        uint32_t GetSectionStorageCount() const
+        {
+            const VectorSection<Source,Policy...>& sectionVector = this->Current();
+            return sectionVector.Count();
+        }
+
+        DrawSplit HasStorage(const Source& source) const
+        {
+            if(GetSectionStorageCount() < s_MaxElements)
+                return DrawSplit::Same;
+            return DrawSplit::NewDraw;
+        }
+
+
+
+        static bool IsSourceEmpty(const Source& source)
+        {
+            return !source;
+        }
+
+        static bool IsSourceEqual(const Source& sourceA, const Source& sourceB)
+        {
+            return sourceA == sourceB;
+        }
+
     protected:
         template<typename T>
         std::vector<T>& GetBuffer()
         {
-            using U = VectorSection<Policy...>;
+            using U = VectorSection<Source, Policy...>;
             U& section = this->Current();
             return section.template GetBuffer<T>();
         }
@@ -285,7 +339,7 @@ namespace Rynex {
         template<typename T>
         const std::vector<T>& GetBuffer() const
         {
-            using U = VectorSection<Policy...>;
+            using U = VectorSection<Source, Policy...>;
             U& section = this->Current();
             return section.template GetBuffer<T>();
         }
@@ -293,7 +347,7 @@ namespace Rynex {
         template<typename T>
         T& GetBufferEnd()
         {
-            using U = VectorSection<Policy...>;
+            using U = VectorSection<Source, Policy...>;
             U& section = this->Current();
             return section.template GetBufferEnd<T>();
         }
@@ -301,7 +355,7 @@ namespace Rynex {
         template<typename T>
         const T& GetBufferEnd() const
         {
-            using U = VectorSection<Policy...>;
+            using U = VectorSection<Source, Policy...>;
             U& section = this->Current();
             return section.template GetBufferEnd<T>();
         }

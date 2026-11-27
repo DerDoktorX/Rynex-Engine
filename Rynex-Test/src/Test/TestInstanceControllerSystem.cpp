@@ -33,7 +33,7 @@ TEST_F(TestInstanceControllerSystem, BasicCompile)
     InterfaceInstanceType geometryInterface;
 
     static_assert(std::is_same_v<InterfaceInstanceType::Source, Rynex::Control::InstanceDefault::Source>, "Source from Interface is not expected Type.");
-    static_assert(std::is_same_v<InterfaceInstanceType::Section, Rynex::VectorSection<Rynex::Control::InstanceDefault::Policy>>, "Section from Interface is not expected Type.");
+    static_assert(std::is_same_v<InterfaceInstanceType::Section, Rynex::VectorSection<InterfaceInstanceType::Source, Rynex::Control::InstanceDefault::Policy>>, "Section from Interface is not expected Type.");
     static_assert(std::is_same_v<InterfaceInstanceType::Indices, int>, "Indices from Interface is not expected Type.");
 
     Rynex::ShaderDrawResource drawResource;
@@ -49,9 +49,9 @@ TEST_F(TestInstanceControllerSystem, BasicCompile)
     static_assert(std::is_same_v<ControlSlotInstanceType::Source, InterfaceInstanceType::Source>, "Source from ControlSlot is not expected Type.");
     static_assert(std::is_same_v<ControlSlotInstanceType::Interface, InterfaceInstanceType>, "Interface from ControlSlot is not expected Type.");
     static_assert(std::is_same_v<ControlSlotInstanceType::Build, BuildInstanceType>, "Build from ControlSlot is not expected Type.");
-}
 
-#if 0
+
+}
 
 TEST_F(TestInstanceControllerSystem, InitializaedControllerShoudBeEmpty)
 {
@@ -61,25 +61,31 @@ TEST_F(TestInstanceControllerSystem, InitializaedControllerShoudBeEmpty)
     EXPECT_EQ(true, controlSlot.IsEmpty());
     EXPECT_EQ(0ull, controlSlot.Count());
 
-    EXPECT_ASSERT(const Section& geometrySection = controlSlot.Current());
+    EXPECT_ASSERT(const Section& instanceSection = controlSlot.Current());
 
     EXPECT_ASSERT(uint32_t count = controlSlot.GetSectionCount(););
 }
 
+
+
 TEST_F(TestInstanceControllerSystem, UploadCacheOnInterfaceWithOutOpenSection)
 {
     ControlSlotInstanceType controlSlot{};
-    const Rynex::Instance& Instance = GetInstance();
-    EXPECT_NO_ASSERT(
-        Rynex::DrawSplit split = controlSlot.SetOnInterface(Instance);
-        EXPECT_EQ(Rynex::DrawSplit::NewDraw, split);
+    glm::mat4 modelMatrix{ 1.0f };
+    int entityID = 30;
+    Rynex::Control::InstanceDefault::Source source{
+        glm::mat4{ 1.0f }, 30, 0, 0, 0
+    };
+    EXPECT_ASSERT(
+        Rynex::SectionFill split = controlSlot.AddOnInterface(source);
+        EXPECT_EQ(Rynex::SectionFill::Full, split);
     );
-    EXPECT_ASSERT(controlSlot.UploadCacheOnInterface());
+
     EXPECT_EQ(controlSlot.IsEmpty(), true);
     EXPECT_EQ(0ull, controlSlot.Count());
     EXPECT_ASSERT(uint32_t count = controlSlot.GetSectionCount());
 }
-
+#if 0
 TEST_F(TestInstanceControllerSystem, UploadCacheOnInterfaceAfterOpenSection)
 {
     ControlSlotInstanceType controlSlot{};

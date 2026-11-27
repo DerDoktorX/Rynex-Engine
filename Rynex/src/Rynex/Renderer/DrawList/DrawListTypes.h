@@ -19,12 +19,18 @@ namespace Rynex {
         InstanceField_All            = InstanceField_MaterialIndex | InstanceField_ParameterIndex | InstanceField_TextureIndex
     };
 
-    enum class DrawSplit
+    enum class DrawSplit : uint8_t
     {
-        None = 0,
+        None = 0u,
         Same,
         NewCommand,     // only next command, but same draw call. Usually Geometry changes (indirect rendering)
         NewDraw         // new draw call command
+    };
+
+    enum class SectionFill : uint8_t
+    {
+        HasRoom = 0u,   // element stored, next Add() fits into the same section
+        Full            // element stored, the NEXT Add() needs a new section
     };
 
     enum ShaderFeatureBits

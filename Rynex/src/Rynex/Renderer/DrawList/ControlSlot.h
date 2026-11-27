@@ -38,7 +38,7 @@ namespace Rynex {
          * @param source date parameter
          * @return element is stored but last element. (expect before next AddOnInterface action to open next section)
          */
-        bool AddOnInterface(const Source& source)
+        SectionFill AddOnInterface(const Source& source)
         {
             return m_Interface.AddStorage(source);
         }

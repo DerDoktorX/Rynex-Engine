@@ -65,7 +65,7 @@ namespace Rynex::Control  {
         };
 
 #endif
-
+        static constexpr size_t s_MaxElementCount = 500;
         struct Source
         {
             glm::mat4 m_Transform;
@@ -75,6 +75,14 @@ namespace Rynex::Control  {
             int m_TextureIndex;
 
             Source() = default;
+            Source(const glm::mat4& transform, const int entityID, const int materielIndex, const int parameterIndex, const int textureIndex)
+                : m_Transform(transform)
+                , m_EntityID(entityID)
+                , m_MaterielIndex(materielIndex)
+                , m_ParameterIndex(parameterIndex)
+                , m_TextureIndex(textureIndex)
+            {}
+
             Source(const Source&) = default;
 
             Source& operator=(const Source&) = default;
@@ -88,12 +96,24 @@ namespace Rynex::Control  {
                 && m_ParameterIndex == source.m_ParameterIndex;
             }
 
+            explicit operator bool() const
+            {
+                return glm::mat4(0.0) != m_Transform
+                || 0 != m_EntityID
+                || 0 != m_TextureIndex
+                || 0 != m_MaterielIndex
+                || 0 != m_ParameterIndex;
+            }
+
+
+
+
+
         };
 
         class Policy
         {
         public:
-            constexpr static size_t s_MaxElements = 100;
             struct Element
             {
                 glm::mat4 m_Transform;
@@ -134,12 +154,13 @@ namespace Rynex::Control  {
         };
 
 
-        class Interface : public VectorInterface<Source, Policy>
+
+        class Interface : public VectorInterface<Source, s_MaxElementCount, Policy>
         {
         public:
             using Indices = int;
             Interface()
-                : VectorInterface<Source, Policy>()
+                : VectorInterface<Source, s_MaxElementCount, Policy>()
             {
             }
 
